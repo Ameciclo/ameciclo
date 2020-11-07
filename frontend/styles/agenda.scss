@@ -1,0 +1,14 @@
+.fc .fc-button-primary {
+  @apply bg-ameciclo text-white rounded border-white;
+  &:hover {
+    @apply bg-ameciclo shadow-md border-0;
+  }
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  @apply bg-red-600 text-white rounded border-white;
+}
+.fc .fc-button-primary:disabled {
+  @apply bg-gray-400 text-white rounded border-white;
+}

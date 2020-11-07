@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "coordinators",
+  "info": {
+    "name": "Coordinator"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "media": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "bio": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "faq_tags",
+  "info": {
+    "name": "FAQ Tag"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "icon": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "faqs": {
+      "collection": "faq",
+      "via": "faq_tags"
+    },
+    "slug": {
+      "type": "string"
+    }
+  }
+}

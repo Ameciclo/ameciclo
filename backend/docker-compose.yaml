@@ -1,0 +1,50 @@
+version: '3'
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
+
+
+services:
+  strapi:
+    image: strapi/strapi
+    container_name: "strapi"
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_NAME: strapi
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: strapi
+      NODE_ENV: "${ENV}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.strapi.rule=Host(`cms.ameciclo.org`)"
+      - "traefik.http.routers.strapi.tls.certresolver=le"
+      - "traefik.http.middlewares.redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirectscheme.redirectscheme.permanent=true"
+      - "traefik.docker.network=web"
+    networks:
+      - internal
+      - web
+    volumes:
+      - ./ameciclo:/srv/app
+    ports:
+      - '1337:1337'
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+    networks:
+      - internal
+    labels:
+      - traefik.enable=false
+    volumes:
+      - ./data:/var/lib/postgresql/

@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "faqs",
+  "info": {
+    "name": "FAQ"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "faq_tags": {
+      "via": "faqs",
+      "collection": "faq-tag",
+      "dominant": true
+    },
+    "answer": {
+      "type": "richtext"
+    }
+  }
+}

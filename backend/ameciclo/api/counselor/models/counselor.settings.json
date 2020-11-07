@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "counselors",
+  "info": {
+    "name": "counselor"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "firstName": {
+      "type": "string",
+      "required": true
+    },
+    "lastName": {
+      "type": "string",
+      "required": true
+    },
+    "media": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": true
+    },
+    "bio": {
+      "type": "text"
+    }
+  }
+}
