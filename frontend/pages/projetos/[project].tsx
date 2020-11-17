@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
 import Layout from "../../components/Layout";
 import SEO from "../../components/SEO";
 import Breadcrumb from "../../components/Breadcrumb";
@@ -13,7 +12,6 @@ const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
 });
 
 const ProjectDate = ({ project }) => {
-  const router = useRouter();
   return (
     <div className="flex flex-row justify-center">
       <svg className="w-4 h-4 fill-current mr-2" viewBox="0 0 512 512">
@@ -24,10 +22,14 @@ const ProjectDate = ({ project }) => {
       <span className="text-sm leading-normal mt-0 mb-2 text-gray-600">
         {new Date(project.startDate).toLocaleDateString()}
       </span>
-      <span className="text-gray-400 font-bold mx-4">{">"}</span>
-      <span className="text-sm leading-normal mt-0 mb-2 text-gray-600">
-        {new Date(project.endDate).toLocaleDateString()}
-      </span>
+      {project.endDate && (
+        <>
+          <span className="text-gray-400 font-bold mx-4">{">"}</span>
+          <span className="text-sm leading-normal mt-0 mb-2 text-gray-600">
+            {new Date(project.endDate).toLocaleDateString()}
+          </span>
+        </>
+      )}
     </div>
   );
 };
@@ -95,7 +97,9 @@ const Projeto = ({ project }) => {
               <h3 className="text-4xl font-semibold leading-normal mb-2 text-gray-800 mb-2">
                 {project.name}
               </h3>
-              <ProjectDate project={project} />
+              {(project.startDate || project.endDate) && (
+                <ProjectDate project={project} />
+              )}
             </div>
           </div>
           <div className="mt-6 w-full flex justify-center lg:pt-4 pt-4 lg:flex-row flex-col items-center">

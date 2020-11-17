@@ -10,7 +10,7 @@ const linksArray = [
   { name: "Quem Somos", url: "/quem_somos" },
   { name: "Agenda", url: "/agenda" },
   { name: "Projetos", url: "/projetos" },
-  { name: "Biciclopedia", url: "/biciclopedia" },
+  // { name: "Biciclopedia", url: "/biciclopedia" },
   { name: "Contato", url: "/contato" },
 ];
 
