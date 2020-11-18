@@ -47,4 +47,6 @@ services:
     labels:
       - traefik.enable=false
     volumes:
-      - ./data:/var/lib/postgresql/
+      - strapidata:/var/lib/postgresql/
+  volumes:
+  strapidata:
