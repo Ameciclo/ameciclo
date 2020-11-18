@@ -150,9 +150,17 @@ const QuemSomos = ({ coordinators, counselors }) => {
 
 export async function getStaticProps() {
   const c_res = await fetch("https://cms.ameciclo.org/coordinators");
-  const coordinators = await c_res.json();
   const co_res = await fetch("https://cms.ameciclo.org/counselors");
-  const counselors = await co_res.json();
+
+  let coordinators = [],
+    counselors = [];
+  if (c_res.status === 200) {
+    coordinators = await c_res.json();
+  }
+  if (co_res.status === 200) {
+    counselors = await co_res.json();
+  }
+
   return {
     props: {
       coordinators,

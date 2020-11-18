@@ -211,7 +211,16 @@ export default function Home({ featuredProjects, numberOfProjects }) {
 
 export async function getStaticProps() {
   const res = await fetch("https://cms.ameciclo.org/projects");
+  if (res.status !== 200) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/404",
+      },
+    };
+  }
   const projects = await res.json();
+
   const featuredProjects = projects.filter((p) => {
     return p.isHighlighted === true;
   });
