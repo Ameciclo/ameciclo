@@ -73,7 +73,10 @@ const Projetos = ({ projects }) => {
 
 export async function getStaticProps() {
   const res = await fetch("https://cms.ameciclo.org/projects");
-  const projects = await res.json();
+  let projects = [];
+  if (res.status === 200) {
+    projects = await res.json();
+  }
   return {
     props: {
       projects,

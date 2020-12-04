@@ -56,7 +56,7 @@ const QuemSomos = ({ coordinators, counselors }) => {
                 Conheça nosso estatuto
               </a>
               <a
-                href="http://historia.ameciclo.org"
+                href="/linha%20do%20tempo%20ameciclo.pdf"
                 className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 lg:mt-0 mt-2"
                 type="button"
                 style={{ transition: "all .15s ease" }}
