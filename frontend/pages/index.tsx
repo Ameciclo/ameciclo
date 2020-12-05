@@ -200,7 +200,7 @@ export default function Home({ featuredProjects, numberOfProjects }) {
         <div className="container mx-auto px-6 py-20">
           <div className="flex flex-wrap justify-around">
             <Counter label={"Projetos Realizados"} number={numberOfProjects} />
-            <Counter label={"Associados"} number={1106} />
+            <Counter label={"Pessoas Associadas"} number={1106} />
             {/*<Counter label={"Horas de Envolvimento"} number={1000} />*/}
           </div>
         </div>
