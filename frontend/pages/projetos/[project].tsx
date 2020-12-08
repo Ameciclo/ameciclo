@@ -77,7 +77,7 @@ const Projeto = ({ project }) => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                backgroundImage: `url('/projetos.png')`,
+                backgroundImage: `url('/projetos.webp')`,
               }
         }
       />

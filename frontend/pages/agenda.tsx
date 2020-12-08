@@ -21,7 +21,7 @@ const Agenda = (props) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: `url('/agenda.png')`,
+          backgroundImage: `url('/agenda.webp')`,
         }}
       />
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">

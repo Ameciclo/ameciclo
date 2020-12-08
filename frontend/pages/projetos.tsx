@@ -31,7 +31,7 @@ const Projetos = ({ projects }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: `url('/projetos.png')`,
+          backgroundImage: `url('/projetos.webp')`,
         }}
       />
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">

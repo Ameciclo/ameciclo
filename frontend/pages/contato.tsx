@@ -27,7 +27,7 @@ const Contato = (props) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: `url('/contato.png')`,
+          backgroundImage: `url('/contato.webp')`,
         }}
       />
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">

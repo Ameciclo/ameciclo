@@ -15,7 +15,7 @@ const QuemSomos = ({ coordinators, counselors }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: `url('/quem_somos.png')`,
+          backgroundImage: `url('/quem_somos.webp')`,
         }}
       />
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">

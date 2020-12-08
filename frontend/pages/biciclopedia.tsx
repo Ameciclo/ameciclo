@@ -19,7 +19,7 @@ const Biciclopedia = ({ faqs, categories }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: `url('/biciclopedia.png')`,
+          backgroundImage: `url('/biciclopedia.webp')`,
         }}
       >
         <div className="container mx-auto my-8" style={{ maxWidth: "768px" }}>
