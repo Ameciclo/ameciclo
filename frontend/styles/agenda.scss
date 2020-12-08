@@ -12,3 +12,11 @@
 .fc .fc-button-primary:disabled {
   @apply bg-gray-400 text-white rounded border-white;
 }
+
+@media (max-width: 880px) {
+  .fc-header-toolbar.fc-toolbar.fc-toolbar-ltr {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
