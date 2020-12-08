@@ -67,6 +67,14 @@ export const Footer = () => {
                     Wiki
                   </a>
                 </li>
+                <li className="mt-2">
+                  <a
+                    href="https://dados.ameciclo.org"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Plataforma de Dados
+                  </a>
+                </li>
               </ul>
             </div>
             <div className="w-full md:w-1/3 text-center">
