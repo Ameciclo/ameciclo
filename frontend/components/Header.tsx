@@ -10,6 +10,7 @@ const linksArray = [
   { name: "Quem Somos", url: "/quem_somos" },
   { name: "Agenda", url: "/agenda" },
   { name: "Projetos", url: "/projetos" },
+  { name: "Plataforma de Dados", url: "http://dados.ameciclo.org/" },
   // { name: "Biciclopedia", url: "/biciclopedia" },
   { name: "Contato", url: "/contato" },
 ];
