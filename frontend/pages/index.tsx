@@ -82,7 +82,7 @@ export default function Home({ featuredProjects, numberOfProjects }) {
                   </svg>
                 </motion.div>
                 <span className="uppercase text-xl text-white font-extrabold tracking-wider">
-                  Doe
+                  Apoie
                 </span>
               </a>
             </div>
