@@ -36,3 +36,6 @@ yarn-error.log*
 .idea
 
 /.idea
+
+out_functions/
+out_publish/
