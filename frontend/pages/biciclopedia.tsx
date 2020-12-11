@@ -6,6 +6,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { SearchComponent } from "../components/SearchComponent";
+import FAQIcon from "../components/Icons/faq";
 
 const Biciclopedia = ({ faqs, categories }) => {
   return (
@@ -45,16 +46,20 @@ const Biciclopedia = ({ faqs, categories }) => {
           >
             {categories.map((category) => {
               return (
-                <Link href={`/biciclopedia/${category.slug}`}>
-                  <motion.div whileHover={{ scale: 1.1 }} key={category.id}>
-                    {category.icon && (
-                      <Image
-                        height={96}
-                        width={96}
-                        src={`https://cms.ameciclo.org${category.icon.url}`}
-                      />
-                    )}
+                <Link href={`/biciclopedia/${category.slug}`} key={category.id}>
+                  <motion.div whileHover={{ scale: 1.1 }}>
                     <div className="w-56 h-56 bg-white rounded shadow-xl p-4 flex flex-col text-center items-center">
+                      {category.icon ? (
+                        <Image
+                          height={96}
+                          width={96}
+                          src={`https://cms.ameciclo.org${category.icon.url}`}
+                        />
+                      ) : (
+                        <div className="mt-4">
+                          <FAQIcon />
+                        </div>
+                      )}
                       <h3 className="mt-8 text-gray-800 font-bold text-1xl">
                         {category.title}
                       </h3>
