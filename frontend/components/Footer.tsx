@@ -12,7 +12,7 @@ export const Footer = () => {
               <ul className="mb-4">
                 <li className="mt-2">
                   <p className="hover:underline text-gray-600 hover:text-red-600">
-                    Ameciclo - Associação de Metropolitana de Ciclistas do
+                    Ameciclo - Associação Metropolitana de Ciclistas do
                     Recife
                   </p>
                 </li>
