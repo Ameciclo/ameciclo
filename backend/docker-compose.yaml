@@ -1,6 +1,8 @@
 version: '3'
 
 networks:
+  web:
+    external: true
   internal:
     external: false
 
@@ -26,6 +28,7 @@ services:
       - "traefik.docker.network=web"
     networks:
       - internal
+      - web
     volumes:
       - ./:/srv/app
     ports:
