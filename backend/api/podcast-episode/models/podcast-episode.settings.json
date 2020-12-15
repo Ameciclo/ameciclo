@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "podcast_episodes",
+  "info": {
+    "name": "Podcast Episode"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "youtube_link": {
+      "type": "string"
+    }
+  }
+}

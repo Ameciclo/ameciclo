@@ -1,0 +1,1460 @@
+input FileInfoInput {
+  name: String
+  alternativeText: String
+  caption: String
+}
+
+type UsersPermissionsMe {
+  id: ID!
+  username: String!
+  email: String!
+  confirmed: Boolean
+  blocked: Boolean
+  role: UsersPermissionsMeRole
+}
+
+type UsersPermissionsMeRole {
+  id: ID!
+  name: String!
+  description: String
+  type: String
+}
+
+input UsersPermissionsRegisterInput {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input UsersPermissionsLoginInput {
+  identifier: String!
+  password: String!
+  provider: String = "local"
+}
+
+type UsersPermissionsLoginPayload {
+  jwt: String
+  user: UsersPermissionsMe!
+}
+
+type UserPermissionsPasswordPayload {
+  ok: Boolean!
+}
+
+type Coordinator {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  firstName: String
+  lastName: String
+  media: UploadFile
+  bio: String
+}
+
+type CoordinatorConnection {
+  values: [Coordinator]
+  groupBy: CoordinatorGroupBy
+  aggregate: CoordinatorAggregator
+}
+
+type CoordinatorAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type CoordinatorGroupBy {
+  id: [CoordinatorConnectionId]
+  created_at: [CoordinatorConnectionCreated_at]
+  updated_at: [CoordinatorConnectionUpdated_at]
+  firstName: [CoordinatorConnectionFirstName]
+  lastName: [CoordinatorConnectionLastName]
+  media: [CoordinatorConnectionMedia]
+  bio: [CoordinatorConnectionBio]
+}
+
+type CoordinatorConnectionId {
+  key: ID
+  connection: CoordinatorConnection
+}
+
+type CoordinatorConnectionCreated_at {
+  key: DateTime
+  connection: CoordinatorConnection
+}
+
+type CoordinatorConnectionUpdated_at {
+  key: DateTime
+  connection: CoordinatorConnection
+}
+
+type CoordinatorConnectionFirstName {
+  key: String
+  connection: CoordinatorConnection
+}
+
+type CoordinatorConnectionLastName {
+  key: String
+  connection: CoordinatorConnection
+}
+
+type CoordinatorConnectionMedia {
+  key: ID
+  connection: CoordinatorConnection
+}
+
+type CoordinatorConnectionBio {
+  key: String
+  connection: CoordinatorConnection
+}
+
+input CoordinatorInput {
+  firstName: String
+  lastName: String
+  media: ID
+  bio: String
+  created_by: ID
+  updated_by: ID
+}
+
+input editCoordinatorInput {
+  firstName: String
+  lastName: String
+  media: ID
+  bio: String
+  created_by: ID
+  updated_by: ID
+}
+
+input createCoordinatorInput {
+  data: CoordinatorInput
+}
+
+type createCoordinatorPayload {
+  coordinator: Coordinator
+}
+
+input updateCoordinatorInput {
+  where: InputID
+  data: editCoordinatorInput
+}
+
+type updateCoordinatorPayload {
+  coordinator: Coordinator
+}
+
+input deleteCoordinatorInput {
+  where: InputID
+}
+
+type deleteCoordinatorPayload {
+  coordinator: Coordinator
+}
+
+type Counselor {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  firstName: String!
+  lastName: String!
+  media: UploadFile
+  bio: String
+}
+
+type CounselorConnection {
+  values: [Counselor]
+  groupBy: CounselorGroupBy
+  aggregate: CounselorAggregator
+}
+
+type CounselorAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type CounselorGroupBy {
+  id: [CounselorConnectionId]
+  created_at: [CounselorConnectionCreated_at]
+  updated_at: [CounselorConnectionUpdated_at]
+  firstName: [CounselorConnectionFirstName]
+  lastName: [CounselorConnectionLastName]
+  media: [CounselorConnectionMedia]
+  bio: [CounselorConnectionBio]
+}
+
+type CounselorConnectionId {
+  key: ID
+  connection: CounselorConnection
+}
+
+type CounselorConnectionCreated_at {
+  key: DateTime
+  connection: CounselorConnection
+}
+
+type CounselorConnectionUpdated_at {
+  key: DateTime
+  connection: CounselorConnection
+}
+
+type CounselorConnectionFirstName {
+  key: String
+  connection: CounselorConnection
+}
+
+type CounselorConnectionLastName {
+  key: String
+  connection: CounselorConnection
+}
+
+type CounselorConnectionMedia {
+  key: ID
+  connection: CounselorConnection
+}
+
+type CounselorConnectionBio {
+  key: String
+  connection: CounselorConnection
+}
+
+input CounselorInput {
+  firstName: String!
+  lastName: String!
+  media: ID
+  bio: String
+  created_by: ID
+  updated_by: ID
+}
+
+input editCounselorInput {
+  firstName: String
+  lastName: String
+  media: ID
+  bio: String
+  created_by: ID
+  updated_by: ID
+}
+
+input createCounselorInput {
+  data: CounselorInput
+}
+
+type createCounselorPayload {
+  counselor: Counselor
+}
+
+input updateCounselorInput {
+  where: InputID
+  data: editCounselorInput
+}
+
+type updateCounselorPayload {
+  counselor: Counselor
+}
+
+input deleteCounselorInput {
+  where: InputID
+}
+
+type deleteCounselorPayload {
+  counselor: Counselor
+}
+
+type FaqTag {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  title: String
+  icon: UploadFile
+  slug: String
+  faqs(sort: String, limit: Int, start: Int, where: JSON): [Faq]
+}
+
+type FaqTagConnection {
+  values: [FaqTag]
+  groupBy: FaqTagGroupBy
+  aggregate: FaqTagAggregator
+}
+
+type FaqTagAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type FaqTagGroupBy {
+  id: [FaqTagConnectionId]
+  created_at: [FaqTagConnectionCreated_at]
+  updated_at: [FaqTagConnectionUpdated_at]
+  title: [FaqTagConnectionTitle]
+  icon: [FaqTagConnectionIcon]
+  slug: [FaqTagConnectionSlug]
+}
+
+type FaqTagConnectionId {
+  key: ID
+  connection: FaqTagConnection
+}
+
+type FaqTagConnectionCreated_at {
+  key: DateTime
+  connection: FaqTagConnection
+}
+
+type FaqTagConnectionUpdated_at {
+  key: DateTime
+  connection: FaqTagConnection
+}
+
+type FaqTagConnectionTitle {
+  key: String
+  connection: FaqTagConnection
+}
+
+type FaqTagConnectionIcon {
+  key: ID
+  connection: FaqTagConnection
+}
+
+type FaqTagConnectionSlug {
+  key: String
+  connection: FaqTagConnection
+}
+
+input FaqTagInput {
+  title: String
+  icon: ID
+  faqs: [ID]
+  slug: String
+  created_by: ID
+  updated_by: ID
+}
+
+input editFaqTagInput {
+  title: String
+  icon: ID
+  faqs: [ID]
+  slug: String
+  created_by: ID
+  updated_by: ID
+}
+
+input createFaqTagInput {
+  data: FaqTagInput
+}
+
+type createFaqTagPayload {
+  faqTag: FaqTag
+}
+
+input updateFaqTagInput {
+  where: InputID
+  data: editFaqTagInput
+}
+
+type updateFaqTagPayload {
+  faqTag: FaqTag
+}
+
+input deleteFaqTagInput {
+  where: InputID
+}
+
+type deleteFaqTagPayload {
+  faqTag: FaqTag
+}
+
+type Faq {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  title: String
+  description: String
+  answer: String
+  faq_tags(sort: String, limit: Int, start: Int, where: JSON): [FaqTag]
+}
+
+type FaqConnection {
+  values: [Faq]
+  groupBy: FaqGroupBy
+  aggregate: FaqAggregator
+}
+
+type FaqAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type FaqGroupBy {
+  id: [FaqConnectionId]
+  created_at: [FaqConnectionCreated_at]
+  updated_at: [FaqConnectionUpdated_at]
+  title: [FaqConnectionTitle]
+  description: [FaqConnectionDescription]
+  answer: [FaqConnectionAnswer]
+}
+
+type FaqConnectionId {
+  key: ID
+  connection: FaqConnection
+}
+
+type FaqConnectionCreated_at {
+  key: DateTime
+  connection: FaqConnection
+}
+
+type FaqConnectionUpdated_at {
+  key: DateTime
+  connection: FaqConnection
+}
+
+type FaqConnectionTitle {
+  key: String
+  connection: FaqConnection
+}
+
+type FaqConnectionDescription {
+  key: String
+  connection: FaqConnection
+}
+
+type FaqConnectionAnswer {
+  key: String
+  connection: FaqConnection
+}
+
+input FaqInput {
+  title: String
+  description: String
+  faq_tags: [ID]
+  answer: String
+  created_by: ID
+  updated_by: ID
+}
+
+input editFaqInput {
+  title: String
+  description: String
+  faq_tags: [ID]
+  answer: String
+  created_by: ID
+  updated_by: ID
+}
+
+input createFaqInput {
+  data: FaqInput
+}
+
+type createFaqPayload {
+  faq: Faq
+}
+
+input updateFaqInput {
+  where: InputID
+  data: editFaqInput
+}
+
+type updateFaqPayload {
+  faq: Faq
+}
+
+input deleteFaqInput {
+  where: InputID
+}
+
+type deleteFaqPayload {
+  faq: Faq
+}
+
+type Home {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  quantidade_de_associados: Int
+  banner: UploadFile
+  published_at: DateTime
+}
+
+input HomeInput {
+  quantidade_de_associados: Int
+  banner: ID
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editHomeInput {
+  quantidade_de_associados: Int
+  banner: ID
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input updateHomeInput {
+  data: editHomeInput
+}
+
+type updateHomePayload {
+  home: Home
+}
+
+type deleteHomePayload {
+  home: Home
+}
+
+type PodcastEpisode {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  title: String
+  description: String
+  youtube_link: String
+  published_at: DateTime
+}
+
+type PodcastEpisodeConnection {
+  values: [PodcastEpisode]
+  groupBy: PodcastEpisodeGroupBy
+  aggregate: PodcastEpisodeAggregator
+}
+
+type PodcastEpisodeAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type PodcastEpisodeGroupBy {
+  id: [PodcastEpisodeConnectionId]
+  created_at: [PodcastEpisodeConnectionCreated_at]
+  updated_at: [PodcastEpisodeConnectionUpdated_at]
+  title: [PodcastEpisodeConnectionTitle]
+  description: [PodcastEpisodeConnectionDescription]
+  youtube_link: [PodcastEpisodeConnectionYoutube_link]
+  published_at: [PodcastEpisodeConnectionPublished_at]
+}
+
+type PodcastEpisodeConnectionId {
+  key: ID
+  connection: PodcastEpisodeConnection
+}
+
+type PodcastEpisodeConnectionCreated_at {
+  key: DateTime
+  connection: PodcastEpisodeConnection
+}
+
+type PodcastEpisodeConnectionUpdated_at {
+  key: DateTime
+  connection: PodcastEpisodeConnection
+}
+
+type PodcastEpisodeConnectionTitle {
+  key: String
+  connection: PodcastEpisodeConnection
+}
+
+type PodcastEpisodeConnectionDescription {
+  key: String
+  connection: PodcastEpisodeConnection
+}
+
+type PodcastEpisodeConnectionYoutube_link {
+  key: String
+  connection: PodcastEpisodeConnection
+}
+
+type PodcastEpisodeConnectionPublished_at {
+  key: DateTime
+  connection: PodcastEpisodeConnection
+}
+
+input PodcastEpisodeInput {
+  title: String
+  description: String
+  youtube_link: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editPodcastEpisodeInput {
+  title: String
+  description: String
+  youtube_link: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createPodcastEpisodeInput {
+  data: PodcastEpisodeInput
+}
+
+type createPodcastEpisodePayload {
+  podcastEpisode: PodcastEpisode
+}
+
+input updatePodcastEpisodeInput {
+  where: InputID
+  data: editPodcastEpisodeInput
+}
+
+type updatePodcastEpisodePayload {
+  podcastEpisode: PodcastEpisode
+}
+
+input deletePodcastEpisodeInput {
+  where: InputID
+}
+
+type deletePodcastEpisodePayload {
+  podcastEpisode: PodcastEpisode
+}
+
+enum ENUM_PROJECT_STATUS {
+  ongoing
+  finished
+  paused
+}
+
+enum ENUM_PROJECT_BIKECULTURE {
+  high
+  low
+  medium
+}
+
+enum ENUM_PROJECT_INSTARTICULATION {
+  high
+  low
+  medium
+}
+
+enum ENUM_PROJECT_POLITICINCIDENCE {
+  high
+  low
+  medium
+}
+
+type Project {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  name: String
+  media: UploadFile
+  goal: String
+  endDate: Date
+  description: String
+  startDate: Date
+  status: ENUM_PROJECT_STATUS
+  bikeCulture: ENUM_PROJECT_BIKECULTURE
+  instArticulation: ENUM_PROJECT_INSTARTICULATION
+  politicIncidence: ENUM_PROJECT_POLITICINCIDENCE
+  slug: String
+  isHighlighted: Boolean
+  Links: [ComponentButtonLinks]
+  gallery(sort: String, limit: Int, start: Int, where: JSON): [UploadFile]
+}
+
+type ProjectConnection {
+  values: [Project]
+  groupBy: ProjectGroupBy
+  aggregate: ProjectAggregator
+}
+
+type ProjectAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type ProjectGroupBy {
+  id: [ProjectConnectionId]
+  created_at: [ProjectConnectionCreated_at]
+  updated_at: [ProjectConnectionUpdated_at]
+  name: [ProjectConnectionName]
+  media: [ProjectConnectionMedia]
+  goal: [ProjectConnectionGoal]
+  endDate: [ProjectConnectionEndDate]
+  description: [ProjectConnectionDescription]
+  startDate: [ProjectConnectionStartDate]
+  status: [ProjectConnectionStatus]
+  bikeCulture: [ProjectConnectionBikeCulture]
+  instArticulation: [ProjectConnectionInstArticulation]
+  politicIncidence: [ProjectConnectionPoliticIncidence]
+  slug: [ProjectConnectionSlug]
+  isHighlighted: [ProjectConnectionIsHighlighted]
+}
+
+type ProjectConnectionId {
+  key: ID
+  connection: ProjectConnection
+}
+
+type ProjectConnectionCreated_at {
+  key: DateTime
+  connection: ProjectConnection
+}
+
+type ProjectConnectionUpdated_at {
+  key: DateTime
+  connection: ProjectConnection
+}
+
+type ProjectConnectionName {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionMedia {
+  key: ID
+  connection: ProjectConnection
+}
+
+type ProjectConnectionGoal {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionEndDate {
+  key: ID
+  connection: ProjectConnection
+}
+
+type ProjectConnectionDescription {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionStartDate {
+  key: ID
+  connection: ProjectConnection
+}
+
+type ProjectConnectionStatus {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionBikeCulture {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionInstArticulation {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionPoliticIncidence {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionSlug {
+  key: String
+  connection: ProjectConnection
+}
+
+type ProjectConnectionIsHighlighted {
+  key: Boolean
+  connection: ProjectConnection
+}
+
+input ProjectInput {
+  name: String
+  media: ID
+  goal: String
+  endDate: Date
+  description: String
+  startDate: Date
+  status: ENUM_PROJECT_STATUS
+  bikeCulture: ENUM_PROJECT_BIKECULTURE
+  instArticulation: ENUM_PROJECT_INSTARTICULATION
+  politicIncidence: ENUM_PROJECT_POLITICINCIDENCE
+  slug: String
+  isHighlighted: Boolean
+  gallery: [ID]
+  Links: [ComponentButtonLinkInput]
+  created_by: ID
+  updated_by: ID
+}
+
+input editProjectInput {
+  name: String
+  media: ID
+  goal: String
+  endDate: Date
+  description: String
+  startDate: Date
+  status: ENUM_PROJECT_STATUS
+  bikeCulture: ENUM_PROJECT_BIKECULTURE
+  instArticulation: ENUM_PROJECT_INSTARTICULATION
+  politicIncidence: ENUM_PROJECT_POLITICINCIDENCE
+  slug: String
+  isHighlighted: Boolean
+  gallery: [ID]
+  Links: [editComponentButtonLinkInput]
+  created_by: ID
+  updated_by: ID
+}
+
+input createProjectInput {
+  data: ProjectInput
+}
+
+type createProjectPayload {
+  project: Project
+}
+
+input updateProjectInput {
+  where: InputID
+  data: editProjectInput
+}
+
+type updateProjectPayload {
+  project: Project
+}
+
+input deleteProjectInput {
+  where: InputID
+}
+
+type deleteProjectPayload {
+  project: Project
+}
+
+type SoltaOFrei {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  title: String
+  description: String
+  link: String
+  published_at: DateTime
+}
+
+input SoltaOFreiInput {
+  title: String
+  description: String
+  link: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editSoltaOFreiInput {
+  title: String
+  description: String
+  link: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input updateSoltaOFreiInput {
+  data: editSoltaOFreiInput
+}
+
+type updateSoltaOFreiPayload {
+  soltaOFrei: SoltaOFrei
+}
+
+type deleteSoltaOFreiPayload {
+  soltaOFrei: SoltaOFrei
+}
+
+type UploadFile {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  name: String!
+  alternativeText: String
+  caption: String
+  width: Int
+  height: Int
+  formats: JSON
+  hash: String!
+  ext: String
+  mime: String!
+  size: Float!
+  url: String!
+  previewUrl: String
+  provider: String!
+  provider_metadata: JSON
+  related(sort: String, limit: Int, start: Int, where: JSON): [Morph]
+}
+
+type UploadFileConnection {
+  values: [UploadFile]
+  groupBy: UploadFileGroupBy
+  aggregate: UploadFileAggregator
+}
+
+type UploadFileAggregator {
+  count: Int
+  totalCount: Int
+  sum: UploadFileAggregatorSum
+  avg: UploadFileAggregatorAvg
+  min: UploadFileAggregatorMin
+  max: UploadFileAggregatorMax
+}
+
+type UploadFileAggregatorSum {
+  width: Float
+  height: Float
+  size: Float
+}
+
+type UploadFileAggregatorAvg {
+  width: Float
+  height: Float
+  size: Float
+}
+
+type UploadFileAggregatorMin {
+  width: Float
+  height: Float
+  size: Float
+}
+
+type UploadFileAggregatorMax {
+  width: Float
+  height: Float
+  size: Float
+}
+
+type UploadFileGroupBy {
+  id: [UploadFileConnectionId]
+  created_at: [UploadFileConnectionCreated_at]
+  updated_at: [UploadFileConnectionUpdated_at]
+  name: [UploadFileConnectionName]
+  alternativeText: [UploadFileConnectionAlternativeText]
+  caption: [UploadFileConnectionCaption]
+  width: [UploadFileConnectionWidth]
+  height: [UploadFileConnectionHeight]
+  formats: [UploadFileConnectionFormats]
+  hash: [UploadFileConnectionHash]
+  ext: [UploadFileConnectionExt]
+  mime: [UploadFileConnectionMime]
+  size: [UploadFileConnectionSize]
+  url: [UploadFileConnectionUrl]
+  previewUrl: [UploadFileConnectionPreviewUrl]
+  provider: [UploadFileConnectionProvider]
+  provider_metadata: [UploadFileConnectionProvider_metadata]
+}
+
+type UploadFileConnectionId {
+  key: ID
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionCreated_at {
+  key: DateTime
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionUpdated_at {
+  key: DateTime
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionName {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionAlternativeText {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionCaption {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionWidth {
+  key: Int
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionHeight {
+  key: Int
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionFormats {
+  key: JSON
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionHash {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionExt {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionMime {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionSize {
+  key: Float
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionUrl {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionPreviewUrl {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionProvider {
+  key: String
+  connection: UploadFileConnection
+}
+
+type UploadFileConnectionProvider_metadata {
+  key: JSON
+  connection: UploadFileConnection
+}
+
+input FileInput {
+  name: String!
+  alternativeText: String
+  caption: String
+  width: Int
+  height: Int
+  formats: JSON
+  hash: String!
+  ext: String
+  mime: String!
+  size: Float!
+  url: String!
+  previewUrl: String
+  provider: String!
+  provider_metadata: JSON
+  related: [ID]
+  created_by: ID
+  updated_by: ID
+}
+
+input editFileInput {
+  name: String
+  alternativeText: String
+  caption: String
+  width: Int
+  height: Int
+  formats: JSON
+  hash: String
+  ext: String
+  mime: String
+  size: Float
+  url: String
+  previewUrl: String
+  provider: String
+  provider_metadata: JSON
+  related: [ID]
+  created_by: ID
+  updated_by: ID
+}
+
+input deleteFileInput {
+  where: InputID
+}
+
+type deleteFilePayload {
+  file: UploadFile
+}
+
+type UsersPermissionsPermission {
+  id: ID!
+  type: String!
+  controller: String!
+  action: String!
+  enabled: Boolean!
+  policy: String
+  role: UsersPermissionsRole
+}
+
+type UsersPermissionsRole {
+  id: ID!
+  name: String!
+  description: String
+  type: String
+  permissions(sort: String, limit: Int, start: Int, where: JSON): [UsersPermissionsPermission]
+  users(sort: String, limit: Int, start: Int, where: JSON): [UsersPermissionsUser]
+}
+
+type UsersPermissionsRoleConnection {
+  values: [UsersPermissionsRole]
+  groupBy: UsersPermissionsRoleGroupBy
+  aggregate: UsersPermissionsRoleAggregator
+}
+
+type UsersPermissionsRoleAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type UsersPermissionsRoleGroupBy {
+  id: [UsersPermissionsRoleConnectionId]
+  name: [UsersPermissionsRoleConnectionName]
+  description: [UsersPermissionsRoleConnectionDescription]
+  type: [UsersPermissionsRoleConnectionType]
+}
+
+type UsersPermissionsRoleConnectionId {
+  key: ID
+  connection: UsersPermissionsRoleConnection
+}
+
+type UsersPermissionsRoleConnectionName {
+  key: String
+  connection: UsersPermissionsRoleConnection
+}
+
+type UsersPermissionsRoleConnectionDescription {
+  key: String
+  connection: UsersPermissionsRoleConnection
+}
+
+type UsersPermissionsRoleConnectionType {
+  key: String
+  connection: UsersPermissionsRoleConnection
+}
+
+input RoleInput {
+  name: String!
+  description: String
+  type: String
+  permissions: [ID]
+  users: [ID]
+  created_by: ID
+  updated_by: ID
+}
+
+input editRoleInput {
+  name: String
+  description: String
+  type: String
+  permissions: [ID]
+  users: [ID]
+  created_by: ID
+  updated_by: ID
+}
+
+input createRoleInput {
+  data: RoleInput
+}
+
+type createRolePayload {
+  role: UsersPermissionsRole
+}
+
+input updateRoleInput {
+  where: InputID
+  data: editRoleInput
+}
+
+type updateRolePayload {
+  role: UsersPermissionsRole
+}
+
+input deleteRoleInput {
+  where: InputID
+}
+
+type deleteRolePayload {
+  role: UsersPermissionsRole
+}
+
+type UsersPermissionsUser {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  username: String!
+  email: String!
+  provider: String
+  confirmed: Boolean
+  blocked: Boolean
+  role: UsersPermissionsRole
+}
+
+type UsersPermissionsUserConnection {
+  values: [UsersPermissionsUser]
+  groupBy: UsersPermissionsUserGroupBy
+  aggregate: UsersPermissionsUserAggregator
+}
+
+type UsersPermissionsUserAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type UsersPermissionsUserGroupBy {
+  id: [UsersPermissionsUserConnectionId]
+  created_at: [UsersPermissionsUserConnectionCreated_at]
+  updated_at: [UsersPermissionsUserConnectionUpdated_at]
+  username: [UsersPermissionsUserConnectionUsername]
+  email: [UsersPermissionsUserConnectionEmail]
+  provider: [UsersPermissionsUserConnectionProvider]
+  confirmed: [UsersPermissionsUserConnectionConfirmed]
+  blocked: [UsersPermissionsUserConnectionBlocked]
+  role: [UsersPermissionsUserConnectionRole]
+}
+
+type UsersPermissionsUserConnectionId {
+  key: ID
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionCreated_at {
+  key: DateTime
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionUpdated_at {
+  key: DateTime
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionUsername {
+  key: String
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionEmail {
+  key: String
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionProvider {
+  key: String
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionConfirmed {
+  key: Boolean
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionBlocked {
+  key: Boolean
+  connection: UsersPermissionsUserConnection
+}
+
+type UsersPermissionsUserConnectionRole {
+  key: ID
+  connection: UsersPermissionsUserConnection
+}
+
+input UserInput {
+  username: String!
+  email: String!
+  provider: String
+  password: String
+  resetPasswordToken: String
+  confirmationToken: String
+  confirmed: Boolean
+  blocked: Boolean
+  role: ID
+  created_by: ID
+  updated_by: ID
+}
+
+input editUserInput {
+  username: String
+  email: String
+  provider: String
+  password: String
+  resetPasswordToken: String
+  confirmationToken: String
+  confirmed: Boolean
+  blocked: Boolean
+  role: ID
+  created_by: ID
+  updated_by: ID
+}
+
+input createUserInput {
+  data: UserInput
+}
+
+type createUserPayload {
+  user: UsersPermissionsUser
+}
+
+input updateUserInput {
+  where: InputID
+  data: editUserInput
+}
+
+type updateUserPayload {
+  user: UsersPermissionsUser
+}
+
+input deleteUserInput {
+  where: InputID
+}
+
+type deleteUserPayload {
+  user: UsersPermissionsUser
+}
+
+type ComponentButtonLinks {
+  id: ID!
+  title: String
+  link: String
+}
+
+input ComponentButtonLinkInput {
+  title: String
+  link: String
+}
+
+input editComponentButtonLinkInput {
+  id: ID
+  title: String
+  link: String
+}
+
+union Morph = UsersPermissionsMe | UsersPermissionsMeRole | UsersPermissionsLoginPayload | UserPermissionsPasswordPayload | Coordinator | CoordinatorConnection | CoordinatorAggregator | CoordinatorGroupBy | CoordinatorConnectionId | CoordinatorConnectionCreated_at | CoordinatorConnectionUpdated_at | CoordinatorConnectionFirstName | CoordinatorConnectionLastName | CoordinatorConnectionMedia | CoordinatorConnectionBio | createCoordinatorPayload | updateCoordinatorPayload | deleteCoordinatorPayload | Counselor | CounselorConnection | CounselorAggregator | CounselorGroupBy | CounselorConnectionId | CounselorConnectionCreated_at | CounselorConnectionUpdated_at | CounselorConnectionFirstName | CounselorConnectionLastName | CounselorConnectionMedia | CounselorConnectionBio | createCounselorPayload | updateCounselorPayload | deleteCounselorPayload | FaqTag | FaqTagConnection | FaqTagAggregator | FaqTagGroupBy | FaqTagConnectionId | FaqTagConnectionCreated_at | FaqTagConnectionUpdated_at | FaqTagConnectionTitle | FaqTagConnectionIcon | FaqTagConnectionSlug | createFaqTagPayload | updateFaqTagPayload | deleteFaqTagPayload | Faq | FaqConnection | FaqAggregator | FaqGroupBy | FaqConnectionId | FaqConnectionCreated_at | FaqConnectionUpdated_at | FaqConnectionTitle | FaqConnectionDescription | FaqConnectionAnswer | createFaqPayload | updateFaqPayload | deleteFaqPayload | Home | updateHomePayload | deleteHomePayload | PodcastEpisode | PodcastEpisodeConnection | PodcastEpisodeAggregator | PodcastEpisodeGroupBy | PodcastEpisodeConnectionId | PodcastEpisodeConnectionCreated_at | PodcastEpisodeConnectionUpdated_at | PodcastEpisodeConnectionTitle | PodcastEpisodeConnectionDescription | PodcastEpisodeConnectionYoutube_link | PodcastEpisodeConnectionPublished_at | createPodcastEpisodePayload | updatePodcastEpisodePayload | deletePodcastEpisodePayload | Project | ProjectConnection | ProjectAggregator | ProjectGroupBy | ProjectConnectionId | ProjectConnectionCreated_at | ProjectConnectionUpdated_at | ProjectConnectionName | ProjectConnectionMedia | ProjectConnectionGoal | ProjectConnectionEndDate | ProjectConnectionDescription | ProjectConnectionStartDate | ProjectConnectionStatus | ProjectConnectionBikeCulture | ProjectConnectionInstArticulation | ProjectConnectionPoliticIncidence | ProjectConnectionSlug | ProjectConnectionIsHighlighted | createProjectPayload | updateProjectPayload | deleteProjectPayload | SoltaOFrei | updateSoltaOFreiPayload | deleteSoltaOFreiPayload | UploadFile | UploadFileConnection | UploadFileAggregator | UploadFileAggregatorSum | UploadFileAggregatorAvg | UploadFileAggregatorMin | UploadFileAggregatorMax | UploadFileGroupBy | UploadFileConnectionId | UploadFileConnectionCreated_at | UploadFileConnectionUpdated_at | UploadFileConnectionName | UploadFileConnectionAlternativeText | UploadFileConnectionCaption | UploadFileConnectionWidth | UploadFileConnectionHeight | UploadFileConnectionFormats | UploadFileConnectionHash | UploadFileConnectionExt | UploadFileConnectionMime | UploadFileConnectionSize | UploadFileConnectionUrl | UploadFileConnectionPreviewUrl | UploadFileConnectionProvider | UploadFileConnectionProvider_metadata | deleteFilePayload | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsRoleConnection | UsersPermissionsRoleAggregator | UsersPermissionsRoleGroupBy | UsersPermissionsRoleConnectionId | UsersPermissionsRoleConnectionName | UsersPermissionsRoleConnectionDescription | UsersPermissionsRoleConnectionType | createRolePayload | updateRolePayload | deleteRolePayload | UsersPermissionsUser | UsersPermissionsUserConnection | UsersPermissionsUserAggregator | UsersPermissionsUserGroupBy | UsersPermissionsUserConnectionId | UsersPermissionsUserConnectionCreated_at | UsersPermissionsUserConnectionUpdated_at | UsersPermissionsUserConnectionUsername | UsersPermissionsUserConnectionEmail | UsersPermissionsUserConnectionProvider | UsersPermissionsUserConnectionConfirmed | UsersPermissionsUserConnectionBlocked | UsersPermissionsUserConnectionRole | createUserPayload | updateUserPayload | deleteUserPayload | ComponentButtonLinks
+
+input InputID {
+  id: ID!
+}
+
+enum PublicationState {
+  LIVE
+  PREVIEW
+}
+
+type AdminUser {
+  id: ID!
+  username: String
+  firstname: String!
+  lastname: String!
+}
+
+type Query {
+  coordinator(id: ID!, publicationState: PublicationState): Coordinator
+  coordinators(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Coordinator]
+  coordinatorsConnection(sort: String, limit: Int, start: Int, where: JSON): CoordinatorConnection
+  counselor(id: ID!, publicationState: PublicationState): Counselor
+  counselors(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Counselor]
+  counselorsConnection(sort: String, limit: Int, start: Int, where: JSON): CounselorConnection
+  faqTag(id: ID!, publicationState: PublicationState): FaqTag
+  faqTags(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [FaqTag]
+  faqTagsConnection(sort: String, limit: Int, start: Int, where: JSON): FaqTagConnection
+  faq(id: ID!, publicationState: PublicationState): Faq
+  faqs(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Faq]
+  faqsConnection(sort: String, limit: Int, start: Int, where: JSON): FaqConnection
+  home(publicationState: PublicationState): Home
+  podcastEpisode(id: ID!, publicationState: PublicationState): PodcastEpisode
+  podcastEpisodes(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [PodcastEpisode]
+  podcastEpisodesConnection(sort: String, limit: Int, start: Int, where: JSON): PodcastEpisodeConnection
+  project(id: ID!, publicationState: PublicationState): Project
+  projects(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Project]
+  projectsConnection(sort: String, limit: Int, start: Int, where: JSON): ProjectConnection
+  soltaOFrei(publicationState: PublicationState): SoltaOFrei
+  files(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [UploadFile]
+  filesConnection(sort: String, limit: Int, start: Int, where: JSON): UploadFileConnection
+  role(id: ID!, publicationState: PublicationState): UsersPermissionsRole
+
+  """
+  Retrieve all the existing roles. You can't apply filters on this query.
+  """
+  roles(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [UsersPermissionsRole]
+  rolesConnection(sort: String, limit: Int, start: Int, where: JSON): UsersPermissionsRoleConnection
+  user(id: ID!, publicationState: PublicationState): UsersPermissionsUser
+  users(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [UsersPermissionsUser]
+  usersConnection(sort: String, limit: Int, start: Int, where: JSON): UsersPermissionsUserConnection
+  me: UsersPermissionsMe
+}
+
+type Mutation {
+  createCoordinator(input: createCoordinatorInput): createCoordinatorPayload
+  updateCoordinator(input: updateCoordinatorInput): updateCoordinatorPayload
+  deleteCoordinator(input: deleteCoordinatorInput): deleteCoordinatorPayload
+  createCounselor(input: createCounselorInput): createCounselorPayload
+  updateCounselor(input: updateCounselorInput): updateCounselorPayload
+  deleteCounselor(input: deleteCounselorInput): deleteCounselorPayload
+  createFaqTag(input: createFaqTagInput): createFaqTagPayload
+  updateFaqTag(input: updateFaqTagInput): updateFaqTagPayload
+  deleteFaqTag(input: deleteFaqTagInput): deleteFaqTagPayload
+  createFaq(input: createFaqInput): createFaqPayload
+  updateFaq(input: updateFaqInput): updateFaqPayload
+  deleteFaq(input: deleteFaqInput): deleteFaqPayload
+  updateHome(input: updateHomeInput): updateHomePayload
+  deleteHome: deleteHomePayload
+  createPodcastEpisode(input: createPodcastEpisodeInput): createPodcastEpisodePayload
+  updatePodcastEpisode(input: updatePodcastEpisodeInput): updatePodcastEpisodePayload
+  deletePodcastEpisode(input: deletePodcastEpisodeInput): deletePodcastEpisodePayload
+  createProject(input: createProjectInput): createProjectPayload
+  updateProject(input: updateProjectInput): updateProjectPayload
+  deleteProject(input: deleteProjectInput): deleteProjectPayload
+  updateSoltaOFrei(input: updateSoltaOFreiInput): updateSoltaOFreiPayload
+  deleteSoltaOFrei: deleteSoltaOFreiPayload
+
+  """Delete one file"""
+  deleteFile(input: deleteFileInput): deleteFilePayload
+
+  """Create a new role"""
+  createRole(input: createRoleInput): createRolePayload
+
+  """Update an existing role"""
+  updateRole(input: updateRoleInput): updateRolePayload
+
+  """Delete an existing role"""
+  deleteRole(input: deleteRoleInput): deleteRolePayload
+
+  """Create a new user"""
+  createUser(input: createUserInput): createUserPayload
+
+  """Update an existing user"""
+  updateUser(input: updateUserInput): updateUserPayload
+
+  """Delete an existing user"""
+  deleteUser(input: deleteUserInput): deleteUserPayload
+  upload(refId: ID, ref: String, field: String, source: String, file: Upload!): UploadFile!
+  multipleUpload(refId: ID, ref: String, field: String, source: String, files: [Upload]!): [UploadFile]!
+  updateFileInfo(id: ID!, info: FileInfoInput!): UploadFile!
+  login(input: UsersPermissionsLoginInput!): UsersPermissionsLoginPayload!
+  register(input: UsersPermissionsRegisterInput!): UsersPermissionsLoginPayload!
+  forgotPassword(email: String!): UserPermissionsPasswordPayload
+  resetPassword(password: String!, passwordConfirmation: String!, code: String!): UsersPermissionsLoginPayload
+  emailConfirmation(confirmation: String!): UsersPermissionsLoginPayload
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+"""A time string with format: HH:mm:ss.SSS"""
+scalar Time
+
+"""
+A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar Date
+
+"""The `Long` scalar type represents 52-bit integers"""
+scalar Long
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload

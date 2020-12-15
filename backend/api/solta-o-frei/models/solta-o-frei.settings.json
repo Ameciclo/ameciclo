@@ -1,0 +1,23 @@
+{
+  "kind": "singleType",
+  "collectionName": "solta_o_freis",
+  "info": {
+    "name": "Solta o Frei"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "link": {
+      "type": "string"
+    }
+  }
+}

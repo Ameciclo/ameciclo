@@ -1,0 +1,95 @@
+{
+  "kind": "collectionType",
+  "collectionName": "projects",
+  "info": {
+    "name": "Project",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "media": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "goal": {
+      "type": "text"
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "description": {
+      "type": "text"
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "ongoing",
+        "finished",
+        "paused"
+      ]
+    },
+    "bikeCulture": {
+      "type": "enumeration",
+      "enum": [
+        "high",
+        "low",
+        "medium"
+      ]
+    },
+    "instArticulation": {
+      "type": "enumeration",
+      "enum": [
+        "high",
+        "low",
+        "medium"
+      ]
+    },
+    "politicIncidence": {
+      "type": "enumeration",
+      "enum": [
+        "high",
+        "low",
+        "medium"
+      ]
+    },
+    "slug": {
+      "type": "string"
+    },
+    "isHighlighted": {
+      "type": "boolean"
+    },
+    "gallery": {
+      "collection": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "Links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.links"
+    }
+  }
+}
