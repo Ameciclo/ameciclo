@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/botmembers",
+      "handler": "botmembers.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/botmembers/count",
+      "handler": "botmembers.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/botmembers/:id",
+      "handler": "botmembers.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/botmembers",
+      "handler": "botmembers.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/botmembers/:id",
+      "handler": "botmembers.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/botmembers/:id",
+      "handler": "botmembers.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

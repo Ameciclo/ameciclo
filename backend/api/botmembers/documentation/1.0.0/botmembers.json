@@ -1,18 +1,18 @@
 {
   "paths": {
-    "/projects": {
+    "/botmembers": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Find all the botmembers's records",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve botmembers document(s)",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Project"
+                    "$ref": "#/components/schemas/Botmembers"
                   }
                 }
               }
@@ -51,7 +51,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Botmembers"
         ],
         "parameters": [
           {
@@ -194,14 +194,14 @@
       },
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Create a new botmembers record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve botmembers document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Botmembers"
                 }
               }
             }
@@ -239,7 +239,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Botmembers"
         ],
         "requestBody": {
           "description": "",
@@ -247,20 +247,20 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewProject"
+                "$ref": "#/components/schemas/NewBotmembers"
               }
             }
           }
         }
       }
     },
-    "/projects/count": {
+    "/botmembers/count": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Retrieve the numver of botmembers documents",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve botmembers document(s)",
             "content": {
               "application/json": {
                 "schema": {
@@ -306,22 +306,22 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Botmembers"
         ],
         "parameters": []
       }
     },
-    "/projects/{id}": {
+    "/botmembers/{id}": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Find one botmembers record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve botmembers document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Botmembers"
                 }
               }
             }
@@ -359,7 +359,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Botmembers"
         ],
         "parameters": [
           {
@@ -376,14 +376,14 @@
       },
       "put": {
         "deprecated": false,
-        "description": "Update a record",
+        "description": "Update a single botmembers record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve botmembers document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Botmembers"
                 }
               }
             }
@@ -421,7 +421,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Botmembers"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +429,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewProject"
+                "$ref": "#/components/schemas/NewBotmembers"
               }
             }
           }
@@ -449,10 +449,10 @@
       },
       "delete": {
         "deprecated": false,
-        "description": "Delete a record",
+        "description": "Delete a single botmembers record",
         "responses": {
           "200": {
-            "description": "deletes a single record based on the ID supplied",
+            "description": "deletes a single botmembers based on the ID supplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,7 +495,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Botmembers"
         ],
         "parameters": [
           {
@@ -514,7 +514,7 @@
   },
   "components": {
     "schemas": {
-      "Project": {
+      "Botmembers": {
         "required": [
           "id"
         ],
@@ -522,139 +522,20 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "first_name": {
             "type": "string"
           },
-          "media": {
-            "required": [
-              "id",
-              "name",
-              "hash",
-              "mime",
-              "size",
-              "url",
-              "provider"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "alternativeText": {
-                "type": "string"
-              },
-              "caption": {
-                "type": "string"
-              },
-              "width": {
-                "type": "integer"
-              },
-              "height": {
-                "type": "integer"
-              },
-              "formats": {
-                "type": "object"
-              },
-              "hash": {
-                "type": "string"
-              },
-              "ext": {
-                "type": "string"
-              },
-              "mime": {
-                "type": "string"
-              },
-              "size": {
-                "type": "number"
-              },
-              "url": {
-                "type": "string"
-              },
-              "previewUrl": {
-                "type": "string"
-              },
-              "provider": {
-                "type": "string"
-              },
-              "provider_metadata": {
-                "type": "object"
-              },
-              "related": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
+          "telegram_id": {
+            "type": "integer"
           },
-          "goal": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "description": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ongoing",
-              "finished",
-              "paused"
-            ]
-          },
-          "bikeCulture": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "instArticulation": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "politicIncidence": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "slug": {
-            "type": "string"
-          },
-          "isHighlighted": {
+          "daily_notifications": {
             "type": "boolean"
           },
-          "gallery": {
+          "workgroups": {
             "type": "array",
             "items": {
               "required": [
-                "id",
-                "name",
-                "hash",
-                "mime",
-                "size",
-                "url",
-                "provider"
+                "id"
               ],
               "properties": {
                 "id": {
@@ -663,46 +544,46 @@
                 "name": {
                   "type": "string"
                 },
-                "alternativeText": {
-                  "type": "string"
-                },
-                "caption": {
-                  "type": "string"
-                },
-                "width": {
+                "telegram_id": {
                   "type": "integer"
                 },
-                "height": {
-                  "type": "integer"
+                "icon": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
-                "formats": {
-                  "type": "object"
-                },
-                "hash": {
+                "telegram_url": {
                   "type": "string"
                 },
-                "ext": {
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "description": {
                   "type": "string"
                 },
-                "mime": {
+                "Links": {
+                  "type": "component"
+                },
+                "folder_url": {
                   "type": "string"
                 },
-                "size": {
-                  "type": "number"
+                "botmembers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
-                "url": {
-                  "type": "string"
+                "washere": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
-                "previewUrl": {
-                  "type": "string"
-                },
-                "provider": {
-                  "type": "string"
-                },
-                "provider_metadata": {
-                  "type": "object"
-                },
-                "related": {
+                "published_at": {
                   "type": "string"
                 },
                 "created_by": {
@@ -714,10 +595,9 @@
               }
             }
           },
-          "Links": {
+          "coordinations": {
             "type": "array",
             "items": {
-              "type": "object",
               "required": [
                 "id"
               ],
@@ -725,16 +605,67 @@
                 "id": {
                   "type": "string"
                 },
-                "title": {
+                "name": {
                   "type": "string"
                 },
-                "link": {
+                "media": {
+                  "type": "string"
+                },
+                "goal": {
+                  "type": "string"
+                },
+                "endDate": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "startDate": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "bikeCulture": {
+                  "type": "string"
+                },
+                "instArticulation": {
+                  "type": "string"
+                },
+                "politicIncidence": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "isHighlighted": {
+                  "type": "boolean"
+                },
+                "gallery": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "Links": {
+                  "type": "component"
+                },
+                "workgroup": {
+                  "type": "string"
+                },
+                "coordinator": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
                   "type": "string"
                 }
               }
             }
           },
-          "workgroup": {
+          "oncethere": {
             "required": [
               "id"
             ],
@@ -795,139 +726,53 @@
               }
             }
           },
-          "coordinator": {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "first_name": {
-                "type": "string"
-              },
-              "telegram_id": {
-                "type": "integer"
-              },
-              "daily_notifications": {
-                "type": "boolean"
-              },
-              "workgroups": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "coordinations": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "oncethere": {
-                "type": "string"
-              },
-              "telegram_nick": {
-                "type": "string"
-              },
-              "CPF": {
-                "type": "integer"
-              },
-              "published_at": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
+          "telegram_nick": {
+            "type": "string"
+          },
+          "CPF": {
+            "type": "integer"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "NewProject": {
+      "NewBotmembers": {
         "properties": {
-          "name": {
+          "first_name": {
             "type": "string"
           },
-          "goal": {
-            "type": "string"
+          "telegram_id": {
+            "type": "integer"
           },
-          "endDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "description": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ongoing",
-              "finished",
-              "paused"
-            ]
-          },
-          "bikeCulture": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "instArticulation": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "politicIncidence": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "slug": {
-            "type": "string"
-          },
-          "isHighlighted": {
+          "daily_notifications": {
             "type": "boolean"
           },
-          "Links": {
+          "workgroups": {
             "type": "array",
             "items": {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
+              "type": "string"
             }
           },
-          "workgroup": {
+          "coordinations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "oncethere": {
             "type": "string"
           },
-          "coordinator": {
+          "telegram_nick": {
             "type": "string"
+          },
+          "CPF": {
+            "type": "integer"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
           },
           "created_by": {
             "type": "string"
@@ -941,7 +786,7 @@
   },
   "tags": [
     {
-      "name": "Project"
+      "name": "Botmembers"
     }
   ]
 }

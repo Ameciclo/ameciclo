@@ -7,6 +7,7 @@ import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import Carousel, { Modal, ModalGateway } from "react-images";
 import { Rating } from "../../components/Rating";
+
 const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
   ssr: false,
 });
@@ -135,14 +136,21 @@ const Projeto = ({ project }) => {
             </div>
           </div>
           <div className="flex flex-wrap justify-center mt-6">
-            <button
-              className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
-              type="button"
-              style={{ transition: "all .15s ease" }}
-            >
-              Na Biciclopedia
-            </button>
+            {(project.Links).map((link) => 
+            {
+                return <a href={link.link}>
+                  <button
+                  className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
+                  type="button"
+                  style={{ transition: "all .15s ease" }}
+                  >
+                   {link.title}
+                </button>
+                </a>;
+              })}
           </div>
+
+
           <div className="mt-10 py-10 border-t border-gray-300 text-center">
             <div className="flex flex-wrap justify-center">
               <div className="w-full lg:w-9/12 px-4">

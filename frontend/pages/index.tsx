@@ -28,7 +28,7 @@ export default function Home({ featuredProjects, numberOfProjects }) {
               </motion.div>
             </div>
             <div className="p-4 text-center">
-              <a href="https://docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform">
+              <a href="http://queroser.ameciclo.org">
                 <motion.div whileHover={{ scale: 1.1 }}>
                   <Associe />
                 </motion.div>
@@ -38,7 +38,7 @@ export default function Home({ featuredProjects, numberOfProjects }) {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="http://doe.ameciclo.org"
+                href="http://apoie.ameciclo.org"
               >
                 <motion.div whileHover={{ scale: 1.1 }}>
                   <Apoie />

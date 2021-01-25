@@ -1,18 +1,18 @@
 {
   "paths": {
-    "/projects": {
+    "/locations": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Find all the locations's records",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve locations document(s)",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Project"
+                    "$ref": "#/components/schemas/Locations"
                   }
                 }
               }
@@ -51,7 +51,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Locations"
         ],
         "parameters": [
           {
@@ -194,14 +194,14 @@
       },
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Create a new locations record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve locations document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Locations"
                 }
               }
             }
@@ -239,7 +239,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Locations"
         ],
         "requestBody": {
           "description": "",
@@ -247,20 +247,20 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewProject"
+                "$ref": "#/components/schemas/NewLocations"
               }
             }
           }
         }
       }
     },
-    "/projects/count": {
+    "/locations/count": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Retrieve the numver of locations documents",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve locations document(s)",
             "content": {
               "application/json": {
                 "schema": {
@@ -306,22 +306,22 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Locations"
         ],
         "parameters": []
       }
     },
-    "/projects/{id}": {
+    "/locations/{id}": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Find one locations record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve locations document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Locations"
                 }
               }
             }
@@ -359,7 +359,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Locations"
         ],
         "parameters": [
           {
@@ -376,14 +376,14 @@
       },
       "put": {
         "deprecated": false,
-        "description": "Update a record",
+        "description": "Update a single locations record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve locations document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Locations"
                 }
               }
             }
@@ -421,7 +421,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Locations"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +429,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewProject"
+                "$ref": "#/components/schemas/NewLocations"
               }
             }
           }
@@ -449,10 +449,10 @@
       },
       "delete": {
         "deprecated": false,
-        "description": "Delete a record",
+        "description": "Delete a single locations record",
         "responses": {
           "200": {
-            "description": "deletes a single record based on the ID supplied",
+            "description": "deletes a single locations based on the ID supplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,7 +495,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Locations"
         ],
         "parameters": [
           {
@@ -514,7 +514,7 @@
   },
   "components": {
     "schemas": {
-      "Project": {
+      "Locations": {
         "required": [
           "id"
         ],
@@ -522,412 +522,41 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "Name": {
             "type": "string"
           },
-          "media": {
-            "required": [
-              "id",
-              "name",
-              "hash",
-              "mime",
-              "size",
-              "url",
-              "provider"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "alternativeText": {
-                "type": "string"
-              },
-              "caption": {
-                "type": "string"
-              },
-              "width": {
-                "type": "integer"
-              },
-              "height": {
-                "type": "integer"
-              },
-              "formats": {
-                "type": "object"
-              },
-              "hash": {
-                "type": "string"
-              },
-              "ext": {
-                "type": "string"
-              },
-              "mime": {
-                "type": "string"
-              },
-              "size": {
-                "type": "number"
-              },
-              "url": {
-                "type": "string"
-              },
-              "previewUrl": {
-                "type": "string"
-              },
-              "provider": {
-                "type": "string"
-              },
-              "provider_metadata": {
-                "type": "object"
-              },
-              "related": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
-          },
-          "goal": {
+          "Address": {
             "type": "string"
           },
-          "endDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "description": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ongoing",
-              "finished",
-              "paused"
-            ]
-          },
-          "bikeCulture": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "instArticulation": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "politicIncidence": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "slug": {
-            "type": "string"
-          },
-          "isHighlighted": {
+          "isVirtual": {
             "type": "boolean"
           },
-          "gallery": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id",
-                "name",
-                "hash",
-                "mime",
-                "size",
-                "url",
-                "provider"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "alternativeText": {
-                  "type": "string"
-                },
-                "caption": {
-                  "type": "string"
-                },
-                "width": {
-                  "type": "integer"
-                },
-                "height": {
-                  "type": "integer"
-                },
-                "formats": {
-                  "type": "object"
-                },
-                "hash": {
-                  "type": "string"
-                },
-                "ext": {
-                  "type": "string"
-                },
-                "mime": {
-                  "type": "string"
-                },
-                "size": {
-                  "type": "number"
-                },
-                "url": {
-                  "type": "string"
-                },
-                "previewUrl": {
-                  "type": "string"
-                },
-                "provider": {
-                  "type": "string"
-                },
-                "provider_metadata": {
-                  "type": "object"
-                },
-                "related": {
-                  "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
+          "show_on_telegram": {
+            "type": "boolean"
           },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "workgroup": {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "telegram_id": {
-                "type": "integer"
-              },
-              "icon": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "telegram_url": {
-                "type": "string"
-              },
-              "projects": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "description": {
-                "type": "string"
-              },
-              "Links": {
-                "type": "component"
-              },
-              "folder_url": {
-                "type": "string"
-              },
-              "botmembers": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "washere": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "published_at": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
-          },
-          "coordinator": {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "first_name": {
-                "type": "string"
-              },
-              "telegram_id": {
-                "type": "integer"
-              },
-              "daily_notifications": {
-                "type": "boolean"
-              },
-              "workgroups": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "coordinations": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "oncethere": {
-                "type": "string"
-              },
-              "telegram_nick": {
-                "type": "string"
-              },
-              "CPF": {
-                "type": "integer"
-              },
-              "published_at": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "NewProject": {
+      "NewLocations": {
         "properties": {
-          "name": {
+          "Name": {
             "type": "string"
           },
-          "goal": {
+          "Address": {
             "type": "string"
           },
-          "endDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "description": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ongoing",
-              "finished",
-              "paused"
-            ]
-          },
-          "bikeCulture": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "instArticulation": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "politicIncidence": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "slug": {
-            "type": "string"
-          },
-          "isHighlighted": {
+          "isVirtual": {
             "type": "boolean"
           },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
+          "show_on_telegram": {
+            "type": "boolean"
           },
-          "workgroup": {
-            "type": "string"
-          },
-          "coordinator": {
-            "type": "string"
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
           },
           "created_by": {
             "type": "string"
@@ -941,7 +570,7 @@
   },
   "tags": [
     {
-      "name": "Project"
+      "name": "Locations"
     }
   ]
 }

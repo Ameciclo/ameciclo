@@ -56,13 +56,14 @@ const Projetos = ({ projects }) => {
             >
               <option value="">Todos</option>
               <option value="ongoing">Em andamento</option>
-              <option value="finished">Finalizado</option>
+              <option value="finished">Realizado</option>
               <option value="paused">Pausado</option>
             </select>
           </div>
         </div>
         <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {filteredProjects.map((project) => (
+          {filteredProjects.sort((a, b) => a.name > b.name ? 1 : -1)
+          .map((project) => (
             <ProjectCard project={project} key={project.id} />
           ))}
         </div>
