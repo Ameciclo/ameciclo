@@ -119,3 +119,6 @@ build/
 
 .strapi-updater.json
 public/
+backups/
+docker-production.yaml
+dump
