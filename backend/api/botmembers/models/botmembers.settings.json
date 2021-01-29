@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "botmembers",
+  "info": {
+    "name": "botmembers",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "first_name": {
+      "type": "string"
+    },
+    "telegram_id": {
+      "type": "biginteger"
+    },
+    "daily_notifications": {
+      "type": "boolean"
+    },
+    "workgroups": {
+      "collection": "workgroups",
+      "via": "botmembers",
+      "dominant": true
+    },
+    "coordinations": {
+      "collection": "project",
+      "via": "coordinator"
+    },
+    "oncethere": {
+      "model": "workgroups",
+      "via": "washere"
+    },
+    "telegram_nick": {
+      "type": "email"
+    },
+    "CPF": {
+      "type": "biginteger"
+    }
+  }
+}

@@ -49,22 +49,22 @@ services:
     volumes:
       - strapidata:/var/lib/postgresql/
 
-  postgresql-backup-dropbox:
-    image: ameciclo/postgre_backup_dropbox
-    container_name: postgresql_backup
-    restart: always
-    networks:
-      - internal
-    depends_on:
-      - postgres
-    environment:
-      - POSTGRESQL_USER=strapi
-      - POSTGRESQL_PASSWORD=strapi
-      - POSTGRESQL_HOST=postgres
-      - DROPBOX_ACCESS_TOKEN=sl.AnYU9qhcAluh17xMMT8X163i8Z-gCV94gA204aBe0jRy46KT4L-2hEKsY_RgJNfPmWre9gvfbSxar51V0LrRUglmtujdkwtl929xULib8ONdz27-o2kWf2EnijVQroLGjf06ErY
-      - SCHEDULE=@daily
-      - DATABASE_NAME=strapi
-      - DROPBOX_PREFIX=ameciclo_strapi
+  # postgresql-backup-dropbox:
+  #   image: ameciclo/postgre_backup_dropbox
+  #   container_name: postgresql_backup
+  #   restart: always
+  #   networks:
+  #     - internal
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     - POSTGRESQL_USER=strapi
+  #     - POSTGRESQL_PASSWORD=strapi
+  #     - POSTGRESQL_HOST=postgres
+  #     - DROPBOX_ACCESS_TOKEN=sl.AnYU9qhcAluh17xMMT8X163i8Z-gCV94gA204aBe0jRy46KT4L-2hEKsY_RgJNfPmWre9gvfbSxar51V0LrRUglmtujdkwtl929xULib8ONdz27-o2kWf2EnijVQroLGjf06ErY
+  #     - SCHEDULE=@daily
+  #     - DATABASE_NAME=strapi
+  #     - DROPBOX_PREFIX=ameciclo_strapi
 
 volumes:
   strapidata:

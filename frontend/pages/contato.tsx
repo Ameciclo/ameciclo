@@ -61,7 +61,7 @@ const Contato = (props) => {
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href="https://docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform"
+                  href="http://queroser.ameciclo.org"
                 >
                   <Associe />
                 </a>
@@ -83,7 +83,7 @@ const Contato = (props) => {
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href="http://doe.ameciclo.org"
+                  href="http://apoie.ameciclo.org"
                 >
                   <Apoie />
                 </a>

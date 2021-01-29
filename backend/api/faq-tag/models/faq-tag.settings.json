@@ -2,11 +2,13 @@
   "kind": "collectionType",
   "collectionName": "faq_tags",
   "info": {
-    "name": "FAQ Tag"
+    "name": "Categorias das Dúvidas Frequentes",
+    "description": ""
   },
   "options": {
     "increments": true,
-    "timestamps": true
+    "timestamps": true,
+    "draftAndPublish": false
   },
   "attributes": {
     "title": {

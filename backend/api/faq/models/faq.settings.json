@@ -2,11 +2,13 @@
   "kind": "collectionType",
   "collectionName": "faqs",
   "info": {
-    "name": "FAQ"
+    "name": "Dúvidas Frequentes",
+    "description": ""
   },
   "options": {
     "increments": true,
-    "timestamps": true
+    "timestamps": true,
+    "draftAndPublish": false
   },
   "attributes": {
     "title": {

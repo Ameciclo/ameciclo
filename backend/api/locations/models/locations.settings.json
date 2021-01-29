@@ -1,8 +1,8 @@
 {
   "kind": "collectionType",
-  "collectionName": "podcast_episodes",
+  "collectionName": "locations",
   "info": {
-    "name": "Podcast Episode",
+    "name": "Locais de reunião",
     "description": ""
   },
   "options": {
@@ -11,14 +11,17 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "title": {
+    "Name": {
       "type": "string"
     },
-    "description": {
-      "type": "text"
-    },
-    "youtube_link": {
+    "Address": {
       "type": "string"
+    },
+    "isVirtual": {
+      "type": "boolean"
+    },
+    "show_on_telegram": {
+      "type": "boolean"
     }
   }
 }
