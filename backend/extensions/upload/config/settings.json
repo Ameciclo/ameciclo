@@ -1,8 +1,0 @@
-{
-  "provider": "backblaze-b2",
-  "providerOptions": {
-    "accountId": "0002b10b53b37ed0000000001",
-    "applicationKey": "K0000Db7phukYKzIr48MXL3gfkv68ng",
-    "bucket": "strapi-files"
-  }
-}

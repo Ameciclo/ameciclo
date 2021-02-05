@@ -18,6 +18,9 @@ services:
       DATABASE_PORT: 5432
       DATABASE_USERNAME: strapi
       DATABASE_PASSWORD: strapi
+      CLOUDINARY_NAME: plpbs
+      CLOUDINARY_KEY: 179454326984431
+      CLOUDINARY_SECRET: rhCqxXe5Y-dxNTfpzUMoSvASV28
       NODE_ENV: development
     labels:
       - "traefik.enable=true"
