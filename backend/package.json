@@ -25,7 +25,7 @@
     "strapi-plugin-upload": "3.4.6",
     "strapi-plugin-users-permissions": "3.4.6",
     "strapi-utils": "3.4.6",
-    "strapi-provider-upload-backblaze-b2": "^0.0.4"
+    "strapi-provider-upload-cloudinary": "3.4.6"
   },
   "author": {
     "name": "Ameciclo"
