@@ -2,7 +2,6 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
-import Image from "next/image";
 import React from "react";
 
 const QuemSomos = ({ coordinators, counselors }) => {
@@ -86,12 +85,13 @@ const QuemSomos = ({ coordinators, counselors }) => {
                   {c.media ? (
                     <div
                       style={{
+                        backgroundImage: `url(${c.media.url})`,
                         minHeight: "270px",
-                        position: "relative",
+                        backgroundSize: "cover",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
                       }}
-                    >
-                      <Image src={c.media.url} layout="fill" />
-                    </div>
+                    />
                   ) : (
                     <div
                       style={{
@@ -119,12 +119,13 @@ const QuemSomos = ({ coordinators, counselors }) => {
                   {c.media ? (
                     <div
                       style={{
+                        backgroundImage: `url(${c.media.url})`,
                         minHeight: "270px",
-                        position: "relative",
+                        backgroundSize: "cover",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
                       }}
-                    >
-                      <Image src={c.media.url} layout="fill" />
-                    </div>
+                    />
                   ) : (
                     <div
                       style={{

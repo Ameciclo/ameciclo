@@ -37,13 +37,15 @@ export const ProjectCard = ({ project }) => {
         <Link href={`/projetos/${project.slug}`}>
           <div
             style={{
+              backgroundImage: `url(${project.media.url})`,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
               position: "relative",
               minHeight: "270px",
               cursor: "pointer",
             }}
-          >
-            <Image src={project.media.url} layout="fill" />
-          </div>
+          />
         </Link>
       ) : (
         <div
