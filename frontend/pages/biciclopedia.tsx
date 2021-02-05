@@ -53,7 +53,7 @@ const Biciclopedia = ({ faqs, categories }) => {
                         <Image
                           height={96}
                           width={96}
-                          src={`https://cms.ameciclo.org${category.icon.url}`}
+                          src={category.icon.url}
                         />
                       ) : (
                         <div className="mt-4">

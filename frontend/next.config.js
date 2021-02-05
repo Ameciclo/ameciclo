@@ -7,7 +7,7 @@ const optimizedImages = require("next-optimized-images");
 module.exports = withPlugins([withTM, optimizedImages], {
   target: "serverless",
   images: {
-    domains: ["cms.ameciclo.org"],
+    domains: ["cms.ameciclo.org", "res.cloudinary.com"],
   },
   webpack(config) {
     config.module.rules.push({
