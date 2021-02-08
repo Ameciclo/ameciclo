@@ -1,13 +1,13 @@
 import React from "react";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import Image from "next/image";
 import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { SearchComponent } from "../components/SearchComponent";
-import FAQIcon from "../components/Icons/faq";
 import { Accordion } from "../components/Accordion_FAQ";
+{/*import Image from "next/image";
+import FAQIcon from "../components/Icons/faq";
+import { motion } from "framer-motion";
+import Link from "next/link";*/}
 
 
 const Biciclopedia = ({ faqs, categories }) => {

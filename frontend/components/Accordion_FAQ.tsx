@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "../components/Icons/faq_new";
+import Link from "next/link";
 
 const AccordionItem = ({ categories }) => {
 
   const faqs=categories.faqs;
   const faqs_titles = [];
   faqs.forEach(faq => {
-    faqs_titles.push([faq.title, faq.description, faq.slug])
+    faqs_titles.push([faq.title, faq.description, categories.slug])
   });
 
   const [isOpen, toggleIsOpen] = useState(false);
@@ -43,7 +44,7 @@ const AccordionItem = ({ categories }) => {
         {/*<FAQIcon />*/}
         <motion.label
           initial={false}
-          className="text-xl block p-5 leading-normal cursor-pointer"
+          className="text-xl block p-5 leading-normal cursor-pointer text-ameciclo"
         >
          {categories.title}
         </motion.label>
@@ -62,10 +63,10 @@ const AccordionItem = ({ categories }) => {
             transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
           >         
             <ul>
-                {faqs_titles.map((item)=>{
-                    return <a href={item[2]}>
-                      <p className="p-4"> <strong>P: {item[0]}</strong>
-                      <p className="pl-5"> R: {item[1]} 
+                {faqs_titles.map((faq)=>{
+                    return <a href={`/biciclopedia/${faq[2]}`}>
+                      <p className="p-4"> <strong>P: {faq[0]}</strong>
+                      <p className="pl-5"> R: {faq[1]} 
                       <strong className="text-xl text-ameciclo">  +++</strong>
                       </p></p></a>
                 })}
