@@ -67,7 +67,7 @@ const AccordionItem = ({ categories }) => {
                     return <a href={`/biciclopedia/${faq[2]}`}>
                       <p className="p-4"> <strong>P: {faq[0]}</strong>
                       <p className="pl-5"> R: {faq[1]} 
-                      <strong className="text-xl text-ameciclo">  +++</strong>
+                      <strong className="text-ameciclo">  (saiba mais)</strong>
                       </p></p></a>
                 })}
             </ul>          
