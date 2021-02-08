@@ -7,8 +7,15 @@ import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { SearchComponent } from "../components/SearchComponent";
 import FAQIcon from "../components/Icons/faq";
+import { Accordion } from "../components/Accordion_FAQ";
+
 
 const Biciclopedia = ({ faqs, categories }) => {
+
+  categories.sort((a, b) => {
+    return a.title.localeCompare(b.title)
+  });
+
   return (
     <Layout>
       <SEO title="Biciclopedia" />
@@ -36,7 +43,11 @@ const Biciclopedia = ({ faqs, categories }) => {
           />
         </div>
       </div>
+      
       <section className="container mx-auto mt-8 my-4 px-4">
+
+        <Accordion faqs={categories} />
+
         {categories.length === 0 ? (
           <span>Nenhuma pergunta disponivel</span>
         ) : (
