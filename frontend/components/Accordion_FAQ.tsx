@@ -65,8 +65,8 @@ const AccordionItem = ({ categories }) => {
                 {faqs_titles.map((item)=>{
                     return <a href={item[2]}>
                       <p className="p-4"> <strong>P: {item[0]}</strong>
-                      <p className="pl-5"> R: {item[1]} {item[2]} 
-                      <strong className="text-xl text-ameciclo">+++</strong>
+                      <p className="pl-5"> R: {item[1]} 
+                      <strong className="text-xl text-ameciclo">  +++</strong>
                       </p></p></a>
                 })}
             </ul>          
