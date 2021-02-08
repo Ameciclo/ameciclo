@@ -90,9 +90,9 @@ const Contato = (props) => {
               </motion.div>
               <dl>
                 <dd className="mt-1 text-sm text-white">
-                  <strong>Doe um pouco e ajude muito!</strong> <br />A Ameciclo
+                  <strong>Apoie para realizarmos ainda mais!</strong> <br />A Ameciclo
                   precisa de recursos para manter suas várias frentes de
-                  atuação. Você pode doar mesmo sem ser um sócio.
+                  atuação. Você pode doar mesmo sem ser uma pessoa associada.
                 </dd>
               </dl>
             </div>
