@@ -48,50 +48,6 @@ const Biciclopedia = ({ faqs, categories }) => {
 
         <Accordion faqs={categories} />
 
-        {categories.length === 0 ? (
-          <span>Nenhuma pergunta disponivel</span>
-        ) : (
-          <div
-            className="grid gap-4 lg:grid-cols-5 sm:grid-cols-1"
-            style={{ justifyItems: "center" }}
-          >
-            {categories.map((category) => {
-              return (
-                <Link href={`/biciclopedia/${category.slug}`} key={category.id}>
-                  <motion.div whileHover={{ scale: 1.1 }}>
-                    <div className="w-56 h-56 bg-white rounded shadow-xl p-4 flex flex-col text-center items-center">
-                      {category.icon ? (
-                        <Image
-                          height={96}
-                          width={96}
-                          src={`https://cms.ameciclo.org${category.icon.url}`}
-                        />
-                      ) : (
-                        <div className="mt-4">
-                          <FAQIcon />
-                        </div>
-                      )}
-                      <h3 className="mt-8 text-gray-800 font-bold text-1xl">
-                        {category.title}
-                      </h3>
-                      <p className="my-0">
-                        {category.faqs.length === 1 ? (
-                          <>
-                            <strong>{category.faqs.length}</strong> pergunta
-                          </>
-                        ) : (
-                          <>
-                            <strong>{category.faqs.length}</strong> perguntas
-                          </>
-                        )}
-                      </p>
-                    </div>
-                  </motion.div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
       </section>
     </Layout>
   );
