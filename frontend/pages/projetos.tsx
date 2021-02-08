@@ -62,10 +62,11 @@ const Projetos = ({ projects }) => {
           </div>
         </div>
         <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {filteredProjects.sort((a, b) => a.name > b.name ? 1 : -1)
-          .map((project) => (
-            <ProjectCard project={project} key={project.id} />
-          ))}
+          {filteredProjects
+            .sort((a, b) => (a.name > b.name ? 1 : -1))
+            .map((project) => (
+              <ProjectCard project={project} key={project.id} />
+            ))}
         </div>
       </section>
     </Layout>

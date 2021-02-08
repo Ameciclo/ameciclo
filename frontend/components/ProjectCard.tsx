@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const StatusIndicator = ({ status }) => {
   const statusMap = new Map([
@@ -8,10 +9,7 @@ const StatusIndicator = ({ status }) => {
       { name: "Em andamento", color: "#3CAEA3", fontColor: "#581f0f" },
     ],
     ["paused", { name: "Pausado", color: "#F6D55C", fontColor: "#581f0f" }],
-    [
-      "finished",
-      { name: "Realizado", color: "#20639B", fontColor: "#dbf4c6" },
-    ],
+    ["finished", { name: "Realizado", color: "#20639B", fontColor: "#dbf4c6" }],
   ]);
   return (
     <div
@@ -23,6 +21,7 @@ const StatusIndicator = ({ status }) => {
         borderRadius: "0 0 15px 0",
         borderBottom: "0 none",
         boxShadow: "0 1px 5px rgba(0, 0, 0, 0.46)",
+        zIndex: 1,
       }}
     >
       {statusMap.get(status).name}
@@ -38,11 +37,12 @@ export const ProjectCard = ({ project }) => {
         <Link href={`/projetos/${project.slug}`}>
           <div
             style={{
-              backgroundImage: `url(https://cms.ameciclo.org${project.media.url})`,
-              minHeight: "270px",
+              backgroundImage: `url(${project.media.url})`,
               backgroundSize: "cover",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
+              position: "relative",
+              minHeight: "270px",
               cursor: "pointer",
             }}
           />

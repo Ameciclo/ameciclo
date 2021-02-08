@@ -39,7 +39,7 @@ const Projeto = ({ project }) => {
   const photos = project.gallery.map((p) => {
     return {
       id: p.id,
-      src: `https://cms.ameciclo.org${p.url}`,
+      src: p.url,
       height: p.height,
       width: p.width,
     };
@@ -70,7 +70,7 @@ const Projeto = ({ project }) => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                backgroundImage: `url('https://cms.ameciclo.org${project.media.url}')`,
+                backgroundImage: `url(${project.media.url})`,
               }
             : {
                 width: "100%",
@@ -136,20 +136,20 @@ const Projeto = ({ project }) => {
             </div>
           </div>
           <div className="flex flex-wrap justify-center mt-6">
-            {(project.Links).map((link) => 
-            {
-                return <a href={link.link}>
+            {project.Links.map((link) => {
+              return (
+                <a href={link.link}>
                   <button
-                  className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
-                  type="button"
-                  style={{ transition: "all .15s ease" }}
+                    className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
+                    type="button"
+                    style={{ transition: "all .15s ease" }}
                   >
-                   {link.title}
-                </button>
-                </a>;
-              })}
+                    {link.title}
+                  </button>
+                </a>
+              );
+            })}
           </div>
-
 
           <div className="mt-10 py-10 border-t border-gray-300 text-center">
             <div className="flex flex-wrap justify-center">

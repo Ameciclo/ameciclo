@@ -9,7 +9,7 @@ export const FeaturedProject = ({ project }) => {
         style={
           project.media
             ? {
-                backgroundImage: `url(https://cms.ameciclo.org${project.media.url})`,
+                backgroundImage: `url(${project.media.url})`,
                 minHeight: "600px",
               }
             : {

@@ -2,6 +2,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
+import React from "react";
 
 const QuemSomos = ({ coordinators, counselors }) => {
   return (
@@ -84,7 +85,7 @@ const QuemSomos = ({ coordinators, counselors }) => {
                   {c.media ? (
                     <div
                       style={{
-                        backgroundImage: `url(https://cms.ameciclo.org${c.media.url})`,
+                        backgroundImage: `url(${c.media.url})`,
                         minHeight: "270px",
                         backgroundSize: "cover",
                         backgroundRepeat: "no-repeat",
@@ -118,7 +119,7 @@ const QuemSomos = ({ coordinators, counselors }) => {
                   {c.media ? (
                     <div
                       style={{
-                        backgroundImage: `url(https://cms.ameciclo.org${c.media.url})`,
+                        backgroundImage: `url(${c.media.url})`,
                         minHeight: "270px",
                         backgroundSize: "cover",
                         backgroundRepeat: "no-repeat",
