@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";*/}
 
 
-const Biciclopedia = ({ faqs, categories }) => {
+const Biciclopedia = ({ /*faqs,*/ categories }) => {
 
   let disponibleCategories = []
 
