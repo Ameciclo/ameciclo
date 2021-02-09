@@ -3,7 +3,7 @@ function FAQIcon() {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 370.4 370.4"
-      className="w-8 h-8 text-ameciclo"
+      className="w-10 h-10"
       fill="currentColor"
     >
       <defs>

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "../components/Icons/faq_new";
-import Link from "next/link";
 
 const AccordionItem = ({ categories }) => {
 
@@ -11,12 +10,16 @@ const AccordionItem = ({ categories }) => {
     faqs_titles.push([faq.id, faq.title, faq.description, faq.answer])
   });
 
+  faqs_titles.sort((a, b) => {
+    return a[1].localeCompare(b[1])
+  });
+
   const [isOpen, toggleIsOpen] = useState(false);
 
   return (
     <div className="tab w-full overflow-hidden border-t">
       <div
-        className="flex flex-row items-center"
+        className="flex flex-row items-center pl-5"
         onClick={() => {
           toggleIsOpen(!isOpen);
         }}
@@ -30,7 +33,7 @@ const AccordionItem = ({ categories }) => {
           className="text-ameciclo"
           animate={isOpen ? "open" : "closed"}
           variants={{
-            open: { rotate: 90, opacity: 0.8, color: 'blue'},
+            open: { rotate: 90, opacity: 0.7 },
             closed: { rotate: 0, opacity: 1 },
           }}
           transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}

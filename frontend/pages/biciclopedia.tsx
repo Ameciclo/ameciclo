@@ -4,6 +4,7 @@ import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { SearchComponent } from "../components/SearchComponent";
 import { Accordion } from "../components/Accordion_FAQ";
+import Category from "./biciclopedia/[category]";
 {/*import Image from "next/image";
 import FAQIcon from "../components/Icons/faq";
 import { motion } from "framer-motion";
@@ -11,6 +12,16 @@ import Link from "next/link";*/}
 
 
 const Biciclopedia = ({ faqs, categories }) => {
+
+  let disponibleCategories = []
+
+  categories.forEach((category) => {
+    if (category.faqs.length > 0) {
+      disponibleCategories.push(category)
+    }
+  });
+
+  categories = disponibleCategories
 
   categories.sort((a, b) => {
     return a.title.localeCompare(b.title)
