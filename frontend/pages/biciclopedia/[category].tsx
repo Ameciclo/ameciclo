@@ -15,7 +15,7 @@ const Category = ({ category }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: `url('/projetos.webp')`,
+          backgroundImage: `url('/biciclopedia.webp')`,
         }}
       />
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">

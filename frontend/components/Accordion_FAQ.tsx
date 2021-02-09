@@ -8,7 +8,7 @@ const AccordionItem = ({ categories }) => {
   const faqs=categories.faqs;
   const faqs_titles = [];
   faqs.forEach(faq => {
-    faqs_titles.push([faq.title, faq.description, categories.slug])
+    faqs_titles.push([faq.id, faq.title, faq.description, faq.answer])
   });
 
   const [isOpen, toggleIsOpen] = useState(false);
@@ -30,7 +30,7 @@ const AccordionItem = ({ categories }) => {
           className="text-ameciclo"
           animate={isOpen ? "open" : "closed"}
           variants={{
-            open: { rotate: 90, opacity: 0.8 },
+            open: { rotate: 90, opacity: 0.8, color: 'blue'},
             closed: { rotate: 0, opacity: 1 },
           }}
           transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
@@ -64,11 +64,16 @@ const AccordionItem = ({ categories }) => {
           >         
             <ul>
                 {faqs_titles.map((faq)=>{
-                    return <a href={`/biciclopedia/${faq[2]}`}>
-                      <p className="p-4"> <strong>P: {faq[0]}</strong>
-                      <p className="pl-5"> R: {faq[1]} 
-                      <strong className="text-ameciclo">  (saiba mais)</strong>
-                      </p></p></a>
+                    let saibaMais = <p className="p-4"> <strong>P: {faq[1]}</strong>
+                                    <p className="pl-5"> R: {faq[2]}</p></p>;
+                    if (faq[3]) {
+                      saibaMais = <a href={"`/biciclopedia/${faq[2]}`"}>
+                                  <p className="p-4"> <strong>P: {faq[1]}</strong>
+                                  <p className="pl-5"> R: {faq[2]}
+                                  <strong className="text-ameciclo">    (saiba mais)</strong>
+                                  </p></p></a>
+                    }
+                    return saibaMais
                 })}
             </ul>          
           </motion.div>
