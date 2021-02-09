@@ -6,7 +6,7 @@ import Breadcrumb from "../../components/Breadcrumb";
 const Questions = ({ question }) => {
   return (
     <Layout>
-      <SEO title={question.faq_tags[0].titles} />
+      <SEO title={question.title} />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
         style={{
