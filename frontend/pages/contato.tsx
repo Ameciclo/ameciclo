@@ -50,7 +50,7 @@ const Contato = (props) => {
                 <dd className="mt-1 text-sm text-white">
                   <strong>Escolha a melhor forma de participar!</strong> <br />
                   Existem várias maneiras de ajudar a Ameciclo, cada pessoa pode
-                  se envolver de um jeito.
+                  se envolver de um jeito. (EM CONSTRUÇÃO)
                 </dd>
               </dl>
             </div>
@@ -68,10 +68,10 @@ const Contato = (props) => {
               </motion.div>
               <dl>
                 <dd className="mt-1 text-sm text-white">
-                  Ao se associar à Ameciclo você já está contribuindo com o
-                  movimento, pois aumenta o número de ciclistas que
-                  representamos. As pessoas associadas podem participar das
-                  reuniões ordinárias, tem voz e ajudam a construir nossas
+                  Ao associar-se à nós você fortalece o movimento
+                  cicloativista, aumentando a representação da Ameciclo.
+                  As pessoas associadas podem participar das reuniões, 
+                  projetos, ações e dão a voz que ajuda a construir nossas
                   políticas e diretrizes
                 </dd>
               </dl>
@@ -90,9 +90,9 @@ const Contato = (props) => {
               </motion.div>
               <dl>
                 <dd className="mt-1 text-sm text-white">
-                  <strong>Doe um pouco e ajude muito!</strong> <br />A Ameciclo
+                  <strong>Apoie para realizarmos ainda mais!</strong> <br />A Ameciclo
                   precisa de recursos para manter suas várias frentes de
-                  atuação. Você pode doar mesmo sem ser um sócio.
+                  atuação. Você pode doar mesmo sem ser uma pessoa associada.
                 </dd>
               </dl>
             </div>
