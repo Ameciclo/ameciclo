@@ -28,7 +28,7 @@ export const SearchComponent = (props) => {
         <input
           type="search"
           name="search"
-          placeholder="O uso de capacete é obrigatório?"
+          placeholder="Qual o melhor tipo de bicicletário?"
           className="bg-white text-gray-600 w-full h-10 px-5 pr-10 rounded shadow-2xl text-sm focus:outline-none"
           value={searchTerm}
           onChange={handleChange}

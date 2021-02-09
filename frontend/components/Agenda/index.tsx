@@ -24,12 +24,12 @@ const EventCalendar = (props) => {
           googleCalendarId:
             "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
           className: "agenda-externa",
-          color: "orange",
+          color:  "red",
         },
         {
           googleCalendarId: "ameciclo@gmail.com",
           className: "agenda-interna",
-          color: "red",
+          color: "#008080",
         },
       ]}
       initialView="listWeek"
