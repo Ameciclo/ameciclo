@@ -7,7 +7,9 @@ const optimizedImages = require("next-optimized-images");
 module.exports = withPlugins([withTM, optimizedImages], {
   target: "serverless",
   images: {
-    domains: ["res.cloudinary.com"],
+    loader: "cloudinary",
+    domains: ["res.cloudinary.com/"],
+    path: "https://res.cloudinary.com/plpbs/image/upload/",
   },
   webpack(config) {
     config.module.rules.push({
