@@ -37,6 +37,7 @@
     "react-highlighter": "^0.4.3",
     "react-images": "^1.1.7",
     "react-map-gl": "^5.3.6",
+    "react-markdown": "^5.0.3",
     "react-photo-gallery": "^8.0.0",
     "react-transition-group": "^4.4.1",
     "sass": "^1.29.0",
