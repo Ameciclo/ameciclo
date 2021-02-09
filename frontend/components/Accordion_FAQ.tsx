@@ -70,7 +70,7 @@ const AccordionItem = ({ categories }) => {
                     let saibaMais = <p className="p-4"> <strong>P: {faq[1]}</strong>
                                     <p className="pl-5"> R: {faq[2]}</p></p>;
                     if (faq[3]) {
-                      saibaMais = <a href={"`/biciclopedia/${faq[2]}`"}>
+                      saibaMais = <a href={`/biciclopedia/${faq[0]}`}>
                                   <p className="p-4"> <strong>P: {faq[1]}</strong>
                                   <p className="pl-5"> R: {faq[2]}
                                   <strong className="text-ameciclo">    (saiba mais)</strong>
