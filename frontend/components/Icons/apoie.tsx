@@ -148,7 +148,7 @@ function Apoie() {
               </g>
               <g transform="translate(87.951 92.954)">
                 <path
-                  fill="#2e8486"
+                  fill="#008080"
                   fillOpacity="1"
                   fillRule="nonzero"
                   stroke="none"
