@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown'
 //render(<ReactMarkdown># Hello, *world*!</ReactMarkdown>, document.body)
 
 const Questions = ({ question }) => {
+  
   return (
     <Layout>
       <SEO title={question.title} />
@@ -46,7 +47,9 @@ const Questions = ({ question }) => {
             </div>
             <div className="mt-10 py-10 border-t border-gray-300 text-center">
               <div className="flex flex-wrap justify-center">
-                <div className="w-full lg:w-9/12 px-4 mb-4 text-lg leading-relaxed text-gray-800 text-center markdown-align">
+                <div className = {
+                  "w-full lg:w-9/12 px-4 mb-4 text-lg leading-relaxed text-gray-800 text-center markdown-align"
+                  }>
                     <ReactMarkdown children={question.answer} />
                 </div>
               </div>
