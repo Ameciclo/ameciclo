@@ -2,6 +2,11 @@ import SEO from "../../components/SEO";
 import Layout from "../../components/Layout";
 import Breadcrumb from "../../components/Breadcrumb";
 //import { Accordion } from "../../components/Accordion";
+import React from 'react'
+import ReactMarkdown from 'react-markdown'
+//import {render} from 'react-dom'
+//const gfm = require('remark-gfm')
+//render(<ReactMarkdown># Hello, *world*!</ReactMarkdown>, document.body)
 
 const Questions = ({ question }) => {
   return (
@@ -43,7 +48,7 @@ const Questions = ({ question }) => {
               <div className="flex flex-wrap justify-center">
                 <div className="w-full lg:w-9/12 px-4">
                   <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                    {question.answer}
+                    <ReactMarkdown children={question.answer} />
                   </p>
                 </div>
               </div>
