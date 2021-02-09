@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";*/}
 
 
-const Biciclopedia = ({ /*faqs,*/ categories }) => {
+const Biciclopedia = ({ faqs, categories }) => {
 
   let disponibleCategories = []
 
@@ -41,10 +41,9 @@ const Biciclopedia = ({ /*faqs,*/ categories }) => {
           backgroundImage: `url('/biciclopedia.webp')`,
         }}
       >
-        {/**
         <div className="container mx-auto my-8" style={{ maxWidth: "768px" }}>
           {faqs.length !== 0 && <SearchComponent faqs={faqs} />}
-        </div> */}
+        </div>
       </div> 
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
@@ -112,22 +111,22 @@ const Biciclopedia = ({ /*faqs,*/ categories }) => {
 };
 
 export async function getStaticProps() {
-  //const res = await fetch("https://cms.ameciclo.org/faqs"),
-  const res_cat = await fetch("https://cms.ameciclo.org/faq-tags");
+  const res = await fetch("https://cms.ameciclo.org/faqs"),
+        res_cat = await fetch("https://cms.ameciclo.org/faq-tags");
 
   let categories = [],
     faqs = [];
   if (res_cat.status === 200) {
     categories = await res_cat.json();
   }
-  //if (res.status === 200) {
-  //  faqs = await res.json();
-  //}
+  if (res.status === 200) {
+    faqs = await res.json();
+  }
 
   return {
     props: {
-      //faqs,
-      categories//,
+      faqs,
+      categories
     },
   };
 }
