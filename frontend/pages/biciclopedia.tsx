@@ -4,7 +4,7 @@ import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { SearchComponent } from "../components/SearchComponent";
 import { Accordion } from "../components/Accordion_FAQ";
-import Category from "./biciclopedia/[category]";
+//import Category from "./biciclopedia/[category]";
 {/*import Image from "next/image";
 import FAQIcon from "../components/Icons/faq";
 import { motion } from "framer-motion";
