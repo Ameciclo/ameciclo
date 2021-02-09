@@ -28,27 +28,27 @@ const Questions = ({ question }) => {
         </div>
       </div>
       <section className="container mx-auto my-8">
-      <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
-          <div className="px-6">
-            <div className="text-center mt-12">
-              <h3 className="text-4xl font-semibold leading-normal mb-2 text-gray-800 mb-2">
-                {question.title}
-              </h3>
-              <p className="text-2xl font-semibold leading-normal mb-2 text-gray-800 mb-2">
-                {question.description}
-              </p>
-            </div>
-          </div>
-          <div className="mt-10 py-10 border-t border-gray-300 text-center">
-            <div className="flex flex-wrap justify-center">
-              <div className="w-full lg:w-9/12 px-4">
-                <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                  {question.answer}
+        <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
+            <div className="px-6">
+              <div className="text-center mt-12">
+                <h3 className="text-4xl font-semibold leading-normal mb-2 text-gray-800 mb-2">
+                  {question.title}
+                </h3>
+                <p className="text-2xl font-semibold leading-normal mb-2 text-gray-800 mb-2">
+                  {question.description}
                 </p>
               </div>
             </div>
+            <div className="mt-10 py-10 border-t border-gray-300 text-center">
+              <div className="flex flex-wrap justify-center">
+                <div className="w-full lg:w-9/12 px-4">
+                  <p className="mb-4 text-lg leading-relaxed text-gray-800">
+                    {question.answer}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
       </section>
     </Layout>
   );

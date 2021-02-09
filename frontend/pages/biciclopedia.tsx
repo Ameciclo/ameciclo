@@ -57,9 +57,11 @@ const Biciclopedia = ({ /*faqs,*/ categories }) => {
       </div>
       
       <section className="container mx-auto mt-8 my-4 px-4">
-
+        <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
+ 
         <Accordion faqs={categories} />
 
+        </div>
         {/*categories.length === 0 ? (
           <span>Nenhuma pergunta disponivel</span>
         ) : (
