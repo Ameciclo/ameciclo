@@ -1,20 +1,23 @@
 {
   "kind": "collectionType",
-  "collectionName": "faq_tags",
+  "collectionName": "partners",
   "info": {
-    "name": "Dúvidas Frequentes (Cat)",
+    "name": "Parcerias",
     "description": ""
   },
   "options": {
     "increments": true,
     "timestamps": true,
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "attributes": {
-    "title": {
+    "name": {
       "type": "string"
     },
-    "icon": {
+    "url": {
+      "type": "string"
+    },
+    "logo": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
@@ -25,12 +28,8 @@
       "plugin": "upload",
       "required": false
     },
-    "faqs": {
-      "collection": "faq",
-      "via": "faq_tags"
-    },
-    "slug": {
-      "type": "string"
+    "sponsor": {
+      "type": "boolean"
     }
   }
 }

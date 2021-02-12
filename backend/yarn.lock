@@ -10413,7 +10413,7 @@ strapi-provider-email-sendmail@3.4.6:
     sendmail "^1.6.1"
     strapi-utils "3.4.6"
 
-strapi-provider-upload-cloudinary@3.4.6:
+strapi-provider-upload-cloudinary@^3.4.6:
   version "3.4.6"
   resolved "https://registry.yarnpkg.com/strapi-provider-upload-cloudinary/-/strapi-provider-upload-cloudinary-3.4.6.tgz#a2a3cd9b4cc8341e458da944a937f9c9ac04430e"
   integrity sha512-XlbYAKK4NTvfkyjqxSEF/LQyGvXh11P/XOBctfGNV4qwJqic7QLQVkn7FtETrQOX7G0n2xqx3jKcw+RL896d1A==

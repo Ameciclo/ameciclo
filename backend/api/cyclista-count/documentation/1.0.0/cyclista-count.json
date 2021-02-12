@@ -1,18 +1,19 @@
 {
   "paths": {
-    "/workgroups": {
+    "/cyclista-counts": {
       "get": {
         "deprecated": false,
-        "description": "Find all the workgroups's records",
+        "description": "",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Workgroups"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -51,7 +52,7 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Cyclista-count"
         ],
         "parameters": [
           {
@@ -194,79 +195,16 @@
       },
       "post": {
         "deprecated": false,
-        "description": "Create a new workgroups record",
+        "description": "Create a new record",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Workgroups"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Workgroups"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewWorkgroups"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/workgroups/count": {
-      "get": {
-        "deprecated": false,
-        "description": "Retrieve the numver of workgroups documents",
-        "responses": {
-          "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "count": {
-                      "type": "integer"
+                    "foo": {
+                      "type": "string"
                     }
                   }
                 }
@@ -306,22 +244,36 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Cyclista-count"
         ],
-        "parameters": []
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewCyclista-count"
+              }
+            }
+          }
+        }
       }
     },
-    "/workgroups/{id}": {
+    "/cyclista-counts/count": {
       "get": {
         "deprecated": false,
-        "description": "Find one workgroups record",
+        "description": "",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workgroups"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -359,7 +311,64 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Cyclista-count"
+        ],
+        "parameters": []
+      }
+    },
+    "/cyclista-counts/{id}": {
+      "get": {
+        "deprecated": false,
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Cyclista-count"
         ],
         "parameters": [
           {
@@ -376,14 +385,18 @@
       },
       "put": {
         "deprecated": false,
-        "description": "Update a single workgroups record",
+        "description": "Update a record",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workgroups"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -421,7 +434,7 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Cyclista-count"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +442,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewWorkgroups"
+                "$ref": "#/components/schemas/NewCyclista-count"
               }
             }
           }
@@ -449,10 +462,10 @@
       },
       "delete": {
         "deprecated": false,
-        "description": "Delete a single workgroups record",
+        "description": "Delete a record",
         "responses": {
           "200": {
-            "description": "deletes a single workgroups based on the ID supplied",
+            "description": "deletes a single record based on the ID supplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,7 +508,7 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Cyclista-count"
         ],
         "parameters": [
           {
@@ -514,7 +527,7 @@
   },
   "components": {
     "schemas": {
-      "Workgroups": {
+      "Cyclista-count": {
         "required": [
           "id"
         ],
@@ -522,87 +535,23 @@
           "id": {
             "type": "string"
           },
-          "name": {
-            "type": "string"
-          },
-          "telegram_id": {
+          "count_id": {
             "type": "integer"
           },
-          "icon": {
-            "required": [
-              "id",
-              "name",
-              "hash",
-              "mime",
-              "size",
-              "url",
-              "provider"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "alternativeText": {
-                "type": "string"
-              },
-              "caption": {
-                "type": "string"
-              },
-              "width": {
-                "type": "integer"
-              },
-              "height": {
-                "type": "integer"
-              },
-              "formats": {
-                "type": "object"
-              },
-              "hash": {
-                "type": "string"
-              },
-              "ext": {
-                "type": "string"
-              },
-              "mime": {
-                "type": "string"
-              },
-              "size": {
-                "type": "number"
-              },
-              "url": {
-                "type": "string"
-              },
-              "previewUrl": {
-                "type": "string"
-              },
-              "provider": {
-                "type": "string"
-              },
-              "provider_metadata": {
-                "type": "object"
-              },
-              "related": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
-          },
-          "telegram_url": {
+          "about": {
             "type": "string"
           },
-          "projects": {
+          "gallery": {
             "type": "array",
             "items": {
               "required": [
-                "id"
+                "id",
+                "name",
+                "hash",
+                "mime",
+                "size",
+                "url",
+                "provider"
               ],
               "properties": {
                 "id": {
@@ -611,67 +560,46 @@
                 "name": {
                   "type": "string"
                 },
-                "media": {
+                "alternativeText": {
                   "type": "string"
                 },
-                "goal": {
+                "caption": {
                   "type": "string"
                 },
-                "endDate": {
+                "width": {
+                  "type": "integer"
+                },
+                "height": {
+                  "type": "integer"
+                },
+                "formats": {
+                  "type": "object"
+                },
+                "hash": {
                   "type": "string"
                 },
-                "description": {
+                "ext": {
                   "type": "string"
                 },
-                "startDate": {
+                "mime": {
                   "type": "string"
                 },
-                "status": {
+                "size": {
+                  "type": "number"
+                },
+                "url": {
                   "type": "string"
                 },
-                "bikeCulture": {
+                "previewUrl": {
                   "type": "string"
                 },
-                "instArticulation": {
+                "provider": {
                   "type": "string"
                 },
-                "politicIncidence": {
-                  "type": "string"
+                "provider_metadata": {
+                  "type": "object"
                 },
-                "slug": {
-                  "type": "string"
-                },
-                "isHighlighted": {
-                  "type": "boolean"
-                },
-                "gallery": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "Links": {
-                  "type": "component"
-                },
-                "workgroup": {
-                  "type": "string"
-                },
-                "coordinator": {
-                  "type": "string"
-                },
-                "partners": {
-                  "type": "string"
-                },
-                "steps": {
-                  "type": "component"
-                },
-                "clippings": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "cover": {
+                "related": {
                   "type": "string"
                 },
                 "created_by": {
@@ -683,137 +611,8 @@
               }
             }
           },
-          "description": {
+          "report_url": {
             "type": "string"
-          },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "folder_url": {
-            "type": "string"
-          },
-          "botmembers": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "first_name": {
-                  "type": "string"
-                },
-                "telegram_id": {
-                  "type": "integer"
-                },
-                "daily_notifications": {
-                  "type": "boolean"
-                },
-                "workgroups": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "coordinations": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "oncethere": {
-                  "type": "string"
-                },
-                "telegram_nick": {
-                  "type": "string"
-                },
-                "CPF": {
-                  "type": "integer"
-                },
-                "published_at": {
-                  "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "washere": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "first_name": {
-                  "type": "string"
-                },
-                "telegram_id": {
-                  "type": "integer"
-                },
-                "daily_notifications": {
-                  "type": "boolean"
-                },
-                "workgroups": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "coordinations": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "oncethere": {
-                  "type": "string"
-                },
-                "telegram_nick": {
-                  "type": "string"
-                },
-                "CPF": {
-                  "type": "integer"
-                },
-                "published_at": {
-                  "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
           },
           "published_at": {
             "type": "string",
@@ -821,62 +620,16 @@
           }
         }
       },
-      "NewWorkgroups": {
+      "NewCyclista-count": {
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "telegram_id": {
+          "count_id": {
             "type": "integer"
           },
-          "telegram_url": {
+          "about": {
             "type": "string"
           },
-          "projects": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "description": {
+          "report_url": {
             "type": "string"
-          },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "folder_url": {
-            "type": "string"
-          },
-          "botmembers": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "washere": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           },
           "published_at": {
             "type": "string",
@@ -892,9 +645,5 @@
       }
     }
   },
-  "tags": [
-    {
-      "name": "Workgroups"
-    }
-  ]
+  "tags": []
 }

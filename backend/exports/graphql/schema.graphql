@@ -183,6 +183,301 @@ type deleteBotmemberPayload {
   botmember: Botmembers
 }
 
+type Carrossel {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  title: String
+  url: String
+  text: String
+  picture: UploadFile
+  show: Boolean
+  published_at: DateTime
+}
+
+type CarrosselConnection {
+  values: [Carrossel]
+  groupBy: CarrosselGroupBy
+  aggregate: CarrosselAggregator
+}
+
+type CarrosselAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type CarrosselGroupBy {
+  id: [CarrosselConnectionId]
+  created_at: [CarrosselConnectionCreated_at]
+  updated_at: [CarrosselConnectionUpdated_at]
+  title: [CarrosselConnectionTitle]
+  url: [CarrosselConnectionUrl]
+  text: [CarrosselConnectionText]
+  picture: [CarrosselConnectionPicture]
+  show: [CarrosselConnectionShow]
+  published_at: [CarrosselConnectionPublished_at]
+}
+
+type CarrosselConnectionId {
+  key: ID
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionCreated_at {
+  key: DateTime
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionUpdated_at {
+  key: DateTime
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionTitle {
+  key: String
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionUrl {
+  key: String
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionText {
+  key: String
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionPicture {
+  key: ID
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionShow {
+  key: Boolean
+  connection: CarrosselConnection
+}
+
+type CarrosselConnectionPublished_at {
+  key: DateTime
+  connection: CarrosselConnection
+}
+
+input CarrosselInput {
+  title: String
+  url: String
+  text: String
+  picture: ID
+  show: Boolean
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editCarrosselInput {
+  title: String
+  url: String
+  text: String
+  picture: ID
+  show: Boolean
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createCarrosselInput {
+  data: CarrosselInput
+}
+
+type createCarrosselPayload {
+  carrossel: Carrossel
+}
+
+input updateCarrosselInput {
+  where: InputID
+  data: editCarrosselInput
+}
+
+type updateCarrosselPayload {
+  carrossel: Carrossel
+}
+
+input deleteCarrosselInput {
+  where: InputID
+}
+
+type deleteCarrosselPayload {
+  carrossel: Carrossel
+}
+
+enum ENUM_CLIPPING_MEDIA_TYPE {
+  television
+  radio
+  press
+  magazine
+  blog
+  online_press
+  social_media
+  other
+}
+
+type Clipping {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  title: String
+  link: String
+  date: Date
+  backup_link: String
+  text: String
+  media_type: ENUM_CLIPPING_MEDIA_TYPE
+  media_name: String
+  projeto: Project
+  published_at: DateTime
+  print(sort: String, limit: Int, start: Int, where: JSON): [UploadFile]
+}
+
+type ClippingConnection {
+  values: [Clipping]
+  groupBy: ClippingGroupBy
+  aggregate: ClippingAggregator
+}
+
+type ClippingAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type ClippingGroupBy {
+  id: [ClippingConnectionId]
+  created_at: [ClippingConnectionCreated_at]
+  updated_at: [ClippingConnectionUpdated_at]
+  title: [ClippingConnectionTitle]
+  link: [ClippingConnectionLink]
+  date: [ClippingConnectionDate]
+  backup_link: [ClippingConnectionBackup_link]
+  text: [ClippingConnectionText]
+  media_type: [ClippingConnectionMedia_type]
+  media_name: [ClippingConnectionMedia_name]
+  projeto: [ClippingConnectionProjeto]
+  published_at: [ClippingConnectionPublished_at]
+}
+
+type ClippingConnectionId {
+  key: ID
+  connection: ClippingConnection
+}
+
+type ClippingConnectionCreated_at {
+  key: DateTime
+  connection: ClippingConnection
+}
+
+type ClippingConnectionUpdated_at {
+  key: DateTime
+  connection: ClippingConnection
+}
+
+type ClippingConnectionTitle {
+  key: String
+  connection: ClippingConnection
+}
+
+type ClippingConnectionLink {
+  key: String
+  connection: ClippingConnection
+}
+
+type ClippingConnectionDate {
+  key: ID
+  connection: ClippingConnection
+}
+
+type ClippingConnectionBackup_link {
+  key: String
+  connection: ClippingConnection
+}
+
+type ClippingConnectionText {
+  key: String
+  connection: ClippingConnection
+}
+
+type ClippingConnectionMedia_type {
+  key: String
+  connection: ClippingConnection
+}
+
+type ClippingConnectionMedia_name {
+  key: String
+  connection: ClippingConnection
+}
+
+type ClippingConnectionProjeto {
+  key: ID
+  connection: ClippingConnection
+}
+
+type ClippingConnectionPublished_at {
+  key: DateTime
+  connection: ClippingConnection
+}
+
+input ClippingInput {
+  title: String
+  link: String
+  print: [ID]
+  date: Date
+  backup_link: String
+  text: String
+  media_type: ENUM_CLIPPING_MEDIA_TYPE
+  media_name: String
+  projeto: ID
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editClippingInput {
+  title: String
+  link: String
+  print: [ID]
+  date: Date
+  backup_link: String
+  text: String
+  media_type: ENUM_CLIPPING_MEDIA_TYPE
+  media_name: String
+  projeto: ID
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createClippingInput {
+  data: ClippingInput
+}
+
+type createClippingPayload {
+  clipping: Clipping
+}
+
+input updateClippingInput {
+  where: InputID
+  data: editClippingInput
+}
+
+type updateClippingPayload {
+  clipping: Clipping
+}
+
+input deleteClippingInput {
+  where: InputID
+}
+
+type deleteClippingPayload {
+  clipping: Clipping
+}
+
 type Coordinator {
   id: ID!
   created_at: DateTime!
@@ -399,6 +694,138 @@ input deleteCounselorInput {
 
 type deleteCounselorPayload {
   counselor: Counselor
+}
+
+type CyclistaCount {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  count_id: Int
+  about: String
+  report_url: String
+  published_at: DateTime
+  gallery(sort: String, limit: Int, start: Int, where: JSON): [UploadFile]
+}
+
+type CyclistaCountConnection {
+  values: [CyclistaCount]
+  groupBy: CyclistaCountGroupBy
+  aggregate: CyclistaCountAggregator
+}
+
+type CyclistaCountAggregator {
+  count: Int
+  totalCount: Int
+  sum: CyclistaCountAggregatorSum
+  avg: CyclistaCountAggregatorAvg
+  min: CyclistaCountAggregatorMin
+  max: CyclistaCountAggregatorMax
+}
+
+type CyclistaCountAggregatorSum {
+  count_id: Float
+}
+
+type CyclistaCountAggregatorAvg {
+  count_id: Float
+}
+
+type CyclistaCountAggregatorMin {
+  count_id: Float
+}
+
+type CyclistaCountAggregatorMax {
+  count_id: Float
+}
+
+type CyclistaCountGroupBy {
+  id: [CyclistaCountConnectionId]
+  created_at: [CyclistaCountConnectionCreated_at]
+  updated_at: [CyclistaCountConnectionUpdated_at]
+  count_id: [CyclistaCountConnectionCount_id]
+  about: [CyclistaCountConnectionAbout]
+  report_url: [CyclistaCountConnectionReport_url]
+  published_at: [CyclistaCountConnectionPublished_at]
+}
+
+type CyclistaCountConnectionId {
+  key: ID
+  connection: CyclistaCountConnection
+}
+
+type CyclistaCountConnectionCreated_at {
+  key: DateTime
+  connection: CyclistaCountConnection
+}
+
+type CyclistaCountConnectionUpdated_at {
+  key: DateTime
+  connection: CyclistaCountConnection
+}
+
+type CyclistaCountConnectionCount_id {
+  key: Int
+  connection: CyclistaCountConnection
+}
+
+type CyclistaCountConnectionAbout {
+  key: String
+  connection: CyclistaCountConnection
+}
+
+type CyclistaCountConnectionReport_url {
+  key: String
+  connection: CyclistaCountConnection
+}
+
+type CyclistaCountConnectionPublished_at {
+  key: DateTime
+  connection: CyclistaCountConnection
+}
+
+input CyclistaCountInput {
+  count_id: Int
+  about: String
+  gallery: [ID]
+  report_url: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editCyclistaCountInput {
+  count_id: Int
+  about: String
+  gallery: [ID]
+  report_url: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createCyclistaCountInput {
+  data: CyclistaCountInput
+}
+
+type createCyclistaCountPayload {
+  cyclistaCount: CyclistaCount
+}
+
+input updateCyclistaCountInput {
+  where: InputID
+  data: editCyclistaCountInput
+}
+
+type updateCyclistaCountPayload {
+  cyclistaCount: CyclistaCount
+}
+
+input deleteCyclistaCountInput {
+  where: InputID
+}
+
+type deleteCyclistaCountPayload {
+  cyclistaCount: CyclistaCount
 }
 
 enum ENUM_DOCUMENTS_TYPE {
@@ -786,6 +1213,202 @@ type deleteHomePayload {
   home: Home
 }
 
+enum ENUM_LIBRARY_TYPE {
+  livro
+  tecnico
+  manual
+  cartilha
+  revista
+  outros
+}
+
+type Library {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  register: String
+  title: String
+  author: String
+  year: Int
+  copies: Int
+  type: ENUM_LIBRARY_TYPE
+  cover: UploadFile
+  summary: String
+  ISBN: Long
+  published_at: DateTime
+}
+
+type LibraryConnection {
+  values: [Library]
+  groupBy: LibraryGroupBy
+  aggregate: LibraryAggregator
+}
+
+type LibraryAggregator {
+  count: Int
+  totalCount: Int
+  sum: LibraryAggregatorSum
+  avg: LibraryAggregatorAvg
+  min: LibraryAggregatorMin
+  max: LibraryAggregatorMax
+}
+
+type LibraryAggregatorSum {
+  year: Float
+  copies: Float
+}
+
+type LibraryAggregatorAvg {
+  year: Float
+  copies: Float
+}
+
+type LibraryAggregatorMin {
+  year: Float
+  copies: Float
+}
+
+type LibraryAggregatorMax {
+  year: Float
+  copies: Float
+}
+
+type LibraryGroupBy {
+  id: [LibraryConnectionId]
+  created_at: [LibraryConnectionCreated_at]
+  updated_at: [LibraryConnectionUpdated_at]
+  register: [LibraryConnectionRegister]
+  title: [LibraryConnectionTitle]
+  author: [LibraryConnectionAuthor]
+  year: [LibraryConnectionYear]
+  copies: [LibraryConnectionCopies]
+  type: [LibraryConnectionType]
+  cover: [LibraryConnectionCover]
+  summary: [LibraryConnectionSummary]
+  ISBN: [LibraryConnectionISBN]
+  published_at: [LibraryConnectionPublished_at]
+}
+
+type LibraryConnectionId {
+  key: ID
+  connection: LibraryConnection
+}
+
+type LibraryConnectionCreated_at {
+  key: DateTime
+  connection: LibraryConnection
+}
+
+type LibraryConnectionUpdated_at {
+  key: DateTime
+  connection: LibraryConnection
+}
+
+type LibraryConnectionRegister {
+  key: String
+  connection: LibraryConnection
+}
+
+type LibraryConnectionTitle {
+  key: String
+  connection: LibraryConnection
+}
+
+type LibraryConnectionAuthor {
+  key: String
+  connection: LibraryConnection
+}
+
+type LibraryConnectionYear {
+  key: Int
+  connection: LibraryConnection
+}
+
+type LibraryConnectionCopies {
+  key: Int
+  connection: LibraryConnection
+}
+
+type LibraryConnectionType {
+  key: String
+  connection: LibraryConnection
+}
+
+type LibraryConnectionCover {
+  key: ID
+  connection: LibraryConnection
+}
+
+type LibraryConnectionSummary {
+  key: String
+  connection: LibraryConnection
+}
+
+type LibraryConnectionISBN {
+  key: ID
+  connection: LibraryConnection
+}
+
+type LibraryConnectionPublished_at {
+  key: DateTime
+  connection: LibraryConnection
+}
+
+input LibraryInput {
+  register: String
+  title: String
+  author: String
+  year: Int
+  copies: Int
+  type: ENUM_LIBRARY_TYPE
+  cover: ID
+  summary: String
+  ISBN: Long
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editLibraryInput {
+  register: String
+  title: String
+  author: String
+  year: Int
+  copies: Int
+  type: ENUM_LIBRARY_TYPE
+  cover: ID
+  summary: String
+  ISBN: Long
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createLibraryInput {
+  data: LibraryInput
+}
+
+type createLibraryPayload {
+  library: Library
+}
+
+input updateLibraryInput {
+  where: InputID
+  data: editLibraryInput
+}
+
+type updateLibraryPayload {
+  library: Library
+}
+
+input deleteLibraryInput {
+  where: InputID
+}
+
+type deleteLibraryPayload {
+  library: Library
+}
+
 type Locations {
   id: ID!
   created_at: DateTime!
@@ -902,6 +1525,124 @@ input deleteLocationInput {
 
 type deleteLocationPayload {
   location: Locations
+}
+
+type Partners {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  name: String
+  url: String
+  logo: UploadFile
+  sponsor: Boolean
+  published_at: DateTime
+}
+
+type PartnersConnection {
+  values: [Partners]
+  groupBy: PartnersGroupBy
+  aggregate: PartnersAggregator
+}
+
+type PartnersAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type PartnersGroupBy {
+  id: [PartnersConnectionId]
+  created_at: [PartnersConnectionCreated_at]
+  updated_at: [PartnersConnectionUpdated_at]
+  name: [PartnersConnectionName]
+  url: [PartnersConnectionUrl]
+  logo: [PartnersConnectionLogo]
+  sponsor: [PartnersConnectionSponsor]
+  published_at: [PartnersConnectionPublished_at]
+}
+
+type PartnersConnectionId {
+  key: ID
+  connection: PartnersConnection
+}
+
+type PartnersConnectionCreated_at {
+  key: DateTime
+  connection: PartnersConnection
+}
+
+type PartnersConnectionUpdated_at {
+  key: DateTime
+  connection: PartnersConnection
+}
+
+type PartnersConnectionName {
+  key: String
+  connection: PartnersConnection
+}
+
+type PartnersConnectionUrl {
+  key: String
+  connection: PartnersConnection
+}
+
+type PartnersConnectionLogo {
+  key: ID
+  connection: PartnersConnection
+}
+
+type PartnersConnectionSponsor {
+  key: Boolean
+  connection: PartnersConnection
+}
+
+type PartnersConnectionPublished_at {
+  key: DateTime
+  connection: PartnersConnection
+}
+
+input PartnerInput {
+  name: String
+  url: String
+  logo: ID
+  sponsor: Boolean
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editPartnerInput {
+  name: String
+  url: String
+  logo: ID
+  sponsor: Boolean
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createPartnerInput {
+  data: PartnerInput
+}
+
+type createPartnerPayload {
+  partner: Partners
+}
+
+input updatePartnerInput {
+  where: InputID
+  data: editPartnerInput
+}
+
+type updatePartnerPayload {
+  partner: Partners
+}
+
+input deletePartnerInput {
+  where: InputID
+}
+
+type deletePartnerPayload {
+  partner: Partners
 }
 
 type PodcastEpisode {
@@ -1056,7 +1797,11 @@ type Project {
   Links: [ComponentButtonLinks]
   workgroup: Workgroups
   coordinator: Botmembers
+  steps: [ComponentButtonStep]
+  cover: UploadFile
   gallery(sort: String, limit: Int, start: Int, where: JSON): [UploadFile]
+  partners(sort: String, limit: Int, start: Int, where: JSON): [Partners]
+  clippings(sort: String, limit: Int, start: Int, where: JSON): [Clipping]
 }
 
 type ProjectConnection {
@@ -1088,6 +1833,7 @@ type ProjectGroupBy {
   isHighlighted: [ProjectConnectionIsHighlighted]
   workgroup: [ProjectConnectionWorkgroup]
   coordinator: [ProjectConnectionCoordinator]
+  cover: [ProjectConnectionCover]
 }
 
 type ProjectConnectionId {
@@ -1175,6 +1921,11 @@ type ProjectConnectionCoordinator {
   connection: ProjectConnection
 }
 
+type ProjectConnectionCover {
+  key: ID
+  connection: ProjectConnection
+}
+
 input ProjectInput {
   name: String
   media: ID
@@ -1192,6 +1943,10 @@ input ProjectInput {
   Links: [ComponentButtonLinkInput]
   workgroup: ID
   coordinator: ID
+  partners: [ID]
+  steps: [ComponentButtonStepInput]
+  clippings: [ID]
+  cover: ID
   created_by: ID
   updated_by: ID
 }
@@ -1213,6 +1968,10 @@ input editProjectInput {
   Links: [editComponentButtonLinkInput]
   workgroup: ID
   coordinator: ID
+  partners: [ID]
+  steps: [editComponentButtonStepInput]
+  clippings: [ID]
+  cover: ID
   created_by: ID
   updated_by: ID
 }
@@ -1288,12 +2047,12 @@ type Workgroups {
   updated_at: DateTime!
   name: String
   telegram_id: Long
+  icon: UploadFile
   telegram_url: String
   description: String
   Links: [ComponentButtonLinks]
   folder_url: String
   published_at: DateTime
-  icon(sort: String, limit: Int, start: Int, where: JSON): [UploadFile]
   projects(sort: String, limit: Int, start: Int, where: JSON): [Project]
   botmembers(sort: String, limit: Int, start: Int, where: JSON): [Botmembers]
   washere(sort: String, limit: Int, start: Int, where: JSON): [Botmembers]
@@ -1316,6 +2075,7 @@ type WorkgroupsGroupBy {
   updated_at: [WorkgroupsConnectionUpdated_at]
   name: [WorkgroupsConnectionName]
   telegram_id: [WorkgroupsConnectionTelegram_id]
+  icon: [WorkgroupsConnectionIcon]
   telegram_url: [WorkgroupsConnectionTelegram_url]
   description: [WorkgroupsConnectionDescription]
   folder_url: [WorkgroupsConnectionFolder_url]
@@ -1347,6 +2107,11 @@ type WorkgroupsConnectionTelegram_id {
   connection: WorkgroupsConnection
 }
 
+type WorkgroupsConnectionIcon {
+  key: ID
+  connection: WorkgroupsConnection
+}
+
 type WorkgroupsConnectionTelegram_url {
   key: String
   connection: WorkgroupsConnection
@@ -1370,7 +2135,7 @@ type WorkgroupsConnectionPublished_at {
 input WorkgroupInput {
   name: String
   telegram_id: Long
-  icon: [ID]
+  icon: ID
   telegram_url: String
   projects: [ID]
   description: String
@@ -1386,7 +2151,7 @@ input WorkgroupInput {
 input editWorkgroupInput {
   name: String
   telegram_id: Long
-  icon: [ID]
+  icon: ID
   telegram_url: String
   projects: [ID]
   description: String
@@ -1874,13 +2639,13 @@ type deleteUserPayload {
 
 type ComponentButtonLinks {
   id: ID!
-  title: String
-  link: String
+  title: String!
+  link: String!
 }
 
 input ComponentButtonLinkInput {
-  title: String
-  link: String
+  title: String!
+  link: String!
 }
 
 input editComponentButtonLinkInput {
@@ -1889,7 +2654,30 @@ input editComponentButtonLinkInput {
   link: String
 }
 
-union Morph = UsersPermissionsMe | UsersPermissionsMeRole | UsersPermissionsLoginPayload | UserPermissionsPasswordPayload | Botmembers | BotmembersConnection | BotmembersAggregator | BotmembersGroupBy | BotmembersConnectionId | BotmembersConnectionCreated_at | BotmembersConnectionUpdated_at | BotmembersConnectionFirst_name | BotmembersConnectionTelegram_id | BotmembersConnectionDaily_notifications | BotmembersConnectionOncethere | BotmembersConnectionTelegram_nick | BotmembersConnectionCPF | BotmembersConnectionPublished_at | createBotmemberPayload | updateBotmemberPayload | deleteBotmemberPayload | Coordinator | CoordinatorConnection | CoordinatorAggregator | CoordinatorGroupBy | CoordinatorConnectionId | CoordinatorConnectionCreated_at | CoordinatorConnectionUpdated_at | CoordinatorConnectionFirstName | CoordinatorConnectionLastName | CoordinatorConnectionMedia | CoordinatorConnectionBio | createCoordinatorPayload | updateCoordinatorPayload | deleteCoordinatorPayload | Counselor | CounselorConnection | CounselorAggregator | CounselorGroupBy | CounselorConnectionId | CounselorConnectionCreated_at | CounselorConnectionUpdated_at | CounselorConnectionFirstName | CounselorConnectionLastName | CounselorConnectionMedia | CounselorConnectionBio | createCounselorPayload | updateCounselorPayload | deleteCounselorPayload | Documents | DocumentsConnection | DocumentsAggregator | DocumentsGroupBy | DocumentsConnectionId | DocumentsConnectionCreated_at | DocumentsConnectionUpdated_at | DocumentsConnectionTitle | DocumentsConnectionDescription | DocumentsConnectionUrl | DocumentsConnectionCover | DocumentsConnectionType | DocumentsConnectionRelease_date | DocumentsConnectionPublished_at | createDocumentPayload | updateDocumentPayload | deleteDocumentPayload | FaqTag | FaqTagConnection | FaqTagAggregator | FaqTagGroupBy | FaqTagConnectionId | FaqTagConnectionCreated_at | FaqTagConnectionUpdated_at | FaqTagConnectionTitle | FaqTagConnectionIcon | FaqTagConnectionSlug | createFaqTagPayload | updateFaqTagPayload | deleteFaqTagPayload | Faq | FaqConnection | FaqAggregator | FaqGroupBy | FaqConnectionId | FaqConnectionCreated_at | FaqConnectionUpdated_at | FaqConnectionTitle | FaqConnectionDescription | FaqConnectionAnswer | createFaqPayload | updateFaqPayload | deleteFaqPayload | Home | updateHomePayload | deleteHomePayload | Locations | LocationsConnection | LocationsAggregator | LocationsGroupBy | LocationsConnectionId | LocationsConnectionCreated_at | LocationsConnectionUpdated_at | LocationsConnectionName | LocationsConnectionAddress | LocationsConnectionIsVirtual | LocationsConnectionShow_on_telegram | LocationsConnectionPublished_at | createLocationPayload | updateLocationPayload | deleteLocationPayload | PodcastEpisode | PodcastEpisodeConnection | PodcastEpisodeAggregator | PodcastEpisodeGroupBy | PodcastEpisodeConnectionId | PodcastEpisodeConnectionCreated_at | PodcastEpisodeConnectionUpdated_at | PodcastEpisodeConnectionTitle | PodcastEpisodeConnectionDescription | PodcastEpisodeConnectionYoutube_link | PodcastEpisodeConnectionPublished_at | createPodcastEpisodePayload | updatePodcastEpisodePayload | deletePodcastEpisodePayload | Project | ProjectConnection | ProjectAggregator | ProjectGroupBy | ProjectConnectionId | ProjectConnectionCreated_at | ProjectConnectionUpdated_at | ProjectConnectionName | ProjectConnectionMedia | ProjectConnectionGoal | ProjectConnectionEndDate | ProjectConnectionDescription | ProjectConnectionStartDate | ProjectConnectionStatus | ProjectConnectionBikeCulture | ProjectConnectionInstArticulation | ProjectConnectionPoliticIncidence | ProjectConnectionSlug | ProjectConnectionIsHighlighted | ProjectConnectionWorkgroup | ProjectConnectionCoordinator | createProjectPayload | updateProjectPayload | deleteProjectPayload | SoltaOFrei | updateSoltaOFreiPayload | deleteSoltaOFreiPayload | Workgroups | WorkgroupsConnection | WorkgroupsAggregator | WorkgroupsGroupBy | WorkgroupsConnectionId | WorkgroupsConnectionCreated_at | WorkgroupsConnectionUpdated_at | WorkgroupsConnectionName | WorkgroupsConnectionTelegram_id | WorkgroupsConnectionTelegram_url | WorkgroupsConnectionDescription | WorkgroupsConnectionFolder_url | WorkgroupsConnectionPublished_at | createWorkgroupPayload | updateWorkgroupPayload | deleteWorkgroupPayload | UploadFile | UploadFileConnection | UploadFileAggregator | UploadFileAggregatorSum | UploadFileAggregatorAvg | UploadFileAggregatorMin | UploadFileAggregatorMax | UploadFileGroupBy | UploadFileConnectionId | UploadFileConnectionCreated_at | UploadFileConnectionUpdated_at | UploadFileConnectionName | UploadFileConnectionAlternativeText | UploadFileConnectionCaption | UploadFileConnectionWidth | UploadFileConnectionHeight | UploadFileConnectionFormats | UploadFileConnectionHash | UploadFileConnectionExt | UploadFileConnectionMime | UploadFileConnectionSize | UploadFileConnectionUrl | UploadFileConnectionPreviewUrl | UploadFileConnectionProvider | UploadFileConnectionProvider_metadata | deleteFilePayload | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsRoleConnection | UsersPermissionsRoleAggregator | UsersPermissionsRoleGroupBy | UsersPermissionsRoleConnectionId | UsersPermissionsRoleConnectionName | UsersPermissionsRoleConnectionDescription | UsersPermissionsRoleConnectionType | createRolePayload | updateRolePayload | deleteRolePayload | UsersPermissionsUser | UsersPermissionsUserConnection | UsersPermissionsUserAggregator | UsersPermissionsUserGroupBy | UsersPermissionsUserConnectionId | UsersPermissionsUserConnectionCreated_at | UsersPermissionsUserConnectionUpdated_at | UsersPermissionsUserConnectionUsername | UsersPermissionsUserConnectionEmail | UsersPermissionsUserConnectionProvider | UsersPermissionsUserConnectionConfirmed | UsersPermissionsUserConnectionBlocked | UsersPermissionsUserConnectionRole | createUserPayload | updateUserPayload | deleteUserPayload | ComponentButtonLinks
+type ComponentButtonStep {
+  id: ID!
+  title: String
+  description: String
+  image: UploadFile
+  link: String
+}
+
+input ComponentButtonStepInput {
+  title: String
+  description: String
+  image: ID
+  link: String
+}
+
+input editComponentButtonStepInput {
+  id: ID
+  title: String
+  description: String
+  image: ID
+  link: String
+}
+
+union Morph = UsersPermissionsMe | UsersPermissionsMeRole | UsersPermissionsLoginPayload | UserPermissionsPasswordPayload | Botmembers | BotmembersConnection | BotmembersAggregator | BotmembersGroupBy | BotmembersConnectionId | BotmembersConnectionCreated_at | BotmembersConnectionUpdated_at | BotmembersConnectionFirst_name | BotmembersConnectionTelegram_id | BotmembersConnectionDaily_notifications | BotmembersConnectionOncethere | BotmembersConnectionTelegram_nick | BotmembersConnectionCPF | BotmembersConnectionPublished_at | createBotmemberPayload | updateBotmemberPayload | deleteBotmemberPayload | Carrossel | CarrosselConnection | CarrosselAggregator | CarrosselGroupBy | CarrosselConnectionId | CarrosselConnectionCreated_at | CarrosselConnectionUpdated_at | CarrosselConnectionTitle | CarrosselConnectionUrl | CarrosselConnectionText | CarrosselConnectionPicture | CarrosselConnectionShow | CarrosselConnectionPublished_at | createCarrosselPayload | updateCarrosselPayload | deleteCarrosselPayload | Clipping | ClippingConnection | ClippingAggregator | ClippingGroupBy | ClippingConnectionId | ClippingConnectionCreated_at | ClippingConnectionUpdated_at | ClippingConnectionTitle | ClippingConnectionLink | ClippingConnectionDate | ClippingConnectionBackup_link | ClippingConnectionText | ClippingConnectionMedia_type | ClippingConnectionMedia_name | ClippingConnectionProjeto | ClippingConnectionPublished_at | createClippingPayload | updateClippingPayload | deleteClippingPayload | Coordinator | CoordinatorConnection | CoordinatorAggregator | CoordinatorGroupBy | CoordinatorConnectionId | CoordinatorConnectionCreated_at | CoordinatorConnectionUpdated_at | CoordinatorConnectionFirstName | CoordinatorConnectionLastName | CoordinatorConnectionMedia | CoordinatorConnectionBio | createCoordinatorPayload | updateCoordinatorPayload | deleteCoordinatorPayload | Counselor | CounselorConnection | CounselorAggregator | CounselorGroupBy | CounselorConnectionId | CounselorConnectionCreated_at | CounselorConnectionUpdated_at | CounselorConnectionFirstName | CounselorConnectionLastName | CounselorConnectionMedia | CounselorConnectionBio | createCounselorPayload | updateCounselorPayload | deleteCounselorPayload | CyclistaCount | CyclistaCountConnection | CyclistaCountAggregator | CyclistaCountAggregatorSum | CyclistaCountAggregatorAvg | CyclistaCountAggregatorMin | CyclistaCountAggregatorMax | CyclistaCountGroupBy | CyclistaCountConnectionId | CyclistaCountConnectionCreated_at | CyclistaCountConnectionUpdated_at | CyclistaCountConnectionCount_id | CyclistaCountConnectionAbout | CyclistaCountConnectionReport_url | CyclistaCountConnectionPublished_at | createCyclistaCountPayload | updateCyclistaCountPayload | deleteCyclistaCountPayload | Documents | DocumentsConnection | DocumentsAggregator | DocumentsGroupBy | DocumentsConnectionId | DocumentsConnectionCreated_at | DocumentsConnectionUpdated_at | DocumentsConnectionTitle | DocumentsConnectionDescription | DocumentsConnectionUrl | DocumentsConnectionCover | DocumentsConnectionType | DocumentsConnectionRelease_date | DocumentsConnectionPublished_at | createDocumentPayload | updateDocumentPayload | deleteDocumentPayload | FaqTag | FaqTagConnection | FaqTagAggregator | FaqTagGroupBy | FaqTagConnectionId | FaqTagConnectionCreated_at | FaqTagConnectionUpdated_at | FaqTagConnectionTitle | FaqTagConnectionIcon | FaqTagConnectionSlug | createFaqTagPayload | updateFaqTagPayload | deleteFaqTagPayload | Faq | FaqConnection | FaqAggregator | FaqGroupBy | FaqConnectionId | FaqConnectionCreated_at | FaqConnectionUpdated_at | FaqConnectionTitle | FaqConnectionDescription | FaqConnectionAnswer | createFaqPayload | updateFaqPayload | deleteFaqPayload | Home | updateHomePayload | deleteHomePayload | Library | LibraryConnection | LibraryAggregator | LibraryAggregatorSum | LibraryAggregatorAvg | LibraryAggregatorMin | LibraryAggregatorMax | LibraryGroupBy | LibraryConnectionId | LibraryConnectionCreated_at | LibraryConnectionUpdated_at | LibraryConnectionRegister | LibraryConnectionTitle | LibraryConnectionAuthor | LibraryConnectionYear | LibraryConnectionCopies | LibraryConnectionType | LibraryConnectionCover | LibraryConnectionSummary | LibraryConnectionISBN | LibraryConnectionPublished_at | createLibraryPayload | updateLibraryPayload | deleteLibraryPayload | Locations | LocationsConnection | LocationsAggregator | LocationsGroupBy | LocationsConnectionId | LocationsConnectionCreated_at | LocationsConnectionUpdated_at | LocationsConnectionName | LocationsConnectionAddress | LocationsConnectionIsVirtual | LocationsConnectionShow_on_telegram | LocationsConnectionPublished_at | createLocationPayload | updateLocationPayload | deleteLocationPayload | Partners | PartnersConnection | PartnersAggregator | PartnersGroupBy | PartnersConnectionId | PartnersConnectionCreated_at | PartnersConnectionUpdated_at | PartnersConnectionName | PartnersConnectionUrl | PartnersConnectionLogo | PartnersConnectionSponsor | PartnersConnectionPublished_at | createPartnerPayload | updatePartnerPayload | deletePartnerPayload | PodcastEpisode | PodcastEpisodeConnection | PodcastEpisodeAggregator | PodcastEpisodeGroupBy | PodcastEpisodeConnectionId | PodcastEpisodeConnectionCreated_at | PodcastEpisodeConnectionUpdated_at | PodcastEpisodeConnectionTitle | PodcastEpisodeConnectionDescription | PodcastEpisodeConnectionYoutube_link | PodcastEpisodeConnectionPublished_at | createPodcastEpisodePayload | updatePodcastEpisodePayload | deletePodcastEpisodePayload | Project | ProjectConnection | ProjectAggregator | ProjectGroupBy | ProjectConnectionId | ProjectConnectionCreated_at | ProjectConnectionUpdated_at | ProjectConnectionName | ProjectConnectionMedia | ProjectConnectionGoal | ProjectConnectionEndDate | ProjectConnectionDescription | ProjectConnectionStartDate | ProjectConnectionStatus | ProjectConnectionBikeCulture | ProjectConnectionInstArticulation | ProjectConnectionPoliticIncidence | ProjectConnectionSlug | ProjectConnectionIsHighlighted | ProjectConnectionWorkgroup | ProjectConnectionCoordinator | ProjectConnectionCover | createProjectPayload | updateProjectPayload | deleteProjectPayload | SoltaOFrei | updateSoltaOFreiPayload | deleteSoltaOFreiPayload | Workgroups | WorkgroupsConnection | WorkgroupsAggregator | WorkgroupsGroupBy | WorkgroupsConnectionId | WorkgroupsConnectionCreated_at | WorkgroupsConnectionUpdated_at | WorkgroupsConnectionName | WorkgroupsConnectionTelegram_id | WorkgroupsConnectionIcon | WorkgroupsConnectionTelegram_url | WorkgroupsConnectionDescription | WorkgroupsConnectionFolder_url | WorkgroupsConnectionPublished_at | createWorkgroupPayload | updateWorkgroupPayload | deleteWorkgroupPayload | UploadFile | UploadFileConnection | UploadFileAggregator | UploadFileAggregatorSum | UploadFileAggregatorAvg | UploadFileAggregatorMin | UploadFileAggregatorMax | UploadFileGroupBy | UploadFileConnectionId | UploadFileConnectionCreated_at | UploadFileConnectionUpdated_at | UploadFileConnectionName | UploadFileConnectionAlternativeText | UploadFileConnectionCaption | UploadFileConnectionWidth | UploadFileConnectionHeight | UploadFileConnectionFormats | UploadFileConnectionHash | UploadFileConnectionExt | UploadFileConnectionMime | UploadFileConnectionSize | UploadFileConnectionUrl | UploadFileConnectionPreviewUrl | UploadFileConnectionProvider | UploadFileConnectionProvider_metadata | deleteFilePayload | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsRoleConnection | UsersPermissionsRoleAggregator | UsersPermissionsRoleGroupBy | UsersPermissionsRoleConnectionId | UsersPermissionsRoleConnectionName | UsersPermissionsRoleConnectionDescription | UsersPermissionsRoleConnectionType | createRolePayload | updateRolePayload | deleteRolePayload | UsersPermissionsUser | UsersPermissionsUserConnection | UsersPermissionsUserAggregator | UsersPermissionsUserGroupBy | UsersPermissionsUserConnectionId | UsersPermissionsUserConnectionCreated_at | UsersPermissionsUserConnectionUpdated_at | UsersPermissionsUserConnectionUsername | UsersPermissionsUserConnectionEmail | UsersPermissionsUserConnectionProvider | UsersPermissionsUserConnectionConfirmed | UsersPermissionsUserConnectionBlocked | UsersPermissionsUserConnectionRole | createUserPayload | updateUserPayload | deleteUserPayload | ComponentButtonLinks | ComponentButtonStep
 
 input InputID {
   id: ID!
@@ -1911,12 +2699,21 @@ type Query {
   botmember(id: ID!, publicationState: PublicationState): Botmembers
   botmembers(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Botmembers]
   botmembersConnection(sort: String, limit: Int, start: Int, where: JSON): BotmembersConnection
+  carrossel(id: ID!, publicationState: PublicationState): Carrossel
+  carrossels(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Carrossel]
+  carrosselsConnection(sort: String, limit: Int, start: Int, where: JSON): CarrosselConnection
+  clipping(id: ID!, publicationState: PublicationState): Clipping
+  clippings(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Clipping]
+  clippingsConnection(sort: String, limit: Int, start: Int, where: JSON): ClippingConnection
   coordinator(id: ID!, publicationState: PublicationState): Coordinator
   coordinators(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Coordinator]
   coordinatorsConnection(sort: String, limit: Int, start: Int, where: JSON): CoordinatorConnection
   counselor(id: ID!, publicationState: PublicationState): Counselor
   counselors(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Counselor]
   counselorsConnection(sort: String, limit: Int, start: Int, where: JSON): CounselorConnection
+  cyclistaCount(id: ID!, publicationState: PublicationState): CyclistaCount
+  cyclistaCounts(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [CyclistaCount]
+  cyclistaCountsConnection(sort: String, limit: Int, start: Int, where: JSON): CyclistaCountConnection
   document(id: ID!, publicationState: PublicationState): Documents
   documents(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Documents]
   documentsConnection(sort: String, limit: Int, start: Int, where: JSON): DocumentsConnection
@@ -1927,9 +2724,15 @@ type Query {
   faqs(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Faq]
   faqsConnection(sort: String, limit: Int, start: Int, where: JSON): FaqConnection
   home(publicationState: PublicationState): Home
+  library(id: ID!, publicationState: PublicationState): Library
+  libraries(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Library]
+  librariesConnection(sort: String, limit: Int, start: Int, where: JSON): LibraryConnection
   location(id: ID!, publicationState: PublicationState): Locations
   locations(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Locations]
   locationsConnection(sort: String, limit: Int, start: Int, where: JSON): LocationsConnection
+  partner(id: ID!, publicationState: PublicationState): Partners
+  partners(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Partners]
+  partnersConnection(sort: String, limit: Int, start: Int, where: JSON): PartnersConnection
   podcastEpisode(id: ID!, publicationState: PublicationState): PodcastEpisode
   podcastEpisodes(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [PodcastEpisode]
   podcastEpisodesConnection(sort: String, limit: Int, start: Int, where: JSON): PodcastEpisodeConnection
@@ -1959,12 +2762,21 @@ type Mutation {
   createBotmember(input: createBotmemberInput): createBotmemberPayload
   updateBotmember(input: updateBotmemberInput): updateBotmemberPayload
   deleteBotmember(input: deleteBotmemberInput): deleteBotmemberPayload
+  createCarrossel(input: createCarrosselInput): createCarrosselPayload
+  updateCarrossel(input: updateCarrosselInput): updateCarrosselPayload
+  deleteCarrossel(input: deleteCarrosselInput): deleteCarrosselPayload
+  createClipping(input: createClippingInput): createClippingPayload
+  updateClipping(input: updateClippingInput): updateClippingPayload
+  deleteClipping(input: deleteClippingInput): deleteClippingPayload
   createCoordinator(input: createCoordinatorInput): createCoordinatorPayload
   updateCoordinator(input: updateCoordinatorInput): updateCoordinatorPayload
   deleteCoordinator(input: deleteCoordinatorInput): deleteCoordinatorPayload
   createCounselor(input: createCounselorInput): createCounselorPayload
   updateCounselor(input: updateCounselorInput): updateCounselorPayload
   deleteCounselor(input: deleteCounselorInput): deleteCounselorPayload
+  createCyclistaCount(input: createCyclistaCountInput): createCyclistaCountPayload
+  updateCyclistaCount(input: updateCyclistaCountInput): updateCyclistaCountPayload
+  deleteCyclistaCount(input: deleteCyclistaCountInput): deleteCyclistaCountPayload
   createDocument(input: createDocumentInput): createDocumentPayload
   updateDocument(input: updateDocumentInput): updateDocumentPayload
   deleteDocument(input: deleteDocumentInput): deleteDocumentPayload
@@ -1976,9 +2788,15 @@ type Mutation {
   deleteFaq(input: deleteFaqInput): deleteFaqPayload
   updateHome(input: updateHomeInput): updateHomePayload
   deleteHome: deleteHomePayload
+  createLibrary(input: createLibraryInput): createLibraryPayload
+  updateLibrary(input: updateLibraryInput): updateLibraryPayload
+  deleteLibrary(input: deleteLibraryInput): deleteLibraryPayload
   createLocation(input: createLocationInput): createLocationPayload
   updateLocation(input: updateLocationInput): updateLocationPayload
   deleteLocation(input: deleteLocationInput): deleteLocationPayload
+  createPartner(input: createPartnerInput): createPartnerPayload
+  updatePartner(input: updatePartnerInput): updatePartnerPayload
+  deletePartner(input: deletePartnerInput): deletePartnerPayload
   createPodcastEpisode(input: createPodcastEpisodeInput): createPodcastEpisodePayload
   updatePodcastEpisode(input: updatePodcastEpisodeInput): updatePodcastEpisodePayload
   deletePodcastEpisode(input: deletePodcastEpisodeInput): deletePodcastEpisodePayload

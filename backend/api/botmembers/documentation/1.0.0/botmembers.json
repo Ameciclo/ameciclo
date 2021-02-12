@@ -548,10 +548,7 @@
                   "type": "integer"
                 },
                 "icon": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
+                  "type": "string"
                 },
                 "telegram_url": {
                   "type": "string"
@@ -656,6 +653,21 @@
                 "coordinator": {
                   "type": "string"
                 },
+                "partners": {
+                  "type": "string"
+                },
+                "steps": {
+                  "type": "component"
+                },
+                "clippings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cover": {
+                  "type": "string"
+                },
                 "created_by": {
                   "type": "string"
                 },
@@ -680,10 +692,7 @@
                 "type": "integer"
               },
               "icon": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
+                "type": "string"
               },
               "telegram_url": {
                 "type": "string"

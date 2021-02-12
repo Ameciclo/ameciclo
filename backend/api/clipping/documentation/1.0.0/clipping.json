@@ -1,6 +1,6 @@
 {
   "paths": {
-    "/projects": {
+    "/clippings": {
       "get": {
         "deprecated": false,
         "description": "",
@@ -12,7 +12,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Project"
+                    "$ref": "#/components/schemas/Clipping"
                   }
                 }
               }
@@ -51,7 +51,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Clipping"
         ],
         "parameters": [
           {
@@ -201,7 +201,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Clipping"
                 }
               }
             }
@@ -239,7 +239,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Clipping"
         ],
         "requestBody": {
           "description": "",
@@ -247,14 +247,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewProject"
+                "$ref": "#/components/schemas/NewClipping"
               }
             }
           }
         }
       }
     },
-    "/projects/count": {
+    "/clippings/count": {
       "get": {
         "deprecated": false,
         "description": "",
@@ -306,12 +306,12 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Clipping"
         ],
         "parameters": []
       }
     },
-    "/projects/{id}": {
+    "/clippings/{id}": {
       "get": {
         "deprecated": false,
         "description": "",
@@ -321,7 +321,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Clipping"
                 }
               }
             }
@@ -359,7 +359,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Clipping"
         ],
         "parameters": [
           {
@@ -383,7 +383,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Project"
+                  "$ref": "#/components/schemas/Clipping"
                 }
               }
             }
@@ -421,7 +421,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Clipping"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +429,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewProject"
+                "$ref": "#/components/schemas/NewClipping"
               }
             }
           }
@@ -495,7 +495,7 @@
         },
         "summary": "",
         "tags": [
-          "Project"
+          "Clipping"
         ],
         "parameters": [
           {
@@ -514,7 +514,7 @@
   },
   "components": {
     "schemas": {
-      "Project": {
+      "Clipping": {
         "required": [
           "id"
         ],
@@ -522,129 +522,13 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "title": {
             "type": "string"
           },
-          "media": {
-            "required": [
-              "id",
-              "name",
-              "hash",
-              "mime",
-              "size",
-              "url",
-              "provider"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "alternativeText": {
-                "type": "string"
-              },
-              "caption": {
-                "type": "string"
-              },
-              "width": {
-                "type": "integer"
-              },
-              "height": {
-                "type": "integer"
-              },
-              "formats": {
-                "type": "object"
-              },
-              "hash": {
-                "type": "string"
-              },
-              "ext": {
-                "type": "string"
-              },
-              "mime": {
-                "type": "string"
-              },
-              "size": {
-                "type": "number"
-              },
-              "url": {
-                "type": "string"
-              },
-              "previewUrl": {
-                "type": "string"
-              },
-              "provider": {
-                "type": "string"
-              },
-              "provider_metadata": {
-                "type": "object"
-              },
-              "related": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
-          },
-          "goal": {
+          "link": {
             "type": "string"
           },
-          "endDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "description": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ongoing",
-              "finished",
-              "paused"
-            ]
-          },
-          "bikeCulture": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "instArticulation": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "politicIncidence": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "slug": {
-            "type": "string"
-          },
-          "isHighlighted": {
-            "type": "boolean"
-          },
-          "gallery": {
+          "print": {
             "type": "array",
             "items": {
               "required": [
@@ -714,29 +598,33 @@
               }
             }
           },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
+          "date": {
+            "type": "string",
+            "format": "date"
           },
-          "workgroup": {
+          "backup_link": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "media_type": {
+            "type": "string",
+            "enum": [
+              "television",
+              "radio",
+              "press",
+              "magazine",
+              "blog",
+              "online_press",
+              "social_media",
+              "other"
+            ]
+          },
+          "media_name": {
+            "type": "string"
+          },
+          "projeto": {
             "required": [
               "id"
             ],
@@ -747,43 +635,67 @@
               "name": {
                 "type": "string"
               },
-              "telegram_id": {
-                "type": "integer"
-              },
-              "icon": {
+              "media": {
                 "type": "string"
               },
-              "telegram_url": {
+              "goal": {
                 "type": "string"
               },
-              "projects": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
+              "endDate": {
+                "type": "string"
               },
               "description": {
                 "type": "string"
               },
+              "startDate": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "bikeCulture": {
+                "type": "string"
+              },
+              "instArticulation": {
+                "type": "string"
+              },
+              "politicIncidence": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "string"
+              },
+              "isHighlighted": {
+                "type": "boolean"
+              },
+              "gallery": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "Links": {
                 "type": "component"
               },
-              "folder_url": {
+              "workgroup": {
                 "type": "string"
               },
-              "botmembers": {
+              "coordinator": {
+                "type": "string"
+              },
+              "partners": {
+                "type": "string"
+              },
+              "steps": {
+                "type": "component"
+              },
+              "clippings": {
                 "type": "array",
                 "items": {
                   "type": "string"
                 }
               },
-              "washere": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "published_at": {
+              "cover": {
                 "type": "string"
               },
               "created_by": {
@@ -794,480 +706,52 @@
               }
             }
           },
-          "coordinator": {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "first_name": {
-                "type": "string"
-              },
-              "telegram_id": {
-                "type": "integer"
-              },
-              "daily_notifications": {
-                "type": "boolean"
-              },
-              "workgroups": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "coordinations": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "oncethere": {
-                "type": "string"
-              },
-              "telegram_nick": {
-                "type": "string"
-              },
-              "CPF": {
-                "type": "integer"
-              },
-              "published_at": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
-          },
-          "partners": {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "url": {
-                "type": "string"
-              },
-              "logo": {
-                "type": "string"
-              },
-              "sponsor": {
-                "type": "boolean"
-              },
-              "published_at": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
-          },
-          "steps": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "image": {
-                  "required": [
-                    "id",
-                    "name",
-                    "hash",
-                    "mime",
-                    "size",
-                    "url",
-                    "provider"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "alternativeText": {
-                      "type": "string"
-                    },
-                    "caption": {
-                      "type": "string"
-                    },
-                    "width": {
-                      "type": "integer"
-                    },
-                    "height": {
-                      "type": "integer"
-                    },
-                    "formats": {
-                      "type": "object"
-                    },
-                    "hash": {
-                      "type": "string"
-                    },
-                    "ext": {
-                      "type": "string"
-                    },
-                    "mime": {
-                      "type": "string"
-                    },
-                    "size": {
-                      "type": "number"
-                    },
-                    "url": {
-                      "type": "string"
-                    },
-                    "previewUrl": {
-                      "type": "string"
-                    },
-                    "provider": {
-                      "type": "string"
-                    },
-                    "provider_metadata": {
-                      "type": "object"
-                    },
-                    "related": {
-                      "type": "string"
-                    },
-                    "created_by": {
-                      "type": "string"
-                    },
-                    "updated_by": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "clippings": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                },
-                "print": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "date": {
-                  "type": "string"
-                },
-                "backup_link": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "media_type": {
-                  "type": "string"
-                },
-                "media_name": {
-                  "type": "string"
-                },
-                "projeto": {
-                  "type": "string"
-                },
-                "published_at": {
-                  "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "cover": {
-            "required": [
-              "id",
-              "name",
-              "hash",
-              "mime",
-              "size",
-              "url",
-              "provider"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "alternativeText": {
-                "type": "string"
-              },
-              "caption": {
-                "type": "string"
-              },
-              "width": {
-                "type": "integer"
-              },
-              "height": {
-                "type": "integer"
-              },
-              "formats": {
-                "type": "object"
-              },
-              "hash": {
-                "type": "string"
-              },
-              "ext": {
-                "type": "string"
-              },
-              "mime": {
-                "type": "string"
-              },
-              "size": {
-                "type": "number"
-              },
-              "url": {
-                "type": "string"
-              },
-              "previewUrl": {
-                "type": "string"
-              },
-              "provider": {
-                "type": "string"
-              },
-              "provider_metadata": {
-                "type": "object"
-              },
-              "related": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
-              }
-            }
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "NewProject": {
+      "NewClipping": {
         "properties": {
-          "name": {
+          "title": {
             "type": "string"
           },
-          "goal": {
+          "link": {
             "type": "string"
           },
-          "endDate": {
+          "date": {
             "type": "string",
             "format": "date"
           },
-          "description": {
+          "backup_link": {
             "type": "string"
           },
-          "startDate": {
-            "type": "string",
-            "format": "date"
+          "text": {
+            "type": "string"
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ongoing",
-              "finished",
-              "paused"
-            ]
-          },
-          "bikeCulture": {
+          "media_type": {
             "type": "string",
             "enum": [
-              "high",
-              "low",
-              "medium"
+              "television",
+              "radio",
+              "press",
+              "magazine",
+              "blog",
+              "online_press",
+              "social_media",
+              "other"
             ]
           },
-          "instArticulation": {
+          "media_name": {
+            "type": "string"
+          },
+          "projeto": {
+            "type": "string"
+          },
+          "published_at": {
             "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "politicIncidence": {
-            "type": "string",
-            "enum": [
-              "high",
-              "low",
-              "medium"
-            ]
-          },
-          "slug": {
-            "type": "string"
-          },
-          "isHighlighted": {
-            "type": "boolean"
-          },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "workgroup": {
-            "type": "string"
-          },
-          "coordinator": {
-            "type": "string"
-          },
-          "partners": {
-            "type": "string"
-          },
-          "steps": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "image": {
-                  "required": [
-                    "id",
-                    "name",
-                    "hash",
-                    "mime",
-                    "size",
-                    "url",
-                    "provider"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "alternativeText": {
-                      "type": "string"
-                    },
-                    "caption": {
-                      "type": "string"
-                    },
-                    "width": {
-                      "type": "integer"
-                    },
-                    "height": {
-                      "type": "integer"
-                    },
-                    "formats": {
-                      "type": "object"
-                    },
-                    "hash": {
-                      "type": "string"
-                    },
-                    "ext": {
-                      "type": "string"
-                    },
-                    "mime": {
-                      "type": "string"
-                    },
-                    "size": {
-                      "type": "number"
-                    },
-                    "url": {
-                      "type": "string"
-                    },
-                    "previewUrl": {
-                      "type": "string"
-                    },
-                    "provider": {
-                      "type": "string"
-                    },
-                    "provider_metadata": {
-                      "type": "object"
-                    },
-                    "related": {
-                      "type": "string"
-                    },
-                    "created_by": {
-                      "type": "string"
-                    },
-                    "updated_by": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "clippings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "format": "date-time"
           },
           "created_by": {
             "type": "string"
@@ -1281,7 +765,7 @@
   },
   "tags": [
     {
-      "name": "Project"
+      "name": "Clipping"
     }
   ]
 }

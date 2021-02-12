@@ -1,21 +1,24 @@
 {
   "kind": "collectionType",
-  "collectionName": "faq_tags",
+  "collectionName": "cyclist_counts",
   "info": {
-    "name": "Dúvidas Frequentes (Cat)",
+    "name": "Contagem (Adicionais)",
     "description": ""
   },
   "options": {
     "increments": true,
     "timestamps": true,
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "attributes": {
-    "title": {
-      "type": "string"
+    "count_id": {
+      "type": "integer"
     },
-    "icon": {
-      "model": "file",
+    "about": {
+      "type": "richtext"
+    },
+    "gallery": {
+      "collection": "file",
       "via": "related",
       "allowedTypes": [
         "images",
@@ -25,11 +28,7 @@
       "plugin": "upload",
       "required": false
     },
-    "faqs": {
-      "collection": "faq",
-      "via": "faq_tags"
-    },
-    "slug": {
+    "report_url": {
       "type": "string"
     }
   }

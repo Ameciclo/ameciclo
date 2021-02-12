@@ -18,7 +18,7 @@
       "type": "biginteger"
     },
     "icon": {
-      "collection": "file",
+      "model": "file",
       "via": "related",
       "allowedTypes": [
         "images",
@@ -32,8 +32,8 @@
       "type": "string"
     },
     "projects": {
-      "collection": "project",
-      "via": "workgroup"
+      "via": "workgroup",
+      "collection": "project"
     },
     "description": {
       "type": "text"
@@ -47,12 +47,12 @@
       "type": "string"
     },
     "botmembers": {
-      "via": "workgroups",
-      "collection": "botmembers"
+      "collection": "botmembers",
+      "via": "workgroups"
     },
     "washere": {
-      "via": "oncethere",
-      "collection": "botmembers"
+      "collection": "botmembers",
+      "via": "oncethere"
     }
   }
 }

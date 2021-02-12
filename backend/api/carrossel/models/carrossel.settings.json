@@ -1,20 +1,26 @@
 {
   "kind": "collectionType",
-  "collectionName": "faq_tags",
+  "collectionName": "carrossel",
   "info": {
-    "name": "Dúvidas Frequentes (Cat)",
+    "name": "Carrossel",
     "description": ""
   },
   "options": {
     "increments": true,
     "timestamps": true,
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "attributes": {
     "title": {
       "type": "string"
     },
-    "icon": {
+    "url": {
+      "type": "string"
+    },
+    "text": {
+      "type": "text"
+    },
+    "picture": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
@@ -25,12 +31,8 @@
       "plugin": "upload",
       "required": false
     },
-    "faqs": {
-      "collection": "faq",
-      "via": "faq_tags"
-    },
-    "slug": {
-      "type": "string"
+    "show": {
+      "type": "boolean"
     }
   }
 }
