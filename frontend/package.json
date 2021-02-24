@@ -39,6 +39,7 @@
     "react-map-gl": "^5.3.6",
     "react-markdown": "^5.0.3",
     "react-photo-gallery": "^8.0.0",
+    "react-router-dom": "^5.2.0",
     "react-transition-group": "^4.4.1",
     "sass": "^1.29.0",
     "styled-components": "^5.2.1"

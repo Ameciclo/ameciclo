@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import Fuse from "fuse.js";
 import Highlight from "react-highlighter";
+//import { redirect } from "next/dist/next-server/server/api-utils";
+import { useHistory } from "react-router-dom";
 
 export const SearchComponent = (props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResultsVisible, setSearchResultsVisible] = useState(false);
   const [results, setResults] = useState([]);
+
+  let history = useHistory();
 
   const fuse = new Fuse(props.faqs, {
     shouldSort: true,
@@ -20,6 +24,12 @@ export const SearchComponent = (props) => {
     const result = await fuse.search(searchTerm);
     setResults(result);
   };
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    console.log('O link foi clicado.');
+    history.push("/projetos");
+  }
 
   return (
     <div className="relative">
@@ -48,21 +58,26 @@ export const SearchComponent = (props) => {
           <div className="flex flex-col">
             {results.map((result) => {
               return (
+                <a href={`/biciclopedia/${result.item.id}`}>
                 <div
-                  className="border-b border-gray-400 text-xl cursor-pointer p-4 hover:bg-blue-100"
+                  className="border-b border-gray-400 text-xl cursor-pointer p-4 hover:bg-gray-100 hover:border-red-500"
                   key={result.item.id}
-                  // onClick={e => {
-                  //   e.preventDefault()
-                  //   setSearchResultsVisible(true)
-                  // }}
-                >
-                  <Highlight search={searchTerm}>{result.item.title}</Highlight>
+                  //onClick={handleClick
+                                      /*(e) => {
+                    e.preventDefault()
+                    setSearchResultsVisible(true)
+                    console.log("id");
+                    }
+                  */
+                 //}
+                > 
+                  <Highlight search={searchTerm} matchStyle={{background: "#00808080"}}>{result.item.title}</Highlight>
                   <span className="block font-normal text-sm my-1">
-                    <Highlight search={searchTerm}>
+                    <Highlight search={searchTerm} matchStyle={{background: "#00808080"}}>
                       {result.item.description}
                     </Highlight>
                   </span>
-                </div>
+                </div></a>
               );
             })}
             {results.length === 0 && (
