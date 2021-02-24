@@ -11,16 +11,16 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "title": {
+    "name": {
       "type": "string"
     },
     "url": {
       "type": "string"
     },
-    "text": {
+    "description": {
       "type": "text"
     },
-    "picture": {
+    "media": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
@@ -31,7 +31,7 @@
       "plugin": "upload",
       "required": false
     },
-    "show": {
+    "isHighlighted": {
       "type": "boolean"
     }
   }

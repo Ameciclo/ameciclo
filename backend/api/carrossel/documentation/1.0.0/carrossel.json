@@ -522,16 +522,16 @@
           "id": {
             "type": "string"
           },
-          "title": {
+          "name": {
             "type": "string"
           },
           "url": {
             "type": "string"
           },
-          "text": {
+          "description": {
             "type": "string"
           },
-          "picture": {
+          "media": {
             "required": [
               "id",
               "name",
@@ -598,7 +598,7 @@
               }
             }
           },
-          "show": {
+          "isHighlighted": {
             "type": "boolean"
           },
           "published_at": {
@@ -609,16 +609,16 @@
       },
       "NewCarrossel": {
         "properties": {
-          "title": {
+          "name": {
             "type": "string"
           },
           "url": {
             "type": "string"
           },
-          "text": {
+          "description": {
             "type": "string"
           },
-          "show": {
+          "isHighlighted": {
             "type": "boolean"
           },
           "published_at": {
