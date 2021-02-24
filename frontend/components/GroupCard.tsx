@@ -30,7 +30,7 @@ const StatusIndicator = ({ status }) => {
 export const GroupCard = ({ group }) => {
   return (
     <div className="bg-white rounded-lg shadow " style={{ minHeight: "450px" }}>
-      <StatusIndicator status={group.telegram_id} />
+      <StatusIndicator status={group.directive} />
       {group.icon ? (
         <Link href={`${group.telegram_url}`}>
           <div

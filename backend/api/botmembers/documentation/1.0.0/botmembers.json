@@ -580,6 +580,9 @@
                     "type": "string"
                   }
                 },
+                "directive": {
+                  "type": "string"
+                },
                 "published_at": {
                   "type": "string"
                 },
@@ -723,6 +726,9 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "directive": {
+                "type": "string"
               },
               "published_at": {
                 "type": "string"

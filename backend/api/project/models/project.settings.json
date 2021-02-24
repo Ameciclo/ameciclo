@@ -92,8 +92,8 @@
       "component": "button.links"
     },
     "workgroup": {
-      "model": "workgroups",
-      "via": "projects"
+      "via": "projects",
+      "model": "workgroups"
     },
     "coordinator": {
       "model": "botmembers",

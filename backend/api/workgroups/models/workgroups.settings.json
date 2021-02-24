@@ -32,8 +32,8 @@
       "type": "string"
     },
     "projects": {
-      "via": "workgroup",
-      "collection": "project"
+      "collection": "project",
+      "via": "workgroup"
     },
     "description": {
       "type": "text"
@@ -53,6 +53,15 @@
     "washere": {
       "collection": "botmembers",
       "via": "oncethere"
+    },
+    "directive": {
+      "type": "enumeration",
+      "enum": [
+        "articular",
+        "incidir",
+        "cultuar",
+        "fortalecer"
+      ]
     }
   }
 }

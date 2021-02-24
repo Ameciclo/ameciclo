@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "02/24/2021 9:54:54 PM"
+    "x-generation-date": "02/24/2021 10:33:48 PM"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -10535,6 +10535,9 @@
                     "type": "string"
                   }
                 },
+                "directive": {
+                  "type": "string"
+                },
                 "published_at": {
                   "type": "string"
                 },
@@ -10678,6 +10681,9 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "directive": {
+                "type": "string"
               },
               "published_at": {
                 "type": "string"
@@ -12539,6 +12545,9 @@
                   "type": "string"
                 }
               },
+              "directive": {
+                "type": "string"
+              },
               "published_at": {
                 "type": "string"
               },
@@ -13380,6 +13389,15 @@
               }
             }
           },
+          "directive": {
+            "type": "string",
+            "enum": [
+              "articular",
+              "incidir",
+              "cultuar",
+              "fortalecer"
+            ]
+          },
           "published_at": {
             "type": "string",
             "format": "date-time"
@@ -13442,6 +13460,15 @@
             "items": {
               "type": "string"
             }
+          },
+          "directive": {
+            "type": "string",
+            "enum": [
+              "articular",
+              "incidir",
+              "cultuar",
+              "fortalecer"
+            ]
           },
           "published_at": {
             "type": "string",
