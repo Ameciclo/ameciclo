@@ -57,7 +57,7 @@ export default function Home({ featuredProjects, numberOfProjects }) {
               {
                 resolve: autoplayPlugin,
                 options: {
-                  interval: 2000,
+                  interval: 4000,
                   stopAutoPlayOnHover: true,
                 },
               },

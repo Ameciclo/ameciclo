@@ -34,19 +34,17 @@ const Biciclopedia = ({ faqs, categories }) => {
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
         style={{
           width: "100%",
-          height: "auto",
+          height: "52vh",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundImage: `url('/biciclopedia.webp')`,
-        }}
-      >
-        {
-        <div className="container mx-auto my-8" style={{ maxWidth: "768px" }}>
+        }}>
+        {<div className="container mx-auto my-8" style={{ maxWidth: "768px" }}>
           {faqs.length !== 0 && <SearchComponent faqs={faqs} />}
         </div>}
       </div> 
-      <div className="bg-amecicloMoreTransparent text-white p-4 items-center uppercase flex">
+      <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
           <Breadcrumb
             label="Biciclopedia"
@@ -55,7 +53,6 @@ const Biciclopedia = ({ faqs, categories }) => {
           />
         </div>
       </div>
-      
       <section className="container mx-auto mt-8 my-4 px-4">
         <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
  

@@ -81,7 +81,16 @@ const Projeto = ({ project }) => {
                 backgroundImage: `url('/projetos.webp')`,
               }
         }
-      />
+      >
+        <div className="container mx-auto my-16 flex flex-col items-center" style={{ maxWidth: "768px" }}>
+          <h1 className="text-4xl font-bold mb-4" 
+          style={{
+            textShadow: "2px 2px 20px #000000, 0 0 15px #000000"
+          }}>
+            {project.name}
+            </h1>
+        </div>
+      </div>
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
           <Breadcrumb
