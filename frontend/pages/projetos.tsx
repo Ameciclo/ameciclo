@@ -27,7 +27,7 @@ const Projetos = ({ projects }) => {
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
         style={{
           width: "100%",
-          height: "40vh",
+          height: "52vh",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

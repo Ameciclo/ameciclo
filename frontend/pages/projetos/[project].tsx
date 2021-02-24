@@ -66,7 +66,7 @@ const Projeto = ({ project }) => {
           project.media
             ? {
                 width: "100%",
-                height: "40vh",
+                height: "52vh",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
@@ -74,7 +74,7 @@ const Projeto = ({ project }) => {
               }
             : {
                 width: "100%",
-                height: "40vh",
+                height: "52vh",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
