@@ -31,8 +31,8 @@ const Biciclopedia = ({ faqs, categories }) => {
     <Layout>
       <SEO title="Biciclopedia" />
       <div
-        className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
-        style={{
+        className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill my-auto flex items-center justify-center"
+        style={{ 
           width: "100%",
           height: "52vh",
           backgroundSize: "cover",
@@ -40,7 +40,7 @@ const Biciclopedia = ({ faqs, categories }) => {
           backgroundRepeat: "no-repeat",
           backgroundImage: `url('/biciclopedia.webp')`,
         }}>
-        {<div className="container mx-auto my-8" style={{ maxWidth: "768px" }}>
+        {<div className="container mx-auto" style={{ maxWidth: "768px" }}>
           {faqs.length !== 0 && <SearchComponent faqs={faqs} />}
         </div>}
       </div> 
