@@ -1085,6 +1085,9 @@
                 "type": "string"
               }
             }
+          },
+          "long_description": {
+            "type": "string"
           }
         }
       },
@@ -1271,6 +1274,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "long_description": {
+            "type": "string"
           },
           "created_by": {
             "type": "string"

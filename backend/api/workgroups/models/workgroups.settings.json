@@ -32,8 +32,8 @@
       "type": "string"
     },
     "projects": {
-      "collection": "project",
-      "via": "workgroup"
+      "via": "workgroup",
+      "collection": "project"
     },
     "description": {
       "type": "text"

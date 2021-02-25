@@ -92,8 +92,8 @@
       "component": "button.links"
     },
     "workgroup": {
-      "via": "projects",
-      "model": "workgroups"
+      "model": "workgroups",
+      "via": "projects"
     },
     "coordinator": {
       "model": "botmembers",
@@ -121,6 +121,9 @@
       ],
       "plugin": "upload",
       "required": false
+    },
+    "long_description": {
+      "type": "richtext"
     }
   }
 }

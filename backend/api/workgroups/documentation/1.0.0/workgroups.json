@@ -674,6 +674,9 @@
                 "cover": {
                   "type": "string"
                 },
+                "long_description": {
+                  "type": "string"
+                },
                 "created_by": {
                   "type": "string"
                 },

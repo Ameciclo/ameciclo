@@ -7,6 +7,7 @@ import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import Carousel, { Modal, ModalGateway } from "react-images";
 import { Rating } from "../../components/Rating";
+import { StepCard } from "../../components/StepCard";
 
 const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
   ssr: false,
@@ -165,8 +166,15 @@ const Projeto = ({ project }) => {
           </div>
         </div>
       </section>
+      
       <section className="container my-12 mx-auto">
         <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
+
+          <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {project.steps.map((p) => (
+                <StepCard step={p} key={p.id} />
+              ))}
+          </div>
 
           <div className="mt-10 py-10 border-t border-gray-300 text-center">
             <div className="flex flex-wrap justify-center">
@@ -203,7 +211,9 @@ const Projeto = ({ project }) => {
 };
 
 export async function getStaticPaths() {
-  const res = await fetch("https://cms.ameciclo.org/projects");
+  //const res = await fetch("https://cms.ameciclo.org/projects");
+  const res = await fetch("http://localhost:1337/projects");
+
   const projects = await res.json();
 
   // Get the paths we want to pre-render based on posts
@@ -218,7 +228,9 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const res = await fetch(
-    `https://cms.ameciclo.org/projects?slug=${params.project}`
+    //`https://cms.ameciclo.org/projects?slug=${params.project}`
+    `http://localhost:1337/projects?slug=${params.project}`
+
   );
   const project = await res.json();
   return {
