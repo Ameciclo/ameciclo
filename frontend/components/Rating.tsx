@@ -7,7 +7,7 @@ export const Rating = ({ rating }) => {
     ["medium", { value: 2, color: "#FF8360", fontColor: "#581f0f" }],
   ]);
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row justify-center">
       {[...Array(ratingMap.get(rating).value)].map((e, i) => {
         return (
           <svg
