@@ -8,6 +8,7 @@ import "tippy.js/dist/tippy.css";
 import Carousel, { Modal, ModalGateway } from "react-images";
 import { Rating } from "../../components/Rating";
 import { StepCard } from "../../components/StepCard";
+import ReactMarkdown from 'react-markdown'
 
 const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
   ssr: false,
@@ -168,19 +169,20 @@ const Projeto = ({ project }) => {
       </section>
       
       <section className="container my-12 mx-auto">
-        <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
-
-          <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {project.steps.map((p) => (
-                <StepCard step={p} key={p.id} />
-              ))}
+        <div className="flex flex-col bg-white mb-6 shadow-xl rounded-lg">
+          <div className="container mx-auto flex">
+            { project.steps.length > 0 && (
+            <div className="mx-4 justify-center grid md:grid-cols-5 gap-6">
+              {project.steps.map((p) => (
+                  <StepCard step={p} key={p.id} />
+                ))}
+            </div> )}
           </div>
-
           <div className="mt-10 py-10 border-t border-gray-300 text-center">
             <div className="flex flex-wrap justify-center">
               <div className="w-full lg:w-9/12 px-4">
                 <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                  {project.description}
+                  <ReactMarkdown children={project.long_description} />
                 </p>
               </div>
             </div>
@@ -205,6 +207,7 @@ const Projeto = ({ project }) => {
             </>
           ) : null}
         </div>
+        
       </section>
     </Layout>
   );

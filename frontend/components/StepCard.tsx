@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export const StepCard = ({ step }) => {
   return (
-    <div className="bg-white rounded-lg shadow " style={{ minHeight: "380px" }}>
+    <div className="bg-white rounded-lg shadow " style={{ minHeight: "380px",/**, maxWidth: "200px" */}}> 
       {step.image ? (
         <Link href={`${step.link}`}>
           <div
