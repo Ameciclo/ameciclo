@@ -238,8 +238,8 @@ const Projeto = ({ project }) => {
 };
 
 export async function getStaticPaths() {
-  //const res = await fetch("https://cms.ameciclo.org/projects");
-  const res = await fetch("http://localhost:1337/projects");
+  const res = await fetch("https://cms.ameciclo.org/projects");
+  //const res = await fetch("http://localhost:1337/projects");
 
   const projects = await res.json();
 
@@ -255,8 +255,8 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const res = await fetch(
-    //`https://cms.ameciclo.org/projects?slug=${params.project}`
-    `http://localhost:1337/projects?slug=${params.project}`
+    `https://cms.ameciclo.org/projects?slug=${params.project}`
+    //`http://localhost:1337/projects?slug=${params.project}`
 
   );
   const project = await res.json();
