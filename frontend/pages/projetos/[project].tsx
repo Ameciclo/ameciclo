@@ -17,9 +17,9 @@ const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
 });
 
 const ProjectDate = ({ project }) => {
-  console.log("project.partners.length")
+  //console.log("project.partners.length")
 
-  console.log(project.partners.length)
+  //console.log(project.partners.length)
 
   return (
     <div className="flex flex-row justify-center">
@@ -78,7 +78,7 @@ const Projeto = ({ project }) => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                backgroundImage: `url(${project.media.url})`,
+                backgroundImage: `url(${project.cover.url})`,
               }
             : {
                 width: "100%",
