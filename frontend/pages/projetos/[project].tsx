@@ -9,12 +9,18 @@ import Carousel, { Modal, ModalGateway } from "react-images";
 import { Rating } from "../../components/Rating";
 import { StepCard } from "../../components/StepCard";
 import ReactMarkdown from 'react-markdown'
+import { PartnerCard } from "../../components/PartnerCard";
+
 
 const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
   ssr: false,
 });
 
 const ProjectDate = ({ project }) => {
+  console.log("project.partners.length")
+
+  console.log(project.partners.length)
+
   return (
     <div className="flex flex-row justify-center">
       <svg className="w-4 h-4 fill-current mr-2" viewBox="0 0 512 512">
@@ -153,7 +159,7 @@ const Projeto = ({ project }) => {
                   return (
                     <a href={link.link}>
                       <button
-                        className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
+                        className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
                         type="button"
                         style={{ transition: "all .15s ease" }}
                       >
@@ -170,9 +176,9 @@ const Projeto = ({ project }) => {
       
       <section className="container my-12 mx-auto">
         <div className="flex flex-col bg-white mb-6 shadow-xl rounded-lg">
-          <div className="container mx-auto flex">
+          <div className="container mx-auto flex justify-center">
             { project.steps.length > 0 && (
-            <div className="mx-4 justify-center grid md:grid-cols-5 gap-6">
+            <div className="mx-auto grid md:grid-flow-col gap-6">
               {project.steps.map((p) => (
                   <StepCard step={p} key={p.id} />
                 ))}
@@ -187,6 +193,7 @@ const Projeto = ({ project }) => {
               </div>
             </div>
           </div>
+          
           {project.gallery ? (
             <>
               <PhotoGallery photos={photos} onClick={openLightbox} />
@@ -207,7 +214,15 @@ const Projeto = ({ project }) => {
             </>
           ) : null}
         </div>
-        
+        <div className="container mx-auto flex mx-4 pt-10 justify-center border-gray-300 ">
+          {project.partners.length > 0 && (
+              <div className="grid md:grid-flow-col gap-10">
+              { project.partners.map((p) => (
+                  <PartnerCard partner={p} key={p.id} />
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </Layout>
   );

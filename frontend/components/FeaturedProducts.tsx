@@ -45,7 +45,7 @@ export const FeaturedProducts = ({ project: product }) => {
                 </p>
                 <Link href={`${product.url}`}>
                   <a className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600">
-                    <span>Apoie agora!</span>
+                    <span>Vamos nessa!</span>
                     <span className="text-xs ml-1">&#x279c;</span>
                   </a>
                 </Link>
