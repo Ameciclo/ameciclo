@@ -98,7 +98,7 @@ const Projeto = ({ project }) => {
         }
       >
         <div className="container mx-auto flex flex-col items-center" style={{ maxWidth: "768px"}}>
-          <h1 className="text-4xl font-bold mb-4" 
+          <h1 className="text-4xl font-bold" 
             style={{
               textShadow: "2px 2px 20px #000000, 0 0 15px #000000"
               }}>
