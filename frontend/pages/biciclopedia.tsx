@@ -5,13 +5,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import { SearchComponent } from "../components/SearchComponent";
 import { Accordion } from "../components/Accordion_FAQ";
 import { server } from "../config";
-//import Category from "./biciclopedia/[category]";
-{
-  /*import Image from "next/image";
-import FAQIcon from "../components/Icons/faq";
-import { motion } from "framer-motion";
-import Link from "next/link";*/
-}
+import Link from "next/link";*/}
 
 const Biciclopedia = ({ faqs, categories }) => {
   let disponibleCategories = [];
@@ -113,6 +107,7 @@ const Biciclopedia = ({ faqs, categories }) => {
 export async function getStaticProps() {
   const res = await fetch(`${server}/faqs}`),
     res_cat = await fetch(`${server}/faq-tags`);
+
 
   let categories = [],
     faqs = [];

@@ -10,6 +10,7 @@ import { server } from "../../config";
 //render(<ReactMarkdown># Hello, *world*!</ReactMarkdown>, document.body)
 
 const Questions = ({ question }) => {
+  
   return (
     <Layout>
       <SEO title={question.title} />
