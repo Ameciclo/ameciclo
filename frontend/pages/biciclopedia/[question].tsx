@@ -55,7 +55,7 @@ const Questions = ({ question }) => {
 };
 
 export async function getStaticPaths() {
-  const res = await fetch(`${server}/faqs}`),
+  const res = await fetch(`${server}/faqs`),
     questions = await res.json();
 
   // Get the paths we want to pre-render based on posts

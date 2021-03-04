@@ -104,7 +104,7 @@ const Biciclopedia = ({ faqs, categories }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch(`${server}/faqs}`),
+  const res = await fetch(`${server}/faqs`),
     res_cat = await fetch(`${server}/faq-tags`);
 
   let categories = [],

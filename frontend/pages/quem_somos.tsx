@@ -151,7 +151,7 @@ const QuemSomos = ({ coordinators, counselors }) => {
 };
 
 export async function getStaticProps() {
-  const c_res = await fetch(`${server}/coordinators}`),
+  const c_res = await fetch(`${server}/coordinators`),
     co_res = await fetch(`${server}/counselors`);
 
   let coordinators = [],

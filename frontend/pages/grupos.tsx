@@ -76,7 +76,7 @@ const Grupos = ({ groups }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch(`${server}/workgroups}`);
+  const res = await fetch(`${server}/workgroups`);
   let groups = [];
   if (res.status === 200) {
     groups = await res.json();
