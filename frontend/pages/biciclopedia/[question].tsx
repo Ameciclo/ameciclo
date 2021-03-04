@@ -1,16 +1,11 @@
 import SEO from "../../components/SEO";
 import Layout from "../../components/Layout";
 import Breadcrumb from "../../components/Breadcrumb";
-//import { Accordion } from "../../components/Accordion";
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import { server } from "../../config";
-//import {render} from 'react-dom'
-//const gfm = require('remark-gfm')
-//render(<ReactMarkdown># Hello, *world*!</ReactMarkdown>, document.body)
 
 const Questions = ({ question }) => {
-  
   return (
     <Layout>
       <SEO title={question.title} />
