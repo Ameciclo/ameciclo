@@ -3,12 +3,15 @@ module.exports = {
     // removeDeprecatedGapUtilities: true,
     // purgeLayersByDefault: true,
   },
-  purge: ["./**/*.tsx"],
+  purge: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+  darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
       colors: {
         ameciclo: "#008080",
         amecicloTransparent: "rgba(0,128,128, .5)",
+        ameciclo25: "rgba(0,128,128, .25)",
+        ameciclo10: "rgba(0,128,128, .1)",
         gray100Transparent: "rgba(247, 250, 252, .85)",
       },
       gridTemplateColumns: {
@@ -19,6 +22,8 @@ module.exports = {
       },
     },
   },
-  variants: {},
+  variants: {
+    extend: {}
+    },
   plugins: [],
 };

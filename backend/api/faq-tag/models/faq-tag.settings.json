@@ -2,7 +2,7 @@
   "kind": "collectionType",
   "collectionName": "faq_tags",
   "info": {
-    "name": "Categorias das Dúvidas Frequentes",
+    "name": "Dúvidas Frequentes (Cat)",
     "description": ""
   },
   "options": {

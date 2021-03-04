@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { ProjectCard } from "../components/ProjectCard";
+import { server } from "../config";
 
 const Projetos = ({ projects }) => {
   const [filteredProjects, setFilteredProjects] = useState([]);
@@ -27,7 +28,7 @@ const Projetos = ({ projects }) => {
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
         style={{
           width: "100%",
-          height: "40vh",
+          height: "52vh",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -74,7 +75,7 @@ const Projetos = ({ projects }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch("https://cms.ameciclo.org/projects");
+  const res = await fetch(`${server}/projects`);
   let projects = [];
   if (res.status === 200) {
     projects = await res.json();

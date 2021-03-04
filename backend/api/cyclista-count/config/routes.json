@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/cyclista-counts",
+      "handler": "cyclista-count.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/cyclista-counts/count",
+      "handler": "cyclista-count.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/cyclista-counts/:id",
+      "handler": "cyclista-count.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/cyclista-counts",
+      "handler": "cyclista-count.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/cyclista-counts/:id",
+      "handler": "cyclista-count.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/cyclista-counts/:id",
+      "handler": "cyclista-count.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

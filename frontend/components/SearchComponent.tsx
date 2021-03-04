@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import Fuse from "fuse.js";
 import Highlight from "react-highlighter";
+//import { redirect } from "next/dist/next-server/server/api-utils";
+import { useHistory } from "react-router-dom";
 
 export const SearchComponent = (props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResultsVisible, setSearchResultsVisible] = useState(false);
   const [results, setResults] = useState([]);
+
+  let history = useHistory();
 
   const fuse = new Fuse(props.faqs, {
     shouldSort: true,
@@ -21,10 +25,18 @@ export const SearchComponent = (props) => {
     setResults(result);
   };
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    console.log('O link foi clicado.');
+    history.push("/projetos");
+  }
+
   return (
     <div className="relative">
       <div className="flex flex-col items-center relative ">
+      
         <h1 className="text-4xl font-bold mb-4">O que você está procurando?</h1>
+        
         <input
           type="search"
           name="search"
@@ -40,7 +52,7 @@ export const SearchComponent = (props) => {
           }}
         />
       </div>
-      {searchTerm.length > 0 && searchResultsVisible && (
+      {searchTerm.length > 0 && /*searchResultsVisible &&*/(
         <div
           className="text-gray-800 absolute normal-case bg-white border left-0 right-0 w-108 text-left mb-4 mt-2 rounded-lg shadow overflow-hidden z-10 overflow-y-auto"
           style={{ maxHeight: "32rem" }}
@@ -48,21 +60,29 @@ export const SearchComponent = (props) => {
           <div className="flex flex-col">
             {results.map((result) => {
               return (
+                <a href={`/biciclopedia/${result.item.id}`}>
                 <div
-                  className="border-b border-gray-400 text-xl cursor-pointer p-4 hover:bg-blue-100"
+                  className="border-b border-gray-400 text-xl cursor-pointer p-4 hover:bg-gray-100 hover:border-red-500"
                   key={result.item.id}
-                  // onClick={e => {
-                  //   e.preventDefault()
-                  //   setSearchResultsVisible(true)
-                  // }}
-                >
-                  <Highlight search={searchTerm}>{result.item.title}</Highlight>
+                  //onClick={handleClick
+                                      /*(e) => {
+                    e.preventDefault()
+                    setSearchResultsVisible(true)
+                    console.log("id");
+                    }
+                  */
+                 //}
+                > 
+                    <Highlight search={searchTerm} matchStyle={{background: "#00808080"}}>
+                    {result.item.title}
+                    </Highlight>
                   <span className="block font-normal text-sm my-1">
-                    <Highlight search={searchTerm}>
+                    <Highlight search={searchTerm} matchStyle={{background: "#00808080"}}>
                       {result.item.description}
                     </Highlight>
                   </span>
                 </div>
+                </a>
               );
             })}
             {results.length === 0 && (

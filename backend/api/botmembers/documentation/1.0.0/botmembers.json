@@ -548,10 +548,7 @@
                   "type": "integer"
                 },
                 "icon": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
+                  "type": "string"
                 },
                 "telegram_url": {
                   "type": "string"
@@ -582,6 +579,15 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "directive": {
+                  "type": "string",
+                  "enum": [
+                    "articular",
+                    "incidir",
+                    "cultuar",
+                    "fortalecer"
+                  ]
                 },
                 "published_at": {
                   "type": "string"
@@ -624,16 +630,36 @@
                   "type": "string"
                 },
                 "status": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "ongoing",
+                    "finished",
+                    "paused"
+                  ]
                 },
                 "bikeCulture": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "instArticulation": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "politicIncidence": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "slug": {
                   "type": "string"
@@ -654,6 +680,27 @@
                   "type": "string"
                 },
                 "coordinator": {
+                  "type": "string"
+                },
+                "partners": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "steps": {
+                  "type": "component"
+                },
+                "clippings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "long_description": {
                   "type": "string"
                 },
                 "created_by": {
@@ -680,10 +727,7 @@
                 "type": "integer"
               },
               "icon": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
+                "type": "string"
               },
               "telegram_url": {
                 "type": "string"
@@ -714,6 +758,15 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "directive": {
+                "type": "string",
+                "enum": [
+                  "articular",
+                  "incidir",
+                  "cultuar",
+                  "fortalecer"
+                ]
               },
               "published_at": {
                 "type": "string"
