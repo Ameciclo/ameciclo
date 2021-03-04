@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "02/25/2021 7:16:00 PM"
+    "x-generation-date": "03/03/2021 5:38:29 PM"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -10536,7 +10536,13 @@
                   }
                 },
                 "directive": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "articular",
+                    "incidir",
+                    "cultuar",
+                    "fortalecer"
+                  ]
                 },
                 "published_at": {
                   "type": "string"
@@ -10579,16 +10585,36 @@
                   "type": "string"
                 },
                 "status": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "ongoing",
+                    "finished",
+                    "paused"
+                  ]
                 },
                 "bikeCulture": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "instArticulation": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "politicIncidence": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "slug": {
                   "type": "string"
@@ -10612,7 +10638,10 @@
                   "type": "string"
                 },
                 "partners": {
-                  "type": "string"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "steps": {
                   "type": "component"
@@ -10686,7 +10715,13 @@
                 }
               },
               "directive": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "articular",
+                  "incidir",
+                  "cultuar",
+                  "fortalecer"
+                ]
               },
               "published_at": {
                 "type": "string"
@@ -11011,16 +11046,36 @@
                 "type": "string"
               },
               "status": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "ongoing",
+                  "finished",
+                  "paused"
+                ]
               },
               "bikeCulture": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "high",
+                  "low",
+                  "medium"
+                ]
               },
               "instArticulation": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "high",
+                  "low",
+                  "medium"
+                ]
               },
               "politicIncidence": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "high",
+                  "low",
+                  "medium"
+                ]
               },
               "slug": {
                 "type": "string"
@@ -11044,7 +11099,10 @@
                 "type": "string"
               },
               "partners": {
-                "type": "string"
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               },
               "steps": {
                 "type": "component"
@@ -12552,7 +12610,13 @@
                 }
               },
               "directive": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "articular",
+                  "incidir",
+                  "cultuar",
+                  "fortalecer"
+                ]
               },
               "published_at": {
                 "type": "string"
@@ -12615,33 +12679,36 @@
             }
           },
           "partners": {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "url": {
-                "type": "string"
-              },
-              "logo": {
-                "type": "string"
-              },
-              "sponsor": {
-                "type": "boolean"
-              },
-              "published_at": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
+            "type": "array",
+            "items": {
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "logo": {
+                  "type": "string"
+                },
+                "sponsor": {
+                  "type": "boolean"
+                },
+                "published_at": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -12767,7 +12834,17 @@
                   "type": "string"
                 },
                 "media_type": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "television",
+                    "radio",
+                    "press",
+                    "magazine",
+                    "blog",
+                    "online_press",
+                    "social_media",
+                    "other"
+                  ]
                 },
                 "media_name": {
                   "type": "string"
@@ -12945,7 +13022,10 @@
             "type": "string"
           },
           "partners": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "steps": {
             "type": "array",
@@ -13213,16 +13293,36 @@
                   "type": "string"
                 },
                 "status": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "ongoing",
+                    "finished",
+                    "paused"
+                  ]
                 },
                 "bikeCulture": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "instArticulation": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "politicIncidence": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
                 },
                 "slug": {
                   "type": "string"
@@ -13246,7 +13346,10 @@
                   "type": "string"
                 },
                 "partners": {
-                  "type": "string"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "steps": {
                   "type": "component"

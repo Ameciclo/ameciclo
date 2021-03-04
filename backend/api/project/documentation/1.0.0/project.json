@@ -784,7 +784,13 @@
                 }
               },
               "directive": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "articular",
+                  "incidir",
+                  "cultuar",
+                  "fortalecer"
+                ]
               },
               "published_at": {
                 "type": "string"
@@ -847,33 +853,36 @@
             }
           },
           "partners": {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "url": {
-                "type": "string"
-              },
-              "logo": {
-                "type": "string"
-              },
-              "sponsor": {
-                "type": "boolean"
-              },
-              "published_at": {
-                "type": "string"
-              },
-              "created_by": {
-                "type": "string"
-              },
-              "updated_by": {
-                "type": "string"
+            "type": "array",
+            "items": {
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "logo": {
+                  "type": "string"
+                },
+                "sponsor": {
+                  "type": "boolean"
+                },
+                "published_at": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -999,7 +1008,17 @@
                   "type": "string"
                 },
                 "media_type": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "television",
+                    "radio",
+                    "press",
+                    "magazine",
+                    "blog",
+                    "online_press",
+                    "social_media",
+                    "other"
+                  ]
                 },
                 "media_name": {
                   "type": "string"
@@ -1177,7 +1196,10 @@
             "type": "string"
           },
           "partners": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "steps": {
             "type": "array",
