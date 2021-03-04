@@ -8,24 +8,19 @@ import "tippy.js/dist/tippy.css";
 import Carousel, { Modal, ModalGateway } from "react-images";
 import { Rating } from "../../components/Rating";
 import { StepCard } from "../../components/StepCard";
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown from "react-markdown";
 import { PartnerCard } from "../../components/PartnerCard";
-
+import { server } from "../../config";
 
 const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
   ssr: false,
 });
 
 const ProjectDate = ({ project }) => {
-  
-  const dateOption = {
-    year: 'numeric',
-    month: ('long' ),
-  }
-  //console.log("project.partners.length")
-
-  //console.log(project.partners.length)
-
+  const dateOption: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+  };
   return (
     project.startDate && (
       <div className="flex flex-row justify-center">
@@ -35,16 +30,20 @@ const ProjectDate = ({ project }) => {
           <path d="M76 230h40v40H76zM156 230h40v40h-40zM236 230h40v40h-40zM316 230h40v40h-40zM396 230h40v40h-40zM76 310h40v40H76zM156 310h40v40h-40zM236 310h40v40h-40zM316 310h40v40h-40zM76 390h40v40H76zM156 390h40v40h-40zM236 390h40v40h-40zM316 390h40v40h-40zM396 310h40v40h-40z" />
         </svg>
         <span className="text-lm leading-normal mt-0 mb-2 text-whit e">
-          {new Date(project.startDate).toLocaleDateString('pt-br', dateOption).toUpperCase()}
+          {new Date(project.startDate)
+            .toLocaleDateString("pt-br", dateOption)
+            .toUpperCase()}
         </span>
-          <>
-            <span className="text-white font-bold mx-4">{"a"}</span>
-            <span className="text-lm leading-normal mt-0 mb-2 text-white">
-            {project.endDate ? (
-              new Date(project.endDate).toLocaleDateString('pt-br', dateOption).toUpperCase()
-              ): "HOJE"}
-            </span>
-          </>
+        <>
+          <span className="text-white font-bold mx-4">{"a"}</span>
+          <span className="text-lm leading-normal mt-0 mb-2 text-white">
+            {project.endDate
+              ? new Date(project.endDate)
+                  .toLocaleDateString("pt-br", dateOption)
+                  .toUpperCase()
+              : "HOJE"}
+          </span>
+        </>
       </div>
     )
   );
@@ -78,7 +77,7 @@ const Projeto = ({ project }) => {
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill my-auto flex items-center justify-center"
         style={
-          project.media
+          project.media && project.cover
             ? {
                 width: "100%",
                 height: "52vh",
@@ -97,13 +96,18 @@ const Projeto = ({ project }) => {
               }
         }
       >
-        <div className="container mx-auto flex flex-col items-center" style={{ maxWidth: "768px"}}>
-          <h1 className="text-4xl font-bold" 
+        <div
+          className="container mx-auto flex flex-col items-center"
+          style={{ maxWidth: "768px" }}
+        >
+          <h1
+            className="text-4xl font-bold"
             style={{
-              textShadow: "2px 2px 20px #000000, 0 0 15px #000000"
-              }}>
-              {project.name}
-            </h1>
+              textShadow: "2px 2px 20px #000000, 0 0 15px #000000",
+            }}
+          >
+            {project.name}
+          </h1>
         </div>
       </div>
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
@@ -119,7 +123,10 @@ const Projeto = ({ project }) => {
         <div className="container mx-auto mt-8 mb-8">
           <div className="bg-ameciclo text-white flex lg:mx-0 mx-auto flex-wrap rounded p-16 my-auto flex items-center justify-center">
             <div className="lg:pr-5 w-full lg:w-1/2 mb-4 lg:mb-0">
-              <p className="text-lg lg:text-3xl" style={{textTransform: 'uppercase'}}>
+              <p
+                className="text-lg lg:text-3xl"
+                style={{ textTransform: "uppercase" }}
+              >
                 {project.goal}
               </p>
             </div>
@@ -129,7 +136,10 @@ const Projeto = ({ project }) => {
                   <ProjectDate project={project} />
                 )}
               </div>
-              <div className="mt-6 w-full flex justify-center lg:pt-4 pt-4 lg:flex-row flex-col items-center" style={{textTransform: 'uppercase'}}>
+              <div
+                className="mt-6 w-full flex justify-center lg:pt-4 pt-4 lg:flex-row flex-col items-center"
+                style={{ textTransform: "uppercase" }}
+              >
                 <div className="mr-4 p-3 text-center">
                   <Tippy content="A disseminação da bicicleta como uma mudança social e a busca pela humanização e a sustentabilidade">
                     <span className="text-xs lg:text-base text-white mb-2 tracking-wide">
@@ -162,9 +172,9 @@ const Projeto = ({ project }) => {
                 </div>
               </div>
               <div className="flex flex-wrap justify-center mt-6">
-                {project.Links.map((link) => {
+                {project.Links.map((link, i) => {
                   return (
-                    <a href={link.link}>
+                    <a href={link.link} key={i}>
                       <button
                         className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
                         type="button"
@@ -180,29 +190,30 @@ const Projeto = ({ project }) => {
           </div>
         </div>
       </section>
-      
+
       <section className="container my-12 mx-auto">
         <div className="flex flex-col bg-white mb-6 shadow-xl rounded-lg">
-          <div className="container mx-auto flex justify-center">
-            { project.steps.length > 0 && (
-            <div className="mx-auto grid md:grid-flow-col gap-6">
-              {project.steps.map((p) => (
+          {project.steps.length > 0 && (
+            <div className="container mx-auto flex border-b border-gray-600 justify-center">
+              <div className="mx-auto grid md:grid-flow-col gap-6 my-4">
+                {project.steps.map((p) => (
                   <StepCard step={p} key={p.id} />
                 ))}
-            </div> )}
-          </div>
-          <div className="mt-10 py-10 border-t border-gray-300 text-center">
+              </div>
+            </div>
+          )}
+          <div className="mt-10 py-10 text-center">
             <div className="flex flex-wrap justify-center">
-              <div className="w-full lg:w-9/12 px-4">
-                <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                  {project.long_description ? (
+              <div className="w-full lg:w-9/12 px-4 mb-4 text-lg leading-relaxed text-gray-800">
+                {project.long_description ? (
                   <ReactMarkdown children={project.long_description} />
-                  ): project.description}
-                </p>
+                ) : (
+                  project.description
+                )}
               </div>
             </div>
           </div>
-          
+
           {project.gallery ? (
             <>
               <PhotoGallery photos={photos} onClick={openLightbox} />
@@ -225,9 +236,9 @@ const Projeto = ({ project }) => {
         </div>
         <div className="container mx-auto flex mx-4 pt-10 justify-center border-gray-300 ">
           {project.partners.length > 0 && (
-              <div className="grid md:grid-flow-col gap-10">
-              { project.partners.map((p) => (
-                  <PartnerCard partner={p} key={p.id} />
+            <div className="grid md:grid-flow-col gap-10">
+              {project.partners.map((p) => (
+                <PartnerCard partner={p} key={p.id} />
               ))}
             </div>
           )}
@@ -238,8 +249,7 @@ const Projeto = ({ project }) => {
 };
 
 export async function getStaticPaths() {
-  const res = await fetch("https://cms.ameciclo.org/projects");
-  //const res = await fetch("http://localhost:1337/projects");
+  const res = await fetch(`${server}/projects`);
 
   const projects = await res.json();
 
@@ -254,11 +264,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const res = await fetch(
-    `https://cms.ameciclo.org/projects?slug=${params.project}`
-    //`http://localhost:1337/projects?slug=${params.project}`
-
-  );
+  const res = await fetch(`${server}/projects?slug=${params.project}`);
   const project = await res.json();
   return {
     props: {

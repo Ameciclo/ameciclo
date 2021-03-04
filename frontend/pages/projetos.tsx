@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { ProjectCard } from "../components/ProjectCard";
+import { server } from "../config";
 
 const Projetos = ({ projects }) => {
   const [filteredProjects, setFilteredProjects] = useState([]);
@@ -74,7 +75,7 @@ const Projetos = ({ projects }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch("https://cms.ameciclo.org/projects");
+  const res = await fetch(`${server}/projects`);
   let projects = [];
   if (res.status === 200) {
     projects = await res.json();

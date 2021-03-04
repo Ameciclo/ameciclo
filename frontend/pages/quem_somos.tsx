@@ -3,6 +3,7 @@ import SEO from "../components/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
 import React from "react";
+import { server } from "../config";
 
 const QuemSomos = ({ coordinators, counselors }) => {
   return (
@@ -150,8 +151,8 @@ const QuemSomos = ({ coordinators, counselors }) => {
 };
 
 export async function getStaticProps() {
-  const c_res = await fetch("https://cms.ameciclo.org/coordinators");
-  const co_res = await fetch("https://cms.ameciclo.org/counselors");
+  const c_res = await fetch(`${server}/coordinators}`),
+    co_res = await fetch(`${server}/counselors`);
 
   let coordinators = [],
     counselors = [];

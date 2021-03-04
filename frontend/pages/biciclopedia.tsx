@@ -4,27 +4,28 @@ import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { SearchComponent } from "../components/SearchComponent";
 import { Accordion } from "../components/Accordion_FAQ";
+import { server } from "../config";
 //import Category from "./biciclopedia/[category]";
-{/*import Image from "next/image";
+{
+  /*import Image from "next/image";
 import FAQIcon from "../components/Icons/faq";
 import { motion } from "framer-motion";
-import Link from "next/link";*/}
-
+import Link from "next/link";*/
+}
 
 const Biciclopedia = ({ faqs, categories }) => {
-
-  let disponibleCategories = []
+  let disponibleCategories = [];
 
   categories.forEach((category) => {
     if (category.faqs.length > 0) {
-      disponibleCategories.push(category)
+      disponibleCategories.push(category);
     }
   });
 
-  categories = disponibleCategories
+  categories = disponibleCategories;
 
   categories.sort((a, b) => {
-    return a.title.localeCompare(b.title)
+    return a.title.localeCompare(b.title);
   });
 
   return (
@@ -32,18 +33,21 @@ const Biciclopedia = ({ faqs, categories }) => {
       <SEO title="Biciclopedia" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill my-auto flex items-center justify-center"
-        style={{ 
+        style={{
           width: "100%",
           height: "52vh",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundImage: `url('/biciclopedia.webp')`,
-        }}>
-        {<div className="container mx-auto" style={{ maxWidth: "768px" }}>
-          {faqs.length !== 0 && <SearchComponent faqs={faqs} />}
-        </div>}
-      </div> 
+        }}
+      >
+        {
+          <div className="container mx-auto" style={{ maxWidth: "768px" }}>
+            {faqs.length !== 0 && <SearchComponent faqs={faqs} />}
+          </div>
+        }
+      </div>
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
           <Breadcrumb
@@ -55,9 +59,7 @@ const Biciclopedia = ({ faqs, categories }) => {
       </div>
       <section className="container mx-auto mt-8 my-4 px-4">
         <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
- 
-        <Accordion faqs={categories} />
-
+          <Accordion faqs={categories} />
         </div>
         {/*categories.length === 0 ? (
           <span>Nenhuma pergunta disponivel</span>
@@ -109,8 +111,8 @@ const Biciclopedia = ({ faqs, categories }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch("https://cms.ameciclo.org/faqs");
-  const res_cat = await fetch("https://cms.ameciclo.org/faq-tags");
+  const res = await fetch(`${server}/faqs}`),
+    res_cat = await fetch(`${server}/faq-tags`);
 
   let categories = [],
     faqs = [];

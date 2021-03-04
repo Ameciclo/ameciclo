@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import { GroupCard } from "../components/GroupCard";
+import { server } from "../config";
 
 const Grupos = ({ groups }) => {
   const [filteredGroups, setFilteredGroups] = useState([]);
@@ -75,7 +76,7 @@ const Grupos = ({ groups }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch("https://cms.ameciclo.org/workgroups");
+  const res = await fetch(`${server}/workgroups}`);
   let groups = [];
   if (res.status === 200) {
     groups = await res.json();
