@@ -13,8 +13,14 @@ import Counter from "../components/Counter";
 import Apoie from "../components/Icons/apoie";
 import Associe from "../components/Icons/associe";
 import Participe from "../components/Icons/participe";
+import { FeaturedProducts } from "../components/FeaturedProducts";
+import { server } from "../config";
 
-export default function Home({ featuredProjects, numberOfProjects }) {
+export default function Home({
+  featuredProjects,
+  numberOfProjects,
+  featuredProducts,
+}) {
   return (
     <Layout>
       <SEO title="Página Principal" />
@@ -57,7 +63,7 @@ export default function Home({ featuredProjects, numberOfProjects }) {
               {
                 resolve: autoplayPlugin,
                 options: {
-                  interval: 2000,
+                  interval: 4000,
                   stopAutoPlayOnHover: true,
                 },
               },
@@ -164,13 +170,124 @@ export default function Home({ featuredProjects, numberOfProjects }) {
           </div>
         </div>
       </section>
+      {featuredProducts.length > 0 && (
+        <section>
+          <div className="mx-auto">
+            <Carousel
+              animationSpeed={1000}
+              plugins={[
+                "infinite",
+                {
+                  resolve: autoplayPlugin,
+                  options: {
+                    interval: 3000,
+                    stopAutoPlayOnHover: true,
+                  },
+                },
+                {
+                  resolve: arrowsPlugin,
+                  options: {
+                    arrowLeft: (
+                      <motion.button
+                        className="text-gray-800 ml-4 absolute z-10 rounded-full bg-white p-3 shadow-lg outline-none focus:outline-none hidden md:block"
+                        whileTap={{ scale: 0.8 }}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="text-gray-800 w-8 h-8"
+                          data-icon="angle-double-left"
+                          data-prefix="fas"
+                          viewBox="0 0 448 512"
+                        >
+                          <defs />
+                          <path
+                            fill="currentColor"
+                            d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
+                          />
+                        </svg>
+                      </motion.button>
+                    ),
+                    arrowLeftDisabled: (
+                      <motion.button
+                        className="text-gray-800 ml-4 absolute z-10 rounded-full bg-white p-3 shadow-lg outline-none focus:outline-none hidden md:block"
+                        whileTap={{ scale: 0.8 }}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="text-gray-800 w-8 h-8"
+                          data-icon="angle-double-left"
+                          data-prefix="fas"
+                          viewBox="0 0 448 512"
+                        >
+                          <defs />
+                          <path
+                            fill="currentColor"
+                            d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
+                          />
+                        </svg>
+                      </motion.button>
+                    ),
+                    arrowRight: (
+                      <motion.button
+                        className="text-gray-800 ml-4 absolute z-10 right-0 mr-4 rounded-full bg-white p-3 shadow-lg outline-none focus:outline-none hidden md:block"
+                        whileTap={{ scale: 0.8 }}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="text-gray-800 w-8 h-8"
+                          data-icon="angle-double-right"
+                          data-prefix="fas"
+                          viewBox="0 0 448 512"
+                        >
+                          <defs />
+                          <path
+                            fill="currentColor"
+                            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
+                          />
+                        </svg>
+                      </motion.button>
+                    ),
+                    arrowRightDisabled: (
+                      <motion.button
+                        className="text-gray-800 ml-4 absolute z-10 right-0 mr-4 rounded-full bg-white p-3 shadow-lg outline-none focus:outline-none hidden md:block"
+                        whileTap={{ scale: 0.8 }}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="text-gray-800 w-8 h-8"
+                          data-icon="angle-double-right"
+                          data-prefix="fas"
+                          viewBox="0 0 448 512"
+                        >
+                          <defs />
+                          <path
+                            fill="currentColor"
+                            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
+                          />
+                        </svg>
+                      </motion.button>
+                    ),
+                    addArrowClickHandler: true,
+                  },
+                },
+              ]}
+            >
+              {featuredProducts.map((p) => (
+                <FeaturedProducts project={p} key={p.id} />
+              ))}
+            </Carousel>
+          </div>
+        </section>
+      )}
     </Layout>
   );
 }
 
 export async function getStaticProps() {
-  const res = await fetch("https://cms.ameciclo.org/projects");
-  if (res.status !== 200) {
+  const res = await fetch(`${server}/projects`),
+    res_carrossel = await fetch(`${server}/carrossels`);
+
+  if (res.status !== 200 && res_carrossel.status !== 200) {
     return {
       redirect: {
         permanent: false,
@@ -178,7 +295,17 @@ export async function getStaticProps() {
       },
     };
   }
+
   const projects = await res.json();
+  const products = await res_carrossel.json();
+
+  let featuredProducts = [];
+
+  if (products.data) {
+    featuredProducts = products.filter((p) => {
+      return p.isHighlighted === true;
+    });
+  }
 
   const featuredProjects = projects.filter((p) => {
     return p.isHighlighted === true;
@@ -188,6 +315,7 @@ export async function getStaticProps() {
     props: {
       featuredProjects,
       numberOfProjects,
+      featuredProducts,
     },
   };
 }

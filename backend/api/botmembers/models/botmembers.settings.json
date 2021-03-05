@@ -21,17 +21,17 @@
       "type": "boolean"
     },
     "workgroups": {
-      "collection": "workgroups",
       "via": "botmembers",
+      "collection": "workgroups",
       "dominant": true
     },
     "coordinations": {
-      "collection": "project",
-      "via": "coordinator"
+      "via": "coordinator",
+      "collection": "project"
     },
     "oncethere": {
-      "model": "workgroups",
-      "via": "washere"
+      "via": "washere",
+      "model": "workgroups"
     },
     "telegram_nick": {
       "type": "email"

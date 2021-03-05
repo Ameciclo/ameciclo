@@ -92,12 +92,38 @@
       "component": "button.links"
     },
     "workgroup": {
-      "via": "projects",
-      "model": "workgroups"
+      "model": "workgroups",
+      "via": "projects"
     },
     "coordinator": {
-      "via": "coordinations",
-      "model": "botmembers"
+      "model": "botmembers",
+      "via": "coordinations"
+    },
+    "partners": {
+      "collection": "partners"
+    },
+    "steps": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.step"
+    },
+    "clippings": {
+      "collection": "clipping",
+      "via": "projeto"
+    },
+    "cover": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "long_description": {
+      "type": "richtext"
     }
   }
 }

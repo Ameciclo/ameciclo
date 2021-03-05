@@ -3,6 +3,7 @@ import SEO from "../components/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
 import React from "react";
+import { server } from "../config";
 
 const QuemSomos = ({ coordinators, counselors }) => {
   return (
@@ -12,7 +13,7 @@ const QuemSomos = ({ coordinators, counselors }) => {
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
         style={{
           width: "100%",
-          height: "40vh",
+          height: "52vh",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -150,8 +151,8 @@ const QuemSomos = ({ coordinators, counselors }) => {
 };
 
 export async function getStaticProps() {
-  const c_res = await fetch("https://cms.ameciclo.org/coordinators");
-  const co_res = await fetch("https://cms.ameciclo.org/counselors");
+  const c_res = await fetch(`${server}/coordinators`),
+    co_res = await fetch(`${server}/counselors`);
 
   let coordinators = [],
     counselors = [];
