@@ -194,11 +194,11 @@ const Projeto = ({ project }) => {
         </div>
       </section>
 
-      <section className="container my-12 mx-auto">
-        <div className="flex flex-col bg-white mb-6 shadow-xl rounded-lg">
+      <section className="container my-10 mx-auto">
+        <div className="flex flex-col bg-white shadow-xl rounded-lg">
         {project.steps && (
           project.steps.length > 0 && (
-            <div className="container mx-auto flex border-b border-gray-600 justify-center">
+            <div className="container mx-auto flex justify-center">
               <div className="mx-auto grid md:grid-flow-col gap-6 my-4">
                 {project.steps.map((p) => (
                   <StepCard step={p} key={p.id} />
@@ -207,7 +207,7 @@ const Projeto = ({ project }) => {
             </div>
           )
           )}
-          <div className="mt-10 py-10 text-center">
+          <div className="py-6 text-center">
             <div className="flex flex-wrap justify-center">
               <div className="w-full lg:w-7/12 px-4 mb-4 text-lg text-justify leading-relaxed text-gray-800 markdown_box">
                 {project.long_description ? (
