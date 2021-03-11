@@ -287,8 +287,6 @@ export async function getStaticProps() {
   const res = await fetch(`${server}/projects`),
     res_carrossel = await fetch(`${server}/carrossels`);
 
-  console.log(`${server}/projects}`);
-
   if (res.status !== 200 && res_carrossel.status !== 200) {
     return {
       redirect: {

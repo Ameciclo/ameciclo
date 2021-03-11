@@ -13,7 +13,7 @@ const Grupos = ({ groups }) => {
     if (status) {
       setFilteredGroups(
         groups.filter((group) => {
-          return group.telegram_id === status;
+          return group.directive === status;
         })
       );
     } else {
