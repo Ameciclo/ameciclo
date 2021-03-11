@@ -21,6 +21,7 @@ const ProjectDate = ({ project }) => {
     year: "numeric",
     month: "long",
   };
+  
   return (
     project.startDate && (
       <div className="flex flex-row justify-center">
@@ -110,6 +111,8 @@ const Projeto = ({ project }) => {
           </h1>
         </div>
       </div>
+      
+
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
           <Breadcrumb
@@ -191,22 +194,24 @@ const Projeto = ({ project }) => {
         </div>
       </section>
 
-      <section className="container my-12 mx-auto">
-        <div className="flex flex-col bg-white mb-6 shadow-xl rounded-lg">
-          {project.steps.length > 0 && (
-            <div className="container mx-auto flex border-b border-gray-600 justify-center">
+      <section className="container my-10 mx-auto">
+        <div className="flex flex-col bg-white shadow-xl rounded-lg">
+        {project.steps && (
+          project.steps.length > 0 && (
+            <div className="container mx-auto flex justify-center">
               <div className="mx-auto grid md:grid-flow-col gap-6 my-4">
                 {project.steps.map((p) => (
                   <StepCard step={p} key={p.id} />
                 ))}
               </div>
             </div>
+          )
           )}
-          <div className="mt-10 py-10 text-center">
+          <div className="py-6 text-center">
             <div className="flex flex-wrap justify-center">
-              <div className="w-full lg:w-9/12 px-4 mb-4 text-lg leading-relaxed text-gray-800">
+              <div className="w-full lg:w-7/12 px-4 mb-4 text-lg text-justify leading-relaxed text-gray-800 markdown_box">
                 {project.long_description ? (
-                  <ReactMarkdown children={project.long_description} />
+                    <ReactMarkdown children={project.long_description} />
                 ) : (
                   project.description
                 )}
@@ -235,13 +240,14 @@ const Projeto = ({ project }) => {
           ) : null}
         </div>
         <div className="container mx-auto flex mx-4 pt-10 justify-center border-gray-300 ">
-          {project.partners.length > 0 && (
-            <div className="grid md:grid-flow-col gap-10">
-              {project.partners.map((p) => (
-                <PartnerCard partner={p} key={p.id} />
-              ))}
-            </div>
-          )}
+          {project.partners &&
+            (project.partners.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-10">
+                {project.partners.map((p) => (
+                  <PartnerCard partner={p} key={p.id} />
+                ))}
+              </div>
+          ))}
         </div>
       </section>
     </Layout>

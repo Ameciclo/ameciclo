@@ -1,0 +1,65 @@
+.markdown_box {
+  a {
+    color: white;
+    background-color:  #008080;
+    text-decoration: none;
+  }
+  a:hover{
+    background-color:  #FF0000;
+  }
+  h1 {
+    color: inherit;
+    font-size: 200%;
+    font-weight: 400;
+    text-align: left;
+  }
+  h2 {
+    color: inherit;
+    font-size: 150%;
+    font-weight: 400;
+    text-align: left;
+  }
+  h3 {
+    color: inherit;
+    font-weight: 400;
+    text-align: left;
+
+  }
+  p {
+    text-indent: 25px;
+    margin-bottom: 10px;
+  }
+  ol {
+    list-style: none;
+    counter-reset: my-awesome-counter;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  ol li {
+    counter-increment: my-awesome-counter;
+    display: flex;
+    width: 100%;
+  }
+  ol li::after{
+    content: attr(p);
+    text-indent: 25px;
+  }
+  ol li::before {
+    content: "0" counter(my-awesome-counter);
+    margin-top: 5px;
+    margin-right: 1rem;
+    --size: 50px;
+    width: var(--size);
+    height: var(--size);
+    padding-top: 8px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    padding-right: 10px;
+    background-color: #008080;
+    text-align:center;
+    color: white;
+    font-weight: bold;
+    font-size: 125%;
+    font-family: inherit;
+  }
+}

@@ -116,10 +116,11 @@ dist
 .pnp.*
 
 build/
-public;
+public/
 
 .strapi-updater.json
-public/
 backups/
 docker-production.yaml
 dump
+../.idea/*
+

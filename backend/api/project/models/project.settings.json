@@ -124,6 +124,15 @@
     },
     "long_description": {
       "type": "richtext"
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "products": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.step"
     }
   }
 }
