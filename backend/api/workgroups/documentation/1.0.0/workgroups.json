@@ -700,6 +700,12 @@
                 "long_description": {
                   "type": "string"
                 },
+                "showTitle": {
+                  "type": "boolean"
+                },
+                "products": {
+                  "type": "component"
+                },
                 "created_by": {
                   "type": "string"
                 },
