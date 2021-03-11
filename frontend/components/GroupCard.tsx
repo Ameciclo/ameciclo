@@ -4,14 +4,14 @@ import Image from "next/image";
 
 const StatusIndicator = ({ status }) => {
   const statusMap = new Map([
-    ["articular", { name: "Articulação Institucional", color: "#008080", fontColor: "#581f0f" },],
-    ["incidir", { name: "Incidência Política", color: "#F6D55C", fontColor: "#581f0f" }],
-    ["cultuar", { name: "Cultura da Bicicleta", color: "#20639B", fontColor: "#dbf4c6" }],
-    ["fortalecer", { name: "Fortalecimento Institucional", color: "#20639B", fontColor: "#dbf4c6" }],
+    ["articular", { name: "Articulação Institucional", color: "#00A4AA", fontColor: "white" },],
+    ["incidir", { name: "Incidência Política", color: "#008080", fontColor: "white" }],
+    ["cultuar", { name: "Cultura da Bicicleta", color: "#E66762", fontColor: "white" }],
+    ["fortalecer", { name: "Fortalecimento Institucional", color: "#003938", fontColor: "white" }],
   ]);
   return (
     <div
-      className="uppercase p-4 rounded bg-green-400 font-semibold absolute"
+      className="uppercase p-4 rounded bg-green-400 font-semibold absolute text-sm"
       style={{
         maxHeight: "50px",
         color: statusMap.get(status).fontColor,
@@ -35,7 +35,7 @@ export const GroupCard = ({ group }) => {
         <Link href={`${group.telegram_url}`}>
           <div
             style={{
-              backgroundImage: `url(${group.icon[0].url})`,
+              backgroundImage: `url(${group.icon.url})`,
               backgroundSize: "cover",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
@@ -73,6 +73,15 @@ export const GroupCard = ({ group }) => {
           </dt>
           <dt>
             <div className="flex flex-wrap justify-center mt-6">
+            <a href={group.telegram_url}>
+                  <button
+                    className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
+                    type="button"
+                    style={{ transition: "all .15s ease" }}
+                  >
+                    Grupo no Telegram
+                  </button>
+              </a>
               <a href={group.folder_url}>
                   <button
                     className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"

@@ -27,7 +27,6 @@ export const SearchComponent = (props) => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    console.log('O link foi clicado.');
     history.push("/projetos");
   }
 
