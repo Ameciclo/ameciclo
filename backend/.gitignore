@@ -119,7 +119,7 @@ build/
 public/
 
 .strapi-updater.json
-backups/cd .
+backups/
 docker-production.yaml
 dump
 ../.idea/*
