@@ -6,10 +6,10 @@ const StatusIndicator = ({ status }) => {
   const statusMap = new Map([
     [
       "ongoing",
-      { name: "Em andamento", color: "#008080", fontColor: "#581f0f" },
+      { name: "Em andamento", color: "#008080", fontColor: "white" },
     ],
-    ["paused", { name: "Pausado", color: "#F6D55C", fontColor: "#581f0f" }],
-    ["finished", { name: "Realizado", color: "#20639B", fontColor: "#dbf4c6" }],
+    ["paused", { name: "Pausado", color: "#F48A42", fontColor: "white" }],
+    ["finished", { name: "Realizado", color: "#00A870", fontColor: "white" }],
   ]);
   return (
     <div
