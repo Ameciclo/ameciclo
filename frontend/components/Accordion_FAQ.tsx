@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "../components/Icons/faq_new";
 
-const AccordionItem = ({ categories }) => {
+export const AccordionItem = ({ categories }) => {
 
   const faqs=categories.faqs;
   const faqs_titles = [];
