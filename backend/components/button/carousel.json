@@ -1,32 +1,33 @@
 {
-  "collectionName": "components_button_steps",
+  "collectionName": "components_button_carousels",
   "info": {
-    "name": "step",
-    "icon": "ad",
-    "description": ""
+    "name": "carousel",
+    "icon": "address-card"
   },
   "options": {},
   "attributes": {
     "title": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "description": {
       "type": "text"
+    },
+    "url": {
+      "type": "string"
     },
     "image": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "files",
         "images",
+        "files",
         "videos"
       ],
       "plugin": "upload",
       "required": false
     },
-    "link": {
-      "type": "string"
+    "active": {
+      "type": "boolean"
     }
   }
 }

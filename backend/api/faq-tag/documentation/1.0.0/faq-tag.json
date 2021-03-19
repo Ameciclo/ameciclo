@@ -529,7 +529,8 @@
     "schemas": {
       "Faq-tag": {
         "required": [
-          "id"
+          "id",
+          "title"
         ],
         "properties": {
           "id": {
@@ -609,7 +610,9 @@
             "type": "array",
             "items": {
               "required": [
-                "id"
+                "id",
+                "title",
+                "description"
               ],
               "properties": {
                 "id": {
@@ -645,6 +648,9 @@
         }
       },
       "NewFaq-tag": {
+        "required": [
+          "title"
+        ],
         "properties": {
           "title": {
             "type": "string"

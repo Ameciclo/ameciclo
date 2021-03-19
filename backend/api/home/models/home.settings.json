@@ -2,7 +2,8 @@
   "kind": "singleType",
   "collectionName": "homes",
   "info": {
-    "name": "Home"
+    "name": "Home",
+    "description": ""
   },
   "options": {
     "increments": true,
@@ -10,9 +11,6 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "quantidade_de_associados": {
-      "type": "integer"
-    },
     "banner": {
       "model": "file",
       "via": "related",
@@ -23,6 +21,14 @@
       ],
       "plugin": "upload",
       "required": false
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.links"
+    },
+    "products": {
+      "collection": "carrossel"
     }
   }
 }

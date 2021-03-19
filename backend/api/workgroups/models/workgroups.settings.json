@@ -12,24 +12,28 @@
   },
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "unique": true,
+      "required": true
     },
     "telegram_id": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "min": "0",
+      "required": false,
+      "unique": true
     },
     "icon": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
-      "required": false
+      "required": true
     },
     "telegram_url": {
-      "type": "string"
+      "type": "string",
+      "unique": true
     },
     "projects": {
       "via": "workgroup",
@@ -61,7 +65,8 @@
         "incidir",
         "cultuar",
         "fortalecer"
-      ]
+      ],
+      "required": true
     }
   }
 }

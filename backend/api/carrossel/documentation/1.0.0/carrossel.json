@@ -516,7 +516,11 @@
     "schemas": {
       "Carrossel": {
         "required": [
-          "id"
+          "id",
+          "name",
+          "description",
+          "media",
+          "active"
         ],
         "properties": {
           "id": {
@@ -529,7 +533,9 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 218,
+            "minLength": 109
           },
           "media": {
             "required": [
@@ -598,7 +604,7 @@
               }
             }
           },
-          "isHighlighted": {
+          "active": {
             "type": "boolean"
           },
           "published_at": {
@@ -608,6 +614,11 @@
         }
       },
       "NewCarrossel": {
+        "required": [
+          "name",
+          "description",
+          "active"
+        ],
         "properties": {
           "name": {
             "type": "string"
@@ -616,9 +627,11 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 218,
+            "minLength": 109
           },
-          "isHighlighted": {
+          "active": {
             "type": "boolean"
           },
           "published_at": {

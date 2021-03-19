@@ -1,8 +1,8 @@
 {
   "kind": "collectionType",
-  "collectionName": "carrossel",
+  "collectionName": "ameciclistas",
   "info": {
-    "name": "Produtos",
+    "name": "Ameciclistas",
     "description": ""
   },
   "options": {
@@ -15,15 +15,10 @@
       "type": "string",
       "required": true
     },
-    "url": {
-      "type": "string",
-      "required": false
-    },
-    "description": {
+    "bio": {
       "type": "text",
-      "required": true,
-      "maxLength": 218,
-      "minLength": 109
+      "private": false,
+      "required": true
     },
     "media": {
       "model": "file",
@@ -34,9 +29,18 @@
       "plugin": "upload",
       "required": true
     },
-    "active": {
-      "type": "boolean",
-      "required": true
+    "botmember": {
+      "via": "ameciclista",
+      "model": "botmembers"
+    },
+    "role": {
+      "type": "enumeration",
+      "enum": [
+        "ameciclista",
+        "coordenacao",
+        "conselhofiscal"
+      ],
+      "default": "ameciclista"
     }
   }
 }

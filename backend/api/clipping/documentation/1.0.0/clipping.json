@@ -516,7 +516,9 @@
     "schemas": {
       "Clipping": {
         "required": [
-          "id"
+          "id",
+          "title",
+          "date"
         ],
         "properties": {
           "id": {
@@ -602,31 +604,20 @@
             "type": "string",
             "format": "date"
           },
-          "backup_link": {
-            "type": "string"
-          },
           "text": {
             "type": "string"
           },
-          "media_type": {
-            "type": "string",
-            "enum": [
-              "television",
-              "radio",
-              "press",
-              "magazine",
-              "blog",
-              "online_press",
-              "social_media",
-              "other"
-            ]
-          },
-          "media_name": {
-            "type": "string"
-          },
-          "projeto": {
+          "project": {
             "required": [
-              "id"
+              "id",
+              "name",
+              "media",
+              "goal",
+              "status",
+              "bikeCulture",
+              "instArticulation",
+              "politicIncidence",
+              "isHighlighted"
             ],
             "properties": {
               "id": {
@@ -712,12 +703,6 @@
               "steps": {
                 "type": "component"
               },
-              "clippings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
               "cover": {
                 "type": "string"
               },
@@ -730,11 +715,141 @@
               "products": {
                 "type": "component"
               },
+              "clippings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "created_by": {
                 "type": "string"
               },
               "updated_by": {
                 "type": "string"
+              }
+            }
+          },
+          "clipping_medias": {
+            "type": "array",
+            "items": {
+              "required": [
+                "id",
+                "name",
+                "type"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "blog",
+                    "independente",
+                    "jornal",
+                    "revista",
+                    "podcast",
+                    "portal",
+                    "televisao",
+                    "radio",
+                    "redessociais",
+                    "outros"
+                  ]
+                },
+                "logo": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "clippings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "published_at": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "backup_media": {
+            "type": "array",
+            "items": {
+              "required": [
+                "id",
+                "name",
+                "hash",
+                "mime",
+                "size",
+                "url",
+                "provider"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "alternativeText": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "width": {
+                  "type": "integer"
+                },
+                "height": {
+                  "type": "integer"
+                },
+                "formats": {
+                  "type": "object"
+                },
+                "hash": {
+                  "type": "string"
+                },
+                "ext": {
+                  "type": "string"
+                },
+                "mime": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "previewUrl": {
+                  "type": "string"
+                },
+                "provider": {
+                  "type": "string"
+                },
+                "provider_metadata": {
+                  "type": "object"
+                },
+                "related": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -745,6 +860,10 @@
         }
       },
       "NewClipping": {
+        "required": [
+          "title",
+          "date"
+        ],
         "properties": {
           "title": {
             "type": "string"
@@ -756,30 +875,17 @@
             "type": "string",
             "format": "date"
           },
-          "backup_link": {
-            "type": "string"
-          },
           "text": {
             "type": "string"
           },
-          "media_type": {
-            "type": "string",
-            "enum": [
-              "television",
-              "radio",
-              "press",
-              "magazine",
-              "blog",
-              "online_press",
-              "social_media",
-              "other"
-            ]
-          },
-          "media_name": {
+          "project": {
             "type": "string"
           },
-          "projeto": {
-            "type": "string"
+          "clipping_medias": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "published_at": {
             "type": "string",

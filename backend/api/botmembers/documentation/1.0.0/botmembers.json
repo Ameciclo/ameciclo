@@ -516,26 +516,28 @@
     "schemas": {
       "Botmembers": {
         "required": [
-          "id"
+          "id",
+          "telegram_id"
         ],
         "properties": {
           "id": {
-            "type": "string"
-          },
-          "first_name": {
             "type": "string"
           },
           "telegram_id": {
             "type": "integer"
           },
           "daily_notifications": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "workgroups": {
             "type": "array",
             "items": {
               "required": [
-                "id"
+                "id",
+                "name",
+                "icon",
+                "directive"
               ],
               "properties": {
                 "id": {
@@ -605,7 +607,15 @@
             "type": "array",
             "items": {
               "required": [
-                "id"
+                "id",
+                "name",
+                "media",
+                "goal",
+                "status",
+                "bikeCulture",
+                "instArticulation",
+                "politicIncidence",
+                "isHighlighted"
               ],
               "properties": {
                 "id": {
@@ -691,12 +701,6 @@
                 "steps": {
                   "type": "component"
                 },
-                "clippings": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
                 "cover": {
                   "type": "string"
                 },
@@ -709,6 +713,12 @@
                 "products": {
                   "type": "component"
                 },
+                "clippings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
                 "created_by": {
                   "type": "string"
                 },
@@ -720,7 +730,10 @@
           },
           "oncethere": {
             "required": [
-              "id"
+              "id",
+              "name",
+              "icon",
+              "directive"
             ],
             "properties": {
               "id": {
@@ -785,11 +798,50 @@
               }
             }
           },
+          "ameciclista": {
+            "required": [
+              "id",
+              "name",
+              "bio",
+              "media"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "bio": {
+                "type": "string"
+              },
+              "media": {
+                "type": "string"
+              },
+              "botmember": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "ameciclista",
+                  "coordenacao",
+                  "conselhofiscal"
+                ]
+              },
+              "published_at": {
+                "type": "string"
+              },
+              "created_by": {
+                "type": "string"
+              },
+              "updated_by": {
+                "type": "string"
+              }
+            }
+          },
           "telegram_nick": {
             "type": "string"
-          },
-          "CPF": {
-            "type": "integer"
           },
           "published_at": {
             "type": "string",
@@ -798,15 +850,16 @@
         }
       },
       "NewBotmembers": {
+        "required": [
+          "telegram_id"
+        ],
         "properties": {
-          "first_name": {
-            "type": "string"
-          },
           "telegram_id": {
             "type": "integer"
           },
           "daily_notifications": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "workgroups": {
             "type": "array",
@@ -823,11 +876,11 @@
           "oncethere": {
             "type": "string"
           },
-          "telegram_nick": {
+          "ameciclista": {
             "type": "string"
           },
-          "CPF": {
-            "type": "integer"
+          "telegram_nick": {
+            "type": "string"
           },
           "published_at": {
             "type": "string",

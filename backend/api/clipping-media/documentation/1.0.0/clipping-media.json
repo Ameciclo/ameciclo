@@ -1,18 +1,19 @@
 {
   "paths": {
-    "/workgroups": {
+    "/clipping-medias": {
       "get": {
         "deprecated": false,
-        "description": "Find all the workgroups's records",
+        "description": "",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Workgroups"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -51,7 +52,7 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Clipping-media"
         ],
         "parameters": [
           {
@@ -194,79 +195,16 @@
       },
       "post": {
         "deprecated": false,
-        "description": "Create a new workgroups record",
+        "description": "Create a new record",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Workgroups"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Workgroups"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewWorkgroups"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/workgroups/count": {
-      "get": {
-        "deprecated": false,
-        "description": "Retrieve the numver of workgroups documents",
-        "responses": {
-          "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "count": {
-                      "type": "integer"
+                    "foo": {
+                      "type": "string"
                     }
                   }
                 }
@@ -306,22 +244,36 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Clipping-media"
         ],
-        "parameters": []
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewClipping-media"
+              }
+            }
+          }
+        }
       }
     },
-    "/workgroups/{id}": {
+    "/clipping-medias/count": {
       "get": {
         "deprecated": false,
-        "description": "Find one workgroups record",
+        "description": "",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workgroups"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -359,7 +311,64 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Clipping-media"
+        ],
+        "parameters": []
+      }
+    },
+    "/clipping-medias/{id}": {
+      "get": {
+        "deprecated": false,
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Clipping-media"
         ],
         "parameters": [
           {
@@ -376,14 +385,18 @@
       },
       "put": {
         "deprecated": false,
-        "description": "Update a single workgroups record",
+        "description": "Update a record",
         "responses": {
           "200": {
-            "description": "Retrieve workgroups document(s)",
+            "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workgroups"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -421,7 +434,7 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Clipping-media"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +442,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewWorkgroups"
+                "$ref": "#/components/schemas/NewClipping-media"
               }
             }
           }
@@ -449,10 +462,10 @@
       },
       "delete": {
         "deprecated": false,
-        "description": "Delete a single workgroups record",
+        "description": "Delete a record",
         "responses": {
           "200": {
-            "description": "deletes a single workgroups based on the ID supplied",
+            "description": "deletes a single record based on the ID supplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,7 +508,7 @@
         },
         "summary": "",
         "tags": [
-          "Workgroups"
+          "Clipping-media"
         ],
         "parameters": [
           {
@@ -514,12 +527,11 @@
   },
   "components": {
     "schemas": {
-      "Workgroups": {
+      "Clipping-media": {
         "required": [
           "id",
           "name",
-          "icon",
-          "directive"
+          "type"
         ],
         "properties": {
           "id": {
@@ -528,10 +540,22 @@
           "name": {
             "type": "string"
           },
-          "telegram_id": {
-            "type": "integer"
+          "type": {
+            "type": "string",
+            "enum": [
+              "blog",
+              "independente",
+              "jornal",
+              "revista",
+              "podcast",
+              "portal",
+              "televisao",
+              "radio",
+              "redessociais",
+              "outros"
+            ]
           },
-          "icon": {
+          "logo": {
             "required": [
               "id",
               "name",
@@ -598,145 +622,16 @@
               }
             }
           },
-          "telegram_url": {
+          "url": {
             "type": "string"
           },
-          "projects": {
+          "clippings": {
             "type": "array",
             "items": {
-              "required": [
-                "id",
-                "name",
-                "media",
-                "goal",
-                "status",
-                "bikeCulture",
-                "instArticulation",
-                "politicIncidence",
-                "isHighlighted"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "media": {
-                  "type": "string"
-                },
-                "goal": {
-                  "type": "string"
-                },
-                "endDate": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "startDate": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string",
-                  "enum": [
-                    "ongoing",
-                    "finished",
-                    "paused"
-                  ]
-                },
-                "bikeCulture": {
-                  "type": "string",
-                  "enum": [
-                    "high",
-                    "low",
-                    "medium"
-                  ]
-                },
-                "instArticulation": {
-                  "type": "string",
-                  "enum": [
-                    "high",
-                    "low",
-                    "medium"
-                  ]
-                },
-                "politicIncidence": {
-                  "type": "string",
-                  "enum": [
-                    "high",
-                    "low",
-                    "medium"
-                  ]
-                },
-                "slug": {
-                  "type": "string"
-                },
-                "isHighlighted": {
-                  "type": "boolean"
-                },
-                "gallery": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "Links": {
-                  "type": "component"
-                },
-                "workgroup": {
-                  "type": "string"
-                },
-                "coordinator": {
-                  "type": "string"
-                },
-                "partners": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "steps": {
-                  "type": "component"
-                },
-                "cover": {
-                  "type": "string"
-                },
-                "long_description": {
-                  "type": "string"
-                },
-                "showTitle": {
-                  "type": "boolean"
-                },
-                "products": {
-                  "type": "component"
-                },
-                "clippings": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "description": {
-            "type": "string"
-          },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
               "required": [
                 "id",
                 "title",
-                "link"
+                "date"
               ],
               "properties": {
                 "id": {
@@ -747,50 +642,33 @@
                 },
                 "link": {
                   "type": "string"
-                }
-              }
-            }
-          },
-          "folder_url": {
-            "type": "string"
-          },
-          "botmembers": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id",
-                "telegram_id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
                 },
-                "telegram_id": {
-                  "type": "integer"
-                },
-                "daily_notifications": {
-                  "type": "boolean"
-                },
-                "workgroups": {
+                "print": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "coordinations": {
+                "date": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "project": {
+                  "type": "string"
+                },
+                "clipping_medias": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "oncethere": {
-                  "type": "string"
-                },
-                "ameciclista": {
-                  "type": "string"
-                },
-                "telegram_nick": {
-                  "type": "string"
+                "backup_media": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "published_at": {
                   "type": "string"
@@ -803,65 +681,6 @@
                 }
               }
             }
-          },
-          "washere": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id",
-                "telegram_id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "telegram_id": {
-                  "type": "integer"
-                },
-                "daily_notifications": {
-                  "type": "boolean"
-                },
-                "workgroups": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "coordinations": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "oncethere": {
-                  "type": "string"
-                },
-                "ameciclista": {
-                  "type": "string"
-                },
-                "telegram_nick": {
-                  "type": "string"
-                },
-                "published_at": {
-                  "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "directive": {
-            "type": "string",
-            "enum": [
-              "articular",
-              "incidir",
-              "cultuar",
-              "fortalecer"
-            ]
           },
           "published_at": {
             "type": "string",
@@ -869,75 +688,38 @@
           }
         }
       },
-      "NewWorkgroups": {
+      "NewClipping-media": {
         "required": [
           "name",
-          "directive"
+          "type"
         ],
         "properties": {
           "name": {
             "type": "string"
           },
-          "telegram_id": {
-            "type": "integer"
-          },
-          "telegram_url": {
-            "type": "string"
-          },
-          "projects": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "description": {
-            "type": "string"
-          },
-          "Links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "folder_url": {
-            "type": "string"
-          },
-          "botmembers": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "washere": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "directive": {
+          "type": {
             "type": "string",
             "enum": [
-              "articular",
-              "incidir",
-              "cultuar",
-              "fortalecer"
+              "blog",
+              "independente",
+              "jornal",
+              "revista",
+              "podcast",
+              "portal",
+              "televisao",
+              "radio",
+              "redessociais",
+              "outros"
             ]
+          },
+          "url": {
+            "type": "string"
+          },
+          "clippings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "published_at": {
             "type": "string",
@@ -953,9 +735,5 @@
       }
     }
   },
-  "tags": [
-    {
-      "name": "Workgroups"
-    }
-  ]
+  "tags": []
 }

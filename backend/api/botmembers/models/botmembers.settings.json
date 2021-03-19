@@ -11,14 +11,15 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "first_name": {
-      "type": "string"
-    },
     "telegram_id": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "required": true,
+      "unique": true,
+      "min": "0"
     },
     "daily_notifications": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "workgroups": {
       "via": "botmembers",
@@ -33,11 +34,13 @@
       "via": "washere",
       "model": "workgroups"
     },
-    "telegram_nick": {
-      "type": "email"
+    "ameciclista": {
+      "model": "ameciclistas",
+      "via": "botmember"
     },
-    "CPF": {
-      "type": "biginteger"
+    "telegram_nick": {
+      "type": "string",
+      "unique": false
     }
   }
 }

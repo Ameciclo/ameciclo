@@ -516,7 +516,13 @@
     "schemas": {
       "Documents": {
         "required": [
-          "id"
+          "id",
+          "title",
+          "description",
+          "url",
+          "cover",
+          "type",
+          "release_date"
         ],
         "properties": {
           "id": {
@@ -617,6 +623,13 @@
         }
       },
       "NewDocuments": {
+        "required": [
+          "title",
+          "description",
+          "url",
+          "type",
+          "release_date"
+        ],
         "properties": {
           "title": {
             "type": "string"
