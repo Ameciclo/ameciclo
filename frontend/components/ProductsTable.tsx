@@ -4,6 +4,8 @@ import { useTable, usePagination, useFilters, useGlobalFilter, useSortBy, useAsy
 import { matchSorter } from "match-sorter";
 import Link from "next/link";
 //import ColumnFilter from "./ColumnFilter";
+import {GlobalFilter} from "./GlobalFilter";
+
 
 /*
 function fuzzyTextFilterFn(rows, id, filterValue) {
@@ -95,36 +97,7 @@ export const ProductsTable = ({ data }) => {
     usePagination,
   );
 
-  // Define a default UI for filtering
-function GlobalFilter({
-  preGlobalFilteredRows,
-  globalFilter,
-  setGlobalFilter,
-}) {
-  const count = preGlobalFilteredRows.length
-  const [value, setValue] = React.useState(globalFilter)
-  const onChange = useAsyncDebounce(value => {
-    setGlobalFilter(value || undefined)
-  }, 200)
-
-  return (
-    <span className="max-w-sm text-gray-600 border-2 border-amecicloTransparent bg-white h-10 px-5 pr-5 pt-2 rounded-lg text-sm focus:outline-none">
-     {' '}
-      <input
-        value={value || ""}
-        onChange={e => {
-          setValue(e.target.value);
-          onChange(e.target.value);
-        }}
-        placeholder={`Busca em ${count} produtos...`}
-        style={{
-          fontSize: '1.1rem',
-          border: '0',
-        }}
-      />
-    </span>
-  )
-}
+  
 
   const pagesButtons = (numPages) => {
     var pages = []
@@ -226,25 +199,51 @@ function GlobalFilter({
                   globalFilter={state.globalFilter}
                   setGlobalFilter={setGlobalFilter}
                 />
-          <button
-            className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
+          {canPreviousPage ? (
+            <button
+              className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
+              type="button"
+              style={{ transition: "all .15s ease" }}
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage}
+            >
+              Anterior
+            </button>
+          ) : (
+            <button
+            className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
             type="button"
             style={{ transition: "all .15s ease" }}
-            onClick={() => previousPage()}
+            //onClick={() => previousPage()}
             disabled={!canPreviousPage}
-          >
-            Anterior
-          </button>
+            >
+              Anterior
+             </button> 
+          )}
+          
           {pageOptions.length > 0 && (pagesButtons(pageOptions.length))}
-          <button
-            className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
+
+          {canNextPage ? (
+            <button
+              className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
+              type="button"
+              style={{ transition: "all .15s ease" }}
+              onClick={() => nextPage()}
+              disabled={!canNextPage}
+            >
+              Próxima
+            </button>
+          ) : (
+            <button
+            className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
             type="button"
             style={{ transition: "all .15s ease" }}
-            onClick={() => nextPage()}
+            //onClick={() => nextPage()}
             disabled={!canNextPage}
-          >
-            Próxima
-          </button>
+            >
+              Próxima
+            </button>
+          )}
         </div>
       </div>
     </div>
