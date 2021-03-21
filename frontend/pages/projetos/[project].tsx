@@ -11,6 +11,7 @@ import { StepCard } from "../../components/StepCard";
 import ReactMarkdown from "react-markdown";
 import { PartnerCard } from "../../components/PartnerCard";
 import { server } from "../../config";
+import { ProductsTable } from "../../components/ProductsTable"
 
 const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
   ssr: false,
@@ -239,6 +240,13 @@ const Projeto = ({ project }) => {
             </>
           ) : null}
         </div>
+
+        {project.products.length && (
+          <div className="container mx-auto my-10 shadow-2xl rounded p-12 overflow-auto bg-gray-100">
+            <ProductsTable data={project.products} />
+          </div>
+        )}
+
         <div className="container mx-auto flex mx-4 pt-10 justify-center border-gray-300 ">
           {project.partners &&
             (project.partners.length > 0 && (
