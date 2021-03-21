@@ -162,7 +162,7 @@ const Header = () => {
                   className="flex items-center flex-shrink-0 mr-6 absolute z-10 border-white border-4"
                 >
                   <svg
-                    className="w-32 h-32 text-ameciclo bg-white"
+                    className="w-20 h-20 sm:w-32 sm:h-32 text-ameciclo bg-white"
                     fill="currentColor"
                     viewBox="0 0 400 400"
                   >
