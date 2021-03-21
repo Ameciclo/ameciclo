@@ -41,10 +41,10 @@ export const ProductsTable = ({ data }) => {
         Cell: ({ row }) => (
           row.original.link ? (
               <Link href={row.original.link}  key={row.original.id}>
-                <a className="text-ameciclo">{row.original.title}</a>
+                <a className="text-base text-ameciclo">{row.original.title}</a>
               </Link>
               ) : (
-                <p>{row.original.title}</p>
+                <p className="text-base">{row.original.title}</p>
               )
         ),
         Filter: ColumnFilter,
@@ -70,21 +70,42 @@ export const ProductsTable = ({ data }) => {
     canPreviousPage,
     canNextPage,
     pageOptions,
+    gotoPage,
+    pageCount,
     nextPage,
     previousPage,
     visibleColumns,
-    state: { pageIndex },
+    setPageSize,
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
       data,
-      initialState: { pageIndex: 0 },
+      initialState: { pageIndex: 0, pageSize: 4 },
       filterTypes,
+
     },
     useFilters,
     useSortBy,
     usePagination
   );
+
+  const pagesButtons = (numPages) => {
+    var pages = []
+    for (let i = 1; i <= numPages; i++) {
+        pages.push(
+            <button
+                className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
+                type="button"
+                style={{ transition: "all .15s ease" }}
+                onClick={() => gotoPage(i-1)}
+            >
+                {i}
+            </button>
+        )
+    }
+    return pages
+}
 
   return (
     <div className="shadow overflow-x-auto bg-white border-b border-gray-200 sm:rounded-lg">
@@ -150,19 +171,21 @@ export const ProductsTable = ({ data }) => {
       </table>
 
       <div className="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
-        <div className="text-xs xs:text-sm text-gray-900">
-          <span>{`Página ${pageIndex + 1} de ${pageOptions.length}`}</span>
-        </div>
         <div className="inline-flex mt-2 xs:mt-0">
           <button
-            className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-l"
+            className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
+            type="button"
+            style={{ transition: "all .15s ease" }}
             onClick={() => previousPage()}
             disabled={!canPreviousPage}
           >
             Anterior
           </button>
+          {pageOptions.length > 2 && (pagesButtons(pageOptions.length))}
           <button
-            className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-r"
+            className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
+            type="button"
+            style={{ transition: "all .15s ease" }}
             onClick={() => nextPage()}
             disabled={!canNextPage}
           >
