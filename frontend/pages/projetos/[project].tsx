@@ -98,7 +98,7 @@ const Projeto = ({ project }) => {
               }
         }
       >
-        {project.showTitle && (
+        {!project.showTitle && (
           <div
             className="container mx-auto flex flex-col items-center"
             style={{ maxWidth: "768px" }}
@@ -111,11 +111,9 @@ const Projeto = ({ project }) => {
             >
               {project.name}
             </h1>
-            )
           </div>
           )}
       </div>
-      
 
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
@@ -225,7 +223,7 @@ const Projeto = ({ project }) => {
 
           {project.gallery ? (
             <>
-              <PhotoGallery photos={photos} onClick={openLightbox} />
+              <PhotoGallery photos={photos} targetRowHeight={100} onClick={openLightbox} />
               <ModalGateway>
                 {viewerIsOpen ? (
                   <Modal onClose={closeLightbox}>
