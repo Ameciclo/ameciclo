@@ -98,7 +98,9 @@ const Projeto = ({ project }) => {
               }
         }
       >
-        {!project.showTitle && (
+        {!project.showTitle ? (
+          null
+          ) : (
           <div
             className="container mx-auto flex flex-col items-center"
             style={{ maxWidth: "768px" }}
