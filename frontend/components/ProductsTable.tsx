@@ -1,22 +1,23 @@
 import React from "react";
-import { useTable, usePagination, useFilters, useSortBy } from "react-table";
+import { useTable, usePagination, useFilters, useGlobalFilter, useSortBy, useAsyncDebounce } from "react-table";
 import { matchSorter } from "match-sorter";
 import Link from "next/link";
-import ColumnFilter from "./ColumnFilter";
+//import ColumnFilter from "./ColumnFilter";
 
+/*
 function fuzzyTextFilterFn(rows, id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
-}
+}*/
 
 // Let the table remove the filter if the string is empty
-fuzzyTextFilterFn.autoRemove = (val) => !val;
+//fuzzyTextFilterFn.autoRemove = (val) => !val;
 
 export const ProductsTable = ({ data }) => {
 
   const filterTypes = React.useMemo(
     () => ({
       // Add a new fuzzyTextFilterFn filter type.
-      fuzzyText: fuzzyTextFilterFn,
+      //fuzzyText: fuzzyTextFilterFn,
       // Or, override the default text filter to use
       // "startWith"
       text: (rows, id, filterValue) => {
@@ -47,7 +48,6 @@ export const ProductsTable = ({ data }) => {
                 <p className="text-base">{row.original.title}</p>
               )
         ),
-        Filter: ColumnFilter,
       },
       {
         Header: "Descrição",
@@ -55,7 +55,6 @@ export const ProductsTable = ({ data }) => {
         Cell: ({ row }) => (
           <p className="px-1">{row.original.description}</p>
         ),
-        Filter: ColumnFilter,
       },
     ],
     []
@@ -67,6 +66,7 @@ export const ProductsTable = ({ data }) => {
     headerGroups,
     page,
     prepareRow,
+    state,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -76,6 +76,8 @@ export const ProductsTable = ({ data }) => {
     previousPage,
     visibleColumns,
     setPageSize,
+    preGlobalFilteredRows,
+    setGlobalFilter,
     state: { pageIndex, pageSize },
   } = useTable(
     {
@@ -86,23 +88,71 @@ export const ProductsTable = ({ data }) => {
 
     },
     useFilters,
+    useGlobalFilter, // useGlobalFilter!
+
     useSortBy,
-    usePagination
+    usePagination,
   );
+
+  // Define a default UI for filtering
+function GlobalFilter({
+  preGlobalFilteredRows,
+  globalFilter,
+  setGlobalFilter,
+}) {
+  const count = preGlobalFilteredRows.length
+  const [value, setValue] = React.useState(globalFilter)
+  const onChange = useAsyncDebounce(value => {
+    setGlobalFilter(value || undefined)
+  }, 200)
+
+  return (
+    <span className="max-w-sm text-gray-600 border-2 border-amecicloTransparent bg-white h-10 px-5 pr-5 pt-2 rounded-lg text-sm focus:outline-none">
+     {' '}
+      <input
+        value={value || ""}
+        onChange={e => {
+          setValue(e.target.value);
+          onChange(e.target.value);
+        }}
+        placeholder={`Busca em ${count} produtos...`}
+        style={{
+          fontSize: '1.1rem',
+          border: '0',
+        }}
+      />
+    </span>
+  )
+}
 
   const pagesButtons = (numPages) => {
     var pages = []
     for (let i = 1; i <= numPages; i++) {
-        pages.push(
-            <button
-                className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
-                type="button"
-                style={{ transition: "all .15s ease" }}
-                onClick={() => gotoPage(i-1)}
-            >
-                {i}
-            </button>
-        )
+        if (i - 1 != pageIndex) {
+            pages.push(
+                <button
+                    className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
+                    type="button"
+                    style={{ transition: "all .15s ease" }}
+                    onClick={() => gotoPage(i-1)}
+                >
+                    {i}
+                </button>
+            )
+    
+        } else {
+            pages.push(
+                <button
+                    className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
+                    type="button"
+                    style={{ transition: "all .15s ease" }}
+                    onClick={() => gotoPage(i-1)}
+                >
+                    {i}
+                </button>
+            )
+    
+        }
     }
     return pages
 }
@@ -117,13 +167,12 @@ export const ProductsTable = ({ data }) => {
           {headerGroups.map((headerGroup) => (
             <tr
               {...headerGroup.getHeaderGroupProps()}
-              className="bg-gray-100 rounded-lg text-sm font-medium text-gray-700 text-left"
+              className="bg-ameciclo rounded-lg text-sm font-medium text-gray-700 text-left"
             >
               {headerGroup.headers.map((column) => (
                 <th
                   {...column.getHeaderProps()}
-                  className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
-                >
+                  className="px-6 py-3 border-gray-200 text-left text-sm leading-4 font-medium text-white uppercase tracking-wider"                >
                   <div
                     {...column.getSortByToggleProps({ title: "Ordenar" })}
                     className="flex items-center"
@@ -132,12 +181,11 @@ export const ProductsTable = ({ data }) => {
                     <span className="inline-block">
                       {column.isSorted
                         ? column.isSortedDesc
-                          ? " 🔽️"
-                          : " 🔼"
+                          ? "  🔻"
+                          : "  🔺"
                         : ""}
                     </span>
                   </div>
-                  {column.canFilter ? column.render("Filter") : null}
                 </th>
               ))}
             </tr>
@@ -172,6 +220,11 @@ export const ProductsTable = ({ data }) => {
 
       <div className="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
         <div className="inline-flex mt-2 xs:mt-0">
+        <GlobalFilter
+                  preGlobalFilteredRows={preGlobalFilteredRows}
+                  globalFilter={state.globalFilter}
+                  setGlobalFilter={setGlobalFilter}
+                />
           <button
             className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
             type="button"
