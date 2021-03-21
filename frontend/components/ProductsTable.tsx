@@ -1,4 +1,5 @@
 import React from "react";
+import 'regenerator-runtime/runtime';
 import { useTable, usePagination, useFilters, useGlobalFilter, useSortBy, useAsyncDebounce } from "react-table";
 import { matchSorter } from "match-sorter";
 import Link from "next/link";
@@ -234,7 +235,7 @@ function GlobalFilter({
           >
             Anterior
           </button>
-          {pageOptions.length > 2 && (pagesButtons(pageOptions.length))}
+          {pageOptions.length > 0 && (pagesButtons(pageOptions.length))}
           <button
             className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
             type="button"
