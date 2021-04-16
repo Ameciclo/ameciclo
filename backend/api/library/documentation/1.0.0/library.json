@@ -516,7 +516,12 @@
     "schemas": {
       "Library": {
         "required": [
-          "id"
+          "id",
+          "register",
+          "title",
+          "author",
+          "copies",
+          "cover"
         ],
         "properties": {
           "id": {
@@ -535,7 +540,8 @@
             "type": "integer"
           },
           "copies": {
-            "type": "integer"
+            "type": "integer",
+            "default": 1
           },
           "type": {
             "type": "string",
@@ -628,6 +634,12 @@
         }
       },
       "NewLibrary": {
+        "required": [
+          "register",
+          "title",
+          "author",
+          "copies"
+        ],
         "properties": {
           "register": {
             "type": "string"
@@ -642,7 +654,8 @@
             "type": "integer"
           },
           "copies": {
-            "type": "integer"
+            "type": "integer",
+            "default": 1
           },
           "type": {
             "type": "string",

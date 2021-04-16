@@ -12,24 +12,25 @@
   },
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "description": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "url": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "cover": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
-      "required": false
+      "required": true
     },
     "type": {
       "type": "enumeration",
@@ -37,10 +38,12 @@
         "studies",
         "books",
         "other"
-      ]
+      ],
+      "required": true
     },
     "release_date": {
-      "type": "date"
+      "type": "date",
+      "required": true
     }
   }
 }

@@ -2,48 +2,48 @@
   "routes": [
     {
       "method": "GET",
-      "path": "/podcast-episodes",
-      "handler": "podcast-episode.find",
+      "path": "/ameciclistas",
+      "handler": "ameciclistas.find",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/podcast-episodes/count",
-      "handler": "podcast-episode.count",
+      "path": "/ameciclistas/count",
+      "handler": "ameciclistas.count",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/podcast-episodes/:id",
-      "handler": "podcast-episode.findOne",
+      "path": "/ameciclistas/:id",
+      "handler": "ameciclistas.findOne",
       "config": {
         "policies": []
       }
     },
     {
       "method": "POST",
-      "path": "/podcast-episodes",
-      "handler": "podcast-episode.create",
+      "path": "/ameciclistas",
+      "handler": "ameciclistas.create",
       "config": {
         "policies": []
       }
     },
     {
       "method": "PUT",
-      "path": "/podcast-episodes/:id",
-      "handler": "podcast-episode.update",
+      "path": "/ameciclistas/:id",
+      "handler": "ameciclistas.update",
       "config": {
         "policies": []
       }
     },
     {
       "method": "DELETE",
-      "path": "/podcast-episodes/:id",
-      "handler": "podcast-episode.delete",
+      "path": "/ameciclistas/:id",
+      "handler": "ameciclistas.delete",
       "config": {
         "policies": []
       }

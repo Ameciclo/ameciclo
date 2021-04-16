@@ -12,19 +12,27 @@
   },
   "attributes": {
     "register": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "unique": true
     },
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "author": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "year": {
-      "type": "integer"
+      "type": "integer",
+      "max": 2100
     },
     "copies": {
-      "type": "integer"
+      "type": "integer",
+      "min": 1,
+      "required": true,
+      "default": 1
     },
     "type": {
       "type": "enumeration",
@@ -41,18 +49,17 @@
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
-      "required": false
+      "required": true
     },
     "summary": {
       "type": "text"
     },
     "ISBN": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "unique": true
     }
   }
 }

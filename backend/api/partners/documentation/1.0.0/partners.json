@@ -516,7 +516,10 @@
     "schemas": {
       "Partners": {
         "required": [
-          "id"
+          "id",
+          "name",
+          "logo",
+          "sponsor"
         ],
         "properties": {
           "id": {
@@ -605,6 +608,10 @@
         }
       },
       "NewPartners": {
+        "required": [
+          "name",
+          "sponsor"
+        ],
         "properties": {
           "name": {
             "type": "string"

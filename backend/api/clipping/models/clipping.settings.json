@@ -2,7 +2,8 @@
   "kind": "collectionType",
   "collectionName": "clippings",
   "info": {
-    "name": "Clipping"
+    "name": "Clipping",
+    "description": ""
   },
   "options": {
     "increments": true,
@@ -11,12 +12,39 @@
   },
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "unique": true
     },
     "link": {
       "type": "string"
     },
     "print": {
+      "collection": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "text": {
+      "type": "richtext"
+    },
+    "project": {
+      "via": "clippings",
+      "model": "project"
+    },
+    "clipping_medias": {
+      "collection": "clipping-media",
+      "via": "clippings",
+      "dominant": true
+    },
+    "backup_media": {
       "collection": "file",
       "via": "related",
       "allowedTypes": [
@@ -26,35 +54,6 @@
       ],
       "plugin": "upload",
       "required": false
-    },
-    "date": {
-      "type": "date"
-    },
-    "backup_link": {
-      "type": "string"
-    },
-    "text": {
-      "type": "richtext"
-    },
-    "media_type": {
-      "type": "enumeration",
-      "enum": [
-        "television",
-        "radio",
-        "press",
-        "magazine",
-        "blog",
-        "online_press",
-        "social_media",
-        "other"
-      ]
-    },
-    "media_name": {
-      "type": "string"
-    },
-    "projeto": {
-      "via": "clippings",
-      "model": "project"
     }
   }
 }

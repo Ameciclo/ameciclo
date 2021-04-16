@@ -12,7 +12,9 @@
   },
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "unique": false
     },
     "url": {
       "type": "string"
@@ -21,15 +23,14 @@
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
-      "required": false
+      "required": true
     },
     "sponsor": {
-      "type": "boolean"
+      "type": "boolean",
+      "required": true
     }
   }
 }

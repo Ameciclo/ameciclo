@@ -12,21 +12,24 @@
   },
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "unique": true
     },
     "media": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
-      "required": false
+      "required": true
     },
     "goal": {
-      "type": "text"
+      "type": "text",
+      "maxLength": 150,
+      "minLength": 80,
+      "required": true
     },
     "endDate": {
       "type": "date"
@@ -43,7 +46,9 @@
         "ongoing",
         "finished",
         "paused"
-      ]
+      ],
+      "required": true,
+      "default": "ongoing"
     },
     "bikeCulture": {
       "type": "enumeration",
@@ -51,7 +56,8 @@
         "high",
         "low",
         "medium"
-      ]
+      ],
+      "required": true
     },
     "instArticulation": {
       "type": "enumeration",
@@ -59,7 +65,8 @@
         "high",
         "low",
         "medium"
-      ]
+      ],
+      "required": true
     },
     "politicIncidence": {
       "type": "enumeration",
@@ -67,20 +74,23 @@
         "high",
         "low",
         "medium"
-      ]
+      ],
+      "required": true
     },
     "slug": {
       "type": "string"
     },
     "isHighlighted": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false,
+      "required": true
     },
     "gallery": {
       "collection": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
         "files",
+        "images",
         "videos"
       ],
       "plugin": "upload",
@@ -105,19 +115,14 @@
     "steps": {
       "type": "component",
       "repeatable": true,
-      "component": "button.step"
-    },
-    "clippings": {
-      "collection": "clipping",
-      "via": "projeto"
+      "component": "button.step",
+      "max": 4
     },
     "cover": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
       "required": false
@@ -133,6 +138,10 @@
       "type": "component",
       "repeatable": true,
       "component": "button.step"
+    },
+    "clippings": {
+      "collection": "clipping",
+      "via": "project"
     }
   }
 }
