@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
 
-export const Footer = () => {
+export const Footer = ({ footer }) => {
+
   return (
     <>
       <footer className="bg-gray-100">
@@ -52,29 +53,15 @@ export const Footer = () => {
             <div className="w-full md:w-1/3 text-center">
               <h5 className="uppercase mb-6 font-bold">Links</h5>
               <ul className="mb-4">
-                <li className="mt-2">
-                  <Link href="/biciclopedia">
-                    <a className="hover:underline text-gray-600 hover:text-red-600">
-                      FAQ
-                    </a>
-                  </Link>
-                </li>
-                <li className="mt-2">
-                  <a
-                    href="https://biciclopedia.miraheze.org/"
-                    className="hover:underline text-gray-600 hover:text-red-600"
-                  >
-                    Wiki
-                  </a>
-                </li>
-                <li className="mt-2">
-                  <a
-                    href="https://dados.ameciclo.org"
-                    className="hover:underline text-gray-600 hover:text-red-600"
-                  >
-                    Plataforma de Dados
-                  </a>
-                </li>
+                {footer.links.map((l) => (
+                  <li className="mt-2">
+                    <Link href={l.link}>
+                      <a className="hover:underline text-gray-600 hover:text-red-600">
+                        {l.title}
+                      </a>
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
             <div className="w-full md:w-1/3 text-center">

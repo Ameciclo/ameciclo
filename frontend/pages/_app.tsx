@@ -4,6 +4,7 @@ import "nprogress/nprogress.css";
 import "../styles/globals.scss";
 import * as gtag from '../lib/gtag'
 import {useEffect} from "react";
+import App from "next/app";
 
 
 Router.events.on("routeChangeStart", (url) => {
@@ -28,6 +29,7 @@ function MyApp({ Component, pageProps }) {
     }
   }, [router.events])
 
+  
   return <Component {...pageProps} />;
 }
 
