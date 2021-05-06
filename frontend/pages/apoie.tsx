@@ -50,37 +50,28 @@ const Produtos = ({ products, footer }) => {
         <div className="bg-ameciclo text-white flex lg:mx-0 mx-auto flex-wrap rounded p-16">
           <div className="lg:pr-5 w-full lg:w-1/2 mb-4 lg:mb-0">
             <p className="text-lg lg:text-3xl">
-              A AMECICLO É UMA ORGANIZAÇÃO DA SOCIEDADE CIVIL QUE LUTA PELO
+              APOIANDO A AMECICLO VOCÊ ESTÁ CONTRIBUINDO PARA UMA CIDADE MAIS
               <strong>
-                &ensp; DIREITO À CIDADE E NA REGIÃO METROPOLITANA DO RECIFE
+                &ensp; HUMANA, DEMOCRÁTICA E SUSTENTÁVEL
               </strong>
             </p>
           </div>
           <div className="w-full lg:w-1/2 mb-4 lg:mb-0">
             <p className="text-xs lg:text-base text-white mb-2 tracking-wide">
-              Nos propomos a a transformar a cidade, através da bicicleta, em um
-              ambiente mais humano, democrático e sustentável. Para isso,
-              fazemos diversas atividades que estimulam a cultura da bicicleta,
-              que oportunizam o trabalho conjunto com coletivos, grupos e
-              instituições parceiras, e que geram incidência técnica e política
-              no Recife e na Região Metropolitana.
+              Nos apoiando você estará contribuindo para que façamos ainda mais
+              ações e projetos. Assim poderemos continuar nosso trabalho de 
+              incidência política, articulação interinstitucional e estímulo à
+              cultura da bicicleta. Como agradecimento, te enviaremos uma bela
+              recompensa à sua escolha.
             </p>
             <div className="flex items-start justify-start flex-wrap max-w-5xl mx-auto mt-8 lg:mt-0">
               <a
-                href="http://estatuto.ameciclo.org"
+                href="/projetos"
                 className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
                 type="button"
                 style={{ transition: "all .15s ease" }}
               >
-                Conheça nosso estatuto
-              </a>
-              <a
-                href="/linha%20do%20tempo%20ameciclo.pdf"
-                className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 lg:mt-0 mt-2"
-                type="button"
-                style={{ transition: "all .15s ease" }}
-              >
-                Conheça nossa historia
+                Veja o que já fizemos
               </a>
             </div>
           </div>
