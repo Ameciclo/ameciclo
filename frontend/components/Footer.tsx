@@ -2,6 +2,12 @@ import React from "react";
 import Link from "next/link";
 
 export const Footer = ({ footer }) => {
+  const addresslink = "https://maps.google.com/?q=" + footer.address;
+  const emaillink = "mailto:" + footer.email;
+  const phonelink = "https://api.whatsapp.com/send?phone=" + footer.phone.replaceAll("+","")
+                                                                          .replaceAll("(","")
+                                                                          .replaceAll(")","")
+                                                                          .replaceAll(" ","")
 
   return (
     <>
@@ -13,39 +19,37 @@ export const Footer = ({ footer }) => {
               <ul className="mb-4">
                 <li className="mt-2">
                   <p className="hover:underline text-gray-600 hover:text-red-600">
-                    Ameciclo - Associação Metropolitana de Ciclistas do
-                    Recife
+                    {footer.name}
                   </p>
                 </li>
                 <li className="mt-2">
                   <a
-                    href="https://api.whatsapp.com/send?phone=5581994586830"
+                    href={phonelink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:underline text-gray-600 hover:text-red-600"
                   >
-                    +55 (81) 9 9458-6830
+                    {footer.phone}
                   </a>
                 </li>
                 <li className="mt-2">
                   <a
                     className="hover:underline text-gray-600 hover:text-red-600"
-                    href="https://bit.ly/2C01AhY"
+                    href={addresslink}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    R. da Aurora, 529, loja 2 - Santo Amaro, Recife/PE,
-                    50050-145
+                    {footer.address}
                   </a>
                 </li>
                 <li className="mt-2">
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href="mailto:contato@ameciclo.org"
+                    href={emaillink}
                     className="hover:underline text-gray-600 hover:text-red-600"
                   >
-                    contato@ameciclo.org
+                    {footer.email}
                   </a>
                 </li>
               </ul>
@@ -67,46 +71,15 @@ export const Footer = ({ footer }) => {
             <div className="w-full md:w-1/3 text-center">
               <h5 className="uppercase mb-6 font-bold">Social</h5>
               <ul className="mb-4">
-                <li className="mt-2">
-                  <a
-                    href="https://facebook.com/ameciclo"
-                    className="hover:underline text-gray-600 hover:text-red-600"
-                  >
-                    Facebook
-                  </a>
-                </li>
-                <li className="mt-2">
-                  <a
-                    href="https://instagram.com/ameciclo"
-                    className="hover:underline text-gray-600 hover:text-red-600"
-                  >
-                    Instagram
-                  </a>
-                </li>
-                <li className="mt-2">
-                  <a
-                    href="https://twitter.com/ameciclo"
-                    className="hover:underline text-gray-600 hover:text-red-600"
-                  >
-                    Twitter
-                  </a>
-                </li>
-                <li className="mt-2">
-                  <a
-                    href="https://www.youtube.com/user/ameciclo"
-                    className="hover:underline text-gray-600 hover:text-red-600"
-                  >
-                    Youtube
-                  </a>
-                </li>
-                <li className="mt-2">
-                  <a
-                    href="https://t.me/s/ameciclo"
-                    className="hover:underline text-gray-600 hover:text-red-600"
-                  >
-                    Telegram
-                  </a>
-                </li>
+                {footer.socialmedia.map((s) => (
+                  <li className="mt-2">
+                    <Link href={s.link}>
+                      <a className="hover:underline text-gray-600 hover:text-red-600">
+                        {s.title}
+                      </a>
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
