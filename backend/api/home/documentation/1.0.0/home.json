@@ -385,28 +385,6 @@
               }
             }
           },
-          "links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "products": {
             "type": "array",
             "items": {
@@ -456,28 +434,6 @@
       },
       "NewHome": {
         "properties": {
-          "links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "products": {
             "type": "array",
             "items": {
