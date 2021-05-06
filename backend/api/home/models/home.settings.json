@@ -22,9 +22,6 @@
       "plugin": "upload",
       "required": false
     },
-    "products": {
-      "collection": "carrossel"
-    },
     "projects": {
       "collection": "project"
     },
