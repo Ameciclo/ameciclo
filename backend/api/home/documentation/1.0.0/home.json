@@ -426,6 +426,131 @@
               }
             }
           },
+          "projetos": {
+            "type": "array",
+            "items": {
+              "required": [
+                "id",
+                "name",
+                "media",
+                "goal",
+                "status",
+                "bikeCulture",
+                "instArticulation",
+                "politicIncidence",
+                "isHighlighted"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "media": {
+                  "type": "string"
+                },
+                "goal": {
+                  "type": "string"
+                },
+                "endDate": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "startDate": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ongoing",
+                    "finished",
+                    "paused"
+                  ]
+                },
+                "bikeCulture": {
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
+                },
+                "instArticulation": {
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
+                },
+                "politicIncidence": {
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low",
+                    "medium"
+                  ]
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "isHighlighted": {
+                  "type": "boolean"
+                },
+                "gallery": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "Links": {
+                  "type": "component"
+                },
+                "workgroup": {
+                  "type": "string"
+                },
+                "coordinator": {
+                  "type": "string"
+                },
+                "partners": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "steps": {
+                  "type": "component"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "long_description": {
+                  "type": "string"
+                },
+                "showTitle": {
+                  "type": "boolean"
+                },
+                "products": {
+                  "type": "component"
+                },
+                "clippings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "published_at": {
             "type": "string",
             "format": "date-time"
@@ -435,6 +560,12 @@
       "NewHome": {
         "properties": {
           "products": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "projetos": {
             "type": "array",
             "items": {
               "type": "string"

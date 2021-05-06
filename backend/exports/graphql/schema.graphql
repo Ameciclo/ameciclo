@@ -1458,11 +1458,13 @@ type Home {
   banner: UploadFile
   published_at: DateTime
   products(sort: String, limit: Int, start: Int, where: JSON): [Carrossel]
+  projetos(sort: String, limit: Int, start: Int, where: JSON): [Project]
 }
 
 input HomeInput {
   banner: ID
   products: [ID]
+  projetos: [ID]
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1471,6 +1473,7 @@ input HomeInput {
 input editHomeInput {
   banner: ID
   products: [ID]
+  projetos: [ID]
   published_at: DateTime
   created_by: ID
   updated_by: ID

@@ -24,6 +24,9 @@
     },
     "products": {
       "collection": "carrossel"
+    },
+    "projetos": {
+      "collection": "project"
     }
   }
 }
