@@ -5,7 +5,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import { ProjectCard } from "../components/ProjectCard";
 import { server } from "../config";
 
-const Projetos = ({ projects }) => {
+const Projetos = ({ projects, footer }) => {
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [status, setStatus] = useState("");
 
@@ -22,7 +22,7 @@ const Projetos = ({ projects }) => {
   }, [status, projects]);
 
   return (
-    <Layout>
+    <Layout footer = {footer}>
       <SEO title="Projetos" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -76,13 +76,22 @@ const Projetos = ({ projects }) => {
 
 export async function getStaticProps() {
   const res = await fetch(`${server}/projects`);
-  let projects = [];
+
+  let projects = []
   if (res.status === 200) {
     projects = await res.json();
   }
+
+  const res_footer = await fetch(`${server}/footer`);
+  let footer;
+  if (res_footer.status === 200) {
+    footer = await res_footer.json();
+  }
+
   return {
     props: {
       projects,
+      footer,
     },
     revalidate: 1,
   };

@@ -4,10 +4,7 @@ import Link from "next/link";
 export const Footer = ({ footer }) => {
   const addresslink = "https://maps.google.com/?q=" + footer.address;
   const emaillink = "mailto:" + footer.email;
-  const phonelink = "https://api.whatsapp.com/send?phone=" + footer.phone.replaceAll("+","")
-                                                                          .replaceAll("(","")
-                                                                          .replaceAll(")","")
-                                                                          .replaceAll(" ","")
+  const phonelink = "https://api.whatsapp.com/send?phone=" + footer.phone
 
   return (
     <>

@@ -5,9 +5,9 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import { server } from "../../config";
 
-const Questions = ({ question }) => {
+const Questions = ({ question, footer }) => {
   return (
-    <Layout>
+    <Layout footer = {footer}>
       <SEO title={question.title} />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -71,9 +71,17 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const res = await fetch(`${server}/faqs?id=${params.question}`),
     question = await res.json();
+
+  const res_footer = await fetch(`${server}/footer`);
+  let footer;
+  if (res_footer.status === 200) {
+    footer = await res_footer.json();
+  }
+
   return {
     props: {
       question: question[0],
+      footer,
     },
   };
 }

@@ -7,8 +7,10 @@ import Breadcrumb from "../components/Breadcrumb";
 import Participe from "../components/Icons/participe";
 import Associe from "../components/Icons/associe";
 import Apoie from "../components/Icons/apoie";
+import { server } from "../config";
 
-const Contato = (props) => {
+
+const Contato = ({footer}) => {
   const [viewport, setViewPort] = useState({
     latitude: -8.0592989,
     longitude: -34.8801119,
@@ -17,7 +19,7 @@ const Contato = (props) => {
     height: "400px",
   });
   return (
-    <Layout>
+    <Layout footer = {footer}>
       <SEO title="Contato" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -128,5 +130,20 @@ const Contato = (props) => {
     </Layout>
   );
 };
+
+export async function getStaticProps() {
+
+  const res_footer = await fetch(`${server}/footer`);
+  let footer;
+  if (res_footer.status === 200) {
+    footer = await res_footer.json();
+  }
+ 
+  return {
+    props: {
+      footer,
+    },
+  };
+}
 
 export default Contato;
