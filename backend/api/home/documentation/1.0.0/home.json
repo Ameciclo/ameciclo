@@ -426,7 +426,7 @@
               }
             }
           },
-          "projetos": {
+          "projects": {
             "type": "array",
             "items": {
               "required": [
@@ -551,6 +551,15 @@
               }
             }
           },
+          "participation_url": {
+            "type": "string"
+          },
+          "donate_url": {
+            "type": "string"
+          },
+          "association_url": {
+            "type": "string"
+          },
           "published_at": {
             "type": "string",
             "format": "date-time"
@@ -565,11 +574,20 @@
               "type": "string"
             }
           },
-          "projetos": {
+          "projects": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "participation_url": {
+            "type": "string"
+          },
+          "donate_url": {
+            "type": "string"
+          },
+          "association_url": {
+            "type": "string"
           },
           "published_at": {
             "type": "string",
