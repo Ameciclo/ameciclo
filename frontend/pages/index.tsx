@@ -23,7 +23,7 @@ export default function Home({
   footer,
 }) {
   return (
-    <Layout footer = {footer}>
+    <Layout footer={footer}>
       <SEO title="Página Principal" />
       <section className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill hero-image" />
       <section className="bg-ameciclo">
@@ -289,7 +289,7 @@ export async function getStaticProps() {
     res_carrossel = await fetch(`${server}/carrossels`),
     res_footer = await fetch(`${server}/footer`);
 
-  if (res.status !== 200 && res_carrossel.status !== 200 && res_footer.status !== 200) {
+  if (res.status !== 200 || res_carrossel.status !== 200 || res_footer.status !== 200) {
     return {
       redirect: {
         permanent: false,

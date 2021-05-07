@@ -1,10 +1,11 @@
 import React from "react";
 import Link from "next/link";
+import PropTypes from "prop-types";
 
 export const Footer = ({ footer }) => {
-  const addresslink = "https://maps.google.com/?q=" + footer.address;
-  const emaillink = "mailto:" + footer.email;
-  const phonelink = "https://api.whatsapp.com/send?phone=" + footer.phone
+  const addressLink = "https://maps.google.com/?q=" + footer.address;
+  const emailLink = "mailto:" + footer.email;
+  const phoneLink = "https://api.whatsapp.com/send?phone=" + footer.phone;
 
   return (
     <>
@@ -21,7 +22,7 @@ export const Footer = ({ footer }) => {
                 </li>
                 <li className="mt-2">
                   <a
-                    href={phonelink}
+                    href={phoneLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:underline text-gray-600 hover:text-red-600"
@@ -32,7 +33,7 @@ export const Footer = ({ footer }) => {
                 <li className="mt-2">
                   <a
                     className="hover:underline text-gray-600 hover:text-red-600"
-                    href={addresslink}
+                    href={addressLink}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -43,7 +44,7 @@ export const Footer = ({ footer }) => {
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={emaillink}
+                    href={emailLink}
                     className="hover:underline text-gray-600 hover:text-red-600"
                   >
                     {footer.email}
@@ -84,4 +85,60 @@ export const Footer = ({ footer }) => {
       </footer>
     </>
   );
+};
+
+Footer.propTypes = {
+  footer: PropTypes.shape({
+    name: PropTypes.string,
+    address: PropTypes.string,
+    phone: PropTypes.string,
+    email: PropTypes.string,
+    links: PropTypes.arrayOf(PropTypes.object),
+    socialmedia: PropTypes.arrayOf(PropTypes.object),
+  }),
+};
+
+Footer.defaultProps = {
+  footer: {
+    name: "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
+    address: "R. da Aurora, 529, loja 2 - Santo Amaro, Recife/PE, 50050-145",
+    phone: "+55 (81) 9 9458-6830",
+    email: "contato@ameciclo.org",
+    links: [
+      {
+        title: "FAQ",
+        link: "/biciclopedia",
+      },
+      {
+        title: "Wiki",
+        link: "https://biciclopedia.miraheze.org/",
+      },
+      {
+        title: "Plataforma de Dados",
+        link: "https://dados.ameciclo.org",
+      },
+    ],
+    socialmedia: [
+      {
+        title: "Facebook",
+        link: "https://facebook.com/ameciclo",
+      },
+      {
+        title: "Instagram",
+        link: "https://instagram.com/ameciclo",
+      },
+      {
+        title: "Twitter",
+        link: "https://twitter.com/ameciclo",
+      },
+      {
+        title: "Youtube",
+        link: "https://www.youtube.com/user/ameciclo",
+      },
+      {
+        title: "Telegram",
+        link: "https://t.me/s/ameciclo",
+      },
+    ],
+  },
 };
