@@ -5,27 +5,53 @@ import Breadcrumb from "../components/Breadcrumb";
 import { ProductCard } from "../components/ProductCard";
 import { server } from "../config";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
+import { getURL } from "next/dist/next-server/lib/utils";
 
 const Produtos = ({ products, footer, recurrent }) => {
-  const [filteredProducts, setFilteredProjects] = useState([]);
-  const [status, setStatus] = useState("");
 
-  useEffect(() => {
-    if (status) {
-      setFilteredProjects(
-        products.filter((project) => {
-          return project.status === status;
-        })
-      );
-    } else {
-      setFilteredProjects(products);
+  function getDesc(str) {
+    let el = document.createElement('html')
+    el.innerHTML = str
+    let remove = ""
+    if(el.getElementsByTagName('img').length > 0) {
+      remove = el.getElementsByTagName('img')[0].outerHTML
     }
-  }, [status, products]);
+    el.innerHTML = str.replace(remove,"")
+    return el.innerText
+  }
 
-  const campaign = recurrent.campaigns[0]
-  const rewards = campaign.rewards
-  const suportMoney = campaign.supports.total.value
-  const suportMembers = campaign.supports.total.count
+  function getMedia(str) {
+    const start = str.indexOf("https://")
+    let end = str.indexOf(".png") + 4
+    if(end < 5) {
+      end = str.indexOf(".jpg") + 4
+      if(end < 5) {
+        return '/backgroundImage.webp'
+      }
+    }
+    return str.substring(start, end)
+  }
+
+  function getURL(value) {
+    return "https://apoia.se/support/ameciclo/new/" + value
+  }
+ 
+  let rewards = [];
+  if (recurrent) {
+    recurrent.campaigns[0].rewards.forEach(r => {
+      rewards.push(
+        {
+          title: r.title,
+          desc: getDesc(r.desc),
+          media: {
+            url: getMedia(r.desc),
+          },
+          value: r.value,
+          url: getURL(r.value)         
+        }
+      )
+    });
+  }
 
   return (
     <Layout footer = {footer}>
@@ -78,113 +104,41 @@ const Produtos = ({ products, footer, recurrent }) => {
               >
                 Veja o que já fizemos
               </a>
+               <a
+                href="http://apoia.ameciclo.org"
+                className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
+                type="button"
+                style={{ transition: "all .15s ease" }}
+              >
+                Site da campanha recorrente
+              </a>
             </div>
           </div>
         </div>
-        <Tabs initialValue="tab-coord">
+        <Tabs initialValue="tab-pontual">
           <TabsNav>
-            <Tab name="tab-coord">Pontual</Tab>
-            <Tab name="tab-conselho">Recorrente</Tab>
-            {/*<Tab name="tab-alumni" disabled>*/}
-            {/*  Alumni*/}
-            {/*</Tab>*/}
+            <Tab name="tab-pontual">Pontual</Tab>
+            <Tab name="tab-recorrente">Recorrente</Tab>
           </TabsNav>
           <TabPanel name="tab-pontual">
-            {products.map((c) => (
-              <div className="p-4 max-w-sm" key={c.id}>
-                <div
-                  className="shadow-lg rounded bg-white"
-                  style={{ minHeight: "450px" }}
-                >
-                  {c.media ? (
-                    <div
-                      style={{
-                        backgroundImage: `url(${c.media.url})`,
-                        minHeight: "270px",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        minHeight: "270px",
-                      }}
-                    />
-                  )}
-                  <div className="p-4 pb-6">
-                    <h2 className="text-xl leading-normal text-gray-900">
-                      {c.firstName} {c.lastName}
-                    </h2>
-                    <p className="text-sm text-gray-600">{c.bio}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {products.map((product) => (
+                  <ProductCard product={product} key={product.id} />
+                ))}
+            </div>
           </TabPanel>
           <TabPanel name="tab-recorrente">
-            {products.map((c) => (
-              <div className="p-4 max-w-sm" key={c.id}>
-                <div
-                  className="shadow-lg rounded bg-white"
-                  style={{ minHeight: "450px" }}
-                >
-                  {c.media ? (
-                    <div
-                      style={{
-                        backgroundImage: `url(${c.media.url})`,
-                        minHeight: "270px",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        minHeight: "270px",
-                      }}
-                    />
-                  )}
-                  <div className="p-4 pb-6">
-                    <h2 className="text-xl leading-normal text-gray-900">
-                      {c.firstName} {c.lastName}
-                    </h2>
-                    <p className="text-sm text-gray-600">{c.bio}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {rewards.map((reward) => (
+                    <ProductCard product={reward} key={reward.id} />
+                  ))}
+            </div>
           </TabPanel>
         </Tabs>
       </div>
-        <div className="mt-5 mx-3">
-          <div className="inline-block relative w-64">
-            <label htmlFor="status">Selecione o status:</label>
-            <select
-              value={status}
-              name="status"
-              className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-              onChange={(e) => setStatus(e.target.value)}
-              onBlur={(e) => e}
-            >
-              <option value="">Todos</option>
-              <option value="ongoing">Em andamento</option>
-              <option value="finished">Realizado</option>
-              <option value="paused">Pausado</option>
-            </select>
-          </div>
-        </div>
-        <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {filteredProducts
-            .sort((a, b) => (a.name > b.name ? 1 : -1))
-            .map((product) => (
-              <ProductCard product={product} key={product.id} />
-            ))}
-        </div>
       </section>
     </Layout>
+    
   );
 };
 
@@ -199,9 +153,10 @@ export async function getStaticProps() {
   const res_current = await fetch(`https://apoia.se/api/v1/users/ameciclo`);
 
   let recurrent = []
-  if (res.status === 200) {
-    recurrent = await res.json();
+  if (res_current.status === 200) {
+    recurrent = await res_current.json();
   }
+
 
   const res_footer = await fetch(`${server}/footer`);
   let footer;
