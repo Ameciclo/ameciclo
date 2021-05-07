@@ -1116,6 +1116,7 @@ type Home {
   association_url: String
   published_at: DateTime
   projects(sort: String, limit: Int, start: Int, where: JSON): [Project]
+  products(sort: String, limit: Int, start: Int, where: JSON): [Products]
 }
 
 input HomeInput {
@@ -1124,6 +1125,7 @@ input HomeInput {
   participation_url: String
   donate_url: String
   association_url: String
+  products: [ID]
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1135,6 +1137,7 @@ input editHomeInput {
   participation_url: String
   donate_url: String
   association_url: String
+  products: [ID]
   published_at: DateTime
   created_by: ID
   updated_by: ID
