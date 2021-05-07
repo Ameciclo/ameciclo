@@ -522,13 +522,13 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "title": {
             "type": "string"
           },
           "url": {
             "type": "string"
           },
-          "description": {
+          "desc": {
             "type": "string"
           },
           "units": {
@@ -615,13 +615,13 @@
       },
       "NewProducts": {
         "properties": {
-          "name": {
+          "title": {
             "type": "string"
           },
           "url": {
             "type": "string"
           },
-          "description": {
+          "desc": {
             "type": "string"
           },
           "units": {

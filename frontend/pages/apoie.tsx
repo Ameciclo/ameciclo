@@ -6,7 +6,7 @@ import { ProductCard } from "../components/ProductCard";
 import { server } from "../config";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 
-const Produtos = ({ products, footer }) => {
+const Produtos = ({ products, footer, recurrent }) => {
   const [filteredProducts, setFilteredProjects] = useState([]);
   const [status, setStatus] = useState("");
 
@@ -21,6 +21,11 @@ const Produtos = ({ products, footer }) => {
       setFilteredProjects(products);
     }
   }, [status, products]);
+
+  const campaign = recurrent.campaigns[0]
+  const rewards = campaign.rewards
+  const suportMoney = campaign.supports.total.value
+  const suportMembers = campaign.supports.total.count
 
   return (
     <Layout footer = {footer}>
@@ -191,6 +196,13 @@ export async function getStaticProps() {
     products = await res.json();
   }
 
+  const res_current = await fetch(`https://apoia.se/api/v1/users/ameciclo`);
+
+  let recurrent = []
+  if (res.status === 200) {
+    recurrent = await res.json();
+  }
+
   const res_footer = await fetch(`${server}/footer`);
   let footer;
   if (res_footer.status === 200) {
@@ -201,6 +213,7 @@ export async function getStaticProps() {
     props: {
       products,
       footer,
+      recurrent,
     },
     revalidate: 1,
   };

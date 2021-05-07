@@ -11,13 +11,13 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "name": {
+    "title": {
       "type": "string"
     },
     "url": {
       "type": "string"
     },
-    "description": {
+    "desc": {
       "type": "text"
     },
     "units": {
