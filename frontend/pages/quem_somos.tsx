@@ -194,7 +194,7 @@ const QuemSomos = ({ ameciclistas, footer, custom }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch(`https://cms.ameciclo.org/ameciclistas`)
+  const res = await fetch(`${server}/ameciclistas`)
     
   let ameciclistas = []
 
