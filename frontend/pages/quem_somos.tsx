@@ -5,7 +5,22 @@ import Breadcrumb from "../components/Breadcrumb";
 import React from "react";
 import { server } from "../config";
 
-const QuemSomos = ({ coordinators, counselors, footer }) => {
+const QuemSomos = ({ ameciclistas, footer }) => {
+  const coordinators = ameciclistas.filter((a) => {
+    return a.role === "coordenacao";
+  })
+
+  let counselors = ameciclistas.filter((a) => {
+    return a.role === "conselhofiscal";
+  })
+  /*let alumin = ameciclistas.filter((a) => {
+    return a.role === "ameciclista";
+  })*/
+
+  ameciclistas.sort((a, b) => {
+    return (a.name).localeCompare(b.name)
+  });
+
   return (
     <Layout footer = {footer}>
       <SEO title="Quem Somos" />
@@ -68,13 +83,11 @@ const QuemSomos = ({ coordinators, counselors, footer }) => {
             </div>
           </div>
         </div>
-        <Tabs initialValue="tab-coord">
+        <Tabs initialValue="tab-ameciclista">
           <TabsNav>
+            <Tab name="tab-ameciclista">Ameciclistas</Tab>
             <Tab name="tab-coord">Coordenação</Tab>
             <Tab name="tab-conselho">Conselho Fiscal</Tab>
-            {/*<Tab name="tab-alumni" disabled>*/}
-            {/*  Alumni*/}
-            {/*</Tab>*/}
           </TabsNav>
           <TabPanel name="tab-coord">
             {coordinators.map((c) => (
@@ -102,7 +115,7 @@ const QuemSomos = ({ coordinators, counselors, footer }) => {
                   )}
                   <div className="p-4 pb-6">
                     <h2 className="text-xl leading-normal text-gray-900">
-                      {c.firstName} {c.lastName}
+                      {c.name}
                     </h2>
                     <p className="text-sm text-gray-600">{c.bio}</p>
                   </div>
@@ -136,9 +149,43 @@ const QuemSomos = ({ coordinators, counselors, footer }) => {
                   )}
                   <div className="p-4 pb-6">
                     <h2 className="text-xl leading-normal text-gray-900">
-                      {c.firstName} {c.lastName}
+                      {c.name}
                     </h2>
                     <p className="text-sm text-gray-600">{c.bio}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </TabPanel>
+          <TabPanel name="tab-ameciclista">
+            {ameciclistas.map((c) => (
+              <div className="p-4 max-w-sm" key={c.id}>
+                <div
+                  className="shadow-lg rounded bg-white"
+                  style={{ minHeight: "270px", minWidth: "270px" }}
+                >
+                  {c.media ? (
+                    <div
+                      style={{
+                        backgroundImage: `url(${c.media.url})`,
+                        minHeight: "270px",
+                        backgroundSize: "cover",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        minHeight: "270px",
+                      }}
+                    />
+                  )}
+                  <div className="p-4 pb-6">
+                    <h2 className="text-xl leading-normal text-gray-900">
+                      {c.name}
+                    </h2>
+                    {/*c.bio && (<p className="text-sm text-gray-600">{c.bio}</p>) */}
                   </div>
                 </div>
               </div>
@@ -151,20 +198,16 @@ const QuemSomos = ({ coordinators, counselors, footer }) => {
 };
 
 export async function getStaticProps() {
-  const c_res = await fetch(`${server}/coordinators`),
-    co_res = await fetch(`${server}/counselors`);
+  const res = await fetch(`https://cms.ameciclo.org/ameciclistas`)
     
-  let coordinators = [],
-    counselors = [];
+  let ameciclistas = []
 
-  if (c_res.status === 200) {
-    coordinators = await c_res.json();
-  }
-  if (co_res.status === 200) {
-    counselors = await co_res.json();
+  if (res.status === 200) {
+    ameciclistas = await res.json();
   }
   
   const res_footer = await fetch(`${server}/footer`);
+
   let footer;
   if (res_footer.status === 200) {
     footer = await res_footer.json();
@@ -172,8 +215,7 @@ export async function getStaticProps() {
 
   return {
     props: {
-      coordinators,
-      counselors,
+      ameciclistas,
       footer,
     },
     revalidate: 1,
