@@ -22,7 +22,9 @@ export default function Home({
   featuredProducts,
   footer,
   home,
+  recurrent,
 }) {
+  const supporters = recurrent.campaigns[0].supports.total.count
   return (
     <Layout footer = {footer}>
       <SEO title="Página Principal" />
@@ -189,6 +191,7 @@ export default function Home({
         <div className="container mx-auto px-6 py-20">
           <div className="flex flex-wrap justify-around">
             <Counter label={"Projetos Realizados"} number={numberOfProjects} />
+            <Counter label={"Pessoas apoiando"} number={supporters} />
             <Counter label={"Pessoas Associadas"} number={1106} />
             {/*<Counter label={"Horas de Envolvimento"} number={1000} />*/}
           </div>
@@ -309,6 +312,13 @@ export default function Home({
 
 export async function getStaticProps() {
 
+  const res_current = await fetch(`https://apoia.se/api/v1/users/ameciclo`);
+
+  let recurrent = []
+  if (res_current.status === 200) {
+    recurrent = await res_current.json();
+  }
+
   const res_footer = await fetch(`${server}/footer`)
   if (res_footer.status !== 200) {
     return {
@@ -363,6 +373,7 @@ export async function getStaticProps() {
       featuredProducts,
       footer,
       home,
+      recurrent,
     },
   };
 }
