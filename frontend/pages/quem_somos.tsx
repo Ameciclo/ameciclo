@@ -4,8 +4,10 @@ import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
 import React from "react";
 import { server } from "../config";
+import ReactMarkdown from "react-markdown";
 
-const QuemSomos = ({ ameciclistas, footer }) => {
+
+const QuemSomos = ({ ameciclistas, footer, custom }) => {
   const coordinators = ameciclistas.filter((a) => {
     return a.role === "coordenacao";
   })
@@ -26,14 +28,22 @@ const QuemSomos = ({ ameciclistas, footer }) => {
       <SEO title="Quem Somos" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
-        style={{
+        style={
+          custom.cover ? ({
+          width: "100%",
+          height: "52vh",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundImage: `url(${custom.cover.url})`,
+        }) : ({
           width: "100%",
           height: "52vh",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundImage: `url('/quem_somos.webp')`,
-        }}
+        })}
       />
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
@@ -48,38 +58,24 @@ const QuemSomos = ({ ameciclistas, footer }) => {
         <div className="bg-ameciclo text-white flex lg:mx-0 mx-auto flex-wrap rounded p-16">
           <div className="lg:pr-5 w-full lg:w-1/2 mb-4 lg:mb-0">
             <p className="text-lg lg:text-3xl">
-              A AMECICLO É UMA ORGANIZAÇÃO DA SOCIEDADE CIVIL QUE LUTA PELO
-              <strong>
-                &ensp; DIREITO À CIDADE E NA REGIÃO METROPOLITANA DO RECIFE
-              </strong>
+              <ReactMarkdown children={custom.definition} />
             </p>
           </div>
           <div className="w-full lg:w-1/2 mb-4 lg:mb-0">
             <p className="text-xs lg:text-base text-white mb-2 tracking-wide">
-              Nos propomos a a transformar a cidade, através da bicicleta, em um
-              ambiente mais humano, democrático e sustentável. Para isso,
-              fazemos diversas atividades que estimulam a cultura da bicicleta,
-              que oportunizam o trabalho conjunto com coletivos, grupos e
-              instituições parceiras, e que geram incidência técnica e política
-              no Recife e na Região Metropolitana.
+              {custom.objective}
             </p>
             <div className="flex items-start justify-start flex-wrap max-w-5xl mx-auto mt-8 lg:mt-0">
-              <a
-                href="http://estatuto.ameciclo.org"
-                className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
-                type="button"
-                style={{ transition: "all .15s ease" }}
-              >
-                Conheça nosso estatuto
-              </a>
-              <a
-                href="/linha%20do%20tempo%20ameciclo.pdf"
-                className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 lg:mt-0 mt-2"
-                type="button"
-                style={{ transition: "all .15s ease" }}
-              >
-                Conheça nossa historia
-              </a>
+              {custom.links.map((l) => (
+                <a
+                  href={l.link}
+                  className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
+                  type="button"
+                  style={{ transition: "all .15s ease" }}
+                >
+                  {l.title}
+                </a>
+              ))}
             </div>
           </div>
         </div>
@@ -206,6 +202,13 @@ export async function getStaticProps() {
     ameciclistas = await res.json();
   }
   
+  const res_custom = await fetch(`${server}/quem-somos`);
+
+  let custom;
+  if (res_custom.status === 200) {
+    custom = await res_custom.json();
+  }
+
   const res_footer = await fetch(`${server}/footer`);
 
   let footer;
@@ -217,6 +220,7 @@ export async function getStaticProps() {
     props: {
       ameciclistas,
       footer,
+      custom,
     },
     revalidate: 1,
   };
