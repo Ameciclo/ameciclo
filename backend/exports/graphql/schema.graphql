@@ -1407,15 +1407,22 @@ type Home {
   created_at: DateTime!
   updated_at: DateTime!
   banner: UploadFile
-  links: [ComponentButtonLinks]
+  participation_url: String
+  donate_url: String
+  association_url: String
   published_at: DateTime
   products(sort: String, limit: Int, start: Int, where: JSON): [Carrossel]
+  projects(sort: String, limit: Int, start: Int, where: JSON): [Project]
 }
 
 input HomeInput {
   banner: ID
   links: [ComponentButtonLinkInput]
   products: [ID]
+  projects: [ID]
+  participation_url: String
+  donate_url: String
+  association_url: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1425,6 +1432,10 @@ input editHomeInput {
   banner: ID
   links: [editComponentButtonLinkInput]
   products: [ID]
+  projects: [ID]
+  participation_url: String
+  donate_url: String
+  association_url: String
   published_at: DateTime
   created_by: ID
   updated_by: ID

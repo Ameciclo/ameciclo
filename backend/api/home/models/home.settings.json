@@ -29,6 +29,18 @@
     },
     "products": {
       "collection": "carrossel"
+    },
+    "projects": {
+      "collection": "project"
+    },
+    "participation_url": {
+      "type": "string"
+    },
+    "donate_url": {
+      "type": "string"
+    },
+    "association_url": {
+      "type": "string"
     }
   }
 }
