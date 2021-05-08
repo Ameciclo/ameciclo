@@ -20,13 +20,12 @@ export default function Home({
   featuredProjects,
   numberOfProjects,
   featuredProducts,
-  footer,
   home,
   recurrent,
 }) {
   const supporters = recurrent.campaigns[0].supports.total.count
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Página Principal" />
       <section className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
               style={
@@ -191,7 +190,6 @@ export default function Home({
         <div className="container mx-auto px-6 py-20">
           <div className="flex flex-wrap justify-around">
             <Counter label={"Projetos Realizados"} number={numberOfProjects} />
-            <Counter label={"Pessoas apoiando"} number={supporters} />
             <Counter label={"Pessoas Associadas"} number={1106} />
             {/*<Counter label={"Horas de Envolvimento"} number={1000} />*/}
           </div>
@@ -319,17 +317,6 @@ export async function getStaticProps() {
     recurrent = await res_current.json();
   }
 
-  const res_footer = await fetch(`${server}/footer`)
-  if (res_footer.status !== 200) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/404",
-      },
-    };
-  };
-  const footer = await res_footer.json();
-
   const res = await fetch(`${server}/projects`);
   if (res.status !== 200) {
     return {
@@ -351,6 +338,7 @@ export async function getStaticProps() {
     };
   };
   const home = await res_carrossel.json();
+  const products = await res_carrossel.json();
 
   let featuredProducts = [];
 
@@ -371,7 +359,6 @@ export async function getStaticProps() {
       featuredProjects,
       numberOfProjects,
       featuredProducts,
-      footer,
       home,
       recurrent,
     },
