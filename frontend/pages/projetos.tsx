@@ -27,7 +27,7 @@ function string_to_slug (str) {
   }
 }
 
-const Projetos = ({ projects, workgroups, footer }) => {
+const Projetos = ({ projects, workgroups }) => {
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [status, setStatus] = useState("");
   const [group, setGroup] = useState("");
@@ -50,14 +50,14 @@ const Projetos = ({ projects, workgroups, footer }) => {
             return true
           } else {
             return false
-          }      
+          }
           })
       )
     }
   }, [status, group, projects]);
 
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Projetos" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -107,7 +107,7 @@ const Projetos = ({ projects, workgroups, footer }) => {
               onBlur={(e) => e}
             >
               <option value="">Todos</option>
-              {workgroups.map((wg) => 
+              {workgroups.map((wg) =>
                               <option value={string_to_slug(wg.name)}>{wg.name}</option>
                               )}
 
@@ -135,12 +135,6 @@ export async function getStaticProps() {
     projects = await res.json();
   }
 
-  const res_footer = await fetch(`${server}/footer`);
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
-  }
-
   const res_workgroups = await fetch(`${server}/workgroups`);
   let workgroups;
   if (res_workgroups.status === 200) {
@@ -150,7 +144,6 @@ export async function getStaticProps() {
   return {
     props: {
       projects,
-      footer,
       workgroups,
     },
     revalidate: 1,

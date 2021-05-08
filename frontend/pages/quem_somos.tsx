@@ -5,9 +5,9 @@ import Breadcrumb from "../components/Breadcrumb";
 import React from "react";
 import { server } from "../config";
 
-const QuemSomos = ({ coordinators, counselors, footer }) => {
+const QuemSomos = ({ coordinators, counselors }) => {
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Quem Somos" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -153,28 +153,20 @@ const QuemSomos = ({ coordinators, counselors, footer }) => {
 export async function getStaticProps() {
   const c_res = await fetch(`${server}/coordinators`),
     co_res = await fetch(`${server}/counselors`);
-    
+
   let coordinators = [],
     counselors = [];
-
   if (c_res.status === 200) {
     coordinators = await c_res.json();
   }
   if (co_res.status === 200) {
     counselors = await co_res.json();
   }
-  
-  const res_footer = await fetch(`${server}/footer`);
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
-  }
 
   return {
     props: {
       coordinators,
       counselors,
-      footer,
     },
     revalidate: 1,
   };
