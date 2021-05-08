@@ -1407,12 +1407,14 @@ type Home {
   created_at: DateTime!
   updated_at: DateTime!
   banner: UploadFile
+  links: [ComponentButtonLinks]
   published_at: DateTime
   products(sort: String, limit: Int, start: Int, where: JSON): [Carrossel]
 }
 
 input HomeInput {
   banner: ID
+  links: [ComponentButtonLinkInput]
   products: [ID]
   published_at: DateTime
   created_by: ID
@@ -1421,6 +1423,7 @@ input HomeInput {
 
 input editHomeInput {
   banner: ID
+  links: [editComponentButtonLinkInput]
   products: [ID]
   published_at: DateTime
   created_by: ID
