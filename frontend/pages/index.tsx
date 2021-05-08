@@ -20,10 +20,9 @@ export default function Home({
   featuredProjects,
   numberOfProjects,
   featuredProducts,
-  footer,
 }) {
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Página Principal" />
       <section className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill hero-image" />
       <section className="bg-ameciclo">
@@ -286,10 +285,9 @@ export default function Home({
 
 export async function getStaticProps() {
   const res = await fetch(`${server}/projects`),
-    res_carrossel = await fetch(`${server}/carrossels`),
-    res_footer = await fetch(`${server}/footer`);
+    res_carrossel = await fetch(`${server}/carrossels`);
 
-  if (res.status !== 200 && res_carrossel.status !== 200 && res_footer.status !== 200) {
+  if (res.status !== 200 && res_carrossel.status !== 200) {
     return {
       redirect: {
         permanent: false,
@@ -300,7 +298,6 @@ export async function getStaticProps() {
 
   const projects = await res.json();
   const products = await res_carrossel.json();
-  const footer = await res_footer.json()
 
   let featuredProducts = [];
 
@@ -319,7 +316,6 @@ export async function getStaticProps() {
       featuredProjects,
       numberOfProjects,
       featuredProducts,
-      footer,
     },
   };
 }
