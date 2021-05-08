@@ -1,6 +1,6 @@
 {
   "kind": "collectionType",
-  "collectionName": "carrossel",
+  "collectionName": "products",
   "info": {
     "name": "Produtos",
     "description": ""
@@ -11,32 +11,31 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "name": {
-      "type": "string",
-      "required": true
+    "title": {
+      "type": "string"
     },
     "url": {
-      "type": "string",
-      "required": false
+      "type": "string"
     },
-    "description": {
-      "type": "text",
-      "required": true,
-      "maxLength": 218,
-      "minLength": 109
+    "desc": {
+      "type": "text"
+    },
+    "units": {
+      "type": "integer"
     },
     "media": {
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images"
+        "images",
+        "files",
+        "videos"
       ],
       "plugin": "upload",
-      "required": true
+      "required": false
     },
-    "active": {
-      "type": "boolean",
-      "required": true
+    "value": {
+      "type": "decimal"
     }
   }
 }

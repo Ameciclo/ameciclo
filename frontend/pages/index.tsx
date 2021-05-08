@@ -21,7 +21,9 @@ export default function Home({
   numberOfProjects,
   featuredProducts,
   home,
+  recurrent,
 }) {
+  const supporters = recurrent.campaigns[0].supports.total.count
   return (
     <Layout>
       <SEO title="Página Principal" />
@@ -307,17 +309,13 @@ export default function Home({
 }
 
 export async function getStaticProps() {
-  const res = await fetch(`${server}/projects`),
-    res_carrossel = await fetch(`${server}/carrossels`);
 
-  if (res.status !== 200 && res_carrossel.status !== 200) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/404",
-      },
-    };
-  };
+  const res_current = await fetch(`https://apoia.se/api/v1/users/ameciclo`);
+
+  let recurrent = []
+  if (res_current.status === 200) {
+    recurrent = await res_current.json();
+  }
 
   const res = await fetch(`${server}/projects`);
   if (res.status !== 200) {
@@ -340,7 +338,6 @@ export async function getStaticProps() {
     };
   };
   const home = await res_carrossel.json();
-  const products = await res_carrossel.json();
 
   let featuredProducts = [];
 
@@ -362,6 +359,7 @@ export async function getStaticProps() {
       numberOfProjects,
       featuredProducts,
       home,
+      recurrent,
     },
   };
 }

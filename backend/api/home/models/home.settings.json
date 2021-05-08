@@ -22,14 +22,6 @@
       "plugin": "upload",
       "required": false
     },
-    "links": {
-      "type": "component",
-      "repeatable": true,
-      "component": "button.links"
-    },
-    "products": {
-      "collection": "carrossel"
-    },
     "projects": {
       "collection": "project"
     },

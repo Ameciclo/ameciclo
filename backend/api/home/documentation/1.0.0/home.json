@@ -385,69 +385,6 @@
               }
             }
           },
-          "links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "products": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id",
-                "name",
-                "description",
-                "media",
-                "active"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "url": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "media": {
-                  "type": "string"
-                },
-                "active": {
-                  "type": "boolean"
-                },
-                "published_at": {
-                  "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "projects": {
             "type": "array",
             "items": {
@@ -590,34 +527,6 @@
       },
       "NewHome": {
         "properties": {
-          "links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "link"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "link": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "products": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "projects": {
             "type": "array",
             "items": {

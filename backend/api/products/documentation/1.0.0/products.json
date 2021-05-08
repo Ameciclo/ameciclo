@@ -1,18 +1,18 @@
 {
   "paths": {
-    "/carrossels": {
+    "/products": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Find all the products's records",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve products document(s)",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Carrossel"
+                    "$ref": "#/components/schemas/Products"
                   }
                 }
               }
@@ -51,7 +51,7 @@
         },
         "summary": "",
         "tags": [
-          "Carrossel"
+          "Products"
         ],
         "parameters": [
           {
@@ -194,14 +194,14 @@
       },
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Create a new products record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve products document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Carrossel"
+                  "$ref": "#/components/schemas/Products"
                 }
               }
             }
@@ -239,7 +239,7 @@
         },
         "summary": "",
         "tags": [
-          "Carrossel"
+          "Products"
         ],
         "requestBody": {
           "description": "",
@@ -247,20 +247,20 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewCarrossel"
+                "$ref": "#/components/schemas/NewProducts"
               }
             }
           }
         }
       }
     },
-    "/carrossels/count": {
+    "/products/count": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Retrieve the numver of products documents",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve products document(s)",
             "content": {
               "application/json": {
                 "schema": {
@@ -306,22 +306,22 @@
         },
         "summary": "",
         "tags": [
-          "Carrossel"
+          "Products"
         ],
         "parameters": []
       }
     },
-    "/carrossels/{id}": {
+    "/products/{id}": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Find one products record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve products document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Carrossel"
+                  "$ref": "#/components/schemas/Products"
                 }
               }
             }
@@ -359,7 +359,7 @@
         },
         "summary": "",
         "tags": [
-          "Carrossel"
+          "Products"
         ],
         "parameters": [
           {
@@ -376,14 +376,14 @@
       },
       "put": {
         "deprecated": false,
-        "description": "Update a record",
+        "description": "Update a single products record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve products document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Carrossel"
+                  "$ref": "#/components/schemas/Products"
                 }
               }
             }
@@ -421,7 +421,7 @@
         },
         "summary": "",
         "tags": [
-          "Carrossel"
+          "Products"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +429,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewCarrossel"
+                "$ref": "#/components/schemas/NewProducts"
               }
             }
           }
@@ -449,10 +449,10 @@
       },
       "delete": {
         "deprecated": false,
-        "description": "Delete a record",
+        "description": "Delete a single products record",
         "responses": {
           "200": {
-            "description": "deletes a single record based on the ID supplied",
+            "description": "deletes a single products based on the ID supplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,7 +495,7 @@
         },
         "summary": "",
         "tags": [
-          "Carrossel"
+          "Products"
         ],
         "parameters": [
           {
@@ -514,28 +514,25 @@
   },
   "components": {
     "schemas": {
-      "Carrossel": {
+      "Products": {
         "required": [
-          "id",
-          "name",
-          "description",
-          "media",
-          "active"
+          "id"
         ],
         "properties": {
           "id": {
             "type": "string"
           },
-          "name": {
+          "title": {
             "type": "string"
           },
           "url": {
             "type": "string"
           },
-          "description": {
-            "type": "string",
-            "maxLength": 218,
-            "minLength": 109
+          "desc": {
+            "type": "string"
+          },
+          "units": {
+            "type": "integer"
           },
           "media": {
             "required": [
@@ -604,8 +601,8 @@
               }
             }
           },
-          "active": {
-            "type": "boolean"
+          "value": {
+            "type": "number"
           },
           "published_at": {
             "type": "string",
@@ -613,26 +610,22 @@
           }
         }
       },
-      "NewCarrossel": {
-        "required": [
-          "name",
-          "description",
-          "active"
-        ],
+      "NewProducts": {
         "properties": {
-          "name": {
+          "title": {
             "type": "string"
           },
           "url": {
             "type": "string"
           },
-          "description": {
-            "type": "string",
-            "maxLength": 218,
-            "minLength": 109
+          "desc": {
+            "type": "string"
           },
-          "active": {
-            "type": "boolean"
+          "units": {
+            "type": "integer"
+          },
+          "value": {
+            "type": "number"
           },
           "published_at": {
             "type": "string",
@@ -650,7 +643,7 @@
   },
   "tags": [
     {
-      "name": "Carrossel"
+      "name": "Products"
     }
   ]
 }
