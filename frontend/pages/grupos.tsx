@@ -5,7 +5,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import { GroupCard } from "../components/GroupCard";
 import { server } from "../config";
 
-const Grupos = ({ groups, footer }) => {
+const Grupos = ({ groups }) => {
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [status, setStatus] = useState("");
 
@@ -22,7 +22,7 @@ const Grupos = ({ groups, footer }) => {
   }, [status, groups]);
 
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Grupos de Trabalho" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -81,17 +81,9 @@ export async function getStaticProps() {
   if (res.status === 200) {
     groups = await res.json();
   }
-
-  const res_footer = await fetch(`${server}/footer`);
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
-  }
-
   return {
     props: {
       groups: groups,
-      footer,
     },
     revalidate: 1,
   };

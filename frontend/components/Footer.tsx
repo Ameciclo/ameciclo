@@ -1,11 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-export const Footer = ({ footer }) => {
-  const addresslink = "https://maps.google.com/?q=" + footer.address;
-  const emaillink = "mailto:" + footer.email;
-  const phonelink = "https://api.whatsapp.com/send?phone=" + footer.phone
-
+export const Footer = () => {
   return (
     <>
       <footer className="bg-gray-100">
@@ -16,37 +12,39 @@ export const Footer = ({ footer }) => {
               <ul className="mb-4">
                 <li className="mt-2">
                   <p className="hover:underline text-gray-600 hover:text-red-600">
-                    {footer.name}
+                    Ameciclo - Associação Metropolitana de Ciclistas do
+                    Recife
                   </p>
                 </li>
                 <li className="mt-2">
                   <a
-                    href={phonelink}
+                    href="https://api.whatsapp.com/send?phone=5581994586830"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:underline text-gray-600 hover:text-red-600"
                   >
-                    {footer.phone}
+                    +55 (81) 9 9458-6830
                   </a>
                 </li>
                 <li className="mt-2">
                   <a
                     className="hover:underline text-gray-600 hover:text-red-600"
-                    href={addresslink}
+                    href="https://bit.ly/2C01AhY"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {footer.address}
+                    R. da Aurora, 529, loja 2 - Santo Amaro, Recife/PE,
+                    50050-145
                   </a>
                 </li>
                 <li className="mt-2">
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={emaillink}
+                    href="mailto:contato@ameciclo.org"
                     className="hover:underline text-gray-600 hover:text-red-600"
                   >
-                    {footer.email}
+                    contato@ameciclo.org
                   </a>
                 </li>
               </ul>
@@ -54,29 +52,74 @@ export const Footer = ({ footer }) => {
             <div className="w-full md:w-1/3 text-center">
               <h5 className="uppercase mb-6 font-bold">Links</h5>
               <ul className="mb-4">
-                {footer.links.map((l) => (
-                  <li className="mt-2">
-                    <Link href={l.link}>
-                      <a className="hover:underline text-gray-600 hover:text-red-600">
-                        {l.title}
-                      </a>
-                    </Link>
-                  </li>
-                ))}
+                <li className="mt-2">
+                  <Link href="/biciclopedia">
+                    <a className="hover:underline text-gray-600 hover:text-red-600">
+                      FAQ
+                    </a>
+                  </Link>
+                </li>
+                <li className="mt-2">
+                  <a
+                    href="https://biciclopedia.miraheze.org/"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Wiki
+                  </a>
+                </li>
+                <li className="mt-2">
+                  <a
+                    href="https://dados.ameciclo.org"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Plataforma de Dados
+                  </a>
+                </li>
               </ul>
             </div>
             <div className="w-full md:w-1/3 text-center">
               <h5 className="uppercase mb-6 font-bold">Social</h5>
               <ul className="mb-4">
-                {footer.socialmedia.map((s) => (
-                  <li className="mt-2">
-                    <Link href={s.link}>
-                      <a className="hover:underline text-gray-600 hover:text-red-600">
-                        {s.title}
-                      </a>
-                    </Link>
-                  </li>
-                ))}
+                <li className="mt-2">
+                  <a
+                    href="https://facebook.com/ameciclo"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Facebook
+                  </a>
+                </li>
+                <li className="mt-2">
+                  <a
+                    href="https://instagram.com/ameciclo"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li className="mt-2">
+                  <a
+                    href="https://twitter.com/ameciclo"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Twitter
+                  </a>
+                </li>
+                <li className="mt-2">
+                  <a
+                    href="https://www.youtube.com/user/ameciclo"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Youtube
+                  </a>
+                </li>
+                <li className="mt-2">
+                  <a
+                    href="https://t.me/s/ameciclo"
+                    className="hover:underline text-gray-600 hover:text-red-600"
+                  >
+                    Telegram
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
