@@ -6,7 +6,7 @@ import { SearchComponent } from "../components/SearchComponent";
 import { AccordionItem } from "../components/Accordion_FAQ";
 import { server } from "../config";
 
-const Biciclopedia = ({ faqs, categories, footer }) => {
+const Biciclopedia = ({ faqs, categories }) => {
   let disponibleCategories = [];
 
   categories.forEach((category) => {
@@ -22,7 +22,7 @@ const Biciclopedia = ({ faqs, categories, footer }) => {
   });
 
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Biciclopedia" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill my-auto flex items-center justify-center"
@@ -72,12 +72,6 @@ export async function getStaticProps() {
   }
   if (res.status === 200) {
     faqs = await res.json();
-  }
-
-  const res_footer = await fetch(`${server}/footer`);
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
   }
 
   return {

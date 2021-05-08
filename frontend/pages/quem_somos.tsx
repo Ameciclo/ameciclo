@@ -7,7 +7,7 @@ import { server } from "../config";
 import ReactMarkdown from "react-markdown";
 
 
-const QuemSomos = ({ ameciclistas, footer, custom }) => {
+const QuemSomos = ({ ameciclistas, custom }) => {
   const coordinators = ameciclistas.filter((a) => {
     return a.role === "coordenacao";
   })
@@ -24,7 +24,7 @@ const QuemSomos = ({ ameciclistas, footer, custom }) => {
   });
 
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Quem Somos" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -57,9 +57,9 @@ const QuemSomos = ({ ameciclistas, footer, custom }) => {
       <div className="container mx-auto mt-8 mb-8">
         <div className="bg-ameciclo text-white flex lg:mx-0 mx-auto flex-wrap rounded p-16">
           <div className="lg:pr-5 w-full lg:w-1/2 mb-4 lg:mb-0">
-            <p className="text-lg lg:text-3xl">
+            <div className="text-lg lg:text-3xl">
               <ReactMarkdown children={custom.definition} />
-            </p>
+            </div>
           </div>
           <div className="w-full lg:w-1/2 mb-4 lg:mb-0">
             <p className="text-xs lg:text-base text-white mb-2 tracking-wide">
@@ -68,6 +68,7 @@ const QuemSomos = ({ ameciclistas, footer, custom }) => {
             <div className="flex items-start justify-start flex-wrap max-w-5xl mx-auto mt-8 lg:mt-0">
               {custom.links.map((l) => (
                 <a
+                  key={l.id}
                   href={l.link}
                   className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
                   type="button"
@@ -195,13 +196,13 @@ const QuemSomos = ({ ameciclistas, footer, custom }) => {
 
 export async function getStaticProps() {
   const res = await fetch(`${server}/ameciclistas`)
-    
+
   let ameciclistas = []
 
   if (res.status === 200) {
     ameciclistas = await res.json();
   }
-  
+
   const res_custom = await fetch(`${server}/quem-somos`);
 
   let custom;
@@ -209,17 +210,9 @@ export async function getStaticProps() {
     custom = await res_custom.json();
   }
 
-  const res_footer = await fetch(`${server}/footer`);
-
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
-  }
-
   return {
     props: {
       ameciclistas,
-      footer,
       custom,
     },
     revalidate: 1,

@@ -3,16 +3,15 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import dynamic from "next/dynamic";
-import { server } from "../config";
 
 const EventCalendar = dynamic(() => import("../components/Agenda"), {
   loading: () => <p>Carregando Calendário</p>,
   ssr: false,
 });
 
-const Agenda = ({footer}) => {
+const Agenda = (props) => {
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Agenda" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -41,20 +40,5 @@ const Agenda = ({footer}) => {
     </Layout>
   );
 };
-
-export async function getStaticProps() {
-
-  const res_footer = await fetch(`${server}/footer`);
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
-  }
- 
-  return {
-    props: {
-      footer,
-    },
-  };
-}
 
 export default Agenda;

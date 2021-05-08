@@ -51,7 +51,7 @@ const ProjectDate = ({ project }) => {
   );
 };
 
-const Projeto = ({ project, footer }) => {
+const Projeto = ({ project }) => {
   const photos = project.gallery.map((p) => {
     return {
       id: p.id,
@@ -74,7 +74,7 @@ const Projeto = ({ project, footer }) => {
     setViewerIsOpen(false);
   };
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title={project.name} />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill my-auto flex items-center justify-center"
@@ -283,16 +283,9 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const res = await fetch(`${server}/projects?slug=${params.project}`);
   const project = await res.json();
-
-  const res_footer = await fetch(`${server}/footer`);
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
-  }
   return {
     props: {
       project: project[0],
-      footer,
     },
     revalidate: 1,
   };
