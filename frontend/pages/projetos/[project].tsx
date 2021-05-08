@@ -11,6 +11,7 @@ import { StepCard } from "../../components/StepCard";
 import ReactMarkdown from "react-markdown";
 import { PartnerCard } from "../../components/PartnerCard";
 import { server } from "../../config";
+import { ProductsTable } from "../../components/ProductsTable"
 
 const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
   ssr: false,
@@ -97,21 +98,24 @@ const Projeto = ({ project }) => {
               }
         }
       >
-        <div
-          className="container mx-auto flex flex-col items-center"
-          style={{ maxWidth: "768px" }}
-        >
-          <h1
-            className="text-4xl font-bold"
-            style={{
-              textShadow: "2px 2px 20px #000000, 0 0 15px #000000",
-            }}
+        {!project.showTitle ? (
+          null
+          ) : (
+          <div
+            className="container mx-auto flex flex-col items-center"
+            style={{ maxWidth: "768px" }}
           >
-            {project.name}
-          </h1>
-        </div>
+            <h1
+              className="text-4xl font-bold"
+              style={{
+                textShadow: "2px 2px 20px #000000, 0 0 15px #000000",
+              }}
+            >
+              {project.name}
+            </h1>
+          </div>
+          )}
       </div>
-      
 
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
@@ -221,7 +225,7 @@ const Projeto = ({ project }) => {
 
           {project.gallery ? (
             <>
-              <PhotoGallery photos={photos} onClick={openLightbox} />
+              <PhotoGallery photos={photos} targetRowHeight={100} onClick={openLightbox} />
               <ModalGateway>
                 {viewerIsOpen ? (
                   <Modal onClose={closeLightbox}>
@@ -239,6 +243,13 @@ const Projeto = ({ project }) => {
             </>
           ) : null}
         </div>
+
+        {project.products.length ? (
+          <div className="container mx-auto my-10 shadow-2xl rounded p-12 overflow-auto bg-gray-100">
+            <ProductsTable data={project.products} />
+          </div>
+        ) : null}
+
         <div className="container mx-auto flex mx-4 pt-10 justify-center border-gray-300 ">
           {project.partners &&
             (project.partners.length > 0 && (
