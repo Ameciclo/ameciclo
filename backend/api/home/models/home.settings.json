@@ -2,7 +2,7 @@
   "kind": "singleType",
   "collectionName": "homes",
   "info": {
-    "name": "Home",
+    "name": "Página Inicial",
     "description": ""
   },
   "options": {
@@ -33,6 +33,9 @@
     },
     "association_url": {
       "type": "string"
+    },
+    "products": {
+      "collection": "products"
     }
   }
 }
