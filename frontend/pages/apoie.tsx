@@ -7,7 +7,7 @@ import { server } from "../config";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import { getURL } from "next/dist/next-server/lib/utils";
 
-const Produtos = ({ products, footer, recurrent }) => {
+const Produtos = ({ products, recurrent }) => {
 
   function getDesc(str) {
     let el = document.createElement('html')
@@ -54,7 +54,7 @@ const Produtos = ({ products, footer, recurrent }) => {
   }
 
   return (
-    <Layout footer = {footer}>
+    <Layout>
       <SEO title="Apoie-nos" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
@@ -157,17 +157,9 @@ export async function getStaticProps() {
     recurrent = await res_current.json();
   }
 
-
-  const res_footer = await fetch(`${server}/footer`);
-  let footer;
-  if (res_footer.status === 200) {
-    footer = await res_footer.json();
-  }
-
   return {
     props: {
       products,
-      footer,
       recurrent,
     },
     revalidate: 1,
