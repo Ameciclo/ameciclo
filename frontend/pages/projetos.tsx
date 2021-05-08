@@ -5,54 +5,28 @@ import Breadcrumb from "../components/Breadcrumb";
 import { ProjectCard } from "../components/ProjectCard";
 import { server } from "../config";
 
-function string_to_slug (str) {
-  if (str) {
-  str = str.replace(/^\s+|\s+$/g, ''); // trim
-  str = str.toLowerCase();
-
-  // remove accents, swap ñ for n, etc
-  var from = "àáäâãèéëêìíïîòóöôùúüûñç·/_,:;";
-  var to   = "aaaaaeeeeiiiioooouuuunc------";
-  for (var i=0, l=from.length ; i<l ; i++) {
-      str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
-  }
-
-  str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
-      .replace(/\s+/g, '-') // collapse whitespace and replace by -
-      .replace(/-+/g, '-'); // collapse dashes
-
-  return str;
-  } else {
-    return ""
-  }
-}
-
 const Projetos = ({ projects, workgroups }) => {
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [status, setStatus] = useState("");
   const [group, setGroup] = useState("");
 
   useEffect(() => {
-    if (!group && !status) {
-      setFilteredProjects(projects);
-    } else if(status || group) {
+    if (status || group) {
       setFilteredProjects(
         projects.filter((project) => {
-          const selection = {
-            status: status,
-            group: group,
-          }
-          let projectstatus = ""
-          let workgroup = ""
-          if (group && project.workgroup) workgroup = string_to_slug(project.workgroup.name)
-          if (status) projectstatus = project.status
-          if (group === workgroup && status === projectstatus)  {
-            return true
+          if (group !== "" && status !== "") {
+            return (
+              project.status === status && project.workgroup.name === group
+            );
           } else {
-            return false
+            return (
+              project.status === status || project.workgroup.name === group
+            );
           }
-          })
-      )
+        })
+      );
+    } else {
+      setFilteredProjects(projects);
     }
   }, [status, group, projects]);
 
@@ -107,10 +81,11 @@ const Projetos = ({ projects, workgroups }) => {
               onBlur={(e) => e}
             >
               <option value="">Todos</option>
-              {workgroups.map((wg) =>
-                              <option value={string_to_slug(wg.name)}>{wg.name}</option>
-                              )}
-
+              {workgroups.map((wg) => (
+                <option key={wg.id} value={wg.name}>
+                  {wg.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -130,7 +105,7 @@ const Projetos = ({ projects, workgroups }) => {
 export async function getStaticProps() {
   const res = await fetch(`${server}/projects`);
 
-  let projects = []
+  let projects = [];
   if (res.status === 200) {
     projects = await res.json();
   }
