@@ -338,7 +338,6 @@ export async function getStaticProps() {
     };
   };
   const home = await res_carrossel.json();
-  const products = await res_carrossel.json();
 
   let featuredProducts = [];
 
