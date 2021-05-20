@@ -1,0 +1,27 @@
+version: 2.1
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME: ameciclo/ameciclo
+    docker:
+      - image: circleci/buildpack-deps:stretch
+orbs:
+  node: circleci/node@4.4.0
+
+jobs:
+  build-and-test:  
+    docker:
+      - image: cimg/node:15.1
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn 
+      - run:
+          name: Run tests
+          command: npm test
+
+workflows:
+  build-latest: 
+    jobs:
+      - build-and-test
+      - node/test
