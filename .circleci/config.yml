@@ -14,7 +14,7 @@ jobs:
       - image: cimg/node:15.1
     steps:
       - checkout:
-        path: ~/backend
+          path: ~/backend
       - node/install-packages:
           pkg-manager: yarn 
       - run:
