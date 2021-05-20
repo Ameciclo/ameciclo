@@ -11,7 +11,7 @@ orbs:
 jobs:
   build-and-test:  
     docker:
-      - image: cimg/node:15.1
+      - image: cimg/node:lts
 
     working_directory: ~/ameciclo/backend
 
@@ -28,4 +28,3 @@ workflows:
   build-latest: 
     jobs:
       - build-and-test
-      - node/test
