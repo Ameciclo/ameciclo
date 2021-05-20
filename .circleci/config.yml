@@ -12,9 +12,12 @@ jobs:
   build-and-test:  
     docker:
       - image: cimg/node:15.1
+
+    working_directory: ~/ameciclo/backend
+
     steps:
       - checkout:
-          path: ~/backend
+          path: ~/ameciclo
       - node/install-packages:
           pkg-manager: yarn 
       - run:
