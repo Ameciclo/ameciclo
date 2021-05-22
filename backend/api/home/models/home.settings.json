@@ -2,7 +2,7 @@
   "kind": "singleType",
   "collectionName": "homes",
   "info": {
-    "name": "Home",
+    "name": "Página Inicial",
     "description": ""
   },
   "options": {
@@ -22,13 +22,20 @@
       "plugin": "upload",
       "required": false
     },
-    "links": {
-      "type": "component",
-      "repeatable": true,
-      "component": "button.links"
+    "projects": {
+      "collection": "project"
+    },
+    "participation_url": {
+      "type": "string"
+    },
+    "donate_url": {
+      "type": "string"
+    },
+    "association_url": {
+      "type": "string"
     },
     "products": {
-      "collection": "carrossel"
+      "collection": "products"
     }
   }
 }

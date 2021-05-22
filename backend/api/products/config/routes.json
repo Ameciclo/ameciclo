@@ -2,46 +2,48 @@
   "routes": [
     {
       "method": "GET",
-      "path": "/projects",
-      "handler": "project.find",
-      "config": {}
-    },
-    {
-      "method": "GET",
-      "path": "/projects/count",
-      "handler": "project.count",
+      "path": "/products",
+      "handler": "products.find",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/projects/:id",
-      "handler": "project.findOne",
+      "path": "/products/count",
+      "handler": "products.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/products/:id",
+      "handler": "products.findOne",
       "config": {
         "policies": []
       }
     },
     {
       "method": "POST",
-      "path": "/projects",
-      "handler": "project.create",
+      "path": "/products",
+      "handler": "products.create",
       "config": {
         "policies": []
       }
     },
     {
       "method": "PUT",
-      "path": "/projects/:id",
-      "handler": "project.update",
+      "path": "/products/:id",
+      "handler": "products.update",
       "config": {
         "policies": []
       }
     },
     {
       "method": "DELETE",
-      "path": "/projects/:id",
-      "handler": "project.delete",
+      "path": "/products/:id",
+      "handler": "products.delete",
       "config": {
         "policies": []
       }

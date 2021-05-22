@@ -1,18 +1,19 @@
 {
   "paths": {
-    "/home": {
+    "/quem-somos": {
       "get": {
         "deprecated": false,
-        "description": "Find all the home's records",
+        "description": "Find all the quem-somos's records",
         "responses": {
           "200": {
-            "description": "Retrieve home document(s)",
+            "description": "Retrieve quem-somos document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Home"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -51,7 +52,7 @@
         },
         "summary": "",
         "tags": [
-          "Home"
+          "Quem-somos"
         ],
         "parameters": [
           {
@@ -194,14 +195,18 @@
       },
       "put": {
         "deprecated": false,
-        "description": "Update a single home record",
+        "description": "Update a single quem-somos record",
         "responses": {
           "200": {
-            "description": "Retrieve home document(s)",
+            "description": "Retrieve quem-somos document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Home"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -239,7 +244,7 @@
         },
         "summary": "",
         "tags": [
-          "Home"
+          "Quem-somos"
         ],
         "requestBody": {
           "description": "",
@@ -247,7 +252,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewHome"
+                "$ref": "#/components/schemas/NewQuem-somos"
               }
             }
           }
@@ -256,10 +261,10 @@
       },
       "delete": {
         "deprecated": false,
-        "description": "Delete a single home record",
+        "description": "Delete a single quem-somos record",
         "responses": {
           "200": {
-            "description": "deletes a single home based on the ID supplied",
+            "description": "deletes a single quem-somos based on the ID supplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -302,7 +307,7 @@
         },
         "summary": "",
         "tags": [
-          "Home"
+          "Quem-somos"
         ],
         "parameters": []
       }
@@ -310,7 +315,7 @@
   },
   "components": {
     "schemas": {
-      "Home": {
+      "Quem-somos": {
         "required": [
           "id"
         ],
@@ -318,7 +323,35 @@
           "id": {
             "type": "string"
           },
-          "banner": {
+          "definition": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "title",
+                "link"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "link": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "cover": {
             "required": [
               "id",
               "name",
@@ -385,145 +418,28 @@
               }
             }
           },
-          "projects": {
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NewQuem-somos": {
+        "properties": {
+          "definition": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "links": {
             "type": "array",
             "items": {
+              "type": "object",
               "required": [
                 "id",
-                "name",
-                "media",
-                "goal",
-                "status",
-                "bikeCulture",
-                "instArticulation",
-                "politicIncidence",
-                "isHighlighted"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "media": {
-                  "type": "string"
-                },
-                "goal": {
-                  "type": "string"
-                },
-                "endDate": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "startDate": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string",
-                  "enum": [
-                    "ongoing",
-                    "finished",
-                    "paused"
-                  ]
-                },
-                "bikeCulture": {
-                  "type": "string",
-                  "enum": [
-                    "high",
-                    "low",
-                    "medium"
-                  ]
-                },
-                "instArticulation": {
-                  "type": "string",
-                  "enum": [
-                    "high",
-                    "low",
-                    "medium"
-                  ]
-                },
-                "politicIncidence": {
-                  "type": "string",
-                  "enum": [
-                    "high",
-                    "low",
-                    "medium"
-                  ]
-                },
-                "slug": {
-                  "type": "string"
-                },
-                "isHighlighted": {
-                  "type": "boolean"
-                },
-                "gallery": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "Links": {
-                  "type": "component"
-                },
-                "workgroup": {
-                  "type": "string"
-                },
-                "coordinator": {
-                  "type": "string"
-                },
-                "partners": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "steps": {
-                  "type": "component"
-                },
-                "cover": {
-                  "type": "string"
-                },
-                "long_description": {
-                  "type": "string"
-                },
-                "showTitle": {
-                  "type": "boolean"
-                },
-                "products": {
-                  "type": "component"
-                },
-                "clippings": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "participation_url": {
-            "type": "string"
-          },
-          "donate_url": {
-            "type": "string"
-          },
-          "association_url": {
-            "type": "string"
-          },
-          "products": {
-            "type": "array",
-            "items": {
-              "required": [
-                "id"
+                "title",
+                "link"
               ],
               "properties": {
                 "id": {
@@ -532,60 +448,10 @@
                 "title": {
                   "type": "string"
                 },
-                "url": {
-                  "type": "string"
-                },
-                "desc": {
-                  "type": "string"
-                },
-                "units": {
-                  "type": "integer"
-                },
-                "media": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "number"
-                },
-                "published_at": {
-                  "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
-                },
-                "updated_by": {
+                "link": {
                   "type": "string"
                 }
               }
-            }
-          },
-          "published_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "NewHome": {
-        "properties": {
-          "projects": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "participation_url": {
-            "type": "string"
-          },
-          "donate_url": {
-            "type": "string"
-          },
-          "association_url": {
-            "type": "string"
-          },
-          "products": {
-            "type": "array",
-            "items": {
-              "type": "string"
             }
           },
           "published_at": {
@@ -602,9 +468,5 @@
       }
     }
   },
-  "tags": [
-    {
-      "name": "Home"
-    }
-  ]
+  "tags": []
 }

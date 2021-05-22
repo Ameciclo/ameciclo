@@ -4,21 +4,46 @@ import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
 import React from "react";
 import { server } from "../config";
+import ReactMarkdown from "react-markdown";
 
-const QuemSomos = ({ coordinators, counselors }) => {
+
+const QuemSomos = ({ ameciclistas, custom }) => {
+  const coordinators = ameciclistas.filter((a) => {
+    return a.role === "coordenacao";
+  })
+
+  let counselors = ameciclistas.filter((a) => {
+    return a.role === "conselhofiscal";
+  })
+  /*let alumin = ameciclistas.filter((a) => {
+    return a.role === "ameciclista";
+  })*/
+
+  ameciclistas.sort((a, b) => {
+    return (a.name).localeCompare(b.name)
+  });
+
   return (
     <Layout>
       <SEO title="Quem Somos" />
       <div
         className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
-        style={{
+        style={
+          custom.cover ? ({
+          width: "100%",
+          height: "52vh",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundImage: `url(${custom.cover.url})`,
+        }) : ({
           width: "100%",
           height: "52vh",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundImage: `url('/quem_somos.webp')`,
-        }}
+        })}
       />
       <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
         <div className="container mx-auto">
@@ -32,49 +57,34 @@ const QuemSomos = ({ coordinators, counselors }) => {
       <div className="container mx-auto mt-8 mb-8">
         <div className="bg-ameciclo text-white flex lg:mx-0 mx-auto flex-wrap rounded p-16">
           <div className="lg:pr-5 w-full lg:w-1/2 mb-4 lg:mb-0">
-            <p className="text-lg lg:text-3xl">
-              A AMECICLO É UMA ORGANIZAÇÃO DA SOCIEDADE CIVIL QUE LUTA PELO
-              <strong>
-                &ensp; DIREITO À CIDADE E NA REGIÃO METROPOLITANA DO RECIFE
-              </strong>
-            </p>
+            <div className="text-lg lg:text-3xl">
+              <ReactMarkdown children={custom.definition} />
+            </div>
           </div>
           <div className="w-full lg:w-1/2 mb-4 lg:mb-0">
             <p className="text-xs lg:text-base text-white mb-2 tracking-wide">
-              Nos propomos a a transformar a cidade, através da bicicleta, em um
-              ambiente mais humano, democrático e sustentável. Para isso,
-              fazemos diversas atividades que estimulam a cultura da bicicleta,
-              que oportunizam o trabalho conjunto com coletivos, grupos e
-              instituições parceiras, e que geram incidência técnica e política
-              no Recife e na Região Metropolitana.
+              {custom.objective}
             </p>
             <div className="flex items-start justify-start flex-wrap max-w-5xl mx-auto mt-8 lg:mt-0">
-              <a
-                href="http://estatuto.ameciclo.org"
-                className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
-                type="button"
-                style={{ transition: "all .15s ease" }}
-              >
-                Conheça nosso estatuto
-              </a>
-              <a
-                href="/linha%20do%20tempo%20ameciclo.pdf"
-                className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 lg:mt-0 mt-2"
-                type="button"
-                style={{ transition: "all .15s ease" }}
-              >
-                Conheça nossa historia
-              </a>
+              {custom.links.map((l) => (
+                <a
+                  key={l.id}
+                  href={l.link}
+                  className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
+                  type="button"
+                  style={{ transition: "all .15s ease" }}
+                >
+                  {l.title}
+                </a>
+              ))}
             </div>
           </div>
         </div>
-        <Tabs initialValue="tab-coord">
+        <Tabs initialValue="tab-ameciclista">
           <TabsNav>
+            <Tab name="tab-ameciclista">Ameciclistas</Tab>
             <Tab name="tab-coord">Coordenação</Tab>
             <Tab name="tab-conselho">Conselho Fiscal</Tab>
-            {/*<Tab name="tab-alumni" disabled>*/}
-            {/*  Alumni*/}
-            {/*</Tab>*/}
           </TabsNav>
           <TabPanel name="tab-coord">
             {coordinators.map((c) => (
@@ -102,7 +112,7 @@ const QuemSomos = ({ coordinators, counselors }) => {
                   )}
                   <div className="p-4 pb-6">
                     <h2 className="text-xl leading-normal text-gray-900">
-                      {c.firstName} {c.lastName}
+                      {c.name}
                     </h2>
                     <p className="text-sm text-gray-600">{c.bio}</p>
                   </div>
@@ -136,9 +146,43 @@ const QuemSomos = ({ coordinators, counselors }) => {
                   )}
                   <div className="p-4 pb-6">
                     <h2 className="text-xl leading-normal text-gray-900">
-                      {c.firstName} {c.lastName}
+                      {c.name}
                     </h2>
                     <p className="text-sm text-gray-600">{c.bio}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </TabPanel>
+          <TabPanel name="tab-ameciclista">
+            {ameciclistas.map((c) => (
+              <div className="p-4 max-w-sm" key={c.id}>
+                <div
+                  className="shadow-lg rounded bg-white"
+                  style={{ minHeight: "270px", minWidth: "270px" }}
+                >
+                  {c.media ? (
+                    <div
+                      style={{
+                        backgroundImage: `url(${c.media.url})`,
+                        minHeight: "270px",
+                        backgroundSize: "cover",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        minHeight: "270px",
+                      }}
+                    />
+                  )}
+                  <div className="p-4 pb-6">
+                    <h2 className="text-xl leading-normal text-gray-900">
+                      {c.name}
+                    </h2>
+                    {/*c.bio && (<p className="text-sm text-gray-600">{c.bio}</p>) */}
                   </div>
                 </div>
               </div>
@@ -151,22 +195,25 @@ const QuemSomos = ({ coordinators, counselors }) => {
 };
 
 export async function getStaticProps() {
-  const c_res = await fetch(`${server}/coordinators`),
-    co_res = await fetch(`${server}/counselors`);
+  const res = await fetch(`${server}/ameciclistas`)
 
-  let coordinators = [],
-    counselors = [];
-  if (c_res.status === 200) {
-    coordinators = await c_res.json();
+  let ameciclistas = []
+
+  if (res.status === 200) {
+    ameciclistas = await res.json();
   }
-  if (co_res.status === 200) {
-    counselors = await co_res.json();
+
+  const res_custom = await fetch(`${server}/quem-somos`);
+
+  let custom;
+  if (res_custom.status === 200) {
+    custom = await res_custom.json();
   }
 
   return {
     props: {
-      coordinators,
-      counselors,
+      ameciclistas,
+      custom,
     },
     revalidate: 1,
   };

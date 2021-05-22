@@ -20,21 +20,46 @@ export default function Home({
   featuredProjects,
   numberOfProjects,
   featuredProducts,
+  home,
+  recurrent,
 }) {
+  const supporters = recurrent.campaigns[0].supports.total.count
   return (
     <Layout>
       <SEO title="Página Principal" />
-      <section className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill hero-image" />
+      <section className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
+              style={
+                home.banner
+                  ? {
+                      width: "100%",
+                      height: "70vh",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundImage: `url(${home.banner.url})`,
+                    }
+                  : {
+                      width: "100%",
+                      height: "70vh",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundImage: `url('/backgroundImage.webp')`,
+                    }
+                  }
+                     />
       <section className="bg-ameciclo">
         <div className="mx-auto px-6 py-20 container">
           <div className="flex flex-wrap justify-around">
             <div className="p-4 text-center">
-              <motion.div whileHover={{ scale: 1.1 }}>
-                <Participe />
-              </motion.div>
+              <a href={home.participation_url}>
+                  <motion.div whileHover={{ scale: 1.1 }}>
+                    <Participe />
+                  </motion.div>
+              </a>
             </div>
             <div className="p-4 text-center">
-              <a href="http://queroser.ameciclo.org">
+              <a href={home.association_url}>
                 <motion.div whileHover={{ scale: 1.1 }}>
                   <Associe />
                 </motion.div>
@@ -44,7 +69,7 @@ export default function Home({
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="http://apoie.ameciclo.org"
+                href={home.donate_url}
               >
                 <motion.div whileHover={{ scale: 1.1 }}>
                   <Apoie />
@@ -284,38 +309,57 @@ export default function Home({
 }
 
 export async function getStaticProps() {
-  const res = await fetch(`${server}/projects`),
-    res_carrossel = await fetch(`${server}/carrossels`);
 
-  if (res.status !== 200 && res_carrossel.status !== 200) {
+  const res_current = await fetch(`https://apoia.se/api/v1/users/ameciclo`);
+
+  let recurrent = []
+  if (res_current.status === 200) {
+    recurrent = await res_current.json();
+  }
+
+  const res = await fetch(`${server}/projects`);
+  if (res.status !== 200) {
     return {
       redirect: {
         permanent: false,
         destination: "/404",
       },
     };
-  }
-
+  };
   const projects = await res.json();
-  const products = await res_carrossel.json();
+
+  const res_carrossel = await fetch(`${server}/home`);
+  if (res_carrossel.status !== 200) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/404",
+      },
+    };
+  };
+  const home = await res_carrossel.json();
 
   let featuredProducts = [];
 
-  if (products.data) {
-    featuredProducts = products.filter((p) => {
-      return p.isHighlighted === true;
-    });
+  if (home.products) {
+    featuredProducts = home.products;
   }
 
-  const featuredProjects = projects.filter((p) => {
-    return p.isHighlighted === true;
-  });
+  let featuredProjects = [];
+
+  if (home.projects) {
+    featuredProjects = home.projects;
+  }
+  
   const numberOfProjects = projects.length;
+
   return {
     props: {
       featuredProjects,
       numberOfProjects,
       featuredProducts,
+      home,
+      recurrent,
     },
   };
 }
