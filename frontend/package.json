@@ -21,7 +21,7 @@
     "@loadable/component": "^5.14.1",
     "@n8tb1t/use-scroll-position": "^2.0.3",
     "@svgr/webpack": "^5.5.0",
-    "@tippyjs/react": "^4.2.0",
+    "@tippyjs/react": "^4.2.5",
     "autoprefixer": "^10.2.4",
     "framer-motion": "^2.9.4",
     "fuse.js": "^6.4.3",
