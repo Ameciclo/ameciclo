@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "knex": "<0.20.0",
-    "pg": "latest",
+    "pg": "8.6.0",
     "slugify": "^1.4.0",
     "strapi": "3.6.2",
     "strapi-admin": "3.6.2",
