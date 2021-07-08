@@ -2,6 +2,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
+import Image from "next/image";
 import React from "react";
 import { server } from "../config";
 import ReactMarkdown from "react-markdown";
@@ -96,13 +97,16 @@ const QuemSomos = ({ ameciclistas, custom }) => {
                   {c.media ? (
                     <div
                       style={{
-                        backgroundImage: `url(${c.media.url})`,
                         minHeight: "270px",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
+                        position: "relative",
                       }}
-                    />
+                    >
+                      <Image
+                        src={c.media.hash}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    </div>
                   ) : (
                     <div
                       style={{
@@ -130,13 +134,16 @@ const QuemSomos = ({ ameciclistas, custom }) => {
                   {c.media ? (
                     <div
                       style={{
-                        backgroundImage: `url(${c.media.url})`,
                         minHeight: "270px",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
+                        position: "relative",
                       }}
-                    />
+                    >
+                      <Image
+                        src={c.media.hash}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    </div>
                   ) : (
                     <div
                       style={{
