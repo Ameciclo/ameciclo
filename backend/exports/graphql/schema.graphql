@@ -2773,14 +2773,14 @@ input editComponentButtonCyclistsCountInput {
 
 type ComponentButtonFiles {
   id: ID!
-  filename: String
+  filename: String!
   file: UploadFile
   image: UploadFile
   description: String
 }
 
 input ComponentButtonFileInput {
-  filename: String
+  filename: String!
   file: ID
   image: ID
   description: String
