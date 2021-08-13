@@ -874,6 +874,9 @@
               }
             }
           },
+          "overal_report": {
+            "type": "string"
+          },
           "published_at": {
             "type": "string",
             "format": "date-time"
@@ -1372,6 +1375,9 @@
                 }
               }
             }
+          },
+          "overal_report": {
+            "type": "string"
           },
           "published_at": {
             "type": "string",

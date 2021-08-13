@@ -587,6 +587,7 @@ type Contagens {
   counts: [ComponentButtonCyclistsCounts]
   methodology: String
   archives: [ComponentButtonFiles]
+  overal_report: String
   published_at: DateTime
 }
 
@@ -597,6 +598,7 @@ input ContagenInput {
   counts: [ComponentButtonCyclistsCountInput!]
   methodology: String
   archives: [ComponentButtonFileInput]
+  overal_report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -609,6 +611,7 @@ input editContagenInput {
   counts: [editComponentButtonCyclistsCountInput]
   methodology: String
   archives: [editComponentButtonFileInput]
+  overal_report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID

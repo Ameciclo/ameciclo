@@ -44,6 +44,9 @@
       "type": "component",
       "repeatable": true,
       "component": "button.files"
+    },
+    "overal_report": {
+      "type": "richtext"
     }
   }
 }
