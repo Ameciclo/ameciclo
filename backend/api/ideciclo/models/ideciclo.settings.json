@@ -2,7 +2,8 @@
   "kind": "singleType",
   "collectionName": "ideciclos",
   "info": {
-    "name": "ideciclo"
+    "name": "ideciclo",
+    "description": ""
   },
   "options": {
     "increments": true,
@@ -26,6 +27,14 @@
     },
     "objective": {
       "type": "text"
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
+    },
+    "methodology": {
+      "type": "richtext"
     }
   }
 }

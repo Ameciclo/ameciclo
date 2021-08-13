@@ -36,6 +36,14 @@
       "repeatable": true,
       "component": "button.cyclists-counts",
       "required": true
+    },
+    "methodology": {
+      "type": "richtext"
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
     }
   }
 }

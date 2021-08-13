@@ -585,6 +585,8 @@ type Contagens {
   description: String!
   objective: String!
   counts: [ComponentButtonCyclistsCounts]
+  methodology: String
+  archives: [ComponentButtonFiles]
   published_at: DateTime
 }
 
@@ -593,6 +595,8 @@ input ContagenInput {
   description: String!
   objective: String!
   counts: [ComponentButtonCyclistsCountInput!]
+  methodology: String
+  archives: [ComponentButtonFileInput]
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -603,6 +607,8 @@ input editContagenInput {
   description: String
   objective: String
   counts: [editComponentButtonCyclistsCountInput]
+  methodology: String
+  archives: [editComponentButtonFileInput]
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1156,6 +1162,8 @@ type Ideciclo {
   cover: UploadFile
   description: String
   objective: String
+  archives: [ComponentButtonFiles]
+  methodology: String
   published_at: DateTime
 }
 
@@ -1163,6 +1171,8 @@ input IdecicloInput {
   cover: ID
   description: String
   objective: String
+  archives: [ComponentButtonFileInput]
+  methodology: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1172,6 +1182,8 @@ input editIdecicloInput {
   cover: ID
   description: String
   objective: String
+  archives: [editComponentButtonFileInput]
+  methodology: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
