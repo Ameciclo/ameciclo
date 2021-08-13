@@ -2694,12 +2694,23 @@ input editComponentButtonCyclistsCountInput {
   report: ID
 }
 
+enum ENUM_COMPONENTBUTTONFILES_TYPE {
+  books
+  studies
+  reports
+  statements
+  legal
+  others
+}
+
 type ComponentButtonFiles {
   id: ID!
   filename: String!
   file: UploadFile
   image: UploadFile
   description: String
+  release_date: Date
+  type: ENUM_COMPONENTBUTTONFILES_TYPE
 }
 
 input ComponentButtonFileInput {
@@ -2707,6 +2718,8 @@ input ComponentButtonFileInput {
   file: ID
   image: ID
   description: String
+  release_date: Date
+  type: ENUM_COMPONENTBUTTONFILES_TYPE
 }
 
 input editComponentButtonFileInput {
@@ -2715,6 +2728,8 @@ input editComponentButtonFileInput {
   file: ID
   image: ID
   description: String
+  release_date: Date
+  type: ENUM_COMPONENTBUTTONFILES_TYPE
 }
 
 type ComponentButtonLinks {

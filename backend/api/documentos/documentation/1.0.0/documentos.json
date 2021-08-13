@@ -543,6 +543,21 @@
                 },
                 "description": {
                   "type": "string"
+                },
+                "release_date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "books",
+                    "studies",
+                    "reports",
+                    "statements",
+                    "legal",
+                    "others"
+                  ]
                 }
               }
             }
@@ -713,6 +728,21 @@
                 },
                 "description": {
                   "type": "string"
+                },
+                "release_date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "books",
+                    "studies",
+                    "reports",
+                    "statements",
+                    "legal",
+                    "others"
+                  ]
                 }
               }
             }

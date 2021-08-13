@@ -36,6 +36,20 @@
     "description": {
       "type": "text",
       "required": false
+    },
+    "release_date": {
+      "type": "date"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "books",
+        "studies",
+        "reports",
+        "statements",
+        "legal",
+        "others"
+      ]
     }
   }
 }
