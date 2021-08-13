@@ -35,6 +35,9 @@
     },
     "methodology": {
       "type": "richtext"
+    },
+    "overal_report": {
+      "type": "richtext"
     }
   }
 }

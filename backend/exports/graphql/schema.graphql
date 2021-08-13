@@ -1075,6 +1075,7 @@ type Ideciclo {
   objective: String
   archives: [ComponentButtonFiles]
   methodology: String
+  overal_report: String
   published_at: DateTime
 }
 
@@ -1084,6 +1085,7 @@ input IdecicloInput {
   objective: String
   archives: [ComponentButtonFileInput]
   methodology: String
+  overal_report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1095,6 +1097,7 @@ input editIdecicloInput {
   objective: String
   archives: [editComponentButtonFileInput]
   methodology: String
+  overal_report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
