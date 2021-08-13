@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_button_files",
+  "info": {
+    "name": "files",
+    "icon": "align-justify"
+  },
+  "options": {},
+  "attributes": {
+    "filename": {
+      "type": "string"
+    },
+    "file": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "image": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

@@ -1149,6 +1149,46 @@ type deleteHomePayload {
   home: Home
 }
 
+type Ideciclo {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  cover: UploadFile
+  description: String
+  objective: String
+  published_at: DateTime
+}
+
+input IdecicloInput {
+  cover: ID
+  description: String
+  objective: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editIdecicloInput {
+  cover: ID
+  description: String
+  objective: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input updateIdecicloInput {
+  data: editIdecicloInput
+}
+
+type updateIdecicloPayload {
+  ideciclo: Ideciclo
+}
+
+type deleteIdecicloPayload {
+  ideciclo: Ideciclo
+}
+
 enum ENUM_LIBRARY_TYPE {
   livro
   tecnico
@@ -2731,6 +2771,29 @@ input editComponentButtonCyclistsCountInput {
   report: ID
 }
 
+type ComponentButtonFiles {
+  id: ID!
+  filename: String
+  file: UploadFile
+  image: UploadFile
+  description: String
+}
+
+input ComponentButtonFileInput {
+  filename: String
+  file: ID
+  image: ID
+  description: String
+}
+
+input editComponentButtonFileInput {
+  id: ID
+  filename: String
+  file: ID
+  image: ID
+  description: String
+}
+
 type ComponentButtonLinks {
   id: ID!
   title: String!
@@ -2771,7 +2834,7 @@ input editComponentButtonStepInput {
   link: String
 }
 
-union Morph = UsersPermissionsMe | UsersPermissionsMeRole | UsersPermissionsLoginPayload | UserPermissionsPasswordPayload | Ameciclistas | AmeciclistasConnection | AmeciclistasAggregator | AmeciclistasGroupBy | AmeciclistasConnectionId | AmeciclistasConnectionCreated_at | AmeciclistasConnectionUpdated_at | AmeciclistasConnectionName | AmeciclistasConnectionBio | AmeciclistasConnectionMedia | AmeciclistasConnectionBotmember | AmeciclistasConnectionRole | AmeciclistasConnectionPublished_at | createAmeciclistaPayload | updateAmeciclistaPayload | deleteAmeciclistaPayload | Botmembers | BotmembersConnection | BotmembersAggregator | BotmembersGroupBy | BotmembersConnectionId | BotmembersConnectionCreated_at | BotmembersConnectionUpdated_at | BotmembersConnectionTelegram_id | BotmembersConnectionDaily_notifications | BotmembersConnectionOncethere | BotmembersConnectionAmeciclista | BotmembersConnectionTelegram_nick | BotmembersConnectionPublished_at | createBotmemberPayload | updateBotmemberPayload | deleteBotmemberPayload | ClippingMedia | ClippingMediaConnection | ClippingMediaAggregator | ClippingMediaGroupBy | ClippingMediaConnectionId | ClippingMediaConnectionCreated_at | ClippingMediaConnectionUpdated_at | ClippingMediaConnectionName | ClippingMediaConnectionType | ClippingMediaConnectionLogo | ClippingMediaConnectionUrl | ClippingMediaConnectionPublished_at | createClippingMediaPayload | updateClippingMediaPayload | deleteClippingMediaPayload | Clipping | ClippingConnection | ClippingAggregator | ClippingGroupBy | ClippingConnectionId | ClippingConnectionCreated_at | ClippingConnectionUpdated_at | ClippingConnectionTitle | ClippingConnectionLink | ClippingConnectionDate | ClippingConnectionText | ClippingConnectionProject | ClippingConnectionPublished_at | createClippingPayload | updateClippingPayload | deleteClippingPayload | Contagens | updateContagenPayload | deleteContagenPayload | CyclistaCount | CyclistaCountConnection | CyclistaCountAggregator | CyclistaCountAggregatorSum | CyclistaCountAggregatorAvg | CyclistaCountAggregatorMin | CyclistaCountAggregatorMax | CyclistaCountGroupBy | CyclistaCountConnectionId | CyclistaCountConnectionCreated_at | CyclistaCountConnectionUpdated_at | CyclistaCountConnectionCount_id | CyclistaCountConnectionAbout | CyclistaCountConnectionReport_url | CyclistaCountConnectionPublished_at | createCyclistaCountPayload | updateCyclistaCountPayload | deleteCyclistaCountPayload | Documents | DocumentsConnection | DocumentsAggregator | DocumentsGroupBy | DocumentsConnectionId | DocumentsConnectionCreated_at | DocumentsConnectionUpdated_at | DocumentsConnectionTitle | DocumentsConnectionDescription | DocumentsConnectionUrl | DocumentsConnectionCover | DocumentsConnectionType | DocumentsConnectionRelease_date | DocumentsConnectionPublished_at | createDocumentPayload | updateDocumentPayload | deleteDocumentPayload | FaqTag | FaqTagConnection | FaqTagAggregator | FaqTagGroupBy | FaqTagConnectionId | FaqTagConnectionCreated_at | FaqTagConnectionUpdated_at | FaqTagConnectionTitle | FaqTagConnectionIcon | FaqTagConnectionSlug | createFaqTagPayload | updateFaqTagPayload | deleteFaqTagPayload | Faq | FaqConnection | FaqAggregator | FaqGroupBy | FaqConnectionId | FaqConnectionCreated_at | FaqConnectionUpdated_at | FaqConnectionTitle | FaqConnectionDescription | FaqConnectionAnswer | createFaqPayload | updateFaqPayload | deleteFaqPayload | Home | updateHomePayload | deleteHomePayload | Library | LibraryConnection | LibraryAggregator | LibraryAggregatorSum | LibraryAggregatorAvg | LibraryAggregatorMin | LibraryAggregatorMax | LibraryGroupBy | LibraryConnectionId | LibraryConnectionCreated_at | LibraryConnectionUpdated_at | LibraryConnectionRegister | LibraryConnectionTitle | LibraryConnectionAuthor | LibraryConnectionYear | LibraryConnectionCopies | LibraryConnectionType | LibraryConnectionCover | LibraryConnectionSummary | LibraryConnectionISBN | LibraryConnectionPublished_at | createLibraryPayload | updateLibraryPayload | deleteLibraryPayload | Locations | LocationsConnection | LocationsAggregator | LocationsGroupBy | LocationsConnectionId | LocationsConnectionCreated_at | LocationsConnectionUpdated_at | LocationsConnectionName | LocationsConnectionAddress | LocationsConnectionIsVirtual | LocationsConnectionShow_on_telegram | LocationsConnectionPublished_at | createLocationPayload | updateLocationPayload | deleteLocationPayload | Partners | PartnersConnection | PartnersAggregator | PartnersGroupBy | PartnersConnectionId | PartnersConnectionCreated_at | PartnersConnectionUpdated_at | PartnersConnectionName | PartnersConnectionUrl | PartnersConnectionLogo | PartnersConnectionSponsor | PartnersConnectionPublished_at | createPartnerPayload | updatePartnerPayload | deletePartnerPayload | Products | ProductsConnection | ProductsAggregator | ProductsAggregatorSum | ProductsAggregatorAvg | ProductsAggregatorMin | ProductsAggregatorMax | ProductsGroupBy | ProductsConnectionId | ProductsConnectionCreated_at | ProductsConnectionUpdated_at | ProductsConnectionTitle | ProductsConnectionUrl | ProductsConnectionDesc | ProductsConnectionUnits | ProductsConnectionMedia | ProductsConnectionValue | ProductsConnectionPublished_at | createProductPayload | updateProductPayload | deleteProductPayload | Project | ProjectConnection | ProjectAggregator | ProjectGroupBy | ProjectConnectionId | ProjectConnectionCreated_at | ProjectConnectionUpdated_at | ProjectConnectionName | ProjectConnectionMedia | ProjectConnectionGoal | ProjectConnectionEndDate | ProjectConnectionDescription | ProjectConnectionStartDate | ProjectConnectionStatus | ProjectConnectionBikeCulture | ProjectConnectionInstArticulation | ProjectConnectionPoliticIncidence | ProjectConnectionSlug | ProjectConnectionIsHighlighted | ProjectConnectionWorkgroup | ProjectConnectionCoordinator | ProjectConnectionCover | ProjectConnectionLong_description | ProjectConnectionShowTitle | createProjectPayload | updateProjectPayload | deleteProjectPayload | QuemSomos | updateQuemSomoPayload | deleteQuemSomoPayload | Workgroups | WorkgroupsConnection | WorkgroupsAggregator | WorkgroupsGroupBy | WorkgroupsConnectionId | WorkgroupsConnectionCreated_at | WorkgroupsConnectionUpdated_at | WorkgroupsConnectionName | WorkgroupsConnectionTelegram_id | WorkgroupsConnectionIcon | WorkgroupsConnectionTelegram_url | WorkgroupsConnectionDescription | WorkgroupsConnectionFolder_url | WorkgroupsConnectionDirective | WorkgroupsConnectionPublished_at | createWorkgroupPayload | updateWorkgroupPayload | deleteWorkgroupPayload | UploadFile | UploadFileConnection | UploadFileAggregator | UploadFileAggregatorSum | UploadFileAggregatorAvg | UploadFileAggregatorMin | UploadFileAggregatorMax | UploadFileGroupBy | UploadFileConnectionId | UploadFileConnectionCreated_at | UploadFileConnectionUpdated_at | UploadFileConnectionName | UploadFileConnectionAlternativeText | UploadFileConnectionCaption | UploadFileConnectionWidth | UploadFileConnectionHeight | UploadFileConnectionFormats | UploadFileConnectionHash | UploadFileConnectionExt | UploadFileConnectionMime | UploadFileConnectionSize | UploadFileConnectionUrl | UploadFileConnectionPreviewUrl | UploadFileConnectionProvider | UploadFileConnectionProvider_metadata | deleteFilePayload | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsRoleConnection | UsersPermissionsRoleAggregator | UsersPermissionsRoleGroupBy | UsersPermissionsRoleConnectionId | UsersPermissionsRoleConnectionName | UsersPermissionsRoleConnectionDescription | UsersPermissionsRoleConnectionType | createRolePayload | updateRolePayload | deleteRolePayload | UsersPermissionsUser | UsersPermissionsUserConnection | UsersPermissionsUserAggregator | UsersPermissionsUserGroupBy | UsersPermissionsUserConnectionId | UsersPermissionsUserConnectionCreated_at | UsersPermissionsUserConnectionUpdated_at | UsersPermissionsUserConnectionUsername | UsersPermissionsUserConnectionEmail | UsersPermissionsUserConnectionProvider | UsersPermissionsUserConnectionConfirmed | UsersPermissionsUserConnectionBlocked | UsersPermissionsUserConnectionRole | createUserPayload | updateUserPayload | deleteUserPayload | ComponentButtonCarousel | ComponentButtonCyclistsCounts | ComponentButtonLinks | ComponentButtonStep
+union Morph = UsersPermissionsMe | UsersPermissionsMeRole | UsersPermissionsLoginPayload | UserPermissionsPasswordPayload | Ameciclistas | AmeciclistasConnection | AmeciclistasAggregator | AmeciclistasGroupBy | AmeciclistasConnectionId | AmeciclistasConnectionCreated_at | AmeciclistasConnectionUpdated_at | AmeciclistasConnectionName | AmeciclistasConnectionBio | AmeciclistasConnectionMedia | AmeciclistasConnectionBotmember | AmeciclistasConnectionRole | AmeciclistasConnectionPublished_at | createAmeciclistaPayload | updateAmeciclistaPayload | deleteAmeciclistaPayload | Botmembers | BotmembersConnection | BotmembersAggregator | BotmembersGroupBy | BotmembersConnectionId | BotmembersConnectionCreated_at | BotmembersConnectionUpdated_at | BotmembersConnectionTelegram_id | BotmembersConnectionDaily_notifications | BotmembersConnectionOncethere | BotmembersConnectionAmeciclista | BotmembersConnectionTelegram_nick | BotmembersConnectionPublished_at | createBotmemberPayload | updateBotmemberPayload | deleteBotmemberPayload | ClippingMedia | ClippingMediaConnection | ClippingMediaAggregator | ClippingMediaGroupBy | ClippingMediaConnectionId | ClippingMediaConnectionCreated_at | ClippingMediaConnectionUpdated_at | ClippingMediaConnectionName | ClippingMediaConnectionType | ClippingMediaConnectionLogo | ClippingMediaConnectionUrl | ClippingMediaConnectionPublished_at | createClippingMediaPayload | updateClippingMediaPayload | deleteClippingMediaPayload | Clipping | ClippingConnection | ClippingAggregator | ClippingGroupBy | ClippingConnectionId | ClippingConnectionCreated_at | ClippingConnectionUpdated_at | ClippingConnectionTitle | ClippingConnectionLink | ClippingConnectionDate | ClippingConnectionText | ClippingConnectionProject | ClippingConnectionPublished_at | createClippingPayload | updateClippingPayload | deleteClippingPayload | Contagens | updateContagenPayload | deleteContagenPayload | CyclistaCount | CyclistaCountConnection | CyclistaCountAggregator | CyclistaCountAggregatorSum | CyclistaCountAggregatorAvg | CyclistaCountAggregatorMin | CyclistaCountAggregatorMax | CyclistaCountGroupBy | CyclistaCountConnectionId | CyclistaCountConnectionCreated_at | CyclistaCountConnectionUpdated_at | CyclistaCountConnectionCount_id | CyclistaCountConnectionAbout | CyclistaCountConnectionReport_url | CyclistaCountConnectionPublished_at | createCyclistaCountPayload | updateCyclistaCountPayload | deleteCyclistaCountPayload | Documents | DocumentsConnection | DocumentsAggregator | DocumentsGroupBy | DocumentsConnectionId | DocumentsConnectionCreated_at | DocumentsConnectionUpdated_at | DocumentsConnectionTitle | DocumentsConnectionDescription | DocumentsConnectionUrl | DocumentsConnectionCover | DocumentsConnectionType | DocumentsConnectionRelease_date | DocumentsConnectionPublished_at | createDocumentPayload | updateDocumentPayload | deleteDocumentPayload | FaqTag | FaqTagConnection | FaqTagAggregator | FaqTagGroupBy | FaqTagConnectionId | FaqTagConnectionCreated_at | FaqTagConnectionUpdated_at | FaqTagConnectionTitle | FaqTagConnectionIcon | FaqTagConnectionSlug | createFaqTagPayload | updateFaqTagPayload | deleteFaqTagPayload | Faq | FaqConnection | FaqAggregator | FaqGroupBy | FaqConnectionId | FaqConnectionCreated_at | FaqConnectionUpdated_at | FaqConnectionTitle | FaqConnectionDescription | FaqConnectionAnswer | createFaqPayload | updateFaqPayload | deleteFaqPayload | Home | updateHomePayload | deleteHomePayload | Ideciclo | updateIdecicloPayload | deleteIdecicloPayload | Library | LibraryConnection | LibraryAggregator | LibraryAggregatorSum | LibraryAggregatorAvg | LibraryAggregatorMin | LibraryAggregatorMax | LibraryGroupBy | LibraryConnectionId | LibraryConnectionCreated_at | LibraryConnectionUpdated_at | LibraryConnectionRegister | LibraryConnectionTitle | LibraryConnectionAuthor | LibraryConnectionYear | LibraryConnectionCopies | LibraryConnectionType | LibraryConnectionCover | LibraryConnectionSummary | LibraryConnectionISBN | LibraryConnectionPublished_at | createLibraryPayload | updateLibraryPayload | deleteLibraryPayload | Locations | LocationsConnection | LocationsAggregator | LocationsGroupBy | LocationsConnectionId | LocationsConnectionCreated_at | LocationsConnectionUpdated_at | LocationsConnectionName | LocationsConnectionAddress | LocationsConnectionIsVirtual | LocationsConnectionShow_on_telegram | LocationsConnectionPublished_at | createLocationPayload | updateLocationPayload | deleteLocationPayload | Partners | PartnersConnection | PartnersAggregator | PartnersGroupBy | PartnersConnectionId | PartnersConnectionCreated_at | PartnersConnectionUpdated_at | PartnersConnectionName | PartnersConnectionUrl | PartnersConnectionLogo | PartnersConnectionSponsor | PartnersConnectionPublished_at | createPartnerPayload | updatePartnerPayload | deletePartnerPayload | Products | ProductsConnection | ProductsAggregator | ProductsAggregatorSum | ProductsAggregatorAvg | ProductsAggregatorMin | ProductsAggregatorMax | ProductsGroupBy | ProductsConnectionId | ProductsConnectionCreated_at | ProductsConnectionUpdated_at | ProductsConnectionTitle | ProductsConnectionUrl | ProductsConnectionDesc | ProductsConnectionUnits | ProductsConnectionMedia | ProductsConnectionValue | ProductsConnectionPublished_at | createProductPayload | updateProductPayload | deleteProductPayload | Project | ProjectConnection | ProjectAggregator | ProjectGroupBy | ProjectConnectionId | ProjectConnectionCreated_at | ProjectConnectionUpdated_at | ProjectConnectionName | ProjectConnectionMedia | ProjectConnectionGoal | ProjectConnectionEndDate | ProjectConnectionDescription | ProjectConnectionStartDate | ProjectConnectionStatus | ProjectConnectionBikeCulture | ProjectConnectionInstArticulation | ProjectConnectionPoliticIncidence | ProjectConnectionSlug | ProjectConnectionIsHighlighted | ProjectConnectionWorkgroup | ProjectConnectionCoordinator | ProjectConnectionCover | ProjectConnectionLong_description | ProjectConnectionShowTitle | createProjectPayload | updateProjectPayload | deleteProjectPayload | QuemSomos | updateQuemSomoPayload | deleteQuemSomoPayload | Workgroups | WorkgroupsConnection | WorkgroupsAggregator | WorkgroupsGroupBy | WorkgroupsConnectionId | WorkgroupsConnectionCreated_at | WorkgroupsConnectionUpdated_at | WorkgroupsConnectionName | WorkgroupsConnectionTelegram_id | WorkgroupsConnectionIcon | WorkgroupsConnectionTelegram_url | WorkgroupsConnectionDescription | WorkgroupsConnectionFolder_url | WorkgroupsConnectionDirective | WorkgroupsConnectionPublished_at | createWorkgroupPayload | updateWorkgroupPayload | deleteWorkgroupPayload | UploadFile | UploadFileConnection | UploadFileAggregator | UploadFileAggregatorSum | UploadFileAggregatorAvg | UploadFileAggregatorMin | UploadFileAggregatorMax | UploadFileGroupBy | UploadFileConnectionId | UploadFileConnectionCreated_at | UploadFileConnectionUpdated_at | UploadFileConnectionName | UploadFileConnectionAlternativeText | UploadFileConnectionCaption | UploadFileConnectionWidth | UploadFileConnectionHeight | UploadFileConnectionFormats | UploadFileConnectionHash | UploadFileConnectionExt | UploadFileConnectionMime | UploadFileConnectionSize | UploadFileConnectionUrl | UploadFileConnectionPreviewUrl | UploadFileConnectionProvider | UploadFileConnectionProvider_metadata | deleteFilePayload | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsRoleConnection | UsersPermissionsRoleAggregator | UsersPermissionsRoleGroupBy | UsersPermissionsRoleConnectionId | UsersPermissionsRoleConnectionName | UsersPermissionsRoleConnectionDescription | UsersPermissionsRoleConnectionType | createRolePayload | updateRolePayload | deleteRolePayload | UsersPermissionsUser | UsersPermissionsUserConnection | UsersPermissionsUserAggregator | UsersPermissionsUserGroupBy | UsersPermissionsUserConnectionId | UsersPermissionsUserConnectionCreated_at | UsersPermissionsUserConnectionUpdated_at | UsersPermissionsUserConnectionUsername | UsersPermissionsUserConnectionEmail | UsersPermissionsUserConnectionProvider | UsersPermissionsUserConnectionConfirmed | UsersPermissionsUserConnectionBlocked | UsersPermissionsUserConnectionRole | createUserPayload | updateUserPayload | deleteUserPayload | ComponentButtonCarousel | ComponentButtonCyclistsCounts | ComponentButtonFiles | ComponentButtonLinks | ComponentButtonStep
 
 input InputID {
   id: ID!
@@ -2816,6 +2879,7 @@ type Query {
   faqs(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Faq]
   faqsConnection(sort: String, limit: Int, start: Int, where: JSON): FaqConnection
   home(publicationState: PublicationState): Home
+  ideciclo(publicationState: PublicationState): Ideciclo
   library(id: ID!, publicationState: PublicationState): Library
   libraries(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Library]
   librariesConnection(sort: String, limit: Int, start: Int, where: JSON): LibraryConnection
@@ -2879,6 +2943,8 @@ type Mutation {
   deleteFaq(input: deleteFaqInput): deleteFaqPayload
   updateHome(input: updateHomeInput): updateHomePayload
   deleteHome: deleteHomePayload
+  updateIdeciclo(input: updateIdecicloInput): updateIdecicloPayload
+  deleteIdeciclo: deleteIdecicloPayload
   createLibrary(input: createLibraryInput): createLibraryPayload
   updateLibrary(input: updateLibraryInput): updateLibraryPayload
   deleteLibrary(input: deleteLibraryInput): deleteLibraryPayload
