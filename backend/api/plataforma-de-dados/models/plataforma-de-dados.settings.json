@@ -1,9 +1,8 @@
 {
-  "kind": "collectionType",
-  "collectionName": "cyclist_counts",
+  "kind": "singleType",
+  "collectionName": "plataforma_de_dados",
   "info": {
-    "name": "Contagem (Adicionais)",
-    "description": ""
+    "name": "Plataforma de Dados"
   },
   "options": {
     "increments": true,
@@ -11,14 +10,11 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "count_id": {
-      "type": "integer"
+    "description": {
+      "type": "text"
     },
-    "about": {
-      "type": "richtext"
-    },
-    "gallery": {
-      "collection": "file",
+    "cover": {
+      "model": "file",
       "via": "related",
       "allowedTypes": [
         "images",
@@ -28,8 +24,10 @@
       "plugin": "upload",
       "required": false
     },
-    "report_url": {
-      "type": "string"
+    "partners": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.step"
     }
   }
 }
