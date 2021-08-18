@@ -1,0 +1,42 @@
+{
+  "kind": "singleType",
+  "collectionName": "perfils",
+  "info": {
+    "name": "perfil"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "cover": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "description": {
+      "type": "text"
+    },
+    "objective": {
+      "type": "text"
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
+    },
+    "methodology": {
+      "type": "richtext"
+    },
+    "overal_report": {
+      "type": "richtext"
+    }
+  }
+}
