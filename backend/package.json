@@ -19,7 +19,7 @@
     "knex": "<0.20.0",
     "pg": "latest",
     "slugify": "^1.4.0",
-    "strapi": "3.6.2",
+    "strapi": "3.6.7",
     "strapi-admin": "3.6.2",
     "strapi-connector-bookshelf": "3.6.2",
     "strapi-plugin-content-manager": "3.6.2",
