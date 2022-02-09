@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 export const StepCard = ({ step }) => {
-  console.log(step);
   return (
     <div
       className="bg-white rounded-lg shadow "

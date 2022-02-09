@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import Fuse from "fuse.js";
-import Highlight from "react-highlighter";
-//import { redirect } from "next/dist/next-server/server/api-utils";
+import { Highlight } from "react-highlighter-ts";
 import { useHistory } from "react-router-dom";
 
 export const SearchComponent = (props) => {
@@ -11,36 +9,35 @@ export const SearchComponent = (props) => {
 
   let history = useHistory();
 
-  const fuse = new Fuse(props.faqs, {
-    shouldSort: true,
-    keys: ["title", "description"],
-    minMatchCharLength: 3,
-    includeMatches: true,
-    threshold: 0.3,
-  });
-
   const handleChange = async (event) => {
     setSearchTerm(event.target.value);
-    const result = await fuse.search(searchTerm);
+    const Fuse = (await import("fuse.js")).default;
+    const fuse = new Fuse(props.faqs, {
+      shouldSort: true,
+      keys: ["title", "description"],
+      minMatchCharLength: 3,
+      includeMatches: true,
+      threshold: 0.3,
+    });
+    const result = fuse.search(searchTerm);
     setResults(result);
   };
 
   const handleClick = (e) => {
     e.preventDefault();
     history.push("/projetos");
-  }
+  };
 
   return (
     <div className="relative">
-      <div className="flex flex-col items-center relative ">
-      
-        <h1 className="text-4xl font-bold mb-4">O que você está procurando?</h1>
-        
+      <div className="relative flex flex-col items-center ">
+        <h1 className="mb-4 text-4xl font-bold">O que você está procurando?</h1>
+
         <input
           type="search"
           name="search"
           placeholder="Qual o melhor tipo de bicicletário?"
-          className="bg-white text-gray-600 w-full h-10 px-5 pr-10 rounded shadow-2xl text-sm focus:outline-none"
+          className="w-full h-10 px-5 pr-10 text-sm text-gray-600 bg-white rounded shadow-2xl focus:outline-none"
           value={searchTerm}
           onChange={handleChange}
           onFocus={() => {
@@ -51,41 +48,47 @@ export const SearchComponent = (props) => {
           }}
         />
       </div>
-      {searchTerm.length > 0 && /*searchResultsVisible &&*/(
-        <div
-          className="text-gray-800 absolute normal-case bg-white border left-0 right-0 w-108 text-left mb-4 mt-2 rounded-lg shadow overflow-hidden z-10 overflow-y-auto"
+      {searchTerm.length > 0 && (
+        /*searchResultsVisible &&*/ <div
+          className="absolute left-0 right-0 z-10 mt-2 mb-4 overflow-hidden overflow-y-auto text-left text-gray-800 normal-case bg-white border rounded-lg shadow w-108"
           style={{ maxHeight: "32rem" }}
         >
           <div className="flex flex-col">
             {results.map((result) => {
               return (
                 <a href={`/biciclopedia/${result.item.id}`}>
-                <div
-                  className="border-b border-gray-400 text-xl cursor-pointer p-4 hover:bg-gray-100 hover:border-red-500"
-                  key={result.item.id}
-                  //onClick={handleClick
-                                      /*(e) => {
+                  <div
+                    className="p-4 text-xl border-b border-gray-400 cursor-pointer hover:bg-gray-100 hover:border-red-500"
+                    key={result.item.id}
+                    //onClick={handleClick
+                    /*(e) => {
                     e.preventDefault()
                     setSearchResultsVisible(true)
                     console.log("id");
                     }
                   */
-                 //}
-                > 
-                    <Highlight search={searchTerm} matchStyle={{background: "#00808080"}}>
-                    {result.item.title}
+                    //}
+                  >
+                    <Highlight
+                      search={searchTerm}
+                      matchStyle={{ background: "#00808080" }}
+                    >
+                      {result.item.title}
                     </Highlight>
-                  <span className="block font-normal text-sm my-1">
-                    <Highlight search={searchTerm} matchStyle={{background: "#00808080"}}>
-                      {result.item.description}
-                    </Highlight>
-                  </span>
-                </div>
+                    <span className="block my-1 text-sm font-normal">
+                      <Highlight
+                        search={searchTerm}
+                        matchStyle={{ background: "#00808080" }}
+                      >
+                        {result.item.description}
+                      </Highlight>
+                    </span>
+                  </div>
                 </a>
               );
             })}
             {results.length === 0 && (
-              <div className="font-normal w-full border-b cursor-pointer p-4">
+              <div className="w-full p-4 font-normal border-b cursor-pointer">
                 <p className="my-0">
                   Nenhum resultado para '<strong>{searchTerm}</strong>'
                 </p>
@@ -98,7 +101,7 @@ export const SearchComponent = (props) => {
   );
 };
 
-// <p className="mt-6 text-lg hidden md:block">
+// <p className="hidden mt-6 text-lg md:block">
 //   Você também pode navegar pelos tópicos abaixo para encontrar o que
 //   procura.
 // </p>

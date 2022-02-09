@@ -5,47 +5,37 @@ import Breadcrumb from "../components/Breadcrumb";
 import React from "react";
 import { server } from "../config";
 import ReactMarkdown from "react-markdown";
-
+import Image from "next/image";
 
 const QuemSomos = ({ ameciclistas, custom }) => {
   const coordinators = ameciclistas.filter((a) => {
     return a.role === "coordenacao";
-  })
+  });
 
   let counselors = ameciclistas.filter((a) => {
     return a.role === "conselhofiscal";
-  })
+  });
   /*let alumin = ameciclistas.filter((a) => {
     return a.role === "ameciclista";
   })*/
 
   ameciclistas.sort((a, b) => {
-    return (a.name).localeCompare(b.name)
+    return a.name.localeCompare(b.name);
   });
 
   return (
     <Layout>
       <SEO title="Quem Somos" />
-      <div
-        className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
-        style={
-          custom.cover ? ({
-          width: "100%",
-          height: "52vh",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundImage: `url(${custom.cover.url})`,
-        }) : ({
-          width: "100%",
-          height: "52vh",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundImage: `url('/quem_somos.webp')`,
-        })}
-      />
-      <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
+      <div className="relative py-24 w-full h-[52vh]">
+        <Image
+          src={"/quem_somos.webp"}
+          alt="Quem somos?"
+          layout="fill"
+          objectFit="cover"
+          objectPosition="center"
+        />
+      </div>
+      <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
         <div className="container mx-auto">
           <Breadcrumb
             label="Quem Somos"
@@ -55,22 +45,22 @@ const QuemSomos = ({ ameciclistas, custom }) => {
         </div>
       </div>
       <div className="container mx-auto mt-8 mb-8">
-        <div className="bg-ameciclo text-white flex lg:mx-0 mx-auto flex-wrap rounded p-16">
-          <div className="lg:pr-5 w-full lg:w-1/2 mb-4 lg:mb-0">
+        <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">
+          <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
             <div className="text-lg lg:text-3xl">
-              <ReactMarkdown children={custom.definition} />
+              <ReactMarkdown>{custom.definition}</ReactMarkdown>
             </div>
           </div>
-          <div className="w-full lg:w-1/2 mb-4 lg:mb-0">
-            <p className="text-xs lg:text-base text-white mb-2 tracking-wide">
+          <div className="w-full mb-4 lg:w-1/2 lg:mb-0">
+            <p className="mb-2 text-xs tracking-wide text-white lg:text-base">
               {custom.objective}
             </p>
-            <div className="flex items-start justify-start flex-wrap max-w-5xl mx-auto mt-8 lg:mt-0">
+            <div className="flex flex-wrap items-start justify-start max-w-5xl mx-auto mt-8 lg:mt-0">
               {custom.links.map((l) => (
                 <a
                   key={l.id}
                   href={l.link}
-                  className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
+                  className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
                   type="button"
                   style={{ transition: "all .15s ease" }}
                 >
@@ -88,20 +78,18 @@ const QuemSomos = ({ ameciclistas, custom }) => {
           </TabsNav>
           <TabPanel name="tab-coord">
             {coordinators.map((c) => (
-              <div className="p-4 max-w-sm" key={c.id}>
+              <div className="max-w-sm p-4" key={c.id}>
                 <div
-                  className="shadow-lg rounded bg-white"
+                  className="bg-white rounded shadow-lg"
                   style={{ minHeight: "450px" }}
                 >
                   {c.media ? (
-                    <div
-                      style={{
-                        backgroundImage: `url(${c.media.url})`,
-                        minHeight: "270px",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
-                      }}
+                    <Image
+                      src={c.media.url}
+                      alt={c.name}
+                      layout="responsive"
+                      width={352}
+                      height={270}
                     />
                   ) : (
                     <div
@@ -122,20 +110,18 @@ const QuemSomos = ({ ameciclistas, custom }) => {
           </TabPanel>
           <TabPanel name="tab-conselho">
             {counselors.map((c) => (
-              <div className="p-4 max-w-sm" key={c.id}>
+              <div className="max-w-sm p-4" key={c.id}>
                 <div
-                  className="shadow-lg rounded bg-white"
+                  className="bg-white rounded shadow-lg"
                   style={{ minHeight: "450px" }}
                 >
                   {c.media ? (
-                    <div
-                      style={{
-                        backgroundImage: `url(${c.media.url})`,
-                        minHeight: "270px",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
-                      }}
+                    <Image
+                      src={c.media.url}
+                      alt={c.name}
+                      layout="responsive"
+                      width={352}
+                      height={270}
                     />
                   ) : (
                     <div
@@ -156,28 +142,24 @@ const QuemSomos = ({ ameciclistas, custom }) => {
           </TabPanel>
           <TabPanel name="tab-ameciclista">
             {ameciclistas.map((c) => (
-              <div className="p-4 max-w-sm" key={c.id}>
-                <div
-                  className="shadow-lg rounded bg-white"
-                  style={{ minHeight: "270px", minWidth: "270px" }}
-                >
-                  {c.media ? (
-                    <div
-                      style={{
-                        backgroundImage: `url(${c.media.url})`,
-                        minHeight: "270px",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        minHeight: "270px",
-                      }}
-                    />
-                  )}
+              <div className="max-w-sm p-4" key={c.id}>
+                <div className="bg-white rounded shadow-lg min-h-[270px] min-w-[270px]">
+                  <div className="aspect-w-1 aspect-h-1">
+                    {c.media ? (
+                      <Image
+                        src={c.media.url}
+                        alt={c.name}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          minHeight: "270px",
+                        }}
+                      />
+                    )}
+                  </div>
                   <div className="p-4 pb-6">
                     <h2 className="text-xl leading-normal text-gray-900">
                       {c.name}
@@ -195,9 +177,9 @@ const QuemSomos = ({ ameciclistas, custom }) => {
 };
 
 export async function getStaticProps() {
-  const res = await fetch(`${server}/ameciclistas`)
+  const res = await fetch(`${server}/ameciclistas`);
 
-  let ameciclistas = []
+  let ameciclistas = [];
 
   if (res.status === 200) {
     ameciclistas = await res.json();
