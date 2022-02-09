@@ -10,7 +10,7 @@ const Questions = ({ question }) => {
     <Layout>
       <SEO title={question.title} />
       <div
-        className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
+        className="object-fill h-auto px-10 py-24 text-white bg-center bg-cover"
         style={{
           width: "100%",
           height: "52vh",
@@ -20,7 +20,7 @@ const Questions = ({ question }) => {
           backgroundImage: `url('/biciclopedia.webp')`,
         }}
       />
-      <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
+      <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
         <div className="container mx-auto">
           <Breadcrumb
             label={question.faq_tags[0].title}
@@ -30,21 +30,21 @@ const Questions = ({ question }) => {
         </div>
       </div>
       <section className="container mx-auto my-8">
-        <div className="flex flex-col bg-white  mb-6 shadow-xl rounded-lg">
+        <div className="flex flex-col mb-6 bg-white rounded-lg shadow-xl">
           <div className="px-6">
-            <div className="text-center mt-12">
-              <h3 className="text-4xl font-semibold leading-normal mb-2 text-gray-800 mb-2">
+            <div className="mt-12 text-center">
+              <h3 className="mb-2 text-4xl font-semibold leading-normal text-gray-800">
                 {question.title}
               </h3>
-              <p className="text-2xl font-semibold leading-normal mb-2 text-gray-800 mb-2">
+              <p className="mb-2 text-2xl font-semibold leading-normal text-gray-800">
                 {question.description}
               </p>
             </div>
           </div>
-          <div className="mt-10 py-10 border-t border-gray-300 text-center">
+          <div className="py-10 mt-10 text-center border-t border-gray-300">
             <div className="flex flex-wrap justify-center">
-              <div className="w-full lg:w-9/12 px-4 mb-4 text-lg leading-relaxed text-gray-800 text-center markdown_box">
-                <ReactMarkdown children={question.answer} />
+              <div className="w-full px-4 mb-4 text-lg leading-relaxed text-center text-gray-800 lg:w-9/12 markdown_box">
+                <ReactMarkdown>{question.answer}</ReactMarkdown>
               </div>
             </div>
           </div>

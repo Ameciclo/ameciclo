@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { Highlight } from "react-highlighter-ts";
-import { useHistory } from "react-router-dom";
 
 export const SearchComponent = (props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResultsVisible, setSearchResultsVisible] = useState(false);
   const [results, setResults] = useState([]);
-
-  let history = useHistory();
 
   const handleChange = async (event) => {
     setSearchTerm(event.target.value);
@@ -21,11 +18,6 @@ export const SearchComponent = (props) => {
     });
     const result = fuse.search(searchTerm);
     setResults(result);
-  };
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    history.push("/projetos");
   };
 
   return (
@@ -56,7 +48,10 @@ export const SearchComponent = (props) => {
           <div className="flex flex-col">
             {results.map((result) => {
               return (
-                <a href={`/biciclopedia/${result.item.id}`}>
+                <a
+                  href={`/biciclopedia/${result.item.id}`}
+                  key={result.item.id}
+                >
                   <div
                     className="p-4 text-xl border-b border-gray-400 cursor-pointer hover:bg-gray-100 hover:border-red-500"
                     key={result.item.id}
@@ -90,7 +85,7 @@ export const SearchComponent = (props) => {
             {results.length === 0 && (
               <div className="w-full p-4 font-normal border-b cursor-pointer">
                 <p className="my-0">
-                  Nenhum resultado para '<strong>{searchTerm}</strong>'
+                  Nenhum resultado para <strong>{searchTerm}</strong>
                 </p>
               </div>
             )}

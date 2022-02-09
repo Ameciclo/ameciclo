@@ -9,7 +9,7 @@ export const StepCard = ({ step }) => {
       style={{ minHeight: "380px", maxWidth: "300px" }}
     >
       {step.image ? (
-        <Link href={`${step.link}`}>
+        <Link href={`${step.link}`} passHref>
           <div
             style={{
               backgroundImage: `url(${step.image.url})`,
@@ -32,7 +32,7 @@ export const StepCard = ({ step }) => {
       )}
       <div className="px-4 py-5 lg:p-6">
         <dl className="pb-6">
-          <Link href={`${step.link}`}>
+          <Link href={`${step.link}`} passHref>
             <dt className="mt-1 text-2xl font-semibold leading-9 text-gray-900 cursor-pointer">
               {step.title}
             </dt>

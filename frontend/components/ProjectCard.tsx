@@ -4,16 +4,13 @@ import Image from "next/image";
 
 const StatusIndicator = ({ status }) => {
   const statusMap = new Map([
-    [
-      "ongoing",
-      { name: "Em andamento", color: "#008080", fontColor: "white" },
-    ],
+    ["ongoing", { name: "Em andamento", color: "#008080", fontColor: "white" }],
     ["paused", { name: "Pausado", color: "#F48A42", fontColor: "white" }],
     ["finished", { name: "Realizado", color: "#00A870", fontColor: "white" }],
   ]);
   return (
     <div
-      className="uppercase p-4 rounded bg-green-400 font-semibold absolute"
+      className="absolute p-4 font-semibold uppercase bg-green-400 rounded"
       style={{
         maxHeight: "50px",
         color: statusMap.get(status).fontColor,
@@ -34,7 +31,7 @@ export const ProjectCard = ({ project }) => {
     <div className="bg-white rounded-lg shadow " style={{ minHeight: "450px" }}>
       <StatusIndicator status={project.status} />
       {project.media ? (
-        <Link href={`/projetos/${project.slug}`}>
+        <Link href={`/projetos/${project.slug}`} passHref>
           <div
             style={{
               backgroundImage: `url(${project.media.url})`,
@@ -56,7 +53,7 @@ export const ProjectCard = ({ project }) => {
       )}
       <div className="px-4 py-5 lg:p-6">
         <dl className="pb-6">
-          <Link href={`/projetos/${project.slug}`}>
+          <Link href={`/projetos/${project.slug}`} passHref>
             <dt className="mt-1 text-3xl font-semibold leading-9 text-gray-900 cursor-pointer">
               {project.name}
             </dt>

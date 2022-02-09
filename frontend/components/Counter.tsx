@@ -16,10 +16,10 @@ const Counter = ({ label, number }) => {
     });
 
     return () => controls.stop();
-  }, [0, number]);
+  }, [number]);
 
   return (
-    <div className="p-4 text-center uppercase text-white m-4">
+    <div className="p-4 m-4 text-center text-white uppercase">
       <h2
         ref={nodeRef}
         className="font-extrabold tracking-wider"
