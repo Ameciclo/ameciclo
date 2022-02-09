@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import dynamic from "next/dynamic";
 import Layout from "../../components/Layout";
 import SEO from "../../components/SEO";
 import Breadcrumb from "../../components/Breadcrumb";
@@ -12,10 +11,8 @@ import ReactMarkdown from "react-markdown";
 import { PartnerCard } from "../../components/PartnerCard";
 import { server } from "../../config";
 import { ProductsTable } from "../../components/ProductsTable"
+import PhotoAlbum from "react-photo-album";
 
-const PhotoGallery = dynamic(() => import("react-photo-gallery"), {
-  ssr: false,
-});
 
 const ProjectDate = ({ project }) => {
   const dateOption: Intl.DateTimeFormatOptions = {
@@ -225,7 +222,7 @@ const Projeto = ({ project }) => {
 
           {project.gallery ? (
             <>
-              <PhotoGallery photos={photos} targetRowHeight={100} onClick={openLightbox} />
+              <PhotoAlbum layout="masonry" photos={photos} targetRowHeight={100} onClick={openLightbox} />
               <ModalGateway>
                 {viewerIsOpen ? (
                   <Modal onClose={closeLightbox}>

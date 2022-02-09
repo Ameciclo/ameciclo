@@ -5,7 +5,6 @@ import Breadcrumb from "../components/Breadcrumb";
 import { ProductCard } from "../components/ProductCard";
 import { server } from "../config";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
-import { getURL } from "next/dist/next-server/lib/utils";
 
 const Produtos = ({ products, recurrent }) => {
   const getMedia = (str) => {

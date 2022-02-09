@@ -1,20 +1,15 @@
-// for transpiling all ESM @fullcalendar/* packages
-// also, for piping fullcalendar thru babel (to learn why, see babel.config.js)
-const withTM = require("next-transpile-modules")(["@fullcalendar"]);
-const withPlugins = require("next-compose-plugins");
-const optimizedImages = require("next-optimized-images");
+const withTM = require("next-transpile-modules")([
+  "@fullcalendar/common",
+  "@fullcalendar/daygrid",
+  "@fullcalendar/list",
+  "@fullcalendar/react",
+]);
 
-module.exports = withPlugins([withTM, optimizedImages], {
-  target: "serverless",
+module.exports = withTM({
   images: {
     domains: ["res.cloudinary.com"],
   },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
-
-    return config;
+  experimental: {
+    styledComponents: true,
   },
 });
