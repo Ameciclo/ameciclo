@@ -11,6 +11,5 @@ module.exports = withTM({
   },
   experimental: {
     styledComponents: true,
-    esmExternals: false,
   },
 });
