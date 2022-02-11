@@ -1,11 +1,8 @@
-@import 'tailwind';
-@import 'agenda';
-@import '_question';
-@import '_loading';
-@import '_project';
-@import "~@fullcalendar/common/main.css";
-@import "~@fullcalendar/daygrid/main.css";
-@import "~@fullcalendar/list/main.css";
+@import "tailwind";
+@import "_agenda";
+@import "_question";
+@import "_loading";
+@import "_project";
 
 html,
 body {

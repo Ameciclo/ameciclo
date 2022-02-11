@@ -6,9 +6,9 @@ import Tippy from "@tippyjs/react";
 export const PartnerCard = ({ partner }) => {
   return (
     <Tippy content={`${partner.name}`}>
-      <div className="bg-white rounded-lg shadow p-2">
+      <div className="p-2 bg-white rounded-lg shadow">
         {partner.logo ? (
-          <Link href={`${partner.url}`}>
+          <Link href={`${partner.url}`} passHref>
             <div
               style={{
                 backgroundImage: `url(${partner.logo.url})`,

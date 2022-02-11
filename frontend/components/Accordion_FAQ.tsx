@@ -3,21 +3,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "../components/Icons/faq_new";
 
 export const AccordionItem = ({ categories }) => {
-
-  const faqs=categories.faqs;
+  const faqs = categories.faqs;
   const faqs_titles = [];
-  faqs.forEach(faq => {
-    faqs_titles.push([faq.id, faq.title, faq.description, faq.answer])
+  faqs.forEach((faq) => {
+    faqs_titles.push([faq.id, faq.title, faq.description, faq.answer]);
   });
 
   faqs_titles.sort((a, b) => {
-    return a[1].localeCompare(b[1])
+    return a[1].localeCompare(b[1]);
   });
 
   const [isOpen, toggleIsOpen] = useState(false);
 
   return (
-    <div className="tab w-full overflow-hidden border-t">
+    <div className="w-full overflow-hidden border-t tab">
       <div
         className="flex flex-row items-center pl-5"
         onClick={() => {
@@ -47,15 +46,15 @@ export const AccordionItem = ({ categories }) => {
         {/*<FAQIcon />*/}
         <motion.label
           initial={false}
-          className="text-xl block p-5 leading-normal cursor-pointer text-ameciclo"
+          className="block p-5 text-xl leading-normal cursor-pointer text-ameciclo"
         >
-         {categories.title}
+          {categories.title}
         </motion.label>
       </div>
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
-            className="tab-content overflow-hidden border-l-2 bg-gray-100 border-red-500 leading-normal"
+            className="overflow-hidden leading-normal bg-gray-100 border-l-2 border-red-500 tab-content"
             initial="collapsed"
             animate="open"
             exit="collapsed"
@@ -64,21 +63,37 @@ export const AccordionItem = ({ categories }) => {
               collapsed: { opacity: 0, height: 0 },
             }}
             transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
-          >         
+          >
             <ul>
-                {faqs_titles.map((faq)=>{
-                    let saibaMais = <p className="p-4"> <strong>P: {faq[1]}</strong>
-                                    <p className="pl-5"> R: {faq[2]}</p></p>;
-                    if (faq[3]) {
-                      saibaMais = <a href={`/biciclopedia/${faq[0]}`}>
-                                  <p className="p-4"> <strong>P: {faq[1]}</strong>
-                                  <p className="pl-5"> R: {faq[2]}
-                                  <strong className="text-ameciclo">    (saiba mais)</strong>
-                                  </p></p></a>
-                    }
-                    return saibaMais
-                })}
-            </ul>          
+              {faqs_titles.map((faq) => {
+                let saibaMais = (
+                  <p className="p-4">
+                    {" "}
+                    <strong>P: {faq[1]}</strong>
+                    <p className="pl-5"> R: {faq[2]}</p>
+                  </p>
+                );
+                if (faq[3]) {
+                  saibaMais = (
+                    <a href={`/biciclopedia/${faq[0]}`}>
+                      <p className="p-4">
+                        {" "}
+                        <strong>P: {faq[1]}</strong>
+                        <p className="pl-5">
+                          {" "}
+                          R: {faq[2]}
+                          <strong className="text-ameciclo">
+                            {" "}
+                            (saiba mais)
+                          </strong>
+                        </p>
+                      </p>
+                    </a>
+                  );
+                }
+                return saibaMais;
+              })}
+            </ul>
           </motion.div>
         )}
       </AnimatePresence>

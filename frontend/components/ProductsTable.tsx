@@ -1,11 +1,17 @@
 import React from "react";
-import 'regenerator-runtime/runtime';
-import { useTable, usePagination, useFilters, useGlobalFilter, useSortBy, useAsyncDebounce } from "react-table";
+import "regenerator-runtime/runtime";
+import {
+  useTable,
+  usePagination,
+  useFilters,
+  useGlobalFilter,
+  useSortBy,
+  useAsyncDebounce,
+} from "react-table";
 import { matchSorter } from "match-sorter";
 import Link from "next/link";
 //import ColumnFilter from "./ColumnFilter";
-import {GlobalFilter} from "./GlobalFilter";
-
+import { GlobalFilter } from "./GlobalFilter";
 
 /*
 function fuzzyTextFilterFn(rows, id, filterValue) {
@@ -16,7 +22,6 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 //fuzzyTextFilterFn.autoRemove = (val) => !val;
 
 export const ProductsTable = ({ data }) => {
-
   const filterTypes = React.useMemo(
     () => ({
       // Add a new fuzzyTextFilterFn filter type.
@@ -42,22 +47,19 @@ export const ProductsTable = ({ data }) => {
       {
         Header: "Produto",
         accessor: "product",
-        Cell: ({ row }) => (
+        Cell: ({ row }) =>
           row.original.link ? (
-              <Link href={row.original.link}  key={row.original.id}>
-                <a className="text-base text-ameciclo">{row.original.title}</a>
-              </Link>
-              ) : (
-                <p className="text-base">{row.original.title}</p>
-              )
-        ),
+            <Link href={row.original.link} key={row.original.id}>
+              <a className="text-base text-ameciclo">{row.original.title}</a>
+            </Link>
+          ) : (
+            <p className="text-base">{row.original.title}</p>
+          ),
       },
       {
         Header: "Descrição",
         accessor: "description",
-        Cell: ({ row }) => (
-          <p className="px-1">{row.original.description}</p>
-        ),
+        Cell: ({ row }) => <p className="px-1">{row.original.description}</p>,
       },
     ],
     []
@@ -88,65 +90,63 @@ export const ProductsTable = ({ data }) => {
       data,
       initialState: { pageIndex: 0, pageSize: 4 },
       filterTypes,
-
     },
     useFilters,
     useGlobalFilter, // useGlobalFilter!
 
     useSortBy,
-    usePagination,
+    usePagination
   );
 
-  
-
   const pagesButtons = (numPages) => {
-    var pages = []
+    var pages = [];
     for (let i = 1; i <= numPages; i++) {
-        if (i - 1 != pageIndex) {
-            pages.push(
-                <button
-                    className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
-                    type="button"
-                    style={{ transition: "all .15s ease" }}
-                    onClick={() => gotoPage(i-1)}
-                >
-                    {i}
-                </button>
-            )
-    
-        } else {
-            pages.push(
-                <button
-                    className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
-                    type="button"
-                    style={{ transition: "all .15s ease" }}
-                    onClick={() => gotoPage(i-1)}
-                >
-                    {i}
-                </button>
-            )
-    
-        }
+      if (i - 1 != pageIndex) {
+        pages.push(
+          <button
+            className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase border-2 border-white rounded shadow outline-none bg-ameciclo hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-1"
+            type="button"
+            style={{ transition: "all .15s ease" }}
+            onClick={() => gotoPage(i - 1)}
+          >
+            {i}
+          </button>
+        );
+      } else {
+        pages.push(
+          <button
+            className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-red-500 border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-1"
+            type="button"
+            style={{ transition: "all .15s ease" }}
+            onClick={() => gotoPage(i - 1)}
+          >
+            {i}
+          </button>
+        );
+      }
     }
-    return pages
-}
+    return pages;
+  };
 
   return (
-    <div className="shadow overflow-x-auto bg-white border-b border-gray-200 sm:rounded-lg">
+    <div className="overflow-x-auto bg-white border-b border-gray-200 shadow sm:rounded-lg">
       <table
         {...getTableProps()}
-        className="table-auto shadow min-w-full divide-y divide-gray-200"
+        className="min-w-full divide-y divide-gray-200 shadow table-auto"
       >
         <thead>
-          {headerGroups.map((headerGroup) => (
+          {headerGroups.map((headerGroup, i) => (
             <tr
+              key={i}
               {...headerGroup.getHeaderGroupProps()}
-              className="bg-ameciclo rounded-lg text-sm font-medium text-gray-700 text-left"
+              className="text-sm font-medium text-left text-gray-700 rounded-lg bg-ameciclo"
             >
-              {headerGroup.headers.map((column) => (
+              {headerGroup.headers.map((column, j) => (
                 <th
+                  key={j}
                   {...column.getHeaderProps()}
-                  className="px-6 py-3 border-gray-200 text-left text-sm leading-4 font-medium text-white uppercase tracking-wider"                >
+                  className="px-6 py-3 text-sm font-medium leading-4 tracking-wider text-left text-white uppercase border-gray-200"
+                >
                   <div
                     {...column.getSortByToggleProps({ title: "Ordenar" })}
                     className="flex items-center"
@@ -167,20 +167,22 @@ export const ProductsTable = ({ data }) => {
         </thead>
         <tbody
           {...getTableBodyProps()}
-          className="bg-white divide-y divide-gray-200 text-sm font-normal text-gray-700"
+          className="text-sm font-normal text-gray-700 bg-white divide-y divide-gray-200"
         >
           {page.map((row, i) => {
             prepareRow(row);
             return (
               <tr
+                key={i}
                 {...row.getRowProps()}
-                className="hover:bg-gray-100 border-b border-gray-200 py-10"
+                className="py-10 border-b border-gray-200 hover:bg-gray-100"
               >
-                {row.cells.map((cell) => {
+                {row.cells.map((cell, j) => {
                   return (
                     <td
+                      key={j}
                       {...cell.getCellProps()}
-                      className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-700 max-w-sm"
+                      className="max-w-sm px-6 py-4 text-sm leading-5 text-gray-700 whitespace-no-wrap"
                     >
                       {cell.render("Cell")}
                     </td>
@@ -192,16 +194,16 @@ export const ProductsTable = ({ data }) => {
         </tbody>
       </table>
 
-      <div className="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
+      <div className="flex flex-col items-center px-5 py-5 bg-white border-t xs:flex-row xs:justify-between">
         <div className="inline-flex mt-2 xs:mt-0">
-        <GlobalFilter
-                  preGlobalFilteredRows={preGlobalFilteredRows}
-                  globalFilter={state.globalFilter}
-                  setGlobalFilter={setGlobalFilter}
-                />
+          <GlobalFilter
+            preGlobalFilteredRows={preGlobalFilteredRows}
+            globalFilter={state.globalFilter}
+            setGlobalFilter={setGlobalFilter}
+          />
           {canPreviousPage ? (
             <button
-              className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
+              className="px-4 py-2 mx-2 mb-2 text-xs font-bold text-white uppercase border-2 border-white rounded shadow outline-none bg-ameciclo hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
               type="button"
               style={{ transition: "all .15s ease" }}
               onClick={() => previousPage()}
@@ -211,21 +213,21 @@ export const ProductsTable = ({ data }) => {
             </button>
           ) : (
             <button
-            className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
-            type="button"
-            style={{ transition: "all .15s ease" }}
-            //onClick={() => previousPage()}
-            disabled={!canPreviousPage}
+              className="px-4 py-2 mx-2 mb-2 text-xs font-bold text-white uppercase bg-red-500 border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
+              type="button"
+              style={{ transition: "all .15s ease" }}
+              //onClick={() => previousPage()}
+              disabled={!canPreviousPage}
             >
               Anterior
-             </button> 
+            </button>
           )}
-          
-          {pageOptions.length > 0 && (pagesButtons(pageOptions.length))}
+
+          {pageOptions.length > 0 && pagesButtons(pageOptions.length)}
 
           {canNextPage ? (
             <button
-              className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
+              className="px-4 py-2 mx-1 mb-2 text-xs font-bold text-white uppercase border-2 border-white rounded shadow outline-none bg-ameciclo hover:bg-white hover:text-ameciclo focus:outline-none"
               type="button"
               style={{ transition: "all .15s ease" }}
               onClick={() => nextPage()}
@@ -235,11 +237,11 @@ export const ProductsTable = ({ data }) => {
             </button>
           ) : (
             <button
-            className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
-            type="button"
-            style={{ transition: "all .15s ease" }}
-            //onClick={() => nextPage()}
-            disabled={!canNextPage}
+              className="px-4 py-2 mx-1 mb-2 text-xs font-bold text-white uppercase bg-red-500 border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none"
+              type="button"
+              style={{ transition: "all .15s ease" }}
+              //onClick={() => nextPage()}
+              disabled={!canNextPage}
             >
               Próxima
             </button>

@@ -5,7 +5,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import { ProductCard } from "../components/ProductCard";
 import { server } from "../config";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
-import { getURL } from "next/dist/next-server/lib/utils";
+import Link from "next/link";
 
 const Produtos = ({ products, recurrent }) => {
   const getMedia = (str) => {
@@ -35,7 +35,7 @@ const Produtos = ({ products, recurrent }) => {
     <Layout>
       <SEO title="Apoie-nos" />
       <div
-        className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
+        className="object-fill h-auto px-10 py-24 text-white bg-center bg-cover"
         style={{
           width: "100%",
           height: "52vh",
@@ -45,40 +45,41 @@ const Produtos = ({ products, recurrent }) => {
           backgroundImage: `url('/projetos.webp')`,
         }}
       />
-      <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
+      <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
         <div className="container mx-auto">
           <Breadcrumb label="Apoie" slug="/apoie" routes={["/", "/apoie"]} />
         </div>
       </div>
-      <section className="container my-12 mx-auto">
+      <section className="container mx-auto my-12">
         <div className="container mx-auto mt-8 mb-8">
-          <div className="bg-ameciclo text-white flex lg:mx-0 mx-auto flex-wrap rounded p-16">
-            <div className="lg:pr-5 w-full lg:w-1/2 mb-4 lg:mb-0">
+          <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">
+            <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
               <p className="text-lg lg:text-3xl">
                 APOIANDO A AMECICLO VOCÊ ESTÁ CONTRIBUINDO PARA UMA CIDADE MAIS
                 <strong>&ensp; HUMANA, DEMOCRÁTICA E SUSTENTÁVEL</strong>
               </p>
             </div>
-            <div className="w-full lg:w-1/2 mb-4 lg:mb-0">
-              <p className="text-xs lg:text-base text-white mb-2 tracking-wide">
+            <div className="w-full mb-4 lg:w-1/2 lg:mb-0">
+              <p className="mb-2 text-xs tracking-wide text-white lg:text-base">
                 Nos apoiando você estará contribuindo para que façamos ainda
                 mais ações e projetos. Assim poderemos continuar nosso trabalho
                 de incidência política, articulação interinstitucional e
                 estímulo à cultura da bicicleta. Como agradecimento, te
                 enviaremos uma bela recompensa à sua escolha.
               </p>
-              <div className="flex items-start justify-start flex-wrap max-w-5xl mx-auto mt-8 lg:mt-0">
-                <a
-                  href="/projetos"
-                  className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
-                  type="button"
-                  style={{ transition: "all .15s ease" }}
-                >
-                  Veja o que já fizemos
-                </a>
+              <div className="flex flex-wrap items-start justify-start max-w-5xl mx-auto mt-8 lg:mt-0">
+                <Link href="/projetos">
+                  <a
+                    className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
+                    type="button"
+                    style={{ transition: "all .15s ease" }}
+                  >
+                    Veja o que já fizemos
+                  </a>
+                </Link>
                 <a
                   href="http://apoia.ameciclo.org"
-                  className="bg-transparent border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2"
+                  className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
                   type="button"
                   style={{ transition: "all .15s ease" }}
                 >
@@ -93,14 +94,14 @@ const Produtos = ({ products, recurrent }) => {
               <Tab name="tab-recorrente">Recorrente</Tab>
             </TabsNav>
             <TabPanel name="tab-pontual">
-              <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-4">
                 {products.map((product) => (
                   <ProductCard product={product} key={product.id} />
                 ))}
               </div>
             </TabPanel>
             <TabPanel name="tab-recorrente">
-              <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-4">
                 {rewards.map((reward) => (
                   <ProductCard product={reward} key={reward.title} />
                 ))}

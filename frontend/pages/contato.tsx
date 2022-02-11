@@ -8,6 +8,9 @@ import Participe from "../components/Icons/participe";
 import Associe from "../components/Icons/associe";
 import Apoie from "../components/Icons/apoie";
 
+const MAPBOX_TOKEN =
+  "pk.eyJ1IjoiaWFjYXB1Y2EiLCJhIjoiODViMTRmMmMwMWE1OGIwYjgxNjMyMGFkM2Q5OWJmNzUifQ.OFgXp9wbN5BJlpuJEcDm4A";
+
 const Contato = (props) => {
   const [viewport, setViewPort] = useState({
     latitude: -8.0592989,
@@ -20,7 +23,7 @@ const Contato = (props) => {
     <Layout>
       <SEO title="Contato" />
       <div
-        className="bg-cover bg-center h-auto text-white py-24 px-10 object-fill"
+        className="object-fill h-auto px-10 py-24 text-white bg-center bg-cover"
         style={{
           width: "100%",
           height: "52vh",
@@ -30,7 +33,7 @@ const Contato = (props) => {
           backgroundImage: `url('/contato.webp')`,
         }}
       />
-      <div className="bg-ameciclo text-white p-4 items-center uppercase flex">
+      <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
         <div className="container mx-auto">
           <Breadcrumb
             label="Contato"
@@ -39,10 +42,10 @@ const Contato = (props) => {
           />
         </div>
       </div>
-      <section className="container my-12 mx-auto">
-        <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="overflow-hidden bg-ameciclo rounded-lg shadow">
-            <div className="px-4 py-5 lg:p-6 flex flex-col items-center text-center">
+      <section className="container mx-auto my-12">
+        <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-3">
+          <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
+            <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
               <motion.div whileHover={{ scale: 1.1 }}>
                 <Participe />
               </motion.div>
@@ -55,8 +58,8 @@ const Contato = (props) => {
               </dl>
             </div>
           </div>
-          <div className="overflow-hidden bg-ameciclo rounded-lg shadow">
-            <div className="px-4 py-5 lg:p-6 flex flex-col items-center text-center">
+          <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
+            <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
               <motion.div whileHover={{ scale: 1.1 }}>
                 <a
                   target="_blank"
@@ -68,17 +71,16 @@ const Contato = (props) => {
               </motion.div>
               <dl>
                 <dd className="mt-1 text-sm text-white">
-                  Ao associar-se à nós você fortalece o movimento
-                  cicloativista, aumentando a representação da Ameciclo.
-                  As pessoas associadas podem participar das reuniões, 
-                  projetos, ações e dão a voz que ajuda a construir nossas
-                  políticas e diretrizes
+                  Ao associar-se à nós você fortalece o movimento cicloativista,
+                  aumentando a representação da Ameciclo. As pessoas associadas
+                  podem participar das reuniões, projetos, ações e dão a voz que
+                  ajuda a construir nossas políticas e diretrizes
                 </dd>
               </dl>
             </div>
           </div>
-          <div className="overflow-hidden bg-ameciclo rounded-lg shadow">
-            <div className="px-4 py-5 lg:p-6 flex flex-col items-center text-center">
+          <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
+            <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
               <motion.div whileHover={{ scale: 1.1 }}>
                 <a
                   target="_blank"
@@ -90,9 +92,9 @@ const Contato = (props) => {
               </motion.div>
               <dl>
                 <dd className="mt-1 text-sm text-white">
-                  <strong>Apoie para realizarmos ainda mais!</strong> <br />A Ameciclo
-                  precisa de recursos para manter suas várias frentes de
-                  atuação. Você pode doar mesmo sem ser uma pessoa associada.
+                  <strong>Apoie para realizarmos ainda mais!</strong> <br />A
+                  Ameciclo precisa de recursos para manter suas várias frentes
+                  de atuação. Você pode doar mesmo sem ser uma pessoa associada.
                 </dd>
               </dl>
             </div>
@@ -102,13 +104,8 @@ const Contato = (props) => {
       <section className="w-full">
         <ReactMapGl
           {...viewport}
-          mapboxApiAccessToken={
-            "pk.eyJ1IjoiaWFjYXB1Y2EiLCJhIjoiODViMTRmMmMwMWE1OGIwYjgxNjMyMGFkM2Q5OWJmNzUifQ.OFgXp9wbN5BJlpuJEcDm4A"
-          }
+          mapboxAccessToken={MAPBOX_TOKEN}
           scrollZoom={false}
-          onViewportChange={(viewport) => {
-            setViewPort(viewport);
-          }}
           attributionControl={false}
         >
           <div style={{ position: "absolute", right: 0 }}>

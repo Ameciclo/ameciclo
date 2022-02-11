@@ -5,9 +5,12 @@ import googleCalendarPlugin from "@fullcalendar/google-calendar";
 import listPlugin from "@fullcalendar/list";
 import locale from "@fullcalendar/core/locales/pt-br";
 
-const EventCalendar = (props) => {
-  const handleEventClick = (e) => {
-    e.jsEvent.preventDefault(); // don't let the browser navigate
+const EventCalendar = () => {
+  const handleEventClick = (e: {
+    jsEvent: { preventDefault: () => void };
+    event: { url: string | URL };
+  }) => {
+    e.jsEvent.preventDefault();
 
     if (e.event.url) {
       window.open(e.event.url);
@@ -24,7 +27,7 @@ const EventCalendar = (props) => {
           googleCalendarId:
             "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
           className: "agenda-externa",
-          color:  "red",
+          color: "red",
         },
         {
           googleCalendarId: "ameciclo@gmail.com",

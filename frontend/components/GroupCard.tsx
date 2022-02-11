@@ -4,14 +4,34 @@ import Image from "next/image";
 
 const StatusIndicator = ({ status }) => {
   const statusMap = new Map([
-    ["articular", { name: "Articulação Institucional", color: "#00A4AA", fontColor: "white" },],
-    ["incidir", { name: "Incidência Política", color: "#008080", fontColor: "white" }],
-    ["cultuar", { name: "Cultura da Bicicleta", color: "#E66762", fontColor: "white" }],
-    ["fortalecer", { name: "Fortalecimento Institucional", color: "#003938", fontColor: "white" }],
+    [
+      "articular",
+      {
+        name: "Articulação Institucional",
+        color: "#00A4AA",
+        fontColor: "white",
+      },
+    ],
+    [
+      "incidir",
+      { name: "Incidência Política", color: "#008080", fontColor: "white" },
+    ],
+    [
+      "cultuar",
+      { name: "Cultura da Bicicleta", color: "#E66762", fontColor: "white" },
+    ],
+    [
+      "fortalecer",
+      {
+        name: "Fortalecimento Institucional",
+        color: "#003938",
+        fontColor: "white",
+      },
+    ],
   ]);
   return (
     <div
-      className="uppercase p-4 rounded bg-green-400 font-semibold absolute text-sm"
+      className="absolute p-4 text-sm font-semibold uppercase bg-green-400 rounded"
       style={{
         maxHeight: "50px",
         color: statusMap.get(status).fontColor,
@@ -32,7 +52,7 @@ export const GroupCard = ({ group }) => {
     <div className="bg-white rounded-lg shadow " style={{ minHeight: "450px" }}>
       <StatusIndicator status={group.directive} />
       {group.icon ? (
-        <Link href={`${group.telegram_url}`}>
+        <Link href={`${group.telegram_url}`} passHref>
           <div
             style={{
               backgroundImage: `url(${group.icon.url})`,
@@ -54,7 +74,7 @@ export const GroupCard = ({ group }) => {
       )}
       <div className="px-4 py-5 lg:p-6">
         <dl className="pb-6">
-          <Link href={`${group.telegram_url}`}>
+          <Link href={`${group.telegram_url}`} passHref>
             <dt className="mt-1 text-3xl font-semibold leading-9 text-gray-900 cursor-pointer">
               {group.name}
             </dt>
@@ -73,29 +93,29 @@ export const GroupCard = ({ group }) => {
           </dt>
           <dt>
             <div className="flex flex-wrap justify-center mt-6">
-            <a href={group.telegram_url}>
-                  <button
-                    className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
-                    type="button"
-                    style={{ transition: "all .15s ease" }}
-                  >
-                    Grupo no Telegram
-                  </button>
+              <a href={group.telegram_url}>
+                <button
+                  className="px-4 py-2 mb-1 mr-2 text-xs font-bold text-white uppercase rounded shadow outline-none bg-ameciclo active:bg-pink-600 hover:shadow-md focus:outline-none"
+                  type="button"
+                  style={{ transition: "all .15s ease" }}
+                >
+                  Grupo no Telegram
+                </button>
               </a>
               <a href={group.folder_url}>
-                  <button
-                    className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
-                    type="button"
-                    style={{ transition: "all .15s ease" }}
-                  >
-                    Pasta do Grupo
-                  </button>
+                <button
+                  className="px-4 py-2 mb-1 mr-2 text-xs font-bold text-white uppercase rounded shadow outline-none bg-ameciclo active:bg-pink-600 hover:shadow-md focus:outline-none"
+                  type="button"
+                  style={{ transition: "all .15s ease" }}
+                >
+                  Pasta do Grupo
+                </button>
               </a>
-              {group.Links.map((link) => {
+              {group.Links.map((link, i) => {
                 return (
-                  <a href={link.link}>
+                  <a href={link.link} key={i}>
                     <button
-                      className="bg-ameciclo active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
+                      className="px-4 py-2 mb-1 mr-2 text-xs font-bold text-white uppercase rounded shadow outline-none bg-ameciclo active:bg-pink-600 hover:shadow-md focus:outline-none"
                       type="button"
                       style={{ transition: "all .15s ease" }}
                     >
