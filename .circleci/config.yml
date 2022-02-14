@@ -7,9 +7,20 @@ executors:
       - image: circleci/buildpack-deps:stretch
 orbs:
   node: circleci/node@5.0.0
+  cypress: cypress-io/cypress@1.29.0
 
 jobs:
-  build-and-test:  
+  build-frontend:
+    working_directory: ~/ameciclo/frontend
+    steps:
+      - cypress/install:
+          build: npm run build
+      - cypress/run:
+          requires:
+            - cypress/install
+          start: npm start
+
+  build-and-test:
     docker:
       - image: cimg/node:lts
 
@@ -20,14 +31,15 @@ jobs:
           path: ~/ameciclo
       - node/install:
           install-yarn: true
-          node-version: '14.19.0'
+          node-version: "14.19.0"
       - node/install-packages:
-          pkg-manager: yarn 
+          pkg-manager: yarn
       - run:
           name: Run tests
           command: npm test
 
 workflows:
-  build-latest: 
+  build-latest:
     jobs:
+      - build-frontend
       - build-and-test
