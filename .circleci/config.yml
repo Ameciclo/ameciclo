@@ -11,68 +11,34 @@ orbs:
   swissknife: roopakv/swissknife@0.66.0
 
 workflows:
-  frontend:
-    when: << pipeline.parameters.run_frontend_workflow >>
+  build:
     jobs:
-      - run-tests:
-          dir: frontend
-          name: 'frontend tests'
-  backend:
-    when: << pipeline.parameters.run_backend_workflow >>
-    jobs:
-      - run-tests:
-          dir: backend
-          name: 'backend tests'
-  trigger-needed-workflows:
-    when: << pipeline.parameters.run_trigger_workflow >>
-    jobs:
-      - trigger-needed-workflows
+      - checkout
+      - cypress/run:
+          working_directory: frontend
+          requires:
+            - checkout
+      # - test_frontend:
+      #     requires:
+      #       - checkout
+      # - test_backend:
+      #     requires:
+      #       - checkout
 
 jobs:
-  trigger-needed-workflows:
+  checkout:
     docker:
-      - image: circleci/node:14
+      - image: cimg/base
+    working_directory: ~/ameciclo
     steps:
-      - checkout
-      - swissknife/trigger-workflows-for-all-modified:
-          base-branch: main
-          run-mode-for-base-branch: run_for_last_commit
-          use-divergence-point: true
-          code-param-name-map: '
-            [
-              {"regex": "^(frontend).*", "param_name": "run_frontend_workflow"},
-              {"regex": "^(backend).*", "param_name": "run_backend_workflow"},
-            ]'
-          additional-param-map: '{"run_trigger_workflow": false}'
-          use-swissknife-sha: true
+      - checkout:
+          path: ~/ameciclo
 
-  run-tests:
-    docker:
-      - image: circleci/node:14
-    parameters:
-      dir:
-        type: string
-        description: The directory to run tests for.
-    steps:
-      - swissknife/sk-checkout:
-          swissknife_sha: << pipeline.parameters.swissknife_sha >>
-      - run:
-          name: Run tests
-          command: |
-            cd << parameters.dir >>
-            npm run test
+  # test_frontend:
+  #   working_directory: ~/ameciclo/frontend
+  #   docker:
+  #     - image: node:16.14.0
+  #   steps:
+  #     - cypress/run
 
-parameters:
-  run_frontend_workflow:
-    default: false
-    type: boolean
-  run_backend_workflow:
-    default: false
-    type: boolean
-  run_trigger_workflow:
-    default: true
-    type: boolean
-  swissknife_sha:
-    default: ""
-    type: string
 
