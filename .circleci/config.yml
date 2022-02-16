@@ -42,7 +42,7 @@ jobs:
           path: ~/ameciclo
 
   build_frontend:
-    working_directory: frontend
+    working_directory: ~/ameciclo/frontend
     docker:
       - image: node:16.14.0
     steps:
