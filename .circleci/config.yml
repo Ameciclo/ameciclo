@@ -8,7 +8,6 @@ executors:
 orbs:
   node: circleci/node@5.0.0
   cypress: cypress-io/cypress@1.29.0
-  swissknife: roopakv/swissknife@0.66.0
 
 workflows:
   build:
@@ -28,7 +27,7 @@ workflows:
 jobs:
   checkout:
     docker:
-      - image: cimg/base
+      - image: cimg/base:stable
     working_directory: ~/ameciclo
     steps:
       - checkout:
