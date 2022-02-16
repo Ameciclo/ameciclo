@@ -17,6 +17,7 @@ workflows:
           cache-key: >-
             cache-{{ arch }}-{{ .Branch }}-{{ checksum "frontend/package.json"
             }}
+      - build_frontend
       - cypress/run:
           cache-key: >-
             cache-{{ arch }}-{{ .Branch }}-{{ checksum "frontend/package.json"
@@ -41,11 +42,15 @@ jobs:
       - checkout:
           path: ~/ameciclo
 
-  # test_frontend:
-  #   working_directory: ~/ameciclo/frontend
-  #   docker:
-  #     - image: node:16.14.0
-  #   steps:
-  #     - cypress/run
+  build_frontend:
+    working_directory: ~/ameciclo/frontend
+    docker:
+      - image: node:16.14.0
+    steps:
+      - run:
+          name: Run build
+          command: 'npm run build'
+
+
 
 
