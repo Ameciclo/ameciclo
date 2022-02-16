@@ -17,7 +17,9 @@ workflows:
           cache-key: >-
             cache-{{ arch }}-{{ .Branch }}-{{ checksum "frontend/package.json"
             }}
-      - build_frontend
+      - build_frontend:
+          requires:
+            - checkout
       - cypress/run:
           cache-key: >-
             cache-{{ arch }}-{{ .Branch }}-{{ checksum "frontend/package.json"
