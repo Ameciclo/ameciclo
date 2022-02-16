@@ -28,6 +28,7 @@ workflows:
           start: npm start
           requires:
             - checkout
+            - build_frontend
       # - test_frontend:
       #     requires:
       #       - checkout
@@ -45,7 +46,7 @@ jobs:
           path: ~/ameciclo
 
   build_frontend:
-    working_directory: ~/ameciclo/frontend
+    working_directory: frontend
     docker:
       - image: node:16.14.0
     steps:
