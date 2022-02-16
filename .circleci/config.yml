@@ -19,6 +19,7 @@ workflows:
             }}
       - build_frontend:
           requires:
+            - cypress/install
             - checkout
       - cypress/run:
           cache-key: >-
@@ -50,6 +51,8 @@ jobs:
     docker:
       - image: node:16.14.0
     steps:
+      - run:
+          command: 'ls'
       - run:
           name: Run build
           command: 'npm run build'
