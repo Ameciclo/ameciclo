@@ -42,7 +42,7 @@ jobs:
   build_frontend:
     working_directory: ~/ameciclo/frontend
     docker:
-      - image: node:16.14.0
+      - image: node:17.4.0
     steps:
       - run:
           command: 'ls'
