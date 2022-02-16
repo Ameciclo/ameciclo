@@ -16,6 +16,8 @@ workflows:
       - cypress/install:
           working_directory: frontend
           build: npm run build
+          requires:
+            - checkout
       - cypress/run:
           working_directory: frontend
           start: npm start
