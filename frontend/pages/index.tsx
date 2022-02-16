@@ -10,7 +10,7 @@ import Associe from "../components/Icons/associe";
 import Participe from "../components/Icons/participe";
 import { FeaturedProducts } from "../components/FeaturedProducts";
 import { server } from "../config";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react/swiper-react.js";
 import {
   Navigation,
   Pagination,
@@ -20,10 +20,9 @@ import {
   EffectFade,
   Lazy,
 } from "swiper";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/scrollbar";
+import "swiper/swiper.scss";
+import "swiper/modules/navigation/navigation.scss"; // Navigation module
+import "swiper/modules/pagination/pagination.scss"; // Pagination module
 
 export default function Home({
   featuredProjects,
