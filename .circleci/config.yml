@@ -14,11 +14,13 @@ workflows:
     jobs:
       - checkout
       - cypress/install:
+          executor: cypress/base-14
           working_directory: frontend
           build: npm run build
           requires:
             - checkout
       - cypress/run:
+          executor: cypress/base-14
           working_directory: frontend
           start: npm start
           requires:
