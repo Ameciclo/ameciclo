@@ -20,7 +20,7 @@ workflows:
           working_directory: frontend
           start: npm start
           requires:
-            - checkout
+            - cypress/install
       # - test_frontend:
       #     requires:
       #       - checkout
