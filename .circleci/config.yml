@@ -8,38 +8,71 @@ executors:
 orbs:
   node: circleci/node@5.0.0
   cypress: cypress-io/cypress@1.29.0
-
-jobs:
-  build-frontend:
-    working_directory: ~/ameciclo/frontend
-    steps:
-      - cypress/install:
-          build: npm run build
-      - cypress/run:
-          requires:
-            - cypress/install
-          start: npm start
-
-  build-and-test:
-    docker:
-      - image: cimg/node:lts
-
-    working_directory: ~/ameciclo/backend
-
-    steps:
-      - checkout:
-          path: ~/ameciclo
-      - node/install:
-          install-yarn: true
-          node-version: "14.19.0"
-      - node/install-packages:
-          pkg-manager: yarn
-      - run:
-          name: Run tests
-          command: npm test
+  swissknife: roopakv/swissknife@0.66.0
 
 workflows:
-  build-latest:
+  frontend:
+    when: << pipeline.parameters.run_frontend_workflow >>
     jobs:
-      - build-frontend
-      - build-and-test
+      - run-tests:
+          dir: frontend
+          name: 'frontend tests'
+  backend:
+    when: << pipeline.parameters.run_backend_workflow >>
+    jobs:
+      - run-tests:
+          dir: backend
+          name: 'backend tests'
+  trigger-needed-workflows:
+    when: << pipeline.parameters.run_trigger_workflow >>
+    jobs:
+      - trigger-needed-workflows
+
+jobs:
+  trigger-needed-workflows:
+    docker:
+      - image: circleci/node:14
+    steps:
+      - checkout
+      - swissknife/trigger-workflows-for-all-modified:
+          base-branch: main
+          run-mode-for-base-branch: run_for_last_commit
+          use-divergence-point: true
+          code-param-name-map: '
+            [
+              {"regex": "^(frontend).*", "param_name": "run_frontend_workflow"},
+              {"regex": "^(backend).*", "param_name": "run_backend_workflow"},
+            ]'
+          additional-param-map: '{"run_trigger_workflow": false}'
+          use-swissknife-sha: true
+
+  run-tests:
+    docker:
+      - image: circleci/node:14
+    parameters:
+      dir:
+        type: string
+        description: The directory to run tests for.
+    steps:
+      - swissknife/sk-checkout:
+          swissknife_sha: << pipeline.parameters.swissknife_sha >>
+      - run:
+          name: Run tests
+          command: |
+            cd << parameters.dir >>
+            npm run test
+
+parameters:
+  run_frontend_workflow:
+    default: false
+    type: boolean
+  run_backend_workflow:
+    default: false
+    type: boolean
+  run_trigger_workflow:
+    default: true
+    type: boolean
+  swissknife_sha:
+    default: ""
+    type: string
+
