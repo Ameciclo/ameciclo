@@ -33,12 +33,9 @@ workflows:
           record: true
           requires:
             - cypress/install
-      # - test_frontend:
-      #     requires:
-      #       - checkout
-      # - test_backend:
-      #     requires:
-      #       - checkout
+      - build_backend:
+          requires:
+            - checkout
 
 jobs:
   checkout:
@@ -49,16 +46,19 @@ jobs:
       - checkout:
           path: ~/ameciclo
 
-  build_frontend:
-    working_directory: ~/ameciclo/frontend
+  build_backend:
+    working_directory: ~/ameciclo/backend
     docker:
-      - image: node:17.4.0
+      - image: node:14.19.0
     steps:
+      - node/install:
+          install-yarn: true
+          node-version: '14.19.0'
+      - node/install-packages:
+          pkg-manager: yarn 
       - run:
-          command: 'ls'
-      - run:
-          name: Run build
-          command: 'npm run build'
+          name: Run tests
+          command: npm test
 
 
 
