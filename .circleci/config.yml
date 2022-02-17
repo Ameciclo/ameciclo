@@ -12,7 +12,6 @@ orbs:
 workflows:
   build:
     jobs:
-      - checkout
       - cypress/install:
           executor: cypress/base-14
           cache-key: >-
@@ -20,8 +19,6 @@ workflows:
             }}
           working_directory: frontend
           build: npm run build
-          requires:
-            - checkout
       - cypress/run:
           executor: cypress/base-14
           cache-key: >-
@@ -33,22 +30,12 @@ workflows:
           record: true
           requires:
             - cypress/install
-      - backend_install:
-          requires:
-            - checkout
+      - backend_install
       - backend_test:
           requires:
             - backend_install
 
 jobs:
-  checkout:
-    docker:
-      - image: cimg/base:stable
-    working_directory: ~/ameciclo
-    steps:
-      - checkout:
-          path: ~/ameciclo
-
   backend_install:
     working_directory: ~/ameciclo/backend
     docker:
@@ -61,9 +48,11 @@ jobs:
           node-version: '14.19.0'
       - node/install-packages:
           pkg-manager: yarn 
-      - run:
-          name: Run tests
-          command: npm test
+      - persist_to_workspace:
+          root: ~/ameciclo/backend
+          paths:
+            - .
+
 
   backend_test:
     working_directory: ~/ameciclo/backend
