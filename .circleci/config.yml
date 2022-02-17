@@ -33,12 +33,12 @@ workflows:
           record: true
           requires:
             - cypress/install
-      - backend/install:
+      - backend_install:
           requires:
             - checkout
-      - backend/test:
+      - backend_test:
           requires:
-            - backend/install
+            - backend_install
 
 jobs:
   checkout:
@@ -49,7 +49,7 @@ jobs:
       - checkout:
           path: ~/ameciclo
 
-  backend/install:
+  backend_install:
     working_directory: ~/ameciclo/backend
     docker:
       - image: node:14.19.0
@@ -65,7 +65,7 @@ jobs:
           name: Run tests
           command: npm test
 
-  backend/test:
+  backend_test:
     working_directory: ~/ameciclo/backend
     docker:
       - image: node:14.19.0
