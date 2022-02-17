@@ -59,6 +59,8 @@ jobs:
     docker:
       - image: node:14.19.0
     steps:
+      - attach_workspace:
+          at: ~/ameciclo/backend
       - node/install:
           install-yarn: true
           node-version: '14.19.0'
