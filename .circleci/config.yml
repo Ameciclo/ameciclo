@@ -51,6 +51,8 @@ jobs:
     docker:
       - image: node:14.19.0
     steps:
+      - checkout:
+          path: ~/ameciclo
       - node/install:
           install-yarn: true
           node-version: '14.19.0'
