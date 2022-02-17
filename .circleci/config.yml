@@ -7,14 +7,39 @@ executors:
       - image: circleci/buildpack-deps:stretch
 orbs:
   node: circleci/node@5.0.0
+  cypress: cypress-io/cypress@1.29.0
+
+workflows:
+  build:
+    jobs:
+      - cypress/install:
+          executor: cypress/base-14
+          cache-key: >-
+            cache-{{ arch }}-{{ .Branch }}-{{ checksum "frontend/package.json"
+            }}
+          working_directory: frontend
+          build: npm run build
+      - cypress/run:
+          executor: cypress/base-14
+          cache-key: >-
+            cache-{{ arch }}-{{ .Branch }}-{{ checksum "frontend/package.json"
+            }}
+          working_directory: frontend
+          start: npm start
+          store_artifacts: true
+          record: true
+          requires:
+            - cypress/install
+      - backend_install
+      - backend_test:
+          requires:
+            - backend_install
 
 jobs:
-  build-and-test:  
-    docker:
-      - image: cimg/node:lts
-
+  backend_install:
     working_directory: ~/ameciclo/backend
-
+    docker:
+      - image: node:14.19.0
     steps:
       - checkout:
           path: ~/ameciclo
@@ -23,11 +48,24 @@ jobs:
           node-version: '14.19.0'
       - node/install-packages:
           pkg-manager: yarn 
+      - persist_to_workspace:
+          root: ~/ameciclo/backend
+          paths:
+            - .
+
+
+  backend_test:
+    working_directory: ~/ameciclo/backend
+    docker:
+      - image: node:14.19.0
+    steps:
+      - attach_workspace:
+          at: ~/ameciclo/backend
+      - node/install:
+          install-yarn: true
+          node-version: '14.19.0'
       - run:
           name: Run tests
           command: npm test
 
-workflows:
-  build-latest: 
-    jobs:
-      - build-and-test
+
