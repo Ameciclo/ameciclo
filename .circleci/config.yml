@@ -30,6 +30,7 @@ workflows:
           working_directory: frontend
           start: npm start
           store_artifacts: true
+          record: true
           requires:
             - cypress/install
       # - test_frontend:
