@@ -41,7 +41,7 @@
     "react-photo-album": "^1.6.0",
     "react-table": "^7.7.0",
     "react-transition-group": "^4.4.2",
-    "sass": "^1.49.7",
+    "sass": "^1.49.8",
     "styled-components": "^5.3.3"
   },
   "devDependencies": {
