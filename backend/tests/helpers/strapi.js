@@ -1,5 +1,5 @@
-const Strapi = require('strapi');
-const http = require('http');
+const Strapi = require("strapi");
+const http = require("http");
 
 let instance;
 

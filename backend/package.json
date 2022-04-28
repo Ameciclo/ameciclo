@@ -16,11 +16,11 @@
     "supertest": "^6.1.3"
   },
   "dependencies": {
-    "knex": "<0.20.0",
+    "knex": "0.95.15",
     "pg": "latest",
-    "slugify": "^1.4.0",
-    "strapi": "3.6.8",
-    "strapi-admin": "3.6.8",
+    "slugify": "^1.6.5",
+    "strapi": "3.6.9",
+    "strapi-admin": "3.6.9",
     "strapi-connector-bookshelf": "3.6.8",
     "strapi-plugin-content-manager": "3.6.8",
     "strapi-plugin-content-type-builder": "3.6.8",

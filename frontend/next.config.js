@@ -9,7 +9,11 @@ module.exports = withTM({
   images: {
     domains: ["res.cloudinary.com"],
   },
-  experimental: {
+  swcMinify: true,
+  compiler: {
     styledComponents: true,
+  },
+  experimental: {
+    esmExternals: false,
   },
 });

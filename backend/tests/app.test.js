@@ -1,16 +1,16 @@
-const fs = require('fs');
-const { setupStrapi } = require('./helpers/strapi');
+const fs = require("fs");
+const { setupStrapi } = require("./helpers/strapi");
 
 /** this code is called once before any test is called */
-beforeAll(async done => {
-  jest.setTimeout(15000)
+beforeAll(async (done) => {
+  jest.setTimeout(15000);
   await setupStrapi(); // singleton so it can be called many times
   done();
 });
 
 /** this code is called once before all the tested are finished */
-afterAll(async done => {
-  const dbSettings = strapi.config.get('database.connections.default.settings');
+afterAll(async (done) => {
+  const dbSettings = strapi.config.get("database.connections.default.settings");
 
   //delete test database after all tests
   if (dbSettings && dbSettings.filename) {
@@ -22,8 +22,8 @@ afterAll(async done => {
   done();
 });
 
-it('strapi is defined', () => {
+it("strapi is defined", () => {
   expect(strapi).toBeDefined();
 });
 
-require('./project');
+require("./project");
