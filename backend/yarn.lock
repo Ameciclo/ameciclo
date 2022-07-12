@@ -12257,6 +12257,7 @@ strapi-database@3.6.10:
     p-map "4.0.0"
     strapi-utils "3.6.10"
     verror "^1.10.0"
+
 strapi-generate-api@3.6.10:
   version "3.6.10"
   resolved "https://registry.yarnpkg.com/strapi-generate-api/-/strapi-generate-api-3.6.10.tgz#ff538de9b8418c196624623e25ccab8609248545"
@@ -12334,6 +12335,7 @@ strapi-generate-service@3.6.10:
   dependencies:
     lodash "4.17.21"
     strapi-utils "3.6.10"
+
 strapi-generate@3.6.10:
   version "3.6.10"
   resolved "https://registry.yarnpkg.com/strapi-generate/-/strapi-generate-3.6.10.tgz#dba87044c4c788f48c8b7e65ca2b780fcf9d0765"
@@ -12465,10 +12467,10 @@ strapi-plugin-content-manager@3.6.9:
     strapi-utils "3.6.9"
     yup "^0.32.9"
 
-strapi-plugin-content-type-builder@3.6.9:
-  version "3.6.9"
-  resolved "https://registry.yarnpkg.com/strapi-plugin-content-type-builder/-/strapi-plugin-content-type-builder-3.6.9.tgz#4364618e40a4189fb303cc3765f74bf93217f50e"
-  integrity sha512-23KO6Yi8yVCwgY2Agy+aEcN9qMEgJNWOj69XP/JCMG3drXMu89FE/AEGVDymGQeH3P0sgx9nF+sN8Ms2tpRPoQ==
+strapi-plugin-content-type-builder@3.6.8:
+  version "3.6.8"
+  resolved "https://registry.yarnpkg.com/strapi-plugin-content-type-builder/-/strapi-plugin-content-type-builder-3.6.8.tgz#dcfbbec823d997e1f103c64f2b05e53914d46090"
+  integrity sha512-kxCPNHV15JmNz3PUdb/8I5mj4i0n8HicumSvqZh3LxovUaIqd0tGioMd4pJ3BY8XcPI7SpdZrEsbPHTqlQIEvg==
   dependencies:
     "@buffetjs/core" "3.3.8"
     "@buffetjs/custom" "3.3.8"
@@ -12491,10 +12493,10 @@ strapi-plugin-content-type-builder@3.6.9:
     redux "^4.0.1"
     redux-immutable "^4.0.0"
     reselect "^4.0.0"
-    strapi-generate "3.6.9"
-    strapi-generate-api "3.6.9"
-    strapi-helper-plugin "3.6.9"
-    strapi-utils "3.6.9"
+    strapi-generate "3.6.8"
+    strapi-generate-api "3.6.8"
+    strapi-helper-plugin "3.6.8"
+    strapi-utils "3.6.8"
     yup "^0.32.9"
 
 strapi-plugin-documentation@3.6.8:
