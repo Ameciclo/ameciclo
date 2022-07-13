@@ -26,7 +26,7 @@
     "@tippyjs/react": "^4.2.6",
     "framer-motion": "^6.3.3",
     "fuse.js": "^6.5.3",
-    "keen-slider": "^6.6.3",
+    "keen-slider": "^6.7.0",
     "mapbox-gl": "^2.8.2",
     "match-sorter": "^6.3.1",
     "next": "^12.1.5",
