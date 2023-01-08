@@ -16,7 +16,7 @@
     "supertest": "^6.1.3"
   },
   "dependencies": {
-    "knex": "0.95.15",
+    "knex": "2.4.0",
     "pg": "latest",
     "slugify": "^1.6.5",
     "strapi": "3.6.10",
