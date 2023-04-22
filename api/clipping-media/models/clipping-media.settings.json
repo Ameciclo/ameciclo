@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "clipping_medias",
+  "info": {
+    "name": "Clipping (Mídia)",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "blog",
+        "independente",
+        "jornal",
+        "revista",
+        "podcast",
+        "portal",
+        "televisao",
+        "radio",
+        "redessociais",
+        "outros"
+      ],
+      "required": true
+    },
+    "logo": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "url": {
+      "type": "string"
+    },
+    "clippings": {
+      "via": "clipping_medias",
+      "collection": "clipping"
+    }
+  }
+}

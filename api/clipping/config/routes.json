@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/clippings",
+      "handler": "clipping.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/clippings/count",
+      "handler": "clipping.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/clippings/:id",
+      "handler": "clipping.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/clippings",
+      "handler": "clipping.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/clippings/:id",
+      "handler": "clipping.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/clippings/:id",
+      "handler": "clipping.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "kind": "singleType",
+  "collectionName": "homes",
+  "info": {
+    "name": "Página Inicial",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "banner": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "projects": {
+      "collection": "project"
+    },
+    "participation_url": {
+      "type": "string"
+    },
+    "donate_url": {
+      "type": "string"
+    },
+    "association_url": {
+      "type": "string"
+    },
+    "products": {
+      "collection": "products"
+    }
+  }
+}

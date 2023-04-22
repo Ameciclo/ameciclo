@@ -1,0 +1,33 @@
+version: '3'
+
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+    volumes:
+      - strapidata:/var/lib/postgresql/
+      - ./backups:/backups/
+
+  # postgresql-backup-dropbox:
+  #   image: ameciclo/postgre_backup_dropbox
+  #   container_name: postgresql_backup
+  #   restart: always
+  #   networks:
+  #     - internal
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     - POSTGRESQL_USER=strapi
+  #     - POSTGRESQL_PASSWORD=strapi
+  #     - POSTGRESQL_HOST=postgres
+  #     - DROPBOX_ACCESS_TOKEN=ptX7NcMV_ckAAAAAAAAAAWkNRESXnkHK_naDGUFGzbKlReHL_EKS4Bzm5lscSAPX
+  #     - SCHEDULE=@daily
+  #     - DATABASE_NAME=strapi
+  #     - DROPBOX_PREFIX=ameciclo_strapi
+
+volumes:
+  strapidata:

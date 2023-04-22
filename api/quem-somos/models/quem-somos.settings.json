@@ -1,0 +1,36 @@
+{
+  "kind": "singleType",
+  "collectionName": "quem_somos",
+  "info": {
+    "name": "Quem somos"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "definition": {
+      "type": "text"
+    },
+    "objective": {
+      "type": "text"
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.links"
+    },
+    "cover": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    }
+  }
+}

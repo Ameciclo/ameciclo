@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/ideciclo",
+      "handler": "ideciclo.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/ideciclo",
+      "handler": "ideciclo.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/ideciclo",
+      "handler": "ideciclo.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}
