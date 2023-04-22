@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "clippings",
+  "info": {
+    "singularName": "clipping",
+    "pluralName": "clippings",
+    "displayName": "Clipping",
+    "name": "clipping"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "link": {
+      "type": "string"
+    },
+    "print": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": true,
+      "required": false
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "text": {
+      "type": "richtext"
+    },
+    "project": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::project.project",
+      "inversedBy": "clippings"
+    },
+    "clipping_medias": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::clipping-media.clipping-media",
+      "inversedBy": "clippings"
+    },
+    "backup_media": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": true,
+      "required": false
+    }
+  }
+}

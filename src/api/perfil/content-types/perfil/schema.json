@@ -1,0 +1,44 @@
+{
+  "kind": "singleType",
+  "collectionName": "perfils",
+  "info": {
+    "singularName": "perfil",
+    "pluralName": "perfils",
+    "displayName": "Perfil",
+    "name": "perfil"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "description": {
+      "type": "text"
+    },
+    "objective": {
+      "type": "text"
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
+    },
+    "methodology": {
+      "type": "richtext"
+    },
+    "overal_report": {
+      "type": "richtext"
+    }
+  }
+}

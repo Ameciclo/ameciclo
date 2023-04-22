@@ -1,0 +1,38 @@
+{
+  "kind": "singleType",
+  "collectionName": "documentos",
+  "info": {
+    "singularName": "documento",
+    "pluralName": "documentos",
+    "displayName": "Documento",
+    "name": "documento"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "description": {
+      "type": "text"
+    },
+    "objectives": {
+      "type": "text"
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
+    }
+  }
+}

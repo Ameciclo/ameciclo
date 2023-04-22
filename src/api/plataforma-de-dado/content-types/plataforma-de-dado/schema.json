@@ -1,0 +1,35 @@
+{
+  "kind": "singleType",
+  "collectionName": "plataforma_de_dados",
+  "info": {
+    "singularName": "plataforma-de-dado",
+    "pluralName": "plataforma-de-dados",
+    "displayName": "Plataforma-de-dado",
+    "name": "plataforma-de-dado"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "description": {
+      "type": "text"
+    },
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "partners": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.step"
+    }
+  }
+}

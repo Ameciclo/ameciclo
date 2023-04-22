@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "botmembers",
+  "info": {
+    "singularName": "botmember",
+    "pluralName": "botmembers",
+    "displayName": "Botmember",
+    "name": "botmember"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "telegram_id": {
+      "type": "biginteger",
+      "required": true,
+      "unique": true,
+      "min": "0"
+    },
+    "daily_notifications": {
+      "type": "boolean",
+      "default": false
+    },
+    "workgroups": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::workgroup.workgroup",
+      "inversedBy": "botmembers"
+    },
+    "coordinations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::project.project",
+      "mappedBy": "coordinator"
+    },
+    "oncethere": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::workgroup.workgroup",
+      "inversedBy": "washere"
+    },
+    "ameciclista": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ameciclista.ameciclista",
+      "inversedBy": "botmember"
+    },
+    "telegram_nick": {
+      "type": "string",
+      "unique": false
+    }
+  }
+}

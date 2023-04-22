@@ -1,0 +1,53 @@
+{
+  "kind": "singleType",
+  "collectionName": "contagens",
+  "info": {
+    "singularName": "contagen",
+    "pluralName": "contagens",
+    "displayName": "Contagen",
+    "name": "contagen"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "objective": {
+      "type": "text",
+      "unique": false,
+      "required": true
+    },
+    "counts": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.cyclists-counts",
+      "required": true
+    },
+    "methodology": {
+      "type": "richtext"
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
+    },
+    "overal_report": {
+      "type": "richtext"
+    }
+  }
+}

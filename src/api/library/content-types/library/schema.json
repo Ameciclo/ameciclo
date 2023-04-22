@@ -1,0 +1,66 @@
+{
+  "kind": "collectionType",
+  "collectionName": "libraries",
+  "info": {
+    "singularName": "library",
+    "pluralName": "libraries",
+    "displayName": "Library",
+    "name": "library"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "register": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "author": {
+      "type": "string",
+      "required": true
+    },
+    "year": {
+      "type": "integer",
+      "max": 2100
+    },
+    "copies": {
+      "type": "integer",
+      "min": 1,
+      "required": true,
+      "default": 1
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "livro",
+        "tecnico",
+        "manual",
+        "cartilha",
+        "revista",
+        "outros"
+      ]
+    },
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": true
+    },
+    "summary": {
+      "type": "text"
+    },
+    "ISBN": {
+      "type": "biginteger",
+      "unique": true
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "locations",
+  "info": {
+    "singularName": "location",
+    "pluralName": "locations",
+    "displayName": "Location",
+    "name": "location"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "Address": {
+      "type": "string"
+    },
+    "isVirtual": {
+      "type": "boolean"
+    },
+    "show_on_telegram": {
+      "type": "boolean"
+    }
+  }
+}

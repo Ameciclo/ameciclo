@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "clipping_medias",
+  "info": {
+    "singularName": "clipping-media",
+    "pluralName": "clipping-medias",
+    "displayName": "Clipping-media",
+    "name": "clipping-media"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "blog",
+        "independente",
+        "jornal",
+        "revista",
+        "podcast",
+        "portal",
+        "televisao",
+        "radio",
+        "redessociais",
+        "outros"
+      ],
+      "required": true
+    },
+    "logo": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "url": {
+      "type": "string"
+    },
+    "clippings": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::clipping.clipping",
+      "mappedBy": "clipping_medias"
+    }
+  }
+}

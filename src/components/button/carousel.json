@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_button_carousels",
+  "info": {
+    "icon": "address-card",
+    "displayName": "carousel"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "url": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "active": {
+      "type": "boolean"
+    }
+  }
+}

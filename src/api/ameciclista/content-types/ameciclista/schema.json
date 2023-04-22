@@ -1,0 +1,49 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ameciclistas",
+  "info": {
+    "singularName": "ameciclista",
+    "pluralName": "ameciclistas",
+    "displayName": "Ameciclista",
+    "name": "ameciclista"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "bio": {
+      "type": "text",
+      "private": false,
+      "required": true
+    },
+    "media": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": true
+    },
+    "botmember": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::botmember.botmember",
+      "inversedBy": "ameciclista"
+    },
+    "role": {
+      "type": "enumeration",
+      "enum": [
+        "ameciclista",
+        "coordenacao",
+        "conselhofiscal"
+      ],
+      "default": "ameciclista"
+    }
+  }
+}

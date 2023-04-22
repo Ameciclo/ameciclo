@@ -1,0 +1,38 @@
+{
+  "kind": "singleType",
+  "collectionName": "quem_somos",
+  "info": {
+    "singularName": "quem-somo",
+    "pluralName": "quem-somos",
+    "displayName": "Quem-somo",
+    "name": "quem-somo"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "definition": {
+      "type": "text"
+    },
+    "objective": {
+      "type": "text"
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.links"
+    },
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    }
+  }
+}

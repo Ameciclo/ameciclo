@@ -1,0 +1,79 @@
+{
+  "kind": "collectionType",
+  "collectionName": "workgroups",
+  "info": {
+    "singularName": "workgroup",
+    "pluralName": "workgroups",
+    "displayName": "Workgroup",
+    "name": "workgroup"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "telegram_id": {
+      "type": "biginteger",
+      "min": "0",
+      "required": false,
+      "unique": true
+    },
+    "icon": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": true
+    },
+    "telegram_url": {
+      "type": "string",
+      "unique": true
+    },
+    "projects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::project.project",
+      "mappedBy": "workgroup"
+    },
+    "description": {
+      "type": "text"
+    },
+    "Links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.links"
+    },
+    "folder_url": {
+      "type": "string"
+    },
+    "botmembers": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::botmember.botmember",
+      "mappedBy": "workgroups"
+    },
+    "washere": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::botmember.botmember",
+      "mappedBy": "oncethere"
+    },
+    "directive": {
+      "type": "enumeration",
+      "enum": [
+        "articular",
+        "incidir",
+        "cultuar",
+        "fortalecer"
+      ],
+      "required": true
+    }
+  }
+}

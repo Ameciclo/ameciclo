@@ -1,0 +1,154 @@
+{
+  "kind": "collectionType",
+  "collectionName": "projects",
+  "info": {
+    "singularName": "project",
+    "pluralName": "projects",
+    "displayName": "Project",
+    "name": "project"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "media": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": true
+    },
+    "goal": {
+      "type": "text",
+      "maxLength": 150,
+      "minLength": 80,
+      "required": true
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "description": {
+      "type": "text"
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "ongoing",
+        "finished",
+        "paused"
+      ],
+      "required": true,
+      "default": "ongoing"
+    },
+    "bikeCulture": {
+      "type": "enumeration",
+      "enum": [
+        "high",
+        "low",
+        "medium"
+      ],
+      "required": true
+    },
+    "instArticulation": {
+      "type": "enumeration",
+      "enum": [
+        "high",
+        "low",
+        "medium"
+      ],
+      "required": true
+    },
+    "politicIncidence": {
+      "type": "enumeration",
+      "enum": [
+        "high",
+        "low",
+        "medium"
+      ],
+      "required": true
+    },
+    "slug": {
+      "type": "string"
+    },
+    "isHighlighted": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "gallery": {
+      "type": "media",
+      "allowedTypes": [
+        "files",
+        "images",
+        "videos"
+      ],
+      "multiple": true,
+      "required": false
+    },
+    "Links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.links"
+    },
+    "workgroup": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workgroup.workgroup",
+      "inversedBy": "projects"
+    },
+    "coordinator": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::botmember.botmember",
+      "inversedBy": "coordinations"
+    },
+    "partners": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::partner.partner"
+    },
+    "steps": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.step",
+      "max": 4
+    },
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "long_description": {
+      "type": "richtext"
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "products": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.step"
+    },
+    "clippings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::clipping.clipping",
+      "mappedBy": "project"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "collectionName": "components_button_cyclists_counts",
+  "info": {
+    "icon": "arrow-circle-right",
+    "description": "",
+    "displayName": "cyclists_counts"
+  },
+  "options": {},
+  "attributes": {
+    "count_id": {
+      "type": "string"
+    },
+    "place": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "latitude": {
+      "type": "float",
+      "required": false
+    },
+    "longitude": {
+      "type": "float",
+      "required": false
+    },
+    "pictures": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": true,
+      "required": false
+    },
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "csv": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "report": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    }
+  }
+}

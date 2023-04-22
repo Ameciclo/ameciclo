@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_button_steps",
+  "info": {
+    "icon": "ad",
+    "description": "",
+    "displayName": "step"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "image": {
+      "type": "media",
+      "allowedTypes": [
+        "files",
+        "images",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "link": {
+      "type": "string"
+    }
+  }
+}

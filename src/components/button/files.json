@@ -1,0 +1,53 @@
+{
+  "collectionName": "components_button_files",
+  "info": {
+    "icon": "align-justify",
+    "description": "",
+    "displayName": "files"
+  },
+  "options": {},
+  "attributes": {
+    "filename": {
+      "type": "string",
+      "required": true
+    },
+    "file": {
+      "type": "media",
+      "allowedTypes": [
+        "files",
+        "images",
+        "videos"
+      ],
+      "multiple": false,
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "description": {
+      "type": "text",
+      "required": false
+    },
+    "release_date": {
+      "type": "date"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "books",
+        "studies",
+        "reports",
+        "statements",
+        "legal",
+        "others"
+      ]
+    }
+  }
+}

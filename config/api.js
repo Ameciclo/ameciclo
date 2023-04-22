@@ -1,10 +1,7 @@
-module.exports = ({ env }) => ({
-  responses: {
-    privateAttributes: ['createdAt']
-  },
+module.exports = {
   rest: {
-    prefix: '/v1',
-    defaultLimit: 100,
-    maxLimit: 250
-  }
-})
+    defaultLimit: 25,
+    maxLimit: 100,
+    withCount: true,
+  },
+};

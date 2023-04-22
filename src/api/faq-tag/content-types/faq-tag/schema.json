@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "faq_tags",
+  "info": {
+    "singularName": "faq-tag",
+    "pluralName": "faq-tags",
+    "displayName": "Faq-tag",
+    "name": "faq-tag"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "icon": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": false
+    },
+    "faqs": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::faq.faq",
+      "mappedBy": "faq_tags"
+    },
+    "slug": {
+      "type": "string"
+    }
+  }
+}

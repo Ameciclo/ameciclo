@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "documents",
+  "info": {
+    "singularName": "document",
+    "pluralName": "documents",
+    "displayName": "Document",
+    "name": "document"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "cover": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false,
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "studies",
+        "books",
+        "other"
+      ],
+      "required": true
+    },
+    "release_date": {
+      "type": "date",
+      "required": true
+    }
+  }
+}
