@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "08/13/2021 6:50:35 PM"
+    "x-generation-date": "04/23/2023 3:31:00 PM"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -302,7 +302,7 @@
     "/ameciclistas/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of ameciclistas documents",
+        "description": "Retrieve the number of ameciclistas documents",
         "responses": {
           "200": {
             "description": "Retrieve ameciclistas document(s)",
@@ -813,7 +813,7 @@
     "/botmembers/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of botmembers documents",
+        "description": "Retrieve the number of botmembers documents",
         "responses": {
           "200": {
             "description": "Retrieve botmembers document(s)",
@@ -2973,7 +2973,7 @@
     "/documents/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of documents documents",
+        "description": "Retrieve the number of documents documents",
         "responses": {
           "200": {
             "description": "Retrieve documents document(s)",
@@ -5644,7 +5644,7 @@
     "/locations/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of locations documents",
+        "description": "Retrieve the number of locations documents",
         "responses": {
           "200": {
             "description": "Retrieve locations document(s)",
@@ -6155,7 +6155,7 @@
     "/partners/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of partners documents",
+        "description": "Retrieve the number of partners documents",
         "responses": {
           "200": {
             "description": "Retrieve partners document(s)",
@@ -7285,7 +7285,7 @@
     "/products/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of products documents",
+        "description": "Retrieve the number of products documents",
         "responses": {
           "200": {
             "description": "Retrieve products document(s)",
@@ -8619,7 +8619,7 @@
     "/workgroups/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of workgroups documents",
+        "description": "Retrieve the number of workgroups documents",
         "responses": {
           "200": {
             "description": "Retrieve workgroups document(s)",
