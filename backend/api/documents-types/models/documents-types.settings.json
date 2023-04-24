@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "documents_types",
+  "info": {
+    "name": "documents-types",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "type": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "background_color": {
+      "type": "string",
+      "regex": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+      "default": "#008888",
+      "required": true
+    },
+    "font_color": {
+      "type": "string",
+      "default": "#FFFFFF",
+      "regex": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "type",
+      "required": true
+    }
+  }
+}

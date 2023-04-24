@@ -20,18 +20,14 @@
         "videos"
       ],
       "plugin": "upload",
-      "required": false
+      "required": false,
+      "pluginOptions": {}
     },
     "description": {
       "type": "text"
     },
     "objectives": {
       "type": "text"
-    },
-    "archives": {
-      "type": "component",
-      "repeatable": true,
-      "component": "button.files"
     }
   }
 }
