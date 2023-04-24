@@ -15,12 +15,11 @@
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
-      "required": false
+      "required": false,
+      "pluginOptions": {}
     },
     "description": {
       "type": "text"
@@ -33,10 +32,7 @@
       "repeatable": true,
       "component": "button.files"
     },
-    "methodology": {
-      "type": "richtext"
-    },
-    "overal_report": {
+    "report": {
       "type": "richtext"
     }
   }
