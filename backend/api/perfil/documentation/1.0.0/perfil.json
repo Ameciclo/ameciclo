@@ -562,10 +562,7 @@
               }
             }
           },
-          "methodology": {
-            "type": "string"
-          },
-          "overal_report": {
+          "report": {
             "type": "string"
           },
           "published_at": {
@@ -753,10 +750,7 @@
               }
             }
           },
-          "methodology": {
-            "type": "string"
-          },
-          "overal_report": {
+          "report": {
             "type": "string"
           },
           "published_at": {
