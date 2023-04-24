@@ -312,7 +312,10 @@
     "schemas": {
       "Documentos": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objectives"
         ],
         "properties": {
           "id": {
@@ -398,6 +401,10 @@
         }
       },
       "NewDocumentos": {
+        "required": [
+          "description",
+          "objectives"
+        ],
         "properties": {
           "description": {
             "type": "string"

@@ -21,7 +21,7 @@
     },
     "url": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "cover": {
       "model": "file",
@@ -38,8 +38,19 @@
       "required": true
     },
     "type": {
+      "unique": true,
       "model": "documents-types",
       "via": "documentos"
+    },
+    "file": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "files"
+      ],
+      "plugin": "upload",
+      "required": true,
+      "pluginOptions": {}
     }
   }
 }

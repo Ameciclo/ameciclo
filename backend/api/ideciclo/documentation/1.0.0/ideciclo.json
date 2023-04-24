@@ -312,7 +312,10 @@
     "schemas": {
       "Ideciclo": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objective"
         ],
         "properties": {
           "id": {
@@ -572,6 +575,10 @@
         }
       },
       "NewIdeciclo": {
+        "required": [
+          "description",
+          "objective"
+        ],
         "properties": {
           "description": {
             "type": "string"

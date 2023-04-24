@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "04/24/2023 12:58:46 PM"
+    "x-generation-date": "04/24/2023 1:08:58 PM"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -14334,6 +14334,7 @@
       "Contagens": {
         "required": [
           "id",
+          "cover",
           "description",
           "objective"
         ],
@@ -14794,7 +14795,10 @@
       },
       "Documentos": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objectives"
         ],
         "properties": {
           "id": {
@@ -14880,6 +14884,10 @@
         }
       },
       "NewDocumentos": {
+        "required": [
+          "description",
+          "objectives"
+        ],
         "properties": {
           "description": {
             "type": "string"
@@ -14935,9 +14943,9 @@
                 "id",
                 "title",
                 "description",
-                "url",
                 "cover",
-                "release_date"
+                "release_date",
+                "file"
               ],
               "properties": {
                 "id": {
@@ -14959,6 +14967,9 @@
                   "type": "string"
                 },
                 "type": {
+                  "type": "string"
+                },
+                "file": {
                   "type": "string"
                 },
                 "published_at": {
@@ -15027,9 +15038,9 @@
           "id",
           "title",
           "description",
-          "url",
           "cover",
-          "release_date"
+          "release_date",
+          "file"
         ],
         "properties": {
           "id": {
@@ -15159,6 +15170,73 @@
               }
             }
           },
+          "file": {
+            "required": [
+              "id",
+              "name",
+              "hash",
+              "mime",
+              "size",
+              "url",
+              "provider"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "alternativeText": {
+                "type": "string"
+              },
+              "caption": {
+                "type": "string"
+              },
+              "width": {
+                "type": "integer"
+              },
+              "height": {
+                "type": "integer"
+              },
+              "formats": {
+                "type": "object"
+              },
+              "hash": {
+                "type": "string"
+              },
+              "ext": {
+                "type": "string"
+              },
+              "mime": {
+                "type": "string"
+              },
+              "size": {
+                "type": "number"
+              },
+              "url": {
+                "type": "string"
+              },
+              "previewUrl": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "provider_metadata": {
+                "type": "object"
+              },
+              "related": {
+                "type": "string"
+              },
+              "created_by": {
+                "type": "string"
+              },
+              "updated_by": {
+                "type": "string"
+              }
+            }
+          },
           "published_at": {
             "type": "string",
             "format": "date-time"
@@ -15169,7 +15247,6 @@
         "required": [
           "title",
           "description",
-          "url",
           "release_date"
         ],
         "properties": {
@@ -15723,7 +15800,10 @@
       },
       "Ideciclo": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objective"
         ],
         "properties": {
           "id": {
@@ -15983,6 +16063,10 @@
         }
       },
       "NewIdeciclo": {
+        "required": [
+          "description",
+          "objective"
+        ],
         "properties": {
           "description": {
             "type": "string"
@@ -16402,7 +16486,10 @@
       },
       "Observatorio-cicloviario": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objectives"
         ],
         "properties": {
           "id": {
@@ -16662,6 +16749,10 @@
         }
       },
       "NewObservatorio-cicloviario": {
+        "required": [
+          "description",
+          "objectives"
+        ],
         "properties": {
           "description": {
             "type": "string"
@@ -16857,7 +16948,10 @@
       },
       "Observatorio-mortes": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objectives"
         ],
         "properties": {
           "id": {
@@ -17117,6 +17211,10 @@
         }
       },
       "NewObservatorio-mortes": {
+        "required": [
+          "description",
+          "objectives"
+        ],
         "properties": {
           "description": {
             "type": "string"
@@ -17432,7 +17530,10 @@
       },
       "Perfil": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objective"
         ],
         "properties": {
           "id": {
@@ -17692,6 +17793,10 @@
         }
       },
       "NewPerfil": {
+        "required": [
+          "description",
+          "objective"
+        ],
         "properties": {
           "description": {
             "type": "string"
@@ -17887,7 +17992,9 @@
       },
       "Plataforma-de-dados": {
         "required": [
-          "id"
+          "id",
+          "description",
+          "cover"
         ],
         "properties": {
           "id": {
@@ -18061,6 +18168,9 @@
         }
       },
       "NewPlataforma-de-dados": {
+        "required": [
+          "description"
+        ],
         "properties": {
           "description": {
             "type": "string"

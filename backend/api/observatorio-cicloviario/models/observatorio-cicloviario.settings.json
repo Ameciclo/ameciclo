@@ -18,14 +18,16 @@
         "images"
       ],
       "plugin": "upload",
-      "required": false,
+      "required": true,
       "pluginOptions": {}
     },
     "description": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "objectives": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "archives": {
       "type": "component",

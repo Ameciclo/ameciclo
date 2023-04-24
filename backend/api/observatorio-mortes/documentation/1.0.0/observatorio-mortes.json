@@ -317,7 +317,10 @@
     "schemas": {
       "Observatorio-mortes": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objectives"
         ],
         "properties": {
           "id": {
@@ -577,6 +580,10 @@
         }
       },
       "NewObservatorio-mortes": {
+        "required": [
+          "description",
+          "objectives"
+        ],
         "properties": {
           "description": {
             "type": "string"

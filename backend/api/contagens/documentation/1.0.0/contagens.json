@@ -313,6 +313,7 @@
       "Contagens": {
         "required": [
           "id",
+          "cover",
           "description",
           "objective"
         ],

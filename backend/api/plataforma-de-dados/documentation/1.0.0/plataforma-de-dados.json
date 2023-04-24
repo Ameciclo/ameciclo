@@ -317,7 +317,9 @@
     "schemas": {
       "Plataforma-de-dados": {
         "required": [
-          "id"
+          "id",
+          "description",
+          "cover"
         ],
         "properties": {
           "id": {
@@ -491,6 +493,9 @@
         }
       },
       "NewPlataforma-de-dados": {
+        "required": [
+          "description"
+        ],
         "properties": {
           "description": {
             "type": "string"

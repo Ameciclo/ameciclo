@@ -563,9 +563,9 @@
                 "id",
                 "title",
                 "description",
-                "url",
                 "cover",
-                "release_date"
+                "release_date",
+                "file"
               ],
               "properties": {
                 "id": {
@@ -587,6 +587,9 @@
                   "type": "string"
                 },
                 "type": {
+                  "type": "string"
+                },
+                "file": {
                   "type": "string"
                 },
                 "published_at": {
