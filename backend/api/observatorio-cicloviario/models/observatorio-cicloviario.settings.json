@@ -1,0 +1,39 @@
+{
+  "kind": "singleType",
+  "collectionName": "observatorio_cicloviarios",
+  "info": {
+    "name": "Observatório Cicloviário",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "cover": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
+    },
+    "description": {
+      "type": "text"
+    },
+    "objectives": {
+      "type": "text"
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
+    },
+    "report": {
+      "type": "richtext"
+    }
+  }
+}
