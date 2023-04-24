@@ -2,7 +2,7 @@
   "kind": "collectionType",
   "collectionName": "documents_types",
   "info": {
-    "name": "documents-types",
+    "name": "Documentos (Tipos)",
     "description": ""
   },
   "options": {
@@ -35,6 +35,10 @@
       "type": "uid",
       "targetField": "type",
       "required": true
+    },
+    "documentos": {
+      "via": "type",
+      "collection": "documents"
     }
   }
 }

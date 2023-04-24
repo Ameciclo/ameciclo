@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "04/24/2023 12:14:44 PM"
+    "x-generation-date": "04/24/2023 12:19:27 PM"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -14304,6 +14304,51 @@
           "slug": {
             "type": "uid"
           },
+          "documentos": {
+            "type": "array",
+            "items": {
+              "required": [
+                "id",
+                "title",
+                "description",
+                "url",
+                "cover",
+                "release_date"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "release_date": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "published_at": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "published_at": {
             "type": "string",
             "format": "date-time"
@@ -14335,6 +14380,12 @@
           "slug": {
             "type": "uid"
           },
+          "documentos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "published_at": {
             "type": "string",
             "format": "date-time"
@@ -14354,7 +14405,6 @@
           "description",
           "url",
           "cover",
-          "type",
           "release_date"
         ],
         "properties": {
@@ -14437,17 +14487,53 @@
               }
             }
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "studies",
-              "books",
-              "other"
-            ]
-          },
           "release_date": {
             "type": "string",
             "format": "date"
+          },
+          "type": {
+            "required": [
+              "id",
+              "type",
+              "background_color",
+              "font_color",
+              "slug"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "background_color": {
+                "type": "string"
+              },
+              "font_color": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "uid"
+              },
+              "documentos": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "published_at": {
+                "type": "string"
+              },
+              "created_by": {
+                "type": "string"
+              },
+              "updated_by": {
+                "type": "string"
+              }
+            }
           },
           "published_at": {
             "type": "string",
@@ -14460,7 +14546,6 @@
           "title",
           "description",
           "url",
-          "type",
           "release_date"
         ],
         "properties": {
@@ -14473,17 +14558,12 @@
           "url": {
             "type": "string"
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "studies",
-              "books",
-              "other"
-            ]
-          },
           "release_date": {
             "type": "string",
             "format": "date"
+          },
+          "type": {
+            "type": "string"
           },
           "published_at": {
             "type": "string",

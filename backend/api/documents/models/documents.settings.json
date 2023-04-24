@@ -30,20 +30,16 @@
         "images"
       ],
       "plugin": "upload",
-      "required": true
-    },
-    "type": {
-      "type": "enumeration",
-      "enum": [
-        "studies",
-        "books",
-        "other"
-      ],
-      "required": true
+      "required": true,
+      "pluginOptions": {}
     },
     "release_date": {
       "type": "date",
       "required": true
+    },
+    "type": {
+      "model": "documents-types",
+      "via": "documentos"
     }
   }
 }
