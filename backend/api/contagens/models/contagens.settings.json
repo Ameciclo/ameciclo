@@ -20,7 +20,8 @@
         "videos"
       ],
       "plugin": "upload",
-      "required": false
+      "required": false,
+      "pluginOptions": {}
     },
     "description": {
       "type": "text",
@@ -31,21 +32,12 @@
       "unique": false,
       "required": true
     },
-    "counts": {
-      "type": "component",
-      "repeatable": true,
-      "component": "button.cyclists-counts",
-      "required": true
-    },
-    "methodology": {
-      "type": "richtext"
-    },
     "archives": {
       "type": "component",
       "repeatable": true,
       "component": "button.files"
     },
-    "overal_report": {
+    "report": {
       "type": "richtext"
     }
   }
