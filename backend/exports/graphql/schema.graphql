@@ -577,6 +577,205 @@ type deleteClippingPayload {
   clipping: Clipping
 }
 
+type ContagensDeCiclistas {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  name: String
+  latitude: Float
+  longitude: Float
+  slug: String
+  cover: UploadFile
+  summary: String
+  report: UploadFile
+  count_data: UploadFile
+  count_aditional_data: UploadFile
+  date: Date
+  published_at: DateTime
+  photos(sort: String, limit: Int, start: Int, where: JSON): [UploadFile]
+}
+
+type ContagensDeCiclistasConnection {
+  values: [ContagensDeCiclistas]
+  groupBy: ContagensDeCiclistasGroupBy
+  aggregate: ContagensDeCiclistasAggregator
+}
+
+type ContagensDeCiclistasAggregator {
+  count: Int
+  totalCount: Int
+  sum: ContagensDeCiclistasAggregatorSum
+  avg: ContagensDeCiclistasAggregatorAvg
+  min: ContagensDeCiclistasAggregatorMin
+  max: ContagensDeCiclistasAggregatorMax
+}
+
+type ContagensDeCiclistasAggregatorSum {
+  latitude: Float
+  longitude: Float
+}
+
+type ContagensDeCiclistasAggregatorAvg {
+  latitude: Float
+  longitude: Float
+}
+
+type ContagensDeCiclistasAggregatorMin {
+  latitude: Float
+  longitude: Float
+}
+
+type ContagensDeCiclistasAggregatorMax {
+  latitude: Float
+  longitude: Float
+}
+
+type ContagensDeCiclistasGroupBy {
+  id: [ContagensDeCiclistasConnectionId]
+  created_at: [ContagensDeCiclistasConnectionCreated_at]
+  updated_at: [ContagensDeCiclistasConnectionUpdated_at]
+  name: [ContagensDeCiclistasConnectionName]
+  latitude: [ContagensDeCiclistasConnectionLatitude]
+  longitude: [ContagensDeCiclistasConnectionLongitude]
+  slug: [ContagensDeCiclistasConnectionSlug]
+  cover: [ContagensDeCiclistasConnectionCover]
+  summary: [ContagensDeCiclistasConnectionSummary]
+  report: [ContagensDeCiclistasConnectionReport]
+  count_data: [ContagensDeCiclistasConnectionCount_data]
+  count_aditional_data: [ContagensDeCiclistasConnectionCount_aditional_data]
+  date: [ContagensDeCiclistasConnectionDate]
+  published_at: [ContagensDeCiclistasConnectionPublished_at]
+}
+
+type ContagensDeCiclistasConnectionId {
+  key: ID
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionCreated_at {
+  key: DateTime
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionUpdated_at {
+  key: DateTime
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionName {
+  key: String
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionLatitude {
+  key: Float
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionLongitude {
+  key: Float
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionSlug {
+  key: String
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionCover {
+  key: ID
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionSummary {
+  key: String
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionReport {
+  key: ID
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionCount_data {
+  key: ID
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionCount_aditional_data {
+  key: ID
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionDate {
+  key: ID
+  connection: ContagensDeCiclistasConnection
+}
+
+type ContagensDeCiclistasConnectionPublished_at {
+  key: DateTime
+  connection: ContagensDeCiclistasConnection
+}
+
+input ContagensDeCiclistaInput {
+  name: String
+  latitude: Float
+  longitude: Float
+  slug: String
+  photos: [ID]
+  cover: ID
+  summary: String
+  report: ID
+  count_data: ID
+  count_aditional_data: ID
+  date: Date
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editContagensDeCiclistaInput {
+  name: String
+  latitude: Float
+  longitude: Float
+  slug: String
+  photos: [ID]
+  cover: ID
+  summary: String
+  report: ID
+  count_data: ID
+  count_aditional_data: ID
+  date: Date
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createContagensDeCiclistaInput {
+  data: ContagensDeCiclistaInput
+}
+
+type createContagensDeCiclistaPayload {
+  contagensDeCiclista: ContagensDeCiclistas
+}
+
+input updateContagensDeCiclistaInput {
+  where: InputID
+  data: editContagensDeCiclistaInput
+}
+
+type updateContagensDeCiclistaPayload {
+  contagensDeCiclista: ContagensDeCiclistas
+}
+
+input deleteContagensDeCiclistaInput {
+  where: InputID
+}
+
+type deleteContagensDeCiclistaPayload {
+  contagensDeCiclista: ContagensDeCiclistas
+}
+
 type Contagens {
   id: ID!
   created_at: DateTime!
@@ -584,10 +783,8 @@ type Contagens {
   cover: UploadFile
   description: String!
   objective: String!
-  counts: [ComponentButtonCyclistsCounts]
-  methodology: String
   archives: [ComponentButtonFiles]
-  overal_report: String
+  report: String
   published_at: DateTime
 }
 
@@ -595,10 +792,8 @@ input ContagenInput {
   cover: ID
   description: String!
   objective: String!
-  counts: [ComponentButtonCyclistsCountInput!]
-  methodology: String
   archives: [ComponentButtonFileInput]
-  overal_report: String
+  report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -608,10 +803,8 @@ input editContagenInput {
   cover: ID
   description: String
   objective: String
-  counts: [editComponentButtonCyclistsCountInput]
-  methodology: String
   archives: [editComponentButtonFileInput]
-  overal_report: String
+  report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -634,17 +827,15 @@ type Documentos {
   created_at: DateTime!
   updated_at: DateTime!
   cover: UploadFile
-  description: String
-  objectives: String
-  archives: [ComponentButtonFiles]
+  description: String!
+  objectives: String!
   published_at: DateTime
 }
 
 input DocumentoInput {
   cover: ID
-  description: String
-  objectives: String
-  archives: [ComponentButtonFileInput]
+  description: String!
+  objectives: String!
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -654,7 +845,6 @@ input editDocumentoInput {
   cover: ID
   description: String
   objectives: String
-  archives: [editComponentButtonFileInput]
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -672,10 +862,134 @@ type deleteDocumentoPayload {
   documento: Documentos
 }
 
-enum ENUM_DOCUMENTS_TYPE {
-  studies
-  books
-  other
+type DocumentsTypes {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  type: String!
+  description: String
+  background_color: String!
+  font_color: String!
+  slug: String!
+  published_at: DateTime
+  documentos(sort: String, limit: Int, start: Int, where: JSON): [Documents]
+}
+
+type DocumentsTypesConnection {
+  values: [DocumentsTypes]
+  groupBy: DocumentsTypesGroupBy
+  aggregate: DocumentsTypesAggregator
+}
+
+type DocumentsTypesAggregator {
+  count: Int
+  totalCount: Int
+}
+
+type DocumentsTypesGroupBy {
+  id: [DocumentsTypesConnectionId]
+  created_at: [DocumentsTypesConnectionCreated_at]
+  updated_at: [DocumentsTypesConnectionUpdated_at]
+  type: [DocumentsTypesConnectionType]
+  description: [DocumentsTypesConnectionDescription]
+  background_color: [DocumentsTypesConnectionBackground_color]
+  font_color: [DocumentsTypesConnectionFont_color]
+  slug: [DocumentsTypesConnectionSlug]
+  published_at: [DocumentsTypesConnectionPublished_at]
+}
+
+type DocumentsTypesConnectionId {
+  key: ID
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionCreated_at {
+  key: DateTime
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionUpdated_at {
+  key: DateTime
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionType {
+  key: String
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionDescription {
+  key: String
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionBackground_color {
+  key: String
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionFont_color {
+  key: String
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionSlug {
+  key: String
+  connection: DocumentsTypesConnection
+}
+
+type DocumentsTypesConnectionPublished_at {
+  key: DateTime
+  connection: DocumentsTypesConnection
+}
+
+input DocumentsTypeInput {
+  type: String!
+  description: String
+  background_color: String
+  font_color: String
+  slug: String!
+  documentos: [ID]
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editDocumentsTypeInput {
+  type: String
+  description: String
+  background_color: String
+  font_color: String
+  slug: String
+  documentos: [ID]
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input createDocumentsTypeInput {
+  data: DocumentsTypeInput
+}
+
+type createDocumentsTypePayload {
+  documentsType: DocumentsTypes
+}
+
+input updateDocumentsTypeInput {
+  where: InputID
+  data: editDocumentsTypeInput
+}
+
+type updateDocumentsTypePayload {
+  documentsType: DocumentsTypes
+}
+
+input deleteDocumentsTypeInput {
+  where: InputID
+}
+
+type deleteDocumentsTypePayload {
+  documentsType: DocumentsTypes
 }
 
 type Documents {
@@ -684,10 +998,11 @@ type Documents {
   updated_at: DateTime!
   title: String!
   description: String!
-  url: String!
+  url: String
   cover: UploadFile
-  type: ENUM_DOCUMENTS_TYPE!
   release_date: Date!
+  type: DocumentsTypes
+  file: UploadFile
   published_at: DateTime
 }
 
@@ -710,8 +1025,9 @@ type DocumentsGroupBy {
   description: [DocumentsConnectionDescription]
   url: [DocumentsConnectionUrl]
   cover: [DocumentsConnectionCover]
-  type: [DocumentsConnectionType]
   release_date: [DocumentsConnectionRelease_date]
+  type: [DocumentsConnectionType]
+  file: [DocumentsConnectionFile]
   published_at: [DocumentsConnectionPublished_at]
 }
 
@@ -750,12 +1066,17 @@ type DocumentsConnectionCover {
   connection: DocumentsConnection
 }
 
-type DocumentsConnectionType {
-  key: String
+type DocumentsConnectionRelease_date {
+  key: ID
   connection: DocumentsConnection
 }
 
-type DocumentsConnectionRelease_date {
+type DocumentsConnectionType {
+  key: ID
+  connection: DocumentsConnection
+}
+
+type DocumentsConnectionFile {
   key: ID
   connection: DocumentsConnection
 }
@@ -768,10 +1089,11 @@ type DocumentsConnectionPublished_at {
 input DocumentInput {
   title: String!
   description: String!
-  url: String!
+  url: String
   cover: ID
-  type: ENUM_DOCUMENTS_TYPE!
   release_date: Date!
+  type: ID
+  file: ID
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -782,8 +1104,9 @@ input editDocumentInput {
   description: String
   url: String
   cover: ID
-  type: ENUM_DOCUMENTS_TYPE
   release_date: Date
+  type: ID
+  file: ID
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1074,21 +1397,19 @@ type Ideciclo {
   created_at: DateTime!
   updated_at: DateTime!
   cover: UploadFile
-  description: String
-  objective: String
+  description: String!
+  objective: String!
   archives: [ComponentButtonFiles]
-  methodology: String
-  overal_report: String
+  report: String
   published_at: DateTime
 }
 
 input IdecicloInput {
   cover: ID
-  description: String
-  objective: String
+  description: String!
+  objective: String!
   archives: [ComponentButtonFileInput]
-  methodology: String
-  overal_report: String
+  report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1099,8 +1420,7 @@ input editIdecicloInput {
   description: String
   objective: String
   archives: [editComponentButtonFileInput]
-  methodology: String
-  overal_report: String
+  report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1432,6 +1752,98 @@ type deleteLocationPayload {
   location: Locations
 }
 
+type ObservatorioCicloviario {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  cover: UploadFile
+  description: String!
+  objectives: String!
+  archives: [ComponentButtonFiles]
+  report: String
+  published_at: DateTime
+}
+
+input ObservatorioCicloviarioInput {
+  cover: ID
+  description: String!
+  objectives: String!
+  archives: [ComponentButtonFileInput]
+  report: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editObservatorioCicloviarioInput {
+  cover: ID
+  description: String
+  objectives: String
+  archives: [editComponentButtonFileInput]
+  report: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input updateObservatorioCicloviarioInput {
+  data: editObservatorioCicloviarioInput
+}
+
+type updateObservatorioCicloviarioPayload {
+  observatorioCicloviario: ObservatorioCicloviario
+}
+
+type deleteObservatorioCicloviarioPayload {
+  observatorioCicloviario: ObservatorioCicloviario
+}
+
+type ObservatorioMortes {
+  id: ID!
+  created_at: DateTime!
+  updated_at: DateTime!
+  cover: UploadFile
+  description: String!
+  objectives: String!
+  archives: [ComponentButtonFiles]
+  report: String
+  published_at: DateTime
+}
+
+input ObservatorioMorteInput {
+  cover: ID
+  description: String!
+  objectives: String!
+  archives: [ComponentButtonFileInput]
+  report: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input editObservatorioMorteInput {
+  cover: ID
+  description: String
+  objectives: String
+  archives: [editComponentButtonFileInput]
+  report: String
+  published_at: DateTime
+  created_by: ID
+  updated_by: ID
+}
+
+input updateObservatorioMorteInput {
+  data: editObservatorioMorteInput
+}
+
+type updateObservatorioMortePayload {
+  observatorioMorte: ObservatorioMortes
+}
+
+type deleteObservatorioMortePayload {
+  observatorioMorte: ObservatorioMortes
+}
+
 type Partners {
   id: ID!
   created_at: DateTime!
@@ -1555,21 +1967,19 @@ type Perfil {
   created_at: DateTime!
   updated_at: DateTime!
   cover: UploadFile
-  description: String
-  objective: String
+  description: String!
+  objective: String!
   archives: [ComponentButtonFiles]
-  methodology: String
-  overal_report: String
+  report: String
   published_at: DateTime
 }
 
 input PerfilInput {
   cover: ID
-  description: String
-  objective: String
+  description: String!
+  objective: String!
   archives: [ComponentButtonFileInput]
-  methodology: String
-  overal_report: String
+  report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1580,8 +1990,7 @@ input editPerfilInput {
   description: String
   objective: String
   archives: [editComponentButtonFileInput]
-  methodology: String
-  overal_report: String
+  report: String
   published_at: DateTime
   created_by: ID
   updated_by: ID
@@ -1603,14 +2012,14 @@ type PlataformaDeDados {
   id: ID!
   created_at: DateTime!
   updated_at: DateTime!
-  description: String
+  description: String!
   cover: UploadFile
   partners: [ComponentButtonStep]
   published_at: DateTime
 }
 
 input PlataformaDeDadoInput {
-  description: String
+  description: String!
   cover: ID
   partners: [ComponentButtonStepInput]
   published_at: DateTime
@@ -2748,47 +3157,6 @@ input editComponentButtonCarouselInput {
   active: Boolean
 }
 
-type ComponentButtonCyclistsCounts {
-  id: ID!
-  count_id: String
-  place: String!
-  description: String
-  date: Date!
-  latitude: Float
-  longitude: Float
-  cover: UploadFile
-  csv: UploadFile
-  report: UploadFile
-  pictures(sort: String, limit: Int, start: Int, where: JSON): [UploadFile]
-}
-
-input ComponentButtonCyclistsCountInput {
-  count_id: String
-  place: String!
-  description: String
-  date: Date!
-  latitude: Float
-  longitude: Float
-  pictures: [ID]
-  cover: ID
-  csv: ID
-  report: ID
-}
-
-input editComponentButtonCyclistsCountInput {
-  id: ID
-  count_id: String
-  place: String
-  description: String
-  date: Date
-  latitude: Float
-  longitude: Float
-  pictures: [ID]
-  cover: ID
-  csv: ID
-  report: ID
-}
-
 enum ENUM_COMPONENTBUTTONFILES_TYPE {
   books
   studies
@@ -2867,7 +3235,7 @@ input editComponentButtonStepInput {
   link: String
 }
 
-union Morph = UsersPermissionsMe | UsersPermissionsMeRole | UsersPermissionsLoginPayload | UserPermissionsPasswordPayload | Ameciclistas | AmeciclistasConnection | AmeciclistasAggregator | AmeciclistasGroupBy | AmeciclistasConnectionId | AmeciclistasConnectionCreated_at | AmeciclistasConnectionUpdated_at | AmeciclistasConnectionName | AmeciclistasConnectionBio | AmeciclistasConnectionMedia | AmeciclistasConnectionBotmember | AmeciclistasConnectionRole | AmeciclistasConnectionPublished_at | createAmeciclistaPayload | updateAmeciclistaPayload | deleteAmeciclistaPayload | Botmembers | BotmembersConnection | BotmembersAggregator | BotmembersGroupBy | BotmembersConnectionId | BotmembersConnectionCreated_at | BotmembersConnectionUpdated_at | BotmembersConnectionTelegram_id | BotmembersConnectionDaily_notifications | BotmembersConnectionOncethere | BotmembersConnectionAmeciclista | BotmembersConnectionTelegram_nick | BotmembersConnectionPublished_at | createBotmemberPayload | updateBotmemberPayload | deleteBotmemberPayload | ClippingMedia | ClippingMediaConnection | ClippingMediaAggregator | ClippingMediaGroupBy | ClippingMediaConnectionId | ClippingMediaConnectionCreated_at | ClippingMediaConnectionUpdated_at | ClippingMediaConnectionName | ClippingMediaConnectionType | ClippingMediaConnectionLogo | ClippingMediaConnectionUrl | ClippingMediaConnectionPublished_at | createClippingMediaPayload | updateClippingMediaPayload | deleteClippingMediaPayload | Clipping | ClippingConnection | ClippingAggregator | ClippingGroupBy | ClippingConnectionId | ClippingConnectionCreated_at | ClippingConnectionUpdated_at | ClippingConnectionTitle | ClippingConnectionLink | ClippingConnectionDate | ClippingConnectionText | ClippingConnectionProject | ClippingConnectionPublished_at | createClippingPayload | updateClippingPayload | deleteClippingPayload | Contagens | updateContagenPayload | deleteContagenPayload | Documentos | updateDocumentoPayload | deleteDocumentoPayload | Documents | DocumentsConnection | DocumentsAggregator | DocumentsGroupBy | DocumentsConnectionId | DocumentsConnectionCreated_at | DocumentsConnectionUpdated_at | DocumentsConnectionTitle | DocumentsConnectionDescription | DocumentsConnectionUrl | DocumentsConnectionCover | DocumentsConnectionType | DocumentsConnectionRelease_date | DocumentsConnectionPublished_at | createDocumentPayload | updateDocumentPayload | deleteDocumentPayload | FaqTag | FaqTagConnection | FaqTagAggregator | FaqTagGroupBy | FaqTagConnectionId | FaqTagConnectionCreated_at | FaqTagConnectionUpdated_at | FaqTagConnectionTitle | FaqTagConnectionIcon | FaqTagConnectionSlug | createFaqTagPayload | updateFaqTagPayload | deleteFaqTagPayload | Faq | FaqConnection | FaqAggregator | FaqGroupBy | FaqConnectionId | FaqConnectionCreated_at | FaqConnectionUpdated_at | FaqConnectionTitle | FaqConnectionDescription | FaqConnectionAnswer | createFaqPayload | updateFaqPayload | deleteFaqPayload | Home | updateHomePayload | deleteHomePayload | Ideciclo | updateIdecicloPayload | deleteIdecicloPayload | Library | LibraryConnection | LibraryAggregator | LibraryAggregatorSum | LibraryAggregatorAvg | LibraryAggregatorMin | LibraryAggregatorMax | LibraryGroupBy | LibraryConnectionId | LibraryConnectionCreated_at | LibraryConnectionUpdated_at | LibraryConnectionRegister | LibraryConnectionTitle | LibraryConnectionAuthor | LibraryConnectionYear | LibraryConnectionCopies | LibraryConnectionType | LibraryConnectionCover | LibraryConnectionSummary | LibraryConnectionISBN | LibraryConnectionPublished_at | createLibraryPayload | updateLibraryPayload | deleteLibraryPayload | Locations | LocationsConnection | LocationsAggregator | LocationsGroupBy | LocationsConnectionId | LocationsConnectionCreated_at | LocationsConnectionUpdated_at | LocationsConnectionName | LocationsConnectionAddress | LocationsConnectionIsVirtual | LocationsConnectionShow_on_telegram | LocationsConnectionPublished_at | createLocationPayload | updateLocationPayload | deleteLocationPayload | Partners | PartnersConnection | PartnersAggregator | PartnersGroupBy | PartnersConnectionId | PartnersConnectionCreated_at | PartnersConnectionUpdated_at | PartnersConnectionName | PartnersConnectionUrl | PartnersConnectionLogo | PartnersConnectionSponsor | PartnersConnectionPublished_at | createPartnerPayload | updatePartnerPayload | deletePartnerPayload | Perfil | updatePerfilPayload | deletePerfilPayload | PlataformaDeDados | updatePlataformaDeDadoPayload | deletePlataformaDeDadoPayload | Products | ProductsConnection | ProductsAggregator | ProductsAggregatorSum | ProductsAggregatorAvg | ProductsAggregatorMin | ProductsAggregatorMax | ProductsGroupBy | ProductsConnectionId | ProductsConnectionCreated_at | ProductsConnectionUpdated_at | ProductsConnectionTitle | ProductsConnectionUrl | ProductsConnectionDesc | ProductsConnectionUnits | ProductsConnectionMedia | ProductsConnectionValue | ProductsConnectionPublished_at | createProductPayload | updateProductPayload | deleteProductPayload | Project | ProjectConnection | ProjectAggregator | ProjectGroupBy | ProjectConnectionId | ProjectConnectionCreated_at | ProjectConnectionUpdated_at | ProjectConnectionName | ProjectConnectionMedia | ProjectConnectionGoal | ProjectConnectionEndDate | ProjectConnectionDescription | ProjectConnectionStartDate | ProjectConnectionStatus | ProjectConnectionBikeCulture | ProjectConnectionInstArticulation | ProjectConnectionPoliticIncidence | ProjectConnectionSlug | ProjectConnectionIsHighlighted | ProjectConnectionWorkgroup | ProjectConnectionCoordinator | ProjectConnectionCover | ProjectConnectionLong_description | ProjectConnectionShowTitle | createProjectPayload | updateProjectPayload | deleteProjectPayload | QuemSomos | updateQuemSomoPayload | deleteQuemSomoPayload | Workgroups | WorkgroupsConnection | WorkgroupsAggregator | WorkgroupsGroupBy | WorkgroupsConnectionId | WorkgroupsConnectionCreated_at | WorkgroupsConnectionUpdated_at | WorkgroupsConnectionName | WorkgroupsConnectionTelegram_id | WorkgroupsConnectionIcon | WorkgroupsConnectionTelegram_url | WorkgroupsConnectionDescription | WorkgroupsConnectionFolder_url | WorkgroupsConnectionDirective | WorkgroupsConnectionPublished_at | createWorkgroupPayload | updateWorkgroupPayload | deleteWorkgroupPayload | UploadFile | UploadFileConnection | UploadFileAggregator | UploadFileAggregatorSum | UploadFileAggregatorAvg | UploadFileAggregatorMin | UploadFileAggregatorMax | UploadFileGroupBy | UploadFileConnectionId | UploadFileConnectionCreated_at | UploadFileConnectionUpdated_at | UploadFileConnectionName | UploadFileConnectionAlternativeText | UploadFileConnectionCaption | UploadFileConnectionWidth | UploadFileConnectionHeight | UploadFileConnectionFormats | UploadFileConnectionHash | UploadFileConnectionExt | UploadFileConnectionMime | UploadFileConnectionSize | UploadFileConnectionUrl | UploadFileConnectionPreviewUrl | UploadFileConnectionProvider | UploadFileConnectionProvider_metadata | deleteFilePayload | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsRoleConnection | UsersPermissionsRoleAggregator | UsersPermissionsRoleGroupBy | UsersPermissionsRoleConnectionId | UsersPermissionsRoleConnectionName | UsersPermissionsRoleConnectionDescription | UsersPermissionsRoleConnectionType | createRolePayload | updateRolePayload | deleteRolePayload | UsersPermissionsUser | UsersPermissionsUserConnection | UsersPermissionsUserAggregator | UsersPermissionsUserGroupBy | UsersPermissionsUserConnectionId | UsersPermissionsUserConnectionCreated_at | UsersPermissionsUserConnectionUpdated_at | UsersPermissionsUserConnectionUsername | UsersPermissionsUserConnectionEmail | UsersPermissionsUserConnectionProvider | UsersPermissionsUserConnectionConfirmed | UsersPermissionsUserConnectionBlocked | UsersPermissionsUserConnectionRole | createUserPayload | updateUserPayload | deleteUserPayload | ComponentButtonCarousel | ComponentButtonCyclistsCounts | ComponentButtonFiles | ComponentButtonLinks | ComponentButtonStep
+union Morph = UsersPermissionsMe | UsersPermissionsMeRole | UsersPermissionsLoginPayload | UserPermissionsPasswordPayload | Ameciclistas | AmeciclistasConnection | AmeciclistasAggregator | AmeciclistasGroupBy | AmeciclistasConnectionId | AmeciclistasConnectionCreated_at | AmeciclistasConnectionUpdated_at | AmeciclistasConnectionName | AmeciclistasConnectionBio | AmeciclistasConnectionMedia | AmeciclistasConnectionBotmember | AmeciclistasConnectionRole | AmeciclistasConnectionPublished_at | createAmeciclistaPayload | updateAmeciclistaPayload | deleteAmeciclistaPayload | Botmembers | BotmembersConnection | BotmembersAggregator | BotmembersGroupBy | BotmembersConnectionId | BotmembersConnectionCreated_at | BotmembersConnectionUpdated_at | BotmembersConnectionTelegram_id | BotmembersConnectionDaily_notifications | BotmembersConnectionOncethere | BotmembersConnectionAmeciclista | BotmembersConnectionTelegram_nick | BotmembersConnectionPublished_at | createBotmemberPayload | updateBotmemberPayload | deleteBotmemberPayload | ClippingMedia | ClippingMediaConnection | ClippingMediaAggregator | ClippingMediaGroupBy | ClippingMediaConnectionId | ClippingMediaConnectionCreated_at | ClippingMediaConnectionUpdated_at | ClippingMediaConnectionName | ClippingMediaConnectionType | ClippingMediaConnectionLogo | ClippingMediaConnectionUrl | ClippingMediaConnectionPublished_at | createClippingMediaPayload | updateClippingMediaPayload | deleteClippingMediaPayload | Clipping | ClippingConnection | ClippingAggregator | ClippingGroupBy | ClippingConnectionId | ClippingConnectionCreated_at | ClippingConnectionUpdated_at | ClippingConnectionTitle | ClippingConnectionLink | ClippingConnectionDate | ClippingConnectionText | ClippingConnectionProject | ClippingConnectionPublished_at | createClippingPayload | updateClippingPayload | deleteClippingPayload | ContagensDeCiclistas | ContagensDeCiclistasConnection | ContagensDeCiclistasAggregator | ContagensDeCiclistasAggregatorSum | ContagensDeCiclistasAggregatorAvg | ContagensDeCiclistasAggregatorMin | ContagensDeCiclistasAggregatorMax | ContagensDeCiclistasGroupBy | ContagensDeCiclistasConnectionId | ContagensDeCiclistasConnectionCreated_at | ContagensDeCiclistasConnectionUpdated_at | ContagensDeCiclistasConnectionName | ContagensDeCiclistasConnectionLatitude | ContagensDeCiclistasConnectionLongitude | ContagensDeCiclistasConnectionSlug | ContagensDeCiclistasConnectionCover | ContagensDeCiclistasConnectionSummary | ContagensDeCiclistasConnectionReport | ContagensDeCiclistasConnectionCount_data | ContagensDeCiclistasConnectionCount_aditional_data | ContagensDeCiclistasConnectionDate | ContagensDeCiclistasConnectionPublished_at | createContagensDeCiclistaPayload | updateContagensDeCiclistaPayload | deleteContagensDeCiclistaPayload | Contagens | updateContagenPayload | deleteContagenPayload | Documentos | updateDocumentoPayload | deleteDocumentoPayload | DocumentsTypes | DocumentsTypesConnection | DocumentsTypesAggregator | DocumentsTypesGroupBy | DocumentsTypesConnectionId | DocumentsTypesConnectionCreated_at | DocumentsTypesConnectionUpdated_at | DocumentsTypesConnectionType | DocumentsTypesConnectionDescription | DocumentsTypesConnectionBackground_color | DocumentsTypesConnectionFont_color | DocumentsTypesConnectionSlug | DocumentsTypesConnectionPublished_at | createDocumentsTypePayload | updateDocumentsTypePayload | deleteDocumentsTypePayload | Documents | DocumentsConnection | DocumentsAggregator | DocumentsGroupBy | DocumentsConnectionId | DocumentsConnectionCreated_at | DocumentsConnectionUpdated_at | DocumentsConnectionTitle | DocumentsConnectionDescription | DocumentsConnectionUrl | DocumentsConnectionCover | DocumentsConnectionRelease_date | DocumentsConnectionType | DocumentsConnectionFile | DocumentsConnectionPublished_at | createDocumentPayload | updateDocumentPayload | deleteDocumentPayload | FaqTag | FaqTagConnection | FaqTagAggregator | FaqTagGroupBy | FaqTagConnectionId | FaqTagConnectionCreated_at | FaqTagConnectionUpdated_at | FaqTagConnectionTitle | FaqTagConnectionIcon | FaqTagConnectionSlug | createFaqTagPayload | updateFaqTagPayload | deleteFaqTagPayload | Faq | FaqConnection | FaqAggregator | FaqGroupBy | FaqConnectionId | FaqConnectionCreated_at | FaqConnectionUpdated_at | FaqConnectionTitle | FaqConnectionDescription | FaqConnectionAnswer | createFaqPayload | updateFaqPayload | deleteFaqPayload | Home | updateHomePayload | deleteHomePayload | Ideciclo | updateIdecicloPayload | deleteIdecicloPayload | Library | LibraryConnection | LibraryAggregator | LibraryAggregatorSum | LibraryAggregatorAvg | LibraryAggregatorMin | LibraryAggregatorMax | LibraryGroupBy | LibraryConnectionId | LibraryConnectionCreated_at | LibraryConnectionUpdated_at | LibraryConnectionRegister | LibraryConnectionTitle | LibraryConnectionAuthor | LibraryConnectionYear | LibraryConnectionCopies | LibraryConnectionType | LibraryConnectionCover | LibraryConnectionSummary | LibraryConnectionISBN | LibraryConnectionPublished_at | createLibraryPayload | updateLibraryPayload | deleteLibraryPayload | Locations | LocationsConnection | LocationsAggregator | LocationsGroupBy | LocationsConnectionId | LocationsConnectionCreated_at | LocationsConnectionUpdated_at | LocationsConnectionName | LocationsConnectionAddress | LocationsConnectionIsVirtual | LocationsConnectionShow_on_telegram | LocationsConnectionPublished_at | createLocationPayload | updateLocationPayload | deleteLocationPayload | ObservatorioCicloviario | updateObservatorioCicloviarioPayload | deleteObservatorioCicloviarioPayload | ObservatorioMortes | updateObservatorioMortePayload | deleteObservatorioMortePayload | Partners | PartnersConnection | PartnersAggregator | PartnersGroupBy | PartnersConnectionId | PartnersConnectionCreated_at | PartnersConnectionUpdated_at | PartnersConnectionName | PartnersConnectionUrl | PartnersConnectionLogo | PartnersConnectionSponsor | PartnersConnectionPublished_at | createPartnerPayload | updatePartnerPayload | deletePartnerPayload | Perfil | updatePerfilPayload | deletePerfilPayload | PlataformaDeDados | updatePlataformaDeDadoPayload | deletePlataformaDeDadoPayload | Products | ProductsConnection | ProductsAggregator | ProductsAggregatorSum | ProductsAggregatorAvg | ProductsAggregatorMin | ProductsAggregatorMax | ProductsGroupBy | ProductsConnectionId | ProductsConnectionCreated_at | ProductsConnectionUpdated_at | ProductsConnectionTitle | ProductsConnectionUrl | ProductsConnectionDesc | ProductsConnectionUnits | ProductsConnectionMedia | ProductsConnectionValue | ProductsConnectionPublished_at | createProductPayload | updateProductPayload | deleteProductPayload | Project | ProjectConnection | ProjectAggregator | ProjectGroupBy | ProjectConnectionId | ProjectConnectionCreated_at | ProjectConnectionUpdated_at | ProjectConnectionName | ProjectConnectionMedia | ProjectConnectionGoal | ProjectConnectionEndDate | ProjectConnectionDescription | ProjectConnectionStartDate | ProjectConnectionStatus | ProjectConnectionBikeCulture | ProjectConnectionInstArticulation | ProjectConnectionPoliticIncidence | ProjectConnectionSlug | ProjectConnectionIsHighlighted | ProjectConnectionWorkgroup | ProjectConnectionCoordinator | ProjectConnectionCover | ProjectConnectionLong_description | ProjectConnectionShowTitle | createProjectPayload | updateProjectPayload | deleteProjectPayload | QuemSomos | updateQuemSomoPayload | deleteQuemSomoPayload | Workgroups | WorkgroupsConnection | WorkgroupsAggregator | WorkgroupsGroupBy | WorkgroupsConnectionId | WorkgroupsConnectionCreated_at | WorkgroupsConnectionUpdated_at | WorkgroupsConnectionName | WorkgroupsConnectionTelegram_id | WorkgroupsConnectionIcon | WorkgroupsConnectionTelegram_url | WorkgroupsConnectionDescription | WorkgroupsConnectionFolder_url | WorkgroupsConnectionDirective | WorkgroupsConnectionPublished_at | createWorkgroupPayload | updateWorkgroupPayload | deleteWorkgroupPayload | UploadFile | UploadFileConnection | UploadFileAggregator | UploadFileAggregatorSum | UploadFileAggregatorAvg | UploadFileAggregatorMin | UploadFileAggregatorMax | UploadFileGroupBy | UploadFileConnectionId | UploadFileConnectionCreated_at | UploadFileConnectionUpdated_at | UploadFileConnectionName | UploadFileConnectionAlternativeText | UploadFileConnectionCaption | UploadFileConnectionWidth | UploadFileConnectionHeight | UploadFileConnectionFormats | UploadFileConnectionHash | UploadFileConnectionExt | UploadFileConnectionMime | UploadFileConnectionSize | UploadFileConnectionUrl | UploadFileConnectionPreviewUrl | UploadFileConnectionProvider | UploadFileConnectionProvider_metadata | deleteFilePayload | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsRoleConnection | UsersPermissionsRoleAggregator | UsersPermissionsRoleGroupBy | UsersPermissionsRoleConnectionId | UsersPermissionsRoleConnectionName | UsersPermissionsRoleConnectionDescription | UsersPermissionsRoleConnectionType | createRolePayload | updateRolePayload | deleteRolePayload | UsersPermissionsUser | UsersPermissionsUserConnection | UsersPermissionsUserAggregator | UsersPermissionsUserGroupBy | UsersPermissionsUserConnectionId | UsersPermissionsUserConnectionCreated_at | UsersPermissionsUserConnectionUpdated_at | UsersPermissionsUserConnectionUsername | UsersPermissionsUserConnectionEmail | UsersPermissionsUserConnectionProvider | UsersPermissionsUserConnectionConfirmed | UsersPermissionsUserConnectionBlocked | UsersPermissionsUserConnectionRole | createUserPayload | updateUserPayload | deleteUserPayload | ComponentButtonCarousel | ComponentButtonFiles | ComponentButtonLinks | ComponentButtonStep
 
 input InputID {
   id: ID!
@@ -2898,8 +3266,14 @@ type Query {
   clipping(id: ID!, publicationState: PublicationState): Clipping
   clippings(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Clipping]
   clippingsConnection(sort: String, limit: Int, start: Int, where: JSON): ClippingConnection
+  contagensDeCiclista(id: ID!, publicationState: PublicationState): ContagensDeCiclistas
+  contagensDeCiclistas(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [ContagensDeCiclistas]
+  contagensDeCiclistasConnection(sort: String, limit: Int, start: Int, where: JSON): ContagensDeCiclistasConnection
   contagen(publicationState: PublicationState): Contagens
   documento(publicationState: PublicationState): Documentos
+  documentsType(id: ID!, publicationState: PublicationState): DocumentsTypes
+  documentsTypes(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [DocumentsTypes]
+  documentsTypesConnection(sort: String, limit: Int, start: Int, where: JSON): DocumentsTypesConnection
   document(id: ID!, publicationState: PublicationState): Documents
   documents(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Documents]
   documentsConnection(sort: String, limit: Int, start: Int, where: JSON): DocumentsConnection
@@ -2917,6 +3291,8 @@ type Query {
   location(id: ID!, publicationState: PublicationState): Locations
   locations(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Locations]
   locationsConnection(sort: String, limit: Int, start: Int, where: JSON): LocationsConnection
+  observatorioCicloviario(publicationState: PublicationState): ObservatorioCicloviario
+  observatorioMorte(publicationState: PublicationState): ObservatorioMortes
   partner(id: ID!, publicationState: PublicationState): Partners
   partners(sort: String, limit: Int, start: Int, where: JSON, publicationState: PublicationState): [Partners]
   partnersConnection(sort: String, limit: Int, start: Int, where: JSON): PartnersConnection
@@ -2960,10 +3336,16 @@ type Mutation {
   createClipping(input: createClippingInput): createClippingPayload
   updateClipping(input: updateClippingInput): updateClippingPayload
   deleteClipping(input: deleteClippingInput): deleteClippingPayload
+  createContagensDeCiclista(input: createContagensDeCiclistaInput): createContagensDeCiclistaPayload
+  updateContagensDeCiclista(input: updateContagensDeCiclistaInput): updateContagensDeCiclistaPayload
+  deleteContagensDeCiclista(input: deleteContagensDeCiclistaInput): deleteContagensDeCiclistaPayload
   updateContagen(input: updateContagenInput): updateContagenPayload
   deleteContagen: deleteContagenPayload
   updateDocumento(input: updateDocumentoInput): updateDocumentoPayload
   deleteDocumento: deleteDocumentoPayload
+  createDocumentsType(input: createDocumentsTypeInput): createDocumentsTypePayload
+  updateDocumentsType(input: updateDocumentsTypeInput): updateDocumentsTypePayload
+  deleteDocumentsType(input: deleteDocumentsTypeInput): deleteDocumentsTypePayload
   createDocument(input: createDocumentInput): createDocumentPayload
   updateDocument(input: updateDocumentInput): updateDocumentPayload
   deleteDocument(input: deleteDocumentInput): deleteDocumentPayload
@@ -2983,6 +3365,10 @@ type Mutation {
   createLocation(input: createLocationInput): createLocationPayload
   updateLocation(input: updateLocationInput): updateLocationPayload
   deleteLocation(input: deleteLocationInput): deleteLocationPayload
+  updateObservatorioCicloviario(input: updateObservatorioCicloviarioInput): updateObservatorioCicloviarioPayload
+  deleteObservatorioCicloviario: deleteObservatorioCicloviarioPayload
+  updateObservatorioMorte(input: updateObservatorioMorteInput): updateObservatorioMortePayload
+  deleteObservatorioMorte: deleteObservatorioMortePayload
   createPartner(input: createPartnerInput): createPartnerPayload
   updatePartner(input: updatePartnerInput): updatePartnerPayload
   deletePartner(input: deletePartnerInput): deletePartnerPayload

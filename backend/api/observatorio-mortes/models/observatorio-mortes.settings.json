@@ -1,0 +1,41 @@
+{
+  "kind": "singleType",
+  "collectionName": "observatorio_mortes",
+  "info": {
+    "name": "Observatório de Mortes no Trânsito",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "cover": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": true,
+      "pluginOptions": {}
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "objectives": {
+      "type": "text",
+      "required": true
+    },
+    "archives": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.files"
+    },
+    "report": {
+      "type": "richtext"
+    }
+  }
+}

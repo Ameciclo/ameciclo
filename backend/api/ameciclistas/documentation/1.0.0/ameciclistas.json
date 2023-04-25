@@ -257,7 +257,7 @@
     "/ameciclistas/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of ameciclistas documents",
+        "description": "Retrieve the number of ameciclistas documents",
         "responses": {
           "200": {
             "description": "Retrieve ameciclistas document(s)",

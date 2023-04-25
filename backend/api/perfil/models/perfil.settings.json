@@ -2,7 +2,8 @@
   "kind": "singleType",
   "collectionName": "perfils",
   "info": {
-    "name": "perfil"
+    "name": "perfil de ciclistas",
+    "description": ""
   },
   "options": {
     "increments": true,
@@ -14,28 +15,26 @@
       "model": "file",
       "via": "related",
       "allowedTypes": [
-        "images",
-        "files",
-        "videos"
+        "images"
       ],
       "plugin": "upload",
-      "required": false
+      "required": true,
+      "pluginOptions": {}
     },
     "description": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "objective": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "archives": {
       "type": "component",
       "repeatable": true,
       "component": "button.files"
     },
-    "methodology": {
-      "type": "richtext"
-    },
-    "overal_report": {
+    "report": {
       "type": "richtext"
     }
   }

@@ -312,7 +312,10 @@
     "schemas": {
       "Perfil": {
         "required": [
-          "id"
+          "id",
+          "cover",
+          "description",
+          "objective"
         ],
         "properties": {
           "id": {
@@ -562,10 +565,7 @@
               }
             }
           },
-          "methodology": {
-            "type": "string"
-          },
-          "overal_report": {
+          "report": {
             "type": "string"
           },
           "published_at": {
@@ -575,6 +575,10 @@
         }
       },
       "NewPerfil": {
+        "required": [
+          "description",
+          "objective"
+        ],
         "properties": {
           "description": {
             "type": "string"
@@ -753,10 +757,7 @@
               }
             }
           },
-          "methodology": {
-            "type": "string"
-          },
-          "overal_report": {
+          "report": {
             "type": "string"
           },
           "published_at": {

@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/observatorio-cicloviario",
+      "handler": "observatorio-cicloviario.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/observatorio-cicloviario",
+      "handler": "observatorio-cicloviario.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/observatorio-cicloviario",
+      "handler": "observatorio-cicloviario.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

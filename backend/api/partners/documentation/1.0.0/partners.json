@@ -257,7 +257,7 @@
     "/partners/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of partners documents",
+        "description": "Retrieve the number of partners documents",
         "responses": {
           "200": {
             "description": "Retrieve partners document(s)",

@@ -257,7 +257,7 @@
     "/documents/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of documents documents",
+        "description": "Retrieve the number of documents documents",
         "responses": {
           "200": {
             "description": "Retrieve documents document(s)",
@@ -519,9 +519,6 @@
           "id",
           "title",
           "description",
-          "url",
-          "cover",
-          "type",
           "release_date"
         ],
         "properties": {
@@ -604,17 +601,120 @@
               }
             }
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "studies",
-              "books",
-              "other"
-            ]
-          },
           "release_date": {
             "type": "string",
             "format": "date"
+          },
+          "type": {
+            "required": [
+              "id",
+              "type",
+              "background_color",
+              "font_color",
+              "slug"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "background_color": {
+                "type": "string"
+              },
+              "font_color": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "uid"
+              },
+              "documentos": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "published_at": {
+                "type": "string"
+              },
+              "created_by": {
+                "type": "string"
+              },
+              "updated_by": {
+                "type": "string"
+              }
+            }
+          },
+          "file": {
+            "required": [
+              "id",
+              "name",
+              "hash",
+              "mime",
+              "size",
+              "url",
+              "provider"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "alternativeText": {
+                "type": "string"
+              },
+              "caption": {
+                "type": "string"
+              },
+              "width": {
+                "type": "integer"
+              },
+              "height": {
+                "type": "integer"
+              },
+              "formats": {
+                "type": "object"
+              },
+              "hash": {
+                "type": "string"
+              },
+              "ext": {
+                "type": "string"
+              },
+              "mime": {
+                "type": "string"
+              },
+              "size": {
+                "type": "number"
+              },
+              "url": {
+                "type": "string"
+              },
+              "previewUrl": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "provider_metadata": {
+                "type": "object"
+              },
+              "related": {
+                "type": "string"
+              },
+              "created_by": {
+                "type": "string"
+              },
+              "updated_by": {
+                "type": "string"
+              }
+            }
           },
           "published_at": {
             "type": "string",
@@ -626,8 +726,6 @@
         "required": [
           "title",
           "description",
-          "url",
-          "type",
           "release_date"
         ],
         "properties": {
@@ -640,17 +738,12 @@
           "url": {
             "type": "string"
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "studies",
-              "books",
-              "other"
-            ]
-          },
           "release_date": {
             "type": "string",
             "format": "date"
+          },
+          "type": {
+            "type": "string"
           },
           "published_at": {
             "type": "string",

@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/contagens-de-ciclistas",
+      "handler": "contagens-de-ciclistas.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/contagens-de-ciclistas/count",
+      "handler": "contagens-de-ciclistas.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/contagens-de-ciclistas/:id",
+      "handler": "contagens-de-ciclistas.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/contagens-de-ciclistas",
+      "handler": "contagens-de-ciclistas.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/contagens-de-ciclistas/:id",
+      "handler": "contagens-de-ciclistas.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/contagens-de-ciclistas/:id",
+      "handler": "contagens-de-ciclistas.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

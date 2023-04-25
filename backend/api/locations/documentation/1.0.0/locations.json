@@ -257,7 +257,7 @@
     "/locations/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of locations documents",
+        "description": "Retrieve the number of locations documents",
         "responses": {
           "200": {
             "description": "Retrieve locations document(s)",

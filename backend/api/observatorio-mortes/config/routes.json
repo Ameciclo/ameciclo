@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/observatorio-mortes",
+      "handler": "observatorio-mortes.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/observatorio-mortes",
+      "handler": "observatorio-mortes.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/observatorio-mortes",
+      "handler": "observatorio-mortes.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

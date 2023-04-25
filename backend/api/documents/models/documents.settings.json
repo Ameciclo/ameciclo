@@ -21,7 +21,7 @@
     },
     "url": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "cover": {
       "model": "file",
@@ -30,20 +30,27 @@
         "images"
       ],
       "plugin": "upload",
-      "required": true
-    },
-    "type": {
-      "type": "enumeration",
-      "enum": [
-        "studies",
-        "books",
-        "other"
-      ],
-      "required": true
+      "required": false,
+      "pluginOptions": {}
     },
     "release_date": {
       "type": "date",
       "required": true
+    },
+    "type": {
+      "unique": true,
+      "model": "documents-types",
+      "via": "documentos"
+    },
+    "file": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "files"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
     }
   }
 }
