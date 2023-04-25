@@ -257,7 +257,7 @@
     "/botmembers/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of botmembers documents",
+        "description": "Retrieve the number of botmembers documents",
         "responses": {
           "200": {
             "description": "Retrieve botmembers document(s)",

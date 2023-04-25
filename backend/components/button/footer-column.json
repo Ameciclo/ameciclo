@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_button_footer_columns",
+  "info": {
+    "name": "footer_column",
+    "icon": "align-center"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "align": {
+      "type": "enumeration",
+      "enum": [
+        "left",
+        "right",
+        "center",
+        "justify",
+        "start",
+        "end"
+      ],
+      "default": "center"
+    },
+    "content": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.links"
+    }
+  }
+}

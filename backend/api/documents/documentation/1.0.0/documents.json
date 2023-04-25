@@ -257,7 +257,7 @@
     "/documents/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of documents documents",
+        "description": "Retrieve the number of documents documents",
         "responses": {
           "200": {
             "description": "Retrieve documents document(s)",
