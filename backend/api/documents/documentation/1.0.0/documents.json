@@ -519,9 +519,7 @@
           "id",
           "title",
           "description",
-          "cover",
-          "release_date",
-          "file"
+          "release_date"
         ],
         "properties": {
           "id": {
