@@ -3650,7 +3650,7 @@ __metadata:
     strapi-plugin-content-type-builder: 3.6.8
     strapi-plugin-documentation: 3.6.8
     strapi-plugin-email: 3.6.8
-    strapi-plugin-graphql: ^3.6.8
+    strapi-plugin-graphql: ^3.6.11
     strapi-plugin-upload: 3.6.8
     strapi-plugin-users-permissions: 3.6.8
     strapi-provider-upload-cloudinary: ^3.6.8
@@ -16214,9 +16214,9 @@ pg@latest:
   languageName: node
   linkType: hard
 
-"strapi-plugin-graphql@npm:^3.6.8":
-  version: 3.6.8
-  resolution: "strapi-plugin-graphql@npm:3.6.8"
+"strapi-plugin-graphql@npm:^3.6.11":
+  version: 3.6.11
+  resolution: "strapi-plugin-graphql@npm:3.6.11"
   dependencies:
     "@apollo/federation": ^0.20.7
     "@graphql-tools/utils": 7.2.4
@@ -16234,8 +16234,8 @@ pg@latest:
     koa-compose: ^4.1.0
     lodash: 4.17.21
     pluralize: ^8.0.0
-    strapi-utils: 3.6.8
-  checksum: d92d4f10bedb3d550d350b84214c6ae706526520d9e3853cbb030cba755ff80124788b718e9dfb730159e86fa8fbee3373895a64eb72c19af9ac606519368143
+    strapi-utils: 3.6.11
+  checksum: 65da197493705327451e9eb279d0e215bf5908894a99c903e39443433be072a9c002c7ee81f6f089ddbb08cc3f1d8c3c78aa39849d7253b4f0ada6a9c164b199
   languageName: node
   linkType: hard
 
@@ -16352,6 +16352,20 @@ pg@latest:
     pluralize: ^8.0.0
     yup: ^0.32.9
   checksum: 3c03d7df8a12ded9d44a9dc935eaec06b0eb8a5d4b65eadc10d02bbe858c003672e2ad1e1c947cb1acd20294e268fab1b06bce26005298e1dd0e0da816b95b0e
+  languageName: node
+  linkType: hard
+
+"strapi-utils@npm:3.6.11":
+  version: 3.6.11
+  resolution: "strapi-utils@npm:3.6.11"
+  dependencies:
+    "@sindresorhus/slugify": 1.1.0
+    date-fns: ^2.19.0
+    lodash: 4.17.21
+    pino: ^4.7.1
+    pluralize: ^8.0.0
+    yup: ^0.32.9
+  checksum: c52a8b83c86c6087e467ada9988456c4df7077acdd62cbac07052b90e47d53cdc9b3fa18e258eb8e9427418df7fe9d3eef5478e3260ea11238a8388ed6db93fa
   languageName: node
   linkType: hard
 
