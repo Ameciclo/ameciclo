@@ -12267,15 +12267,6 @@ strapi-generate-api@3.6.10:
     pluralize "^8.0.0"
     strapi-utils "3.6.10"
 
-strapi-generate-api@3.6.8:
-  version "3.6.8"
-  resolved "https://registry.yarnpkg.com/strapi-generate-api/-/strapi-generate-api-3.6.8.tgz#e198e868e873e9134b1c1c1b71a2111e4c3edbba"
-  integrity sha512-+AyCumWpgZunG0QwDvviBudUGHofdkTucRoiVgYHkWA25S8pBFLj0ibfB9Po1eg20OCT1DTw4U/4uBFH8MPZ2w==
-  dependencies:
-    lodash "4.17.21"
-    pluralize "^8.0.0"
-    strapi-utils "3.6.8"
-
 strapi-generate-controller@3.6.10:
   version "3.6.10"
   resolved "https://registry.yarnpkg.com/strapi-generate-controller/-/strapi-generate-controller-3.6.10.tgz#d39e32663958fce3b6289e03ba3dbea1106cef31"
@@ -12347,16 +12338,37 @@ strapi-generate@3.6.10:
     reportback "^2.0.2"
     strapi-utils "3.6.10"
 
-strapi-generate@3.6.8:
-  version "3.6.8"
-  resolved "https://registry.yarnpkg.com/strapi-generate/-/strapi-generate-3.6.8.tgz#54a7b8bf84f807dd654d32554201c28bc62d445f"
-  integrity sha512-QdSHlLa9VbEBwSfdMCmtcOkXYxlwWiSw3AoKlTHeydPYb2xlGyWqxxH0OTzEi0rKjpFmqao9At5dkwChyp8wmQ==
+strapi-helper-plugin@3.6.10:
+  version "3.6.10"
+  resolved "https://registry.yarnpkg.com/strapi-helper-plugin/-/strapi-helper-plugin-3.6.10.tgz#c4b18b797b826aabdc731573381820238245b5b3"
+  integrity sha512-u+jfDv69Y9ogEeAzJtB99OEvBUpMexbhuwhuHgzQBZMqTUaRswVYMXL2LKGCaabmcbt+0dsD3SmDbx/pLdRD0g==
   dependencies:
-    async "^2.6.2"
-    fs-extra "^9.1.0"
+    "@buffetjs/core" "3.3.8"
+    "@buffetjs/custom" "3.3.8"
+    "@buffetjs/hooks" "3.3.8"
+    "@buffetjs/icons" "3.3.8"
+    "@buffetjs/styles" "3.3.8"
+    "@buffetjs/utils" "3.3.8"
+    "@fortawesome/fontawesome-free" "^5.15.2"
+    "@fortawesome/fontawesome-svg-core" "^1.2.35"
+    "@fortawesome/free-brands-svg-icons" "^5.15.2"
+    "@fortawesome/free-solid-svg-icons" "^5.15.3"
+    "@fortawesome/react-fontawesome" "^0.1.14"
+    bootstrap "^4.6.0"
+    classnames "^2.3.1"
+    immutable "^3.8.2"
+    invariant "^2.2.1"
     lodash "4.17.21"
-    reportback "^2.0.2"
-    strapi-utils "3.6.8"
+    moment "^2.29.1"
+    react "^16.14.0"
+    react-dom "^16.9.0"
+    react-helmet "^6.1.0"
+    react-intl "4.5.0"
+    react-router "^5.2.0"
+    react-router-dom "^5.0.0"
+    reactstrap "8.4.1"
+    styled-components "^5.2.3"
+    whatwg-fetch "^3.6.2"
 
 strapi-helper-plugin@3.6.8:
   version "3.6.8"
@@ -12422,10 +12434,10 @@ strapi-helper-plugin@3.6.9:
     styled-components "^5.2.3"
     whatwg-fetch "^3.6.2"
 
-strapi-plugin-content-manager@3.6.9:
-  version "3.6.9"
-  resolved "https://registry.yarnpkg.com/strapi-plugin-content-manager/-/strapi-plugin-content-manager-3.6.9.tgz#496eaddb3bc91045c7e10b73a78809bd060a9958"
-  integrity sha512-XiSaLHDX/Yftkw16Gw8OCPE2E0T56o21tcuIbf0R9Og6meKcOdiEcwiRBly4g9+Z0Etdky733bbYjV3+VQ2EDQ==
+strapi-plugin-content-manager@3.6.10:
+  version "3.6.10"
+  resolved "https://registry.yarnpkg.com/strapi-plugin-content-manager/-/strapi-plugin-content-manager-3.6.10.tgz#c02cb80c068a49e8c65660a8e79038d7ad2117eb"
+  integrity sha512-H9b6d+bR6GZSBH3uv3Q+1cnpaySH+fwGdAXPv4lG27dsK2W0FVC2OJt9voabc9IuKhxdGxpxNMGkWEC6wrK8cg==
   dependencies:
     "@buffetjs/core" "3.3.8"
     "@buffetjs/custom" "3.3.8"
@@ -12463,14 +12475,14 @@ strapi-plugin-content-manager@3.6.9:
     redux-immutable "^4.0.0"
     reselect "^4.0.0"
     sanitize-html "2.3.3"
-    strapi-helper-plugin "3.6.9"
-    strapi-utils "3.6.9"
+    strapi-helper-plugin "3.6.10"
+    strapi-utils "3.6.10"
     yup "^0.32.9"
 
-strapi-plugin-content-type-builder@3.6.8:
-  version "3.6.8"
-  resolved "https://registry.yarnpkg.com/strapi-plugin-content-type-builder/-/strapi-plugin-content-type-builder-3.6.8.tgz#dcfbbec823d997e1f103c64f2b05e53914d46090"
-  integrity sha512-kxCPNHV15JmNz3PUdb/8I5mj4i0n8HicumSvqZh3LxovUaIqd0tGioMd4pJ3BY8XcPI7SpdZrEsbPHTqlQIEvg==
+strapi-plugin-content-type-builder@3.6.10:
+  version "3.6.10"
+  resolved "https://registry.yarnpkg.com/strapi-plugin-content-type-builder/-/strapi-plugin-content-type-builder-3.6.10.tgz#e396c2dd15d2ea9cf083298799968d8dfe66b600"
+  integrity sha512-f1oa+Sybf/eFRQJvhdC6AMV1Q1NZYMJS7lPspUg96oxUAsm0efbvPwVXmQ0jCZJyNXud94oLBl7RZqFXYL3swA==
   dependencies:
     "@buffetjs/core" "3.3.8"
     "@buffetjs/custom" "3.3.8"
@@ -12493,10 +12505,10 @@ strapi-plugin-content-type-builder@3.6.8:
     redux "^4.0.1"
     redux-immutable "^4.0.0"
     reselect "^4.0.0"
-    strapi-generate "3.6.8"
-    strapi-generate-api "3.6.8"
-    strapi-helper-plugin "3.6.8"
-    strapi-utils "3.6.8"
+    strapi-generate "3.6.10"
+    strapi-generate-api "3.6.10"
+    strapi-helper-plugin "3.6.10"
+    strapi-utils "3.6.10"
     yup "^0.32.9"
 
 strapi-plugin-documentation@3.6.8:
