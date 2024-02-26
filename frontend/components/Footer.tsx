@@ -18,12 +18,12 @@ export const Footer = () => {
                 </li>
                 <li className="mt-2">
                   <a
-                    href="https://api.whatsapp.com/send?phone=5581994586830"
+                    href="https://api.whatsapp.com/send?phone=5581936182947"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-600 hover:underline hover:text-red-600"
                   >
-                    +55 (81) 9 9458-6830
+                    +55 (81) 9 3618-2947
                   </a>
                 </li>
                 <li className="mt-2">
