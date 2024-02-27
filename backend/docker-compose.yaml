@@ -1,12 +1,5 @@
 version: '3'
 
-networks:
-  web:
-    external: true
-  internal:
-    external: false
-
-
 services:
   strapi:
     image: strapi/strapi
@@ -23,16 +16,6 @@ services:
       CLOUDINARY_SECRET: rhCqxXe5Y-dxNTfpzUMoSvASV28
       NODE_ENV: development
 
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.strapi.rule=Host(`cms.ameciclo.org`)"
-      - "traefik.http.routers.strapi.tls.certresolver=le"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.permanent=true"
-      - "traefik.docker.network=web"
-    networks:
-      - internal
-      - web
     volumes:
       - ./:/srv/app
     ports:
@@ -46,30 +29,9 @@ services:
       POSTGRES_DB: strapi
       POSTGRES_USER: strapi
       POSTGRES_PASSWORD: strapi
-    networks:
-      - internal
-    labels:
-      - traefik.enable=false
     volumes:
       - strapidata:/var/lib/postgresql/
       - ./backups:/backups/
-
-  # postgresql-backup-dropbox:
-  #   image: ameciclo/postgre_backup_dropbox
-  #   container_name: postgresql_backup
-  #   restart: always
-  #   networks:
-  #     - internal
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - POSTGRESQL_USER=strapi
-  #     - POSTGRESQL_PASSWORD=strapi
-  #     - POSTGRESQL_HOST=postgres
-  #     - DROPBOX_ACCESS_TOKEN=ptX7NcMV_ckAAAAAAAAAAWkNRESXnkHK_naDGUFGzbKlReHL_EKS4Bzm5lscSAPX
-  #     - SCHEDULE=@daily
-  #     - DATABASE_NAME=strapi
-  #     - DROPBOX_PREFIX=ameciclo_strapi
 
 volumes:
   strapidata:
