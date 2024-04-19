@@ -1,27 +1,19 @@
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "../components/Tabs";
 import Breadcrumb from "../components/Breadcrumb";
+import { PersonCard } from "../components/PersonCard"
 import React from "react";
 import { server } from "../config";
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 
 const QuemSomos = ({ ameciclistas, custom }) => {
-  const coordinators = ameciclistas.filter((a) => {
-    return a.role === "coordenacao";
-  });
+  const coordinators = ameciclistas.filter((a) => a.role === "coordenacao");
+  const counselors = ameciclistas.filter((a) => a.role === "conselhofiscal");
 
-  let counselors = ameciclistas.filter((a) => {
-    return a.role === "conselhofiscal";
-  });
-  /*let alumin = ameciclistas.filter((a) => {
-    return a.role === "ameciclista";
-  })*/
-
-  ameciclistas.sort((a, b) => {
-    return a.name.localeCompare(b.name);
-  });
+  ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <Layout>
@@ -78,96 +70,21 @@ const QuemSomos = ({ ameciclistas, custom }) => {
           </TabsNav>
           <TabPanel name="tab-coord">
             {coordinators.map((c) => (
-              <div className="max-w-sm p-4" key={c.id}>
-                <div
-                  className="bg-white rounded shadow-lg"
-                  style={{ minHeight: "450px" }}
-                >
-                  {c.media ? (
-                    <Image
-                      src={c.media.url}
-                      alt={c.name}
-                      layout="responsive"
-                      width={352}
-                      height={270}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        minHeight: "270px",
-                      }}
-                    />
-                  )}
-                  <div className="p-4 pb-6">
-                    <h2 className="text-xl leading-normal text-gray-900">
-                      {c.name}
-                    </h2>
-                    <p className="text-sm text-gray-600">{c.bio}</p>
-                  </div>
-                </div>
-              </div>
+              <>
+              <PersonCard key={c.id} person={c} />
+              
+              </>
+              
             ))}
           </TabPanel>
           <TabPanel name="tab-conselho">
             {counselors.map((c) => (
-              <div className="max-w-sm p-4" key={c.id}>
-                <div
-                  className="bg-white rounded shadow-lg"
-                  style={{ minHeight: "450px" }}
-                >
-                  {c.media ? (
-                    <Image
-                      src={c.media.url}
-                      alt={c.name}
-                      layout="responsive"
-                      width={352}
-                      height={270}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        minHeight: "270px",
-                      }}
-                    />
-                  )}
-                  <div className="p-4 pb-6">
-                    <h2 className="text-xl leading-normal text-gray-900">
-                      {c.name}
-                    </h2>
-                    <p className="text-sm text-gray-600">{c.bio}</p>
-                  </div>
-                </div>
-              </div>
+              <PersonCard key={c.id} person={c} />
             ))}
           </TabPanel>
           <TabPanel name="tab-ameciclista">
             {ameciclistas.map((c) => (
-              <div className="max-w-sm p-4" key={c.id}>
-                <div className="bg-white rounded shadow-lg min-h-[270px] min-w-[270px]">
-                  <div className="aspect-w-1 aspect-h-1">
-                    {c.media ? (
-                      <Image
-                        src={c.media.url}
-                        alt={c.name}
-                        layout="fill"
-                        objectFit="cover"
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          minHeight: "270px",
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div className="p-4 pb-6">
-                    <h2 className="text-xl leading-normal text-gray-900">
-                      {c.name}
-                    </h2>
-                    {/*c.bio && (<p className="text-sm text-gray-600">{c.bio}</p>) */}
-                  </div>
-                </div>
-              </div>
+              <PersonCard key={c.id} person={c} />
             ))}
           </TabPanel>
         </Tabs>
