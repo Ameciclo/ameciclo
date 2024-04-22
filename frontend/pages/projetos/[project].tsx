@@ -4,7 +4,7 @@ import SEO from "../../components/SEO";
 import Breadcrumb from "../../components/Breadcrumb";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
-import Carousel, { Modal, ModalGateway } from "react-images";
+// import Carousel, { Modal, ModalGateway } from "react-images";
 import { Rating } from "../../components/Rating";
 import { StepCard } from "../../components/StepCard";
 import ReactMarkdown from "react-markdown";
@@ -223,7 +223,7 @@ const Projeto = ({ project }) => {
                 targetRowHeight={100}
                 onClick={openLightbox}
               />
-              <ModalGateway>
+              {/* <ModalGateway>
                 {viewerIsOpen ? (
                   <Modal onClose={closeLightbox}>
                     <Carousel
@@ -236,7 +236,7 @@ const Projeto = ({ project }) => {
                     />
                   </Modal>
                 ) : null}
-              </ModalGateway>
+              </ModalGateway> */}
             </>
           ) : null}
         </div>
