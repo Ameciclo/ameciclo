@@ -45,7 +45,7 @@ const ButtonContainer = styled.div`
   }
   .lineBottom {
     transform: ${(props) =>
-      props.open ? "translateX(-1px) rotate(-45deg)" : "none"};
+    props.open ? "translateX(-1px) rotate(-45deg)" : "none"};
     transform-origin: top left;
     margin-top: 5px;
   }
@@ -100,10 +100,11 @@ const linkList = () => {
     return (
       <li key={link.name}>
         <Link href={link.url}>
-          <a className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
+          <span className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
             {link.name}
-          </a>
+          </span>
         </Link>
+
       </li>
     );
   });
@@ -133,7 +134,6 @@ const Header = () => {
     <header className="lg:px-16 px-6 bg-ameciclo text-white flex flex-wrap items-center lg:py-0 py-2 fixed z-10 w-full">
       <div className="flex-1 flex justify-between items-center container mx-auto">
         <Link href="/">
-          <a>
             <AnimatePresence>
               {isHeaderScrolled ? (
                 <div>
@@ -176,8 +176,7 @@ const Header = () => {
                   </svg>
                 </motion.div>
               )}
-            </AnimatePresence>
-          </a>
+            </AnimatePresence>        
         </Link>
         <ButtonContainer
           open={isMenuOpen}

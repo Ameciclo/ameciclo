@@ -69,13 +69,12 @@ const Produtos = ({ products, recurrent }) => {
               </p>
               <div className="flex flex-wrap items-start justify-start max-w-5xl mx-auto mt-8 lg:mt-0">
                 <Link href="/projetos">
-                  <a
+                  <button
                     className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
-                    type="button"
                     style={{ transition: "all .15s ease" }}
                   >
                     Veja o que já fizemos
-                  </a>
+                  </button>
                 </Link>
                 <a
                   href="http://apoia.ameciclo.org"

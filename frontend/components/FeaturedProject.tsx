@@ -35,11 +35,11 @@ export const FeaturedProject = ({ project }) => {
                     {project.description}
                   </p>
                   <Link href={`/projetos/${project.slug}`}>
-                    <a className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600">
-                      <span>Conheça mais</span>
+                    <span className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600">
+                      Conheça mais
                       <span className="ml-1 text-xs">&#x279c;</span>
-                    </a>
-                  </Link>
+                    </span>
+                  </Link>ß
                 </div>
               </div>
             </div>

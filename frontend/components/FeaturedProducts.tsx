@@ -9,13 +9,13 @@ export const FeaturedProducts = ({ project: product }) => {
         style={
           product.media
             ? {
-                backgroundImage: `url(${product.media.url})`,
-                minHeight: "600px",
-              }
+              backgroundImage: `url(${product.media.url})`,
+              minHeight: "600px",
+            }
             : {
-                backgroundColor: "#fff",
-                minHeight: "600px",
-              }
+              backgroundColor: "#fff",
+              minHeight: "600px",
+            }
         }
       >
         <div className="mx-auto my-auto container h-full flex justify-center">
@@ -44,10 +44,10 @@ export const FeaturedProducts = ({ project: product }) => {
                   {product.description}
                 </p>
                 <Link href={`${product.url}`}>
-                  <a className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600">
-                    <span>Vamos nessa!</span>
+                  <span className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600">
+                    Vamos nessa!
                     <span className="text-xs ml-1">&#x279c;</span>
-                  </a>
+                  </span>
                 </Link>
               </div>
             </div>

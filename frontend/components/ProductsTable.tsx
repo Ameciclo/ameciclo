@@ -33,8 +33,8 @@ export const ProductsTable = ({ data }) => {
           const rowValue = row.values[id];
           return rowValue !== undefined
             ? String(rowValue)
-                .toLowerCase()
-                .startsWith(String(filterValue).toLowerCase())
+              .toLowerCase()
+              .startsWith(String(filterValue).toLowerCase())
             : true;
         });
       },
@@ -50,7 +50,7 @@ export const ProductsTable = ({ data }) => {
         Cell: ({ row }) =>
           row.original.link ? (
             <Link href={row.original.link} key={row.original.id}>
-              <a className="text-base text-ameciclo">{row.original.title}</a>
+              <span className="text-base text-ameciclo">{row.original.title}</span>
             </Link>
           ) : (
             <p className="text-base">{row.original.title}</p>

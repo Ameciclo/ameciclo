@@ -6,6 +6,7 @@ import React from "react";
 import { server } from "../config";
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
+import Link from "next/link";
 
 const QuemSomos = ({ ameciclistas, custom }) => {
   const coordinators = ameciclistas.filter((a) => {
@@ -57,15 +58,14 @@ const QuemSomos = ({ ameciclistas, custom }) => {
             </p>
             <div className="flex flex-wrap items-start justify-start max-w-5xl mx-auto mt-8 lg:mt-0">
               {custom.links.map((l) => (
-                <a
-                  key={l.id}
-                  href={l.link}
-                  className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
-                  type="button"
-                  style={{ transition: "all .15s ease" }}
-                >
-                  {l.title}
-                </a>
+                <Link key={l.id} href={l.link}>
+                  <div
+                    className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
+                    style={{ transition: "all .15s ease" }}
+                  >
+                    {l.title}
+                  </div>
+                </Link>
               ))}
             </div>
           </div>

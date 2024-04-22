@@ -41,11 +41,13 @@ const Breadcrumb = ({ label, slug, routes }) => {
 };
 
 const BreadcrumbItem = ({ slug, label, lastItem }) => {
+  const formattedLabel = label.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "");
   return (
     <li className="flex items-center">
       <Link href={slug}>
-        <a>{label.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "")}</a>
+        {formattedLabel}
       </Link>
+
       {lastItem ? null : (
         <svg
           className="fill-current w-3 h-3 mx-3"

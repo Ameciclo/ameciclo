@@ -54,9 +54,9 @@ export const Footer = () => {
               <ul className="mb-4">
                 <li className="mt-2">
                   <Link href="/biciclopedia">
-                    <a className="text-gray-600 hover:underline hover:text-red-600">
+                    <span className="text-gray-600 hover:underline hover:text-red-600">
                       FAQ
-                    </a>
+                    </span>
                   </Link>
                 </li>
                 <li className="mt-2">
