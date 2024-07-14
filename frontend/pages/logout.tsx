@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import magic from '../magic_link-config';
-import Layout from '../components/Layout';
-import SEO from '../components/SEO';
+import Loading from '../components/Loading';
 
 const UserLogout = () => {
   const router = useRouter();
@@ -22,9 +21,7 @@ const UserLogout = () => {
   }, [router]);
 
   return (
-    <Layout>
-      <SEO title='Loggout...'/>
-    </Layout>
+    <Loading />
   )
 };
 

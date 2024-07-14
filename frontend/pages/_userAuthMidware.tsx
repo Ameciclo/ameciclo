@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import magic from '../magic_link-config';
+import Loading from '../components/Loading';
 
 const UserAuthMiddleware = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
@@ -25,7 +26,7 @@ const UserAuthMiddleware = ({ children }: { children: React.ReactNode }) => {
   }, [router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return <>{children}</>;
