@@ -101,9 +101,22 @@ const LinkListUl = styled.ul`
 const linkList = (isLoggedIn: boolean) => {
   return linksArray.map((link) => {
     if (link.authRequired) {
-      if(isLoggedIn) {
+      if (isLoggedIn) {
+        if (link.url === "/logout") return (
+          <li key={link.name}>
+            <Link href={link.url}>
+              <a className="lg:p-2 py-3 px-0 w-24 block text-center border rounded transition-all duration-500 ease-in-out hover:bg-red-700">
+                {link.name}
+              </a>
+            </Link>
+          </li>
+        );
         return (
           <li key={link.name}>
+            <img 
+              src="/favicon.ico" 
+              className="absolute top-3 opacity-80 rounded-full hover:opacity-100"
+              />
             <Link href={link.url}>
               <a className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
                 {link.name}
@@ -114,7 +127,18 @@ const linkList = (isLoggedIn: boolean) => {
       }
       return null;
     }
-    return link.url === "/login" && isLoggedIn ? null : (
+    else if (link.url === "/login" && isLoggedIn) return null
+    else if (link.url === "/login" && !isLoggedIn) return (
+      <li key={link.name}>
+        <Link href={link.url}>
+          <a className="lg:p-2 py-3 px-0 w-24 block text-center border rounded transition-all duration-500 ease-in-out hover:bg-red-700">
+            {link.name}
+          </a>
+        </Link>
+      </li>
+    );
+
+    return (
       <li key={link.name}>
         <Link href={link.url}>
           <a className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
