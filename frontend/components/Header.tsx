@@ -1,18 +1,21 @@
 import styled from "styled-components";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CSSTransition } from "react-transition-group";
 import { useScrollPosition } from "@n8tb1t/use-scroll-position";
 import { AnimatePresence, motion } from "framer-motion";
 
 const linksArray = [
-  { name: "Inicial", url: "/" },
-  { name: "Quem Somos", url: "/quem_somos" },
-  { name: "Agenda", url: "/agenda" },
-  { name: "Projetos", url: "/projetos" },
-  { name: "Dados", url: "http://dados.ameciclo.org/" },
-  // { name: "Biciclopedia", url: "/biciclopedia" },
-  { name: "Contato", url: "/contato" },
+  { name: "Inicial", url: "/", authRequired: false },
+  { name: "Grupos", url: "/grupos", authRequired: true },
+  { name: "Quem Somos", url: "/quem_somos", authRequired: false },
+  { name: "Agenda", url: "/agenda", authRequired: false },
+  { name: "Projetos", url: "/projetos", authRequired: false },
+  { name: "Dados", url: "http://dados.ameciclo.org/", authRequired: false },
+  // { name: "Biciclopedia", url: "/biciclopedia", authRequired: false },
+  { name: "Contato", url: "/contato", authRequired: false },
+  { name: "Entrar", url: "/login", authRequired: false },
+  { name: "Sair", url: "/logout", authRequired: true },
 ];
 
 const ButtonContainer = styled.div`
@@ -45,7 +48,7 @@ const ButtonContainer = styled.div`
   }
   .lineBottom {
     transform: ${(props) =>
-      props.open ? "translateX(-1px) rotate(-45deg)" : "none"};
+    props.open ? "translateX(-1px) rotate(-45deg)" : "none"};
     transform-origin: top left;
     margin-top: 5px;
   }
@@ -95,9 +98,23 @@ const LinkListUl = styled.ul`
   }
 `;
 
-const linkList = () => {
+const linkList = (isLoggedIn: boolean) => {
   return linksArray.map((link) => {
-    return (
+    if (link.authRequired) {
+      if(isLoggedIn) {
+        return (
+          <li key={link.name}>
+            <Link href={link.url}>
+              <a className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
+                {link.name}
+              </a>
+            </Link>
+          </li>
+        );
+      }
+      return null;
+    }
+    return link.url === "/login" && isLoggedIn ? null : (
       <li key={link.name}>
         <Link href={link.url}>
           <a className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
@@ -122,12 +139,17 @@ const responsiveLinkList = () => {
 const Header = () => {
   const [isMenuOpen, toggleMenu] = useState(false);
   const [isHeaderScrolled, toggleHeaderScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useScrollPosition(({ prevPos, currPos }) => {
     Math.abs(currPos.y) > 125
       ? toggleHeaderScrolled(true)
       : toggleHeaderScrolled(false);
   });
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('userLoggedIn'));
+  }, [])
 
   return (
     <header className="lg:px-16 px-6 bg-ameciclo text-white flex flex-wrap items-center lg:py-0 py-2 fixed z-10 w-full">
@@ -208,7 +230,7 @@ const Header = () => {
         >
           <nav>
             <ul className="lg:flex items-center justify-between text-base pt-4 lg:pt-0 uppercase">
-              {linkList()}
+              {linkList(isLoggedIn)}
             </ul>
           </nav>
         </div>
