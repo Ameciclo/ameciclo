@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import magic from '../magic_link-config';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -23,9 +25,11 @@ const Login = () => {
   return (
     <div className='flex flex-col justify-center items-center h-screen font-ubuntu bg-teal-800'>
       <form className='flex flex-col justify-center items-center bg-white shadow-md rounded-lg px-12 pt-8 pb-8 mb-4 -mt-20 gap-2' onSubmit={handleLogin}>
-        <a href='/'>
-          <img src="/favicon-96x96.png" alt="icone da ameciclo" className='rounded-full' />
-        </a>
+        <Link href='/'>
+          <a>
+            <Image src="/favicon-96x96.png" alt="icone da ameciclo" className='rounded-full' />
+          </a>
+        </Link>
         <h1 className='font-mono text-green-800 font-extrabold text-xl'>Olá Ameciclista!</h1>
         <input
           className='border-4 rounded-sm p-1 pb-0 mt-2 mb-0'

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { CSSTransition } from "react-transition-group";
 import { useScrollPosition } from "@n8tb1t/use-scroll-position";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 
 const linksArray = [
   { name: "Inicial", url: "/", authRequired: false },
@@ -113,8 +114,9 @@ const linkList = (isLoggedIn: boolean) => {
         );
         return (
           <li key={link.name}>
-            <img 
-              src="/favicon.ico" 
+            <Image 
+              src="/favicon.ico"
+              alt="Icone para simbolizar botao exclusivo para usuario logado"
               className="absolute top-3 opacity-80 rounded-full hover:opacity-100"
               />
             <Link href={link.url}>

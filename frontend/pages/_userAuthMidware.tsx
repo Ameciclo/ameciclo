@@ -1,4 +1,3 @@
-// _userAuthMidware.tsx
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import magic from '../magic_link-config';
