@@ -21,6 +21,9 @@ module.exports = {
       gridTemplateRows: {
         fill: "minmax(100px, auto)",
       },
+      screens: {
+        'xl': '1900px',
+      },
     },
   },
   variants: {
