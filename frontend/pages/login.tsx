@@ -23,7 +23,9 @@ const Login = () => {
   return (
     <div className='flex flex-col justify-center items-center h-screen font-ubuntu bg-teal-800'>
       <form className='flex flex-col justify-center items-center bg-white shadow-md rounded-lg px-12 pt-8 pb-8 mb-4 -mt-20 gap-2' onSubmit={handleLogin}>
-        <img src="/favicon-96x96.png" alt="icone da ameciclo" className='rounded-full' />
+        <a href='/'>
+          <img src="/favicon-96x96.png" alt="icone da ameciclo" className='rounded-full' />
+        </a>
         <h1 className='font-mono text-green-800 font-extrabold text-xl'>Olá Ameciclista!</h1>
         <input
           className='border-4 rounded-sm p-1 pb-0 mt-2 mb-0'
@@ -37,7 +39,15 @@ const Login = () => {
         {badMessage && <p className='text-lg text-left font-mono text-red-600 self-start mb-8 mt-0'>{badMessage}</p>}
         <button
           type="submit"
-          className='bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg w-full'>Login</button>
+          className='bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg w-full'>
+          Login
+        </button>
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform"
+          className='text-sm text-blue-700'
+        >
+          Ainda não é associado?
+        </a>
       </form>
     </div>
   );
