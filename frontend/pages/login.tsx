@@ -27,7 +27,13 @@ const Login = () => {
       <form className='flex flex-col justify-center items-center bg-white shadow-md rounded-lg px-12 pt-8 pb-8 mb-4 -mt-20 gap-2' onSubmit={handleLogin}>
         <Link href='/'>
           <a>
-            <Image src="/favicon-96x96.png" alt="icone da ameciclo" className='rounded-full' />
+            <Image
+              src="/favicon-96x96.png"
+              alt="icone da ameciclo"
+              width="96px"
+              height="96px"
+              className='rounded-full'
+            />
           </a>
         </Link>
         <h1 className='font-mono text-green-800 font-extrabold text-xl'>Olá Ameciclista!</h1>

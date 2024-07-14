@@ -114,11 +114,15 @@ const linkList = (isLoggedIn: boolean) => {
         );
         return (
           <li key={link.name}>
-            <Image 
-              src="/favicon.ico"
-              alt="Icone para simbolizar botao exclusivo para usuario logado"
-              className="absolute top-3 opacity-80 rounded-full hover:opacity-100"
+            <div className="absolute top-2">
+              <Image
+                src="/favicon.ico"
+                alt="Icone para simbolizar botao exclusivo para usuario logado"
+                width={"15px"}
+                height={"15px"}
+                className="top-3 opacity-80 rounded-full hover:opacity-100"
               />
+            </div>
             <Link href={link.url}>
               <a className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
                 {link.name}
@@ -141,9 +145,9 @@ const linkList = (isLoggedIn: boolean) => {
     );
 
     return (
-      <li key={link.name}>
+      <li key={link.name} className="flex flex-col">
         <Link href={link.url}>
-          <a className="lg:p-4 py-3 px-0 block border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
+          <a className="lg:p-4 py-3 px-0 border-b-2 border-transparent transition duration-500 ease-in-out hover:border-white">
             {link.name}
           </a>
         </Link>
