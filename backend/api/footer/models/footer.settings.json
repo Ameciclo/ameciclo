@@ -1,0 +1,22 @@
+{
+  "kind": "singleType",
+  "collectionName": "footers",
+  "info": {
+    "name": "footer"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "column": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.footer-column",
+      "max": 3,
+      "min": 1,
+      "required": true
+    }
+  }
+}
