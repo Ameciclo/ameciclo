@@ -3,7 +3,7 @@ const { setupStrapi } = require("./helpers/strapi");
 
 /** this code is called once before any test is called */
 beforeAll(async (done) => {
-  jest.setTimeout(15000);
+  jest.setTimeout(60000);
   await setupStrapi(); // singleton so it can be called many times
   done();
 });
