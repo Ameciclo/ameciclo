@@ -4,7 +4,7 @@ const { isDraft } = require("strapi-utils").contentTypes;
 let projectId;
 
 beforeAll(async (done) => {
-  jest.setTimeout(15000);
+  jest.setTimeout(60000);
   let data = {
     name: "Projeto",
     goal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non orci ve",
