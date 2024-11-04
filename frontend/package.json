@@ -27,7 +27,7 @@
     "framer-motion": "^6.3.3",
     "fuse.js": "^6.5.3",
     "keen-slider": "^6.6.3",
-    "mapbox-gl": "^2.8.2",
+    "mapbox-gl": "^2.11.0",
     "match-sorter": "^6.3.1",
     "next": "^12.1.5",
     "next-transpile-modules": "^9.0.0",
@@ -41,8 +41,8 @@
     "react-photo-album": "^1.6.1",
     "react-table": "^7.7.0",
     "react-transition-group": "^4.4.2",
-    "sass": "^1.49.8",
-    "styled-components": "^5.3.3"
+    "sass": "^1.79.0",
+    "styled-components": "^6.1.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.16",
