@@ -92,6 +92,7 @@ const Projetos = ({ projects, workgroups }) => {
 
         <div className="mt-5 mx-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
           {filteredProjects
+            .filter((project) => !/\b(EN|ES)\b$/i.test(project.name))
             .sort((a, b) => (a.name > b.name ? 1 : -1))
             .map((project) => (
               <ProjectCard project={project} key={project.id} />
