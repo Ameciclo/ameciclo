@@ -69,6 +69,16 @@ const Projeto = ({ project }) => {
     setCurrentImage(0);
     setViewerIsOpen(false);
   };
+
+  // Definir a expressão regular para detectar emojis de bandeira
+  const flagRegex = /^(?:\uD83C[\uDDE6-\uDDFF]){2}$/;
+
+  // Separar os links em flagLinks e otherLinks
+  const flagLinks = project.Links.filter((link) => flagRegex.test(link.title));
+  const otherLinks = project.Links.filter(
+    (link) => !flagRegex.test(link.title)
+  );
+
   return (
     <Layout>
       <SEO title={project.name} />
@@ -120,6 +130,20 @@ const Projeto = ({ project }) => {
           />
         </div>
       </div>
+      <div className="flex flex-wrap justify-center mt-6">
+              {/* Renderizar os Flag Links primeiro com texto maior */}
+              {flagLinks.map((link) => (
+                <a href={link.link} key={link.id}>
+                  <button
+                    className="px-4 py-2 mx-2 mb-2 text-lg font-bold text-white uppercase bg-ameciclo rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
+                    type="button"
+                    style={{ transition: "all .15s ease" }}
+                  >
+                    {link.title}
+                  </button>
+                </a>
+              ))}
+            </div>
       <section>
         <div className="container mx-auto mt-8 mb-8">
           <div className="flex flex-wrap items-center justify-center p-16 mx-auto my-auto text-white rounded bg-ameciclo lg:mx-0">
@@ -132,6 +156,7 @@ const Projeto = ({ project }) => {
               </p>
             </div>
             <div className="w-full mb-4 lg:w-1/2 lg:mb-0">
+
               <div className="mb-2 text-xs tracking-wide text-white lg:text-base">
                 {(project.startDate || project.endDate) && (
                   <ProjectDate project={project} />
@@ -173,19 +198,18 @@ const Projeto = ({ project }) => {
                 </div>
               </div>
               <div className="flex flex-wrap justify-center mt-6">
-                {project.Links.map((link, i) => {
-                  return (
-                    <a href={link.link} key={i}>
-                      <button
-                        className="px-4 py-2 mx-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
-                        type="button"
-                        style={{ transition: "all .15s ease" }}
-                      >
-                        {link.title}
-                      </button>
-                    </a>
-                  );
-                })}
+                {/* Renderizar os Other Links com texto padrão */}
+                {otherLinks.map((link) => (
+                  <a href={link.link} key={link.id}>
+                    <button
+                      className="px-4 py-2 mx-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
+                      type="button"
+                      style={{ transition: "all .15s ease" }}
+                    >
+                      {link.title}
+                    </button>
+                  </a>
+                ))}
               </div>
             </div>
           </div>

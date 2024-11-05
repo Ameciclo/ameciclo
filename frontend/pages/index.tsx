@@ -12,10 +12,12 @@ import { FeaturedProducts } from "../components/FeaturedProducts";
 import { server } from "../config";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
+import { on } from "stream";
 
 export default function Home({
   featuredProjects,
   numberOfProjects,
+  ongoingProjects,
   featuredProducts,
   home,
   recurrent,
@@ -128,8 +130,9 @@ export default function Home({
       <section className="bg-ameciclo">
         <div className="container px-6 py-20 mx-auto">
           <div className="flex flex-wrap justify-around">
-            <Counter label={"Projetos Realizados"} number={numberOfProjects} />
-            <Counter label={"Pessoas Associadas"} number={1106} />
+          <Counter label={"Projetos em Andamento"} number={ongoingProjects} />
+          <Counter label={"Projetos Realizados"} number={numberOfProjects} />
+            <Counter label={"Pessoas Associadas"} number={1306} />
             {/*<Counter label={"Horas de Envolvimento"} number={1000} />*/}
           </div>
         </div>
@@ -197,23 +200,33 @@ export async function getStaticProps() {
   const home = await res_carrossel.json();
 
   let featuredProducts = [];
-
   if (home.products) {
     featuredProducts = home.products;
   }
 
   let featuredProjects = [];
-
   if (home.projects) {
     featuredProjects = home.projects;
   }
 
-  const numberOfProjects = projects.length;
+  // Filtrar projetos que não terminam com "_es" ou "_en"
+  const validProjects = projects.filter(
+    (project) => !project.slug.endsWith("_es") && !project.slug.endsWith("_en")
+  );
+
+  // Contar o total de projetos válidos
+  const numberOfProjects = validProjects.length;
+
+  // Contar projetos ativos com base no status
+  const ongoingProjects = validProjects.filter(
+    (project) => project.status === "ongoing"
+  ).length;
 
   return {
     props: {
       featuredProjects,
       numberOfProjects,
+      ongoingProjects,
       featuredProducts,
       home,
       recurrent,
