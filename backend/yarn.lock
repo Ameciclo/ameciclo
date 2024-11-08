@@ -12513,10 +12513,10 @@ strapi-plugin-content-type-builder@3.6.8:
     strapi-utils "3.6.8"
     yup "^0.32.9"
 
-strapi-plugin-documentation@3.6.8:
-  version "3.6.8"
-  resolved "https://registry.yarnpkg.com/strapi-plugin-documentation/-/strapi-plugin-documentation-3.6.8.tgz#06007094d8075cfcb1fbdc0ed7660b3535baddeb"
-  integrity sha512-eWeL71OrpVzBwmdSYTPmQF4I7q5BOugY55BdTammR9zfAOFxdTALEtWjbVv/Anfy9IAnGElcYCLvD9X4P3FH2w==
+strapi-plugin-documentation@3.6.11:
+  version "3.6.11"
+  resolved "https://registry.yarnpkg.com/strapi-plugin-documentation/-/strapi-plugin-documentation-3.6.11.tgz#092c25bce44fc5fa61e46c1194433eb7612c8381"
+  integrity sha512-3cXufqRxVyNL0/f04tMpekHUDnO38s1xhoMRaouWNXkI0K4EkmbrWhdpAVps01R2dQnq3evfw+uV0xc1SeRV7A==
   dependencies:
     "@buffetjs/core" "3.3.8"
     "@buffetjs/custom" "3.3.8"
@@ -12527,9 +12527,10 @@ strapi-plugin-documentation@3.6.8:
     cheerio "^1.0.0-rc.5"
     fs-extra "^9.1.0"
     immutable "^3.8.2"
+    jsonwebtoken "^8.1.0"
     koa-static "^5.0.0"
     lodash "4.17.21"
-    moment "^2.29.1"
+    moment "^2.29.4"
     path-to-regexp "^3.1.0"
     react "^16.14.0"
     react-copy-to-clipboard "^5.0.3"
@@ -12542,7 +12543,7 @@ strapi-plugin-documentation@3.6.8:
     redux "^4.0.1"
     redux-immutable "^4.0.0"
     reselect "^4.0.0"
-    strapi-helper-plugin "3.6.8"
+    strapi-helper-plugin "3.6.11"
     swagger-ui-dist "3.47.1"
 
 strapi-plugin-email@3.6.8:
