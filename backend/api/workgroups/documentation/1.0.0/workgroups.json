@@ -257,7 +257,7 @@
     "/workgroups/count": {
       "get": {
         "deprecated": false,
-        "description": "Retrieve the numver of workgroups documents",
+        "description": "Retrieve the number of workgroups documents",
         "responses": {
           "200": {
             "description": "Retrieve workgroups document(s)",
