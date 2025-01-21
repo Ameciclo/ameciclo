@@ -5,20 +5,35 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { GoogleAnalytics } from "./components/GoogleAnalytics";
 import styles from "./tailwind.css";
 
-export const meta = () => [
-  { title: "Plataforma de Dados da Ameciclo" },
-  {
-    name: "description",
-    content:
-      "Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas. As informações são abertas para uso de todas as pessoas que desejam uma cidade mais humana, democrática e sustentável.",
-  },
-];
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
+      name: "viewport",
+      content:
+        "Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas. As informações são abertas para uso de todas as pessoas que desejam uma cidade mais humana, democrática e sustentável.",
+      viewport: "width=device-width, initial-scale=1.0",
+      charset: "utf-8",
+      keywords: "ameciclo, dados, ciclo, ciclovia, recife, rmr, plataforma de dados",
+      author: "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
+      robots: "index, follow",
+      canonical: "https://ameciclo.org/",
+      "og:title": "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
+      "og:description": "Os melhores produtos e serviços ao seu alcance.",
+      "og:image": "https://ameciclo.org/favicon.ico",
+      "og:url": "https://ameciclo.org/",
+      "twitter:title": "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
+      "twitter:description": "Os melhores produtos e serviços ao seu alcance.",
+      "twitter:image": "https://ameciclo.org/favicon.ico",
+    },
+  ];
+};
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -35,12 +50,9 @@ export const links: LinksFunction = () => [
 ];
 
 export default function App() {
-
   return (
     <html lang="pt-BR">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
