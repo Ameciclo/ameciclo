@@ -3,7 +3,7 @@ import { redirect } from "@remix-run/node";
 import Apoie from "../Icons/apoie";
 import Associe from "../Icons/associe";
 import Participe from "../Icons/participe";
-import { useLoaderData } from "@remix-run/react";
+import { json, Link, useLoaderData } from "@remix-run/react";
 
 export async function loader() {
     type HomeData = {
@@ -17,11 +17,9 @@ export async function loader() {
         throw redirect("/404");
     }
 
-    const home: HomeData = await response.json()
+    const home: HomeData = await response.json();
 
-    return {
-        home,
-    };
+    return ({ home });
 }
 
 export default function SectionCallToAction() {
@@ -32,36 +30,9 @@ export default function SectionCallToAction() {
         <section className="bg-ameciclo">
             <div className="container px-6 py-20 mx-auto">
                 <div className="flex flex-wrap justify-around">
-                    {/* Botão "Participe" */}
-                    <div className="p-4 text-center">
-                        <a href={home.participation_url}>
-                            <motion.div whileHover={{ scale: 1.1 }}>
-                                <Participe />
-                            </motion.div>
-                        </a>
-                    </div>
-
-                    {/* Botão "Associe-se" */}
-                    <div className="p-4 text-center">
-                        <a href={home.association_url}>
-                            <motion.div whileHover={{ scale: 1.1 }}>
-                                <Associe />
-                            </motion.div>
-                        </a>
-                    </div>
-
-                    {/* Botão "Apoie" */}
-                    <div className="p-4 text-center">
-                        <a
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={home.donate_url}
-                        >
-                            <motion.div whileHover={{ scale: 1.1 }}>
-                                <Apoie />
-                            </motion.div>
-                        </a>
-                    </div>
+                    <Link className="buttom-call-actions" to={home.participation_url}><Participe /></Link>
+                    <Link className="buttom-call-actions" to={home.association_url}><Associe /></Link>
+                    <Link className="buttom-call-actions" to={home.donate_url}><Apoie /></Link>
                 </div>
             </div>
         </section>
