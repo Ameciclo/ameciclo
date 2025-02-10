@@ -19,7 +19,7 @@ export const meta: MetaFunction = () => {
       content:
         "Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas. As informações são abertas para uso de todas as pessoas que desejam uma cidade mais humana, democrática e sustentável.",
       viewport: "width=device-width, initial-scale=1.0",
-      charset: "utf-8",
+      charSet: "UTF-8",
       keywords: "ameciclo, dados, ciclo, ciclovia, recife, rmr, plataforma de dados",
       author: "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
       robots: "index, follow",
@@ -54,6 +54,23 @@ export default function App() {
     <html lang="pt-BR">
       <head>
         <Meta />
+        <meta name="title" content="Ameciclo - Associação Metropolitana de Ciclistas do Recife" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas. As informações são abertas para uso de todas as pessoas que desejam uma cidade mais humana, democrática e sustentável." />
+        <meta charSet="UTF-8" />
+        <meta name="keywords" content="ameciclo, dados, ciclo, ciclovia, recife, rmr, plataforma de dados" />
+        <meta name="author" content="Ameciclo - Associação Metropolitana de Ciclistas do Recife" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://ameciclo.org/" />
+
+        <meta property="og:title" content="Ameciclo - Associação Metropolitana de Ciclistas do Recife" />
+        <meta property="og:description" content="Os melhores produtos e serviços ao seu alcance." />
+        <meta property="og:image" content="https://ameciclo.org/favicon.ico" />
+        <meta property="og:url" content="https://ameciclo.org/" />
+
+        <meta property="twitter:title" content="Ameciclo - Associação Metropolitana de Ciclistas do Recife" />
+        <meta property="twitter:description" content="Os melhores produtos e serviços ao seu alcance." />
+        <meta property="twitter:image" content="https://ameciclo.org/favicon.ico" />
         <Links />
       </head>
       <body>
