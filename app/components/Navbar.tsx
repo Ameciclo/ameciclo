@@ -18,10 +18,10 @@ export const Navbar = ({ pages }: any) => {
 
   return (
     <>
+      <div className="pt-16"></div>
       <nav
-        className={`fixed top-0 w-full z-50 bg-ameciclo text-white transition ${
-          isHeaderScrolled ? "shadow-lg" : ""
-        }`}
+        className={`flex fixed top-0 items-center h-16 w-full z-50 bg-ameciclo text-white transition ${isHeaderScrolled ? "shadow-lg" : ""
+          }`}
         role="navigation"
       >
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
