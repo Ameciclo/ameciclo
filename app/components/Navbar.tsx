@@ -70,8 +70,8 @@ export const Navbar = ({ pages }: any) => {
 function BigMenu({ pages }: any) {
   return (
     <ul className="flex space-x-6">
-      {pages.map((page: any) => (
-        <li key={page.name}>
+      {pages.map((page: any, i: any) => (
+        <li key={i}>
           <Link
             to={page.url}
             className="uppercase hover:border-b-2 border-white pb-1 transition duration-300"

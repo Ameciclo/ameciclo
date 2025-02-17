@@ -73,8 +73,9 @@ export const Footer = () => {
       <footer className="bg-gray-100">
         <div className="container mx-auto px-6 pt-10 pb-6">
           <div className="flex flex-wrap">
-            {columns.map((column: footerColumn, i) => (
+            {columns.map((column: footerColumn, i: any) => (
               <div
+                key={i}
                 className={`w-full md:w-1/3 text-center md:text-${column.align != "" ? column.align : "center"
                   }`}
               >

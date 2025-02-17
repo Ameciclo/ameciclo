@@ -1,9 +1,7 @@
-import { motion } from "framer-motion";
-import { redirect } from "@remix-run/node";
 import Apoie from "../Icons/apoie";
 import Associe from "../Icons/associe";
 import Participe from "../Icons/participe";
-import { json, Link, useLoaderData } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
 export default function SectionCallToAction({ home }: any) {
     try {
