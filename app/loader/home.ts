@@ -7,5 +7,8 @@ export const loader: LoaderFunction = async () => {
   };
 
   const home = await response.json();
-  return { home };
+
+  const projects = home.projects || [];
+
+  return { home, projects };
 };
