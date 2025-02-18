@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { footerColumn, footerColumnContent } from "../../typings";
+import { footerColumn, footerColumnContent } from "../../../typings";
 
 export const Footer = () => {
 
