@@ -24,8 +24,8 @@ export default function SectionCarousel({ projects }: any) {
             <div className="mx-auto">
                 <div className="navigation-wrapper">
                     <div ref={sliderRef} className="keen-slider">
-                        {projects?.map((project: any) => (
-                            <div className="flex min-h-[600px] relative">
+                        {projects?.map((project: any, i: any) => (
+                            <div key={i} className="flex min-h-[600px] relative">
                                 <div className="keen-slider__slide max-h-[600px]">
                                     <img
                                         src={project.media.url}
