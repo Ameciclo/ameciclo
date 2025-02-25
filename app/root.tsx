@@ -78,11 +78,12 @@ export default function App() {
           <Navbar
             pages={[
               { name: "Inicial", url: "/" },
-              { name: "Contagens", url: "/contagens" },
-              { name: "Documentos", url: "/documentos" },
-              { name: "Ideciclo", url: "/ideciclo" },
+              { name: "Quem Somos", url: "/quem_somos" },
+              { name: "Agenda", url: "/agenda" },
+              { name: "Projetos", url: "/projetos" },
+              { name: "Dados", url: "/dados" },
               { name: "Observatório", url: "/observatorio" },
-              { name: "Perfil", url: "/perfil" },
+              { name: "Contato", url: "/contato" },
             ]}
           />
           <Outlet />
