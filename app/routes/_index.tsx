@@ -1,8 +1,9 @@
-import Banner from "~/components/commom/Banner";
+import Banner from "~/components/Commom/Banner";
 import SectionCallToAction from "~/components/Home/SectionCallToAction";
 import SectionCarousel from "~/components/Home/SectionCarousel";
 import { useLoaderData } from "@remix-run/react";
 import { loader } from "../loader/home"
+import SectionData from "~/components/Home/SectionData";
 export { loader };
 
 export default function Index() {
@@ -12,6 +13,7 @@ export default function Index() {
       <Banner />
       <SectionCallToAction home={home} />
       <SectionCarousel projects={projects} />
+      <SectionData projects={projects} />
     </main>
   )
 }

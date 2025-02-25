@@ -1,16 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import { animate } from "framer-motion";
 
-const Counter = ({ label, number }) => {
-  const nodeRef = useRef();
+const Counter = ({ label, number }: any) => {
+  const nodeRef = useRef<HTMLHeadingElement | null>(null);
 
   useEffect(() => {
     const node = nodeRef.current;
+    if (!node) return; // Verifica se o elemento existe antes de usar
 
     const controls = animate(0, number, {
       duration: 1,
       onUpdate(value) {
-        // @ts-ignore
         node.textContent = value.toFixed(0);
       },
     });
