@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 
 import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
-import Breadcrumb from "~/components/QuemSomos/Breadcrumb";
+import Breadcrumb from "~/components/Commom/Breadcrumb";
 
 // Definir o tipo dos dados recebidos
 type Ameciclista = {
