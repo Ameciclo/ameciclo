@@ -6,9 +6,9 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import { Navbar } from "./components/commom/Navbar";
-import { Footer } from "./components/commom/Footer";
-import { GoogleAnalytics } from "./components/commom/GoogleAnalytics";
+import { Navbar } from "./components/Commom/Navbar";
+import { Footer } from "./components/Commom/Footer";
+import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
 import styles from "./tailwind.css";
 
 export const meta: MetaFunction = () => {
