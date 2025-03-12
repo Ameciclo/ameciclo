@@ -70,7 +70,7 @@
               
   - [x] `/status` https://github.com/Ameciclo/ameciclo/pull/109/commits/8be86ac73b7d71ec790891c25cd24936fd0bdf58 https://github.com/Ameciclo/ameciclo/pull/109/commits/6c305224df7c489eb2e1d4c7ac76bff02fe7dba3
 
-## Páginas de (ameciclo.org/dados)
+## Páginas de (dados.ameciclo.org)
   - [ ] `/dados`
     Componentes
     - [ ] BannerData
@@ -117,6 +117,7 @@
     - [ ] Map
     - [ ] ObservatorioClientSide
     - [ ] CardsSession
+## Páginas de (loaclima.ameciclo.org)
   - [ ] `/dados/observatorio/loaclima`
     Componentes
     - [ ] BannerLoaClima
@@ -153,6 +154,7 @@
     - [ ] Banner
     - [ ] FaqSearch
     - [ ] FaqCards
+## Páginas de (dom.ameciclo.org)
   - [ ] `/dados/observatorio/dom/`
     Componentes
     - [ ] BannerDom
