@@ -32,13 +32,7 @@ export default function Agenda() {
                     loading="lazy"
                 />
             </div>
-
-            <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
-                <div className="container mx-auto">
-                    <Breadcrumb label="Agenda" slug="/agenda" routes={["/", "/agenda"]} />
-                </div>
-            </div>
-
+            <Breadcrumb label="Agenda" slug="/agenda" routes={["/", "/agenda"]} />
             <div className="container px-4 py-4 mx-auto my-10">
                 <div className="px-4 py-4 rounded border border-gray-300">
                     <EventCalendar googleCalendarApiKey={googleCalendarApiKey} />

@@ -39,13 +39,7 @@ export default function Contato() {
           loading="lazy"
         />
       </div>
-
-      <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
-        <div className="container mx-auto">
-          <Breadcrumb label="Contato" slug="/contato" routes={["/", "/contato"]} />
-        </div>
-      </div>
-
+      <Breadcrumb label="Contato" slug="/contato" routes={["/", "/contato"]} />
       <section className="container mx-auto my-12">
         <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-3">
           {/* 🔹 Card 1 - Participe */}

@@ -2,40 +2,45 @@ import { Link } from "@remix-run/react";
 
 const Breadcrumb = ({ label, slug, routes }: any) => {
     return (
-        <nav className="bg-grey-light rounded font-sans w-full">
-            <ol className="list-none p-0 inline-flex">
-                {routes.map((route: any, i: any) => {
-                    if (route === "/") {
-                        return (
-                            <BreadcrumbItem
-                                slug="/"
-                                label="Página Principal"
-                                lastItem={false}
-                                key={i}
-                            />
-                        );
-                    }
-                    if (i === routes.length - 1) {
-                        return (
-                            <BreadcrumbItem
-                                slug={slug}
-                                label={label}
-                                lastItem={true}
-                                key={i}
-                            />
-                        );
-                    }
-                    return (
-                        <BreadcrumbItem
-                            slug={route}
-                            label={route}
-                            lastItem={false}
-                            key={i}
-                        />
-                    );
-                })}
-            </ol>
-        </nav>
+        <div className="bg-ameciclo text-white p-4 uppercase flex items-center">
+            <div className="container mx-auto">
+                <nav className="bg-grey-light rounded font-sans w-full">
+                    <ol className="list-none p-0 inline-flex">
+                        {routes.map((route: any, i: any) => {
+                            if (route === "/") {
+                                return (
+                                    <BreadcrumbItem
+                                        slug="/"
+                                        label="Página Principal"
+                                        lastItem={false}
+                                        key={i}
+                                    />
+                                );
+                            }
+                            if (i === routes.length - 1) {
+                                return (
+                                    <BreadcrumbItem
+                                        slug={slug}
+                                        label={label}
+                                        lastItem={true}
+                                        key={i}
+                                    />
+                                );
+                            }
+                            return (
+                                <BreadcrumbItem
+                                    slug={route}
+                                    label={route}
+                                    lastItem={false}
+                                    key={i}
+                                />
+                            );
+                        })}
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
     );
 };
 

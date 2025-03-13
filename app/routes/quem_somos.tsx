@@ -24,7 +24,7 @@ type CustomData = {
 // Loader para buscar dados no servidor
 export const loader: LoaderFunction = async () => {
   const server = "https://cms.ameciclo.org";
-  
+
   const resAme = await fetch(`${server}/ameciclistas`);
   const resCustom = await fetch(`${server}/quem-somos`);
 
@@ -66,12 +66,7 @@ export default function QuemSomos() {
           loading="lazy"
         />
       </div>
-
-      <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
-        <div className="container mx-auto">
-          <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/", "/quem_somos"]} />
-        </div>
-      </div>
+      <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/", "/quem_somos"]} />
 
       <div className="container mx-auto mt-8 mb-8">
         <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">

@@ -132,13 +132,7 @@ export default function Projetos() {
           loading="lazy"
         />
       </div>
-
-      <div className="bg-ameciclo text-white p-4 uppercase flex items-center">
-        <div className="container mx-auto">
-          <Breadcrumb label="Projetos" slug="/projetos" routes={["/", "/projetos"]} />
-        </div>
-      </div>
-
+      <Breadcrumb label="Projetos" slug="/projetos" routes={["/", "/projetos"]} />
       <section className="container my-12 mx-auto">
         {/* Projetos em Destaque */}
         {filteredProjects.highlighted.length > 0 && (
