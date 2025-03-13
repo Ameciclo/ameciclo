@@ -6,51 +6,34 @@ const Breadcrumb = ({ label, slug, routes }: any) => {
             <div className="container mx-auto">
                 <nav className="bg-grey-light rounded font-sans w-full">
                     <ol className="list-none p-0 inline-flex">
-                        {routes.map((route: any, i: any) => {
-                            if (route === "/") {
-                                return (
-                                    <BreadcrumbItem
-                                        slug="/"
-                                        label="Página Principal"
-                                        lastItem={false}
-                                        key={i}
-                                    />
-                                );
-                            }
-                            if (i === routes.length - 1) {
-                                return (
-                                    <BreadcrumbItem
-                                        slug={slug}
-                                        label={label}
-                                        lastItem={true}
-                                        key={i}
-                                    />
-                                );
-                            }
-                            return (
-                                <BreadcrumbItem
-                                    slug={route}
-                                    label={route}
-                                    lastItem={false}
-                                    key={i}
-                                />
-                            );
-                        })}
+                        {routes.map((route: any, i: number) => (
+                            <BreadcrumbItem
+                                key={i}
+                                slug={route}
+                                label={route === "/" ? "Página Principal" : route.replace("/", "")}
+                                lastItem={false}
+                            />
+                        ))}
+                        {/* Último item deve ser sempre o `label` e `slug` passados como props */}
+                        <BreadcrumbItem slug={slug} label={label} lastItem={true} />
                     </ol>
                 </nav>
             </div>
         </div>
-
     );
 };
 
 const BreadcrumbItem = ({ slug, label, lastItem }: any) => {
     return (
         <li className="flex items-center">
-            <Link to={slug}>
-                <a>{label.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "")}</a>
-            </Link>
-            {lastItem ? null : (
+            {!lastItem ? (
+                <Link to={slug} className="text-white">
+                    {label.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "")}
+                </Link>
+            ) : (
+                <span>{label}</span>
+            )}
+            {!lastItem && (
                 <svg
                     className="fill-current w-3 h-3 mx-3"
                     xmlns="http://www.w3.org/2000/svg"
