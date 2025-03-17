@@ -86,7 +86,7 @@ export default function App() {
               { name: "Contato", url: "/contato" },
             ]}
           />
-          <Outlet />
+          <main><Outlet /></main>
           <Footer />
         </div>
         <ScrollRestoration />

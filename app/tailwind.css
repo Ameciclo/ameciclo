@@ -11,5 +11,15 @@
 html,
 body {
   background-color: white;
-  
+  height: 100%;
+}
+
+#root, #app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1; /* Ocupa todo o espaço disponível entre o header e o footer */
 }
