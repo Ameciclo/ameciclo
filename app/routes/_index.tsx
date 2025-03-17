@@ -4,16 +4,18 @@ import SectionCarousel from "~/components/Home/SectionCarousel";
 import { useLoaderData } from "@remix-run/react";
 import { loader } from "../loader/home"
 import SectionData from "~/components/Home/SectionData";
+import bannerImage from "/backgroundImage.webp";
 export { loader };
+
 
 export default function Index() {
   const { home, projects } = useLoaderData<any>();
   return (
-    <main className="main-home">
-      <Banner />
+    <>
+      <Banner image={bannerImage} alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"/>
       <SectionCallToAction home={home} />
       <SectionCarousel projects={projects} />
       <SectionData projects={projects} />
-    </main>
+    </>
   )
 }

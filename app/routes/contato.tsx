@@ -8,6 +8,9 @@ import Participe from "~/components/Icons/participe";
 import Associe from "~/components/Icons/associe";
 import Apoie from "~/components/Icons/apoie";
 
+import bannerContatact from "/contato.webp";
+import Banner from "~/components/Commom/Banner";
+
 // 🔹 SEO para Remix
 export const meta: MetaFunction = () => {
   return [{ title: "Contato" }];
@@ -31,14 +34,7 @@ export default function Contato() {
 
   return (
     <>
-      <div className="relative w-full h-[52vh]">
-        <img
-          src="/contato.webp"
-          alt="Contato"
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
-      </div>
+      <Banner image={bannerContatact} alt="Mulher negra de cabelo crespo volumoso andando de bicicleta com camisa branca de costas no canto direito do banner, passando ao lado de um bicicletário com várias bicicletas e cones que protegem este bicicletário" />
       <Breadcrumb label="Contato" slug="/contato" routes={["/", "/contato"]} />
       <section className="container mx-auto my-12">
         <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-3">
