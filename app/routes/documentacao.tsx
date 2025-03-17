@@ -1,16 +1,12 @@
-import { marked } from "marked";
-import fs from "fs";
-import path from "path";
-
-const content = fs.readFileSync(path.resolve("documentation/documentation_dev.md"), "utf-8");
+import Indice from "app/components/Documentacao/Indice"
 
 export default function Docs() {
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div
-        className="prose prose-lg border p-4 rounded bg-gray-100"
-        dangerouslySetInnerHTML={{ __html: marked(content) }}
-      />
-    </div>
+    <>
+      <div className="p-6 mt-5 max-w-3xl mx-auto bg-gray-100 rounded shadow-lg">
+        <h1 className="text-4xl text-center font-bold mb-4">Documentação do Projeto para Desenvolvedores</h1>
+        <Indice />
+      </div>
+    </>
   );
 }
