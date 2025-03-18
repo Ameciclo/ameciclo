@@ -31,13 +31,13 @@ export const Footer = () => {
       align: "center",
       content: [
         {
-          label: "Contagens",
-          url: "/contagens",
+          label: "Documentação",
+          url: "/documentacao",
         },
         {
-          label: "Contato",
-          url: "http://www.ameciclo.org/contato",
-        },
+          label: "Status de Serviços",
+          url: "/status",
+        }
       ],
     },
     {
