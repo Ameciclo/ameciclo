@@ -1,11 +1,18 @@
-import Indice from "app/components/Documentacao/Indice"
+import Titulo from "app/components/Documentacao/Titulo";
+import Indice from "app/components/Documentacao/Indice";
+import VisaoGeral from "~/components/Documentacao/VisaoGeral";
+import EstruturaDoProjeto from "~/components/Documentacao/EstruturaDoProjeto";
+import Conclusao from "~/components/Documentacao/Conclusao";
 
 export default function Docs() {
   return (
     <>
-      <div className="p-6 mt-5 max-w-3xl mx-auto bg-gray-100 rounded shadow-lg">
-        <h1 className="text-4xl text-center font-bold mb-4">Documentação do Projeto para Desenvolvedores</h1>
+      <div className="p-6 mt-5 mb-5 max-w-5xl mx-auto bg-gray-100 rounded shadow-lg">
+        <Titulo title="Documentação do Projeto para Desenvolvedores" />
+        <VisaoGeral />
         <Indice />
+        <EstruturaDoProjeto />
+        <Conclusao />
       </div>
     </>
   );
