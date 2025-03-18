@@ -69,7 +69,7 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gray-100">
+    <footer className="bg-gray-200">
       <div className="container mx-auto px-6 pt-10 pb-6">
         <div className="flex flex-wrap">
           {columns.map((column: footerColumn, i: any) => (
