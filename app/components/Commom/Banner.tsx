@@ -1,13 +1,13 @@
-export default function Banner({image, alt = "image banner"}: any) {
+export default function Banner({image="backgroundImage.webp", alt = "image banner"}: any) {
     return (
-        <section className="h-[70vh] w-full relative overflow-hidden py-[58px]">
-            <img
-                src={image}
-                alt={alt}
-                className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="w-96 h-96 bg-black"></div>
-        </section>
+        <div className="relative py-24 w-full h-[52vh]">
+        <img
+          src={image}
+          alt={alt}
+          className="absolute inset-0 object-cover w-full h-full"
+          loading="lazy"
+        />
+      </div>
     )
 }
 
