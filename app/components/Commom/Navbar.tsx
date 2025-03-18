@@ -1,9 +1,18 @@
 import { Link } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { img } from "framer-motion/client";
 
 export const Navbar = ({ pages }: any) => {
+  const pagesDefault = [
+    { name: "Inicial", url: "/" },
+    { name: "Quem Somos", url: "/quem_somos" },
+    { name: "Agenda", url: "/agenda" },
+    { name: "Projetos", url: "/projetos" },
+    { name: "Dados", url: "/dados" },
+    { name: "Observatório", url: "/observatorio" },
+    { name: "Contato", url: "/contato" },
+  ];
+  if(!pages) pages = pagesDefault;
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -26,7 +35,7 @@ export const Navbar = ({ pages }: any) => {
       >
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo da Ameciclo */}
-          <Link to="https://www.ameciclo.org/" aria-label="Ir para o site da Ameciclo">
+          <Link to="/" aria-label="Ir para o site da Ameciclo">
             <AmecicloLogo isScrolled={isHeaderScrolled} />
           </Link>
 
@@ -71,7 +80,7 @@ function BigMenu({ pages }: any) {
   return (
     <ul className="flex space-x-6">
       {pages.map((page: any, i: any) => (
-        <li key={i}>
+        <li key={page.name}>
           <Link
             to={page.url}
             className="uppercase hover:border-b-2 border-white pb-1 transition duration-300"
