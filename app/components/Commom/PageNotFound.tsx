@@ -1,9 +1,9 @@
 import { Link } from "@remix-run/react";
 import image from "/crash.webp";
 
-export default function NotFound() {
+export default function PageNotFound() {
     return (
-        <div className="flex flex-col pt-16 items-center justify-start min-h-screen bg-gray-100 text-gray-900">
+        <div className="flex flex-col p-7 items-center justify-start bg-gray-100 text-gray-900">
             <img className="pr-24" src={image} alt="bicicleta quebrada" />
             <h1 className="text-4xl font-bold">404 - Página não encontrada</h1>
             <p className="mt-4 text-lg">Oops! Parece que esta página não existe.</p>
