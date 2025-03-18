@@ -23,3 +23,30 @@ body {
 main {
   flex: 1; /* Ocupa todo o espaço disponível entre o header e o footer */
 }
+
+@keyframes pulse {
+  0% {
+    content: ".";
+    opacity: 0;
+  }
+  33% {
+    content: "..";
+    opacity: 1;
+  }
+  66% {
+    content: "...";
+    opacity: 1;
+  }
+  100% {
+    content: ".";
+    opacity: 0;
+  }
+}
+
+.dot {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 24px;
+  animation: pulse 1.5s infinite;
+}
+
