@@ -5,7 +5,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/node";
 import { Navbar } from "./components/Commom/Navbar";
 import { Footer } from "./components/Commom/Footer";
 import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
@@ -41,25 +41,32 @@ export const meta: MetaFunction = () => [
   { rel: "canonical", href: metaConfig.url },
 ];
 
+import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
+import ErrorFallback from "./components/Commom/ErrorFallback";
+
 export function ErrorBoundary() {
+  const error = useRouteError();
+
   return (
     <html>
       <head>
         <title>Erro!</title>
         <Links />
         <Meta />
-        <Links />
       </head>
       <body>
         <Navbar />
-        <PageNotFound />
+        <main>
+          {isRouteErrorResponse(error) ? <PageNotFound /> : <ErrorFallback />}
+        </main>
         <Footer />
         <Scripts />
         <GoogleAnalytics gaId="G-PQNS7S7FD3" />
-        </body>
+      </body>
     </html>
   );
 }
+
 
 export default function App() {
   return (
@@ -83,3 +90,4 @@ export default function App() {
     </html>
   );
 }
+
