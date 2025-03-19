@@ -1,8 +1,8 @@
-export default function Banner({ image = "backgroundImage.webp", alt = "image banner" }: any) {
+export default function Banner({ image = "/projetos.webp", alt = "Imagem de Banner da página" }: any) {
   return (
     <div className="relative py-24 w-full h-[52vh]">
       <img
-        src={image || "projetos.webp"} // Fallback caso image seja undefined
+        src={image}
         alt={alt}
         className="absolute inset-0 object-cover w-full h-full"
         loading="lazy"
