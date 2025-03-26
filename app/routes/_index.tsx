@@ -15,7 +15,7 @@ export default function Index() {
     <>
       <HomeBanner image={bannerImage} alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"/>
       <SectionCallToAction home={home} />
-      <SectionCarousel projects={projects} />
+      <SectionCarousel />
       <SectionData projects={projects} />
     </>
   )
