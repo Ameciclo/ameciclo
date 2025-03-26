@@ -9,25 +9,26 @@ export const meta = () => [
 const servicesList = [
   { category: "APIs", name: "API - STRAPI V3", url: "https://cms.ameciclo.org" },
   { category: "APIs", name: "API - STRAPI V4", url: "https://test.cms.ameciclo.org" },
+  { category: "APIs", name: "API - STRAPI V5 [em breve...]", url: "https://v5.cms.ameciclo.org" },
   { category: "Páginas do Site", name: "Página Inicial", url: "/" },
   { category: "Páginas do Site", name: "Quem Somos", url: "/quem_somos" },
   { category: "Páginas do Site", name: "Agenda", url: "/agenda" },
   { category: "Páginas do Site", name: "Projetos", url: "/projetos" },
+  { category: "Páginas do Site", name: "Projeto", url: "/projetos/nome_do_projeto" },
   { category: "Páginas do Site", name: "Contato", url: "/contato" },
   { category: "Páginas do Site", name: "Dados", url: "/dados" },
   { category: "Páginas do Site", name: "Contagens", url: "/dados/contagens" },
   { category: "Páginas do Site", name: "Documentos", url: "/dados/documentos" },
   { category: "Páginas do Site", name: "Ideciclo", url: "/dados/ideciclo" },
-  { category: "Páginas do Site", name: "Observatório", url: "/observatorio" },
-  { category: "Páginas do Site", name: "Execução Cicloviária", url: "/observatorio/execucao_cicloviaria" },
-  { category: "Páginas do Site", name: "Loa Clima", url: "/observatorio/loa" },
-  { category: "Páginas do Site", name: "Perfil", url: "/observatorio/dom" },
-  { category: "Páginas do Site", name: "Observatório", url: "/observatorio" },
+  { category: "Páginas do Site", name: "Observatório", url: "/dados/observatorio" },
+  { category: "Páginas do Site", name: "Execução Cicloviária", url: "/dados/observatorio/execucaocicloviaria" },
+  { category: "Páginas do Site", name: "Loa Clima", url: "/dados/observatorio/loa" },
+  { category: "Páginas do Site", name: "Perfil", url: "/dados/observatorio/dom" },
+  { category: "Páginas do Site", name: "Observatório", url: "/dados/observatorio" },
   { category: "Serviços Externos", name: "Serviço - Associe-se", url: "https://www.docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform" },
-  { category: "Serviços Externos", name: "Serviço - Participe", url: "participe.ameciclo.org" },
+  { category: "Serviços Externos", name: "Serviço - Participe", url: "https://participe.ameciclo.org" },
 ];
 
-// Mapeamento de status HTTP com mensagens explicativas
 const statusMessages: { [key: number]: string } = {
   400: "Requisição mal formada.",
   401: "Não autorizado!",
@@ -37,10 +38,8 @@ const statusMessages: { [key: number]: string } = {
   502: "Erro de gateway.",
   503: "Serviço temporariamente indisponível.",
   504: "Timeout do gateway.",
-  // Outros status podem ser adicionados conforme necessário
 };
 
-// Função para verificar o status de um serviço
 const checkStatus = async (url: string): Promise<{ status: "OK" | "OFF", httpStatus?: number, errorMessage?: string }> => {
   try {
     const response = await fetch(url, {});
@@ -68,6 +67,7 @@ export default function StatusPage() {
     const [services, setServices] = useState<
       { name: string; url: string; status: "OK" | "OFF"; category: string; httpStatus?: number, errorMessage?: string }[]
     >([]);
+    const [fontSize, setFontSize] = useState(16);
   
     useEffect(() => {
       const fetchStatuses = async () => {
@@ -88,19 +88,22 @@ export default function StatusPage() {
     return (
       <div className="p-6">
         <h1 className="text-5xl mb-5">Status dos Serviços</h1>
-        <a className="underline font-blue" href="/documentacao">leia a documentação</a> 
-
+        <a className="underline font-blue" href="/documentacao">leia a documentação</a>
+        <div className="mt-4">
+          <button className="p-2 bg-gray-200" onClick={() => setFontSize(fontSize + 2)}>A+</button>
+          <button className="p-2 bg-gray-200 ml-2" onClick={() => setFontSize(fontSize - 2)}>A-</button>
+        </div>
+  
         {services.length === 0 ? (
           <p className="text-xl">Verificando status dos serviços <span className="dot">  . . . </span></p>
         ) : (
-            
           categories.map((category) => (
             <div key={category} className="mb-6">
-              <h2 className="text-2xl pt-5 font-semibold mb-3">{category}</h2>
+              <h2 className="text-2xl pt-5 font-semibold mb-3" style={{ fontSize }}>{category}</h2>
               {services
                 .filter((service) => service.category === category)
                 .map((service, index) => (
-                  <div key={index} className="mb-3">
+                  <div key={index} className="mb-3" style={{ fontSize }}>
                     <p>
                       <span className={service.status === "OK" ? "text-green-500" : "text-red-500"}>
                         <strong>[{service.status}]</strong>
@@ -123,5 +126,4 @@ export default function StatusPage() {
         )}
       </div>
     );
-  }
-  
+}
