@@ -22,7 +22,7 @@ export default function ExecucaoCicloviaria() {
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
-            <Breadcrumb label="Execução Cicloviária" slug="/execucaocicloviaria" routes={["/", "/dados"]} />
+            <Breadcrumb label="Execução Cicloviária" slug="/execucaocicloviaria" routes={["/", "/dados", "/dados/observatório"]} />
         </>
     );
 }
