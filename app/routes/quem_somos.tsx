@@ -66,7 +66,7 @@ export default function QuemSomos() {
           loading="lazy"
         />
       </div>
-      <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/", "/quem_somos"]} />
+      <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/"]} />
 
       <div className="container mx-auto mt-8 mb-8">
         <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">

@@ -30,7 +30,7 @@ export default function Agenda() {
     return (
         <>
             <Banner image={bannerSchedule} alt="Várias pessoas associadas ameciclo segurando uma faixa que diz Dia Mundial Sem Carro em cima de um barco no rio capibaribe" />
-            <Breadcrumb label="Agenda" slug="/agenda" routes={["/", "/agenda"]} />
+            <Breadcrumb label="Agenda" slug="/agenda" routes={["/"]} />
             <div className="container px-4 py-4 mx-auto my-10">
                 <div className="px-4 py-4 rounded border border-gray-300">
                     <EventCalendar googleCalendarApiKey={googleCalendarApiKey} />

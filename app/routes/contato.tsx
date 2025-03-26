@@ -35,7 +35,7 @@ export default function Contato() {
   return (
     <>
       <Banner image={bannerContatact} alt="Mulher negra de cabelo crespo volumoso andando de bicicleta com camisa branca de costas no canto direito do banner, passando ao lado de um bicicletário com várias bicicletas e cones que protegem este bicicletário" />
-      <Breadcrumb label="Contato" slug="/contato" routes={["/", "/contato"]} />
+      <Breadcrumb label="Contato" slug="/contato" routes={["/"]} />
       <section className="container mx-auto my-12">
         <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-3">
           {/* 🔹 Card 1 - Participe */}
