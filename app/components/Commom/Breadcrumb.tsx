@@ -10,12 +10,12 @@ const Breadcrumb = ({ label, slug, routes }: any) => {
                             <BreadcrumbItem
                                 key={i}
                                 slug={route}
-                                label={route === "/" ? "Página Principal" : route.replace("/", "")}
+                                label={route === "/" ? "Página Principal" : route.split("/").pop()}
                                 lastItem={false}
                             />
                         ))}
                         {/* Último item deve ser sempre o `label` e `slug` passados como props */}
-                        <BreadcrumbItem slug={slug} label={label} lastItem={true} />
+                        <BreadcrumbItem slug={slug} label={label?.split("_").join(" ")} lastItem={true} />
                     </ol>
                 </nav>
             </div>
@@ -28,7 +28,7 @@ const BreadcrumbItem = ({ slug, label, lastItem }: any) => {
         <li className="flex items-center">
             {!lastItem ? (
                 <Link to={slug} className="text-white">
-                    {label.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "")}
+                    {label.split("/").pop()?.replace(/[_&\/\#,+()$~%.'":*?<>{}]/g, " ") || ""}
                 </Link>
             ) : (
                 <span>{label}</span>
