@@ -22,8 +22,8 @@ export default function Contagens() {
 
     return (
         <>
-            <Banner image={cover?.url} alt="Capa da plataforma de dados" />;
-            <Breadcrumb label="Contagens" slug="/dados/contagens" routes={["/", "/dados"]} />
+            <Banner image={cover?.url} alt="Capa da página de contagens" />;
+            <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
         </>
     );
 }

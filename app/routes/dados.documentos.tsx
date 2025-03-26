@@ -22,7 +22,7 @@ export default function Documentos() {
 
     return (
         <>
-            <Banner image={cover?.url} alt="Capa da plataforma de dados" />
+            <Banner image={cover?.url} alt="Capa da página de Documentos" />
             <Breadcrumb label="Documentos" slug="/documentos" routes={["/", "/dados"]} />
         </>
 
