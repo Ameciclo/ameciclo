@@ -1,6 +1,7 @@
 import { json, LoaderFunction, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState, useMemo } from "react";
+import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ProjectCard } from "~/components/Projetos/ProjectCard";
@@ -124,15 +125,9 @@ export default function Projetos() {
 
   return (
     <>
-      <div className="relative w-full h-[52vh]">
-        <img
-          src="/projetos.webp"
-          alt="Projetos"
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
-      </div>
-      <Breadcrumb label="Projetos" slug="/projetos" routes={["/", "/projetos"]} />
+      <Banner image="projetos.webp" title="Projetos" />
+      <div />
+      <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
       <section className="container my-12 mx-auto">
         {/* Projetos em Destaque */}
         {filteredProjects.highlighted.length > 0 && (
