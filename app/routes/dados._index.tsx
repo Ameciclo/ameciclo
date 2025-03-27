@@ -2,6 +2,7 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 
 export const loader: LoaderFunction = async () => {
     const res = await fetch("https://cms.ameciclo.org/plataforma-de-dados", {
@@ -13,17 +14,19 @@ export const loader: LoaderFunction = async () => {
     }
 
     const data = await res.json();
-    return json({ cover: data.cover });
+    const {cover, description} = data;
+    return json({ cover, description });
 };
 
 
 export default function Dados() {
-    const { cover } = useLoaderData<typeof loader>();
+    const { cover, description } = useLoaderData<typeof loader>();
 
     return (
         <>
             <Banner image={cover?.url} alt="Capa da plataforma de dados" />
             <Breadcrumb label="Dados" slug="/dados" routes={["/"]} />
+            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
         </>
     );
 
