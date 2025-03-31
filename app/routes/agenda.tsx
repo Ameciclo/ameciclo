@@ -4,8 +4,6 @@ import EventCalendar from "~/components/Agenda/EventCalendar";
 import { useLoaderData, useRouteError } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import bannerSchedule from "/agenda.webp";
-import ErrorFallback from "~/components/Commom/ErrorFallback";
-// 🔹 SEO Metadata no Remix
 export const meta: MetaFunction = () => {
     return [{ title: "Agenda" }];
 };
@@ -38,9 +36,4 @@ export default function Agenda() {
             </div>
         </>
     );
-}
-
-export function ErrorBoundary() {
-    const error = useRouteError();
-    return <ErrorFallback error={error}/>;
 }
