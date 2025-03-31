@@ -45,7 +45,7 @@ import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import ErrorFallback from "./components/Commom/ErrorFallback";
 
 export function ErrorBoundary() {
-  const error = useRouteError();
+  const error: any = useRouteError();
 
   return (
     <html>
@@ -58,7 +58,7 @@ export function ErrorBoundary() {
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <main>
-            {isRouteErrorResponse(error) ? <PageNotFound /> : <ErrorFallback />}
+            {error.status !== 404 ? <ErrorFallback error={error} /> : <PageNotFound />}
           </main>
           <Footer />
         </div>
