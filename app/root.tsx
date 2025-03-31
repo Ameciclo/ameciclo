@@ -55,11 +55,13 @@ export function ErrorBoundary() {
         <Meta />
       </head>
       <body>
-        <Navbar />
-        <main>
-          {isRouteErrorResponse(error) ? <PageNotFound /> : <ErrorFallback />}
-        </main>
-        <Footer />
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main>
+            {isRouteErrorResponse(error) ? <PageNotFound /> : <ErrorFallback />}
+          </main>
+          <Footer />
+        </div>
         <Scripts />
         <GoogleAnalytics gaId="G-PQNS7S7FD3" />
       </body>
