@@ -13,8 +13,8 @@ export const Footer = () => {
           url: "https://www.ameciclo.org",
         },
         {
-          label: "+55 (81) 93618 2947",
-          url: "https://api.whatsapp.com/send?phone=5581936182947",
+          label: "+55 (81) 99786 0060",
+          url: "https://api.whatsapp.com/send?phone=5581997860060",
         },
         {
           label: "R. da Aurora, 529, loja 2 - Santo Amaro, Recife/PE, 50050-145",
@@ -62,7 +62,7 @@ export const Footer = () => {
         },
         {
           label: "Youtube",
-          url: "https://www.youtube.com/user/ameciclo",
+          url: "https://www.youtube.com/ameciclo",
         },
       ],
     },
