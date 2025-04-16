@@ -5,21 +5,8 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { CardsSession } from "~/components/Dados/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 
-export const loader: LoaderFunction = async () => {
-    try {
-        const res = await fetch("https://cms.ameciclo.org/plataforma-de-dados", {
-            cache: "no-cache",
-        });
-
-        const data = await res.json();
-        const { cover, description } = data;
-        return json({ cover, description });
-    } catch (error) {
-        console.error("Erro no loader:", error);
-        throw json({ message: "Strapi error - Erro ao buscar os dados" }, { status: 500 });
-    }
-};
-
+import { loader } from "~/loader/dados";
+export { loader };
 export default function Dados() {
     const { cover, description } = useLoaderData<typeof loader>();
     const FEATURED_PAGES = [

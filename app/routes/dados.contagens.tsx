@@ -3,19 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 
-export const loader: LoaderFunction = async () => {
-    const res = await fetch("https://cms.ameciclo.org/contagens", {
-        cache: "no-cache",
-    });
-
-    if (!res.ok) {
-        throw new Response("Erro ao buscar os dados", { status: res.status });
-    }
-
-    const data = await res.json();
-    return json({ cover: data.cover });
-};
-
+import { loader } from "~/loader/dados.contagem";
+export { loader };
 
 export default function Contagens() {
     const { cover } = useLoaderData<typeof loader>();

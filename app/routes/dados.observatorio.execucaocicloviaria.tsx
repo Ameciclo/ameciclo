@@ -4,23 +4,8 @@ import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 
-export const loader: LoaderFunction = async () => {
-    const res = await fetch("https://cms.ameciclo.org/plataforma-de-dados", {
-        cache: "no-cache",
-    });
-
-    if (!res.ok) {
-        throw new Error("Erro ao buscar os dados");
-    }
-
-    const data = await res.json();
-    const { cover, description } = data;
-
-    return json({
-        cover,
-        description
-    });
-};
+import { loader } from "~/loader/dados.observatorio.execucaocicloviaria";
+export { loader };
 
 export default function ExecucaoCicloviaria() {
     const { cover, description } = useLoaderData<typeof loader>();
