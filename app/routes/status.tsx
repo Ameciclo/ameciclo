@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta = () => [
   { title: "Status dos Serviços" },
@@ -8,7 +10,7 @@ export const meta = () => [
 const servicesList = [
   { category: "APIs", name: "API - STRAPI V3", url: "https://cms.ameciclo.org" },
   { category: "APIs", name: "API - STRAPI V4", url: "https://test.cms.ameciclo.org" },
-  { category: "APIs", name: "API - STRAPI V5 [em breve...]", url: "https://v5.cms.ameciclo.org" },
+  { category: "APIs", name: "API - STRAPI V5 [em breve...]", url: "https://do.strapi.ameciclo.org" },
   { category: "Páginas do Site", name: "Página Inicial", url: "/" },
   { category: "Páginas do Site", name: "Quem Somos", url: "/quem_somos" },
   { category: "Páginas do Site", name: "Agenda", url: "/agenda" },
@@ -24,7 +26,11 @@ const servicesList = [
   { category: "Páginas do Site", name: "Loa Clima", url: "/dados/observatorio/loa" },
   { category: "Páginas do Site", name: "Perfil", url: "/dados/observatorio/dom" },
   { category: "Páginas do Site", name: "Observatório", url: "/dados/observatorio" },
-  { category: "Serviços Externos", name: "Serviço - Associe-se", url: "https://www.docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform" },
+  {
+    category: "Serviços Externos",
+    name: "Serviço - Associe-se",
+    url: "https://www.docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform",
+  },
   { category: "Serviços Externos", name: "Serviço - Participe", url: "https://participe.ameciclo.org" },
 ];
 
@@ -41,9 +47,8 @@ const statusMessages = {
 
 const checkStatus = async (url) => {
   try {
-    const response = await fetch(url, {});
+    const response = await fetch(url);
     const statusMessage = statusMessages[response.status] || `Erro inesperado com status ${response.status}`;
-
     if (response.ok) {
       return { status: "OK" };
     } else {
@@ -62,10 +67,39 @@ const checkStatus = async (url) => {
   }
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const origin = new URL(request.url).origin;
+
+  const results = await Promise.all(
+    servicesList.map(async (service) => {
+      const fullUrl = service.url.startsWith("http")
+        ? service.url
+        : `${origin}${service.url}`;
+
+      return {
+        ...service,
+        ...await checkStatus(fullUrl),
+      };
+    })
+  );
+
+  return json(results);
+}
+
+
 export default function StatusPage() {
-  const [services, setServices] = useState([]);
+  const loaderData = useLoaderData<typeof loader>();
+  const [services, setServices] = useState<typeof loaderData>([]);
   const [fontSize, setFontSize] = useState(16);
   const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setServices(loaderData);
+    setLoading(false);
+    console.log("Execução Cicloviária");
+
+  }, [loaderData]);
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
@@ -84,20 +118,6 @@ export default function StatusPage() {
     localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
-  useEffect(() => {
-    const fetchStatuses = async () => {
-      const results = await Promise.all(
-        servicesList.map(async (service) => ({
-          ...service,
-          ...await checkStatus(service.url),
-        }))
-      );
-      setServices(results);
-    };
-
-    fetchStatuses();
-  }, []);
-
   const categories = Array.from(new Set(services.map((service) => service.category)));
 
   return (
@@ -112,8 +132,8 @@ export default function StatusPage() {
         </button>
       </div>
 
-      {services.length === 0 ? (
-        <p className="text-xl">Verificando status dos serviços <span className="dot">  . . . </span></p>
+      {loading ? (
+        <p className="text-xl">Verificando status dos serviços <span className="dot"> . . . </span></p>
       ) : (
         categories.map((category) => (
           <div key={category} className="mb-6">
