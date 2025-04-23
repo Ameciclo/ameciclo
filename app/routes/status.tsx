@@ -7,7 +7,19 @@ export const meta = () => [
   { name: "description", content: "Verifique o status dos serviços." },
 ];
 
-const servicesList = [
+export interface Service {
+  category: string;
+  name: string;
+  url: string;
+}
+
+export interface ServiceStatus extends Service {
+  status: "OK" | "OFF";
+  httpStatus?: number;
+  errorMessage?: string;
+}
+
+const servicesList: Service[] = [
   { category: "APIs", name: "API - STRAPI V3", url: "https://cms.ameciclo.org" },
   { category: "APIs", name: "API - STRAPI V4", url: "https://test.cms.ameciclo.org" },
   { category: "APIs", name: "API - STRAPI V5 [em breve...]", url: "https://do.strapi.ameciclo.org" },
@@ -34,7 +46,7 @@ const servicesList = [
   { category: "Serviços Externos", name: "Serviço - Participe", url: "https://participe.ameciclo.org" },
 ];
 
-const statusMessages = {
+const statusMessages: Record<number, string> = {
   400: "Requisição mal formada.",
   401: "Não autorizado!",
   403: "Proibido!",
@@ -45,9 +57,9 @@ const statusMessages = {
   504: "Timeout do gateway.",
 };
 
-const checkStatus = async (url) => {
+const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Service> | {}> => {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: { "Accept-Charset": "utf-8" } });
     const statusMessage = statusMessages[response.status] || `Erro inesperado com status ${response.status}`;
     if (response.ok) {
       return { status: "OK" };
@@ -58,7 +70,7 @@ const checkStatus = async (url) => {
         errorMessage: statusMessage,
       };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Erro ao acessar ${url}:`, error);
     return {
       status: "OFF",
@@ -70,35 +82,31 @@ const checkStatus = async (url) => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const origin = new URL(request.url).origin;
 
-  const results = await Promise.all(
+  const results: ServiceStatus[] = await Promise.all(
     servicesList.map(async (service) => {
-      const fullUrl = service.url.startsWith("http")
-        ? service.url
-        : `${origin}${service.url}`;
-
-      return {
-        ...service,
-        ...await checkStatus(fullUrl),
-      };
+      const fullUrl = service.url.startsWith("http") ? service.url : `${origin}${service.url}`;
+      const statusData = await checkStatus(fullUrl);
+      return { ...service, ...statusData } as ServiceStatus;
     })
   );
 
-  return json(results);
+  return json(results, {
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    }
+  });
 }
-
 
 export default function StatusPage() {
   const loaderData = useLoaderData<typeof loader>();
-  const [services, setServices] = useState<typeof loaderData>([]);
-  const [fontSize, setFontSize] = useState(16);
-  const [darkMode, setDarkMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<ServiceStatus[]>([]);
+  const [fontSize, setFontSize] = useState<number>(16);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setServices(loaderData);
     setLoading(false);
-    console.log("Execução Cicloviária");
-
   }, [loaderData]);
 
   useEffect(() => {
