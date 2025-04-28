@@ -13,3 +13,9 @@ export const IntlPercentil = (n: any) => {
   }).format(n);
   return INumber
 };
+
+export const IntlDateStr = (str: string) => {
+  const date = new Date(str);
+  const IDate = new Intl.DateTimeFormat("pt-BR").format(date);
+  return IDate
+};

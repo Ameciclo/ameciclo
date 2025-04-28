@@ -1,17 +1,19 @@
 import { useLoaderData } from "@remix-run/react";
+import { pointData } from "typings";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { GeneralCountStatistics } from "~/components/Contagens/GeneralCountStatistics";
 import { InfoCards } from "~/components/Contagens/InfoCards";
+import { CountsMap } from "~/components/Contagens/CountsMap";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 
 import { loader } from "~/loader/dados.contagens";
-import { IntlNumber, IntlPercentil } from "~/utils/utils";
+import { IntlDateStr, IntlNumber } from "~/utils/utils";
 export { loader };
 
 export default function Contagens() {
-    const { cover, description, objective, summaryData, cards } = useLoaderData<typeof loader>();
-    
+    const { cover, description, objective, summaryData, cards, countsData } = useLoaderData<typeof loader>();
+
     const allCountsStatistics = (summaryData: any) => {
         const { total_cyclists, number_counts, where_max_count, different_counts_points } = {
             ...summaryData,
@@ -32,14 +34,35 @@ export default function Contagens() {
             },
         ];
     };
+
+    let pointsData: pointData[] = countsData.map((d: any) => ({
+        key: d.id,
+        type: 'ameciclo',
+        latitude: d.coordinates.x,
+        longitude: d.coordinates.y,
+        popup: {
+            name: d.name,
+            total: d.total_cyclists,
+            date: IntlDateStr(d.date),
+            url: `/contagens/${d.slug}`,
+            obs: ""
+        },
+        size: Math.round(d.total_cyclists / 250) + 5,
+        color: "#008888"
+    }));
+
+    const controlPanel = [{
+        type: 'ameciclo',
+        color: '#008888'
+    }, {
+        type: 'prefeitura',
+        color: "#ef4444"
+    }];
+
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página de contagens" />
             <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
-            <GeneralCountStatistics
-                title={"Estatísticas Gerais"}
-                boxes={allCountsStatistics(summaryData)}
-            />
             <ExplanationBoxes
                 boxes={[
                     {
@@ -49,7 +72,12 @@ export default function Contagens() {
                     { title: "E o que mais?", description: objective },
                 ]}
             />
+            <GeneralCountStatistics
+                title={"Estatísticas Gerais"}
+                boxes={allCountsStatistics(summaryData)}
+            />
             <InfoCards cards={cards} />
+            <CountsMap pointsData={pointsData} controlPanel={controlPanel} />
         </>
     );
 }
