@@ -2,13 +2,14 @@ import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { GeneralCountStatistics } from "~/components/Contagens/GeneralCountStatistics";
+import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 
 import { loader } from "~/loader/dados.contagens";
 import { IntlNumber } from "~/utils/utils";
 export { loader };
 
 export default function Contagens() {
-    const { cover, summaryData, countsData, pageData } = useLoaderData<typeof loader>();
+    const { cover, description, objective, summaryData } = useLoaderData<typeof loader>();
 
     const allCountsStatistics = (summaryData: any) => {
         const { total_cyclists, number_counts, where_max_count, different_counts_points } = {
@@ -37,6 +38,15 @@ export default function Contagens() {
             <GeneralCountStatistics
                 title={"Estatísticas Gerais"}
                 boxes={allCountsStatistics(summaryData)}
+            />
+            <ExplanationBoxes
+                boxes={[
+                    {
+                        title: "O que é?",
+                        description: description,
+                    },
+                    { title: "E o que mais?", description: objective },
+                ]}
             />
         </>
     );

@@ -12,6 +12,9 @@ export const loader: LoaderFunction = async () => {
 
   const data = await res.json();
   const cover = data.cover;
+  const description = data.description;
+  const objective = data.objective;
+  const archives = data.archives;
 
   // Busca os dados adicionais (summary + page)
   const summaryDataRes = await fetch("http://api.garfo.ameciclo.org/cyclist-counts", {
@@ -29,6 +32,9 @@ export const loader: LoaderFunction = async () => {
     cover, 
     summaryData, 
     countsData, 
-    pageData 
+    pageData, 
+    description, 
+    objective, 
+    archives,
   });
 };
