@@ -114,7 +114,7 @@ export const CountsMap = ({
 
     return (
         <section className="container mx-auto">
-            <div className="relative bg-green-200 rounded shadow-2xl">
+            <div className="relative bg-green-200 rounded shadow-2xl overflow-hidden">
                 <Map
                     {...settings}
                     initialViewState={viewport}
@@ -139,6 +139,7 @@ export const CountsMap = ({
                             markerVisibility[point.key] === true && (
                                 <Marker
                                     key={point.key}
+                                    anchor="center"
                                     latitude={point.latitude}
                                     longitude={point.longitude}
                                     onClick={() => setSelectedPoint(point)}
@@ -194,18 +195,17 @@ const MapCommands = ({ handleClick }: any) => (
 
 const MapMarker = ({ size = 20, icon, color = "#008888" }: any) => (
     <svg
-        height={size}
-        viewBox="0 0 24 24"
-        style={{
-            cursor: "pointer",
-            fill: color,
-            stroke: "none",
-            transform: `translate(${-size / 2}px,${-size}px)`,
-        }}
+      height={size}
+      viewBox="0 0 24 24"
+      style={{
+        cursor: "pointer",
+        fill: color,
+        stroke: "none",
+      }}
     >
-        <path d={icon} />
+      <path d={icon} />
     </svg>
-);
+  );
 
 const MapControlPanel = ({ controlPanel, markerVisibility, pointsData, handleMarkerToggle }: any) => (
     <div className="absolute bottom-0 right-0 bg-white border rounded p-4 mb-2 shadow">
