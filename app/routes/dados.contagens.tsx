@@ -9,10 +9,11 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 
 import { loader } from "~/loader/dados.contagens";
 import { IntlDateStr, IntlNumber } from "~/utils/utils";
+import { CountsTable } from "~/components/Contagens/CountsTable";
 export { loader };
 
 export default function Contagens() {
-    const { cover, description, objective, summaryData, cards, countsData } = useLoaderData<typeof loader>();
+    const { cover, description, objective, summaryData, cards, countsData, dataCounts } = useLoaderData<typeof loader>();
 
     const allCountsStatistics = (summaryData: any) => {
         const { total_cyclists, number_counts, where_max_count, different_counts_points } = {
@@ -63,21 +64,11 @@ export default function Contagens() {
         <>
             <Banner image={cover?.url} alt="Capa da página de contagens" />
             <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
-            <ExplanationBoxes
-                boxes={[
-                    {
-                        title: "O que é?",
-                        description: description,
-                    },
-                    { title: "E o que mais?", description: objective },
-                ]}
-            />
-            <GeneralCountStatistics
-                title={"Estatísticas Gerais"}
-                boxes={allCountsStatistics(summaryData)}
-            />
+            <GeneralCountStatistics title={"Estatísticas Gerais"} boxes={allCountsStatistics(summaryData)} />
+            <ExplanationBoxes boxes={[{ title: "O que é?", description: description, }, { title: "E o que mais?", description: objective },]} />
             <InfoCards cards={cards} />
             <CountsMap pointsData={pointsData} controlPanel={controlPanel} />
+            <CountsTable data={dataCounts} />
         </>
     );
 }

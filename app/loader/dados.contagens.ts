@@ -16,6 +16,7 @@ export const loader: LoaderFunction = async () => {
   const description = data.description;
   const objective = data.objective;
   const archives = data.archives;
+  const dataCounts = data.counts;
 
   // Busca os dados adicionais (summary + page)
   const summaryDataRes = await fetch("http://api.garfo.ameciclo.org/cyclist-counts", {
@@ -102,5 +103,6 @@ export const loader: LoaderFunction = async () => {
     objective,
     archives,
     cards,
+    dataCounts,
   });
 };

@@ -133,25 +133,7 @@ export const CountsMap = ({
                         </Source>
                     )}
 
-                    {pointsData?.map(
-                        (point) =>
-                            markerVisibility &&
-                            markerVisibility[point.key] === true && (
-                                <Marker
-                                    key={point.key}
-                                    anchor="center"
-                                    latitude={point.latitude}
-                                    longitude={point.longitude}
-                                    onClick={() => setSelectedPoint(point)}
-                                >
-                                    <MapMarker
-                                        icon={dropIcon}
-                                        size={point.size ? point.size : 15}
-                                        color={point.color ? point.color : "#008080"}
-                                    />
-                                </Marker>
-                            )
-                    )}
+                    
 
                     {selectedPoint !== undefined && (
                         <CountingPopUp
