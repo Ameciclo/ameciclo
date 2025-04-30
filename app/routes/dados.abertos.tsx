@@ -254,15 +254,15 @@ export default function DadosAbertos() {
                 <p className="mb-2">Total de resultados encontrados: <strong>{total}</strong></p>
             </form>
 
+            {renderFilterSummary()}
+
             <div
                 onClick={() => setShowColumnSelector(!showColumnSelector)}
                 className="cursor-pointer text-blue-600 mb-4"
             >
                 Ocultar/Exibir Colunas
             </div>
-
-            {renderFilterSummary()}
-
+            
             {showColumnSelector && (
                 <div className="fixed bottom-16 right-4 bg-white border p-4 rounded shadow-lg w-64">
                     <h2 className="font-semibold mb-2">Colunas Visíveis</h2>
