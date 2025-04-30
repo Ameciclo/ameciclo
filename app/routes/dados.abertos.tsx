@@ -311,7 +311,7 @@ export default function DadosAbertos() {
                 </tbody>
             </table>
 
-            <div className="flex justify-between mt-4">
+            <div className="flex gap-5 mt-4">
                 <button
                     onClick={() => goToPage(page - 1)}
                     disabled={page === 1}
