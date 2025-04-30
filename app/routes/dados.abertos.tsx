@@ -1,73 +1,325 @@
-import { json, LoaderFunction } from '@remix-run/node';
-import { useLoaderData, useSearchParams } from '@remix-run/react';
-import { useState } from 'react';
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 
-// loader server-side
-export const loader: LoaderFunction = async ({ request }) => {
-  const res = await fetch('https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json');
-  const data = await res.json();
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get("q")?.toLowerCase() || "";
+    const operator = url.searchParams.get("valueOperator") || "";
+    const rawValue = (url.searchParams.get("value") || "0").replace(",", ".");
+    const filterValue = parseFloat(rawValue);
+    const valueField = url.searchParams.get("valueField") || "vlrtotalpago";
+    const sort = url.searchParams.get("sort") || "";
+    const direction = url.searchParams.get("direction") || "asc";
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const perPage = parseInt(url.searchParams.get("perPage") || "10");
 
-  const url = new URL(request.url);
-  const search = url.searchParams.get("q")?.toLowerCase() || "";
+    const res = await fetch(
+        "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
+    );
+    const data = await res.json();
+    let resultados = (data.campos || []) as any[];
 
-  const filtered = search
-    ? data.campos.filter((item: any) =>
-        item.cd_nm_acao.toLowerCase().includes(search)
-      )
-    : data.campos;
+    resultados = resultados.filter((item) => {
+        const fields = [
+            item.cd_nm_acao,
+            item.cd_nm_prog,
+            item.cd_nm_funcao,
+            item.cd_nm_subacao,
+        ]
+            .filter(Boolean)
+            .map((s) => s.toLowerCase());
+        const matchesQuery = query === "" || fields.some((f) => f.includes(query));
+        const raw = String(item[valueField] ?? "0").replace(",", ".");
+        const valor = parseFloat(raw);
 
-  return json({ rows: filtered, search });
+        let matchesValue = true;
+        if (operator === ">") matchesValue = valor > filterValue;
+        else if (operator === "<") matchesValue = valor < filterValue;
+        else if (operator === "=") matchesValue = valor === filterValue;
+
+        return matchesQuery && matchesValue;
+    });
+
+    if (sort) {
+        resultados.sort((a: any, b: any) => {
+            const va = String(a[sort] ?? "").toLowerCase();
+            const vb = String(b[sort] ?? "").toLowerCase();
+            if (va < vb) return direction === "asc" ? -1 : 1;
+            if (va > vb) return direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    }
+
+    const total = resultados.length;
+    const totalPages = Math.ceil(total / perPage);
+    const validPage = Math.min(Math.max(page, 1), totalPages || 1);
+    const paginated = resultados.slice(
+        (validPage - 1) * perPage,
+        validPage * perPage
+    );
+
+    return json({
+        results: paginated,
+        total,
+        totalPages,
+        query,
+        operator,
+        value: rawValue,
+        sort,
+        direction,
+        page: validPage,
+        perPage,
+        valueField,
+    });
 };
 
+const ALL_COLUMNS = [
+    { key: "cd_nm_funcao", label: "Função" },
+    { key: "cd_nm_prog", label: "Programa" },
+    { key: "cd_nm_acao", label: "Ação" },
+    { key: "cd_nm_subacao", label: "Subação" },
+    { key: "vlrdotatualizada", label: "Valor Atualizado" },
+    { key: "vlrliqemp", label: "Valor Liquidado Empenho" },
+    { key: "vlrempenhado", label: "Valor Empenhado" },
+    { key: "vlrpago", label: "Valor Pago" },
+    { key: "vlrpagoemp", label: "Valor Pago Empenho" },
+    { key: "vlrtotalpago", label: "Valor Total Pago" },
+    { key: "vlrliquidado", label: "Valor Liquidado" },
+];
+
 export default function DadosAbertos() {
-  const { rows, search } = useLoaderData<typeof loader>();
-  const [searchParams, setSearchParams] = useSearchParams();
+    const {
+        results,
+        total,
+        totalPages,
+        query,
+        operator,
+        value,
+        sort,
+        direction,
+        page,
+        perPage,
+        valueField,
+    } = useLoaderData<typeof loader>();
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>Dados Abertos - PE</h1>
+    const [params, setParams] = useState({
+        q: query,
+        valueOperator: operator,
+        value,
+        valueField,
+        sort,
+        direction,
+        page,
+        perPage,
+    });
+    const [showValueFilters, setShowValueFilters] = useState(false);
+    const [visibleColumns, setVisibleColumns] = useState<string[]>(
+        ALL_COLUMNS.map((c) => c.key)
+    );
+    const [showColumnSelector, setShowColumnSelector] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const query = new FormData(form).get("q")?.toString() || "";
-          setSearchParams(query ? { q: query } : {});
-        }}
-      >
-        <input
-          type="text"
-          name="q"
-          defaultValue={search}
-          placeholder="Buscar por nome da ação"
-        />
-        <button type="submit">Buscar</button>
-      </form>
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const p = new URLSearchParams();
+        if (params.q) p.set("q", params.q);
+        if (params.valueOperator) p.set("valueOperator", params.valueOperator);
+        if (params.value) p.set("value", params.value);
+        p.set("valueField", params.valueField);
+        if (params.sort) p.set("sort", params.sort);
+        p.set("direction", params.direction);
+        p.set("page", "1");
+        p.set("perPage", params.perPage.toString());
+        window.location.search = p.toString();
+    };
 
-      <table border={1} cellPadding={8} style={{ marginTop: 20, width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Ação</th>
-            <th>Função</th>
-            <th>Programa</th>
-            <th>Subação</th>
-            <th>Valor Atualizado</th>
-            <th>Total Pago</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((item: any, index: number) => (
-            <tr key={index}>
-              <td>{item.cd_nm_acao}</td>
-              <td>{item.cd_nm_funcao}</td>
-              <td>{item.cd_nm_prog}</td>
-              <td>{item.cd_nm_subacao}</td>
-              <td>{item.vlrdotatualizada.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-              <td>{item.vlrtotalpago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+    const goToPage = (newPage: number) => {
+        if (newPage < 1 || newPage > totalPages) {
+            setError(`Página inválida. Entre 1 e ${totalPages}.`);
+            return;
+        }
+        const p = new URLSearchParams();
+        Object.entries(params).forEach(([k, v]) => p.set(k, String(v)));
+        p.set("page", String(newPage));
+        window.location.search = p.toString();
+    };
+
+    const toggleColumn = (key: string) => {
+        setVisibleColumns((prev) =>
+            prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
+        );
+    };
+
+    return (
+        <div className="p-8">
+            <h1 className="text-2xl font-bold mb-4">Ações e Programas - Dados Abertos PE</h1>
+            <p className="mb-2">Total de resultados encontrados: <strong>{total}</strong></p>
+
+            <form onSubmit={handleSubmit} className="mb-6 space-y-4">
+                <div>
+                    <label className="block">Buscar:
+                        <input
+                            type="text"
+                            value={params.q}
+                            onChange={(e) => setParams({ ...params, q: e.target.value })}
+                            className="border p-2 w-80"
+                        />
+                    </label>
+                </div>
+
+                <div
+                    className="cursor-pointer text-blue-600 font-medium"
+                    onClick={() => setShowValueFilters(!showValueFilters)}
+                >
+                    Filtros de valor {showValueFilters ? '▲' : '▼'}
+                </div>
+
+                {showValueFilters && (
+                    <div className="flex items-end space-x-4">
+                        <select
+                            value={params.valueField}
+                            onChange={(e) => setParams({ ...params, valueField: e.target.value })}
+                            className="border p-2"
+                        >
+                            {ALL_COLUMNS.filter((col) => col.label.includes("Valor")).map((col) => (
+                                <option key={col.key} value={col.key}>{col.label}</option>
+                            ))}
+                        </select>
+
+                        <select
+                            value={params.valueOperator}
+                            onChange={(e) => setParams({ ...params, valueOperator: e.target.value })}
+                            className="border p-2"
+                        >
+                            <option value="">Sem filtro</option>
+                            <option value=">">Maior que</option>
+                            <option value="<">Menor que</option>
+                            <option value="=">Igual a</option>
+                        </select>
+
+                        <input
+                            type="text"
+                            value={params.value}
+                            onChange={(e) => setParams({ ...params, value: e.target.value })}
+                            placeholder="ex: 1234,56"
+                            className="border p-2 w-40"
+                        />
+                    </div>
+                )}
+
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+                    Buscar
+                </button>
+            </form>
+
+            {/* Botão minimalista para mostrar/ocultar seletor de colunas */}
+            <button
+                onClick={() => setShowColumnSelector(!showColumnSelector)}
+                className="fixed bottom-4 right-4 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
+                title="Ocultar/Exibir colunas"
+            >
+                ☰
+            </button>
+
+            {showColumnSelector && (
+                <div className="fixed bottom-16 right-4 bg-white border p-4 rounded shadow-lg w-64">
+                    <h2 className="font-semibold mb-2">Colunas Visíveis</h2>
+                    <div className="flex flex-col space-y-1 max-h-48 overflow-auto">
+                        {ALL_COLUMNS.map((col) => (
+                            <label key={col.key} className="inline-flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={visibleColumns.includes(col.key)}
+                                    onChange={() => toggleColumn(col.key)}
+                                    className="mr-2"
+                                />
+                                {col.label}
+                            </label>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="overflow-x-auto">
+                <table className="table-auto w-full border-collapse">
+                    <thead>
+                        <tr>
+                            {ALL_COLUMNS.map(
+                                (col) =>
+                                    visibleColumns.includes(col.key) && (
+                                        <th key={col.key} className="border px-4 py-2">
+                                            {col.label}
+                                        </th>
+                                    )
+                            )}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {results.length === 0 ? (
+                            <tr>
+                                <td colSpan={ALL_COLUMNS.length} className="text-center py-4">
+                                    Nenhum resultado
+                                </td>
+                            </tr>
+                        ) : (
+                            results.map((item, i) => (
+                                <tr key={i}>
+                                    {ALL_COLUMNS.map(
+                                        (col) =>
+                                            visibleColumns.includes(col.key) && (
+                                                <td key={col.key} className="border px-4 py-2">
+                                                    {item[col.key]}
+                                                </td>
+                                            )
+                                    )}
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="mt-4 flex items-center space-x-2">
+                <button
+                    onClick={() => goToPage(page - 1)}
+                    disabled={page <= 1}
+                    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+                >
+                    Anterior
+                </button>
+                <span>
+                    Página {page} de {totalPages}
+                </span>
+                <button
+                    onClick={() => goToPage(page + 1)}
+                    disabled={page >= totalPages}
+                    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+                >
+                    Próxima
+                </button>
+                {error && <span className="text-red-600 ml-4">{error}</span>}
+                <label className="ml-auto">
+                    Itens por página:
+                    <select
+                        value={perPage}
+                        onChange={(e) =>
+                        (window.location.search = new URLSearchParams({
+                            ...params,
+                            page: "1",
+                            perPage: e.target.value,
+                        } as any).toString())
+                        }
+                        className="border ml-2 p-1"
+                    >
+                        {[10, 20, 50, 100].map((n) => (
+                            <option key={n} value={n}>
+                                {n}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+        </div>
+    );
 }
