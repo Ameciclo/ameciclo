@@ -88,6 +88,18 @@ const ALL_COLUMNS = [
     { key: "vlrliquidado", label: "Valor Liquidado" },
 ];
 
+const formatCurrency = (value: number) => {
+    if (!value) return (0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    });
+
+    return value.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    });
+};
+
 export default function DadosAbertos() {
     const {
         results,
@@ -114,9 +126,9 @@ export default function DadosAbertos() {
         perPage,
     });
     const [showValueFilters, setShowValueFilters] = useState(false);
-    const [visibleColumns, setVisibleColumns] = useState<string[]>(
-        ALL_COLUMNS.map((c) => c.key)
-    );
+    const [visibleColumns, setVisibleColumns] = useState<string[]>([
+        "cd_nm_acao", "vlrempenhado", "vlrtotalpago" // Colunas visíveis por padrão
+    ]);
     const [showColumnSelector, setShowColumnSelector] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -134,6 +146,28 @@ export default function DadosAbertos() {
         window.location.search = p.toString();
     };
 
+    const toggleColumn = (key: string) => {
+        setVisibleColumns((prev) =>
+            prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
+        );
+    };
+
+    const renderFilterSummary = () => {
+        const filters = [];
+        if (params.q) filters.push(`Busca: "${params.q}"`);
+        if (params.valueOperator && params.value) {
+            filters.push(`${ALL_COLUMNS.find(col => col.key === params.valueField)?.label}: ${params.valueOperator} ${params.value}`);
+        }
+        if (filters.length > 0) {
+            return (
+                <div className="mb-4 p-2 bg-gray-100 border rounded">
+                    <strong>Filtros aplicados:</strong> {filters.join(", ")}
+                </div>
+            );
+        }
+        return null;
+    };
+
     const goToPage = (newPage: number) => {
         if (newPage < 1 || newPage > totalPages) {
             setError(`Página inválida. Entre 1 e ${totalPages}.`);
@@ -145,17 +179,22 @@ export default function DadosAbertos() {
         window.location.search = p.toString();
     };
 
-    const toggleColumn = (key: string) => {
-        setVisibleColumns((prev) =>
-            prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
-        );
+    const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setParams({
+            ...params,
+            page: parseInt(e.target.value) || 1, // Atualiza o valor da página conforme o input
+        });
+    };
+
+    const handlePageInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            goToPage(params.page);
+        }
     };
 
     return (
         <div className="p-8">
             <h1 className="text-2xl font-bold mb-4">Ações e Programas - Dados Abertos PE</h1>
-            <p className="mb-2">Total de resultados encontrados: <strong>{total}</strong></p>
-
             <form onSubmit={handleSubmit} className="mb-6 space-y-4">
                 <div>
                     <label className="block">Buscar:
@@ -211,16 +250,18 @@ export default function DadosAbertos() {
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
                     Buscar
                 </button>
+
+                <p className="mb-2">Total de resultados encontrados: <strong>{total}</strong></p>
             </form>
 
-            {/* Botão minimalista para mostrar/ocultar seletor de colunas */}
-            <button
+            <div
                 onClick={() => setShowColumnSelector(!showColumnSelector)}
-                className="fixed bottom-4 right-4 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
-                title="Ocultar/Exibir colunas"
+                className="cursor-pointer text-blue-600 mb-4"
             >
-                ☰
-            </button>
+                Ocultar/Exibir Colunas
+            </div>
+
+            {renderFilterSummary()}
 
             {showColumnSelector && (
                 <div className="fixed bottom-16 right-4 bg-white border p-4 rounded shadow-lg w-64">
@@ -241,84 +282,65 @@ export default function DadosAbertos() {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
-                <table className="table-auto w-full border-collapse">
-                    <thead>
+            <table className="min-w-full mt-4 border-collapse">
+                <thead>
+                    <tr>
+                        {ALL_COLUMNS.filter((col) => visibleColumns.includes(col.key)).map((col) => (
+                            <th key={col.key} className="border-b py-2 px-4 text-left">{col.label}</th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {results.length === 0 ? (
                         <tr>
-                            {ALL_COLUMNS.map(
-                                (col) =>
-                                    visibleColumns.includes(col.key) && (
-                                        <th key={col.key} className="border px-4 py-2">
-                                            {col.label}
-                                        </th>
-                                    )
-                            )}
+                            <td colSpan={ALL_COLUMNS.filter((col) => visibleColumns.includes(col.key)).length} className="text-center py-4">Nenhum resultado encontrado</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {results.length === 0 ? (
-                            <tr>
-                                <td colSpan={ALL_COLUMNS.length} className="text-center py-4">
-                                    Nenhum resultado
-                                </td>
+                    ) : (
+                        results.map((item, idx) => (
+                            <tr key={idx}>
+                                {ALL_COLUMNS.filter((col) => visibleColumns.includes(col.key)).map((col) => (
+                                    <td key={col.key} className="border-b py-2 px-4">
+                                        {col.key === "vlrtotalpago" || col.key === "vlrempenhado"
+                                            ? formatCurrency(item[col.key])
+                                            : item[col.key]}
+                                    </td>
+                                ))}
                             </tr>
-                        ) : (
-                            results.map((item, i) => (
-                                <tr key={i}>
-                                    {ALL_COLUMNS.map(
-                                        (col) =>
-                                            visibleColumns.includes(col.key) && (
-                                                <td key={col.key} className="border px-4 py-2">
-                                                    {item[col.key]}
-                                                </td>
-                                            )
-                                    )}
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        ))
+                    )}
+                </tbody>
+            </table>
 
-            <div className="mt-4 flex items-center space-x-2">
+            <div className="flex justify-between mt-4">
                 <button
                     onClick={() => goToPage(page - 1)}
-                    disabled={page <= 1}
-                    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+                    disabled={page === 1}
+                    className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
                 >
                     Anterior
                 </button>
-                <span>
-                    Página {page} de {totalPages}
+
+                <span className="text-sm">
+                    Página{" "}
+                    <input
+                        type="number"
+                        value={params.page}
+                        onChange={handlePageInputChange}
+                        onKeyDown={handlePageInputKeyDown}
+                        className="border p-2 w-16 text-center"
+                        min="1"
+                        max={totalPages}
+                    />{" "}
+                    de {totalPages}
                 </span>
+
                 <button
                     onClick={() => goToPage(page + 1)}
-                    disabled={page >= totalPages}
-                    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+                    disabled={page === totalPages}
+                    className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
                 >
                     Próxima
                 </button>
-                {error && <span className="text-red-600 ml-4">{error}</span>}
-                <label className="ml-auto">
-                    Itens por página:
-                    <select
-                        value={perPage}
-                        onChange={(e) =>
-                        (window.location.search = new URLSearchParams({
-                            ...params,
-                            page: "1",
-                            perPage: e.target.value,
-                        } as any).toString())
-                        }
-                        className="border ml-2 p-1"
-                    >
-                        {[10, 20, 50, 100].map((n) => (
-                            <option key={n} value={n}>
-                                {n}
-                            </option>
-                        ))}
-                    </select>
-                </label>
             </div>
         </div>
     );
