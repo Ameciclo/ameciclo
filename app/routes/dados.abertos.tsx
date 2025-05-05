@@ -619,8 +619,8 @@ export default function DadosAbertos() {
             {/* ---------------- TABELA ---------------- */}
             <section className="relative">
                 {/* botão colunas (top-right) */}
-                <details className="absolute right-0 -top-10">
-                    <summary className="cursor-pointer px-2 py-1 text-sm bg-gray-200 rounded">
+                <details className="absolute left-0 p-3 -top-10">
+                    <summary className="cursor-pointer px-2 text-sm bg-gray-200 rounded">
                         Colunas
                     </summary>
                     <div className="mt-2 flex flex-wrap gap-2 bg-white border p-3 rounded shadow-lg">
