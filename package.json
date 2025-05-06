@@ -22,6 +22,8 @@
     "@turf/bbox": "^7.2.0",
     "@turf/helpers": "^7.2.0",
     "framer-motion": "^11.18.0",
+    "highcharts": "^12.2.0",
+    "highcharts-react-official": "^3.2.2",
     "isbot": "^4.1.0",
     "keen-slider": "^6.3.3",
     "match-sorter": "^8.0.0",

@@ -2,6 +2,7 @@ import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
+import PerfilDashboard from "~/components/Perfil/PerfilDashboard";
 
 import { loader } from "~/loader/dados.perfil";
 export { loader };
@@ -25,6 +26,7 @@ export default function perfil() {
                     },
                 ]}
             />
+            {/* <PerfilDashboard /> */}
         </>
     );
 }
