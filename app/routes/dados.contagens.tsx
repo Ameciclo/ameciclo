@@ -10,10 +10,11 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { loader } from "~/loader/dados.contagens";
 import { IntlDateStr, IntlNumber } from "~/utils/utils";
 import { CountsTable } from "~/components/Contagens/CountsTable";
+import { CardsSession } from "~/components/Dados/CardsSession";
 export { loader };
 
 export default function Contagens() {
-    const { cover, description, objective, summaryData, cards, countsData, dataCounts } = useLoaderData<typeof loader>();
+    const { cover, description, objective, summaryData, cards, countsData, dataCounts, archives } = useLoaderData<typeof loader>();
 
     const allCountsStatistics = (summaryData: any) => {
         const { total_cyclists, number_counts, where_max_count, different_counts_points } = {
@@ -60,6 +61,15 @@ export default function Contagens() {
         color: "#ef4444"
     }];
 
+    const docs = archives.map((a: any) => {
+        return {
+            title: a.filename,
+            description: a.description,
+            src: a.image?.url,
+            url: a.file.url,
+        };
+    });
+
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página de contagens" />
@@ -69,6 +79,10 @@ export default function Contagens() {
             <InfoCards cards={cards} />
             <CountsMap pointsData={pointsData} controlPanel={controlPanel} />
             <CountsTable data={dataCounts} />
+            <CardsSession
+                title={"Documentos para realizar contagens de ciclistas."}
+                cards={docs}
+            />
         </>
     );
 }

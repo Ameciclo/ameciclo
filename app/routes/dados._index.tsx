@@ -61,7 +61,7 @@ export default function Dados() {
             src: "/icons/dados/mapa.svg",
             url: "/dados/observatorio/dom",
             description:
-                "Monitoramento do Diágnóstico de Orçamento Municipal",
+                "Diágnóstico de Orçamento Municipal",
             target: "_self",
         },
         {
