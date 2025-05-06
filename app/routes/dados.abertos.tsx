@@ -10,20 +10,15 @@ import {
 } from "@remix-run/react";
 import { useState } from "react";
 
-/* ------------------------------------------------------------------ */
-/* ---------------------------- LOADER ------------------------------ */
-/* ------------------------------------------------------------------ */
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const url = new URL(request.url);
 
-    /* ---------- busca texto ---------- */
     const query = url.searchParams.get("q")?.toLowerCase() ?? "";
     const queryTokens = query.split(/\s+/).filter(Boolean);
     const searchFields = (url.searchParams.get("searchFields") ?? "")
         .split(",")
         .filter(Boolean);
 
-    /* ---------- filtros numéricos A > valor ---------- */
     const vf = url.searchParams.getAll("vf");
     const op = url.searchParams.getAll("op");
     const val = url.searchParams.getAll("val");
@@ -36,7 +31,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                 : NaN,
     }));
 
-    /* ---------- NOVO: comparações Campo A op Campo B ---------- */
     const cf = url.searchParams.getAll("cf");   // column-from
     const cop = url.searchParams.getAll("cop");  // operator
     const ct = url.searchParams.getAll("ct");   // column-to
@@ -46,26 +40,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         to: ct[i] ?? "",
     }));
 
-    /* ---------- categóricos ---------- */
     const funcaoEquals = url.searchParams.getAll("funcao");
     const progLikes = url.searchParams
         .getAll("prog_like")
         .map((s) => s.toLowerCase());
 
-    /* ---------- paginação & ordenação ---------- */
     const sort = url.searchParams.get("sort") ?? "";
     const direction = url.searchParams.get("direction") ?? "asc";
     const page = parseInt(url.searchParams.get("page") ?? "1", 10);
     const perPage = parseInt(url.searchParams.get("perPage") ?? "10", 10);
 
-    /* ---------- dataset ---------- */
     const res = await fetch(
         "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
     );
     const data = await res.json();
     let resultados = (data.campos ?? []) as any[];
 
-    /* ---------- aplica filtros ---------- */
     resultados = resultados.filter((item) => {
         /* campos textuais para busca livre */
         const selectable = {
@@ -119,7 +109,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         );
     });
 
-    /* ---------- ordenação ---------- */
     const sortKeys = sort.split(",").filter(Boolean).map((s) => s.trim());
     if (sortKeys.length) {
         resultados.sort((a: any, b: any) => {
@@ -135,7 +124,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         });
     }
 
-    /* ---------- paginação ---------- */
     const total = resultados.length;
     const totalPages = Math.max(Math.ceil(total / perPage), 1);
     const validPage = Math.min(Math.max(page, 1), totalPages);
@@ -163,9 +151,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
 };
 
-/* ------------------------------------------------------------------ */
-/* -------------------------  COMPONENTE ---------------------------- */
-/* ------------------------------------------------------------------ */
 
 const ALL_COLUMNS = [
     { key: "cd_nm_funcao", label: "Função" },
@@ -199,7 +184,6 @@ export default function DadosAbertos() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    /* ---------- estados p/ form ---------- */
     const [q, setQ] = useState(data.query);
     const [searchFields, setSearchFields] = useState<string[]>(data.searchFields);
 
@@ -226,7 +210,6 @@ export default function DadosAbertos() {
     ]);
     const [pageInput, setPageInput] = useState(data.page.toString());
 
-    /* ---------- helpers ---------- */
     const buildQuery = (pageOverride?: number) => {
         const p = new URLSearchParams();
 
@@ -261,21 +244,18 @@ export default function DadosAbertos() {
     const goto = (p?: number) =>
         navigate(`${location.pathname}?${buildQuery(p)}`);
 
-    /* ---------- animação linhas ---------- */
     const fadeStyle = (idx: number) => ({
         animation: "fadeIn 0.2s ease forwards",
         animationDelay: `${idx * 0.001}s`, // 1 ms
         opacity: 0,
     });
 
-    /* ---------- UI ---------- */
     return (
         <div className="p-8 space-y-6">
             <h1 className="text-2xl font-bold">
                 Ações e Programas – Dados Abertos PE
             </h1>
 
-            {/* ---------------- FORM ---------------- */}
             <section className="border p-4 rounded space-y-4">
                 {/* busca livre */}
                 <div>
@@ -616,7 +596,6 @@ export default function DadosAbertos() {
                 <div>Total encontrados: {data.total}</div>
             </section>
 
-            {/* ---------------- TABELA ---------------- */}
             <section className="relative">
                 {/* botão colunas (top-right) */}
                 <details className="absolute left-0 p-3 -top-10">
@@ -711,7 +690,6 @@ export default function DadosAbertos() {
                 </div>
             </section>
 
-            {/* ---------------- PAGINAÇÃO ---------------- */}
             <section className="flex items-center gap-4">
                 <button
                     disabled={data.page === 1}
@@ -754,7 +732,6 @@ export default function DadosAbertos() {
                 </button>
             </section>
 
-            {/* keyframes animação */}
             <style>
                 {`
             @keyframes fadeIn {
