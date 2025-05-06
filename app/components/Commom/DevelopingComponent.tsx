@@ -1,4 +1,4 @@
-export default function DevelopingComponent({ title, type = "default" }: { title: any, type: string }) {
+export default function DevelopingComponent({ title, type = "default" }: { title: any, type?: "default" }) {
     switch (type) {
         case "default":
             return (

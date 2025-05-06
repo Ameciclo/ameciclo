@@ -1,6 +1,7 @@
 import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import PerfilDashboard from "~/components/Perfil/PerfilDashboard";
 
@@ -27,6 +28,7 @@ export default function perfil() {
                 ]}
             />
             {/* <PerfilDashboard /> */}
+            <DevelopingComponent title={"Grágicos da Página de Perfil"} />
         </>
     );
 }
