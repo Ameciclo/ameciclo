@@ -45,31 +45,7 @@ export default function Dados() {
             title: "Perfil",
             src: "/icons/dados/perfil.svg",
             url: "/dados/perfil",
-            description: "/Dados socio-economicos dos ciclistas e suas percepções",
-            target: "_self",
-        },
-        {
-            title: "Observatório Cicloviário",
-            src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio",
-            description:
-                "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
-            target: "_self",
-        },
-        {
-            title: "Observatório DOM",
-            src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/dom",
-            description:
-                "Diágnóstico de Orçamento Municipal",
-            target: "_self",
-        },
-        {
-            title: "Observatório LOA",
-            src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/dom",
-            description:
-                "Monitoramento da Lei Orçamentária Anual",
+            description: "Dados socio-economicos dos ciclistas e suas percepções",
             target: "_self",
         },
     ];
