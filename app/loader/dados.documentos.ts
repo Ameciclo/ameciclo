@@ -10,5 +10,5 @@ export const loader: LoaderFunction = async () => {
     }
 
     const data = await res.json();
-    return json({ cover: data.cover });
+    return json({ cover: data.cover, description: data.description});
 };

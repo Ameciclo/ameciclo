@@ -2,11 +2,6 @@ import { useEffect, useState } from "react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-export const meta = () => [
-  { title: "Status dos Serviços" },
-  { name: "description", content: "Verifique o status dos serviços." },
-];
-
 export interface Service {
   category: string;
   name: string;
@@ -37,7 +32,6 @@ const servicesList: Service[] = [
   { category: "Páginas do Site", name: "Execução Cicloviária", url: "/dados/observatorio/execucaocicloviaria" },
   { category: "Páginas do Site", name: "Loa Clima", url: "/dados/observatorio/loa" },
   { category: "Páginas do Site", name: "Perfil", url: "/dados/observatorio/dom" },
-  { category: "Páginas do Site", name: "Observatório", url: "/dados/observatorio" },
   {
     category: "Serviços Externos",
     name: "Serviço - Associe-se",
