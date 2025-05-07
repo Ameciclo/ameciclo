@@ -18,7 +18,7 @@ import {
   getFiltersKeys,
   getHistogramData,
   getInicialFilters,
-} from "~/utils/utils";
+} from "~/services/utils";
 import HorizontalBarChart from "../Charts/HorizontalBarChart";
 
 /* -------------------------------------------------------- */

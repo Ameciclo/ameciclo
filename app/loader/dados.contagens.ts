@@ -1,5 +1,5 @@
 import { json, LoaderFunction } from "@remix-run/node";
-import { IntlPercentil } from "~/utils/utils";
+import { IntlPercentil } from "~/services/utils";
 
 export const loader: LoaderFunction = async () => {
   // Busca o cover
