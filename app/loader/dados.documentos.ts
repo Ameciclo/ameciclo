@@ -10,5 +10,27 @@ export const loader: LoaderFunction = async () => {
     }
 
     const data = await res.json();
-    return json({ cover: data.cover, description: data.description});
+
+    type document = {
+        title: string;
+        description: string;
+        url: string;
+        type: string;
+        release_date: string;
+        cover: any;
+    };
+
+    const documents: document[] = data?.map((doc: any) => {
+        return {
+            ...doc,
+            cover: doc.cover.url,
+        };
+    });
+    
+    return json({
+        cover: data.cover,
+        description: data.description,
+        objectives: data.objectives,
+        documents: documents,
+    });
 };
