@@ -16,8 +16,8 @@
     "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@math.gl/web-mercator": "^4.1.0",
-    "@remix-run/node": "^2.15.2",
-    "@remix-run/react": "^2.15.2",
+    "@remix-run/node": "^2.16.5",
+    "@remix-run/react": "^2.16.5",
     "@remix-run/serve": "^2.15.2",
     "@turf/bbox": "^7.2.0",
     "@turf/helpers": "^7.2.0",
@@ -35,7 +35,7 @@
     "styled-components": "^6.1.14"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.15.2",
+    "@remix-run/dev": "^2.16.5",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@types/react-map-gl": "^6.1.7",
