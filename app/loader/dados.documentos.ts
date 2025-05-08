@@ -37,7 +37,7 @@ export const loader: LoaderFunction = async () => {
     });
     
     return json({
-        cover: data1.cover,
+        cover: data2.cover,
         description: data2.description,
         objectives: data2.objectives,
         documents: documents,
