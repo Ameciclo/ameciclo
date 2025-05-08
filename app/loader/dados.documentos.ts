@@ -1,7 +1,7 @@
 import { json, LoaderFunction } from "@remix-run/node";
 
 export const loader: LoaderFunction = async () => {
-    const res = await fetch("https://cms.ameciclo.org/documentos", {
+    const res = await fetch("https://cms.ameciclo.org/documents", {
         cache: "no-cache",
     });
 
