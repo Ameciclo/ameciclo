@@ -10,7 +10,7 @@ const Breadcrumb = ({ label, slug, routes }: any) => {
                             <BreadcrumbItem
                                 key={i}
                                 slug={route}
-                                label={route === "/" ? "Página Principal" : route.split("/").pop()}
+                                label={route === "/" ? "Página Inicial" : route.split("/").pop()}
                                 lastItem={false}
                             />
                         ))}

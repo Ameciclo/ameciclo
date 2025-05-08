@@ -49,7 +49,7 @@ export default function Observatorio() {
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página do Observatório" />
-            <Breadcrumb label="Observatório" slug="/dados/observatorio" routes={["/", "/dados"]} />
+            <Breadcrumb label="Observatórios" slug="/observatorios" routes={["/"]} />
             <ExplanationBoxes
                 boxes={[{ title: "O que é?", description: description, }]}
             />
