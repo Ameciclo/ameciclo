@@ -97,3 +97,5 @@ export function getHistogramData(data: any) {
     },
   };
 }
+
+export const IntlNumberMax1Digit = (n: any) => IntlNumber(n, 1);
