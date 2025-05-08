@@ -9,7 +9,7 @@ export const Navbar = ({ pages }: any) => {
     { name: "Agenda", url: "/agenda" },
     { name: "Projetos", url: "/projetos" },
     { name: "Dados", url: "/dados" },
-    { name: "Observatórios", url: "/dados/observatorios" },
+    { name: "Observatórios", url: "/observatorios" },
     { name: "Contato", url: "/contato" },
   ];
   if(!pages) pages = pagesDefault;
