@@ -2,6 +2,7 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
 
 import { loader } from "~/loader/dados.ideciclo";
@@ -70,6 +71,23 @@ export default function Ideciclo() {
                 title={"Estatísticas Gerais"}
                 boxes={allCitiesStatistics(cidades, structures)}
             />
+            <ExplanationBoxesIdeciclo
+                boxes={[
+                    {
+                        title: "O que é?",
+                        description: pageData.description,
+                    },
+                    {
+                        title: "Para que serve?",
+                        description: pageData.objective,
+                    },
+                    {
+                        title: "Metodologia",
+                        description: pageData.methodology,
+                    },
+                ]}
+            />
+
         </>
     );
 }
