@@ -379,6 +379,11 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
                     boxes={cityStatistics(selectedCity)}
                 />
             )}
+            {filteredCityData.length > 0 && (
+                <div id={"anchor"}>
+                    <IdecicloTable title={"Avaliações de cada via"} data={filteredCityData}                    />
+                </div>
+            )}
         </>
     );
 }
