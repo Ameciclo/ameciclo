@@ -3,6 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
+import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
 
 import { loader } from "~/loader/dados.ideciclo";
@@ -87,7 +88,11 @@ export default function Ideciclo() {
                     },
                 ]}
             />
-
+            <IdecicloClientSide
+                cidades={cidades}
+                structures={structures}
+                ideciclo={ideciclo}
+            />
         </>
     );
 }

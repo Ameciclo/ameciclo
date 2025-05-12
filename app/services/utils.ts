@@ -99,3 +99,18 @@ export function getHistogramData(data: any) {
 }
 
 export const IntlNumberMax1Digit = (n: any) => IntlNumber(n, 1);
+
+export function filterById(jsonObject: any, id: any) {
+  return jsonObject.filter(function (jsonObject: any) {
+    return jsonObject["id"] == id;
+  })[0];
+}
+
+export function filterByName(jsonObject: any, name: any) {
+  return jsonObject.filter(function (jsonObject: any) {
+    return jsonObject["name"] == name;
+  })[0];
+}
+
+export const IntlNumberMin1Max3Digits = (n: any) => IntlNumber(n, 3, 1);
+export const IntlNumber3Digit = (n: any) => IntlNumber(n, 3, 3);
