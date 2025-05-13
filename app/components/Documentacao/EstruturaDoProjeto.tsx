@@ -221,17 +221,6 @@ export default function EstruturaDoProjeto() {
         </code>
       </pre>
       <div className="p-4">
-        <h1 className="text-3xl font-bold mb-4">Scripts do Projeto</h1>
-        <ul className="list-disc pl-6 space-y-4">
-          {scripts.map((script) => (
-            <li key={script.name}>
-              <code className="bg-gray-100 p-1 rounded font-mono font-bold">{script.command}</code>
-              <p className="text-gray-700">{script.description}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="p-4">
         {dependencies.map((section) => (
           <div key={section.category} className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">{section.category}</h2>

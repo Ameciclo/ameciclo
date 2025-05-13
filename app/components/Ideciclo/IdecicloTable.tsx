@@ -2,6 +2,7 @@ import { Link } from "@remix-run/react";
 import { ColumnFilter, NumberRangeColumnFilter, SelectColumnFilter } from "./TableFiltersIdeciclo";
 import React from "react";
 import { matchSorter } from "match-sorter";
+import { TableBody, TableFooter, TableHead } from "./TableComponentsIdeciclo";
 
 
 const SMALL_SCREEN_WIDTH = 768
