@@ -9,17 +9,35 @@ import { loader } from "~/loader/dados.observatorio.execucaocicloviaria";
 export { loader };
 
 export default function ExecucaoCicloviaria() {
-    const { cover, description, boxes } = useLoaderData<typeof loader>();
+    const {
+        cover,
+        boxes,
+        title1,
+        title2,
+        description1,
+        description2,
+    } = useLoaderData<typeof loader>();
 
     return (
         <>
             <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
             <Breadcrumb label="Execução Cicloviária" slug="/execucaocicloviaria" routes={["/", "/observatorio"]} />
-            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
             <StatisticsBox
                 title={"Execução Cicloviária"}
                 subtitle={"da Região Metropolitana do Recife"}
                 boxes={boxes}
+            />
+            <ExplanationBoxes
+                boxes={[
+                    {
+                        title: title1,
+                        description: description1,
+                    },
+                    {
+                        title: title2,
+                        description: description2,
+                    },
+                ]}
             />
         </>
     );

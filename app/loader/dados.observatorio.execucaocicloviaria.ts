@@ -48,10 +48,13 @@ export const loader: LoaderFunction = async () => {
   });
   const summaryWaysData = await summaryWaysRes.json();
 
-  const boxes = cycleStructureExecutionStatistics(summaryWaysData.all);
   return json({
     cover: page_data.cover_image_url,
     description: page_data.ExplanationBoxData.text_1,
-    boxes,
+    boxes: cycleStructureExecutionStatistics(summaryWaysData.all),
+    title1: page_data.ExplanationBoxData.title_1,
+    title2: page_data.ExplanationBoxData.title_2,
+    description1: page_data.ExplanationBoxData.text_1,
+    description2: page_data.ExplanationBoxData.text_2,
   });
 };
