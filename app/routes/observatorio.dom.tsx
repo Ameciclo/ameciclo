@@ -13,7 +13,7 @@ export default function Dom() {
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página do Diágnóstico Orçamentário Municipal" />
-            <Breadcrumb label="dom" slug="/dados/observatorio/dom" routes={["/", "/dados", "/dados/observatorio"]} />
+            <Breadcrumb label="dom" slug="/dados/observatorio/dom" routes={["/", "/observatorio"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
         </>
     );

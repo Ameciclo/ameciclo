@@ -7,13 +7,13 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { loader } from "~/loader/dados.observatorio.loa";
 export { loader };
 
-export default function Loaclima() {
+export default function Loa() {
     const { cover, description } = useLoaderData<typeof loader>();
 
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página do Loaclima" />
-            <Breadcrumb label="loaclima" slug="/dados/observatorio/loaclima" routes={["/", "/dados", "/dados/observatorio"]} />
+            <Breadcrumb label="loa" slug="/dados/observatorio/loa" routes={["/", "/observatorio"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
         </>
     );

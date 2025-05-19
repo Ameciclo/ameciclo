@@ -23,7 +23,7 @@ export default function Observatorio() {
         {
             title: "Execução Cicloviária",
             src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio",
+            url: "/observatorio/execucaocicloviaria",
             description:
                 "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
             target: "_self",
@@ -31,17 +31,17 @@ export default function Observatorio() {
         {
             title: "LEI ORÇAMENTARIA ANUAL (LOA)",
             src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/dom",
+            url: "/observatorio/loa",
             description:
-                "Monitoramento da Lei Orçamentária Estadual",
+                "Monitoramento da Lei Orçamentária Anual",
             target: "_self",
         },
         {
             title: "DIAGNÓSTICO ORÇAMENTÁRIO MUNICIPAL (DOM)",
             src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/dom",
+            url: "/observatorio/dom",
             description:
-                "Monitoramento da Lei Orçamentária Municipal",
+                "Diagnóstico Orçamentária Municipal",
             target: "_self",
         },
     ];
@@ -49,7 +49,7 @@ export default function Observatorio() {
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página do Observatório" />
-            <Breadcrumb label="Observatórios" slug="/observatorios" routes={["/"]} />
+            <Breadcrumb label="Observatório" slug="/observatorio" routes={["/"]} />
             <ExplanationBoxes
                 boxes={[{ title: "O que é?", description: description, }]}
             />
