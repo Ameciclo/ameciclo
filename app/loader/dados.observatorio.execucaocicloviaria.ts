@@ -1,19 +1,57 @@
 import { json, LoaderFunction } from "@remix-run/node";
+import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 
 export const loader: LoaderFunction = async () => {
-    const res = await fetch("https://cms.ameciclo.org/plataforma-de-dados", {
-        cache: "no-cache",
-    });
-
-    if (!res.ok) {
-        throw new Error("Erro ao buscar os dados");
+  const page_data = {
+    title: 'Observatório Cicloviário',
+    cover_image_url: '/execucaocicloviaria.png',
+    ExplanationBoxData: {
+      title_1: 'O que é?',
+      text_1: `O Observatório Cicloviário é uma central de monitoramento que acompanha a evolução da estrutura cicloviária da Região Metropolitana do Recife, comparando a estrutura projetada pelo Plano Diretor Cicloviário frente à estrutura executada.
+            Para facilitar a demonstração dos dados, considera-se EXECUTADA o local onde havia previsão de estrutura e foi implatado algo lá, não necessariamente da mesma tipologia.`,
+      title_2: 'Por que o PDC?',
+      text_2: `Em 4 de fevereiro de 2014 o Governo do Estado de Pernambuco, junto com as prefeituras da Região Metropolitana do Recife, lançou o Plano Diretor Cicloviário (PDC). 
+            O Plano integra os diversos municípios da RMR com uma ampla rede cicloviária, priorizando as principais avenidas e pontos de conexão das cidades. Sua construção teve participação não só dos entes públicos, mas também da sociedade civil, como nós, da Ameciclo. 
+            Com metas estipuladas em fases,  o PDC precisa ser concluído em 2024.`
     }
+  }
 
-    const data = await res.json();
-    const { cover, description } = data;
+  const cycleStructureExecutionStatistics = (data: any) => {
+    const { pdc_feito, out_pdc, pdc_total, percent } = { ...data };
 
-    return json({
-        cover,
-        description
-    });
+    return [
+      {
+        title: "estrutura cicloviárias",
+        unit: "km",
+        value: IntlNumberMax1Digit(pdc_feito + out_pdc),
+      },
+      {
+        title: "projetada no plano cicloviário",
+        unit: "km",
+        value: IntlNumberMax1Digit(pdc_total),
+      },
+      {
+        title: "implantados no plano cicloviário",
+        unit: "km",
+        value: IntlNumberMax1Digit(pdc_feito),
+      },
+      {
+        title: "cobertos do plano cicloviário",
+        unit: "%",
+        value: IntlPercentil(percent),
+      },
+    ];
+  };
+
+  const summaryWaysRes = await fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", {
+    cache: "no-cache",
+  });
+  const summaryWaysData = await summaryWaysRes.json();
+
+  const boxes = cycleStructureExecutionStatistics(summaryWaysData.all);
+  return json({
+    cover: page_data.cover_image_url,
+    description: page_data.ExplanationBoxData.text_1,
+    boxes,
+  });
 };
