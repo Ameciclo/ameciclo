@@ -381,7 +381,7 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
             )}
             {filteredCityData.length > 0 && (
                 <div id={"anchor"}>
-                    <IdecicloTable title={"Avaliações de cada via"} data={filteredCityData}                    />
+                    {/* <IdecicloTable title={"Avaliações de cada via"} data={filteredCityData} /> */}
                 </div>
             )}
         </>

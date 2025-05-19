@@ -2,7 +2,6 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
 import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
@@ -89,7 +88,11 @@ export default function Ideciclo() {
                     },
                 ]}
             />
-            <DevelopingComponent title="Dados do Ideciclo" subtitle="em desenvolvimento"/>
+            <IdecicloClientSide
+                cidades={cidades}
+                structures={structures}
+                ideciclo={ideciclo}
+            />
         </>
     );
 }
