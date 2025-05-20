@@ -114,3 +114,4 @@ export function filterByName(jsonObject: any, name: any) {
 
 export const IntlNumberMin1Max3Digits = (n: any) => IntlNumber(n, 3, 1);
 export const IntlNumber3Digit = (n: any) => IntlNumber(n, 3, 3);
+export const IntlNumber2Digit = (n: any) => IntlNumber(n, 2, 2);

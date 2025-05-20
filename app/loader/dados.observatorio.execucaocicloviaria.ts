@@ -86,12 +86,47 @@ export const loader: LoaderFunction = async () => {
       "line-color": "#DDDF00",
       "line-width": 1.5,
       "line-opacity": 0.8,
-      //          'line-dasharray': [2,.5],
     },
     filter: ["==", "STATUS", "NotPDC"],
   };
 
   const layersConf = [PDCLayer, PDCDoneLayer, NotPDC];
+
+  const citiesRes = await fetch("http://api.garfo.ameciclo.org/cities");
+  const citiesData = await citiesRes.json();
+
+  function cityCycleStructureExecutionStatisticsByCity(
+    citiesSummary: any,
+    citiesData: any,
+    relationsByCityData: any,
+  ) {
+    const cityStats: any = {};
+    citiesData.forEach((city: any) => {
+      if (citiesSummary[city.id]) {
+        const { relations } = { ...relationsByCityData[city.id] };
+        cityStats[city.id] = {
+          id: city.id,
+          name: city.name,
+          relations: relations,
+          ...citiesSummary[city.id],
+          total:
+            citiesSummary[city.id].pdc_feito + citiesSummary[city.id].out_pdc,
+        };
+      }
+    });
+
+    return cityStats;
+  }
+
+  const relationsByCityRes = await fetch("http://api.garfo.ameciclo.org/cyclist-infra/relationsByCity");
+  const relationsByCityData = await relationsByCityRes.json();
+
+  const citiesStats = cityCycleStructureExecutionStatisticsByCity(
+    summaryWaysData.byCity,
+    citiesData,
+    relationsByCityData,
+  );
+
   return json({
     cover: page_data.cover_image_url,
     description: page_data.ExplanationBoxData.text_1,
@@ -102,5 +137,7 @@ export const loader: LoaderFunction = async () => {
     description2: page_data.ExplanationBoxData.text_2,
     allCitiesLayer,
     layersConf,
+    citiesData,
+    citiesStats,
   });
 };
