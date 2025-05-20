@@ -1,12 +1,13 @@
 import { useState } from "react";
-import ReactMapGL, {
+import {
+    Map,
     Source,
     Layer,
     Marker,
-    LayerProps,
     FullscreenControl,
-    NavigationControl,
+    NavigationControl
 } from "react-map-gl";
+
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 
@@ -236,7 +237,7 @@ const MapControlPanel = ({
     );
 };
 
-export const Map = ({
+export const PDCMap = ({
     layerData,
     layersConf,
     pointsData,
@@ -287,9 +288,10 @@ export const Map = ({
     return (
         <section className="container mx-auto">
             <div className="relative bg-green-200 rounded shadow-2xl">
-                <ReactMapGL
+                <Map
                     {...viewport}
                     {...settings}
+                    style={{ width: "100%", height: "500px" }}
                     onMove={(evt: any) => setViewport(evt.viewState)}
                     mapStyle={MAPBOXSTYLE}
                     mapboxAccessToken={MAPBOXTOKEN}
@@ -297,8 +299,8 @@ export const Map = ({
                     <MapCommands handleClick={handleClick} />
                     {layerData && (
                         <Source id="layersMap" type="geojson" data={layerData}>
-                            {layersConf?.map((layer: any) => (
-                                <Layer {...layer} />
+                            {layersConf?.map((layer: any, i: number) => (
+                                <Layer key={layer.id || i} {...layer} />
                             ))}
                         </Source>
                     )}
@@ -334,7 +336,7 @@ export const Map = ({
                             layersConf={layersConf}
                         />
                     )}
-                </ReactMapGL>
+                </Map>
             </div>
         </section>
     );

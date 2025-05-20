@@ -4,7 +4,7 @@ import { LayerProps } from "react-map-gl";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import { Map } from "~/components/ExecucaoCicloviaria/Map";
+import { PDCMap } from "~/components/ExecucaoCicloviaria/PDCMap";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 
 import { loader } from "~/loader/dados.observatorio.execucaocicloviaria";
@@ -43,7 +43,7 @@ export default function ExecucaoCicloviaria() {
                     },
                 ]}
             />
-            <Map layerData={allCitiesLayer} layersConf={layersConf as LayerProps[]} />
+            <PDCMap layerData={allCitiesLayer} layersConf={layersConf as LayerProps[]} />
         </>
     );
 }
