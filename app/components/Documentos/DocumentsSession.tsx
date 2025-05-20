@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { MultipleSelectionFilters } from "./SelectionFilterMenu";
 import { DocumentsList } from "./DocumentList";
+import { MultipleSelectionFilters } from "../Commom/MultipleSelectionFilters";
 
 export const docTypes = [
   { value: "all", label: "Todos documentos", color: "", fontColor: "" },
@@ -14,7 +14,6 @@ interface Document {
   type: string;
   title: string;
   release_date: string;
-  // … qualquer outra propriedade que você utilize
 }
 
 interface DocumentsSessionProps {
@@ -27,7 +26,6 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [orderedDocuments, setOrderedDocuments] = useState<Document[]>([]);
 
-  // 1) Filtrar quando mudam os documents ou o tipo selecionado
   useEffect(() => {
     const filtered = documents.filter((doc) => {
       if (selectedDocumentType === "all") return true;
@@ -36,9 +34,7 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
     setFilteredDocuments(filtered);
   }, [documents, selectedDocumentType]);
 
-  // 2) Ordenar quando mudam o filtro ou a ordem selecionada
   useEffect(() => {
-    // clona para não mutar o array original
     const clone = [...filteredDocuments];
     const sorted = clone.sort((a, b) => {
       switch (selectedDocumentOrder) {
