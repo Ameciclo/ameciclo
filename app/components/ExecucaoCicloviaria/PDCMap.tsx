@@ -5,7 +5,8 @@ import {
     Layer,
     Marker,
     FullscreenControl,
-    NavigationControl
+    NavigationControl,
+    LayerProps
 } from "react-map-gl";
 
 
@@ -241,8 +242,6 @@ export const PDCMap = ({
     layerData,
     layersConf,
     pointsData,
-    width = "100%",
-    height = "500px",
     controlPanel = [],
 }: {
     layerData?:
@@ -277,12 +276,18 @@ export const PDCMap = ({
         });
     };
 
-    const [markerVisibility, setMarkerVisibility] = useState(
-        pointsData?.reduce((obj, marker) => ({ ...obj, [marker.key]: true }), {})
+    const [markerVisibility, setMarkerVisibility] = useState<Record<string, boolean>>(
+        pointsData?.reduce((obj, marker) => {
+            obj[marker.key] = true;
+            return obj;
+        }, {} as Record<string, boolean>) ?? {}
     );
 
     const handleMarkerToggle = (key: string) => {
-        setMarkerVisibility((prev: any = {}) => ({ ...prev, [key]: !prev[key] }));
+        setMarkerVisibility((prev) => ({
+            ...prev,
+            [key]: !prev?.[key],
+        }));
     };
 
     return (
