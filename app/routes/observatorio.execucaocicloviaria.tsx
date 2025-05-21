@@ -1,15 +1,17 @@
 import { useLoaderData } from "@remix-run/react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { LayerProps } from "react-map-gl";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import Table from "~/components/Commom/Table/Table";
+import { ColumnFilter, SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { CyclingInfrastructureByCity } from "~/components/ExecucaoCicloviaria/CyclingInfrastructureByCity";
 import { PDCMap } from "~/components/ExecucaoCicloviaria/PDCMap";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 
 import { loader } from "~/loader/dados.observatorio.execucaocicloviaria";
-import { filterById, filterByName } from "~/services/utils";
+import { filterById, filterByName, IntlNumber2Digit } from "~/services/utils";
 export { loader };
 
 export default function ExecucaoCicloviaria() {
@@ -80,6 +82,43 @@ export default function ExecucaoCicloviaria() {
         setCity(filterById(citiesStatsArray, id));
     };
 
+    const ExtensionCell = ({ value }: any) => {
+        return <>{<span>{IntlNumber2Digit(value)}</span>}</>;
+    };
+
+    const columns = React.useMemo(
+        () => [
+            {
+                Header: "(COD) Nome da Via",
+                accessor: "cod_name",
+                Filter: ColumnFilter,
+            },
+            {
+                Header: "Tipologia prevista",
+                accessor: "pdc_typology",
+                Filter: SelectColumnFilter,
+            },
+            {
+                Header: "Extensão prevista (km)",
+                accessor: "length",
+                Cell: ({ value }: any) => <ExtensionCell value={value} />,
+                Filter: false,
+            },
+            {
+                Header: "Tipologia executada",
+                accessor: "typologies_str",
+                Filter: ColumnFilter,
+            },
+            {
+                Header: "Extensão executada (km)",
+                accessor: "has_cycleway_length",
+                Cell: ({ value }: any) => <ExtensionCell value={value} />,
+                Filter: false,
+            },
+        ],
+        []
+    );
+
     return (
         <>
             <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
@@ -113,6 +152,11 @@ export default function ExecucaoCicloviaria() {
                     type: optionsType,
                 }}
                 selected={selectedCity?.id}
+            />
+            <Table
+                title={"Estruturas do PDC para " + selectedCity.name}
+                data={selectedCity.relations}
+                columns={columns}
             />
         </>
     );
