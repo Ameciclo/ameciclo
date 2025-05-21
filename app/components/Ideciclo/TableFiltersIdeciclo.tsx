@@ -1,36 +1,6 @@
 import React from "react";
 import { useAsyncDebounce } from "react-table";
 
-// Define a default UI for filtering
-export const GlobalFilter = ({
-    preGlobalFilteredRows,
-    globalFilter,
-    setGlobalFilter,
-}: any) => {
-    const count = preGlobalFilteredRows.length;
-    const [value, setValue] = React.useState(globalFilter);
-    const onChange = useAsyncDebounce((value) => {
-        setGlobalFilter(value || undefined);
-    }, 200);
-
-    return (
-        <span className="max-w-sm text-gray-600 border-2 border-amecicloTransparent bg-white h-10 px-5 pr-5 pt-2 rounded-xl text-sm focus:outline-none">
-            <input
-                value={value || ""}
-                onChange={(e) => {
-                    setValue(e.target.value);
-                    onChange(e.target.value);
-                }}
-                placeholder={`Busca em ${count} produtos...`}
-                style={{
-                    fontSize: "1.1rem",
-                    border: "0",
-                }}
-            />
-        </span>
-    );
-};
-
 export const ColumnFilter = ({ column }: any) => {
     const { filterValue, setFilter } = column;
     return (
@@ -112,39 +82,6 @@ export function NumberRangeColumnFilter({
     );
 }
 
-export function SliderColumnFilter({
-    column: { filterValue, setFilter, preFilteredRows, id },
-}: any) {
-    // Calculate the min and max
-    // using the preFilteredRows
-
-    const [min, max] = React.useMemo(() => {
-        let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
-        let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
-        preFilteredRows.forEach((row: any) => {
-            min = Math.min(row.values[id], min);
-            max = Math.max(row.values[id], max);
-        });
-        return [min, max];
-    }, [id, preFilteredRows]);
-
-    return (
-        <>
-            <input
-                className="my-2 max-w-sm text-gray-600 border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-xl text-sm focus:outline-none"
-                type="range"
-                min={min}
-                max={max}
-                value={filterValue || min}
-                onChange={(e) => {
-                    setFilter(parseInt(e.target.value, 10));
-                }}
-            />
-            <button onClick={() => setFilter(undefined)}>Reiniciar</button>
-        </>
-    );
-}
-
 export function SelectColumnFilter({
     column: { filterValue, setFilter, preFilteredRows, id },
 }: any) {
@@ -175,33 +112,3 @@ export function SelectColumnFilter({
         </select>
     );
 }
-
-// Define a custom filter filter function!
-export function filterGreaterThan(rows: any[], id: any, filterValue: any) {
-    return rows.filter(row => {
-        const rowValue = row.values[id]
-        return rowValue >= filterValue
-    })
-}
-
-filterGreaterThan.autoRemove = (val: any): boolean =>
-    typeof val !== 'number'
-
-export const FilterPill = ({ filter, addOrRemoveFilter }: any) => {
-    return (
-        <>
-            <label>
-                <input
-                    className="hidden"
-                    type="checkbox"
-                    value={filter}
-                    onChange={(e) => addOrRemoveFilter(filter)}
-                />
-
-                <div className="toggle-btn rounded-3xl flex border switch w-32 h-10 bg-transparent items-center justify-center text-gray-800 outline-none focus:outline-none">
-                    {filter.value}
-                </div>
-            </label>
-        </>
-    );
-};
