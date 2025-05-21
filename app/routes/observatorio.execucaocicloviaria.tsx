@@ -10,6 +10,7 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { CyclingInfrastructureByCity } from "~/components/ExecucaoCicloviaria/CyclingInfrastructureByCity";
 import { PDCMap } from "~/components/ExecucaoCicloviaria/PDCMap";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
+import { CardsSession } from "~/components/Commom/CardsSession";
 
 import { loader } from "~/loader/dados.observatorio.execucaocicloviaria";
 export { loader };
@@ -25,6 +26,7 @@ export default function ExecucaoCicloviaria() {
         allCitiesLayer,
         layersConf,
         citiesStats,
+        documents,
     } = useLoaderData<typeof loader>();
 
     function sortCards(data: any, order: any) {
@@ -181,6 +183,7 @@ export default function ExecucaoCicloviaria() {
                 data={selectedCity.relations}
                 columns={columns}
             />
+            <CardsSession title={documents.title} cards={documents.cards} />
         </>
     );
 }

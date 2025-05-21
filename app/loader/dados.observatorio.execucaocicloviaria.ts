@@ -127,6 +127,52 @@ export const loader: LoaderFunction = async () => {
     relationsByCityData,
   );
 
+  const documents = {
+    title: 'Documentos e links importantes para o PDC.',
+    cards: [
+      {
+        title: 'Plano Diretor Cicloviário da RMR - vol 1',
+        src: '',
+        url:
+          'https://drive.google.com/file/d/0BxR5Ri6g5X_ZaldIY2tZS1pYRUU/view?usp=share_link&resourcekey=0-qVT9rlnlNOAdE-cs1-fn9A',
+        text: 'Documento lançado em 2014, parte principal que contém o estudo.'
+      },
+      {
+        title: 'Plano Diretor Cicloviário da RMR - vol 2',
+        src: '',
+        url:
+          'https://drive.google.com/file/d/0BxR5Ri6g5X_ZaVlpckJQVS1CTlU/view?usp=share_link&resourcekey=0-PjUIH1c2ObtbdTUGuLn28g',
+        text: 'Parte 2 do documento, apenas com os mapas.'
+      },
+      {
+        title: 'Pasta do PDC',
+        src: '',
+        url: 'https://pdc.ameciclo.org',
+        text:
+          'Pasta em nosso drive com o plano, o processo de construção e a nossa ação civil-pública para a implantação.'
+      },
+      {
+        title: 'Ciclomapa',
+        src: '',
+        url: 'https://ciclomapa.org.br/',
+        text:
+          'Mapa colaborativo que monitora as ciclovias de diversas cidades, inclusive a nossa.'
+      },
+      {
+        title: 'O que é o PDC?',
+        src: '',
+        url: 'https://www.youtube.com/watch?v=LEQlGK-FWnI',
+        text: 'Episódio de nosso podcast sobre o Plano Diretor Cicloviário.'
+      },
+      {
+        title: 'Wiki do PDC',
+        src: '',
+        url: 'https://wiki.openstreetmap.org/w/index.php?title=Plano_Diretor_Ciclovi%C3%A1rio_da_Regi%C3%A3o_Metropolitana_do_Recife',
+        text: 'A wiki com a listagem de todas as infras no OpenStreetMaps.'
+      }
+    ]
+  }
+
   return json({
     cover: page_data.cover_image_url,
     description: page_data.ExplanationBoxData.text_1,
@@ -139,5 +185,6 @@ export const loader: LoaderFunction = async () => {
     layersConf,
     citiesData,
     citiesStats,
+    documents,
   });
 };
