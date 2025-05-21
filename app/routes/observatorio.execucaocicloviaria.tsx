@@ -1,6 +1,7 @@
-import { useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
+import { useLoaderData } from "@remix-run/react";
 import { LayerProps } from "react-map-gl";
+import { filterById, filterByName, IntlNumber2Digit, IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import Table from "~/components/Commom/Table/Table";
@@ -11,7 +12,6 @@ import { PDCMap } from "~/components/ExecucaoCicloviaria/PDCMap";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 
 import { loader } from "~/loader/dados.observatorio.execucaocicloviaria";
-import { filterById, filterByName, IntlNumber2Digit } from "~/services/utils";
 export { loader };
 
 export default function ExecucaoCicloviaria() {
@@ -50,6 +50,7 @@ export default function ExecucaoCicloviaria() {
 
     const [optionsType, setOptionsType] = useState("max1digit");
     const [city_sort, sortCity] = useState("total");
+    const [selectedCity, setCity] = useState(filterByName(citiesStatsArray, "Recife"));
 
     const sort_cities = [
         {
@@ -74,50 +75,39 @@ export default function ExecucaoCicloviaria() {
         setOptionsType(type);
     };
 
-    const [selectedCity, setCity] = useState(
-        filterByName(citiesStatsArray, "Recife")
-    );
+    const changeCity = (id: any) => { setCity(filterById(citiesStatsArray, id)) };
 
-    const changeCity = (id: any) => {
-        setCity(filterById(citiesStatsArray, id));
-    };
+    const ExtensionCell = ({ value }: any) => <>{<span>{IntlNumber2Digit(value)}</span>}</>;
 
-    const ExtensionCell = ({ value }: any) => {
-        return <>{<span>{IntlNumber2Digit(value)}</span>}</>;
-    };
-
-    const columns = React.useMemo(
-        () => [
-            {
-                Header: "(COD) Nome da Via",
-                accessor: "cod_name",
-                Filter: ColumnFilter,
-            },
-            {
-                Header: "Tipologia prevista",
-                accessor: "pdc_typology",
-                Filter: SelectColumnFilter,
-            },
-            {
-                Header: "Extensão prevista (km)",
-                accessor: "length",
-                Cell: ({ value }: any) => <ExtensionCell value={value} />,
-                Filter: false,
-            },
-            {
-                Header: "Tipologia executada",
-                accessor: "typologies_str",
-                Filter: ColumnFilter,
-            },
-            {
-                Header: "Extensão executada (km)",
-                accessor: "has_cycleway_length",
-                Cell: ({ value }: any) => <ExtensionCell value={value} />,
-                Filter: false,
-            },
-        ],
-        []
-    );
+    const columns = React.useMemo(() => [
+        {
+            Header: "(COD) Nome da Via",
+            accessor: "cod_name",
+            Filter: ColumnFilter,
+        },
+        {
+            Header: "Tipologia prevista",
+            accessor: "pdc_typology",
+            Filter: SelectColumnFilter,
+        },
+        {
+            Header: "Extensão prevista (km)",
+            accessor: "length",
+            Cell: ({ value }: any) => <ExtensionCell value={value} />,
+            Filter: false,
+        },
+        {
+            Header: "Tipologia executada",
+            accessor: "typologies_str",
+            Filter: ColumnFilter,
+        },
+        {
+            Header: "Extensão executada (km)",
+            accessor: "has_cycleway_length",
+            Cell: ({ value }: any) => <ExtensionCell value={value} />,
+            Filter: false,
+        },
+    ], []);
 
     return (
         <>
