@@ -6,11 +6,11 @@ import { GeneralCountStatistics } from "~/components/Contagens/GeneralCountStati
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { CountsMap } from "~/components/Contagens/CountsMap";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
+import { CardsSession } from "~/components/Commom/CardsSession";
 
 import { loader } from "~/loader/dados.contagens";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import { CountsTable } from "~/components/Contagens/CountsTable";
-import { CardsSession } from "~/components/Dados/CardsSession";
 export { loader };
 
 export default function Contagens() {

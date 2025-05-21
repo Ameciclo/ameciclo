@@ -2,7 +2,7 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { CardsSession } from "~/components/Dados/CardsSession";
+import { CardsSession } from "~/components/Commom/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
 
