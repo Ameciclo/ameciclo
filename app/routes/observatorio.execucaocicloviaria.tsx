@@ -109,6 +109,34 @@ export default function ExecucaoCicloviaria() {
         },
     ], []);
 
+    function cityCycleStructureExecutionStatistics(selectedCity: any) {
+        const { pdc_feito, pdc_total, percent, total } = {
+            ...selectedCity,
+        };
+        return [
+            {
+                title: "estruturas cicloviárias",
+                unit: "km",
+                value: IntlNumberMax1Digit(total),
+            },
+            {
+                title: "projetadas no plano cicloviário",
+                unit: "km",
+                value: IntlNumberMax1Digit(pdc_total),
+            },
+            {
+                title: "implantados no plano cicloviário",
+                unit: "km",
+                value: IntlNumberMax1Digit(pdc_feito),
+            },
+            {
+                title: "cobertos do plano cicloviário",
+                value: IntlPercentil(percent),
+                unit: "%",
+            },
+        ].filter((e) => e);
+    }
+
     return (
         <>
             <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
@@ -142,6 +170,11 @@ export default function ExecucaoCicloviaria() {
                     type: optionsType,
                 }}
                 selected={selectedCity?.id}
+            />
+            <StatisticsBox
+                title={selectedCity.name}
+                subtitle={"Estatísticas Gerais"}
+                boxes={cityCycleStructureExecutionStatistics(selectedCity)}
             />
             <Table
                 title={"Estruturas do PDC para " + selectedCity.name}
