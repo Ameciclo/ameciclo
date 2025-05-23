@@ -115,3 +115,40 @@ export function filterByName(jsonObject: any, name: any) {
 export const IntlNumberMin1Max3Digits = (n: any) => IntlNumber(n, 3, 1);
 export const IntlNumber3Digit = (n: any) => IntlNumber(n, 3, 3);
 export const IntlNumber2Digit = (n: any) => IntlNumber(n, 2, 2);
+
+export function normalizeString(str: string) {
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
+
+export function searchByTerms(item: any, terms: string) {
+    const keys = [
+        "cd_nm_funcao",
+        "cd_nm_prog",
+        "cd_nm_acao",
+        "cd_nm_subacao",
+        "cd_nm_subfuncao",
+    ];
+
+    const normalizedTerms = normalizeString(terms);
+
+    return keys.some((key) =>
+        normalizeString(item[key] ?? "").includes(normalizedTerms)
+    );
+}
+
+export function compareFilter(item: any, field: string, value: string, operator: string) {
+    const itemValue = Number(item[field]);
+
+    const filterValue = Number(value);
+
+    if (isNaN(itemValue) || isNaN(filterValue)) return false;
+
+    if (operator === "equal") return itemValue === filterValue;
+    if (operator === "greater") return itemValue > filterValue;
+    if (operator === "less") return itemValue < filterValue;
+
+    return false;
+}
