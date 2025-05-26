@@ -8,7 +8,6 @@ import {
 import { useState, useEffect } from "react";
 import DataTable from "~/components/DadosAbertos/DataTable";
 
-// Utils
 function normalizeString(str: string) {
     return str
         .normalize("NFD")
@@ -45,7 +44,6 @@ function compareFilter(item: any, field: string, value: string, operator: string
     return false;
 }
 
-// Loader
 let cache: { data: any; timestamp: number } | null = null;
 const CACHE_DURATION = 1000 * 60 * 60;
 
@@ -81,6 +79,7 @@ export default function DadosAbertos() {
     const [field, setField] = useState("");
     const [operator, setOperator] = useState("equal");
     const [filterValue, setFilterValue] = useState("");
+    const [showFieldFilter, setShowFieldFilter] = useState(false);
 
     const [page, setPage] = useState(1);
     const itemsPerPage = 10;
@@ -99,7 +98,7 @@ export default function DadosAbertos() {
         }
 
         setData(filtered);
-        setPage(1); // Resetar para página 1 sempre que filtrar
+        setPage(1);
     }, [searchTerm, field, operator, filterValue, serverData]);
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -108,6 +107,22 @@ export default function DadosAbertos() {
         page * itemsPerPage
     );
 
+    const headerLabels: Record<string, string> = {
+        "cd_nm_funcao": "Nome Função",
+        "cd_nm_prog": "Nome Programa",
+        "cd_nm_acao": "Nome Ação",
+        "cd_nm_subacao": "Nome Subação",
+        "cd_nm_subfuncao": "Nome Subfunção",
+        "vlrdotatualizada": "Valor do Total Atualizado",
+        "vlrtotalpago": "Valor do Total Pago",
+        "vlrempenhado": "Valor Empenhado",
+        "vlrliquidado": "Valor Liquidado",
+    };
+
+    function getHeaderLabel(header: string) {
+        return headerLabels[header] || header;
+    }
+
     return (
         <div className="p-8 space-y-6">
             <h1 className="text-2xl font-bold">Ações e Programas – Dados Abertos PE</h1>
@@ -115,45 +130,59 @@ export default function DadosAbertos() {
             <div className="space-y-2">
                 <input
                     type="text"
-                    placeholder="Buscar texto (ignora acentos e caps)"
+                    placeholder="BUSCAR TERMO"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="border px-2 py-1 rounded w-full"
                 />
+                <button
+                    onClick={() => setShowFieldFilter(!showFieldFilter)}
+                    className="flex items-center w-full text-sm font-semibold text-gray-700"
+                >
+                    <span>Filtro por Campo de Valores</span>
+                    <span className="text-black font-bold left pl-4">
+                        {showFieldFilter ? "▲" : "▼"}
+                    </span>
+                </button>
 
-                <div className="flex gap-2">
-                    <select
-                        value={field}
-                        onChange={(e) => setField(e.target.value)}
-                        className="border px-2 py-1 rounded"
-                    >
-                        <option value="">-- Campo --</option>
-                        {serverData.length > 0 &&
-                            Object.keys(serverData[0]).map((key) => (
-                                <option key={key} value={key}>
-                                    {key}
-                                </option>
-                            ))}
-                    </select>
 
-                    <select
-                        value={operator}
-                        onChange={(e) => setOperator(e.target.value)}
-                        className="border px-2 py-1 rounded"
-                    >
-                        <option value="equal">=</option>
-                        <option value="greater">{">"}</option>
-                        <option value="less">{"<"}</option>
-                    </select>
+                {showFieldFilter && (
+                    <div className="flex gap-2">
+                        <select
+                            value={field}
+                            onChange={(e) => setField(e.target.value)}
+                            className="border px-2 py-1 rounded"
+                        >
+                            <option value="">Campo</option>
+                            {serverData.length > 0 &&
+                                Object.keys(serverData[0])
+                                    .filter((key) => key.toLowerCase().includes("vlr"))
+                                    .map((key) => (
+                                        <option key={key} value={key}>
+                                            {getHeaderLabel(key)}
+                                        </option>
+                                    ))}
+                        </select>
 
-                    <input
-                        type="text"
-                        placeholder="Valor"
-                        value={filterValue}
-                        onChange={(e) => setFilterValue(e.target.value)}
-                        className="border px-2 py-1 rounded"
-                    />
-                </div>
+                        <select
+                            value={operator}
+                            onChange={(e) => setOperator(e.target.value)}
+                            className="border px-2 py-1 rounded"
+                        >
+                            <option value="equal">IGUAL</option>
+                            <option value="greater">MAIOR QUE</option>
+                            <option value="less">MENOR QUE</option>
+                        </select>
+
+                        <input
+                            type="text"
+                            placeholder="Valor"
+                            value={filterValue}
+                            onChange={(e) => setFilterValue(e.target.value)}
+                            className="border px-2 py-1 rounded"
+                        />
+                    </div>
+                )}
             </div>
 
             <DataTable data={paginatedData} />

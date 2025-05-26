@@ -16,7 +16,23 @@ function orderHeaders(headers: string[]) {
     return [...prioritized, ...others, ...values];
 }
 
-export default function DataTable({ data }: { data: any[] }) {
+const headerLabels: Record<string, string> = {
+    "cd_nm_funcao": "Nome Função",
+    "cd_nm_prog": "Nome Programa",
+    "cd_nm_acao": "Nome Ação",
+    "cd_nm_subacao": "Nome Subação",
+    "cd_nm_subfuncao": "Nome Subfunção",
+    "vlrdotatualizada": "Valor do Total Atualizado",
+    "vlrtotalpago": "Valor do Total Pago",
+    "vlrempenhado": "Valor Empenhado",
+    "vlrliquidado": "Valor Liquidado",
+};
+
+function getHeaderLabel(header: string) {
+    return headerLabels[header] || header;
+}
+
+export default function DataTable({ data, search = "", page = 0, itemsPerPage = 10 }: { data: any[], search?: string, page?: number, itemsPerPage?: number }) {
     const headers = data.length > 0 ? orderHeaders(Object.keys(data[0])) : [];
     const [hiddenColumns, setHiddenColumns] = useState<string[]>([]);
 
@@ -26,20 +42,34 @@ export default function DataTable({ data }: { data: any[] }) {
         );
     };
 
-    const visibleHeaders = headers.filter(h => !hiddenColumns.includes(h));
+    const visibleHeaders = ["#", ...headers.filter(h => !hiddenColumns.includes(h))];
+
+    const highlightText = (text: string) => {
+        if (!search) return text;
+        const regex = new RegExp(`(${search})`, 'gi');
+        return text.split(regex).map((part, i) =>
+            regex.test(part) ? <mark key={i} className="bg-yellow-200">{part}</mark> : part
+        );
+    };
+
+    const startIdx = page * itemsPerPage;
+    const pageData = data.slice(startIdx, startIdx + itemsPerPage);
 
     return (
         <div className="overflow-x-auto">
-            <div className="flex flex-wrap gap-2 mb-2">
+            <label className="block mb-2 text-sm font-semibold">Campos visíveis</label>
+            <div className="flex flex-wrap gap-2 mb-4">
                 {headers.map((header) => (
                     <button
                         key={header}
                         onClick={() => toggleColumn(header)}
-                        className={`px-2 py-1 border rounded text-xs ${
-                            hiddenColumns.includes(header) ? 'bg-gray-300' : 'bg-white'
+                        className={`px-2 py-1 border rounded text-xs transition ${
+                          hiddenColumns.includes(header)
+                            ? 'bg-gray-200 text-gray-500'
+                            : 'bg-gray-800 text-white'
                         }`}
                     >
-                        {hiddenColumns.includes(header) ? 'Mostrar' : 'Ocultar'} {header}
+                    {getHeaderLabel(header)}
                     </button>
                 ))}
             </div>
@@ -52,17 +82,18 @@ export default function DataTable({ data }: { data: any[] }) {
                                 key={header}
                                 className="border px-2 py-1 text-sm bg-gray-100"
                             >
-                                {header}
+                                {header === "#" ? "Índice" : getHeaderLabel(header)}
                             </th>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((row, idx) => (
+                    {pageData.map((row, idx) => (
                         <tr key={idx} className="hover:bg-gray-50">
-                            {visibleHeaders.map((header) => (
+                            <td className="border px-2 py-1 text-xs">{startIdx + idx + 1}</td>
+                            {visibleHeaders.slice(1).map((header) => (
                                 <td key={header} className="border px-2 py-1 text-xs">
-                                    {row[header]?.toString() ?? ""}
+                                    {highlightText(row[header]?.toString() ?? "")}
                                 </td>
                             ))}
                         </tr>
