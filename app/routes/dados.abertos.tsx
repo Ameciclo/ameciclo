@@ -1,6 +1,7 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
+import { PlusCircle } from "lucide-react";
 import DataTable from "~/components/DadosAbertos/DataTable";
 
 // Map de labels para filtros
@@ -86,13 +87,15 @@ export default function DadosAbertos() {
   const [data, setData] = useState<any[]>(serverData);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [field, setField] = useState("");
-  const [operator, setOperator] = useState("equal");
-  const [filterValue, setFilterValue] = useState("");
+  const [filters, setFilters] = useState<Array<{field: string; operator: string; value: string}>>([]);
+  const [currentField, setCurrentField] = useState("vlrempenhado");
+  const [currentOperator, setCurrentOperator] = useState("equal");
+  const [currentFilterValue, setCurrentFilterValue] = useState("");
   const [showFieldFilter, setShowFieldFilter] = useState(false);
 
-  const [page, setPage] = useState(1);
+
   const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     let filtered = [...serverData];
@@ -101,15 +104,25 @@ export default function DadosAbertos() {
       filtered = filtered.filter((item) => searchByTerms(item, searchTerm));
     }
 
-    if (field && filterValue) {
-      filtered = filtered.filter((item) =>
-        compareFilter(item, field, filterValue, operator)
+    // Aplicar todos os filtros memorizados
+    if (filters.length > 0) {
+      filtered = filtered.filter((item) => 
+        filters.every(filter => 
+          compareFilter(item, filter.field, filter.value, filter.operator)
+        )
+      );
+    }
+
+    // Aplicar filtro temporário (reativo)
+    if (currentField && currentFilterValue) {
+      filtered = filtered.filter((item) => 
+        compareFilter(item, currentField, currentFilterValue, currentOperator)
       );
     }
 
     setData(filtered);
-    setPage(1);
-  }, [searchTerm, field, operator, filterValue, serverData]);
+    setCurrentPage(1); // Reset para a primeira página quando os filtros mudam
+  }, [searchTerm, filters, serverData, currentField, currentFilterValue, currentOperator]);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
@@ -134,40 +147,87 @@ export default function DadosAbertos() {
         </button>
 
         {showFieldFilter && (
-          <div className="flex gap-2">
-            <select
-              value={field}
-              onChange={(e) => setField(e.target.value)}
-              className="border px-2 py-1 rounded"
-            >
-              <option value="">Campo</option>
-              {serverData.length > 0 &&
-                Object.keys(serverData[0])
-                  .filter((key) => key.toLowerCase().includes("vlr"))
-                  .map((key) => (
-                    <option key={key} value={key}>
-                      {headerLabels[key] || key}
-                    </option>
+          <div className="space-y-4">
+            {/* Adicionar novo filtro */}
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 text-sm">
+                <select
+                  value={currentField}
+                  onChange={(e) => setCurrentField(e.target.value)}
+                  className="border px-2 py-0.5 rounded text-xs"
+                >
+                  <option value="vlrempenhado">Valor Empenhado</option>
+                  <option value="vlrliquidado">Valor Liquidado</option>
+                  <option value="vlrtotalpago">Valor do Total Pago</option>
+                  <option value="vlrdotatualizada">Valor do Total Atualizado</option>
+                </select>
+
+                <select
+                  value={currentOperator}
+                  onChange={(e) => setCurrentOperator(e.target.value)}
+                  className="border px-2 py-0.5 rounded text-xs"
+                >
+                  <option value="equal">IGUAL</option>
+                  <option value="greater">MAIOR QUE</option>
+                  <option value="less">MENOR QUE</option>
+                </select>
+
+                <input
+                  type="text"
+                  placeholder="Valor"
+                  value={currentFilterValue}
+                  onChange={(e) => {
+                    // Permitir apenas números
+                    const value = e.target.value;
+                    if (value === '' || /^\d+$/.test(value)) {
+                      setCurrentFilterValue(value);
+                    }
+                  }}
+                  className="border px-2 py-0.5 rounded text-xs w-32"
+                />
+              </div>
+              
+              <button
+                onClick={() => {
+                  if (currentField && currentFilterValue) {
+                    setFilters([...filters, {
+                      field: currentField,
+                      operator: currentOperator,
+                      value: currentFilterValue
+                    }]);
+                    // Não resetar o campo e operador, apenas o valor
+                    setCurrentFilterValue("");
+                  }
+                }}
+                disabled={!currentFilterValue}
+                className="self-start px-2 py-0.5 bg-[#008080] text-white text-xs rounded flex items-center gap-1"
+              >
+                <PlusCircle size={12} />
+                <span>Adicionar filtro</span>
+              </button>
+              
+              {/* Filtros existentes */}
+              {filters.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {filters.map((filter, index) => (
+                    <div key={index} className="flex items-center bg-blue-100 px-1 py-0.5 rounded text-xs">
+                      <span>
+                        {headerLabels[filter.field] || filter.field} 
+                        {filter.operator === "equal" ? " = " : filter.operator === "greater" ? " > " : " < "}
+                        {filter.value}
+                      </span>
+                      <button 
+                        onClick={() => setFilters(filters.filter((_, i) => i !== index))}
+                        className="ml-1 text-gray-600 hover:text-red-600"
+                        title="Remover filtro"
+                      >
+                        ×
+                      </button>
+                    </div>
                   ))}
-            </select>
-
-            <select
-              value={operator}
-              onChange={(e) => setOperator(e.target.value)}
-              className="border px-2 py-1 rounded"
-            >
-              <option value="equal">IGUAL</option>
-              <option value="greater">MAIOR QUE</option>
-              <option value="less">MENOR QUE</option>
-            </select>
-
-            <input
-              type="text"
-              placeholder="Valor"
-              value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
-              className="border px-2 py-1 rounded"
-            />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -175,34 +235,13 @@ export default function DadosAbertos() {
       <DataTable
         data={data}
         search={searchTerm}
-        page={page}
+        page={currentPage}
         itemsPerPage={itemsPerPage}
+        filters={filters.reduce((acc, filter) => {
+          acc[filter.field] = { value: filter.value, operator: filter.operator };
+          return acc;
+        }, {} as Record<string, { value: string; operator: string }>)}
       />
-
-      <div className="mt-4">
-        <div className="text-left mb-2">
-          {data.length} resultados encontrados!
-        </div>
-        <div className="flex justify-center items-center gap-4">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="border px-2 py-1 rounded disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span>
-            Página {page} de {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="border px-2 py-1 rounded disabled:opacity-50"
-          >
-            Próxima
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
