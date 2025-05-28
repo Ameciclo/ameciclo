@@ -213,7 +213,10 @@ export default function DataTable({
   return (
     <>
       <div className="overflow-x-auto h-[calc(100vh-300px)] flex flex-col">
-        <label className="block mb-2 text-sm font-semibold">Campos visíveis</label>
+        <label className="block mb-1 text-xs font-semibold flex items-center gap-1">
+          <Eye size={14} />
+          <span>Campos visíveis</span>
+        </label>
         <div className="flex flex-wrap gap-2 mb-4">
           {headers.map(header => (
             <button
@@ -238,7 +241,7 @@ export default function DataTable({
                   key={header}
                   onClick={() => handleSort(header)}
                   className={`
-                  border px-1 py-0.5 text-sm bg-gray-100
+                  border px-1 py-0 text-xs bg-gray-100
                   ${header !== "#" ? "cursor-pointer select-none" : ""}
                   ${header === "cd_nm_funcao" ? "w-64" : ""}
                 `}
@@ -324,7 +327,7 @@ export default function DataTable({
               <ChevronRight size={14} />
             </button>
           </div>
-          <div className="text-sm font-medium">
+          <div className="text-xs font-medium">
             {filteredData.length.toLocaleString('pt-BR')} resultados encontrados
           </div>
         </div>
