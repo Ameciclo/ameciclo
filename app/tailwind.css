@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .buttom-call-actions {
+    @apply p-4 text-center text-white rounded-md transition-transform transform hover:scale-110 hover:opacity-80;
+  }
+}
+
+html,
+body {
+  background-color: white;
+  height: 100%;
+}
+
+#root, #app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1; /* Ocupa todo o espaço disponível entre o header e o footer */
+}
+
+@keyframes pulse {
+  0% {
+    content: ".";
+    opacity: 0;
+  }
+  33% {
+    content: "..";
+    opacity: 1;
+  }
+  66% {
+    content: "...";
+    opacity: 1;
+  }
+  100% {
+    content: ".";
+    opacity: 0;
+  }
+}
+
+.dot {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 24px;
+  animation: pulse 1.5s infinite;
+}
+
