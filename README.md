@@ -16,6 +16,7 @@ Este projeto utiliza o Firebase como banco de dados. Para configurar o Firebase,
 # Firebase Configuration - Cliente
 FIREBASE_API_KEY=sua_api_key
 FIREBASE_AUTH_DOMAIN=seu_projeto.firebaseapp.com
+FIREBASE_DATABASE_URL=https://seu_projeto-default-rtdb.firebaseio.com
 FIREBASE_PROJECT_ID=seu_projeto_id
 FIREBASE_STORAGE_BUCKET=seu_projeto.appspot.com
 FIREBASE_MESSAGING_SENDER_ID=seu_sender_id
@@ -52,20 +53,23 @@ npm start
 
 ## Firebase Realtime Database Integration
 
-O projeto agora inclui integração com o Firebase Realtime Database para armazenar os dados da API CKAN.
+O projeto utiliza o Firebase Realtime Database para armazenar dados localmente, sem depender de APIs externas.
 
 ### Configuração
 
-1. Substitua o arquivo `app/services/serviceAccountKey.json` com suas credenciais reais do Firebase
-2. Ou configure as variáveis de ambiente conforme o arquivo `.env.example`
+1. Configure as variáveis de ambiente conforme o arquivo `.env.example`
+2. Todas as credenciais sensíveis devem estar no arquivo `.env` (não incluído no controle de versão)
 
 ### Funcionalidades
 
-- Os dados da API CKAN são automaticamente salvos no Firebase Realtime Database quando a página `/dados/abertos` é acessada
-- Os dados são salvos em um documento chamado `dadosLOA` no banco de dados
-- O salvamento ocorre apenas quando os dados são buscados da API (não quando são recuperados do cache)
+- Os dados são armazenados localmente no Firebase Realtime Database
+- O sistema verifica a necessidade de atualização dos dados com base na data da última atualização
+- Não há mais chamadas diretas a APIs externas, garantindo maior controle e segurança dos dados
 
 ### Serviços Disponíveis
 
+- `env.server.ts`: Gerenciamento de variáveis de ambiente
+- `firebase.config.ts`: Configuração do Firebase usando variáveis de ambiente
 - `firebaseRealtimeAdmin.server.ts`: Configuração do Firebase Admin SDK para o Realtime Database
-- `firebaseRealtimeService.server.ts`: Serviço com métodos para interagir com o Realtime Database (set, push, get, update, remove)
+- `firebaseRealtimeService.server.ts`: Serviço com métodos para interagir com o Realtime Database
+- `loaDataService.server.ts`: Serviço específico para gerenciar dados da LOA

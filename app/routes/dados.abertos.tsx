@@ -3,8 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import DataTable from "~/components/DadosAbertos/DataTable";
-import { saveToRealtimeDatabase } from "~/services/firebaseRealtimeAdmin.server";
-import { RealtimeDatabaseServerService } from "~/services/firebaseRealtimeService.server";
+import { LoaDataService } from "~/services/loaDataService.server";
 
 // Map de labels para filtros
 const headerLabels: Record<string, string> = {
@@ -58,88 +57,73 @@ function compareFilter(
   return false;
 }
 
-// Função para verificar se os dados precisam ser atualizados (diariamente)
-function needsUpdate(timestamp: number): boolean {
-  const now = Date.now();
-  const oneDayMs = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
-  return now - timestamp > oneDayMs;
-}
-
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
-    // Primeiro, tenta obter dados do Firebase
-    const firebaseData = await RealtimeDatabaseServerService.get('dadosLOA');
+    // Tenta obter dados do banco de dados
+    const dbData = await LoaDataService.getData();
     
-    // Se temos dados no Firebase, use-os imediatamente
-    if (firebaseData && firebaseData.dados) {
-      console.log('Usando dados do Firebase Realtime Database');
+    // Se temos dados no banco, use-os
+    if (dbData && dbData.dados) {
+      console.log('Usando dados do banco de dados');
       
       // Verifica se precisamos atualizar em segundo plano
-      if (needsUpdate(firebaseData.ultimaAtualizacao)) {
-        console.log('Agendando atualização em segundo plano');
+      if (LoaDataService.needsUpdate(dbData.ultimaAtualizacao)) {
+        console.log('Dados estão desatualizados, agendando atualização');
         // Não aguarda a conclusão para evitar timeout
         updateDataInBackground();
       }
       
-      return json({ data: firebaseData.dados });
+      return json({ data: dbData.dados });
     }
     
-    // Se não temos dados no Firebase, busca da API
-    console.log('Buscando dados da API CKAN');
-    const res = await fetch(
-      "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
-    );
-
-    if (!res.ok) {
-      throw new Response("Erro ao buscar dados da API CKAN", { status: 500 });
-    }
-
-    const jsonData = await res.json();
-    const data = jsonData.campos ?? [];
-    
-    // Salva os dados no Firebase em segundo plano
-    const now = Date.now();
-    saveToRealtimeDatabase('dadosLOA', {
-      dados: data,
-      ultimaAtualizacao: now
-    }).catch(err => console.error('Erro ao salvar no Firebase:', err));
-    
+    // Se não temos dados no banco, precisamos inicializar
+    console.log('Dados não encontrados no banco, inicializando...');
+    const data = await initializeData();
     return json({ data });
   } catch (error) {
     console.error('Erro ao processar dados:', error);
-    
-    // Fallback para API direta
-    const res = await fetch(
-      "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
-    );
-
-    if (!res.ok) {
-      throw new Response("Erro ao buscar dados da API CKAN", { status: 500 });
-    }
-
-    const jsonData = await res.json();
-    return json({ data: jsonData.campos ?? [] });
+    return json({ data: [] });
   }
 };
+
+// Função para inicializar dados (usado apenas na primeira execução)
+async function initializeData() {
+  try {
+    // Aqui você pode implementar uma lógica para carregar dados iniciais
+    // de um arquivo local ou outra fonte interna
+    
+    // Por exemplo, poderia ser um arquivo JSON estático incluído no projeto
+    // ou dados mockados para desenvolvimento
+    
+    // Para este exemplo, vamos retornar um array vazio
+    // Em um cenário real, você substituiria isso por sua fonte de dados interna
+    const initialData: any[] = [];
+    
+    // Salva os dados iniciais no banco
+    await LoaDataService.saveData(initialData);
+    
+    return initialData;
+  } catch (error) {
+    console.error('Erro ao inicializar dados:', error);
+    return [];
+  }
+}
 
 // Função para atualizar dados em segundo plano
 async function updateDataInBackground() {
   try {
-    const res = await fetch(
-      "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
-    );
-
-    if (!res.ok) return;
-
-    const jsonData = await res.json();
-    const data = jsonData.campos ?? [];
+    // Aqui você implementaria a lógica para atualizar os dados
+    // a partir de uma fonte interna (não API externa)
     
-    await saveToRealtimeDatabase('dadosLOA', {
-      dados: data,
-      ultimaAtualizacao: Date.now()
-    });
+    // Por exemplo, poderia ser um processo ETL interno,
+    // um job agendado, ou outra fonte de dados interna
     
-    console.log('Dados atualizados no Firebase em segundo plano');
+    // Para este exemplo, vamos apenas registrar que a atualização foi solicitada
+    console.log('Atualização de dados em segundo plano solicitada');
+    
+    // Em um cenário real, você atualizaria os dados e salvaria no banco
+    // const updatedData = await internalDataSource.getData();
+    // await LoaDataService.saveData(updatedData);
   } catch (error) {
     console.error('Erro na atualização em segundo plano:', error);
   }

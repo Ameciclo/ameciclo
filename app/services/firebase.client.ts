@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getDatabase } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { firebaseConfig } from './firebase.config';
+import { getFirebaseConfig } from './firebase.config';
 
 // Inicializa o Firebase
 let app;
@@ -15,6 +15,7 @@ let storage;
 
 // Inicializa apenas no cliente
 if (typeof window !== 'undefined') {
+  const firebaseConfig = getFirebaseConfig();
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   rtdb = getDatabase(app);
