@@ -213,7 +213,7 @@ export default function DataTable({
   return (
     <>
       <div className="overflow-x-auto h-[calc(100vh-300px)] flex flex-col">
-        <label className="block mb-1 text-xs font-semibold flex items-center gap-1">
+        <label className="mb-1 text-xs font-semibold flex items-center gap-1">
           <Eye size={14} />
           <span>Campos visíveis</span>
         </label>

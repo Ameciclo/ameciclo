@@ -3,6 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import DataTable from "~/components/DadosAbertos/DataTable";
+import { saveToRealtimeDatabase } from "~/services/firebaseRealtimeAdmin.server";
 
 // Map de labels para filtros
 const headerLabels: Record<string, string> = {
@@ -77,6 +78,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const jsonData = await res.json();
     data = jsonData.campos ?? [];
     cache = { data, timestamp: now };
+    
+    // Salvar os dados no Firebase Realtime Database
+    try {
+      await saveToRealtimeDatabase('dadosLOA', {
+        dados: data,
+        ultimaAtualizacao: now
+      });
+      console.log('Dados salvos no Firebase Realtime Database com sucesso');
+    } catch (error) {
+      console.error('Erro ao salvar dados no Firebase:', error);
+      // Não interrompe o fluxo se houver erro ao salvar no Firebase
+    }
   }
 
   return json({ data });
@@ -92,7 +105,6 @@ export default function DadosAbertos() {
   const [currentOperator, setCurrentOperator] = useState("equal");
   const [currentFilterValue, setCurrentFilterValue] = useState("");
   const [showFieldFilter, setShowFieldFilter] = useState(false);
-
 
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);

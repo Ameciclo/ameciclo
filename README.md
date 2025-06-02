@@ -49,3 +49,23 @@ npm run dev
 npm run build
 npm start
 ```
+
+## Firebase Realtime Database Integration
+
+O projeto agora inclui integração com o Firebase Realtime Database para armazenar os dados da API CKAN.
+
+### Configuração
+
+1. Substitua o arquivo `app/services/serviceAccountKey.json` com suas credenciais reais do Firebase
+2. Ou configure as variáveis de ambiente conforme o arquivo `.env.example`
+
+### Funcionalidades
+
+- Os dados da API CKAN são automaticamente salvos no Firebase Realtime Database quando a página `/dados/abertos` é acessada
+- Os dados são salvos em um documento chamado `dadosLOA` no banco de dados
+- O salvamento ocorre apenas quando os dados são buscados da API (não quando são recuperados do cache)
+
+### Serviços Disponíveis
+
+- `firebaseRealtimeAdmin.server.ts`: Configuração do Firebase Admin SDK para o Realtime Database
+- `firebaseRealtimeService.server.ts`: Serviço com métodos para interagir com o Realtime Database (set, push, get, update, remove)
