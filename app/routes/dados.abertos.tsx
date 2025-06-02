@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import DataTable from "~/components/DadosAbertos/DataTable";
 import { saveToRealtimeDatabase } from "~/services/firebaseRealtimeAdmin.server";
+import { RealtimeDatabaseServerService } from "~/services/firebaseRealtimeService.server";
 
 // Map de labels para filtros
 const headerLabels: Record<string, string> = {
@@ -57,16 +58,34 @@ function compareFilter(
   return false;
 }
 
-let cache: { data: any[]; timestamp: number } | null = null;
-const CACHE_DURATION = 1000 * 60 * 60; // 1 hora
+// Função para verificar se os dados precisam ser atualizados (diariamente)
+function needsUpdate(timestamp: number): boolean {
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
+  return now - timestamp > oneDayMs;
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const now = Date.now();
-  let data: any[] = [];
-
-  if (cache && now - cache.timestamp < CACHE_DURATION) {
-    data = cache.data;
-  } else {
+  try {
+    // Primeiro, tenta obter dados do Firebase
+    const firebaseData = await RealtimeDatabaseServerService.get('dadosLOA');
+    
+    // Se temos dados no Firebase, use-os imediatamente
+    if (firebaseData && firebaseData.dados) {
+      console.log('Usando dados do Firebase Realtime Database');
+      
+      // Verifica se precisamos atualizar em segundo plano
+      if (needsUpdate(firebaseData.ultimaAtualizacao)) {
+        console.log('Agendando atualização em segundo plano');
+        // Não aguarda a conclusão para evitar timeout
+        updateDataInBackground();
+      }
+      
+      return json({ data: firebaseData.dados });
+    }
+    
+    // Se não temos dados no Firebase, busca da API
+    console.log('Buscando dados da API CKAN');
     const res = await fetch(
       "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
     );
@@ -76,24 +95,55 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     const jsonData = await res.json();
-    data = jsonData.campos ?? [];
-    cache = { data, timestamp: now };
+    const data = jsonData.campos ?? [];
     
-    // Salvar os dados no Firebase Realtime Database
-    try {
-      await saveToRealtimeDatabase('dadosLOA', {
-        dados: data,
-        ultimaAtualizacao: now
-      });
-      console.log('Dados salvos no Firebase Realtime Database com sucesso');
-    } catch (error) {
-      console.error('Erro ao salvar dados no Firebase:', error);
-      // Não interrompe o fluxo se houver erro ao salvar no Firebase
-    }
-  }
+    // Salva os dados no Firebase em segundo plano
+    const now = Date.now();
+    saveToRealtimeDatabase('dadosLOA', {
+      dados: data,
+      ultimaAtualizacao: now
+    }).catch(err => console.error('Erro ao salvar no Firebase:', err));
+    
+    return json({ data });
+  } catch (error) {
+    console.error('Erro ao processar dados:', error);
+    
+    // Fallback para API direta
+    const res = await fetch(
+      "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
+    );
 
-  return json({ data });
+    if (!res.ok) {
+      throw new Response("Erro ao buscar dados da API CKAN", { status: 500 });
+    }
+
+    const jsonData = await res.json();
+    return json({ data: jsonData.campos ?? [] });
+  }
 };
+
+// Função para atualizar dados em segundo plano
+async function updateDataInBackground() {
+  try {
+    const res = await fetch(
+      "https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206/download/acoes_e_programas_json_2024_20241213.json"
+    );
+
+    if (!res.ok) return;
+
+    const jsonData = await res.json();
+    const data = jsonData.campos ?? [];
+    
+    await saveToRealtimeDatabase('dadosLOA', {
+      dados: data,
+      ultimaAtualizacao: Date.now()
+    });
+    
+    console.log('Dados atualizados no Firebase em segundo plano');
+  } catch (error) {
+    console.error('Erro na atualização em segundo plano:', error);
+  }
+}
 
 export default function DadosAbertos() {
   const { data: serverData } = useLoaderData<typeof loader>();
