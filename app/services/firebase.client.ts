@@ -1,21 +1,26 @@
-// Firebase configuration para o cliente
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getDatabase } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getFirebaseConfig } from './firebase.config';
 
-// Inicializa o Firebase
 let app;
 let db;
 let rtdb;
 let auth;
 let storage;
 
-// Inicializa apenas no cliente
 if (typeof window !== 'undefined') {
-  const firebaseConfig = getFirebaseConfig();
+  const firebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID
+  };
+  
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   rtdb = getDatabase(app);
@@ -23,6 +28,4 @@ if (typeof window !== 'undefined') {
   storage = getStorage(app);
 }
 
-// Exporta os serviços do Firebase
 export { app, db, rtdb, auth, storage };
-export default app;

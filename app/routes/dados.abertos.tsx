@@ -1,31 +1,30 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import DataTable from "~/components/DadosAbertos/DataTable";
 import { LoaDataService } from "~/services/loaDataService.server";
 
-// Map de labels para filtros
-const headerLabels: Record<string, string> = {
-  cd_nm_funcao:  "Nome Função",
-  cd_nm_prog:    "Nome Programa",
-  cd_nm_acao:    "Nome Ação",
+const headerLabels = {
+  cd_nm_funcao: "Nome Função",
+  cd_nm_prog: "Nome Programa",
+  cd_nm_acao: "Nome Ação",
   cd_nm_subacao: "Nome Subação",
   cd_nm_subfuncao: "Nome Subfunção",
   vlrdotatualizada: "Valor do Total Atualizado",
-  vlrtotalpago:  "Valor do Total Pago",
-  vlrempenhado:  "Valor Empenhado",
-  vlrliquidado:  "Valor Liquidado",
+  vlrtotalpago: "Valor do Total Pago",
+  vlrempenhado: "Valor Empenhado",
+  vlrliquidado: "Valor Liquidado",
 };
 
-function normalizeString(str: string): string {
+function normalizeString(str) {
   return str
     .normalize("NFD")
     .replace(/[̀-\u036f]/g, "")
     .toLowerCase();
 }
 
-function searchByTerms(item: any, terms: string): boolean {
+function searchByTerms(item, terms) {
   const keys = [
     "cd_nm_funcao",
     "cd_nm_prog",
@@ -40,12 +39,7 @@ function searchByTerms(item: any, terms: string): boolean {
   );
 }
 
-function compareFilter(
-  item: any,
-  field: string,
-  value: string,
-  operator: string
-): boolean {
+function compareFilter(item, field, value, operator) {
   const itemValue = Number(item[field]);
   const filterValue = Number(value);
   if (isNaN(itemValue) || isNaN(filterValue)) return false;
@@ -57,27 +51,17 @@ function compareFilter(
   return false;
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async () => {
   try {
-    // Tenta obter dados do banco de dados
     const dbData = await LoaDataService.getData();
     
-    // Se temos dados no banco, use-os
     if (dbData && dbData.dados) {
-      console.log('Usando dados do banco de dados');
-      
-      // Verifica se precisamos atualizar em segundo plano
       if (LoaDataService.needsUpdate(dbData.ultimaAtualizacao)) {
-        console.log('Dados estão desatualizados, agendando atualização');
-        // Não aguarda a conclusão para evitar timeout
         updateDataInBackground();
       }
-      
       return json({ data: dbData.dados });
     }
     
-    // Se não temos dados no banco, precisamos inicializar
-    console.log('Dados não encontrados no banco, inicializando...');
     const data = await initializeData();
     return json({ data });
   } catch (error) {
@@ -86,60 +70,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 };
 
-// Função para inicializar dados (usado apenas na primeira execução)
 async function initializeData() {
   try {
-    // Aqui você pode implementar uma lógica para carregar dados iniciais
-    // de um arquivo local ou outra fonte interna
-    
-    // Por exemplo, poderia ser um arquivo JSON estático incluído no projeto
-    // ou dados mockados para desenvolvimento
-    
-    // Para este exemplo, vamos retornar um array vazio
-    // Em um cenário real, você substituiria isso por sua fonte de dados interna
-    const initialData: any[] = [];
-    
-    // Salva os dados iniciais no banco
-    await LoaDataService.saveData(initialData);
-    
-    return initialData;
+    const data = await LoaDataService.updateData();
+    return data;
   } catch (error) {
     console.error('Erro ao inicializar dados:', error);
     return [];
   }
 }
 
-// Função para atualizar dados em segundo plano
 async function updateDataInBackground() {
   try {
-    // Aqui você implementaria a lógica para atualizar os dados
-    // a partir de uma fonte interna (não API externa)
-    
-    // Por exemplo, poderia ser um processo ETL interno,
-    // um job agendado, ou outra fonte de dados interna
-    
-    // Para este exemplo, vamos apenas registrar que a atualização foi solicitada
-    console.log('Atualização de dados em segundo plano solicitada');
-    
-    // Em um cenário real, você atualizaria os dados e salvaria no banco
-    // const updatedData = await internalDataSource.getData();
-    // await LoaDataService.saveData(updatedData);
+    await LoaDataService.updateData();
   } catch (error) {
     console.error('Erro na atualização em segundo plano:', error);
   }
 }
 
 export default function DadosAbertos() {
-  const { data: serverData } = useLoaderData<typeof loader>();
-  const [data, setData] = useState<any[]>(serverData);
-
+  const { data: serverData } = useLoaderData();
+  const [data, setData] = useState(serverData);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<Array<{field: string; operator: string; value: string}>>([]);
+  const [filters, setFilters] = useState([]);
   const [currentField, setCurrentField] = useState("vlrempenhado");
   const [currentOperator, setCurrentOperator] = useState("equal");
   const [currentFilterValue, setCurrentFilterValue] = useState("");
   const [showFieldFilter, setShowFieldFilter] = useState(false);
-
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -150,7 +107,6 @@ export default function DadosAbertos() {
       filtered = filtered.filter((item) => searchByTerms(item, searchTerm));
     }
 
-    // Aplicar todos os filtros memorizados
     if (filters.length > 0) {
       filtered = filtered.filter((item) => 
         filters.every(filter => 
@@ -159,7 +115,6 @@ export default function DadosAbertos() {
       );
     }
 
-    // Aplicar filtro temporário (reativo)
     if (currentField && currentFilterValue) {
       filtered = filtered.filter((item) => 
         compareFilter(item, currentField, currentFilterValue, currentOperator)
@@ -167,10 +122,8 @@ export default function DadosAbertos() {
     }
 
     setData(filtered);
-    setCurrentPage(1); // Reset para a primeira página quando os filtros mudam
+    setCurrentPage(1);
   }, [searchTerm, filters, serverData, currentField, currentFilterValue, currentOperator]);
-
-  const totalPages = Math.ceil(data.length / itemsPerPage);
 
   return (
     <div className="p-8 space-y-6">
@@ -194,7 +147,6 @@ export default function DadosAbertos() {
 
         {showFieldFilter && (
           <div className="space-y-4">
-            {/* Adicionar novo filtro */}
             <div className="flex flex-col gap-2">
               <div className="flex gap-2 text-sm">
                 <select
@@ -223,7 +175,6 @@ export default function DadosAbertos() {
                   placeholder="Valor"
                   value={currentFilterValue}
                   onChange={(e) => {
-                    // Permitir apenas números
                     const value = e.target.value;
                     if (value === '' || /^\d+$/.test(value)) {
                       setCurrentFilterValue(value);
@@ -241,7 +192,6 @@ export default function DadosAbertos() {
                       operator: currentOperator,
                       value: currentFilterValue
                     }]);
-                    // Não resetar o campo e operador, apenas o valor
                     setCurrentFilterValue("");
                   }
                 }}
@@ -252,7 +202,6 @@ export default function DadosAbertos() {
                 <span>Adicionar filtro</span>
               </button>
               
-              {/* Filtros existentes */}
               {filters.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
                   {filters.map((filter, index) => (
@@ -286,7 +235,7 @@ export default function DadosAbertos() {
         filters={filters.reduce((acc, filter) => {
           acc[filter.field] = { value: filter.value, operator: filter.operator };
           return acc;
-        }, {} as Record<string, { value: string; operator: string }>)}
+        }, {})}
       />
     </div>
   );
