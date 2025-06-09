@@ -58,3 +58,69 @@ main {
   animation: pulse 1.5s infinite;
 }
 
+/* Carbon Animation Styles */
+.carbon-animation {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.carbon-earth {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(45deg, #2563eb, #3b82f6, #60a5fa);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  z-index: 1;
+}
+
+.carbon-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #4b5563;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: orbit 8s linear infinite;
+}
+
+.carbon-particle:nth-child(1) { animation-delay: 0s; }
+.carbon-particle:nth-child(2) { animation-delay: 0.8s; }
+.carbon-particle:nth-child(3) { animation-delay: 1.6s; }
+.carbon-particle:nth-child(4) { animation-delay: 2.4s; }
+.carbon-particle:nth-child(5) { animation-delay: 3.2s; }
+.carbon-particle:nth-child(6) { animation-delay: 4.0s; }
+.carbon-particle:nth-child(7) { animation-delay: 4.8s; }
+.carbon-particle:nth-child(8) { animation-delay: 5.6s; }
+.carbon-particle:nth-child(9) { animation-delay: 6.4s; }
+.carbon-particle:nth-child(10) { animation-delay: 7.2s; }
+
+@keyframes orbit {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) translateX(90px) rotate(0deg);
+    opacity: 0;
+    width: 5px;
+    height: 5px;
+  }
+  20% {
+    opacity: 0.8;
+    width: 10px;
+    height: 10px;
+  }
+  80% {
+    opacity: 0.8;
+    width: 10px;
+    height: 10px;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) translateX(90px) rotate(-360deg);
+    opacity: 0;
+    width: 5px;
+    height: 5px;
+  }
+}
+

@@ -90,16 +90,36 @@ export default function Dom() {
                     
                     <section className="mb-10">
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Custo por Emissão de Carbono</h2>
-                        <p className="text-gray-600 mb-4">Valor exato estimado que o município gasta por unidade de carbono emitida, calculado com base nos dados de emissão do último ano registrado (2020) em <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br/grafico-inventario-gee</a>.</p>
+                        <p className="text-gray-600 mb-4">Valor estimado que o município gasta por unidade de carbono emitida, calculado com base nos dados de emissão do último ano registrado (2020) em <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br/grafico-inventario-gee</a>.</p>
                         
-                        <div className="mb-8">
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600 max-w-md mx-auto" aria-label="Valor exato por emissão de carbono">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Valor por emissão de carbono">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
-                                    <p className="text-base mb-1">Valor exato por emissão de carbono (2020)</p>
+                                    <p className="text-base mb-1">Valor por emissão de carbono (2020)</p>
                                     <p className="text-lg font-semibold">R$ {carbonValue}</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
                                 </LazyLoad>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo overflow-hidden">
+                                <h3 className="text-xl font-bold mb-3">Impacto da Emissão de Carbono</h3>
+                                <div className="flex justify-center items-center h-48">
+                                    <div className="carbon-animation">
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-particle"></div>
+                                        <div className="carbon-earth"></div>
+                                    </div>
+                                </div>
+                                <p className="text-gray-600 text-center mt-4">Visualização do impacto das emissões de carbono no meio ambiente</p>
                             </div>
                         </div>
                     </section>
