@@ -1,6 +1,5 @@
 import { MetaFunction } from "@remix-run/node";
 import { useState } from "react";
-import ReactMapGl, { NavigationControl, Popup } from "react-map-gl";
 import { motion } from "framer-motion";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -10,25 +9,14 @@ import Apoie from "~/components/Icons/apoie";
 
 import bannerContatact from "/contato.webp";
 import Banner from "~/components/Commom/Banner";
+import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 
 // 🔹 SEO para Remix
 export const meta: MetaFunction = () => {
   return [{ title: "Contato" }];
 };
 
-// 🔹 Token da API do Mapbox (use variável de ambiente no Remix)
-const MAPBOX_TOKEN = process.env.MAPBOX_ACCESS_TOKEN || "SEU_TOKEN_AQUI";
-
 export default function Contato() {
-  // 🔹 Configuração inicial do mapa
-  const [viewport, setViewPort] = useState({
-    latitude: -8.0592989,
-    longitude: -34.8801119,
-    zoom: 15,
-    width: "100%",
-    height: "400px",
-  });
-
   // 🔹 Evitar erro no SSR verificando `window`
   const isClient = typeof window !== "undefined";
 
@@ -87,27 +75,7 @@ export default function Contato() {
           </div>
         </div>
       </section>
-
-      {/* 🔹 Mapa - Renderiza apenas no cliente para evitar erro no SSR */}
-      {isClient && (
-        <section className="w-full">
-          <ReactMapGl
-            {...viewport}
-            mapboxAccessToken={MAPBOX_TOKEN}
-            scrollZoom={false}
-            attributionControl={false}
-          >
-            <div style={{ position: "absolute", right: 0 }}>
-              <NavigationControl />
-            </div>
-            <Popup latitude={-8.0592989} longitude={-34.8801119} closeButton={false}>
-              <h2 className="font-bold">Sede da Ameciclo</h2>
-              <p>R. da Aurora, 529, loja 2 - Santo Amaro, Recife/PE, 50050-145 </p>
-              <p>+55 (81) 9 9458-6830</p>
-            </Popup>
-          </ReactMapGl>
-        </section>
-      )}
+      <DevelopingComponent title={"Mapa de localização da ameciclo"}/>
     </>
   );
 }
