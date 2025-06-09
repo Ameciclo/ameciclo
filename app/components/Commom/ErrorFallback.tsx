@@ -14,7 +14,7 @@ export default function ErrorFallback({ error }: any) {
           <p className="text-5xl font-bold pb-6">{error.status}</p>
           {error.data?.message && <p>Detalhes: {error.data.message}</p>}
           <CallToContact
-            message="Fale com um desenvolvedor"
+            message="Reportar"
             error={error}
             route={getCurrentRoute()}
           />
