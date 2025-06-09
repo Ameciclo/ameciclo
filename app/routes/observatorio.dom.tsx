@@ -9,6 +9,7 @@ import Loading from "~/components/Dom/Loading";
 import { loader } from "~/loader/dados.observatorio.dom";
 import Chart from "react-google-charts";
 import ActionCarousel from "~/components/Dom/ActionCarousel";
+import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 export { loader };
 
 export default function Dom() {
@@ -18,7 +19,7 @@ export default function Dom() {
     useEffect(() => {
         const timeout = setTimeout(() => {
             setRenderOthers(true);
-        }, 3000);
+        }, 2000); // Reduced loading time for better UX
 
         return () => clearTimeout(timeout);
     }, []);
@@ -51,9 +52,9 @@ export default function Dom() {
             <Banner image={cover?.url} alt="Capa da página do Diágnóstico Orçamentário Municipal" />
             <Breadcrumb label="dom" slug="/dados/observatorio/dom" routes={["/", "/observatorio"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
+            
             {renderOthers ? (
                 <div className="container mx-auto px-4 py-8">
-                    <h1 className="text-3xl font-bold text-ameciclo text-center mb-8">Observatório</h1>
                     <h2 className="text-2xl font-semibold text-gray-800 mb-6">Valores orçados para ações sustentáveis no Município em 2024</h2>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -211,25 +212,8 @@ export default function Dom() {
                                 />
                             </div>
                         </div>
-                    )}
-
-                    <div className="mb-12">
-                        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Ações Sustentáveis</h2>
-                        <LazyLoad height={400} offset={0}>
-                            <ActionCarousel actions={totalGoodActions || []} actionType='good-action' />
-                        </LazyLoad>
-                    </div>
-                    
-                    <div className="mb-12">
-                        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Ações Não Sustentáveis</h2>
-                        <LazyLoad height={400} offset={0}>
-                            <ActionCarousel
-                                actionType='bad-action'
-                                actions={totalBadActions || []}
-                            />
-                        </LazyLoad>
-                    </div>
-                    
+                    )}              
+                    <DevelopingComponent title="Componente Tabela de Ações e Programas" />
                     <div className="bg-gray-50 rounded-lg p-6">
                         <h2 className="text-2xl font-semibold text-ameciclo mb-6">Documentação</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
