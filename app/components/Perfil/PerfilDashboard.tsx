@@ -156,17 +156,17 @@ export default function PerfilDashboard() {
   }
 
   return (
-    <>
-      <section className="container mx-auto shadow-md p-10">
+    <div className="w-full overflow-x-hidden">
+      <section className="container mx-auto px-4 shadow-md py-10">
         <h2 className="font-bold text-3xl mt-5">Selecione seus filtros</h2>
 
-        <div className="border-gray-200 border p-8 flex flex-col">
+        <div className="border-gray-200 border p-4 md:p-8 flex flex-col">
           {getFiltersKeys().map((key) => (
             <div
               key={key.key}
               className="flex flex-wrap items-center space-y-4"
             >
-              <h3 className="font-bold text-xl mt-5">{key.title}</h3>
+              <h3 className="font-bold text-xl mt-5 w-full">{key.title}</h3>
               <span className="mx-2" />
               {filters
                 .filter((f) => f.key === key.key)
@@ -198,19 +198,19 @@ export default function PerfilDashboard() {
         </div>
       </section>
 
-      <section className="container mx-auto grid grid-cols-1 sm:grid-cols-2 auto-rows-auto gap-10 my-10">
+      <section className="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 auto-rows-auto gap-10 my-10">
         {barOptions.map((opt) => (
           <HorizontalBarChart key={opt.title} {...opt} />
         ))}
 
-        <div className="shadow-2xl rounded p-10 text-center">
+        <div className="shadow-2xl rounded p-4 md:p-10 text-center">
           <HighchartsReact
             highcharts={Highcharts}
             options={distanceOptions}
           />
         </div>
       </section>
-    </>
+    </div>
   );
 }
 
