@@ -107,7 +107,7 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
         return orderedCities.map((c: any) => ({
             id: c.id,
             label: c.name,
-            value: c.reviews[0].ideciclo, // `${data.value.toLocaleString("pt-BR", {maximumFractionDigits: {maxDig}, minimumFractionDigits: {minDig}})}
+            value: c.reviews[0].ideciclo,
         }));
     };
     const statesFilter = {

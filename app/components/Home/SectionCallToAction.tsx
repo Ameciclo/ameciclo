@@ -18,7 +18,7 @@ export default function SectionCallToAction({ home }: any) {
                 </div>
             </section>
         );
-    } catch (err) {  // mostra um "!" no canto superior direito que também é um botão para a página de "status" para que se possa analisar serviços codependentes
+    } catch (err) {
         return (
             <section className="bg-ameciclo">
                 <a href="/status">!</a>

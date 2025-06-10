@@ -6,7 +6,7 @@ const Counter = ({ label, number }: any) => {
 
   useEffect(() => {
     const node = nodeRef.current;
-    if (!node) return; // Verifica se o elemento existe antes de usar
+    if (!node) return;
 
     const controls = animate(0, number, {
       duration: 1,
