@@ -1,11 +1,19 @@
 import { isRouteErrorResponse } from "@remix-run/react";
 
-// Função auxiliar para obter a rota atual de forma segura (considera ambientes sem window)
 function getCurrentRoute(): string {
   return typeof window !== "undefined" ? window.location.pathname : "DESCONHECIDA";
 }
 
-export default function ErrorFallback({ error }: any) {
+interface ErrorFallbackProps {
+  error: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+}
+
+export default function ErrorFallback({ error }: ErrorFallbackProps) {
   return (
     <div className="flex flex-col pt-16 items-center justify-start h-max text-gray-900">
       <h1 className="text-5xl font-bold pb-16">Ocorreu um erro 😢</h1>
@@ -23,15 +31,22 @@ export default function ErrorFallback({ error }: any) {
   );
 }
 
+interface CallToContactProps {
+  message: string;
+  error: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+  route: string;
+}
+
 function CallToContact({
   message,
   error,
   route,
-}: {
-  message: string;
-  error: any;
-  route: string;
-}) {
+}: CallToContactProps) {
   const status = error.status ? error.status : "500";
   const errorMessage = error?.data?.message || "Erro desconhecido";
 

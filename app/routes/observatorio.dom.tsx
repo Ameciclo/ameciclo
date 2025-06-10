@@ -5,21 +5,26 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import LazyLoad from 'react-lazyload';
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import Loading from "~/components/Dom/Loading";
-
 import { loader } from "~/loader/dados.observatorio.dom";
 import Chart from "react-google-charts";
-import ActionCarousel from "~/components/Dom/ActionCarousel";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 export { loader };
 
 export default function Dom() {
-    const { cover, description, totalGoodActions, totalBadActions, chartData, sustainableTotal, unsustainableTotal, carbonValue } = useLoaderData<any>();
+    const { 
+        cover, 
+        description, 
+        chartData, 
+        sustainableTotal, 
+        unsustainableTotal, 
+        carbonValue 
+    } = useLoaderData<any>();
     const [renderOthers, setRenderOthers] = useState(false);
 
     useEffect(() => {
         const timeout = setTimeout(() => {
             setRenderOthers(true);
-        }, 2000); // Reduced loading time for better UX
+        }, 2000);
 
         return () => clearTimeout(timeout);
     }, []);
@@ -55,40 +60,40 @@ export default function Dom() {
 
             {renderOthers ? (
                 <div className="container mx-auto px-4 py-6">
-                    <section className="">
+                    <section>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento e Emissões</h2>
                         <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações sustentáveis, não sustentáveis e o custo por emissão de carbono no município.</p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Valores sustentáveis">
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Investimento em ações sustentáveis">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor orçado em ações sustentáveis:</p>
+                                    <p className="text-base mb-1">Investimento em ações sustentáveis:</p>
                                     <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Sustentável</div>
                                 </LazyLoad>
                             </div>
 
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Valores não sustentáveis">
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Investimento em ações não sustentáveis">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span><AnimatedNumber initialValue={0} finalValue={148.7} duration={500} /></span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor orçado em ações NÃO sustentáveis:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={unsustainableTotal} duration={2000} /></p>
+                                    <p className="text-base mb-1">Investimento em ações não sustentáveis:</p>
+                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={unsustainableTotal} duration={4000} /></p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Não sustentável</div>
                                 </LazyLoad>
                             </div>
 
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Valor por emissão de carbono">
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Custo por tonelada de CO2 equivalente">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
-                                    <p className="text-base mb-1">Valor por emissão de carbono (2020)</p>
-                                    <p className="text-lg font-semibold">R$ {carbonValue}</p>
+                                    <p className="text-base mb-1">Custo por tonelada de CO2 equivalente (2020)</p>
+                                    <p className="text-lg font-semibold"><AnimatedNumber initialValue={0} finalValue={carbonValue} duration={500} /></p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
                                     <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
                                 </LazyLoad>
@@ -96,7 +101,7 @@ export default function Dom() {
                         </div>
                     </section>
 
-                    <section className="">
+                    <section>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçado vs. Executado em Sustentabilidade</h2>
                         <p className="text-gray-600 mb-4">Comparação entre o valor planejado no orçamento e o valor efetivamente executado em ações de sustentabilidade no município.</p>
 
@@ -107,23 +112,26 @@ export default function Dom() {
                                         <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor orçado em ações sustentáveis:</p>
+                                    <p className="text-base mb-1">Orçamento planejado para sustentabilidade:</p>
                                     <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
                                 </LazyLoad>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-gray-400">
                                 <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1">---.- Mi</h3>
-                                    <p className="text-base mb-1">Valor Executado (em breve)</p>
-                                    <p className="text-lg font-semibold">R$ ---.---.---</p>
+                                    <h3 className="text-3xl font-bold mb-1">
+                                        <span><AnimatedNumber initialValue={0} finalValue={2.2} duration={500} /></span>
+                                        <span className="text-xl ml-1">Mi</span>
+                                    </h3>
+                                    <p className="text-base mb-1">Orçamento executado em sustentabilidade:</p>
+                                    <p className="text-lg font-semibold"><AnimatedNumber initialValue={0} finalValue={2189490.07} duration={500} /></p>
                                 </LazyLoad>
                             </div>
                         </div>
                     </section>
 
                     {chartData && (
-                        <section className="">
+                        <section>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div className="h-auto">
                                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Evolução do Orçamento Sustentável</h2>
@@ -140,12 +148,12 @@ export default function Dom() {
                                                     chart: {
                                                         subtitle: "Comparativo anual de investimentos",
                                                     },
-                                                    colors: ['#38A169', '#E53E3E'], // Green and red with high contrast
+                                                    colors: ['#38A169', '#E53E3E'],
                                                     accessibility: {
                                                         highContrastMode: true
                                                     },
                                                     legend: {
-                                                        position: window.innerWidth < 768 ? 'bottom' : 'top',
+                                                        position: 'bottom',
                                                         alignment: 'center',
                                                         textStyle: {
                                                             fontSize: 13,
@@ -191,12 +199,12 @@ export default function Dom() {
                                                     chart: {
                                                         subtitle: "Investimentos em sustentabilidade por ano",
                                                     },
-                                                    colors: ['#38A169'], // Green with high contrast
+                                                    colors: ['#38A169'],
                                                     accessibility: {
                                                         highContrastMode: true
                                                     },
                                                     legend: {
-                                                        position: window.innerWidth < 768 ? 'bottom' : 'top',
+                                                        position: 'bottom',
                                                         alignment: 'center',
                                                         textStyle: {
                                                             fontSize: 13,
@@ -232,12 +240,12 @@ export default function Dom() {
                                             chart: {
                                                 subtitle: "Orçamento municipal consolidado",
                                             },
-                                            colors: ['#3182CE'], // Blue with high contrast
+                                            colors: ['#3182CE'],
                                             accessibility: {
                                                 highContrastMode: true
                                             },
                                             legend: {
-                                                position: window.innerWidth < 768 ? 'bottom' : 'top',
+                                                position: 'bottom',
                                                 alignment: 'center',
                                                 textStyle: {
                                                     fontSize: 13,
@@ -259,7 +267,7 @@ export default function Dom() {
                         </section>
                     )}
 
-                    <section className="">
+                    <section>
                         <DevelopingComponent title="Componente Tabela de Ações e Programas" />
                     </section>
 

@@ -1,18 +1,21 @@
-  import {
-    Links,
-    Meta,
-    Outlet,
-    Scripts,
-    ScrollRestoration,
-  } from "@remix-run/react";
-  import type { MetaFunction } from "@remix-run/node";
-  import { Navbar } from "./components/Commom/Navbar";
-  import { Footer } from "./components/Commom/Footer";
-  import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
-  import "./tailwind.css";
-  import PageNotFound from "./components/Commom/PageNotFound";
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  isRouteErrorResponse,
+  useRouteError
+} from "@remix-run/react";
+import type { MetaFunction } from "@remix-run/node";
+import { Navbar } from "./components/Commom/Navbar";
+import { Footer } from "./components/Commom/Footer";
+import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
+import "./tailwind.css";
+import PageNotFound from "./components/Commom/PageNotFound";
+import ErrorFallback from "./components/Commom/ErrorFallback";
 
-  const metaConfig = {
+const metaConfig = {
     title: "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
     description:
       "Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas. As informações são abertas para uso de todas as pessoas que desejam uma cidade mais humana, democrática e sustentável.",
@@ -40,9 +43,6 @@
     { property: "twitter:image", content: metaConfig.image },
     { rel: "canonical", href: metaConfig.url },
   ];
-
-  import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
-  import ErrorFallback from "./components/Commom/ErrorFallback";
 
   export function ErrorBoundary() {
     const error: any = useRouteError();

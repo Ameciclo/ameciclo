@@ -1,5 +1,18 @@
-const ActionsCarousel = ({ actions, actionType = '' }: any) => {
-  const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+interface Action {
+  cod: string;
+  subcod: string;
+  total: number;
+  name: string;
+  subname: string;
+}
+
+interface ActionsCarouselProps {
+  actions: Action[];
+  actionType?: string;
+}
+
+const ActionsCarousel = ({ actions, actionType = '' }: ActionsCarouselProps) => {
+  const numParse = (numero: number) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
   return (
     <div className="carousel-container fade-in">
@@ -10,7 +23,7 @@ const ActionsCarousel = ({ actions, actionType = '' }: any) => {
           animation: `${actionType === 'good-action' ? 'good-scroll' : 'bad-scroll'} ${actions.length * 7}s linear infinite`,
         }}
       >
-        {actions.map((action: any, index: any) => (
+        {actions.map((action, index) => (
           <div className={`${actionType} action-card`} key={index}>
             <h3>Ação {action.cod} | Subação {action.subcod}</h3>
             <span>VALOR TOTAL ATUALIZADO</span>

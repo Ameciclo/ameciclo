@@ -5,15 +5,30 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import LazyLoad from 'react-lazyload';
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import Loading from "~/components/Dom/Loading";
-
 import { loader } from "~/loader/dados.observatorio.loa";
 import Chart from "react-google-charts";
-import ActionCarousel from "~/components/Dom/ActionCarousel";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 export { loader };
 
 export default function Loa() {
-    const { cover, description, totalGoodActions2023, totalBadActions2023, totalValueBudgeted2020, totalValueBudgeted2021, totalValueBudgeted2022, totalValueBudgeted2023, totalValueExecuted2020, totalValueExecuted2021, totalValueExecuted2022, totalValueExecuted2023, totalValueActions2020, totalValueActions2021, totalValueActions2022, totalValueActions2023, totalValueEmissions, actions2023 } = useLoaderData<any>();
+    const { 
+        cover, 
+        description, 
+        totalValueBudgeted2020, 
+        totalValueBudgeted2021, 
+        totalValueBudgeted2022, 
+        totalValueBudgeted2023, 
+        totalValueExecuted2020, 
+        totalValueExecuted2021, 
+        totalValueExecuted2022, 
+        totalValueExecuted2023, 
+        totalValueActions2020, 
+        totalValueActions2021, 
+        totalValueActions2022, 
+        totalValueActions2023, 
+        totalValueEmissions, 
+        actions2023 
+    } = useLoaderData<any>();
     const [renderOthers, setRenderOthers] = useState(false);
 
     useEffect(() => {
@@ -60,34 +75,34 @@ export default function Loa() {
                         <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações climáticas, orçamento total e custo por emissão de carbono.</p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Valores colaborativos">
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Investimento em ações climáticas">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span>0.5</span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Colaboração com o clima:</p>
+                                    <p className="text-base mb-1">Investimento em ações climáticas:</p>
                                     <p className="text-lg font-semibold">R$ 469.843.274,04</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Ações climáticas</div>
                                 </LazyLoad>
                             </div>
 
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Valores totais">
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Orçamento total do estado">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span>52.2</span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Total investido em todas as ações:</p>
+                                    <p className="text-base mb-1">Orçamento total do estado:</p>
                                     <p className="text-lg font-semibold">R$ 52.195.938.993,61</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Orçamento total</div>
                                 </LazyLoad>
                             </div>
 
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Valor por emissão de carbono">
+                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Custo por tonelada de CO2 equivalente">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
-                                    <p className="text-base mb-1">Valor por emissão de carbono</p>
+                                    <p className="text-base mb-1">Custo por tonelada de CO2 equivalente</p>
                                     <p className="text-lg font-semibold">R$ 3.045,975</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
                                     <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
@@ -107,7 +122,7 @@ export default function Loa() {
                                         <span>469.8</span>
                                         <span className="text-xl ml-1">Mi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor Orçado:</p>
+                                    <p className="text-base mb-1">Orçamento planejado para ações climáticas:</p>
                                     <p className="text-lg font-semibold">R$ 469.843.274,04</p>
                                 </LazyLoad>
                             </div>
@@ -118,7 +133,7 @@ export default function Loa() {
                                         <span>178.3</span>
                                         <span className="text-xl ml-1">Mi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor Executado:</p>
+                                    <p className="text-base mb-1">Orçamento executado em ações climáticas:</p>
                                     <p className="text-lg font-semibold">R$ 178.252.296,04</p>
                                 </LazyLoad>
                             </div>
@@ -152,7 +167,7 @@ export default function Loa() {
                                                 highContrastMode: true
                                             },
                                             legend: {
-                                                position: window.innerWidth < 768 ? 'bottom' : 'top',
+                                                position: 'bottom',
                                                 alignment: 'center',
                                                 textStyle: {
                                                     fontSize: 13,
@@ -209,7 +224,7 @@ export default function Loa() {
                                                 highContrastMode: true
                                             },
                                             legend: {
-                                                position: window.innerWidth < 768 ? 'bottom' : 'top',
+                                                position: 'bottom',
                                                 alignment: 'center',
                                                 textStyle: {
                                                     fontSize: 13,
@@ -230,7 +245,7 @@ export default function Loa() {
                             </div>
                         </section>
                     </div>
-                    <section className="">
+                    <section>
                         <DevelopingComponent title="Tabela de Ações e Programas dos dados Abertos de Pernambuco" />
                     </section>
                     <section className="bg-gray-50 rounded-lg p-4 mb-4">

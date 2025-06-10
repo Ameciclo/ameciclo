@@ -2,7 +2,6 @@ import { Link } from "@remix-run/react";
 import { footerColumn, footerColumnContent } from "../../../typings";
 
 export const Footer = () => {
-
   const columns = [
     {
       title: "Ameciclo",
@@ -72,30 +71,33 @@ export const Footer = () => {
     <footer className="bg-gray-200">
       <div className="container mx-auto px-6 pt-10 pb-6">
         <div className="flex flex-wrap">
-          {columns.map((column: footerColumn, i: any) => (
+          {columns.map((column: footerColumn, i: number) => (
             <div
               key={i}
-              className={`w-full md:w-1/3 text-center md:text-${column.align != "" ? column.align : "center"
-                }`}
+              className={`w-full md:w-1/3 text-center md:text-${column.align || "center"}`}
             >
-              <FooterColumn column={column} />{" "}
+              <FooterColumn column={column} />
             </div>
           ))}
         </div>
         <div className="container p3">
-          <VercelSponsor />{" "}
+          <VercelSponsor />
         </div>
       </div>
     </footer>
   );
 };
 
-function FooterColumn({ column }: any) {
+interface FooterColumnProps {
+  column: footerColumn;
+}
+
+function FooterColumn({ column }: FooterColumnProps) {
   return (
     <>
       <h5 className="uppercase mb-6 font-bold text-black">{column.title}</h5>
       <ul className="mb-4">
-        {column.content.map((content: footerColumnContent, i: any) => (
+        {column.content.map((content: footerColumnContent, i: number) => (
           <li key={i} className="mt-2">
             <Link
               to={content.url}
