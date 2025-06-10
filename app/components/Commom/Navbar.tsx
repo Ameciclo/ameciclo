@@ -27,9 +27,9 @@ export const Navbar = ({ pages }: any) => {
 
   return (
     <>
-      <div className="h-16"></div>
+      <div className="max-h-14"></div>
       <nav
-        className={`flex fixed top-0 items-center h-16 w-full z-50 bg-ameciclo text-white transition ${isHeaderScrolled ? "shadow-lg" : ""}`}
+        className={`flex fixed top-0 items-center max-h-14 w-full z-50 bg-ameciclo text-white transition ${isHeaderScrolled ? "shadow-lg" : ""}`}
         role="navigation"
       >
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
@@ -142,7 +142,7 @@ function SmallMenu({ pages, closeMenu }: any) {
 // Logo dinâmico da Ameciclo
 function AmecicloLogo({ isScrolled }: any) {
   return (
-    <div className="relative">
+    <div className="relative mt-24 h-auto">
       <AnimatePresence mode="wait">
         {isScrolled ? (
           <motion.div
@@ -153,7 +153,7 @@ function AmecicloLogo({ isScrolled }: any) {
             transition={{ duration: 0.5 }}
             className="absolute left-0 top-0"
           >
-            <VerticalLogo />
+            <CompactLogo />
           </motion.div>
         ) : (
           <motion.div
@@ -162,8 +162,8 @@ function AmecicloLogo({ isScrolled }: any) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute left-0 top-0 transform -translate-y-1/2"
-            style={{ marginTop: "-16px" }}
+            className="absolute left-0 top-0 transform -translate-y-1/4"
+            style={{ marginTop: "-8px" }}
           >
             <MainLogo />
           </motion.div>
