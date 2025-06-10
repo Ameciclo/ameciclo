@@ -52,82 +52,54 @@ export default function Dom() {
             <Banner image={cover?.url} alt="Capa da página do Diágnóstico Orçamentário Municipal" />
             <Breadcrumb label="dom" slug="/dados/observatorio/dom" routes={["/", "/observatorio"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
-            
+
             {renderOthers ? (
                 <div className="container mx-auto px-4 py-6">
-                    <h1 className="text-3xl font-bold text-ameciclo mb-6 text-center">Diagnóstico Orçamentário Municipal</h1>
-                    
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Sustentável vs. Não Sustentável</h2>
-                        <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações que promovem sustentabilidade e aquelas que não contribuem para o desenvolvimento sustentável no orçamento municipal de 2024.</p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <section className="">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento e Emissões</h2>
+                        <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações sustentáveis, não sustentáveis e o custo por emissão de carbono no município.</p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Valores sustentáveis">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor exato orçado em ações sustentáveis:</p>
+                                    <p className="text-base mb-1">Valor orçado em ações sustentáveis:</p>
                                     <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Sustentável</div>
                                 </LazyLoad>
                             </div>
-                            
+
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Valores não sustentáveis">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span><AnimatedNumber initialValue={0} finalValue={148.7} duration={500} /></span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor exato orçado em ações NÃO sustentáveis:</p>
+                                    <p className="text-base mb-1">Valor orçado em ações NÃO sustentáveis:</p>
                                     <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={unsustainableTotal} duration={2000} /></p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Não sustentável</div>
                                 </LazyLoad>
                             </div>
-                        </div>
-                    </section>
-                    
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Custo por Emissão de Carbono</h2>
-                        <p className="text-gray-600 mb-4">Valor estimado que o município gasta por unidade de carbono emitida, calculado com base nos dados de emissão do último ano registrado (2020) em <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br/grafico-inventario-gee</a>.</p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Valor por emissão de carbono">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
                                     <p className="text-base mb-1">Valor por emissão de carbono (2020)</p>
                                     <p className="text-lg font-semibold">R$ {carbonValue}</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
+                                    <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
                                 </LazyLoad>
-                            </div>
-                            
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo overflow-hidden">
-                                <h3 className="text-xl font-bold mb-3">Impacto da Emissão de Carbono</h3>
-                                <div className="flex justify-center items-center h-48">
-                                    <div className="carbon-animation">
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-earth"></div>
-                                    </div>
-                                </div>
-                                <p className="text-gray-600 text-center mt-4">Visualização do impacto das emissões de carbono no meio ambiente</p>
                             </div>
                         </div>
                     </section>
-                    
-                    <section className="mb-10">
+
+                    <section className="">
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçado vs. Executado em Sustentabilidade</h2>
-                        <p className="text-gray-600 mb-4">Comparação entre o Valor exato planejado no orçamento e o Valor exato efetivamente executado em ações de sustentabilidade no município.</p>
-                        
+                        <p className="text-gray-600 mb-4">Comparação entre o valor planejado no orçamento e o valor efetivamente executado em ações de sustentabilidade no município.</p>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo">
                                 <LazyLoad height={300} offset={0}>
@@ -135,35 +107,35 @@ export default function Dom() {
                                         <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
-                                    <p className="text-base mb-1">Valor exato orçado em ações sustentáveis:</p>
+                                    <p className="text-base mb-1">Valor orçado em ações sustentáveis:</p>
                                     <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
                                 </LazyLoad>
                             </div>
-                            
+
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-gray-400">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1">---.- Mi</h3>
-                                    <p className="text-base mb-1">Valor exato Executado (em breve)</p>
+                                    <p className="text-base mb-1">Valor Executado (em breve)</p>
                                     <p className="text-lg font-semibold">R$ ---.---.---</p>
                                 </LazyLoad>
                             </div>
                         </div>
                     </section>
-                    
+
                     {chartData && (
-                        <section className="mb-10">
+                        <section className="">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div>
+                                <div className="h-auto">
                                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Evolução do Orçamento Sustentável</h2>
-                                    <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados para ações sustentáveis e não sustentáveis ao longo dos anos.</p>
-                                    
-                                    <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center h-full">
+                                    <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados para ações sustentáveis e não sustentáveis.</p>
+
+                                    <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                         <div className="w-full max-w-[500px]">
                                             <Chart
                                                 chartType="Bar"
                                                 data={chartData.yearlyComparison}
                                                 width="100%"
-                                                height="350px"
+                                                height="300px"
                                                 options={{
                                                     chart: {
                                                         subtitle: "Comparativo anual de investimentos",
@@ -204,17 +176,17 @@ export default function Dom() {
                                     </div>
                                 </div>
 
-                                <div>
+                                <div className="h-auto">
                                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Tendência de Investimentos Sustentáveis</h2>
                                     <p className="text-gray-600 mb-4">Evolução dos valores destinados exclusivamente a ações sustentáveis entre 2021 e 2024.</p>
-                                    
-                                    <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center h-full">
+
+                                    <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                         <div className="w-full max-w-[500px]">
                                             <Chart
                                                 chartType="Bar"
                                                 data={chartData.goodActionsYearly}
                                                 width="100%"
-                                                height="350px"
+                                                height="300px"
                                                 options={{
                                                     chart: {
                                                         subtitle: "Investimentos em sustentabilidade por ano",
@@ -245,17 +217,17 @@ export default function Dom() {
                                     </div>
                                 </div>
                             </div>
-
+                            
                             <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Total por Ano</h2>
                             <p className="text-gray-600 mb-4">Visão geral do orçamento municipal total ao longo dos anos.</p>
-                            
+
                             <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                 <div className="w-full max-w-[1000px]">
                                     <Chart
                                         chartType="Bar"
                                         data={chartData.totalSpendingYearly}
                                         width="100%"
-                                        height="350px"
+                                        height="300px"
                                         options={{
                                             chart: {
                                                 subtitle: "Orçamento municipal consolidado",
@@ -286,18 +258,13 @@ export default function Dom() {
                             </div>
                         </section>
                     )}
-                    
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Detalhamento de Ações e Programas</h2>
-                        <p className="text-gray-600 mb-4">Tabela detalhada com as principais ações e programas orçamentários, classificados por sustentabilidade e impacto ambiental.</p>
-                        
+
+                    <section className="">
                         <DevelopingComponent title="Componente Tabela de Ações e Programas" />
                     </section>
-                    
+
                     <section className="bg-gray-50 rounded-lg p-4">
-                        <h2 className="text-2xl font-bold text-ameciclo mb-4">Documentação e Fontes</h2>
-                        <p className="text-gray-600 mb-4">Acesse os documentos oficiais e bases de dados utilizados nesta análise orçamentária.</p>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Documentos Orçamentários</h3>
@@ -308,7 +275,7 @@ export default function Dom() {
                                     <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/6e5be9b8-7fe3-4831-abb2-44817d2f5417" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Despesas Totais 2024</a></li>
                                 </ul>
                             </div>
-                            
+
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Documentos Climáticos</h3>
                                 <ul className="space-y-2">
@@ -317,7 +284,7 @@ export default function Dom() {
                                     <li><a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Gráfico – Inventário de Gases de Efeito Estufa</a></li>
                                 </ul>
                             </div>
-                            
+
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Baixe os Dados</h3>
                                 <ul className="space-y-2">

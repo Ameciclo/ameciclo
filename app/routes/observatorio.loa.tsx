@@ -20,7 +20,7 @@ export default function Loa() {
         const timeout = setTimeout(() => {
             setRenderOthers(true);
         }, 2000);
-        
+
         return () => clearTimeout(timeout);
     }, []);
 
@@ -52,113 +52,85 @@ export default function Loa() {
             <Banner image={cover?.url} alt="Capa da página do Loaclima" />
             <Breadcrumb label="loa" slug="/dados/observatorio/loa" routes={["/", "/observatorio"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
-            
+
             {renderOthers ? (
                 <div className="container mx-auto px-4 py-6">
-                    <h1 className="text-3xl font-bold text-ameciclo mb-6 text-center">Observatório LOA Clima</h1>
-                    
                     <section className="mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Investimentos em Ações para o Clima</h2>
-                        <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações que contribuem para o clima e o orçamento total em Pernambuco.</p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Investimentos e Emissões</h2>
+                        <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações climáticas, orçamento total e custo por emissão de carbono.</p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Valores colaborativos">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span><AnimatedNumber initialValue={0} finalValue={(totalValueBudgeted2023 / 1000000000).toFixed(1)} duration={500} /></span>
+                                        <span>0.5</span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
                                     <p className="text-base mb-1">Colaboração com o clima:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={totalValueBudgeted2023} duration={1000} /></p>
+                                    <p className="text-lg font-semibold">R$ 469.843.274,04</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Ações climáticas</div>
                                 </LazyLoad>
                             </div>
-                            
+
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Valores totais">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span><AnimatedNumber initialValue={0} finalValue={(totalValueActions2023 / 1000000000).toFixed(1)} duration={500} /></span>
+                                        <span>52.2</span>
                                         <span className="text-xl ml-1">Bi</span>
                                     </h3>
                                     <p className="text-base mb-1">Total investido em todas as ações:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={totalValueActions2023} duration={1000} /></p>
+                                    <p className="text-lg font-semibold">R$ 52.195.938.993,61</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Orçamento total</div>
                                 </LazyLoad>
                             </div>
-                        </div>
-                    </section>
-                    
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Custo por Emissão de Carbono</h2>
-                        <p className="text-gray-600 mb-4">Valor estimado que o estado gasta por unidade de carbono emitida, calculado com base nos dados do último ano registrado em <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br/grafico-inventario-gee</a>.</p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Valor por emissão de carbono">
                                 <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1">R$ <AnimatedNumber initialValue={0} finalValue={(totalValueEmissions / 1000).toFixed(0)} duration={700} /> Mil / CO2e</h3>
+                                    <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
                                     <p className="text-base mb-1">Valor por emissão de carbono</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={totalValueEmissions} duration={1000} /></p>
+                                    <p className="text-lg font-semibold">R$ 3.045,975</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
+                                    <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
                                 </LazyLoad>
-                            </div>
-                            
-                            <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo overflow-hidden">
-                                <h3 className="text-xl font-bold mb-3">Impacto da Emissão de Carbono</h3>
-                                <div className="flex justify-center items-center h-48">
-                                    <div className="carbon-animation">
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-particle"></div>
-                                        <div className="carbon-earth"></div>
-                                    </div>
-                                </div>
-                                <p className="text-gray-600 text-center mt-4">Visualização do impacto das emissões de carbono no meio ambiente</p>
                             </div>
                         </div>
                     </section>
-                    
+
                     <section className="mb-10">
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçado vs. Executado em Ações Climáticas</h2>
                         <p className="text-gray-600 mb-4">Comparação entre o valor planejado no orçamento e o valor efetivamente executado em ações para o clima.</p>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span><AnimatedNumber initialValue={0} finalValue={(totalValueBudgeted2023 / 1000000).toFixed(1)} duration={500} /></span>
+                                        <span>469.8</span>
                                         <span className="text-xl ml-1">Mi</span>
                                     </h3>
                                     <p className="text-base mb-1">Valor Orçado:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={totalValueBudgeted2023} duration={1000} /></p>
+                                    <p className="text-lg font-semibold">R$ 469.843.274,04</p>
                                 </LazyLoad>
                             </div>
-                            
+
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-gray-400">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span><AnimatedNumber initialValue={0} finalValue={(totalValueExecuted2023 / 1000000).toFixed(1)} duration={500} /></span>
+                                        <span>178.3</span>
                                         <span className="text-xl ml-1">Mi</span>
                                     </h3>
                                     <p className="text-base mb-1">Valor Executado:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={totalValueExecuted2023} duration={1000} /></p>
+                                    <p className="text-lg font-semibold">R$ 178.252.296,04</p>
                                 </LazyLoad>
                             </div>
                         </div>
                     </section>
-                    
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-                        <section>
+                        <section className="h-auto">
                             <h2 className="text-2xl font-bold text-gray-800 mb-2">Evolução Orçamentária Climática</h2>
                             <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados e executados em ações para o clima ao longo dos anos.</p>
-                            
-                            <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center h-full">
+
+                            <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                 <div className="w-full max-w-[500px]">
                                     <Chart
                                         chartType="Bar"
@@ -170,7 +142,7 @@ export default function Loa() {
                                             ['2023', totalValueBudgeted2023, totalValueExecuted2023],
                                         ]}
                                         width="100%"
-                                        height="350px"
+                                        height="300px"
                                         options={{
                                             chart: {
                                                 subtitle: "Comparativo anual 2020-2023",
@@ -211,11 +183,11 @@ export default function Loa() {
                             </div>
                         </section>
 
-                        <section>
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Total Anual</h2>
+                        <section className="h-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Total por Ano</h2>
                             <p className="text-gray-600 mb-4">Evolução do orçamento total do estado para todas as ações entre 2020 e 2023.</p>
-                            
-                            <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center h-full">
+
+                            <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                 <div className="w-full max-w-[500px]">
                                     <Chart
                                         chartType="Bar"
@@ -227,7 +199,7 @@ export default function Loa() {
                                             ['2023', totalValueActions2023],
                                         ]}
                                         width="100%"
-                                        height="350px"
+                                        height="300px"
                                         options={{
                                             chart: {
                                                 subtitle: "Orçamento total 2020-2023",
@@ -258,12 +230,10 @@ export default function Loa() {
                             </div>
                         </section>
                     </div>
-                    <br /><br />
-                    <DevelopingComponent title={"Tabela de Ações e Programas dos dados Abertos de Pernambuco"} />
+                    <section className="">
+                        <DevelopingComponent title="Tabela de Ações e Programas dos dados Abertos de Pernambuco" />
+                    </section>
                     <section className="bg-gray-50 rounded-lg p-4 mb-4">
-                        <h2 className="text-2xl font-bold text-ameciclo mb-4">Documentação e Fontes</h2>
-                        <p className="text-gray-600 mb-4">Acesse os documentos oficiais e bases de dados utilizados nesta análise orçamentária.</p>
-                        
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Documentos Orçamentários</h3>
@@ -271,10 +241,9 @@ export default function Loa() {
                                     <li><a href="https://dados.pe.gov.br/dataset/acoes-e-programas" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e programas - Portal de Dados Abertos de Pernambuco</a></li>
                                     <li><a href="https://dados.pe.gov.br/dataset/despesas-gerais" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Despesas gerais - Portal de Dados Abertos de Pernambuco</a></li>
                                     <li><a href="https://dados.pe.gov.br/dataset/all-pagamentos" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Pagamentos - Portal de Dados Abertos de Pernambuco</a></li>
-                                    <li><a href="https://dados.pe.gov.br/dataset/todas-despesas-detalhadas" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Despesas detalhadas - Portal de Dados Abertos de Pernambuco</a></li>
                                 </ul>
                             </div>
-                            
+
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Documentos Climáticos</h3>
                                 <ul className="space-y-2">
@@ -283,19 +252,18 @@ export default function Loa() {
                                     <li><a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Gráfico – Inventário de Gases de Efeito Estufa de Pernambuco</a></li>
                                 </ul>
                             </div>
-                            
+
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Baixe os Dados</h3>
                                 <ul className="space-y-2">
                                     <li><a href="https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/bd2f90f2-3cc1-4b46-ab8d-9b15a1b0d453/download/acoes_e_programas_json_2023_20231010.json" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 10/10/2023</a></li>
                                     <li><a href="https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/55784447-97e8-4fb0-b062-99c368bf6384/download/acoes_e_programas_json_2022_20221231.json" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2022</a></li>
                                     <li><a href="https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/0a2e8fd7-7a65-46df-bd1b-15f2dfaaded7/download/acoes_e_programas_json_2021_20211231.json" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2021</a></li>
-                                    <li><a href="https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/5e5e1107-e1ed-4c2c-b258-e19a013f6caa/download/acoes_e_programas_json_2020_20201231.json" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2020</a></li>
                                 </ul>
                             </div>
                         </div>
                     </section>
-                    
+
                     <div className="text-right text-sm text-gray-500 mb-2">
                         {!!actions2023?.length ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : 'ATUALIZADO: 10/10/2023'}
                     </div>
