@@ -65,7 +65,8 @@ export const Navbar = ({ pages }: any) => {
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            className="bg-ameciclo lg:hidden fixed top-16 left-0 w-full z-40"
+            className="bg-ameciclo lg:hidden fixed top-16 left-0 w-full z-40 native-scrollbar"
+            style={{ maxHeight: "calc(100vh - 4rem)" }}
           >
             <SmallMenu pages={pages} closeMenu={() => setIsMenuOpen(false)} />
           </motion.div>
@@ -193,8 +194,8 @@ function MainLogo() {
   );
 }
 
-// Logo vertical
-function VerticalLogo() {
+// Logo compacta
+function CompactLogo() {
   return (
     <svg
       className="w-32 h-8"

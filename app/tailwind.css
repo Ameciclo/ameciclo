@@ -21,6 +21,13 @@
     background-color: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
   }
+  
+  /* Garantindo que a barra de rolagem seja sempre a nativa do navegador */
+  .native-scrollbar {
+    scrollbar-width: auto !important;
+    -ms-overflow-style: auto !important;
+    overflow-y: auto !important;
+  }
 }
 
 html,
@@ -64,6 +71,21 @@ main {
   font-weight: bold;
   font-size: 24px;
   animation: pulse 1.5s infinite;
+}
+
+/* Garantindo que todas as barras de rolagem sejam nativas */
+::-webkit-scrollbar {
+  width: auto;
+  height: auto;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
 }
 
 /* Carbon Animation Styles */
