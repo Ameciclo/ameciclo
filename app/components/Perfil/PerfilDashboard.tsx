@@ -1,4 +1,3 @@
-/* app/routes/perfil.tsx */
 import {
   json,
   type LoaderFunctionArgs,
@@ -20,9 +19,6 @@ import {
 } from "~/services/utils";
 import HorizontalBarChart from "../Charts/HorizontalBarChart";
 
-/* -------------------------------------------------------- */
-/* ---------------------- Utilidades ---------------------- */
-/* -------------------------------------------------------- */
 type Filtro = { key: string; value: string; checked: boolean };
 
 async function fetchDataWithFilters(filters: Filtro[]) {
@@ -40,35 +36,24 @@ async function fetchDataWithFilters(filters: Filtro[]) {
   return data;
 }
 
-/* -------------------------------------------------------- */
-/* ------------------------ Loader ------------------------ */
-/* -------------------------------------------------------- */
 export async function loader({}: LoaderFunctionArgs) {
   const initialFilters = getInicialFilters();
   const dataset = await fetchDataWithFilters(initialFilters);
   return json({ initialFilters, dataset });
 }
 
-/* -------------------------------------------------------- */
-/* ------------------------ Action ------------------------ */
-/* -------------------------------------------------------- */
 export async function action({ request }: ActionFunctionArgs) {
   const filters = (await request.json()) as Filtro[];
   const dataset = await fetchDataWithFilters(filters);
   return json({ dataset });
 }
 
-/* -------------------------------------------------------- */
-/* ------------------ Componente – UI --------------------- */
-/* -------------------------------------------------------- */
 export default function PerfilDashboard() {
   const { initialFilters, dataset } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
-  /* -------- estados dos filtros -------- */
   const [filters, setFilters] = useState<Filtro[]>(initialFilters);
 
-  /* -------- estados do dataset --------- */
   const [dayData, setDayData] = useState(dataset.dayAggregate);
   const [yearData, setYearData] = useState(dataset.yearAggregate);
   const [needData, setNeedData] = useState(dataset.needAggregate);
@@ -80,14 +65,10 @@ export default function PerfilDashboard() {
     getHistogramData(dataset.distances),
   );
 
-  /* --------‑‑ controla quando os módulos do Highcharts já estão prontos -------- */
   const [hcReady, setHcReady] = useState(false);
 
-  /* -------------------------------------------------------------------------- */
-  /* Carrega módulos do Highcharts **uma única vez** no client e libera render  */
-  /* -------------------------------------------------------------------------- */
   useEffect(() => {
-    if (typeof window === "undefined") return; // só no browser
+    if (typeof window === "undefined") return;
 
     Promise.all([
       import("highcharts/highcharts-more"),
@@ -103,9 +84,6 @@ export default function PerfilDashboard() {
     });
   }, []);
 
-  /* -------------------------------------------------------------------------- */
-  /* Ajusta o tamanho dos gráficos quando a janela muda – só depois de prontos  */
-  /* -------------------------------------------------------------------------- */
   useEffect(() => {
     if (!hcReady) return;
     const handle = setTimeout(() => {
@@ -119,9 +97,6 @@ export default function PerfilDashboard() {
     };
   }, [hcReady]);
 
-  /* -------------------------------------------------------------------------- */
-  /* Atualiza os datasets quando o fetcher retorna                             */
-  /* -------------------------------------------------------------------------- */
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data?.dataset) {
       const d = fetcher.data.dataset;
@@ -136,7 +111,6 @@ export default function PerfilDashboard() {
     }
   }, [fetcher.state, fetcher.data]);
 
-  /* ---------------- helpers ---------------- */
   const submitFilters = () =>
     fetcher.submit(JSON.stringify(filters), {
       method: "post",
@@ -153,7 +127,6 @@ export default function PerfilDashboard() {
       ),
     );
 
-  /* ------------ opções dos gráficos em barra ------------ */
   const barOptions = [
     {
       title:
@@ -174,11 +147,7 @@ export default function PerfilDashboard() {
     { title: "Já sofreu algum tipo de colisão?", series: collisionData },
   ];
 
-  /* -------------------------------------------------------------------------- */
-  /* ------------------------------- Render ----------------------------------- */
-  /* -------------------------------------------------------------------------- */
   if (!hcReady) {
-    // mantemos os hooks executados, mas devolvemos um placeholder
     return (
       <div className="text-center font-semibold py-16">
         Carregando gráficos…
@@ -188,7 +157,6 @@ export default function PerfilDashboard() {
 
   return (
     <>
-      {/* ---------- Filtros ---------- */}
       <section className="container mx-auto shadow-md p-10">
         <h2 className="font-bold text-3xl mt-5">Selecione seus filtros</h2>
 
@@ -230,7 +198,6 @@ export default function PerfilDashboard() {
         </div>
       </section>
 
-      {/* ---------- Gráficos ---------- */}
       <section className="container mx-auto grid grid-cols-1 sm:grid-cols-2 auto-rows-auto gap-10 my-10">
         {barOptions.map((opt) => (
           <HorizontalBarChart key={opt.title} {...opt} />
@@ -247,9 +214,6 @@ export default function PerfilDashboard() {
   );
 }
 
-/* -------------------------------------------------------- */
-/* -------------------- ToggleButton ---------------------- */
-/* -------------------------------------------------------- */
 interface ToggleProps {
   value: string;
   checked: boolean;

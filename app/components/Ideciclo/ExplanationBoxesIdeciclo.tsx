@@ -8,7 +8,7 @@ interface Box {
 export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [svgCount, setSvgCount] = useState(0);
-  const svgWidth = 68; // Width of the SVG in pixels
+  const svgWidth = 68;
 
   useEffect(() => {
     const updateSvgCount = () => {
