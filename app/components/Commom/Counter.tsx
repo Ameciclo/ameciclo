@@ -19,15 +19,14 @@ const Counter = ({ label, number }: any) => {
   }, [number]);
 
   return (
-    <div className="p-4 m-4 text-center text-white uppercase">
+    <div className="p-2 m-2 md:p-4 md:m-4 text-center text-white uppercase">
       <h2
         ref={nodeRef}
-        className="font-extrabold tracking-wider"
-        style={{ fontSize: "8rem" }}
+        className="font-extrabold tracking-wider text-6xl md:text-8xl"
       >
         {number}
       </h2>
-      <span className="text-3xl">{label}</span>
+      <span className="text-xl md:text-3xl">{label}</span>
     </div>
   );
 };

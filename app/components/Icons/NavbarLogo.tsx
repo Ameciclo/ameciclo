@@ -1,7 +1,7 @@
 export function NavbarLogo() {
   return (
     <svg 
-      className="w-32 h-8 text-ameciclo" 
+      className="w-36 h-8 text-ameciclo" 
       fill="currentColor" 
       viewBox="0 0 100.00014 29.999868"
     >

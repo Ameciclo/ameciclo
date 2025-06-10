@@ -17,13 +17,28 @@ export const Navbar = ({ pages }: any) => {
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Listener manual para o scroll
+  // Scroll listener with direct implementation
   useEffect(() => {
+    // Direct scroll handler without throttling
     const handleScroll = () => {
-      setIsHeaderScrolled(window.scrollY > 50);
+      const isScrolled = window.scrollY > 10;
+      document.documentElement.dataset.scrolled = String(isScrolled);
+      setIsHeaderScrolled(isScrolled);
     };
+    
+    // Run once on mount
+    handleScroll();
+    
+    // Add event listener
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Force check after DOM is fully loaded
+    window.addEventListener("load", handleScroll);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("load", handleScroll);
+    };
   }, []);
 
   return (
@@ -46,14 +61,16 @@ export const Navbar = ({ pages }: any) => {
 
           {/* Botão de menu (mobile) */}
           <button
-            aria-label="Abrir menu de navegação"
+            aria-label={isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
             aria-expanded={isMenuOpen}
-            className="lg:hidden flex flex-col space-y-1"
+            className="lg:hidden relative w-8 h-8 flex justify-center items-center z-[999]"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <span className="block w-6 h-0.5 bg-white"></span>
-            <span className="block w-6 h-0.5 bg-white"></span>
-            <span className="block w-6 h-0.5 bg-white"></span>
+            <div className="relative w-6 h-6 flex flex-col justify-center">
+              <span className={`absolute w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? "top-3 rotate-45" : "top-1"}`}></span>
+              <span className={`absolute w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? "opacity-0" : "top-3 opacity-100"}`}></span>
+              <span className={`absolute w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? "top-3 -rotate-45" : "top-5"}`}></span>
+            </div>
           </button>
         </div>
 
@@ -66,8 +83,8 @@ export const Navbar = ({ pages }: any) => {
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            className="bg-ameciclo lg:hidden fixed top-16 left-0 w-full z-40 native-scrollbar"
-            style={{ maxHeight: "calc(100vh - 4rem)" }}
+            className="bg-ameciclo lg:hidden fixed top-0 left-0 w-full z-50 native-scrollbar"
+            style={{ maxHeight: "100vh" }}
           >
             <SmallMenu pages={pages} closeMenu={() => setIsMenuOpen(false)} />
           </motion.div>
@@ -99,45 +116,51 @@ function BigMenu({ pages }: any) {
 // Menu pequeno (mobile)
 function SmallMenu({ pages, closeMenu }: any) {
   return (
-    <motion.ul
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col space-y-4 py-4 px-6"
-      role="menu"
-      aria-label="Menu de navegação"
+      className="flex flex-col items-center pt-16 pb-4 px-6"
     >
-      {pages.map((page: any, index: number) => (
-        <motion.li 
-          key={page.name}
-          custom={index}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          variants={{
-            hidden: { opacity: 0, y: -10 },
-            visible: i => ({
-              opacity: 1,
-              y: 0,
-              transition: { delay: i * 0.05, duration: 0.2 }
-            }),
-            exit: i => ({
-              opacity: 0,
-              y: -10,
-              transition: { delay: (pages.length - i - 1) * 0.05, duration: 0.2 }
-            })
-          }}
-        >
-          <Link
-            to={page.url}
-            className="block uppercase text-white hover:underline"
-            onClick={closeMenu}
+      <motion.ul
+        className="flex flex-col items-center w-full max-w-sm space-y-6 py-6"
+        role="menu"
+        aria-label="Menu de navegação"
+      >
+        {pages.map((page: any, index: number) => (
+          <motion.li 
+            key={page.name}
+            custom={index}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={{
+              hidden: { opacity: 0, y: -10 },
+              visible: i => ({
+                opacity: 1,
+                y: 0,
+                transition: { delay: i * 0.05, duration: 0.2 }
+              }),
+              exit: i => ({
+                opacity: 0,
+                y: -10,
+                transition: { delay: (pages.length - i - 1) * 0.05, duration: 0.2 }
+              })
+            }}
+            className="w-full text-center"
           >
-            {page.name}
-          </Link>
-        </motion.li>
-      ))}
-    </motion.ul>
+            <Link
+              to={page.url}
+              className="block uppercase text-white py-3 relative group active:opacity-70 transition-opacity"
+              onClick={closeMenu}
+            >
+              {page.name}
+              <span className="block mx-auto mt-1 w-16 h-px bg-white opacity-50"></span>
+            </Link>
+          </motion.li>
+        ))}
+      </motion.ul>
+    </motion.div>
   );
 }

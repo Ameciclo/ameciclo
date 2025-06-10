@@ -6,7 +6,7 @@ import { NavbarLogo } from "../Icons/NavbarLogo";
 
 export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
   return (
-    <div className="relative mt-24 h-auto">
+    <div className="relative">
       <AnimatePresence mode="wait">
         {isScrolled ? (
           <motion.div
@@ -15,7 +15,7 @@ export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute left-0 top-0"
+            className="relative left-20 mt-0"
           >
             <NavbarLogo />
           </motion.div>
@@ -26,8 +26,7 @@ export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute left-0 top-0 transform -translate-y-1/4"
-            style={{ marginTop: "-8px" }}
+            className="absolute left-0 mt-10 transform -translate-y-1/4"
           >
             <MainLogo />
           </motion.div>
