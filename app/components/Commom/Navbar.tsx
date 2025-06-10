@@ -13,32 +13,33 @@ export const Navbar = ({ pages }: any) => {
     { name: "Observatório", url: "/observatorio" },
     { name: "Contato", url: "/contato" },
   ];
-  if(!pages) pages = pagesDefault;
+  if (!pages) pages = pagesDefault;
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Scroll listener with direct implementation
+  // Listener para o scroll com throttling para melhor performance
   useEffect(() => {
-    // Direct scroll handler without throttling
+    const scrollThreshold = 50;
+    let lastScrollTime = 0;
+    
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      document.documentElement.dataset.scrolled = String(isScrolled);
-      setIsHeaderScrolled(isScrolled);
+      const now = Date.now();
+      if (now - lastScrollTime > 100) {
+        lastScrollTime = now;
+        setIsHeaderScrolled(window.scrollY > scrollThreshold);
+      }
     };
+
+    // Verificar posição inicial imediatamente
+    setIsHeaderScrolled(window.scrollY > scrollThreshold);
     
-    // Run once on mount
-    handleScroll();
-    
-    // Add event listener
-    window.addEventListener("scroll", handleScroll);
-    
-    // Force check after DOM is fully loaded
-    window.addEventListener("load", handleScroll);
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("load", handleScroll);
-    };
+    // Verificar novamente após um pequeno delay para garantir
+    setTimeout(() => {
+      setIsHeaderScrolled(window.scrollY > scrollThreshold);
+    }, 100);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
@@ -51,7 +52,7 @@ export const Navbar = ({ pages }: any) => {
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo da Ameciclo */}
           <Link to="/" aria-label="Ir para o site da Ameciclo">
-            <AmecicloLogo  isScrolled={isHeaderScrolled} />
+            <AmecicloLogo isScrolled={isHeaderScrolled} />
           </Link>
 
           {/* Menu grande (desktop) */}
@@ -75,7 +76,7 @@ export const Navbar = ({ pages }: any) => {
         </div>
 
       </nav>
-      
+
       {/* Menu pequeno (mobile) - Moved outside the nav element */}
       <AnimatePresence>
         {isMenuOpen && (
@@ -129,7 +130,7 @@ function SmallMenu({ pages, closeMenu }: any) {
         aria-label="Menu de navegação"
       >
         {pages.map((page: any, index: number) => (
-          <motion.li 
+          <motion.li
             key={page.name}
             custom={index}
             initial="hidden"

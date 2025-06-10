@@ -8,7 +8,7 @@ export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
   return (
     <div className="relative">
       <AnimatePresence mode="wait">
-        {isScrolled ? (
+        {!isScrolled ? (
           <motion.div
             key="navbar"
             initial={{ opacity: 0 }}
