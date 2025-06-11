@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AmecicloLogo } from "../Icons/AmecicloLogo";
+import { AmecicloLogo } from "./NavBar/AmecicloLogo";
 
 export const Navbar = ({ pages }: any) => {
   const pagesDefault = [
@@ -17,36 +17,40 @@ export const Navbar = ({ pages }: any) => {
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Listener para o scroll com throttling para melhor performance
+  // Listener para o scroll com detecção forçada
   useEffect(() => {
     const scrollThreshold = 50;
-    let lastScrollTime = 0;
-    
+
     const handleScroll = () => {
-      const now = Date.now();
-      if (now - lastScrollTime > 100) {
-        lastScrollTime = now;
-        setIsHeaderScrolled(window.scrollY > scrollThreshold);
+      const scrolled = window.scrollY > scrollThreshold;
+      console.log("Scroll position:", window.scrollY, "isScrolled:", scrolled);
+      
+      // Forçar atualização do estado
+      if (scrolled !== isHeaderScrolled) {
+        setIsHeaderScrolled(scrolled);
       }
     };
 
-    // Verificar posição inicial imediatamente
-    setIsHeaderScrolled(window.scrollY > scrollThreshold);
+    // Verificar posição inicial
+    handleScroll();
     
-    // Verificar novamente após um pequeno delay para garantir
-    setTimeout(() => {
-      setIsHeaderScrolled(window.scrollY > scrollThreshold);
-    }, 100);
-
+    // Adicionar listener para scroll com intervalo para garantir detecção
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    
+    // Verificar scroll periodicamente para garantir
+    const intervalId = setInterval(handleScroll, 500);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearInterval(intervalId);
+    };
+  }, [isHeaderScrolled]);
 
   return (
     <>
       <div className="max-h-14"></div>
       <nav
-        className={`flex fixed top-0 items-center max-h-14 w-full z-50 bg-ameciclo text-white transition ${isHeaderScrolled ? "shadow-lg" : ""}`}
+        className={`flex fixed top-0 items-center max-h-14 w-full z-50 bg-ameciclo text-white transition-shadow duration-300 ${isHeaderScrolled ? "shadow-lg" : ""}`}
         role="navigation"
       >
         <div className="container mx-auto flex items-center justify-between px-6 py-4">

@@ -3,9 +3,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import Participe from "~/components/Icons/participe";
-import Associe from "~/components/Icons/associe";
-import Apoie from "~/components/Icons/apoie";
+import Participe from "~/components/Commom/Icones/participe";
+import Associe from "~/components/Commom/Icones/associe";
+import Apoie from "~/components/Commom/Icones/apoie";
 
 import bannerContatact from "/contato.webp";
 import Banner from "~/components/Commom/Banner";

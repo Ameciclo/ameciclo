@@ -17,7 +17,7 @@ import {
   getHistogramData,
   getInicialFilters,
 } from "~/services/utils";
-import HorizontalBarChart from "../Charts/HorizontalBarChart";
+import HorizontalBarChart from "../Commom/Charts/HorizontalBarChart";
 
 type Filtro = { key: string; value: string; checked: boolean };
 

@@ -1,6 +1,6 @@
-import Apoie from "../Icons/apoie";
-import Associe from "../Icons/associe";
-import Participe from "../Icons/participe";
+import Apoie from "../Commom/Icones/apoie";
+import Associe from "../Commom/Icones/associe";
+import Participe from "../Commom/Icones/participe";
 import { Link } from "@remix-run/react";
 
 export default function SectionCallToAction({ home }: any) {

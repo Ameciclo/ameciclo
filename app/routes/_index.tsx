@@ -1,11 +1,11 @@
 import Banner from "~/components/Commom/Banner";
-import SectionCallToAction from "~/components/Home/SectionCallToAction";
-import SectionCarousel from "~/components/Home/SectionCarousel";
+import SectionCallToAction from "~/components/PaginaInicial/SectionCallToAction";
+import SectionCarousel from "~/components/PaginaInicial/SectionCarousel";
 import { useLoaderData } from "@remix-run/react";
 import { loader } from "../loader/home"
-import SectionData from "~/components/Home/SectionData";
+import SectionData from "~/components/PaginaInicial/SectionData";
 import bannerImage from "/backgroundImage.webp";
-import HomeBanner from "~/components/Home/HomeBanner";
+import HomeBanner from "~/components/PaginaInicial/HomeBanner";
 export { loader };
 
 

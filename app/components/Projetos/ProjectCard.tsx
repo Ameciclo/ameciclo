@@ -9,7 +9,7 @@ const StatusIndicator = ({ status }: any) => {
 
     return (
         <div
-            className="absolute p-4 font-semibold uppercase bg-green-400 rounded"
+            className="p-4 font-semibold uppercase bg-green-400 rounded"
             style={{
                 maxHeight: "50px",
                 color: statusMap.get(status)?.fontColor,
@@ -18,6 +18,7 @@ const StatusIndicator = ({ status }: any) => {
                 borderBottom: "0 none",
                 boxShadow: "0 1px 5px rgba(0, 0, 0, 0.46)",
                 zIndex: 1,
+                position: "relative",
             }}
         >
             {statusMap.get(status)?.name}
@@ -56,8 +57,10 @@ export const ProjectCard = ({ project, translations }: any) => {
     }
 
     return (
-        <div className="bg-white rounded-lg shadow" style={{ minHeight: "450px" }}>
-            <StatusIndicator status={project.status} />
+        <div className="bg-white rounded-lg shadow relative" style={{ minHeight: "450px" }}>
+            <div className="absolute top-0 left-0">
+                <StatusIndicator status={project.status} />
+            </div>
             {project.media ? (
                 <Link to={`/projetos/${project.slug}`}>
                     <div
