@@ -28,7 +28,6 @@ export function TableHead({ headerGroups, isSmallScreen = false }: any) {
                   </span>
                   {column.render("Header")}
                 </div>
-                {/* Only show filter for the first column when isSmallScreen is true */}
                 {isSmallScreen && index !== 0
                   ? null
                   : column.canFilter

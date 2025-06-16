@@ -26,7 +26,6 @@ export default function Contato() {
       <Breadcrumb label="Contato" slug="/contato" routes={["/"]} />
       <section className="container mx-auto my-12">
         <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-3">
-          {/* 🔹 Card 1 - Participe */}
           <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
             <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
               <motion.div whileHover={{ scale: 1.1 }}>
@@ -41,7 +40,6 @@ export default function Contato() {
             </div>
           </div>
 
-          {/* 🔹 Card 2 - Associe-se */}
           <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
             <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
               <motion.div whileHover={{ scale: 1.1 }}>
@@ -57,7 +55,6 @@ export default function Contato() {
             </div>
           </div>
 
-          {/* 🔹 Card 3 - Apoie */}
           <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
             <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
               <motion.div whileHover={{ scale: 1.1 }}>

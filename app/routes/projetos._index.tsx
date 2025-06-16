@@ -129,7 +129,6 @@ export default function Projetos() {
       <div />
       <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
       <section className="container my-12 mx-auto">
-        {/* Projetos em Destaque */}
         {filteredProjects.highlighted.length > 0 && (
           <>
             <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
@@ -145,7 +144,6 @@ export default function Projetos() {
           </>
         )}
 
-        {/* Projetos em Andamento */}
         {filteredProjects.ongoing.length > 0 && (
           <>
             <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
@@ -161,7 +159,6 @@ export default function Projetos() {
           </>
         )}
 
-        {/* Botão para mostrar demais projetos */}
         {filteredProjects.others.length > 0 && !showOtherProjects && (
           <div className="text-center my-4">
             <button

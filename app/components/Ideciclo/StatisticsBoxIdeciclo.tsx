@@ -21,9 +21,7 @@ export const StatisticsBoxIdeciclo = ({ title, boxes, subtitle = "" }: any) => {
         {subtitle && (
           <h3 className="text-2xl md:text-3xl font-bold my-8">{subtitle}</h3>
         )}
-        {/* Background Wrapper for NumberBox */}
         <div className="relative z-1 rounded-lg mx-4 md:mx-auto my-8 max-w-4xl">
-          {/* SVG Background */}
           <div className="absolute inset-0 z-1">
             <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -39,7 +37,6 @@ export const StatisticsBoxIdeciclo = ({ title, boxes, subtitle = "" }: any) => {
               <path opacity="1" d="M1126.03 193.311C1126.03 196.253 1119.59 199.073 1108.12 201.153C1096.65 203.233 1081.09 204.401 1064.87 204.401L892.017 206.573C836.194 207.271 780.371 207.271 759.995 208L362.477 202.969C302.327 201.223 274.862 202.741 250.161 203.131L76.2709 204.401C60.6238 204.401 45.5722 203.313 34.216 201.361C22.8599 199.409 16.064 196.742 15.2281 193.909L1.63507 148.243C-1.7472 136.762 0.119956 125.25 7.21741 113.825L8.44552 91.0475C13.1347 83.4551 12.4648 56.3808 8.44552 48.7733L18.7728 17.9331C18.5231 17.545 18.3926 17.1547 18.3821 16.7639C18.6891 9.40439 26.3648 3.5431 94.4414 3.5431L779.505 0C781.236 0 782.966 0 784.725 0L1068.34 2.94077C1083.93 3.09986 1098.6 4.33552 1109.33 6.39408C1120.06 8.45264 1126.03 11.1779 1126.03 14.0104L1148.36 117.14C1146.52 122.76 1146.73 128.395 1149 134.01L1126.03 193.311Z" fill="#E5E8E9"/>
             </svg>
           </div>
-          {/* Content (calling NumberBox) */}
           <div className="relative z-10 flex flex-col align-baseline md:flex-row rounded-lg mx-4 md:mx-auto my-8 max-w-4xl divide-y md:divide-y-0 md:divide-x divide-gray-300">
             {boxes.map((box: any, index: any) =>
               box?.type == "LinksBox" ? (
@@ -72,9 +69,7 @@ export const StatisticsBoxIdecicloDetalhes = ({ title, boxes, subtitle = "" }: a
         {subtitle && (
           <h3 className="text-2xl md:text-3xl text-gray-700 font-bold my-8">{subtitle}</h3>
         )}
-        {/* Background Wrapper for NumberBox */}
         <div className="relative z-1 rounded-lg mx-4 md:mx-auto my-8 max-w-4xl">
-          {/* SVG Background */}
           <div className="absolute inset-0 z-1">
             <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -90,7 +85,6 @@ export const StatisticsBoxIdecicloDetalhes = ({ title, boxes, subtitle = "" }: a
               <path opacity="1" d="M1126.03 193.311C1126.03 196.253 1119.59 199.073 1108.12 201.153C1096.65 203.233 1081.09 204.401 1064.87 204.401L892.017 206.573C836.194 207.271 780.371 207.271 759.995 208L362.477 202.969C302.327 201.223 274.862 202.741 250.161 203.131L76.2709 204.401C60.6238 204.401 45.5722 203.313 34.216 201.361C22.8599 199.409 16.064 196.742 15.2281 193.909L1.63507 148.243C-1.7472 136.762 0.119956 125.25 7.21741 113.825L8.44552 91.0475C13.1347 83.4551 12.4648 56.3808 8.44552 48.7733L18.7728 17.9331C18.5231 17.545 18.3926 17.1547 18.3821 16.7639C18.6891 9.40439 26.3648 3.5431 94.4414 3.5431L779.505 0C781.236 0 782.966 0 784.725 0L1068.34 2.94077C1083.93 3.09986 1098.6 4.33552 1109.33 6.39408C1120.06 8.45264 1126.03 11.1779 1126.03 14.0104L1148.36 117.14C1146.52 122.76 1146.73 128.395 1149 134.01L1126.03 193.311Z" fill="#E5E8E9"/>
             </svg>
           </div>
-          {/* Content (calling NumberBox) */}
           <div className="relative z-10 flex flex-col align-baseline md:flex-row rounded-lg mx-4 md:mx-auto my-8 max-w-4xl divide-y md:divide-y-0 md:divide-x divide-gray-300">
             {boxes.map((box: any, index: any) =>
               box?.type == "LinksBox" ? (
@@ -120,9 +114,7 @@ export const StatisticsBoxIdeciclo2 = ({ title, boxes, subtitle = "" }: any) => 
         {subtitle && (
           <h3 className="text-2xl md:text-3xl font-medium my-8 text-gray-800">{subtitle}</h3>
         )}
-        {/* Background Wrapper for NumberBox */}
         <div className="relative rounded-lg mx-4 md:mx-auto my-8 max-w-4xl lg:max-w-6xl">
-          {/* Content (calling NumberBox) */}
           <div className="flex flex-col gap-4 justify-between md:flex-row  rounded-lg text-gray-800 ">
             {boxes.map((box: any, index: any) => (
               <div key={`box-${index}`} className="relative flex-1">

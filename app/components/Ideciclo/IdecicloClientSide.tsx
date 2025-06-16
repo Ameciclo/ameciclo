@@ -164,7 +164,6 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
     function SelectionFilterIdeciclo({ title, value, name, onChange, items }: any) {
         return (
             <div className="relative rounded-lg mx-4 m-4 xl:m-8 max-w-md">
-                {/* SVG Background */}
                 <div className="absolute inset-0 z-0">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -179,7 +178,6 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
                         <path d="M285.958 85.6596C285.958 97.0472 264.411 99.8347 240.981 99.8347H232.428L172.037 99.7969C171.18 99.7969 170.316 99.7969 169.459 99.8313L127.684 100.664C113.961 101.411 93.838 100.743 81.8009 100.292L47.4172 100.141C46.3518 100.138 45.2877 100.103 44.2309 100.038L26.1893 98.9055C7.94247 98.3033 3.02849 93.3993 3.02849 84.3931L4.93319 52.808C5.01108 51.545 4.93319 50.2854 4.77742 49.0224L0.090017 16.219C-0.082714 15.1743 -0.00668366 14.1235 0.316598 13.0873C1.39526 9.91218 4.75836 7.0263 9.80661 4.94393C14.8549 2.86156 21.2603 1.71797 27.8816 1.71693L76.0301 0.182065C81.6947 0.00311224 87.3804 -0.0439203 93.0874 0.0409676L202.859 1.71693H265.962C270.357 1.71664 274.59 2.52244 277.815 3.97327C281.04 5.42411 283.02 7.41309 283.359 9.54268C283.451 10.1484 283.593 10.754 283.791 11.3529L285.582 16.7077C287.864 23.5415 288.534 30.4794 287.579 37.3871L284.619 58.9233C284.53 59.6116 284.504 60.2919 284.541 60.9641L285.958 85.6596Z" fill="#6DBFAC" />
                     </svg>
                 </div>
-                {/* Content */}
                 <div className="relative z-10 text-white font-bold rounded px-4 pb-6 pt-2 mx-4">
                     <label htmlFor={value}>{title}</label>
                     <select
@@ -218,7 +216,6 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
                 <svg className="relative z-[1]" xmlns="http://www.w3.org/2000/svg" width="236" height="229" viewBox="0 0 236 229" fill="none">
                     <path d="M236 229L236 14.1282C226.709 10.9305 217.347 7.94763 207.915 5.17949C182.03 -2.37835 155.574 -0.89542 129.658 4.69881C113.314 8.13405 97.9542 15.0096 84.6729 24.836C80.3447 28.0473 75.8155 30.9723 71.6354 34.3779C55.1376 47.6732 41.8886 63.2286 34.2481 82.9465C30.9441 91.7266 27.0558 100.291 22.6076 108.586C11.066 129.199 3.62167 151.719 0.659843 174.98C-0.0181506 179.902 -0.174172 184.878 0.194221 189.83C1.1572 200.61 2.87154 211.307 3.90861 222.097C4.13083 224.428 4.43772 226.719 4.80811 229L236 229Z" fill="#5AC2E1" />
                 </svg>
-                {/* Background */}
                 <div className="absolute lg:translate-y-[-65px] translate-y-[0] z-[0] ">
                     <svg className="scale-y-[2] sm:scale-y-[1] w-full" xmlns="http://www.w3.org/2000/svg" width="847" height="373" viewBox="0 0 847 373" fill="none">
                         <g filter="url(#filter0_d_36_344)">
@@ -382,7 +379,6 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
             )}
             {filteredCityData.length > 0 && (
                 <div id={"anchor"}>
-                    {/* <IdecicloTable title={"Avaliações de cada via"} data={filteredCityData} /> */}
                     <DevelopingComponent title={"Componente Tabela de Dados do Ideciclo"} subtitle="Em desenvolvimento..."/>
                 </div>
             )}

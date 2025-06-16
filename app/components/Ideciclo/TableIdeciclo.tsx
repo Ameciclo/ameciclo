@@ -82,7 +82,6 @@ export const Table = ({ title, data, columns }: any) => {
   return (
     <div className="relative md:mb-[-100px]">
       <section className="relative z-[1] container flex flex-col mx-auto md:mt-[-40px]  rounded p-2 sm:p-12">
-        {/* "avaliações de cada via" titulo + faixa vermelha */}
         <div className="relative inline-flex items-center justify-center mb-10 w-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"

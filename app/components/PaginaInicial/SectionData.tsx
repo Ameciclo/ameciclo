@@ -22,7 +22,6 @@ export default function SectionData({ projects }: any) {
                     <Counter label={"Projetos em Andamento"} number={ongoingProjects} />
                     <Counter label={"Projetos Realizados"} number={numberOfProjects} />
                     <Counter label={"Pessoas Associadas"} number={1306} />
-                    {/*<Counter label={"Horas de Envolvimento"} number={1000} />*/}
                 </div>
             </div>
         </section>

@@ -27,7 +27,6 @@ export default function perfil() {
                     },
                 ]}
             />
-            {/* <PerfilDashboard /> */}
             <DevelopingComponent title={"Grágicos da Página de Perfil"} />
         </>
     );

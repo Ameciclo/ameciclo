@@ -32,14 +32,11 @@ export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
   return (
     <section className="relative w-100">
       <section className="relative z-[1] container mx-auto lg:w-4/6 my-5 md:my-6 rounded p-12 overflow-auto">
-        {/* Title and buttons */}
         <div className="flex p-6 justify-between items-center mb-4">
-          {/* Title */}
           <div className="relative inline-flex items-center justify-center">
             <h1 className="relative inline-flex items-center justify-center px-4 md:px-8 py-2 md:py-4 gap-4 rounded-full bg-[#5AC2E1] shadow-lg text-[#334454] text-center font-lato text-xl md:text-3xl font-black leading-normal z-[0]">
               {boxes[currentIndex].title}
             </h1>
-            {/* SVG Background */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 341 80"
@@ -50,9 +47,7 @@ export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
             </svg>
           </div>
 
-          {/* Buttons */}
           <div className="flex items-center">
-            {/* Blue and yellow circles */}
             {boxes.map((_, index) => (
               <div
                 key={index}
@@ -62,7 +57,6 @@ export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
                 onClick={() => handleDotClick(index)}
               />
             ))}
-            {/* Next button */}
             <button
               onClick={handleNext}
               className=" p-4 rounded-full ml-2 text-lg font-bold leading-none shadow-sm transform scale-y-150">
@@ -75,7 +69,6 @@ export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
           <p className="text-justify">{boxes[currentIndex].description}</p>
         </div>
       </section>
-      {/* SVG row array behind the secondary section */}
       <div className="absolute bottom-0 md:top-0 left-0 w-full z-0 ">
         <div className="flex mx-2 md:mx-12  md:translate-y-full" >
           {Array.from({ length: svgCount }).map((_, svgIndex) => (

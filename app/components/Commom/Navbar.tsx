@@ -54,17 +54,14 @@ export const Navbar = ({ pages }: any) => {
         role="navigation"
       >
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          {/* Logo da Ameciclo */}
           <Link to="/" aria-label="Ir para o site da Ameciclo">
             <AmecicloLogo isScrolled={isHeaderScrolled} />
           </Link>
 
-          {/* Menu grande (desktop) */}
           <div className="hidden lg:flex space-x-6">
             <BigMenu pages={pages} />
           </div>
 
-          {/* Botão de menu (mobile) */}
           <button
             aria-label={isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
             aria-expanded={isMenuOpen}
@@ -81,7 +78,6 @@ export const Navbar = ({ pages }: any) => {
 
       </nav>
 
-      {/* Menu pequeno (mobile) - Moved outside the nav element */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -99,7 +95,6 @@ export const Navbar = ({ pages }: any) => {
   );
 };
 
-// Menu grande (desktop)
 function BigMenu({ pages }: any) {
   return (
     <ul className="flex space-x-6 h-full">
@@ -118,7 +113,6 @@ function BigMenu({ pages }: any) {
   );
 }
 
-// Menu pequeno (mobile)
 function SmallMenu({ pages, closeMenu }: any) {
   return (
     <motion.div
