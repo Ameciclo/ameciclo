@@ -1,4 +1,3 @@
-// src/components/VisaoGeral.tsx
 export default function VisaoGeral() {
   return (
     <section className="p-6">

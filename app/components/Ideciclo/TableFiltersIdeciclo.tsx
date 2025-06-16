@@ -93,7 +93,6 @@ export function SelectColumnFilter({
         return Array.from(options.values());
     }, [id, preFilteredRows]);
 
-    // Render a multi-select box
     return (
         <select
             className="my-2 max-w-sm text-gray-600 bg-gray-300 h-10 px-5 pr-16 rounded-xl text-sm focus:outline-none"

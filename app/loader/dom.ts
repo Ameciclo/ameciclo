@@ -10,14 +10,6 @@ export interface Action {
 
 export const loader: LoaderFunction = async () => {
   try {
-    // No futuro, substituir por chamada à API real
-    // const response = await fetch("https://api.example.com/dom-data");
-    // if (!response.ok) {
-    //   throw new Error("Falha ao carregar dados da API");
-    // }
-    // const data = await response.json();
-    
-    // Por enquanto, usando dados mockados
     const totalGoodActions: any[] = [
       {
         cod: 5011,

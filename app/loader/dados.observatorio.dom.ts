@@ -13,7 +13,6 @@ export const loader: LoaderFunction = async () => {
         const data = await res.json();
         const { cover, description } = data;
 
-        // Mock data for DOM page
         const totalGoodActions = [
             {
                 cod: 5011,

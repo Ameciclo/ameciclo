@@ -2,7 +2,6 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { IntlPercentil } from "~/services/utils";
 
 export const loader: LoaderFunction = async () => {
-  // Busca o cover
   const res = await fetch("https://cms.ameciclo.org/contagens", {
     cache: "no-cache",
   });
@@ -18,7 +17,6 @@ export const loader: LoaderFunction = async () => {
   const archives = data.archives;
   const dataCounts = data.counts;
 
-  // Busca os dados adicionais (summary + page)
   const summaryDataRes = await fetch("http://api.garfo.ameciclo.org/cyclist-counts", {
     cache: "no-cache",
   });
@@ -82,7 +80,7 @@ export const loader: LoaderFunction = async () => {
       },
       {
         label: "Calçada",
-        icon: "sidewalk", //CRIAR!
+        icon: "sidewalk",
         data: IntlPercentil(total_sidewalk / total_cyclists),
       },
       {
@@ -93,7 +91,6 @@ export const loader: LoaderFunction = async () => {
     ];
   };
   const cards = CardsData(summaryData);
-  // Retorna tudo junto
   return json({
     cover,
     summaryData,

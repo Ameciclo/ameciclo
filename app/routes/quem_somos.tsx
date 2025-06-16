@@ -6,7 +6,6 @@ import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 
-// Definir o tipo dos dados recebidos
 type Ameciclista = {
   id: string;
   name: string;
@@ -21,7 +20,6 @@ type CustomData = {
   links: { id: string; title: string; link: string }[];
 };
 
-// Loader para buscar dados no servidor
 export const loader: LoaderFunction = async () => {
   const server = "https://cms.ameciclo.org";
 
@@ -38,13 +36,11 @@ export const loader: LoaderFunction = async () => {
     custom = await resCustom.json();
   }
 
-  // Ordenar por nome
   ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
 
   return json({ ameciclistas, custom });
 };
 
-// SEO Metadata
 export const meta: MetaFunction = () => {
   return [{ title: "Quem Somos" }];
 };

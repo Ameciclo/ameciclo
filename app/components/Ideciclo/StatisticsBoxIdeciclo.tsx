@@ -100,8 +100,6 @@ export const StatisticsBoxIdecicloDetalhes = ({ title, boxes, subtitle = "" }: a
   );
 };
 
-
-// estatisticas cada cidade
 export const StatisticsBoxIdeciclo2 = ({ title, boxes, subtitle = "" }: any) => {
   return (
     <section className="mx-auto container">
@@ -146,8 +144,6 @@ export const StatisticsBoxIdeciclo2 = ({ title, boxes, subtitle = "" }: any) => 
   );
 };
 
-
-// texto dentro das box de "estatísticas gerais"
 function NumberBox({ title, value, unit = undefined }: any) {
   return (
     <div className="flex flex-col justify-center w-full p-6 text-center uppercase tracking-widest">

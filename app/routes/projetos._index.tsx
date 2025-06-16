@@ -6,7 +6,6 @@ import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ProjectCard } from "~/components/Projetos/ProjectCard";
 
-// 🔹 Tipos
 interface Project {
   id: string;
   name: string;
@@ -27,16 +26,13 @@ interface ProjetosData {
   workgroups: { id: string; name: string }[];
 }
 
-// 🔹 SEO para Remix
 export const meta: MetaFunction = () => {
   return [{ title: "Projetos" }];
 };
 
-// 🔹 Loader para buscar dados no servidor
 export const loader: LoaderFunction = async () => {
   const API_URL = "https://cms.ameciclo.org";
 
-  // Busca dados da API
   const [projectsRes, workgroupsRes] = await Promise.all([
     fetch(`${API_URL}/projects`).then((res) => res.json()).catch(() => []),
     fetch(`${API_URL}/workgroups`).then((res) => res.json()).catch(() => []),
@@ -46,13 +42,12 @@ export const loader: LoaderFunction = async () => {
 };
 
 export default function Projetos() {
-  const { projects, workgroups } = useLoaderData<typeof loader>();
+  const { projects } = useLoaderData<typeof loader>();
 
   const [status, setStatus] = useState<string>("");
   const [group, setGroup] = useState<string>("");
   const [showOtherProjects, setShowOtherProjects] = useState<boolean>(false);
 
-  // 🔹 Agrupar projetos por slug base (sem _es e _en)
   const groupedProjects: GroupedProject[] = useMemo(() => {
     const groups: Record<string, GroupedProject> = {};
 
@@ -76,7 +71,6 @@ export default function Projetos() {
     return Object.values(groups);
   }, [projects]);
 
-  // 🔹 Filtrar e categorizar os projetos
   const filteredProjects = useMemo(() => {
     let filtered = groupedProjects;
 

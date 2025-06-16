@@ -9,7 +9,6 @@ export function TableHead({ headerGroups, isSmallScreen = false }: any) {
           className="rounded-lg text-sm font-xl text-gray-700 text-left"
         >
           {headerGroup.headers.map((column: any, index: number) =>
-            // Show only the first column when isSmallScreen is true
             isSmallScreen && index !== 0 ? null : (
               <th
                 {...column.getHeaderProps()}

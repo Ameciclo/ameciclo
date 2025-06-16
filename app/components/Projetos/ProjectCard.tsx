@@ -27,7 +27,6 @@ const StatusIndicator = ({ status }: any) => {
 };
 
 export const ProjectCard = ({ project, translations }: any) => {
-    // Links de tradução com emojis de bandeira e texto
     const translationLinks = [];
 
     if (translations["es"]) {

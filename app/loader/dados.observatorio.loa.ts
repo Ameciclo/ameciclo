@@ -10,7 +10,6 @@ export const loader: LoaderFunction = async () => {
     const data = await response.json();
     const { cover, description } = data;
 
-    // Mock data for LOA page
     const totalGoodActions2023 = [
       {
         cod: 3001,
@@ -73,7 +72,6 @@ export const loader: LoaderFunction = async () => {
       },
     ];
 
-    // Valores orçados e executados por ano
     const totalValueBudgeted2020 = 18500000;
     const totalValueBudgeted2021 = 21300000;
     const totalValueBudgeted2022 = 19800000;
@@ -84,16 +82,13 @@ export const loader: LoaderFunction = async () => {
     const totalValueExecuted2022 = 17500000;
     const totalValueExecuted2023 = 20100000;
 
-    // Valores totais de ações por ano
     const totalValueActions2020 = 145000000;
     const totalValueActions2021 = 158000000;
     const totalValueActions2022 = 172000000;
     const totalValueActions2023 = 186000000;
 
-    // Valor por emissão de carbono
     const totalValueEmissions = 3045.957;
 
-    // Dados de ações
     const actions2023 = [...totalGoodActions2023, ...totalBadActions2023];
 
     return json({

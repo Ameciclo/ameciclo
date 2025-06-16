@@ -11,13 +11,11 @@ import bannerContatact from "/contato.webp";
 import Banner from "~/components/Commom/Banner";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 
-// 🔹 SEO para Remix
 export const meta: MetaFunction = () => {
   return [{ title: "Contato" }];
 };
 
 export default function Contato() {
-  // 🔹 Evitar erro no SSR verificando `window`
   const isClient = typeof window !== "undefined";
 
   return (

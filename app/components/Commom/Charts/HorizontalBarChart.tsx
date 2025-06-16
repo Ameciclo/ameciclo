@@ -6,7 +6,7 @@ export default function HorizontalBarChart({title, yAxisTitle = "Quantidade", se
 const options = {
     chart: {
       type: "bar",
-      marginLeft: 120, // Add more margin on the left for labels
+      marginLeft: 120,
       style: {
         fontFamily: 'inherit'
       }
@@ -30,7 +30,7 @@ const options = {
         },
         chartOptions: {
           chart: {
-            marginLeft: 80 // Smaller margin on mobile
+            marginLeft: 80
           },
           legend: {
             align: 'center'

@@ -1,18 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-// 🔹 Definição do tipo para o contexto
 type TabContextType = {
     activeTab: string;
     changeTab: (name: string) => void;
 };
 
-// 🔹 Criando o contexto com um valor inicial seguro
 const TabContext = createContext<TabContextType>({
     activeTab: "",
     changeTab: () => { },
 });
 
-// 🔹 Tipagem das props do Tabs
 interface TabsProps {
     initialValue: string;
     children: ReactNode;
@@ -29,7 +26,6 @@ const Tabs = ({ initialValue, children }: TabsProps) => {
     );
 };
 
-// 🔹 Tipagem das props do TabsNav
 interface TabsNavProps {
     children: ReactNode;
 }
@@ -42,7 +38,6 @@ const TabsNav = ({ children }: TabsNavProps) => {
     );
 };
 
-// 🔹 Tipagem das props do Tab
 interface TabProps {
     name: string;
     onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -73,7 +68,6 @@ const Tab = ({ name, onClick = () => { }, children, disabled = false }: TabProps
     );
 };
 
-// 🔹 Tipagem das props do TabPanel
 interface TabPanelProps {
     name: string;
     children: ReactNode;
