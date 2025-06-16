@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { Link } from "@remix-run/react";
@@ -21,6 +21,19 @@ export default function SectionCarousel({ featuredProjects = [] }) {
       setLoaded(true);
     },
   });
+
+  // Configurar autoplay
+  useEffect(() => {
+    if (loaded && instanceRef.current) {
+      const autoplayInterval = setInterval(() => {
+        instanceRef.current?.next();
+      }, 5000); // Mudar slide a cada 5 segundos
+      
+      return () => {
+        clearInterval(autoplayInterval);
+      };
+    }
+  }, [loaded, instanceRef]);
 
   // Projetos de demonstração para fallback
   const demoProjects = [
@@ -58,14 +71,14 @@ export default function SectionCarousel({ featuredProjects = [] }) {
             <>
               <Arrow
                 left
-                onClick={(e: any) => {
+                onClick={(e) => {
                   e.stopPropagation();
                   instanceRef.current?.prev();
                 }}
                 disabled={currentSlide === 0 && !instanceRef.current.options.loop}
               />
               <Arrow
-                onClick={(e: any) => {
+                onClick={(e) => {
                   e.stopPropagation();
                   instanceRef.current?.next();
                 }}
@@ -94,14 +107,14 @@ export default function SectionCarousel({ featuredProjects = [] }) {
 }
 
 // Componente para cada slide
-function ProjectSlide({ project }: any) {
+function ProjectSlide({ project }) {
   // Extrair dados do projeto com fallbacks
   const title = project.name || project.title || "";
   const description = project.description || "";
   const slug = project.slug || "";
   
   // Determinar a URL da imagem
-  let imageUrl = "/backgroundImage.webp"; // Imagem padrão
+  let imageUrl = "/backgroundImage.webp";
   if (project.media && project.media.url) {
     imageUrl = project.media.url;
   } else if (project.image && project.image.url) {
@@ -113,6 +126,7 @@ function ProjectSlide({ project }: any) {
   return (
     <div className="flex min-h-[600px] relative w-full">
       <div className="w-full h-full">
+        {/* Imagem de fundo */}
         <div 
           className="absolute inset-0 w-full h-full"
           style={{ 
@@ -121,11 +135,13 @@ function ProjectSlide({ project }: any) {
             backgroundPosition: "center",
           }}
         />
+        {/* Overlay escuro */}
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         
-        <div className="container flex items-center justify-center h-full mx-auto">
+        {/* Container centralizado para o card */}
+        <div className="absolute inset-0 flex items-center justify-center">
           <div
-            className="relative mx-auto rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[850px] my-auto"
+            className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[850px]"
           >
             <div className="flex items-center justify-center mt-5 text-gray-800">
               <h1 className="text-3xl lg:text-6xl">{title}</h1>
@@ -161,7 +177,7 @@ function ProjectSlide({ project }: any) {
   );
 }
 
-function Arrow(props: any) {
+function Arrow(props) {
   const disabledClass = props.disabled ? " arrow--disabled" : "";
   return (
     <svg
