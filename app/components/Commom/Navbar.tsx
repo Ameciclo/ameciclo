@@ -17,7 +17,6 @@ export const Navbar = ({ pages }: any) => {
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Listener para o scroll com detecção forçada
   useEffect(() => {
     const scrollThreshold = 50;
 
@@ -25,19 +24,15 @@ export const Navbar = ({ pages }: any) => {
       const scrolled = window.scrollY > scrollThreshold;
       console.log("Scroll position:", window.scrollY, "isScrolled:", scrolled);
       
-      // Forçar atualização do estado
       if (scrolled !== isHeaderScrolled) {
         setIsHeaderScrolled(scrolled);
       }
     };
 
-    // Verificar posição inicial
     handleScroll();
     
-    // Adicionar listener para scroll com intervalo para garantir detecção
     window.addEventListener("scroll", handleScroll, { passive: true });
     
-    // Verificar scroll periodicamente para garantir
     const intervalId = setInterval(handleScroll, 500);
     
     return () => {

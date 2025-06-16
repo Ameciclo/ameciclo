@@ -10,7 +10,7 @@ declare module "@remix-run/node" {
 
 export default defineConfig({
   server: {
-    host: true // Permite acesso de qualquer IP
+    host: true
   },
   plugins: [
     remix({

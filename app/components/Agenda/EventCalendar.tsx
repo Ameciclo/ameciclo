@@ -12,7 +12,6 @@ export default function EventCalendar({ googleCalendarApiKey }: any) {
     }) => {
         e.jsEvent.preventDefault();
 
-        // Evita erro no SSR caso `window` não esteja disponível
         if (typeof window !== "undefined" && e.event.url) {
             window.open(e.event.url);
         }
