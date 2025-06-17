@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { Link } from "@remix-run/react";
@@ -6,6 +6,8 @@ import { Link } from "@remix-run/react";
 export default function SectionCarousel({ featuredProjects = [] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoplayIntervalRef = useRef(null);
   
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -22,17 +24,32 @@ export default function SectionCarousel({ featuredProjects = [] }) {
     },
   });
 
-  useEffect(() => {
-    if (loaded && instanceRef.current) {
-      const autoplayInterval = setInterval(() => {
+  const startAutoplay = () => {
+    if (loaded && instanceRef.current && !autoplayIntervalRef.current) {
+      autoplayIntervalRef.current = setInterval(() => {
         instanceRef.current?.next();
       }, 5000);
+    }
+  };
+
+  const stopAutoplay = () => {
+    if (autoplayIntervalRef.current) {
+      clearInterval(autoplayIntervalRef.current);
+      autoplayIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (loaded && instanceRef.current) {
+      if (!isPaused) {
+        startAutoplay();
+      }
       
       return () => {
-        clearInterval(autoplayInterval);
+        stopAutoplay();
       };
     }
-  }, [loaded, instanceRef]);
+  }, [loaded, instanceRef, isPaused]);
 
   const demoProjects = [
     {
@@ -57,7 +74,12 @@ export default function SectionCarousel({ featuredProjects = [] }) {
     <section>
       <div className="mx-auto">
         <div className="navigation-wrapper">
-          <div ref={sliderRef} className="keen-slider">
+          <div 
+            ref={sliderRef} 
+            className="keen-slider"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
             {projectsToShow.map((project, index) => (
               <div key={project.id || index} className="keen-slider__slide">
                 <ProjectSlide project={project} />
