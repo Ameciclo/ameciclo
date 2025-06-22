@@ -8,7 +8,7 @@ import HomeBanner from "~/components/PaginaInicial/HomeBanner";
 export { loader };
 
 export default function Index() {
-  const { home, featuredProjects } = useLoaderData<any>();
+  const { home, featuredProjects, allProjects } = useLoaderData<any>();
   
   return (
     <>
@@ -18,7 +18,7 @@ export default function Index() {
       />
       <SectionCallToAction home={home} />
       <SectionCarousel featuredProjects={featuredProjects} />
-      <SectionData projects={featuredProjects} />
+      <SectionData projects={allProjects} />
     </>
   )
 }
