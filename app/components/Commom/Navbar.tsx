@@ -99,12 +99,12 @@ function BigMenu({ pages }: any) {
             <Link
               to={page.url}
               className={`uppercase h-14 flex items-center relative group ${
-                isActive ? 'text-yellow-300 font-semibold' : 'text-white'
+                isActive ? 'font-semibold' : 'text-white'
               }`}
             >
               <span>{page.name}</span>
               <span className={`absolute left-0 bottom-0 h-0.5 transition-all duration-300 ease-out ${
-                isActive ? 'w-full bg-yellow-300' : 'w-0 bg-white group-hover:w-full'
+                isActive ? 'w-full bg-white' : 'w-0 bg-white group-hover:w-full'
               }`}></span>
             </Link>
           </li>
@@ -164,7 +164,7 @@ function SmallMenu({ pages, closeMenu }: any) {
               <Link
                 to={page.url}
                 className={`block uppercase py-3 relative group active:opacity-70 transition-opacity ${
-                  isActive ? 'text-yellow-300 font-semibold' : 'text-white'
+                  isActive ? 'font-semibold' : 'text-white'
                 }`}
                 onClick={closeMenu}
               >
