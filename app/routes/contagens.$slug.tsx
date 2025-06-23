@@ -10,7 +10,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
         const response = await fetch(`http://api.garfo.ameciclo.org/cyclist-counts`);
         const data = await response.json();
         
-:        const contagem = data.counts?.find((c: any) => c.slug === slug);
+        const contagem = data.counts?.find((c: any) => c.slug === slug);
         
         if (!contagem) {
             throw new Response("Contagem não encontrada", { status: 404 });
