@@ -38,9 +38,9 @@ const ProjectDate = ({ project }: any) => {
 
 const Rating = ({ rating }: { rating: string }) => {
   const ratingMap = new Map([
-    ["high", { value: 3, color: "#6CAF56", fontColor: "#dbf4c6" }],
-    ["low", { value: 1, color: "#E8E288", fontColor: "#615f46" }],
-    ["medium", { value: 2, color: "#FF8360", fontColor: "#581f0f" }],
+    ["high", { value: 3, color: "#22c55e", fontColor: "#dcfce7" }],
+    ["low", { value: 1, color: "#ef4444", fontColor: "#fef2f2" }],
+    ["medium", { value: 2, color: "#eab308", fontColor: "#fefce8" }],
   ]);
   
   const ratingData = ratingMap.get(rating) || { value: 0, color: "#gray", fontColor: "#gray" };
