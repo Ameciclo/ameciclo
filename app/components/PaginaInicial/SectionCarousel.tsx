@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { Link } from "@remix-run/react";
+import DevelopingComponent from "../Commom/DevelopingComponent";
 
 export default function SectionCarousel({ featuredProjects = [] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -51,24 +52,14 @@ export default function SectionCarousel({ featuredProjects = [] }) {
     }
   }, [loaded, instanceRef, isPaused]);
 
-  const demoProjects = [
-    {
-      id: "1",
-      name: "Ciclomobilidade Inclusiva",
-      description: "Promovendo o uso da bicicleta como meio de transporte para todos",
-      slug: "ciclomobilidade-inclusiva",
-      media: { url: "/a1.gif" }
-    },
-    {
-      id: "2",
-      name: "Bicicleta nas Escolas",
-      description: "Educação sobre mobilidade sustentável para crianças e jovens",
-      slug: "bicicleta-nas-escolas",
-      media: { url: "/b1.gif" }
-    }
-  ];
-
-  const projectsToShow = featuredProjects?.length > 0 ? featuredProjects : demoProjects;
+  if (!featuredProjects || featuredProjects.length === 0) {
+    return (
+      <DevelopingComponent 
+        title="Projetos em Destaque" 
+        subtitle="Estamos arrumando um problema nessa seção..."
+      />
+    );
+  }
 
   return (
     <section>
@@ -80,7 +71,7 @@ export default function SectionCarousel({ featuredProjects = [] }) {
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            {projectsToShow.map((project, index) => (
+            {featuredProjects.map((project, index) => (
               <div key={project.id || index} className="keen-slider__slide">
                 <ProjectSlide project={project} />
               </div>

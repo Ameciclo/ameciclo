@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import DevelopingComponent from "./DevelopingComponent";
 
 export const CardsSession = ({
   title,
@@ -7,6 +8,15 @@ export const CardsSession = ({
   title: string;
   cards: any[];
 }) => {
+  if (!cards || cards.length === 0) {
+    return (
+      <DevelopingComponent 
+        title={title} 
+        subtitle="Estamos arrumando um problema nessa seção..."
+      />
+    );
+  }
+
   return (
     <section>
       <div className="flex-1 container mx-auto p-10 text-center">
