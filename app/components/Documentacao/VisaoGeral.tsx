@@ -1,0 +1,32 @@
+import { OverviewIcon } from "~/components/Commom/Icones/DocumentationIcons";
+
+export default function VisaoGeral() {
+  return (
+    <section id="visao-geral" className="mb-12">
+      <h2 className="text-2xl lg:text-3xl font-bold text-green-400 mb-4 lg:mb-6 flex items-center gap-3">
+        <OverviewIcon className="w-8 h-8" />
+        Visão Geral
+      </h2>
+      <div className="bg-gray-800 rounded-lg p-4 lg:p-6 border border-gray-700">
+        <p className="text-lg mb-4">
+          O projeto <strong className="text-green-400">Ameciclo</strong> é uma plataforma web desenvolvida com <strong>Remix</strong> e <strong>TypeScript</strong> 
+          que tem como objetivo fornecer dados sobre mobilidade ativa na região metropolitana do Recife.
+        </p>
+        <p className="mb-4">
+          A plataforma oferece visualização de dados de contagens de ciclistas, documentos relacionados à mobilidade urbana, 
+          e observatórios especializados em diferentes aspectos da mobilidade ativa.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4 mt-6">
+          <div className="bg-gray-700 p-4 rounded">
+            <h4 className="font-semibold text-green-400 mb-2">Objetivo</h4>
+            <p className="text-sm">Promover a mobilidade ativa através de dados e informações acessíveis</p>
+          </div>
+          <div className="bg-gray-700 p-4 rounded">
+            <h4 className="font-semibold text-green-400 mb-2">Tecnologias</h4>
+            <p className="text-sm">Remix, TypeScript, React, Tailwind CSS</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
