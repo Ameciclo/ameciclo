@@ -12,7 +12,7 @@ export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15, ease: "easeIn" }}
-          className="ml-32 flex items-center flex-shrink-0 mr-6"
+          className="flex items-center"
         >
           <NavbarLogo />
         </motion.div>
@@ -23,9 +23,9 @@ export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15, ease: "easeIn" }}
-          className="ml-32 mt-32 flex items-center flex-shrink-0 mr-6 border-white border-4"
+          className="mt-20 sm:mt-32 flex items-center flex-shrink-0 border-white border-4"
         >
-          <div className="w-20 h-20 sm:w-32 sm:h-32">
+          <div className="w-20 h-20 sm:w-20 sm:h-20 md:w-32 md:h-32">
             <MainLogo />
           </div>
         </motion.div>

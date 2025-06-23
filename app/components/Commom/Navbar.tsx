@@ -33,13 +33,12 @@ export const Navbar = ({ pages }: any) => {
 
   return (
     <>
-      <div className="max-h-14"></div>
       <nav
-        className={"flex fixed top-0 items-center max-h-14 w-full z-50 text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
-        role="navigation"
+        className={"flex fixed left-0 right-0 items-center max-h-14 z-[60] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
+        role="navigation mt-0"
       >
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          <Link to="/" aria-label="Ir para o site da Ameciclo">
+        <div className="w-full flex items-center justify-between px-6 py-4 m-0 pl-6 sm:pl-32">
+          <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)}>
             <AmecicloLogo isScrolled={isHeaderScrolled} />
           </Link>
 
@@ -50,7 +49,7 @@ export const Navbar = ({ pages }: any) => {
           <button
             aria-label={isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
             aria-expanded={isMenuOpen}
-            className="lg:hidden relative w-8 h-8 flex justify-center items-center z-[999]"
+            className="lg:hidden relative w-8 h-8 flex justify-center items-center z-[70]"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <div className="relative w-6 h-6 flex flex-col justify-center">
@@ -67,10 +66,10 @@ export const Navbar = ({ pages }: any) => {
         {isMenuOpen && (
           <motion.div
             initial={{ height: 0 }}
-            animate={{ height: "auto" }}
+            animate={{ height: "80vh" }}
             exit={{ height: 0 }}
-            className="bg-ameciclo lg:hidden fixed top-0 left-0 w-full z-50 native-scrollbar"
-            style={{ maxHeight: "100vh" }}
+            className="bg-ameciclo bg-opacity-95 lg:hidden fixed top-0 left-0 w-full z-[55] native-scrollbar"
+            style={{ maxHeight: "80vh" }}
           >
             <SmallMenu pages={pages} closeMenu={() => setIsMenuOpen(false)} />
           </motion.div>
@@ -124,6 +123,11 @@ function SmallMenu({ pages, closeMenu }: any) {
     return location.pathname.startsWith(pageUrl);
   };
 
+  const handleLinkClick = () => {
+    closeMenu();
+    setTimeout(() => window.scrollTo(0, 0), 100);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -133,7 +137,7 @@ function SmallMenu({ pages, closeMenu }: any) {
       className="flex flex-col items-center pt-16 pb-4 px-6"
     >
       <motion.ul
-        className="flex flex-col items-center w-full max-w-sm space-y-6 py-6"
+        className="flex flex-col items-center w-full max-w-sm space-y-4 py-6"
         role="menu"
         aria-label="Menu de navegação"
       >
@@ -163,13 +167,13 @@ function SmallMenu({ pages, closeMenu }: any) {
             >
               <Link
                 to={page.url}
-                className={`block uppercase py-3 relative group active:opacity-70 transition-opacity ${
-                  isActive ? 'font-semibold' : 'text-white'
+                className={`block uppercase py-2 text-white transition-opacity ${
+                  isActive ? 'font-bold' : 'font-normal'
                 }`}
-                onClick={closeMenu}
+                onClick={handleLinkClick}
               >
                 {page.name}
-                <span className={`block mx-auto mt-1 w-16 h-px opacity-50`}></span>
+                <span className="block mx-auto mt-1 w-16 h-px bg-white opacity-50"></span>
               </Link>
             </motion.li>
           );

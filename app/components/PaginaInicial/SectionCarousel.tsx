@@ -140,7 +140,7 @@ function ProjectSlide({ project }: any) {
   }
 
   return (
-    <div className="flex min-h-[600px] relative w-full">
+    <div className="flex min-h-[400px] md:min-h-[600px] relative w-full">
       <div className="w-full h-full">
         <div 
           className="absolute inset-0 w-full h-full"
@@ -152,17 +152,15 @@ function ProjectSlide({ project }: any) {
         />
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[850px]"
-          >
-            <div className="flex items-center justify-center mt-5 text-gray-800">
-              <h1 className="text-3xl lg:text-6xl">{title}</h1>
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          <div className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[320px] md:max-w-[850px] w-full">
+            <div className="flex items-center justify-center mt-3 md:mt-5 text-gray-800">
+              <h1 className="text-lg md:text-3xl lg:text-6xl text-center px-2">{title}</h1>
             </div>
-            <div className="mt-5 text-center border-t border-gray-600">
-              <div className="p-6 md:pr-24 md:pl-16 md:py-6">
+            <div className="mt-3 md:mt-5 text-center border-t border-gray-600">
+              <div className="p-3 md:p-6 md:pr-24 md:pl-16 md:py-6">
                 <p
-                  className="text-xl text-gray-800"
+                  className="text-sm md:text-xl text-gray-800"
                   style={{
                     overflow: "hidden",
                     display: "-webkit-box",
@@ -175,9 +173,9 @@ function ProjectSlide({ project }: any) {
                 {slug && (
                   <Link 
                     to={`/projetos/${slug}`}
-                    className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600"
+                    className="flex items-baseline justify-center mt-2 md:mt-3 text-ameciclo hover:text-red-600 focus:text-red-600"
                   >
-                    <span>Conheça mais</span>
+                    <span className="text-sm md:text-base">Conheça mais</span>
                     <span className="ml-1 text-xs">&#x279c;</span>
                   </Link>
                 )}
