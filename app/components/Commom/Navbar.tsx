@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AmecicloLogo } from "./NavBar/AmecicloLogo";
@@ -18,28 +18,18 @@ export const Navbar = ({ pages }: any) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    const scrollThreshold = 50;
-
     const handleScroll = () => {
-      const scrolled = window.scrollY > scrollThreshold;
-      console.log("Scroll position:", window.scrollY, "isScrolled:", scrolled);
-      
-      if (scrolled !== isHeaderScrolled) {
-        setIsHeaderScrolled(scrolled);
-      }
+      const scrolled = window.scrollY > 50;
+      setIsHeaderScrolled(scrolled);
     };
 
-    handleScroll();
-    
     window.addEventListener("scroll", handleScroll, { passive: true });
-    
-    const intervalId = setInterval(handleScroll, 500);
+    handleScroll();
     
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearInterval(intervalId);
     };
-  }, [isHeaderScrolled]);
+  }, []);
 
   return (
     <>
@@ -91,24 +81,49 @@ export const Navbar = ({ pages }: any) => {
 };
 
 function BigMenu({ pages }: any) {
+  const location = useLocation();
+  
+  const isActivePage = (pageUrl: string) => {
+    if (pageUrl === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(pageUrl);
+  };
+
   return (
     <ul className="flex space-x-6 h-full">
-      {pages.map((page: any, i: any) => (
-        <li key={page.name} className="h-full">
-          <Link
-            to={page.url}
-            className="uppercase h-14 flex items-center relative group"
-          >
-            <span>{page.name}</span>
-            <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-white transition-all duration-300 ease-out group-hover:w-full"></span>
-          </Link>
-        </li>
-      ))}
+      {pages.map((page: any, i: any) => {
+        const isActive = isActivePage(page.url);
+        return (
+          <li key={page.name} className="h-full">
+            <Link
+              to={page.url}
+              className={`uppercase h-14 flex items-center relative group ${
+                isActive ? 'text-yellow-300 font-semibold' : 'text-white'
+              }`}
+            >
+              <span>{page.name}</span>
+              <span className={`absolute left-0 bottom-0 h-0.5 transition-all duration-300 ease-out ${
+                isActive ? 'w-full bg-yellow-300' : 'w-0 bg-white group-hover:w-full'
+              }`}></span>
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }
 
 function SmallMenu({ pages, closeMenu }: any) {
+  const location = useLocation();
+  
+  const isActivePage = (pageUrl: string) => {
+    if (pageUrl === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(pageUrl);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -122,38 +137,45 @@ function SmallMenu({ pages, closeMenu }: any) {
         role="menu"
         aria-label="Menu de navegação"
       >
-        {pages.map((page: any, index: number) => (
-          <motion.li
-            key={page.name}
-            custom={index}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={{
-              hidden: { opacity: 0, y: -10 },
-              visible: i => ({
-                opacity: 1,
-                y: 0,
-                transition: { delay: i * 0.05, duration: 0.2 }
-              }),
-              exit: i => ({
-                opacity: 0,
-                y: -10,
-                transition: { delay: (pages.length - i - 1) * 0.05, duration: 0.2 }
-              })
-            }}
-            className="w-full text-center"
-          >
-            <Link
-              to={page.url}
-              className="block uppercase text-white py-3 relative group active:opacity-70 transition-opacity"
-              onClick={closeMenu}
+        {pages.map((page: any, index: number) => {
+          const isActive = isActivePage(page.url);
+          return (
+            <motion.li
+              key={page.name}
+              custom={index}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={{
+                hidden: { opacity: 0, y: -10 },
+                visible: i => ({
+                  opacity: 1,
+                  y: 0,
+                  transition: { delay: i * 0.05, duration: 0.2 }
+                }),
+                exit: i => ({
+                  opacity: 0,
+                  y: -10,
+                  transition: { delay: (pages.length - i - 1) * 0.05, duration: 0.2 }
+                })
+              }}
+              className="w-full text-center"
             >
-              {page.name}
-              <span className="block mx-auto mt-1 w-16 h-px bg-white opacity-50"></span>
-            </Link>
-          </motion.li>
-        ))}
+              <Link
+                to={page.url}
+                className={`block uppercase py-3 relative group active:opacity-70 transition-opacity ${
+                  isActive ? 'text-yellow-300 font-semibold' : 'text-white'
+                }`}
+                onClick={closeMenu}
+              >
+                {page.name}
+                <span className={`block mx-auto mt-1 w-16 h-px opacity-50 ${
+                  isActive ? 'bg-yellow-300' : 'bg-white'
+                }`}></span>
+              </Link>
+            </motion.li>
+          );
+        })}
       </motion.ul>
     </motion.div>
   );
