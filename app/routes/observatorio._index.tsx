@@ -23,10 +23,10 @@ export default function Observatorio() {
         {
             title: "Execução Cicloviária",
             src: "/icons/dados/mapa.svg",
-            url: "/observatorio/execucaocicloviaria",
+            url: "https://dados.ameciclo.org/observatorio",
             description:
                 "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
-            target: "_self",
+            target: "_blank",
         },
         {
             title: "LEI ORÇAMENTARIA ANUAL (LOA)",

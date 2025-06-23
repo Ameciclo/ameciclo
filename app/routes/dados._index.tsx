@@ -21,32 +21,32 @@ export default function Dados() {
         {
             title: "Contagens",
             src: "/icons/dados/contagem.svg",
-            url: "/dados/contagens",
+            url: "https://dados.ameciclo.org/contagens",
             description:
                 "Contagens das viagens de bicicleta e suas caracteristicas observáveis",
-            target: "_self",
+            target: "_blank",
         },
         {
             title: "Ideciclo",
             src: "/icons/dados/ideciclo.svg",
-            url: "/dados/ideciclo",
+            url: "https://dados.ameciclo.org/ideciclo",
             description: "Índice que mede a malha e qualidade da estrutura cicloviaria",
-            target: "_self",
+            target: "_blank",
         },
         {
             title: "Estudos e Pesquisas",
             src: "/icons/dados/relatorio.svg",
-            url: "/dados/documentos",
+            url: "https://dados.ameciclo.org/documentos",
             description:
                 "Nossos estudos, pesquisas e livros que participamos ou que fizeramos sobre nós.",
-            target: "_self",
+            target: "_blank",
         },
         {
             title: "Perfil",
             src: "/icons/dados/perfil.svg",
-            url: "/dados/perfil",
+            url: "https://dados.ameciclo.org/perfil",
             description: "Dados socio-economicos dos ciclistas e suas percepções",
-            target: "_self",
+            target: "_blank",
         },
     ];
     return (
