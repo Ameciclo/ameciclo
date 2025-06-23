@@ -19,7 +19,7 @@ export const Navbar = ({ pages }: any) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrolled = window.scrollY > 50;
+      const scrolled = window.scrollY > 125;
       setIsHeaderScrolled(scrolled);
     };
 
@@ -35,7 +35,7 @@ export const Navbar = ({ pages }: any) => {
     <>
       <div className="max-h-14"></div>
       <nav
-        className={`flex fixed top-0 items-center max-h-14 w-full z-50 bg-ameciclo text-white transition-shadow duration-300 ${isHeaderScrolled ? "shadow-lg" : ""}`}
+        className={"flex fixed top-0 items-center max-h-14 w-full z-50 text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
         role="navigation"
       >
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
@@ -169,9 +169,7 @@ function SmallMenu({ pages, closeMenu }: any) {
                 onClick={closeMenu}
               >
                 {page.name}
-                <span className={`block mx-auto mt-1 w-16 h-px opacity-50 ${
-                  isActive ? 'bg-yellow-300' : 'bg-white'
-                }`}></span>
+                <span className={`block mx-auto mt-1 w-16 h-px opacity-50`}></span>
               </Link>
             </motion.li>
           );

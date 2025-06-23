@@ -1,22 +1,35 @@
-import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MainLogo } from "./MainLogo";
 import { NavbarLogo } from "./NavbarLogo";
 
 export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
-  console.log("AmecicloLogo renderizando com isScrolled:", isScrolled);
-  
   return (
-    <div className="relative">
-      {!isScrolled ? (
-        <div className="relative left-20 mt-0">
+    <AnimatePresence mode="wait">
+      {isScrolled ? (
+        <motion.div
+          key="navbar-logo"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15, ease: "easeIn" }}
+          className="ml-32 flex items-center flex-shrink-0 mr-6"
+        >
           <NavbarLogo />
-        </div>
+        </motion.div>
       ) : (
-        <div className="absolute left-0 mt-10 transform -translate-y-1/4">
-          <MainLogo />
-        </div>
+        <motion.div
+          key="main-logo"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15, ease: "easeIn" }}
+          className="ml-32 mt-32 flex items-center flex-shrink-0 mr-6 border-white border-4"
+        >
+          <div className="w-20 h-20 sm:w-32 sm:h-32">
+            <MainLogo />
+          </div>
+        </motion.div>
       )}
-    </div>
+    </AnimatePresence>
   );
 }
