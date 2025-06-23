@@ -37,7 +37,7 @@ const BreadcrumbItem = ({ slug, label, lastItem }: BreadcrumbItemProps) => {
 
 const Breadcrumb = ({ label, slug, routes }: BreadcrumbProps) => {
   return (
-    <div className="bg-ameciclo text-white p-4 uppercase flex items-center">
+    <div className="bg-ameciclo text-white py-2 px-4 uppercase flex items-center">
       <div className="container mx-auto">
         <nav className="bg-grey-light rounded font-sans w-full">
           <ol className="list-none p-0 inline-flex">

@@ -74,48 +74,58 @@ const Rating = ({ rating }: { rating: string }) => {
   );
 };
 
-const StepCard = ({ step }: any) => (
-  <div
-    className="bg-white rounded-lg shadow"
-    style={{ minHeight: "380px", maxWidth: "300px" }}
-  >
-    {step.image ? (
-      <div
-        style={{
-          backgroundImage: `url(${step.image.url})`,
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          position: "relative",
-          minHeight: "200px",
-          minWidth: "200px",
-          cursor: "pointer",
-        }}
-      />
-    ) : (
-      <div style={{ minHeight: "200px" }} />
-    )}
-    <div className="px-4 py-5 lg:p-6">
-      <dl className="pb-6">
-        <dt className="mt-1 text-2xl font-semibold leading-9 text-gray-900 cursor-pointer">
-          {step.title}
-        </dt>
-        <dt
-          className="text-sm text-gray-600"
+const StepCard = ({ step }: any) => {
+  const CardContent = (
+    <div
+      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
+      style={{ minHeight: "380px", maxWidth: "300px" }}
+    >
+      {step.image ? (
+        <div
           style={{
-            maxHeight: "80px",
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitLineClamp: 5,
-            WebkitBoxOrient: "vertical",
+            backgroundImage: `url(${step.image.url})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            position: "relative",
+            minHeight: "200px",
+            minWidth: "200px",
+            cursor: step.link ? "pointer" : "default",
           }}
-        >
-          {step.description}
-        </dt>
-      </dl>
+        />
+      ) : (
+        <div style={{ minHeight: "200px" }} />
+      )}
+      <div className="px-4 py-5 lg:p-6">
+        <dl className="pb-6">
+          <dt className="mt-1 text-2xl font-semibold leading-9 text-gray-900">
+            {step.title}
+          </dt>
+          <dt
+            className="text-sm text-gray-600"
+            style={{
+              maxHeight: "80px",
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitLineClamp: 5,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {step.description}
+          </dt>
+        </dl>
+      </div>
     </div>
-  </div>
-);
+  );
+
+  return step.link ? (
+    <a href={step.link} target="_blank" rel="noopener noreferrer">
+      {CardContent}
+    </a>
+  ) : (
+    CardContent
+  );
+};
 
 export default function Projeto() {
     const { project } = useLoaderData<any>();
@@ -188,31 +198,16 @@ export default function Projeto() {
                     backgroundImage: `url(${project?.cover?.url || project?.media?.url || '/projetos.webp'})`,
                 }}
             >
-                {project?.showTitle !== false && (
-                    <div className="container flex flex-col items-center mx-auto" style={{ maxWidth: "768px" }}>
-                        <h1
-                            className="text-4xl font-bold"
-                            style={{
-                                textShadow: "2px 2px 20px #000000, 0 0 15px #000000",
-                            }}
-                        >
-                            {project?.name}
-                        </h1>
-                    </div>
-                )}
+
             </div>
 
-            <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
-                <div className="container mx-auto">
-                    <Breadcrumb
-                        label={project?.name || "Projeto"}
-                        slug={project?.slug || ""}
-                        routes={["/", "/projetos"]}
-                    />
-                </div>
-            </div>
+            <Breadcrumb
+                label={project?.name || "Projeto"}
+                slug={project?.slug || ""}
+                routes={["/", "/projetos"]}
+            />
 
-            <div className="flex flex-wrap justify-center mt-6">
+            <div className="flex flex-wrap justify-center">
                 {flagLinks.map((link: any) => (
                     <a href={link.link} key={link.id}>
                         <button

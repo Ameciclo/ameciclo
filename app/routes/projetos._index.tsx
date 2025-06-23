@@ -119,7 +119,7 @@ export default function Projetos() {
 
   return (
     <>
-      <Banner image="projetos.webp" title="Projetos" />
+      <Banner image="projetos.webp" />
       <div />
       <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
       <section className="container my-12 mx-auto">

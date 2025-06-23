@@ -48,7 +48,7 @@ export const CountsTable = ({ data }: any) => {
                 Cell: ({ row }: any) => (
                     <Link
                         className="text-ameciclo"
-                        to={`contagens/${row.original.slug}`}
+                        to={`/contagens/${row.original.slug}`}
                         key={row.original.id}
                     >
                         {row.original.name}
