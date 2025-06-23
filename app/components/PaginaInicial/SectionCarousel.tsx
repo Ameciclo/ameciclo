@@ -52,7 +52,7 @@ export default function SectionCarousel({ featuredProjects = [] }) {
     }
   }, [loaded, instanceRef, isPaused]);
 
-  if (!featuredProjects || featuredProjects.length === 0) {
+  if (true) {
     return (
       <DevelopingComponent 
         title="Projetos em Destaque" 

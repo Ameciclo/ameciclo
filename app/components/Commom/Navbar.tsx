@@ -11,6 +11,7 @@ export const Navbar = ({ pages }: any) => {
     { name: "Projetos", url: "/projetos" },
     { name: "Dados", url: "/dados" },
     { name: "Observatório", url: "/observatorio" },
+    { name: "Participe", url: "/participe" },
     { name: "Contato", url: "/contato" },
   ];
   if (!pages) pages = pagesDefault;
