@@ -8,7 +8,10 @@ export default function SectionCarousel({ featuredProjects = [] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
   const autoplayIntervalRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+  const AUTOPLAY_DURATION = 5000;
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -27,9 +30,20 @@ export default function SectionCarousel({ featuredProjects = [] }) {
 
   const startAutoplay = () => {
     if (loaded && instanceRef.current && !autoplayIntervalRef.current) {
+      setProgress(0);
+
+      // Atualizar progresso a cada 50ms
+      progressIntervalRef.current = setInterval(() => {
+        setProgress(prev => {
+          const newProgress = prev + (50 / AUTOPLAY_DURATION) * 100;
+          return newProgress >= 100 ? 100 : newProgress;
+        });
+      }, 50);
+
       autoplayIntervalRef.current = setInterval(() => {
         instanceRef.current?.next();
-      }, 5000);
+        setProgress(0);
+      }, AUTOPLAY_DURATION);
     }
   };
 
@@ -37,6 +51,10 @@ export default function SectionCarousel({ featuredProjects = [] }) {
     if (autoplayIntervalRef.current) {
       clearInterval(autoplayIntervalRef.current);
       autoplayIntervalRef.current = null;
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
     }
   };
 
@@ -64,12 +82,13 @@ export default function SectionCarousel({ featuredProjects = [] }) {
   return (
     <section>
       <div className="mx-auto">
-        <div className="navigation-wrapper">
+        <div
+          className="navigation-wrapper"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}>
           <div
             ref={sliderRef}
             className="keen-slider"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
           >
             {featuredProjects.map((project, index) => (
               <div key={project.id || index} className="keen-slider__slide">
@@ -100,14 +119,27 @@ export default function SectionCarousel({ featuredProjects = [] }) {
             </>
           )}
           {loaded && instanceRef.current && (
-            <div className="dots">
-              {[...Array(instanceRef.current.track.details.slides.length)].map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => instanceRef.current?.moveToIdx(idx)}
-                  className={`dot${currentSlide === idx ? " active" : ""}`}
-                ></button>
-              ))}
+            <div className="dots-container">
+              {!isPaused && (
+                <div className="progress-bar-container">
+                  <div
+                    className="progress-bar"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              )}
+              <div className="dots">
+                {[...Array(instanceRef.current.track.details.slides.length)].map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      instanceRef.current?.moveToIdx(idx);
+                      setProgress(0);
+                    }}
+                    className={`dot${currentSlide === idx ? " active" : ""}`}
+                  ></button>
+                ))}
+              </div>
             </div>
           )}
         </div>
