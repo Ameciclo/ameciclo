@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 type Ameciclista = {
   id: string;
@@ -23,18 +24,20 @@ type CustomData = {
 export const loader: LoaderFunction = async () => {
   const server = "https://cms.ameciclo.org";
 
-  const resAme = await fetch(`${server}/ameciclistas`);
-  const resCustom = await fetch(`${server}/quem-somos`);
-
-  let ameciclistas: Ameciclista[] = [];
-  let custom: CustomData | null = null;
-
-  if (resAme.ok) {
-    ameciclistas = await resAme.json();
-  }
-  if (resCustom.ok) {
-    custom = await resCustom.json();
-  }
+  // Usando fetchWithTimeout com fallback para evitar timeouts
+  const ameciclistas = await fetchWithTimeout(
+    `${server}/ameciclistas`, 
+    { cache: "no-cache" }, 
+    5000, 
+    []
+  );
+  
+  const custom = await fetchWithTimeout(
+    `${server}/quem-somos`, 
+    { cache: "no-cache" }, 
+    5000, 
+    { definition: "Associação Metropolitana de Ciclistas do Recife", objective: "Promover a mobilidade ativa", links: [] }
+  )
 
   ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
 

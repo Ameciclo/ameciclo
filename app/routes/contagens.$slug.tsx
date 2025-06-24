@@ -2,13 +2,19 @@ import { useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export async function loader({ params }: LoaderFunctionArgs) {
     const { slug } = params;
     
     try {
-        const response = await fetch(`http://api.garfo.ameciclo.org/cyclist-counts`);
-        const data = await response.json();
+        // Usando fetchWithTimeout para evitar timeouts
+        const data = await fetchWithTimeout(
+            "http://api.garfo.ameciclo.org/cyclist-counts",
+            { cache: "no-cache" },
+            5000,
+            { counts: [] }
+        );
         
         const contagem = data.counts?.find((c: any) => c.slug === slug);
         
@@ -18,7 +24,16 @@ export async function loader({ params }: LoaderFunctionArgs) {
         
         return { contagem };
     } catch (error) {
-        throw new Response("Erro ao carregar contagem", { status: 500 });
+        // Fornecer dados mínimos para evitar quebra da página
+        return { 
+            contagem: { 
+                name: `Contagem ${slug}`, 
+                slug: slug, 
+                date: new Date().toISOString(),
+                total_cyclists: "Dados indisponíveis",
+                id: "indisponivel"
+            } 
+        };
     }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { MetaFunction } from "@remix-run/node";
 import {
   OverviewIcon,
@@ -12,11 +12,11 @@ import {
   TroubleshootIcon,
   DeployIcon,
   ContributeIcon,
-  SearchIcon,
   ArrowUpIcon,
-  HomeIcon,
-  StatusIcon,
 } from "~/components/Commom/Icones/DocumentationIcons";
+import DocumentationSidebar from "~/components/DocumentationSidebar";
+import DocumentationBanner from "~/components/DocumentationBanner";
+import DocumentationSearchBar from "~/components/DocumentationSearchBar";
 import VisaoGeral from "~/components/Documentacao/VisaoGeral";
 import Instalacao from "~/components/Documentacao/Instalacao";
 import EstruturaProjeto from "~/components/Documentacao/EstruturaProjeto";
@@ -62,7 +62,7 @@ export default function Docs() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const navigationItems = [
+  const navigationItems = useMemo(() => [
     { id: 'visao-geral', title: 'Visão Geral', icon: OverviewIcon },
     { id: 'instalacao', title: 'Instalação', icon: InstallIcon },
     { id: 'estrutura', title: 'Estrutura do Projeto', icon: FolderIcon },
@@ -74,9 +74,9 @@ export default function Docs() {
     { id: 'solucoes', title: 'Soluções', icon: TroubleshootIcon },
     { id: 'deploy', title: 'Deploy', icon: DeployIcon },
     { id: 'contribuicao', title: 'Contribuição', icon: ContributeIcon }
-  ];
+  ], []);
 
-  const searchData = [
+  const searchData = useMemo(() => [
     { id: "visao-geral", title: "Visão Geral", content: "Remix TypeScript mobilidade ativa Recife" },
     { id: "instalacao", title: "Instalação", content: "npm install desenvolvimento setup" },
     { id: "estrutura", title: "Estrutura do Projeto", content: "pastas arquivos componentes routes" },
@@ -88,7 +88,7 @@ export default function Docs() {
     { id: "solucoes", title: "Soluções", content: "problemas erros soluções" },
     { id: "deploy", title: "Deploy", content: "produção build deployment" },
     { id: "contribuicao", title: "Contribuição", content: "git github pull request" }
-  ];
+  ], []);
 
   useEffect(() => {
     if (searchTerm.length > 2) {
@@ -100,7 +100,7 @@ export default function Docs() {
     } else {
       setSearchResults([]);
     }
-  }, [searchTerm]);
+  }, [searchTerm, searchData]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -114,25 +114,39 @@ export default function Docs() {
         setIsSearchFloating(rect.top <= 100);
       }
 
-      // Detectar seção ativa
-      const sections = navigationItems.map(item => item.id);
-      const currentSection = sections.find(sectionId => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
-        }
-        return false;
-      });
+      // Detectar seção ativa - usando requestAnimationFrame para melhor performance
+      requestAnimationFrame(() => {
+        const sections = navigationItems.map(item => item.id);
+        const currentSection = sections.find(sectionId => {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            return rect.top <= 100 && rect.bottom >= 100;
+          }
+          return false;
+        });
 
-      if (currentSection) {
-        setActiveSection(currentSection);
+        if (currentSection) {
+          setActiveSection(currentSection);
+        }
+      });
+    };
+
+    // Throttle para melhorar performance
+    let ticking = false;
+    const scrollListener = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    window.addEventListener('scroll', scrollListener, { passive: true });
+    return () => window.removeEventListener('scroll', scrollListener);
+  }, [navigationItems]);
 
   const handleSidebarItemClick = (sectionId: string) => {
     if (isMobile && isSidebarCollapsed) {
@@ -163,136 +177,43 @@ export default function Docs() {
     <div className="min-h-screen bg-gray-900 text-gray-100 pt-16">
       {isSearchFloating && (
         <div className="fixed top-20 right-4 z-40">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <SearchIcon className="w-4 h-4 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Buscar..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-gray-700 text-white pl-9 pr-3 py-2 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg text-sm"
-            />
-            {searchResults.length > 0 && (
-              <div className="absolute top-full mt-2 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50">
-                {searchResults.map((result) => (
-                  <button
-                    key={result.id}
-                    onClick={() => scrollToSection(result.id)}
-                    className="w-full text-left px-3 py-2 hover:bg-gray-700 border-b border-gray-600 last:border-b-0"
-                  >
-                    <div className="font-medium text-green-400 text-sm">{result.title}</div>
-                    <div className="text-xs text-gray-400 truncate">{result.content}</div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <DocumentationSearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchResults={searchResults}
+            onResultClick={scrollToSection}
+            placeholder="Buscar..."
+            width="w-64"
+          />
         </div>
       )}
 
-      {/* Banner */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="mb-8 rounded-lg overflow-hidden relative bg-gradient-to-r from-gray-800 to-gray-700">
-          <div className="h-48 md:h-64 flex items-center justify-center relative">
-            <div className="text-center text-white z-10">
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">Documentação</h2>
-              <p className="text-lg md:text-xl opacity-90">Guia completo para desenvolvedores da plataforma Ameciclo</p>
-            </div>
-            <div className="absolute inset-0 opacity-10">
-              <div className="grid grid-cols-8 gap-4 h-full p-8">
-                {Array.from({ length: 32 }).map((_, i) => (
-                  <div key={i} className={`rounded ${
-                    i % 3 === 0 ? "bg-green-400" : i % 3 === 1 ? "bg-blue-400" : "bg-purple-400"
-                  }`}></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DocumentationBanner 
+        title="Documentação" 
+        subtitle="Guia completo para desenvolvedores da plataforma Ameciclo" 
+      />
 
       <div className="flex max-w-7xl mx-auto px-4">
-        <div className={`${isSidebarCollapsed ? 'w-16' : isMobile ? 'w-1/3' : 'w-80'} bg-gray-800 min-h-screen p-3 lg:p-6 sticky top-16 overflow-y-auto max-h-screen transition-all duration-300 z-50 ${isMobile && !isSidebarCollapsed ? 'fixed' : ''
-          }`}>
-          <nav className="space-y-2">
-            {!isSidebarCollapsed && (
-              <div className="mb-4">
-                <div className="space-y-2">
-                  <a href="/" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2 p-2 rounded hover:bg-gray-700">
-                    <HomeIcon className="w-4 h-4" />
-                    Voltar ao site
-                  </a>
-                  <a href="/status" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2 p-2 rounded hover:bg-gray-700">
-                    <StatusIcon className="w-4 h-4" />
-                    Status dos Serviços
-                  </a>
-                </div>
-              </div>
-            )}
-            {isSidebarCollapsed && (
-              <div className="mb-4 flex flex-col items-center space-y-2">
-                <a href="/" className="text-gray-400 hover:text-green-400 transition-colors p-2 rounded hover:bg-gray-700" title="Voltar ao site">
-                  <HomeIcon className="w-5 h-5" />
-                </a>
-                <a href="/status" className="text-gray-400 hover:text-green-400 transition-colors p-2 rounded hover:bg-gray-700" title="Status dos Serviços">
-                  <StatusIcon className="w-5 h-5" />
-                </a>
-              </div>
-            )}
-
-            <div className="space-y-1">
-              {navigationItems.map((item) => {
-                const IconComponent = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleSidebarItemClick(item.id)}
-                    className={`w-full text-left px-3 py-3 rounded hover:bg-gray-700 transition-colors flex items-center gap-3 ${activeSection === item.id
-                        ? 'bg-gray-700 text-green-400 border-l-2 border-green-400'
-                        : 'text-gray-300 hover:text-white'
-                      } ${isSidebarCollapsed ? 'justify-center' : ''}`}
-                    title={isSidebarCollapsed ? item.title : ''}
-                  >
-                    <IconComponent className={`${isSidebarCollapsed ? 'w-6 h-6' : 'w-5 h-5'}`} />
-                    {!isSidebarCollapsed && <span className="text-sm">{item.title}</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
-        </div>
+        <DocumentationSidebar
+          navigationItems={navigationItems}
+          activeSection={activeSection}
+          isSidebarCollapsed={isSidebarCollapsed}
+          isMobile={isMobile}
+          isScrolled={isScrolled}
+          onItemClick={handleSidebarItemClick}
+        />
 
         <div className="flex-1 p-4">
           <div id="search-container" className="flex justify-between items-start mb-8">
             <div></div>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <SearchIcon className="w-4 h-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Buscar na documentação..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-gray-700 text-white pl-9 pr-3 py-2 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-              />
-              {searchResults.length > 0 && (
-                <div className="absolute top-full mt-2 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50">
-                  {searchResults.map((result) => (
-                    <button
-                      key={result.id}
-                      onClick={() => scrollToSection(result.id)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-700 border-b border-gray-600 last:border-b-0"
-                    >
-                      <div className="font-medium text-green-400 text-sm">{result.title}</div>
-                      <div className="text-xs text-gray-400 truncate">{result.content}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <DocumentationSearchBar
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              searchResults={searchResults}
+              onResultClick={scrollToSection}
+              placeholder="Buscar na documentação..."
+              width="w-80"
+            />
           </div>
           
           <VisaoGeral />

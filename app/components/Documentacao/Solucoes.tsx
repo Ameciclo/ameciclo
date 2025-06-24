@@ -30,14 +30,15 @@ export default function Solucoes() {
           </div>
           
           <div className="bg-gray-700 p-4 rounded">
-            <h4 className="font-semibold text-red-400 mb-2">Erro de API: "Failed to fetch"</h4>
+            <h4 className="font-semibold text-red-400 mb-2">Erro de API: "Failed to fetch" ou "504 Gateway Timeout"</h4>
             <p className="text-sm mb-2"><strong>Possíveis causas:</strong></p>
             <ul className="text-sm list-disc list-inside space-y-1">
               <li>API externa indisponível</li>
               <li>Problemas de CORS</li>
               <li>URL da API incorreta</li>
+              <li>Timeout na conexão com a API</li>
             </ul>
-            <p className="text-sm mt-2"><strong>Solução:</strong> Verifique a conectividade e URLs das APIs.</p>
+            <p className="text-sm mt-2"><strong>Solução:</strong> Use o utilitário fetchWithTimeout para definir um timeout e fornecer dados de fallback.</p>
           </div>
           
           <div className="bg-gray-700 p-4 rounded">

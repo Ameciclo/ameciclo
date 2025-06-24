@@ -29,11 +29,17 @@ export default function Rotas() {
               <code className="text-green-300 text-sm">
 {`// app/routes/contagens.$slug.tsx
 import { LoaderFunctionArgs } from "@remix-run/node";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { slug } = params;
-  const response = await fetch(\`http://api.garfo.ameciclo.org/cyclist-counts\`);
-  const data = await response.json();
+  // Usando fetchWithTimeout para evitar timeouts
+  const data = await fetchWithTimeout(
+    "http://api.garfo.ameciclo.org/cyclist-counts",
+    { cache: "no-cache" },
+    5000,
+    { counts: [] }
+  );
   
   const contagem = data.counts?.find((c: any) => c.slug === slug);
   

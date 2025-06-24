@@ -1,31 +1,35 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { IntlPercentil } from "~/services/utils";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader: LoaderFunction = async () => {
-  const res = await fetch("https://cms.ameciclo.org/contagens", {
-    cache: "no-cache",
-  });
+  // Usando fetchWithTimeout para evitar timeouts
+  const data = await fetchWithTimeout(
+    "https://cms.ameciclo.org/contagens", 
+    { cache: "no-cache" },
+    5000,
+    { cover: null, description: "Dados de contagens", objective: "Monitorar fluxo de ciclistas", archives: [], counts: [] }
+  );
+  
+  const cover = data?.cover;
+  const description = data?.description;
+  const objective = data?.objective;
+  const archives = data?.archives || [];
+  const dataCounts = data?.counts || [];
 
-  if (!res.ok) {
-    throw new Response("Erro ao buscar os dados", { status: res.status });
-  }
+  // Usando fetchWithTimeout para a API de contagens
+  const summaryDataJson = await fetchWithTimeout(
+    "http://api.garfo.ameciclo.org/cyclist-counts",
+    { cache: "no-cache" },
+    5000,
+    { summary: { total_cyclists: 0, total_women: 0, total_juveniles: 0, total_cargo: 0, total_helmet: 0, total_ride: 0, total_service: 0, total_shared_bike: 0, total_sidewalk: 0, total_wrong_way: 0, total_motor: 0 }, counts: [] }
+  );
+  
+  const summaryData = summaryDataJson?.summary || {};
+  const countsData = summaryDataJson?.counts || [];
 
-  const data = await res.json();
-  const cover = data.cover;
-  const description = data.description;
-  const objective = data.objective;
-  const archives = data.archives;
-  const dataCounts = data.counts;
-
-  const summaryDataRes = await fetch("http://api.garfo.ameciclo.org/cyclist-counts", {
-    cache: "no-cache",
-  });
-  const summaryDataJson = await summaryDataRes.json();
-  const summaryData = summaryDataJson.summary;
-  const countsData = summaryDataJson.counts;
-
-  const pageDataRes = await fetch("https://cms.ameciclo.org/contagens", { cache: "no-cache" });
-  const pageData = await pageDataRes.json();
+  // Reutilizando os dados já obtidos para evitar chamada duplicada
+  const pageData = data;
 
   const CardsData = (summaryData: any) => {
     const {
