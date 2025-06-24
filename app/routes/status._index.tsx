@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
-import { ArrowUpIcon, HomeIcon, RefreshIcon } from "~/components/Commom/Icones/DocumentationIcons";
+import { ArrowUpIcon, HomeIcon, RefreshIcon, TestIcon, TroubleshootIcon } from "~/components/Commom/Icones/DocumentationIcons";
 import ServiceCard from "~/components/Status/ServiceCard";
 import StatusStats from "~/components/Status/StatusStats";
 
