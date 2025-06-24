@@ -14,6 +14,8 @@ interface DocumentationSidebarProps {
   isMobile: boolean;
   isScrolled: boolean;
   onItemClick: (sectionId: string) => void;
+  darkMode?: boolean;
+  fontSize?: number;
 }
 
 // StatusIcon component
@@ -30,25 +32,34 @@ const NavItem = memo(({
   item, 
   isActive, 
   isCollapsed, 
-  onClick 
+  onClick,
+  darkMode = true,
+  fontSize = 16
 }: { 
   item: NavigationItem; 
   isActive: boolean; 
   isCollapsed: boolean; 
-  onClick: () => void 
+  onClick: () => void;
+  darkMode?: boolean;
+  fontSize?: number;
 }) => {
   const IconComponent = item.icon;
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition-colors flex items-center gap-3 ${isActive
-          ? 'bg-gray-700 text-green-400 border-l-2 border-green-400'
-          : 'text-gray-300 hover:text-white'
+      className={`w-full text-left px-3 py-2 rounded transition-colors flex items-center gap-3 ${
+        isActive
+          ? darkMode 
+            ? 'bg-gray-700 text-green-400 border-l-2 border-green-400'
+            : 'bg-gray-200 text-green-700 border-l-2 border-green-700'
+          : darkMode
+            ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+            : 'text-gray-700 hover:text-black hover:bg-gray-200'
         } ${isCollapsed ? 'justify-center' : ''}`}
       title={isCollapsed ? item.title : ''}
     >
       <IconComponent className={`${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'}`} />
-      {!isCollapsed && <span className="text-sm">{item.title}</span>}
+      {!isCollapsed && <span style={{ fontSize: fontSize - 2 }}>{item.title}</span>}
     </button>
   );
 });
@@ -61,19 +72,21 @@ function DocumentationSidebar({
   isSidebarCollapsed,
   isMobile,
   isScrolled,
-  onItemClick
+  onItemClick,
+  darkMode = true,
+  fontSize = 16
 }: DocumentationSidebarProps) {
   return (
-    <div className={`${isSidebarCollapsed ? 'w-16' : isMobile ? 'w-1/3' : 'w-80'} bg-gray-800 min-h-screen p-3 lg:p-6 sticky top-16 overflow-y-auto max-h-screen transition-all duration-300 z-40 ${isMobile && !isSidebarCollapsed ? 'fixed' : ''}`}>
+    <div className={`${isSidebarCollapsed ? 'w-16' : isMobile ? 'w-1/3' : 'w-80'} ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} min-h-screen p-3 lg:p-6 sticky top-16 overflow-y-auto max-h-screen transition-all duration-300 z-40 ${isMobile && !isSidebarCollapsed ? 'fixed' : ''}`}>
       <nav className="space-y-2">
         {!isSidebarCollapsed && (
           <div className="mb-4">
             <div className="space-y-2">
-              <a href="/" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2 p-2 rounded hover:bg-gray-700">
+              <a href="/" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors flex items-center gap-2 p-2 rounded`} style={{ fontSize: fontSize - 2 }}>
                 <HomeIcon className="w-4 h-4" />
                 Voltar ao site
               </a>
-              <a href="/status" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2 p-2 rounded hover:bg-gray-700">
+              <a href="/status" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors flex items-center gap-2 p-2 rounded`} style={{ fontSize: fontSize - 2 }}>
                 <StatusIcon className="w-4 h-4" />
                 Status dos Serviços
               </a>
@@ -82,10 +95,10 @@ function DocumentationSidebar({
         )}
         {isSidebarCollapsed && (
           <div className="mb-4 flex flex-col items-center space-y-2">
-            <a href="/" className="text-gray-400 hover:text-green-400 transition-colors p-2 rounded hover:bg-gray-700" title="Voltar ao site">
+            <a href="/" className={`${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors p-2 rounded`} title="Voltar ao site">
               <HomeIcon className="w-5 h-5" />
             </a>
-            <a href="/status" className="text-gray-400 hover:text-green-400 transition-colors p-2 rounded hover:bg-gray-700" title="Status dos Serviços">
+            <a href="/status" className={`${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors p-2 rounded`} title="Status dos Serviços">
               <StatusIcon className="w-5 h-5" />
             </a>
           </div>
@@ -99,6 +112,8 @@ function DocumentationSidebar({
               isActive={activeSection === item.id}
               isCollapsed={isSidebarCollapsed}
               onClick={() => onItemClick(item.id)}
+              darkMode={darkMode}
+              fontSize={fontSize}
             />
           ))}
         </div>

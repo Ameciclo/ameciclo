@@ -6,9 +6,10 @@ interface StatusStatsProps {
   darkMode: boolean;
   lastUpdate: Date;
   onFilterByStatus?: (status: string) => void;
+  onRefresh?: () => void;
 }
 
-export default function StatusStats({ services, darkMode, lastUpdate, onFilterByStatus }: StatusStatsProps) {
+export default function StatusStats({ services, darkMode, lastUpdate, onFilterByStatus, onRefresh }: StatusStatsProps) {
   const totalServices = services.length;
   const onlineServices = services.filter(s => s.status === "OK").length;
   const offlineServices = services.filter(s => s.status === "OFF").length;
@@ -91,7 +92,7 @@ export default function StatusStats({ services, darkMode, lastUpdate, onFilterBy
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
       {stats.map((stat, index) => {
-        const isClickable = stat.label === "Online" || stat.label === "Offline";
+        const isClickable = stat.label === "Online" || stat.label === "Offline" || stat.label === "Última Verificação";
         return (
           <div 
             key={index}
@@ -99,7 +100,9 @@ export default function StatusStats({ services, darkMode, lastUpdate, onFilterBy
               darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
             } ${isClickable ? "cursor-pointer hover:scale-105" : ""}`}
             onClick={() => {
-              if (isClickable && onFilterByStatus) {
+              if (stat.label === "Última Verificação" && onRefresh) {
+                onRefresh();
+              } else if (isClickable && onFilterByStatus && (stat.label === "Online" || stat.label === "Offline")) {
                 onFilterByStatus(stat.label === "Online" ? "OK" : "OFF");
               }
             }}

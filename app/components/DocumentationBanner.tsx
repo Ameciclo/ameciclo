@@ -3,12 +3,15 @@ import { memo } from 'react';
 interface DocumentationBannerProps {
   title: string;
   subtitle: string;
+  darkMode?: boolean;
 }
 
-function DocumentationBanner({ title, subtitle }: DocumentationBannerProps) {
+function DocumentationBanner({ title, subtitle, darkMode = true }: DocumentationBannerProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="mb-8 rounded-lg overflow-hidden relative bg-gradient-to-r from-gray-800 to-gray-700">
+      <div className={`mb-8 rounded-lg overflow-hidden relative ${
+        darkMode ? "bg-gradient-to-r from-gray-800 to-gray-700" : "bg-gradient-to-r from-green-600 to-blue-600"
+      }`}>
         <div className="h-48 md:h-64 flex items-center justify-center relative">
           <div className="text-center text-white z-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">{title}</h2>
