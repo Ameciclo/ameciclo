@@ -9,7 +9,7 @@ export default function SectionCarousel({ featuredProjects = [] }) {
   const [loaded, setLoaded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const autoplayIntervalRef = useRef(null);
-  
+
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
     loop: true,
@@ -45,17 +45,17 @@ export default function SectionCarousel({ featuredProjects = [] }) {
       if (!isPaused) {
         startAutoplay();
       }
-      
+
       return () => {
         stopAutoplay();
       };
     }
   }, [loaded, instanceRef, isPaused]);
 
-  if (true) {
+  if (!featuredProjects || featuredProjects.length === 0) {
     return (
-      <DevelopingComponent 
-        title="Projetos em Destaque" 
+      <DevelopingComponent
+        title="Projetos em Destaque"
         subtitle="Estamos arrumando um problema nessa seção..."
       />
     );
@@ -65,8 +65,8 @@ export default function SectionCarousel({ featuredProjects = [] }) {
     <section>
       <div className="mx-auto">
         <div className="navigation-wrapper">
-          <div 
-            ref={sliderRef} 
+          <div
+            ref={sliderRef}
             className="keen-slider"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
@@ -93,7 +93,7 @@ export default function SectionCarousel({ featuredProjects = [] }) {
                   instanceRef.current?.next();
                 }}
                 disabled={
-                  currentSlide === instanceRef.current.track.details.slides.length - 1 && 
+                  currentSlide === instanceRef.current.track.details.slides.length - 1 &&
                   !instanceRef.current.options.loop
                 }
               />
@@ -120,7 +120,7 @@ function ProjectSlide({ project }: any) {
   const title = project.name || project.title || "";
   const description = project.description || "";
   const slug = project.slug || "";
-  
+
   let imageUrl = "/backgroundImage.webp";
   if (project.media && project.media.url) {
     imageUrl = project.media.url;
@@ -133,16 +133,16 @@ function ProjectSlide({ project }: any) {
   return (
     <div className="flex min-h-[400px] md:min-h-[600px] relative w-full">
       <div className="w-full h-full">
-        <div 
+        <div
           className="absolute inset-0 w-full h-full"
-          style={{ 
+          style={{
             backgroundImage: `url(${imageUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         />
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-        
+
         <div className="absolute inset-0 flex items-center justify-center p-4">
           <div className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[320px] md:max-w-[850px] w-full">
             <div className="flex items-center justify-center mt-3 md:mt-5 text-gray-800">
@@ -162,7 +162,7 @@ function ProjectSlide({ project }: any) {
                   {description}
                 </p>
                 {slug && (
-                  <Link 
+                  <Link
                     to={`/projetos/${slug}`}
                     className="flex items-baseline justify-center mt-2 md:mt-3 text-ameciclo hover:text-red-600 focus:text-red-600"
                   >
@@ -184,9 +184,8 @@ function Arrow(props: any) {
   return (
     <svg
       onClick={props.onClick}
-      className={`arrow ${
-        props.left ? "arrow--left" : "arrow--right"
-      } ${disabledClass}`}
+      className={`arrow ${props.left ? "arrow--left" : "arrow--right"
+        } ${disabledClass}`}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
     >
