@@ -106,7 +106,7 @@ export default function Docs() {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 200);
       setIsScrolled(window.scrollY > 0);
-      
+
       // Controlar se a busca deve flutuar (quando chegar perto da navbar)
       const searchElement = document.getElementById('search-container');
       if (searchElement) {
@@ -188,9 +188,9 @@ export default function Docs() {
         </div>
       )}
 
-      <DocumentationBanner 
-        title="Documentação" 
-        subtitle="Guia completo para desenvolvedores da plataforma Ameciclo" 
+      <DocumentationBanner
+        title="Documentação"
+        subtitle="Guia completo para desenvolvedores da plataforma Ameciclo"
       />
 
       <div className="flex max-w-7xl mx-auto px-4">
@@ -215,7 +215,6 @@ export default function Docs() {
               width="w-80"
             />
           </div>
-          
           <VisaoGeral />
           <Instalacao />
           <EstruturaProjeto />

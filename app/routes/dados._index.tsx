@@ -5,11 +5,12 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 
 import { loader } from "~/loader/dados";
 export { loader };
 export default function Dados() {
-    const { cover, description, partners } = useLoaderData<typeof loader>();
+    const { cover, description, partners, apiDown } = useLoaderData<typeof loader>();
     const dataPartners = partners.map((p: any) => {
         return {
             src: p.image.url,
@@ -51,6 +52,7 @@ export default function Dados() {
     ];
     return (
         <>
+            <ApiStatusHandler apiDown={apiDown} />
             <Banner image={cover?.url} alt="Capa da plataforma de dados" />
             <Breadcrumb label="Dados" slug="/dados" routes={["/"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />

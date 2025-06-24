@@ -4,13 +4,15 @@
  * @param options Opções do fetch
  * @param timeout Tempo limite em ms (padrão: 5000ms)
  * @param fallbackData Dados de fallback caso a requisição falhe
+ * @param onApiDown Callback para notificar quando a API estiver indisponível
  * @returns Resultado da requisição ou dados de fallback
  */
 export async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},
   timeout: number = 10000,
-  fallbackData: any = null
+  fallbackData: any = null,
+  onApiDown?: () => void
 ): Promise<any> {
   // Cria um AbortController para cancelar a requisição se demorar muito
   const controller = new AbortController();
@@ -26,6 +28,7 @@ export async function fetchWithTimeout(
     
     if (!response.ok) {
       console.warn(`Erro na requisição para ${url}: ${response.status}`);
+      onApiDown?.();
       return fallbackData;
     }
     
@@ -33,6 +36,7 @@ export async function fetchWithTimeout(
   } catch (error) {
     clearTimeout(timeoutId);
     console.warn(`Falha ao acessar ${url}:`, error);
+    onApiDown?.();
     return fallbackData;
   }
 }

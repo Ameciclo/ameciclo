@@ -11,6 +11,8 @@ import type { MetaFunction } from "@remix-run/node";
 import { Navbar } from "./components/Commom/Navbar";
 import { Footer } from "./components/Commom/Footer";
 import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
+import { ApiAlert } from "./components/Commom/ApiAlert";
+import { ApiStatusProvider } from "./contexts/ApiStatusContext";
 import "./tailwind.css";
 import PageNotFound from "./components/Commom/PageNotFound";
 import ErrorFallback from "./components/Commom/ErrorFallback";
@@ -55,13 +57,16 @@ const metaConfig = {
           <Meta />
         </head>
         <body>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main>
-              {error.status !== 404 ? <ErrorFallback error={error} /> : <PageNotFound />}
-            </main>
-            <Footer />
-          </div>
+          <ApiStatusProvider>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <ApiAlert />
+              <main>
+                {error.status !== 404 ? <ErrorFallback error={error} /> : <PageNotFound />}
+              </main>
+              <Footer />
+            </div>
+          </ApiStatusProvider>
           <Scripts />
           <GoogleAnalytics gaId="G-PQNS7S7FD3" />
         </body>
@@ -78,13 +83,16 @@ const metaConfig = {
           <Links />
         </head>
         <body>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main>
-              <Outlet />
-            </main>
-            <Footer />
-          </div>
+          <ApiStatusProvider>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <ApiAlert />
+              <main>
+                <Outlet />
+              </main>
+              <Footer />
+            </div>
+          </ApiStatusProvider>
           <ScrollRestoration />
           <Scripts />
           <GoogleAnalytics gaId="G-PQNS7S7FD3" />

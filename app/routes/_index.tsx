@@ -5,13 +5,15 @@ import { loader } from "../loader/home"
 import SectionData from "~/components/PaginaInicial/SectionData";
 import bannerImage from "/backgroundImage.webp";
 import HomeBanner from "~/components/PaginaInicial/HomeBanner";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 export { loader };
 
 export default function Index() {
-  const { home, featuredProjects, allProjects } = useLoaderData<any>();
+  const { home, featuredProjects, allProjects, apiDown } = useLoaderData<any>();
   
   return (
     <>
+      <ApiStatusHandler apiDown={apiDown} />
       <HomeBanner 
         image={bannerImage} 
         alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"

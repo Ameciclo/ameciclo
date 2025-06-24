@@ -34,7 +34,7 @@ export const Navbar = ({ pages }: any) => {
   return (
     <>
       <nav
-        className={"flex fixed left-0 right-0 items-center max-h-14 z-[60] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
+        className={"flex fixed left-0 right-0 items-center max-h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
         role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-6 py-0 m-0 pl-6 sm:pl-32">

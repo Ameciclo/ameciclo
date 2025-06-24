@@ -19,7 +19,6 @@ export default function VisaoGeral() {
         </p>
         <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-4 mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-blue-400 text-lg">📊</span>
             <h4 className="font-semibold text-blue-400">Monitoramento em Tempo Real</h4>
           </div>
           <p className="text-sm mb-3">
