@@ -44,6 +44,7 @@ export default function Docs() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isSearchFloating, setIsSearchFloating] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -105,6 +106,13 @@ export default function Docs() {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 200);
       setIsScrolled(window.scrollY > 0);
+      
+      // Controlar se a busca deve flutuar (quando chegar perto da navbar)
+      const searchElement = document.getElementById('search-container');
+      if (searchElement) {
+        const rect = searchElement.getBoundingClientRect();
+        setIsSearchFloating(rect.top <= 100);
+      }
 
       // Detectar seção ativa
       const sections = navigationItems.map(item => item.id);
@@ -152,19 +160,19 @@ export default function Docs() {
   };
 
   return (
-    <div className="mt-22 min-h-screen bg-gray-900 text-gray-100">
-      <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+    <div className="min-h-screen bg-gray-900 text-gray-100 pt-16">
+      {isSearchFloating && (
+        <div className="fixed top-20 right-4 z-40">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <SearchIcon className="w-5 h-5 text-gray-400" />
+              <SearchIcon className="w-4 h-4 text-gray-400" />
             </div>
             <input
               type="text"
-              placeholder="Buscar na documentação..."
+              placeholder="Buscar..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="bg-gray-700 text-white pl-9 pr-3 py-2 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg text-sm"
             />
             {searchResults.length > 0 && (
               <div className="absolute top-full mt-2 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50">
@@ -172,25 +180,45 @@ export default function Docs() {
                   <button
                     key={result.id}
                     onClick={() => scrollToSection(result.id)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-700 border-b border-gray-600 last:border-b-0"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-700 border-b border-gray-600 last:border-b-0"
                   >
-                    <div className="font-medium text-green-400">{result.title}</div>
-                    <div className="text-sm text-gray-400 truncate">{result.content}</div>
+                    <div className="font-medium text-green-400 text-sm">{result.title}</div>
+                    <div className="text-xs text-gray-400 truncate">{result.content}</div>
                   </button>
                 ))}
               </div>
             )}
           </div>
         </div>
+      )}
+
+      {/* Banner */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="mb-8 rounded-lg overflow-hidden relative bg-gradient-to-r from-gray-800 to-gray-700">
+          <div className="h-48 md:h-64 flex items-center justify-center relative">
+            <div className="text-center text-white z-10">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">Documentação</h2>
+              <p className="text-lg md:text-xl opacity-90">Guia completo para desenvolvedores da plataforma Ameciclo</p>
+            </div>
+            <div className="absolute inset-0 opacity-10">
+              <div className="grid grid-cols-8 gap-4 h-full p-8">
+                {Array.from({ length: 32 }).map((_, i) => (
+                  <div key={i} className={`rounded ${
+                    i % 3 === 0 ? "bg-green-400" : i % 3 === 1 ? "bg-blue-400" : "bg-purple-400"
+                  }`}></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="flex max-w-7xl mx-auto">
-        <div className={`${isSidebarCollapsed ? 'w-16' : isMobile ? 'w-1/3' : 'w-80'} bg-gray-800 min-h-screen p-3 lg:p-6 sticky top-20 overflow-y-auto max-h-screen transition-all duration-300 z-50 ${isMobile && !isSidebarCollapsed ? 'fixed' : ''
+      <div className="flex max-w-7xl mx-auto px-4">
+        <div className={`${isSidebarCollapsed ? 'w-16' : isMobile ? 'w-1/3' : 'w-80'} bg-gray-800 min-h-screen p-3 lg:p-6 sticky top-16 overflow-y-auto max-h-screen transition-all duration-300 z-50 ${isMobile && !isSidebarCollapsed ? 'fixed' : ''
           }`}>
-          <nav className={`space-y-2 ${isScrolled ? 'mt-0' : 'mt-20'} transition-all`}>
+          <nav className="space-y-2">
             {!isSidebarCollapsed && (
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-green-400 duration-300 mb-3">Navegação</h2>
                 <div className="space-y-2">
                   <a href="/" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2 p-2 rounded hover:bg-gray-700">
                     <HomeIcon className="w-4 h-4" />
@@ -237,6 +265,36 @@ export default function Docs() {
         </div>
 
         <div className="flex-1 p-4">
+          <div id="search-container" className="flex justify-between items-start mb-8">
+            <div></div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <SearchIcon className="w-4 h-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Buscar na documentação..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-gray-700 text-white pl-9 pr-3 py-2 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+              />
+              {searchResults.length > 0 && (
+                <div className="absolute top-full mt-2 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50">
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.id}
+                      onClick={() => scrollToSection(result.id)}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-700 border-b border-gray-600 last:border-b-0"
+                    >
+                      <div className="font-medium text-green-400 text-sm">{result.title}</div>
+                      <div className="text-xs text-gray-400 truncate">{result.content}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
           <VisaoGeral />
           <Instalacao />
           <EstruturaProjeto />

@@ -47,107 +47,105 @@ const servicesList: Service[] = [
     description: "Nova versão da API (em desenvolvimento)"
   },
   
-  // Páginas e Plataforma
+  // Páginas do Site
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Página Inicial", 
     url: "/",
     description: "Landing page principal do site"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Quem Somos", 
     url: "/quem_somos",
     description: "Informações sobre a organização"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Agenda", 
     url: "/agenda",
     description: "Eventos e atividades"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Projetos", 
     url: "/projetos",
     description: "Lista de projetos da organização"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Projeto Individual", 
     url: "/projetos/exemplo",
     description: "Página de projeto específico"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Contato", 
     url: "/contato",
     description: "Formulário de contato"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Participe", 
     url: "/participe",
     description: "Como participar da organização"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Portal de Dados", 
     url: "/dados",
     description: "Portal principal de dados"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Contagens de Ciclistas", 
     url: "/dados/contagens",
     description: "Dados de contagens de ciclistas"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Contagem Individual", 
     url: "/contagens/exemplo",
     description: "Página de contagem específica"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Documentos", 
     url: "/dados/documentos",
     description: "Biblioteca de documentos"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Ideciclo", 
     url: "/dados/ideciclo",
     description: "Índice de desenvolvimento cicloviário"
   },
   { 
-    category: "Páginas e Plataforma", 
+    category: "Páginas do Site", 
     name: "Perfil Demográfico", 
     url: "/dados/perfil",
     description: "Dados demográficos da região"
   },
-  
-  // Observatórios
   { 
-    category: "Observatórios", 
+    category: "Páginas do Site", 
     name: "Portal Observatório", 
     url: "/observatorio",
     description: "Portal dos observatórios"
   },
   { 
-    category: "Observatórios", 
+    category: "Páginas do Site", 
     name: "Execução Cicloviária", 
     url: "/observatorio/execucaocicloviaria",
     description: "Monitoramento da execução de projetos cicloviários"
   },
   { 
-    category: "Observatórios", 
+    category: "Páginas do Site", 
     name: "LOA Clima", 
     url: "/observatorio/loa",
     description: "Lei Orçamentária Anual - Clima"
   },
   { 
-    category: "Observatórios", 
+    category: "Páginas do Site", 
     name: "DOM - Diário Oficial", 
     url: "/observatorio/dom",
     description: "Monitoramento do Diário Oficial do Município"
@@ -384,17 +382,16 @@ export default function StatusPage() {
           onFilterByStatus={setStatusFilter}
         />
 
-        {/* Header with Accessibility Controls */}
-        <div className="flex justify-between items-start mb-6">
-          <div></div>
-          <div className={`p-4 rounded-lg border ${
+        {/* Accessibility Controls - Floating */}
+        <div className="fixed top-24 right-4 z-40">
+          <div className={`p-3 rounded-lg border shadow-lg max-w-xs ${
             darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
           }`}>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium">Acessibilidade:</span>
+            <div className="text-xs font-medium mb-2">Acessibilidade:</div>
+            <div className="flex flex-wrap items-center gap-1 mb-2">
               <button 
                 onClick={() => setFontSize(Math.min(fontSize + 2, 24))} 
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                   darkMode 
                     ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
                     : "bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -405,7 +402,7 @@ export default function StatusPage() {
               </button>
               <button 
                 onClick={() => setFontSize(Math.max(fontSize - 2, 12))} 
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                   darkMode 
                     ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
                     : "bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -416,26 +413,26 @@ export default function StatusPage() {
               </button>
               <button 
                 onClick={() => setDarkMode(!darkMode)} 
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                   darkMode 
                     ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
                     : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                 }`}
                 aria-label={`Mudar para modo ${darkMode ? "claro" : "escuro"}`}
               >
-                {darkMode ? "🌞" : "🌙"} {darkMode ? "Claro" : "Escuro"}
-              </button>
-              <button 
-                onClick={refreshPage}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors flex items-center gap-1"
-                aria-label="Atualizar status"
-              >
-                <RefreshIcon className="w-4 h-4" />
-                Atualizar
+                {darkMode ? "🌞" : "🌙"}
               </button>
             </div>
-            <div className="text-xs opacity-75 mt-2 text-center">
-              Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
+            <button 
+              onClick={refreshPage}
+              className="w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors flex items-center justify-center gap-1 mb-2"
+              aria-label="Atualizar status"
+            >
+              <RefreshIcon className="w-3 h-3" />
+              Atualizar
+            </button>
+            <div className="text-xs opacity-75 text-center">
+              {lastUpdate.toLocaleTimeString('pt-BR')}
             </div>
           </div>
         </div>

@@ -57,7 +57,7 @@ export default function DocumentationSidebar({
           </div>
         )}
 
-        <div className="space-y-1">
+        <div className="space-y-0">
           {navigationItems.map((item) => {
             const IconComponent = item.icon;
             return (
