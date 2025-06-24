@@ -1,43 +1,185 @@
 import { useEffect, useState } from "react";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { useLoaderData, Link } from "@remix-run/react";
+import { ArrowUpIcon, HomeIcon, RefreshIcon } from "~/components/Commom/Icones/DocumentationIcons";
+import ServiceCard from "~/components/Status/ServiceCard";
+import StatusStats from "~/components/Status/StatusStats";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Status dos Serviços - Ameciclo" },
+    { name: "description", content: "Monitoramento em tempo real do status de todos os serviços e páginas da plataforma Ameciclo" },
+  ];
+};
 
 export interface Service {
   category: string;
   name: string;
   url: string;
+  description?: string;
 }
 
 export interface ServiceStatus extends Service {
-  status: "OK" | "OFF";
+  status: "OK" | "OFF" | "LOADING";
   httpStatus?: number;
   errorMessage?: string;
+  responseTime?: number;
 }
 
 const servicesList: Service[] = [
-  { category: "APIs", name: "API - STRAPI V3", url: "https://cms.ameciclo.org" },
-  { category: "APIs", name: "API - STRAPI V4", url: "https://test.cms.ameciclo.org" },
-  { category: "APIs", name: "API - STRAPI V5 [em breve...]", url: "https://do.strapi.ameciclo.org" },
-  { category: "Páginas do Site", name: "Página Inicial", url: "/" },
-  { category: "Páginas do Site", name: "Quem Somos", url: "/quem_somos" },
-  { category: "Páginas do Site", name: "Agenda", url: "/agenda" },
-  { category: "Páginas do Site", name: "Projetos", url: "/projetos" },
-  { category: "Páginas do Site", name: "Projeto", url: "/projetos/nome_do_projeto" },
-  { category: "Páginas do Site", name: "Contato", url: "/contato" },
-  { category: "Páginas do Site", name: "Dados", url: "/dados" },
-  { category: "Páginas do Site", name: "Contagens", url: "/dados/contagens" },
-  { category: "Páginas do Site", name: "Documentos", url: "/dados/documentos" },
-  { category: "Páginas do Site", name: "Ideciclo", url: "/dados/ideciclo" },
-  { category: "Páginas do Site", name: "Observatório", url: "/dados/observatorio" },
-  { category: "Páginas do Site", name: "Execução Cicloviária", url: "/dados/observatorio/execucaocicloviaria" },
-  { category: "Páginas do Site", name: "Loa Clima", url: "/dados/observatorio/loa" },
-  { category: "Páginas do Site", name: "Perfil", url: "/dados/observatorio/dom" },
+  // APIs e Backend
+  { 
+    category: "APIs e Backend", 
+    name: "API Principal - Strapi V3", 
+    url: "https://cms.ameciclo.org",
+    description: "API principal para dados do site"
+  },
+  { 
+    category: "APIs e Backend", 
+    name: "API de Teste - Strapi V4", 
+    url: "https://test.cms.ameciclo.org",
+    description: "Ambiente de testes da API"
+  },
+  { 
+    category: "APIs e Backend", 
+    name: "API Nova - Strapi V5", 
+    url: "https://do.strapi.ameciclo.org",
+    description: "Nova versão da API (em desenvolvimento)"
+  },
+  
+  // Páginas e Plataforma
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Página Inicial", 
+    url: "/",
+    description: "Landing page principal do site"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Quem Somos", 
+    url: "/quem_somos",
+    description: "Informações sobre a organização"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Agenda", 
+    url: "/agenda",
+    description: "Eventos e atividades"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Projetos", 
+    url: "/projetos",
+    description: "Lista de projetos da organização"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Projeto Individual", 
+    url: "/projetos/exemplo",
+    description: "Página de projeto específico"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Contato", 
+    url: "/contato",
+    description: "Formulário de contato"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Participe", 
+    url: "/participe",
+    description: "Como participar da organização"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Portal de Dados", 
+    url: "/dados",
+    description: "Portal principal de dados"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Contagens de Ciclistas", 
+    url: "/dados/contagens",
+    description: "Dados de contagens de ciclistas"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Contagem Individual", 
+    url: "/contagens/exemplo",
+    description: "Página de contagem específica"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Documentos", 
+    url: "/dados/documentos",
+    description: "Biblioteca de documentos"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Ideciclo", 
+    url: "/dados/ideciclo",
+    description: "Índice de desenvolvimento cicloviário"
+  },
+  { 
+    category: "Páginas e Plataforma", 
+    name: "Perfil Demográfico", 
+    url: "/dados/perfil",
+    description: "Dados demográficos da região"
+  },
+  
+  // Observatórios
+  { 
+    category: "Observatórios", 
+    name: "Portal Observatório", 
+    url: "/observatorio",
+    description: "Portal dos observatórios"
+  },
+  { 
+    category: "Observatórios", 
+    name: "Execução Cicloviária", 
+    url: "/observatorio/execucaocicloviaria",
+    description: "Monitoramento da execução de projetos cicloviários"
+  },
+  { 
+    category: "Observatórios", 
+    name: "LOA Clima", 
+    url: "/observatorio/loa",
+    description: "Lei Orçamentária Anual - Clima"
+  },
+  { 
+    category: "Observatórios", 
+    name: "DOM - Diário Oficial", 
+    url: "/observatorio/dom",
+    description: "Monitoramento do Diário Oficial do Município"
+  },
+  
+  // Serviços Externos
   {
     category: "Serviços Externos",
-    name: "Serviço - Associe-se",
-    url: "https://www.docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform",
+    name: "Formulário Associe-se",
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSeBboZ6fDhGEuJjVSyt7r3tTe5FF8VJH1gKt95jq6JslrwOdQ/viewform",
+    description: "Formulário para se associar à Ameciclo"
   },
-  { category: "Serviços Externos", name: "Serviço - Participe", url: "https://participe.ameciclo.org" },
+  { 
+    category: "Serviços Externos", 
+    name: "Portal Participe", 
+    url: "https://participe.ameciclo.org",
+    description: "Portal de participação cidadã"
+  },
+  
+  // Documentação e Status
+  { 
+    category: "Documentação e Suporte", 
+    name: "Documentação", 
+    url: "/documentacao",
+    description: "Documentação técnica da plataforma"
+  },
+  { 
+    category: "Documentação e Suporte", 
+    name: "Status dos Serviços", 
+    url: "/status",
+    description: "Esta página de monitoramento"
+  },
 ];
 
 const statusMessages: Record<number, string> = {
@@ -52,23 +194,45 @@ const statusMessages: Record<number, string> = {
 };
 
 const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Service> | {}> => {
+  const startTime = Date.now();
   try {
-    const response = await fetch(url, { headers: { "Accept-Charset": "utf-8" } });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    
+    const response = await fetch(url, { 
+      headers: { "Accept-Charset": "utf-8" },
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    const responseTime = Date.now() - startTime;
     const statusMessage = statusMessages[response.status] || `Erro inesperado com status ${response.status}`;
+    
     if (response.ok) {
-      return { status: "OK" };
+      return { status: "OK", responseTime };
     } else {
       return {
         status: "OFF",
         httpStatus: response.status,
         errorMessage: statusMessage,
+        responseTime
       };
     }
   } catch (error: any) {
+    const responseTime = Date.now() - startTime;
     console.error(`Erro ao acessar ${url}:`, error);
+    
+    let errorMessage = "Erro desconhecido ao acessar o serviço.";
+    if (error.name === 'AbortError') {
+      errorMessage = "Timeout - Serviço não respondeu em 10 segundos.";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     return {
       status: "OFF",
-      errorMessage: error.message || "Erro desconhecido ao acessar o serviço."
+      errorMessage,
+      responseTime
     };
   }
 };
@@ -97,10 +261,14 @@ export default function StatusPage() {
   const [fontSize, setFontSize] = useState<number>(16);
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [statusFilter, setStatusFilter] = useState<string>("");
 
   useEffect(() => {
     setServices(loaderData);
     setLoading(false);
+    setLastUpdate(new Date());
   }, [loaderData]);
 
   useEffect(() => {
@@ -120,49 +288,227 @@ export default function StatusPage() {
     localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const categories = Array.from(new Set(services.map((service) => service.category)));
+  const totalServices = services.length;
+  const onlineServices = services.filter(s => s.status === "OK").length;
+  const offlineServices = services.filter(s => s.status === "OFF").length;
+  const uptime = totalServices > 0 ? ((onlineServices / totalServices) * 100).toFixed(1) : "0";
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const refreshPage = () => {
+    window.location.reload();
+  };
 
   return (
-    <div className={`p-6 transition-colors duration-300 ${darkMode ? "bg-zinc-900 text-white" : "bg-white text-black"}`}>
-      <h1 className="text-5xl mb-5">Status dos Serviços</h1>
-      <a className="underline font-blue" href="/documentacao">leia a documentação</a>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button className="p-2 bg-gray-200 dark:bg-zinc-700 dark:text-white" onClick={() => setFontSize(fontSize + 2)}>A+</button>
-        <button className="p-2 bg-gray-200 dark:bg-zinc-700 dark:text-white" onClick={() => setFontSize(fontSize - 2)}>A-</button>
-        <button className="p-2 bg-gray-200 dark:bg-zinc-700 dark:text-white" onClick={() => setDarkMode(!darkMode)}>
-          Mudar para modo {darkMode ? "claro" : "escuro"}
-        </button>
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
+      {/* Header */}
+      <div className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
+        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl lg:text-3xl font-bold text-green-400">Status dos Serviços</h1>
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                uptime === "100.0" 
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : parseFloat(uptime) >= 90
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+              }`}>
+                {uptime}% Uptime
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-2">
+              <Link 
+                to="/documentacao" 
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+              >
+                📚 Documentação
+              </Link>
+              <Link 
+                to="/" 
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2 ${
+                  darkMode 
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+              >
+                <HomeIcon className="w-4 h-4" />
+                Voltar ao Site
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {loading ? (
-        <p className="text-xl">Verificando status dos serviços <span className="dot"> . . . </span></p>
-      ) : (
-        categories.map((category) => (
-          <div key={category} className="mb-6">
-            <h2 className="text-2xl pt-5 font-semibold mb-3" style={{ fontSize }}>{category}</h2>
-            {services
-              .filter((service) => service.category === category)
-              .map((service, index) => (
-                <div key={index} className="mb-3" style={{ fontSize }}>
-                  <p>
-                    <span className={service.status === "OK" ? "text-green-500" : "text-red-500"}>
-                      <strong>[{service.status}]</strong>
-                    </span>{" "}
-                    <strong>{service.name}:</strong>{" "}
-                    <span className={service.status === "OK" ? "text-green-500 underline font-bold" : "text-red-300 underline"}>
-                      <a href={service.url}>{service.url}</a>
-                    </span>{" "}
-                    {service.status === "OFF" && service.httpStatus && (
-                      <span className="text-red-500">[{service.httpStatus}]</span>
-                    )}
-                    {service.status === "OFF" && service.errorMessage && (
-                      <span className="text-red-500"> - {service.errorMessage}</span>
-                    )}
-                  </p>
-                </div>
-              ))}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Banner */}
+        <div className={`mb-8 rounded-lg overflow-hidden relative ${
+          darkMode ? "bg-gradient-to-r from-gray-800 to-gray-700" : "bg-gradient-to-r from-green-600 to-blue-600"
+        }`}>
+          <div className="h-48 md:h-64 flex items-center justify-center relative">
+            <div className="text-center text-white z-10">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">Status dos Serviços</h2>
+              <p className="text-lg md:text-xl opacity-90">Monitoramento em tempo real da plataforma Ameciclo</p>
+            </div>
+            <div className="absolute inset-0 opacity-10">
+              <div className="grid grid-cols-8 gap-4 h-full p-8">
+                {Array.from({ length: 32 }).map((_, i) => (
+                  <div key={i} className={`rounded ${
+                    i % 3 === 0 ? "bg-green-400" : i % 3 === 1 ? "bg-blue-400" : "bg-purple-400"
+                  }`}></div>
+                ))}
+              </div>
+            </div>
           </div>
-        ))
+        </div>
+
+        {/* Stats Cards */}
+        <StatusStats 
+          services={services} 
+          darkMode={darkMode} 
+          lastUpdate={lastUpdate} 
+          onFilterByStatus={setStatusFilter}
+        />
+
+        {/* Header with Accessibility Controls */}
+        <div className="flex justify-between items-start mb-6">
+          <div></div>
+          <div className={`p-4 rounded-lg border ${
+            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+          }`}>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium">Acessibilidade:</span>
+              <button 
+                onClick={() => setFontSize(Math.min(fontSize + 2, 24))} 
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  darkMode 
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+                aria-label="Aumentar tamanho da fonte"
+              >
+                A+
+              </button>
+              <button 
+                onClick={() => setFontSize(Math.max(fontSize - 2, 12))} 
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  darkMode 
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+                aria-label="Diminuir tamanho da fonte"
+              >
+                A-
+              </button>
+              <button 
+                onClick={() => setDarkMode(!darkMode)} 
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  darkMode 
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+                aria-label={`Mudar para modo ${darkMode ? "claro" : "escuro"}`}
+              >
+                {darkMode ? "🌞" : "🌙"} {darkMode ? "Claro" : "Escuro"}
+              </button>
+              <button 
+                onClick={refreshPage}
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors flex items-center gap-1"
+                aria-label="Atualizar status"
+              >
+                <RefreshIcon className="w-4 h-4" />
+                Atualizar
+              </button>
+            </div>
+            <div className="text-xs opacity-75 mt-2 text-center">
+              Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
+            </div>
+          </div>
+        </div>
+
+        {/* Active Filter Info */}
+        {statusFilter && (
+          <div className={`p-4 rounded-lg border mb-6 ${
+            darkMode ? "bg-blue-900/30 border-blue-500/30" : "bg-blue-50 border-blue-200"
+          }`}>
+            <div className="flex items-center justify-between">
+              <span className="text-blue-400 font-medium">
+                Mostrando apenas serviços: {statusFilter === "OK" ? "Online ✅" : "Offline ❌"}
+              </span>
+              <button 
+                onClick={() => setStatusFilter("")}
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
+              >
+                Mostrar Todos
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Services Status */}
+        {loading ? (
+          <div className={`p-8 rounded-lg border text-center ${
+            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+          }`}>
+            <div className="animate-spin w-8 h-8 border-4 border-green-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-lg">Verificando status dos serviços...</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {categories.map((category) => {
+              const filteredServices = services
+                .filter((service) => service.category === category)
+                .filter((service) => !statusFilter || service.status === statusFilter);
+              
+              if (filteredServices.length === 0) return null;
+              
+              return (
+                <div key={category} className={`p-6 rounded-lg border ${
+                  darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+                }`}>
+                  <h2 className="text-xl font-semibold mb-4 text-green-400" style={{ fontSize: fontSize + 4 }}>
+                    {category} ({filteredServices.length})
+                  </h2>
+                  <div className="space-y-3">
+                    {filteredServices.map((service, index) => (
+                      <ServiceCard 
+                        key={index} 
+                        service={service} 
+                        fontSize={fontSize} 
+                        darkMode={darkMode} 
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50"
+          aria-label="Voltar ao topo"
+        >
+          <ArrowUpIcon className="w-6 h-6" />
+        </button>
       )}
     </div>
   );

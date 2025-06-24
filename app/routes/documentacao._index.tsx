@@ -15,6 +15,7 @@ import {
   SearchIcon,
   ArrowUpIcon,
   HomeIcon,
+  StatusIcon,
 } from "~/components/Commom/Icones/DocumentationIcons";
 import VisaoGeral from "~/components/Documentacao/VisaoGeral";
 import Instalacao from "~/components/Documentacao/Instalacao";
@@ -188,18 +189,27 @@ export default function Docs() {
           }`}>
           <nav className={`space-y-2 ${isScrolled ? 'mt-0' : 'mt-20'} transition-all`}>
             {!isSidebarCollapsed && (
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-green-400 duration-300">Navegação</h2>
-                <a href="/" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-1">
-                  <HomeIcon className="w-3 h-3" />
-                  Voltar ao site
-                </a>
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-green-400 duration-300 mb-3">Navegação</h2>
+                <div className="space-y-2">
+                  <a href="/" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2 p-2 rounded hover:bg-gray-700">
+                    <HomeIcon className="w-4 h-4" />
+                    Voltar ao site
+                  </a>
+                  <a href="/status" className="text-sm text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2 p-2 rounded hover:bg-gray-700">
+                    <StatusIcon className="w-4 h-4" />
+                    Status dos Serviços
+                  </a>
+                </div>
               </div>
             )}
             {isSidebarCollapsed && (
-              <div className="mb-4 flex justify-center">
-                <a href="/" className="text-gray-400 hover:text-green-400 transition-colors">
+              <div className="mb-4 flex flex-col items-center space-y-2">
+                <a href="/" className="text-gray-400 hover:text-green-400 transition-colors p-2 rounded hover:bg-gray-700" title="Voltar ao site">
                   <HomeIcon className="w-5 h-5" />
+                </a>
+                <a href="/status" className="text-gray-400 hover:text-green-400 transition-colors p-2 rounded hover:bg-gray-700" title="Status dos Serviços">
+                  <StatusIcon className="w-5 h-5" />
                 </a>
               </div>
             )}
