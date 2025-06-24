@@ -26,9 +26,18 @@ export default function StatusStats({ services, darkMode, lastUpdate, onFilterBy
 
   const getUptimeColor = (uptime: string) => {
     const uptimeNum = parseFloat(uptime);
-    if (uptimeNum === 100) return "text-green-500";
-    if (uptimeNum >= 95) return "text-yellow-500";
-    return "text-red-500";
+    if (uptimeNum >= 95) return "text-green-500"; // Ótimo
+    if (uptimeNum >= 85) return "text-yellow-500"; // Bom
+    if (uptimeNum >= 70) return "text-orange-500"; // Ruim
+    return "text-red-500"; // Péssimo
+  };
+
+  const getResponseTimeColor = (time: number) => {
+    if (isNaN(time)) return "text-gray-400";
+    if (time < 500) return "text-green-500"; // Ótimo
+    if (time < 1500) return "text-yellow-500"; // Bom
+    if (time < 3000) return "text-orange-500"; // Ruim
+    return "text-red-500"; // Péssimo
   };
 
   const stats = [
@@ -59,7 +68,7 @@ export default function StatusStats({ services, darkMode, lastUpdate, onFilterBy
     {
       label: "Tempo Médio",
       value: formatResponseTime(avgResponseTime),
-      color: "text-purple-400",
+      color: getResponseTimeColor(avgResponseTime),
       icon: ApiIcon
     },
     {

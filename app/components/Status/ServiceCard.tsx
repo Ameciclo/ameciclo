@@ -5,15 +5,18 @@ interface ServiceCardProps {
   service: ServiceStatus;
   fontSize: number;
   darkMode: boolean;
+  origin: string;
 }
 
-export default function ServiceCard({ service, fontSize, darkMode }: ServiceCardProps) {
+export default function ServiceCard({ service, fontSize, darkMode, origin }: ServiceCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "OK":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
       case "OFF":
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "LOADING":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
@@ -40,12 +43,14 @@ export default function ServiceCard({ service, fontSize, darkMode }: ServiceCard
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(service.status)}`}>
-              {service.status === "OK" ? (
+              {service.status === "LOADING" ? (
+                <div className="animate-spin w-3 h-3 mr-1 border border-blue-500 border-t-transparent rounded-full"></div>
+              ) : service.status === "OK" ? (
                 <TestIcon className="w-3 h-3 mr-1" />
               ) : (
                 <TroubleshootIcon className="w-3 h-3 mr-1" />
               )}
-              {service.status}
+              {service.status === "LOADING" ? "Verificando..." : service.status}
             </span>
             <h3 className="font-semibold truncate" style={{ fontSize }}>
               {service.name}
@@ -75,7 +80,7 @@ export default function ServiceCard({ service, fontSize, darkMode }: ServiceCard
               }`}
               style={{ fontSize: fontSize - 2 }}
             >
-              {service.url.startsWith('http') ? service.url : `https://ameciclo.org${service.url}`}
+              {service.url.startsWith('http') ? service.url : `${origin}${service.url}`}
             </a>
             {service.url.startsWith('http') && (
               <span className="text-xs opacity-50">↗</span>

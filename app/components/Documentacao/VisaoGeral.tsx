@@ -1,12 +1,32 @@
 import { OverviewIcon, StatusIcon } from "~/components/Commom/Icones/DocumentationIcons";
+import DocumentationSearchBar from "~/components/DocumentationSearchBar";
 
-export default function VisaoGeral() {
+interface VisaoGeralProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  searchResults: any[];
+  scrollToSection: (sectionId: string) => void;
+}
+
+export default function VisaoGeral({ searchTerm, setSearchTerm, searchResults, scrollToSection }: VisaoGeralProps) {
   return (
     <section id="visao-geral" className="mb-12">
-      <h2 className="text-2xl lg:text-3xl font-bold text-green-400 mb-4 lg:mb-6 flex items-center gap-3">
-        <OverviewIcon className="w-8 h-8" />
-        Visão Geral
-      </h2>
+      <div className="flex justify-between items-center mb-4 lg:mb-6">
+        <h2 className="text-2xl lg:text-3xl font-bold text-green-400 flex items-center gap-3">
+          <OverviewIcon className="w-8 h-8" />
+          Visão Geral
+        </h2>
+        <div id="search-container">
+          <DocumentationSearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchResults={searchResults}
+            onResultClick={scrollToSection}
+            placeholder="Buscar na documentação..."
+            width="w-80"
+          />
+        </div>
+      </div>
       <div className="bg-gray-800 rounded-lg p-4 lg:p-6 border border-gray-700">
         <p className="text-lg mb-4">
           O projeto <strong className="text-green-400">Ameciclo</strong> é uma plataforma web desenvolvida com <strong>Remix</strong> e <strong>TypeScript</strong>

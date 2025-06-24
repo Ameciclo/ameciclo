@@ -75,7 +75,7 @@ const servicesList: Service[] = [
   { 
     category: "Páginas do Site", 
     name: "Projeto Individual", 
-    url: "/projetos/exemplo",
+    url: "/projetos/bike-anjo",
     description: "Página de projeto específico"
   },
   { 
@@ -194,15 +194,9 @@ const statusMessages: Record<number, string> = {
 const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Service> | {}> => {
   const startTime = Date.now();
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-    
     const response = await fetch(url, { 
-      headers: { "Accept-Charset": "utf-8" },
-      signal: controller.signal
+      headers: { "Accept-Charset": "utf-8" }
     });
-    
-    clearTimeout(timeoutId);
     const responseTime = Date.now() - startTime;
     const statusMessage = statusMessages[response.status] || `Erro inesperado com status ${response.status}`;
     
@@ -221,9 +215,7 @@ const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Servi
     console.error(`Erro ao acessar ${url}:`, error);
     
     let errorMessage = "Erro desconhecido ao acessar o serviço.";
-    if (error.name === 'AbortError') {
-      errorMessage = "Timeout - Serviço não respondeu em 10 segundos.";
-    } else if (error.message) {
+    if (error.message) {
       errorMessage = error.message;
     }
     
@@ -237,16 +229,14 @@ const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Servi
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const origin = new URL(request.url).origin;
+  
+  // Retorna apenas a lista de serviços com status LOADING
+  const results: ServiceStatus[] = servicesList.map(service => ({
+    ...service,
+    status: "LOADING" as const
+  }));
 
-  const results: ServiceStatus[] = await Promise.all(
-    servicesList.map(async (service) => {
-      const fullUrl = service.url.startsWith("http") ? service.url : `${origin}${service.url}`;
-      const statusData = await checkStatus(fullUrl);
-      return { ...service, ...statusData } as ServiceStatus;
-    })
-  );
-
-  return json(results, {
+  return json({ services: results, origin }, {
     headers: {
       "Content-Type": "application/json; charset=utf-8"
     }
@@ -254,20 +244,32 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function StatusPage() {
-  const loaderData = useLoaderData<typeof loader>();
-  const [services, setServices] = useState<ServiceStatus[]>([]);
+  const { services: initialServices, origin } = useLoaderData<typeof loader>();
+  const [services, setServices] = useState<ServiceStatus[]>(initialServices);
   const [fontSize, setFontSize] = useState<number>(16);
   const [darkMode, setDarkMode] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [statusFilter, setStatusFilter] = useState<string>("");
 
+  // Carrega status de cada serviço individualmente
   useEffect(() => {
-    setServices(loaderData);
-    setLoading(false);
-    setLastUpdate(new Date());
-  }, [loaderData]);
+    const checkServiceStatus = async (service: Service, index: number) => {
+      const fullUrl = service.url.startsWith("http") ? service.url : `${origin}${service.url}`;
+      const statusData = await checkStatus(fullUrl);
+      
+      setServices(prev => {
+        const updated = [...prev];
+        updated[index] = { ...service, ...statusData } as ServiceStatus;
+        return updated;
+      });
+    };
+
+    // Inicia verificação de todos os serviços
+    initialServices.forEach((service, index) => {
+      checkServiceStatus(service, index);
+    });
+  }, [origin, initialServices]);
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
@@ -310,49 +312,7 @@ export default function StatusPage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
-      {/* Header */}
-      <div className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
-        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl lg:text-3xl font-bold text-green-400">Status dos Serviços</h1>
-              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                uptime === "100.0" 
-                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                  : parseFloat(uptime) >= 90
-                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                  : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-              }`}>
-                {uptime}% Uptime
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-2">
-              <Link 
-                to="/documentacao" 
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
-              >
-                📚 Documentação
-              </Link>
-              <Link 
-                to="/" 
-                className={`px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2 ${
-                  darkMode 
-                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                }`}
-              >
-                <HomeIcon className="w-4 h-4" />
-                Voltar ao Site
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-20">
         {/* Banner */}
         <div className={`mb-8 rounded-lg overflow-hidden relative ${
           darkMode ? "bg-gradient-to-r from-gray-800 to-gray-700" : "bg-gradient-to-r from-green-600 to-blue-600"
@@ -443,8 +403,15 @@ export default function StatusPage() {
             darkMode ? "bg-blue-900/30 border-blue-500/30" : "bg-blue-50 border-blue-200"
           }`}>
             <div className="flex items-center justify-between">
-              <span className="text-blue-400 font-medium">
-                Mostrando apenas serviços: {statusFilter === "OK" ? "Online ✅" : "Offline ❌"}
+              <span className="text-blue-400 font-medium flex items-center gap-2">
+                Mostrando apenas serviços: 
+                {statusFilter === "OK" ? (
+                  <><TestIcon className="w-4 h-4 text-green-500" /> Online</>
+                ) : statusFilter === "OFF" ? (
+                  <><TroubleshootIcon className="w-4 h-4 text-red-500" /> Offline</>
+                ) : (
+                  <>Verificando</>
+                )}
               </span>
               <button 
                 onClick={() => setStatusFilter("")}
@@ -456,45 +423,53 @@ export default function StatusPage() {
           </div>
         )}
 
-        {/* Services Status */}
-        {loading ? (
-          <div className={`p-8 rounded-lg border text-center ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-          }`}>
-            <div className="animate-spin w-8 h-8 border-4 border-green-400 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-lg">Verificando status dos serviços...</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {categories.map((category) => {
-              const filteredServices = services
-                .filter((service) => service.category === category)
-                .filter((service) => !statusFilter || service.status === statusFilter);
-              
-              if (filteredServices.length === 0) return null;
-              
-              return (
-                <div key={category} className={`p-6 rounded-lg border ${
-                  darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-                }`}>
-                  <h2 className="text-xl font-semibold mb-4 text-green-400" style={{ fontSize: fontSize + 4 }}>
-                    {category} ({filteredServices.length})
-                  </h2>
-                  <div className="space-y-3">
-                    {filteredServices.map((service, index) => (
-                      <ServiceCard 
-                        key={index} 
-                        service={service} 
-                        fontSize={fontSize} 
-                        darkMode={darkMode} 
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+        {/* Loading Counter */}
+        {services.filter(s => s.status === "LOADING").length > 0 && (
+          <div 
+            className={`p-3 rounded-lg border mb-6 flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform ${
+              darkMode ? "bg-blue-900/30 border-blue-500/30 hover:bg-blue-900/40" : "bg-blue-50 border-blue-200 hover:bg-blue-100"
+            }`}
+            onClick={() => setStatusFilter("LOADING")}
+          >
+            <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+            <span className="text-blue-400 font-medium">
+              Verificando {services.filter(s => s.status === "LOADING").length} serviços...
+            </span>
           </div>
         )}
+
+        {/* Services Status */}
+        <div className="space-y-6">
+          {categories.map((category) => {
+            const filteredServices = services
+              .filter((service) => service.category === category)
+              .filter((service) => !statusFilter || service.status === statusFilter);
+            
+            if (filteredServices.length === 0) return null;
+            
+            return (
+              <div key={category} className={`p-6 rounded-lg border ${
+                darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+              }`}>
+                <h2 className={`text-xl font-semibold mb-4 ${darkMode ? "text-green-400" : "text-green-700"}`} style={{ fontSize: fontSize + 4 }}>
+                  {category} ({filteredServices.length})
+                </h2>
+                <div className="space-y-3">
+                  {filteredServices.map((service, index) => (
+                    <ServiceCard 
+                      key={index} 
+                      service={service} 
+                      fontSize={fontSize} 
+                      darkMode={darkMode}
+                      origin={origin} 
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
       </div>
 
       {/* Scroll to top button */}

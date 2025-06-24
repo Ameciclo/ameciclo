@@ -204,18 +204,12 @@ export default function Docs() {
         />
 
         <div className="flex-1 p-4">
-          <div id="search-container" className="flex justify-between items-start mb-8">
-            <div></div>
-            <DocumentationSearchBar
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              searchResults={searchResults}
-              onResultClick={scrollToSection}
-              placeholder="Buscar na documentação..."
-              width="w-80"
-            />
-          </div>
-          <VisaoGeral />
+          <VisaoGeral
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            searchResults={searchResults}
+            scrollToSection={scrollToSection}
+          />
           <Instalacao />
           <EstruturaProjeto />
           <Componentes />
