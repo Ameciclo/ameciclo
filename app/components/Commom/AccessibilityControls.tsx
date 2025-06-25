@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { ConfigIcon, ArrowUpIcon } from "~/components/Commom/Icones/DocumentationIcons";
 
 interface AccessibilityControlsProps {
@@ -25,6 +26,34 @@ export default function AccessibilityControls({
   showScrollTop,
   onScrollTop
 }: AccessibilityControlsProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (showAccessibilityMenu) {
+      timeoutRef.current = setTimeout(() => {
+        setShowAccessibilityMenu(false);
+      }, 3000);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [showAccessibilityMenu, setShowAccessibilityMenu]);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setShowAccessibilityMenu(false);
+    }, 3000);
+  };
   return (
     <>
       {/* Accessibility Button */}
@@ -55,7 +84,12 @@ export default function AccessibilityControls({
 
       {/* Accessibility Menu */}
       {showAccessibilityMenu && (
-        <div className="fixed top-1/2 right-14 transform -translate-y-1/2 z-40 accessibility-controls">
+        <div 
+          ref={menuRef}
+          className="fixed top-1/2 right-14 transform -translate-y-1/2 z-40 accessibility-controls"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <div className={`p-3 rounded-lg border shadow-lg ${
             darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
           }`}>

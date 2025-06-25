@@ -144,25 +144,37 @@ export default function Docs() {
   ], []);
 
   const searchData = useMemo(() => [
-    { id: "visao-geral", title: "Visão Geral", content: "Remix TypeScript mobilidade ativa Recife" },
-    { id: "instalacao", title: "Instalação", content: "npm install desenvolvimento setup" },
-    { id: "estrutura", title: "Estrutura do Projeto", content: "pastas arquivos componentes routes" },
-    { id: "componentes", title: "Componentes", content: "React componentes reutilizáveis" },
-    { id: "rotas", title: "Rotas", content: "Remix routing páginas navegação" },
-    { id: "api", title: "API", content: "endpoints dados contagens" },
-    { id: "testes", title: "Testes", content: "testing jest cypress" },
-    { id: "configuracao", title: "Configuração", content: "environment variables config" },
-    { id: "solucoes", title: "Soluções", content: "problemas erros soluções" },
-    { id: "deploy", title: "Deploy", content: "produção build deployment" },
-    { id: "contribuicao", title: "Contribuição", content: "git github pull request" }
+    { id: "visao-geral", title: "Visão Geral", content: "Remix TypeScript mobilidade ativa Recife plataforma web framework React SSR" },
+    { id: "instalacao", title: "Instalação", content: "npm install desenvolvimento setup Node.js yarn git clone repositório dependências" },
+    { id: "estrutura", title: "Estrutura do Projeto", content: "pastas arquivos componentes routes app public build assets styles" },
+    { id: "componentes", title: "Componentes", content: "React componentes reutilizáveis Breadcrumb Header Footer Sidebar Navigation Menu Button Card Modal" },
+    { id: "rotas", title: "Rotas", content: "Remix routing páginas navegação loader action params slug dynamic routes nested" },
+    { id: "api", title: "API", content: "endpoints dados contagens cyclist-counts cms strapi fetch timeout" },
+    { id: "testes", title: "Testes", content: "testing jest cypress eslint typecheck lint qualidade código" },
+    { id: "configuracao", title: "Configuração", content: "environment variables config .env tailwind analytics google" },
+    { id: "solucoes", title: "Soluções", content: "problemas erros soluções troubleshooting debug port timeout module not found" },
+    { id: "deploy", title: "Deploy", content: "produção build deployment npm start servidor dependências framework" },
+    { id: "contribuicao", title: "Contribuição", content: "git github pull request fork clone commit push issues contribuir" }
   ], []);
 
   useEffect(() => {
     if (searchTerm.length > 2) {
-      const results = searchData.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.content.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const searchLower = searchTerm.toLowerCase();
+      const results = searchData.filter(item => {
+        const titleMatch = item.title.toLowerCase().includes(searchLower);
+        const contentMatch = item.content.toLowerCase().includes(searchLower);
+        const wordsMatch = searchLower.split(' ').some(word => 
+          item.title.toLowerCase().includes(word) || 
+          item.content.toLowerCase().includes(word)
+        );
+        return titleMatch || contentMatch || wordsMatch;
+      }).sort((a, b) => {
+        const aTitle = a.title.toLowerCase().includes(searchLower);
+        const bTitle = b.title.toLowerCase().includes(searchLower);
+        if (aTitle && !bTitle) return -1;
+        if (!aTitle && bTitle) return 1;
+        return 0;
+      });
       setSearchResults(results);
     } else {
       setSearchResults([]);
