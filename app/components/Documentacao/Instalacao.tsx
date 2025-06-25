@@ -11,14 +11,14 @@ export default function Instalacao({ darkMode = true, fontSize = 16 }: Instalaca
         Instalação
       </h2>
       <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 lg:p-6 border`}>
-        <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }} style={{ fontSize: fontSize + 4 }}>Pré-requisitos</h3>
+        <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }}>Pré-requisitos</h3>
         <ul className="list-disc list-inside mb-6 space-y-2" style={{ fontSize: fontSize - 2 }}>
           <li>Node.js &ge; 20.0.0</li>
           <li>npm ou yarn</li>
           <li>Git</li>
         </ul>
         
-        <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }} style={{ fontSize: fontSize + 4 }}>Passos para instalação</h3>
+        <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }}>Passos para instalação</h3>
         <div className="space-y-4">
           <div>
             <p className="mb-2" style={{ fontSize: fontSize - 2 }}>1. Clone o repositório:</p>

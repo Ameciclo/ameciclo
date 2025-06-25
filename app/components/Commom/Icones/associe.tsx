@@ -5,7 +5,7 @@ function Associe() {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 197.545 241.327"
-      className="w-48 h-48 mb-4 text-ameciclo"
+      className="w-full h-full text-white"
       fill="currentColor"
     >
       <defs>

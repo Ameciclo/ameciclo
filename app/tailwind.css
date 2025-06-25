@@ -125,6 +125,15 @@
 @layer utilities {
   .buttom-call-actions {
     @apply p-4 text-center text-white rounded-md transition-transform transform hover:scale-110 hover:opacity-80;
+    width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .buttom-call-actions svg {
+    width: 200px;
+    height: 200px;
   }
   
   .animation-delay-200 {

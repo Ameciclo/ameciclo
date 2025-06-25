@@ -52,7 +52,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
           </pre>
         </div>
         
-        <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }} style={{ fontSize: fontSize + 4 }}>Detalhamento das Pastas</h3>
+        <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }}>Detalhamento das Pastas</h3>
         <div className="space-y-4">
           <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3 flex items-center gap-2`} style={{ fontSize: fontSize }}>

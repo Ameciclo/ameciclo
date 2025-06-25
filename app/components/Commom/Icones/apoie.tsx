@@ -4,7 +4,7 @@ function Apoie() {
   return (
     <>
       <svg
-        className="w-48 h-48 mb-4 text-ameciclo"
+        className="w-full h-full text-white"
         fill="currentColor"
         version="1.1"
         viewBox="0 0 203.111 243.111"

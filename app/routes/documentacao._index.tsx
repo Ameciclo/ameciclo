@@ -12,7 +12,6 @@ import {
   TroubleshootIcon,
   DeployIcon,
   ContributeIcon,
-  ArrowUpIcon,
 } from "~/components/Commom/Icones/DocumentationIcons";
 
 
@@ -26,20 +25,45 @@ const highContrastStyles = `
     background-color: #fff !important;
     border-color: #000 !important;
   }
+  .high-contrast.dark {
+    background-color: #000 !important;
+    color: #fff !important;
+  }
+  .high-contrast.dark * {
+    color: #fff !important;
+    background-color: #000 !important;
+    border-color: #fff !important;
+  }
   .high-contrast .text-green-500, .high-contrast .text-green-700 {
     color: #006600 !important;
+    font-weight: bold;
+  }
+  .high-contrast.dark .text-green-500, .high-contrast.dark .text-green-700 {
+    color: #00ff00 !important;
     font-weight: bold;
   }
   .high-contrast .text-red-500 {
     color: #cc0000 !important;
     font-weight: bold;
   }
+  .high-contrast.dark .text-red-500 {
+    color: #ff0000 !important;
+    font-weight: bold;
+  }
   .high-contrast .text-yellow-500 {
     color: #cc6600 !important;
     font-weight: bold;
   }
+  .high-contrast.dark .text-yellow-500 {
+    color: #ffff00 !important;
+    font-weight: bold;
+  }
   .high-contrast .text-blue-500 {
     color: #0000cc !important;
+    font-weight: bold;
+  }
+  .high-contrast.dark .text-blue-500 {
+    color: #0099ff !important;
     font-weight: bold;
   }
   .high-contrast .theme-toggle {
@@ -127,7 +151,7 @@ export default function Docs() {
     } else if (!highContrast && styleElement) {
       styleElement.remove();
     }
-  }, [highContrast]);
+  }, [highContrast, darkMode]);
 
   const navigationItems = useMemo(() => [
     { id: 'visao-geral', title: 'Visão Geral', icon: OverviewIcon },

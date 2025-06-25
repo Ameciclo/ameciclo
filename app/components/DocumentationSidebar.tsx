@@ -86,10 +86,6 @@ function DocumentationSidebar({
                 <HomeIcon className="w-4 h-4" />
                 Voltar ao site
               </a>
-              <a href="/status" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors flex items-center gap-2 p-2 rounded`} style={{ fontSize: fontSize - 2 }}>
-                <StatusIcon className="w-4 h-4" />
-                Status dos Serviços
-              </a>
             </div>
           </div>
         )}
