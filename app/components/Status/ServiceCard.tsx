@@ -8,6 +8,15 @@ interface ServiceCardProps {
   origin: string;
 }
 
+const fixEncoding = (text: string) => {
+  try {
+    // Tenta decodificar se estiver mal codificado
+    return decodeURIComponent(escape(text));
+  } catch {
+    return text;
+  }
+};
+
 export default function ServiceCard({ service, fontSize, darkMode, origin }: ServiceCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -53,7 +62,7 @@ export default function ServiceCard({ service, fontSize, darkMode, origin }: Ser
               {service.status === "LOADING" ? "Verificando..." : service.status}
             </span>
             <h3 className="font-semibold truncate" style={{ fontSize }}>
-              {service.name}
+              {fixEncoding(service.name)}
             </h3>
             {service.responseTime && (
               <span className={`text-xs font-mono ${getResponseTimeColor(service.responseTime)}`}>
@@ -64,7 +73,7 @@ export default function ServiceCard({ service, fontSize, darkMode, origin }: Ser
           
           {service.description && (
             <p className="text-sm opacity-75 mb-2 line-clamp-2" style={{ fontSize: fontSize - 2 }}>
-              {service.description}
+              {fixEncoding(service.description)}
             </p>
           )}
           
@@ -97,7 +106,7 @@ export default function ServiceCard({ service, fontSize, darkMode, origin }: Ser
             )}
             {service.errorMessage && (
               <div className="text-xs text-red-400 break-words">
-                {service.errorMessage}
+                {fixEncoding(service.errorMessage)}
               </div>
             )}
           </div>

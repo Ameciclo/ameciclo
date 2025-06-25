@@ -4,12 +4,10 @@ import { useLoaderData, Link } from "@remix-run/react";
 import { ArrowUpIcon, HomeIcon, RefreshIcon, TestIcon, TroubleshootIcon, ConfigIcon } from "~/components/Commom/Icones/DocumentationIcons";
 import ServiceCard from "~/components/Status/ServiceCard";
 import StatusStats from "~/components/Status/StatusStats";
+import AccessibilityControls from "~/components/Commom/AccessibilityControls";
 
 // Adicione este CSS para aplicar o alto contraste quando ativado
 const highContrastStyles = `
-  .high-contrast {
-    filter: contrast(1.5);
-  }
   .high-contrast .content * {
     color: #000 !important;
     background-color: #fff !important;
@@ -31,15 +29,8 @@ const highContrastStyles = `
     color: #0000cc !important;
     font-weight: bold;
   }
-  /* Exceções para os controles de acessibilidade */
-  .high-contrast .accessibility-controls {
-    filter: none !important;
-  }
-  .high-contrast .accessibility-controls * {
-    color: inherit !important;
-    background-color: inherit !important;
-    border-color: inherit !important;
-    filter: none !important;
+  .high-contrast .theme-toggle {
+    display: none !important;
   }
 `;
 
@@ -218,6 +209,14 @@ const servicesList: Service[] = [
   },
 ];
 
+const fixEncoding = (text: string) => {
+  try {
+    return decodeURIComponent(escape(text));
+  } catch {
+    return text;
+  }
+};
+
 const statusMessages: Record<number, string> = {
   400: "Requisição mal formada.",
   401: "Não autorizado!",
@@ -233,7 +232,10 @@ const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Servi
   const startTime = Date.now();
   try {
     const response = await fetch(url, { 
-      headers: { "Accept-Charset": "utf-8" }
+      headers: { 
+        "Accept-Charset": "utf-8",
+        "Content-Type": "text/html; charset=utf-8"
+      }
     });
     const responseTime = Date.now() - startTime;
     const statusMessage = statusMessages[response.status] || `Erro inesperado com status ${response.status}`;
@@ -276,7 +278,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({ services: results, origin }, {
     headers: {
-      "Content-Type": "application/json; charset=utf-8"
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-cache"
     }
   });
 }
@@ -291,6 +294,7 @@ export default function StatusPage() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [showAccessibilityMenu, setShowAccessibilityMenu] = useState<boolean>(false);
+  const [showSlowServices, setShowSlowServices] = useState<boolean>(false);
 
   // Carrega status de cada serviço individualmente
   useEffect(() => {
@@ -376,7 +380,10 @@ export default function StatusPage() {
           <div className="h-48 md:h-64 flex items-center justify-center relative">
             <div className="text-center text-white z-10">
               <h2 className="text-3xl md:text-5xl font-bold mb-4">Status dos Serviços</h2>
-              <p className="text-lg md:text-xl opacity-90">Monitoramento em tempo real da plataforma Ameciclo</p>
+              <p className="text-lg md:text-xl opacity-90 mb-2">Monitoramento em tempo real da plataforma Ameciclo</p>
+              <p className="text-sm opacity-75">
+                Para mais informações técnicas, consulte a <Link to="/documentacao" className="underline hover:opacity-100 transition-opacity">documentação</Link>
+              </p>
             </div>
             <div className="absolute inset-0 opacity-10">
               <div className="grid grid-cols-8 gap-4 h-full p-8">
@@ -398,84 +405,6 @@ export default function StatusPage() {
           onFilterByStatus={setStatusFilter}
           onRefresh={refreshPage}
         />
-
-        {/* Accessibility Button */}
-        <div className="fixed top-1/2 right-0 transform -translate-y-1/2 z-40 accessibility-controls">
-          <button
-            onClick={() => setShowAccessibilityMenu(!showAccessibilityMenu)}
-            className={`p-3 rounded-l-lg shadow-lg transition-colors flex items-center justify-center ${
-              darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-white hover:bg-gray-100"
-            }`}
-            aria-label="Opções de acessibilidade"
-          >
-            <ConfigIcon className="w-6 h-6 text-blue-500" />
-          </button>
-        </div>
-
-        {/* Theme Toggle Button */}
-        <div className="fixed top-1/2 right-0 transform -translate-y-1/2 translate-y-16 z-40 accessibility-controls">
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`p-3 rounded-l-lg shadow-lg transition-colors flex items-center justify-center ${
-              darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-white hover:bg-gray-100"
-            }`}
-            aria-label={`Mudar para modo ${darkMode ? "claro" : "escuro"}`}
-          >
-            {darkMode ? "🌞" : "🌙"}
-          </button>
-        </div>
-
-        {/* Accessibility Menu */}
-        {showAccessibilityMenu && (
-          <div className="fixed top-1/2 right-14 transform -translate-y-1/2 z-40 accessibility-controls">
-            <div className={`p-3 rounded-lg border shadow-lg ${
-              darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-            }`}>
-              <div className="text-xs font-medium mb-2">Acessibilidade:</div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => setFontSize(Math.min(fontSize + 2, 24))} 
-                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                      darkMode 
-                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
-                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                    }`}
-                    aria-label="Aumentar tamanho da fonte"
-                  >
-                    A+
-                  </button>
-                  <button 
-                    onClick={() => setFontSize(Math.max(fontSize - 2, 12))} 
-                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                      darkMode 
-                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
-                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                    }`}
-                    aria-label="Diminuir tamanho da fonte"
-                  >
-                    A-
-                  </button>
-                  <span className="text-xs">Tamanho do texto</span>
-                </div>
-                <button 
-                  onClick={() => setHighContrast(!highContrast)} 
-                  className={`px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-2 ${
-                    highContrast 
-                      ? "bg-yellow-500 text-black" 
-                      : darkMode 
-                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
-                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                  }`}
-                  aria-label="Alternar alto contraste"
-                >
-                  <span className={`w-3 h-3 rounded-full ${highContrast ? "bg-black" : "bg-gray-400"}`}></span>
-                  Alto contraste {highContrast ? "ON" : "OFF"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Active Filter Info */}
         {statusFilter && (
@@ -518,6 +447,78 @@ export default function StatusPage() {
           </div>
         )}
 
+        {/* Slow Services Alert */}
+        {services.filter(s => s.responseTime && s.responseTime > 3000 && s.status === "OK").length > 0 && (
+          <div className={`p-4 rounded-lg border mb-6 ${
+            darkMode ? "bg-orange-900/30 border-orange-500/30" : "bg-orange-50 border-orange-200"
+          }`}>
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setShowSlowServices(!showSlowServices)}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
+                <h3 className={`font-semibold ${darkMode ? "text-orange-400" : "text-orange-700"}`}>
+                  Serviços com Resposta Lenta ({services.filter(s => s.responseTime && s.responseTime > 3000 && s.status === "OK").length})
+                </h3>
+              </div>
+              <div className={`transform transition-transform ${showSlowServices ? 'rotate-180' : ''}`}>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            {showSlowServices && (
+              <div className="mt-3">
+                <div className={`mb-3 p-2 rounded text-xs ${
+                  darkMode ? "bg-orange-900/30 border border-orange-500/30 text-orange-300" : "bg-orange-50 border border-orange-200 text-orange-700"
+                }`}>
+                  <strong>Performance:</strong> Serviços com tempo de resposta superior a 3 segundos podem indicar problemas de performance.
+                </div>
+                <div className={`mb-3 p-2 rounded text-xs ${
+                  darkMode ? "bg-blue-900/30 border border-blue-500/30 text-blue-300" : "bg-blue-50 border border-blue-200 text-blue-700"
+                }`}>
+                  <strong>Desenvolvimento:</strong> Em ambiente local, alguns serviços podem parecer lentos devido à rede. Verifique a página deployada para tempos reais de produção.
+                </div>
+                <div className="space-y-4">
+                  {Array.from(new Set(services
+                    .filter(s => s.responseTime && s.responseTime > 3000 && s.status === "OK")
+                    .map(s => s.category)
+                  )).map(category => {
+                    const categoryServices = services
+                      .filter(s => s.responseTime && s.responseTime > 3000 && s.status === "OK" && s.category === category)
+                      .sort((a, b) => (b.responseTime || 0) - (a.responseTime || 0));
+                    
+                    return (
+                      <div key={category}>
+                        <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-orange-300' : 'text-orange-700'}`}>
+                          {fixEncoding(category)} ({categoryServices.length})
+                        </h4>
+                        <div className="space-y-2 ml-2">
+                          {categoryServices.map((service, index) => (
+                            <div key={index} className={`flex justify-between items-center p-2 rounded ${
+                              darkMode ? "bg-orange-800/20" : "bg-orange-100"
+                            }`}>
+                              <span className="text-sm font-medium">{fixEncoding(service.name)}</span>
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                darkMode ? "bg-orange-600 text-white" : "bg-orange-200 text-orange-800"
+                              }`}>
+                                {service.responseTime && service.responseTime < 1000 
+                                  ? `${Math.round(service.responseTime)}ms` 
+                                  : `${(service.responseTime! / 1000).toFixed(1)}s`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Services Status */}
         <div className="space-y-6">
           {categories.map((category) => {
@@ -532,7 +533,7 @@ export default function StatusPage() {
                 darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               }`}>
                 <h2 className={`text-xl font-semibold mb-4 ${darkMode ? "text-green-400" : "text-green-700"}`} style={{ fontSize: fontSize + 4 }}>
-                  {category} ({filteredServices.length})
+                  {fixEncoding(category)} ({filteredServices.length})
                 </h2>
                 <div className="space-y-3">
                   {filteredServices.map((service, index) => (
@@ -552,16 +553,18 @@ export default function StatusPage() {
 
       </div>
 
-      {/* Scroll to top button */}
-      {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-8 right-8 bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50 accessibility-controls"
-          aria-label="Voltar ao topo"
-        >
-          <ArrowUpIcon className="w-6 h-6" />
-        </button>
-      )}
+      <AccessibilityControls
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        highContrast={highContrast}
+        setHighContrast={setHighContrast}
+        showAccessibilityMenu={showAccessibilityMenu}
+        setShowAccessibilityMenu={setShowAccessibilityMenu}
+        showScrollTop={showScrollTop}
+        onScrollTop={scrollToTop}
+      />
     </div>
   );
 }

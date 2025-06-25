@@ -106,7 +106,6 @@ export default function StatusStats({ services, darkMode, lastUpdate, onFilterBy
                 onFilterByStatus(stat.label === "Online" ? "OK" : "OFF");
               }
             }}
-            title={tooltips[stat.label as keyof typeof tooltips]}
           >
             <div className="flex items-center justify-between mb-2">
               <stat.icon className="w-8 h-8 opacity-75" />
