@@ -1,11 +1,6 @@
 import { MetaFunction } from "@remix-run/node";
-import { motion } from "framer-motion";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import Participe from "~/components/Commom/Icones/participe";
-import Associe from "~/components/Commom/Icones/associe";
-import Apoie from "~/components/Commom/Icones/apoie";
-
 import bannerContatact from "/contato.webp";
 import Banner from "~/components/Commom/Banner";
 
@@ -21,52 +16,78 @@ export default function Contato() {
     <>
       <Banner image={bannerContatact} alt="Mulher negra de cabelo crespo volumoso andando de bicicleta com camisa branca de costas no canto direito do banner, passando ao lado de um bicicletário com várias bicicletas e cones que protegem este bicicletário" />
       <Breadcrumb label="Contato" slug="/contato" routes={["/"]} />
-      <section className="container mx-auto my-12">
-        <div className="grid grid-cols-1 gap-6 mx-3 mt-5 lg:grid-cols-3">
-          <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
-            <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
-              <motion.div whileHover={{ scale: 1.1 }}>
-                <a href="/participe">
-                  <Participe />
-                </a>
-              </motion.div>
-              <dl>
-                <dd className="mt-1 text-sm text-white">
-                  <strong>Escolha a melhor forma de participar!</strong> <br />
-                  Existem várias maneiras de ajudar a Ameciclo, cada pessoa pode se envolver de um jeito. (EM CONSTRUÇÃO)
-                </dd>
-              </dl>
-            </div>
+      <section className="container mx-auto my-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Entre em Contato</h1>
+            <p className="text-lg text-gray-600">Estamos aqui para ouvir você e construir juntos uma cidade mais humana e sustentável.</p>
           </div>
 
-          <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
-            <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
-              <motion.div whileHover={{ scale: 1.1 }}>
-                <a target="_blank" rel="noopener noreferrer" href="http://queroser.ameciclo.org">
-                  <Associe />
-                </a>
-              </motion.div>
-              <dl>
-                <dd className="mt-1 text-sm text-white">
-                  Ao associar-se à nós você fortalece o movimento cicloativista, aumentando a representação da Ameciclo. As pessoas associadas podem participar das reuniões, projetos, ações e dão a voz que ajuda a construir nossas políticas e diretrizes.
-                </dd>
-              </dl>
-            </div>
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            {/* Informações de Contato */}
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Informações de Contato</h2>
+              
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <svg className="w-6 h-6 text-ameciclo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Endereço</h3>
+                    <p className="text-gray-600">R. da Aurora, 529, loja 2<br />Santo Amaro, Recife/PE<br />CEP: 50050-145</p>
+                  </div>
+                </div>
 
-          <div className="overflow-hidden rounded-lg shadow bg-ameciclo">
-            <div className="flex flex-col items-center px-4 py-5 text-center lg:p-6">
-              <motion.div whileHover={{ scale: 1.1 }}>
-                <a target="_blank" rel="noopener noreferrer" href="http://apoie.ameciclo.org">
-                  <Apoie />
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <svg className="w-6 h-6 text-ameciclo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Telefone</h3>
+                    <p className="text-gray-600">+55 (81) 9 9458-6830</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <svg className="w-6 h-6 text-ameciclo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">E-mail</h3>
+                    <p className="text-gray-600">contato@ameciclo.org</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Formas de Participação */}
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Como Participar</h2>
+              
+              <div className="space-y-4">
+                <a href="/participe" className="block p-4 border border-gray-200 rounded-lg hover:border-ameciclo hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-medium text-ameciclo mb-2">Participe</h3>
+                  <p className="text-gray-600 text-sm">Descubra as diferentes formas de se envolver com a Ameciclo e ajudar a construir uma cidade melhor.</p>
                 </a>
-              </motion.div>
-              <dl>
-                <dd className="mt-1 text-sm text-white">
-                  <strong>Apoie para realizarmos ainda mais!</strong> <br />
-                  A Ameciclo precisa de recursos para manter suas várias frentes de atuação. Você pode doar mesmo sem ser uma pessoa associada.
-                </dd>
-              </dl>
+
+                <a href="http://queroser.ameciclo.org" target="_blank" rel="noopener noreferrer" className="block p-4 border border-gray-200 rounded-lg hover:border-ameciclo hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-medium text-ameciclo mb-2">Associe-se</h3>
+                  <p className="text-gray-600 text-sm">Torne-se uma pessoa associada e fortaleça o movimento cicloativista na região metropolitana do Recife.</p>
+                </a>
+
+                <a href="http://apoie.ameciclo.org" target="_blank" rel="noopener noreferrer" className="block p-4 border border-gray-200 rounded-lg hover:border-ameciclo hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-medium text-ameciclo mb-2">Apoie</h3>
+                  <p className="text-gray-600 text-sm">Contribua financeiramente para manter e expandir nossas atividades e projetos.</p>
+                </a>
+              </div>
             </div>
           </div>
         </div>
