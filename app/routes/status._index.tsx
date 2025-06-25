@@ -6,7 +6,7 @@ import ServiceCard from "~/components/Status/ServiceCard";
 import StatusStats from "~/components/Status/StatusStats";
 import AccessibilityControls from "~/components/Commom/AccessibilityControls";
 
-// Adicione este CSS para aplicar o alto contraste quando ativado
+
 const highContrastStyles = `
   .high-contrast .content * {
     color: #000 !important;
@@ -56,7 +56,7 @@ export interface ServiceStatus extends Service {
 }
 
 const servicesList: Service[] = [
-  // APIs e Backend
+
   { 
     category: "APIs e Backend", 
     name: "API Principal - Strapi V3", 
@@ -76,7 +76,7 @@ const servicesList: Service[] = [
     description: "Nova versão da API (em desenvolvimento)"
   },
   
-  // Páginas do Site
+
   { 
     category: "Páginas do Site", 
     name: "Página Inicial", 
@@ -180,7 +180,7 @@ const servicesList: Service[] = [
     description: "Monitoramento do Diário Oficial do Município"
   },
   
-  // Serviços Externos
+
   {
     category: "Serviços Externos",
     name: "Formulário Associe-se",
@@ -194,7 +194,7 @@ const servicesList: Service[] = [
     description: "Portal de participação cidadã"
   },
   
-  // Documentação e Status
+
   { 
     category: "Documentação e Suporte", 
     name: "Documentação", 
@@ -270,7 +270,7 @@ const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Servi
 export async function loader({ request }: LoaderFunctionArgs) {
   const origin = new URL(request.url).origin;
   
-  // Retorna apenas a lista de serviços com status LOADING
+
   const results: ServiceStatus[] = servicesList.map(service => ({
     ...service,
     status: "LOADING" as const
@@ -296,7 +296,7 @@ export default function StatusPage() {
   const [showAccessibilityMenu, setShowAccessibilityMenu] = useState<boolean>(false);
   const [showSlowServices, setShowSlowServices] = useState<boolean>(false);
 
-  // Carrega status de cada serviço individualmente
+
   useEffect(() => {
     const checkServiceStatus = async (service: Service, index: number) => {
       const fullUrl = service.url.startsWith("http") ? service.url : `${origin}${service.url}`;
@@ -309,7 +309,7 @@ export default function StatusPage() {
       });
     };
 
-    // Inicia verificação de todos os serviços
+
     initialServices.forEach((service, index) => {
       checkServiceStatus(service, index);
     });
@@ -333,10 +333,7 @@ export default function StatusPage() {
   }, [darkMode]);
   
   useEffect(() => {
-    // Aplicar ou remover a classe de alto contraste
     document.body.classList.toggle("high-contrast", highContrast);
-    
-    // Adicionar ou remover o estilo de alto contraste
     let styleElement = document.getElementById("high-contrast-styles");
     if (highContrast && !styleElement) {
       styleElement = document.createElement("style");
@@ -373,7 +370,7 @@ export default function StatusPage() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
       <div className="max-w-7xl mx-auto px-4 py-20 content">
-        {/* Banner */}
+
         <div className={`mb-8 rounded-lg overflow-hidden relative ${
           darkMode ? "bg-gradient-to-r from-gray-800 to-gray-700" : "bg-gradient-to-r from-green-600 to-blue-600"
         }`}>
@@ -397,7 +394,7 @@ export default function StatusPage() {
           </div>
         </div>
 
-        {/* Stats Cards */}
+
         <StatusStats 
           services={services} 
           darkMode={darkMode} 
@@ -406,7 +403,7 @@ export default function StatusPage() {
           onRefresh={refreshPage}
         />
 
-        {/* Active Filter Info */}
+
         {statusFilter && (
           <div className={`p-4 rounded-lg border mb-6 ${
             darkMode ? "bg-blue-900/30 border-blue-500/30" : "bg-blue-50 border-blue-200"
@@ -432,7 +429,7 @@ export default function StatusPage() {
           </div>
         )}
 
-        {/* Loading Counter */}
+
         {services.filter(s => s.status === "LOADING").length > 0 && (
           <div 
             className={`p-3 rounded-lg border mb-6 flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform ${
@@ -447,7 +444,7 @@ export default function StatusPage() {
           </div>
         )}
 
-        {/* Slow Services Alert */}
+
         {services.filter(s => s.responseTime && s.responseTime > 3000 && s.status === "OK").length > 0 && (
           <div className={`p-4 rounded-lg border mb-6 ${
             darkMode ? "bg-orange-900/30 border-orange-500/30" : "bg-orange-50 border-orange-200"
@@ -519,7 +516,7 @@ export default function StatusPage() {
           </div>
         )}
 
-        {/* Services Status */}
+
         <div className="space-y-6">
           {categories.map((category) => {
             const filteredServices = services

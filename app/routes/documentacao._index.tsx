@@ -15,7 +15,7 @@ import {
   ArrowUpIcon,
 } from "~/components/Commom/Icones/DocumentationIcons";
 
-// Adicione este CSS para aplicar o alto contraste quando ativado
+
 const highContrastStyles = `
   .high-contrast {
     background-color: #fff !important;
@@ -117,10 +117,7 @@ export default function Docs() {
   }, [darkMode]);
   
   useEffect(() => {
-    // Aplicar ou remover a classe de alto contraste
     document.body.classList.toggle("high-contrast", highContrast);
-    
-    // Adicionar ou remover o estilo de alto contraste
     let styleElement = document.getElementById("high-contrast-styles");
     if (highContrast && !styleElement) {
       styleElement = document.createElement("style");
@@ -177,14 +174,14 @@ export default function Docs() {
       setShowScrollTop(window.scrollY > 200);
       setIsScrolled(window.scrollY > 0);
 
-      // Controlar se a busca deve flutuar (quando chegar perto da navbar)
+
       const searchElement = document.getElementById('search-container');
       if (searchElement) {
         const rect = searchElement.getBoundingClientRect();
         setIsSearchFloating(rect.top <= 100);
       }
 
-      // Detectar seção ativa - usando requestAnimationFrame para melhor performance
+
       requestAnimationFrame(() => {
         const sections = navigationItems.map(item => item.id);
         const currentSection = sections.find(sectionId => {
@@ -202,7 +199,7 @@ export default function Docs() {
       });
     };
 
-    // Throttle para melhorar performance
+
     let ticking = false;
     const scrollListener = () => {
       if (!ticking) {
