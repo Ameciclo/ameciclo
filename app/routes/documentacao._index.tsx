@@ -259,6 +259,7 @@ export default function Docs() {
             onResultClick={scrollToSection}
             placeholder="Buscar..."
             width="w-64"
+            darkMode={darkMode}
           />
         </div>
       )}
@@ -287,17 +288,19 @@ export default function Docs() {
             setSearchTerm={setSearchTerm}
             searchResults={searchResults}
             scrollToSection={scrollToSection}
+            darkMode={darkMode}
+            fontSize={fontSize}
           />
-          <Instalacao />
-          <EstruturaProjeto />
-          <Componentes />
-          <Rotas />
-          <API />
-          <Testes />
-          <Configuracao />
-          <Solucoes />
-          <Deploy />
-          <Contribuicao />
+          <Instalacao darkMode={darkMode} fontSize={fontSize} />
+          <EstruturaProjeto darkMode={darkMode} fontSize={fontSize} />
+          <Componentes darkMode={darkMode} fontSize={fontSize} />
+          <Rotas darkMode={darkMode} fontSize={fontSize} />
+          <API darkMode={darkMode} fontSize={fontSize} />
+          <Testes darkMode={darkMode} fontSize={fontSize} />
+          <Configuracao darkMode={darkMode} fontSize={fontSize} />
+          <Solucoes darkMode={darkMode} fontSize={fontSize} />
+          <Deploy darkMode={darkMode} fontSize={fontSize} />
+          <Contribuicao darkMode={darkMode} fontSize={fontSize} />
         </div>
       </div>
       {/* Accessibility Button */}

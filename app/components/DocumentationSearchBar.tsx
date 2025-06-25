@@ -14,6 +14,7 @@ interface DocumentationSearchBarProps {
   onResultClick: (id: string) => void;
   placeholder?: string;
   width?: string;
+  darkMode?: boolean;
 }
 
 function DocumentationSearchBar({
@@ -22,7 +23,8 @@ function DocumentationSearchBar({
   searchResults,
   onResultClick,
   placeholder = "Buscar...",
-  width = "w-64"
+  width = "w-64",
+  darkMode = true
 }: DocumentationSearchBarProps) {
   return (
     <div className="relative">
@@ -34,18 +36,18 @@ function DocumentationSearchBar({
         placeholder={placeholder}
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
-        className={`bg-gray-700 text-white pl-9 pr-3 py-2 rounded-lg ${width} focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg text-sm`}
+        className={`${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900 border border-gray-300'} pl-9 pr-3 py-2 rounded-lg ${width} focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg text-sm`}
       />
       {searchResults.length > 0 && (
-        <div className="absolute top-full mt-2 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50">
+        <div className={`absolute top-full mt-2 w-full ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'} border rounded-lg shadow-xl z-50`}>
           {searchResults.map((result) => (
             <button
               key={result.id}
               onClick={() => onResultClick(result.id)}
-              className="w-full text-left px-3 py-2 hover:bg-gray-700 border-b border-gray-600 last:border-b-0"
+              className={`w-full text-left px-3 py-2 ${darkMode ? 'hover:bg-gray-700 border-gray-600' : 'hover:bg-gray-100 border-gray-200'} border-b last:border-b-0`}
             >
-              <div className="font-medium text-green-400 text-sm">{result.title}</div>
-              <div className="text-xs text-gray-400 truncate">{result.content}</div>
+              <div className={`font-medium ${darkMode ? 'text-green-400' : 'text-green-700'} text-sm`}>{result.title}</div>
+              <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} truncate`}>{result.content}</div>
             </button>
           ))}
         </div>
