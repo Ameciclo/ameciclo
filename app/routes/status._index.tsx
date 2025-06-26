@@ -748,32 +748,55 @@ export default function StatusPage() {
   const [showOfflineServices, setShowOfflineServices] = useState<boolean>(false);
   const [showLoadingServices, setShowLoadingServices] = useState<boolean>(false);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [retryIntervals, setRetryIntervals] = useState<Record<number, NodeJS.Timeout>>({});
 
+
+  const checkSingleService = async (service: Service, index: number) => {
+    const fullUrl = service.url.startsWith("http") ? service.url : `${origin}${service.url}`;
+    const statusData = await checkStatus(fullUrl);
+    
+    setServices(prev => {
+      const updated = [...prev];
+      updated[index] = { ...service, ...statusData } as ServiceStatus;
+      return updated;
+    });
+    
+    // Se deu timeout, programa nova verificação em 10 segundos
+    if (statusData.errorMessage?.includes('Timeout')) {
+      const intervalId = setTimeout(() => {
+        checkSingleService(service, index);
+      }, 10000);
+      
+      setRetryIntervals(prev => ({ ...prev, [index]: intervalId }));
+    } else {
+      // Remove interval se serviço voltou a funcionar
+      setRetryIntervals(prev => {
+        if (prev[index]) {
+          clearTimeout(prev[index]);
+          const { [index]: removed, ...rest } = prev;
+          return rest;
+        }
+        return prev;
+      });
+    }
+    
+    return statusData;
+  };
 
   useEffect(() => {
     const checkAllServices = async () => {
-      let completedCount = 0;
-      
-      const promises = initialServices.map(async (service, index) => {
-        const fullUrl = service.url.startsWith("http") ? service.url : `${origin}${service.url}`;
-        const statusData = await checkStatus(fullUrl);
-        
-        // Atualiza o serviço individual imediatamente
-        setServices(prev => {
-          const updated = [...prev];
-          updated[index] = { ...service, ...statusData } as ServiceStatus;
-          return updated;
-        });
-        
-        // Progresso é calculado automaticamente via actualProgress
-        
-        return { index, service, statusData };
-      });
-
+      const promises = initialServices.map((service, index) => 
+        checkSingleService(service, index)
+      );
       await Promise.allSettled(promises);
     };
 
     checkAllServices();
+    
+    // Cleanup intervals on unmount
+    return () => {
+      Object.values(retryIntervals).forEach(clearTimeout);
+    };
   }, [origin, initialServices]);
 
   useEffect(() => {
@@ -811,7 +834,11 @@ export default function StatusPage() {
       setShowScrollTop(window.scrollY > 200);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      // Cleanup retry intervals
+      Object.values(retryIntervals).forEach(clearTimeout);
+    };
   }, []);
 
   const categories = Array.from(new Set(services.map((service) => service.category)));
@@ -851,8 +878,6 @@ export default function StatusPage() {
     
     if (offlineServices.length === 0) return;
     
-    // Não precisa reiniciar o progresso pois usamos actualProgress
-    
     // Marca serviços offline como LOADING
     setServices(prev => {
       const updated = [...prev];
@@ -863,25 +888,12 @@ export default function StatusPage() {
     });
     
     // Verifica apenas os serviços offline
-    const promises = offlineServices.map(async ({ service, index }) => {
-      const fullUrl = service.url.startsWith("http") ? service.url : `${origin}${service.url}`;
-      const statusData = await checkStatus(fullUrl);
-      
-      // Atualiza imediatamente
-      setServices(prev => {
-        const updated = [...prev];
-        updated[index] = { ...service, ...statusData } as ServiceStatus;
-        return updated;
-      });
-      
-      // O progresso é calculado automaticamente via actualProgress
-      
-      return { index, service, statusData };
-    });
+    const promises = offlineServices.map(({ service, index }) => 
+      checkSingleService(service, index)
+    );
     
     await Promise.allSettled(promises);
     setLastUpdate(new Date());
-    // Progresso é calculado automaticamente
   };
 
   return (
