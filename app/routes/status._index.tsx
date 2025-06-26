@@ -765,7 +765,7 @@ export default function StatusPage() {
     if (statusData.errorMessage?.includes('Timeout')) {
       const intervalId = setTimeout(() => {
         checkSingleService(service, index);
-      }, 10000);
+      }, 60000);
       
       setRetryIntervals(prev => ({ ...prev, [index]: intervalId }));
     } else {
