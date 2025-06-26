@@ -672,7 +672,7 @@ const statusMessages: Record<number, string> = {
 const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Service> | {}> => {
   const startTime = Date.now();
   const isDev = process.env.NODE_ENV === 'development';
-  const timeout = isDev ? 60000 : 10000;
+  const timeout = isDev ? 120000 : 60000;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   
