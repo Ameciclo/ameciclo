@@ -36,7 +36,11 @@ export const Footer = () => {
         {
           label: "Status de Serviços",
           url: "/status",
-        }
+        },
+        {
+          label: "Biciclopedia (FAQ)",
+          url: "/biciclopedia",
+        },
       ],
     },
     {
