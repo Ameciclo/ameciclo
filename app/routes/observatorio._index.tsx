@@ -29,19 +29,27 @@ export default function Observatorio() {
             target: "_blank",
         },
         {
-            title: "LEI ORÇAMENTARIA ANUAL (LOA)",
-            src: "/icons/dados/mapa.svg",
+            title: "Orçamento Estadual para o Clima",
+            src: "/icons/home/logo2.1d0f07c6.png",
             url: "/observatorio/loa",
             description:
-                "Monitoramento da Lei Orçamentária Anual",
+                "Monitoramento do orçamento estadual conforme sua contribuição climática.",
             target: "_self",
         },
         {
-            title: "DIAGNÓSTICO ORÇAMENTÁRIO MUNICIPAL (DOM)",
-            src: "/icons/dados/mapa.svg",
+            title: "Orçamento Municipal para o Clima",
+            src: "/icons/home/header-logo.4f44929c.png",
             url: "/observatorio/dom",
             description:
-                "Diagnóstico Orçamentária Municipal",
+                "Monitoramento do orçamento municipal conforme sua contribuição climática.",
+            target: "_self",
+        },
+        {
+            title: "Sinistros Fatais",
+            src: "/icons/home/sinistrosfatais.png",
+            url: "/dados/sinistros-fatais",
+            description:
+                "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
             target: "_self",
         },
     ];

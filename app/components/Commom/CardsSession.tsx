@@ -47,11 +47,11 @@ const Card = ({
           <div className="mx-auto">
             {src != "" && (
               <img
-                className="h-50 hover:fill-red-500 hover:text-red-500"
+                className="h-40 object-contain mx-auto mb-4"
                 src={src}
                 alt={title}
-                height={100}
-                width={100}
+                height={160}
+                width={160}
               />
             )}
           </div>
