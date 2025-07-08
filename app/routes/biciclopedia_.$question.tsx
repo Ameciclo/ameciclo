@@ -2,7 +2,6 @@ import { json, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/nod
 import { useLoaderData } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
 import Breadcrumb from "../components/Commom/Breadcrumb";
-import { decodeHtmlEntities } from "../services/htmlDecode";
 import { fetchJsonFromCMS } from "../services/cmsApi";
 
 const server = "https://cms.ameciclo.org";
@@ -79,7 +78,7 @@ export default function Question() {
       <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
         <div className="container mx-auto">
           <Breadcrumb
-            label={decodeHtmlEntities(question.faq_tags[0]?.title || "Biciclopedia")}
+            label={question.faq_tags[0]?.title || "Biciclopedia"}
             slug="/biciclopedia"
             routes={["/", "/biciclopedia"]}
           />
@@ -90,17 +89,17 @@ export default function Question() {
           <div className="px-6">
             <div className="mt-12 text-center">
               <h3 className="mb-2 text-4xl font-semibold leading-normal text-gray-800">
-                {decodeHtmlEntities(question.title)}
+                {question.title}
               </h3>
               <p className="mb-2 text-2xl font-semibold leading-normal text-gray-800">
-                {decodeHtmlEntities(question.description)}
+                {question.description}
               </p>
             </div>
           </div>
           <div className="py-10 mt-10 text-center border-t border-gray-300">
             <div className="flex flex-wrap justify-center">
               <div className="w-full px-4 mb-4 text-lg leading-relaxed text-center text-gray-800 lg:w-9/12 markdown_box">
-                <ReactMarkdown>{decodeHtmlEntities(question.answer || '')}</ReactMarkdown>
+                <ReactMarkdown>{question.answer || ''}</ReactMarkdown>
               </div>
             </div>
           </div>

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "@remix-run/react";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "./FAQIcon";
-import { decodeHtmlEntities } from "../../services/htmlDecode";
 
 interface FAQ {
   id: number;
@@ -64,7 +63,7 @@ export const AccordionItem = ({ categories }: AccordionItemProps) => {
           initial={false}
           className="block p-5 text-xl leading-normal cursor-pointer text-ameciclo"
         >
-          {decodeHtmlEntities(categories.title)}
+          {categories.title}
         </motion.label>
       </div>
       <AnimatePresence initial={false}>
@@ -84,17 +83,17 @@ export const AccordionItem = ({ categories }: AccordionItemProps) => {
               {faqs_titles.map((faq) => {
                 let saibaMais = (
                   <p className="p-4" key={faq[0]}>
-                    <strong>P: {decodeHtmlEntities(faq[1])}</strong>
-                    <p className="pl-5"> R: {decodeHtmlEntities(faq[2])}</p>
+                    <strong>P: {faq[1]}</strong>
+                    <p className="pl-5"> R: {faq[2]}</p>
                   </p>
                 );
                 if (faq[3]) {
                   saibaMais = (
                     <Link to={`/biciclopedia/${faq[0]}`} key={faq[0]}>
                       <p className="p-4">
-                        <strong>P: {decodeHtmlEntities(faq[1])}</strong>
+                        <strong>P: {faq[1]}</strong>
                         <p className="pl-5">
-                          R: {decodeHtmlEntities(faq[2])}
+                          R: {faq[2]}
                           <strong className="text-ameciclo">
                             {" "}
                             (saiba mais)

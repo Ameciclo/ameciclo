@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "@remix-run/react";
 import { Highlight } from "react-highlighter-ts";
 import type { FuseResult } from "fuse.js";
-import { decodeHtmlEntities } from "../../services/htmlDecode";
 
 interface FAQ {
   id: number;
@@ -79,7 +78,7 @@ export const SearchComponent = (props: SearchComponentProps) => {
                       onPointerEnterCapture={undefined}
                       onPointerLeaveCapture={undefined}
                     >
-                      {decodeHtmlEntities(result.item.title)}
+                      {result.item.title}
                     </Highlight>
                     <span className="block my-1 text-sm font-normal">
                       <Highlight
@@ -89,7 +88,7 @@ export const SearchComponent = (props: SearchComponentProps) => {
                         onPointerEnterCapture={undefined}
                         onPointerLeaveCapture={undefined}
                       >
-                        {decodeHtmlEntities(result.item.description)}
+                        {result.item.description}
                       </Highlight>
                     </span>
                   </div>
