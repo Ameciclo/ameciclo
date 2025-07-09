@@ -10,7 +10,6 @@ export const Navbar = ({ pages }: any) => {
     { name: "Agenda", url: "/agenda" },
     { name: "Projetos", url: "/projetos" },
     { name: "Dados", url: "/dados" },
-    { name: "Observatório", url: "/observatorio" },
     { name: "Contato", url: "/contato" },
   ];
   if (!pages) pages = pagesDefault;
@@ -37,7 +36,7 @@ export const Navbar = ({ pages }: any) => {
         className={"flex fixed left-0 right-0 items-center max-h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
         role="navigation mt-0"
       >
-        <div className="w-full flex items-center justify-between px-6 py-0 m-0 pl-6 sm:pl-32">
+        <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
           <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)}>
             <AmecicloLogo isScrolled={isHeaderScrolled} />
           </Link>

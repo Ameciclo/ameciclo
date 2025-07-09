@@ -49,6 +49,38 @@ export default function Dados() {
             description: "Dados socio-economicos dos ciclistas e suas percepções",
             target: "_blank",
         },
+        {
+            title: "Sinistros Fatais",
+            src: "/icons/home/sinistrosfatais.png",
+            url: "/dados/sinistros-fatais",
+            description:
+                "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
+            target: "_blank",
+        },
+        {
+            title: "Execução Cicloviariá",
+            src: "/icons/dados/mapa.svg",
+            url: "https://dados.ameciclo.org/observatorio",
+            description:
+                "Monitoramento das estruturas cicloviariás projetadas e executadas conforme PDC.",
+            target: "_blank",
+        },
+        {
+            title: "Orçamento Estadual para o Clima",
+            src: "/icons/home/logo2.1d0f07c6.png",
+            url: "/dados/loa",
+            description:
+                "Monitoramento do orçamento estadual conforme sua contribuição climática.",
+            target: "_blank",
+        },
+        {
+            title: "Orçamento Municipal para o Clima",
+            src: "/icons/home/header-logo.4f44929c.png",
+            url: "/dados/dom",
+            description:
+                "Monitoramento do orçamento municipal conforme sua contribuição climática.",
+            target: "_blank",
+        },
     ];
     return (
         <>
