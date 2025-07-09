@@ -52,7 +52,7 @@ export default function AccessibilityControls({
   return (
     <>
 
-      <div className="fixed top-1/2 right-0 transform -translate-y-1/2 z-40 accessibility-controls">
+      <div className="fixed top-1/4 right-0 transform -translate-y-1/2 z-40 accessibility-controls">
         <button
           onClick={() => setShowAccessibilityMenu(!showAccessibilityMenu)}
           className={`p-3 rounded-l-lg shadow-lg transition-colors flex items-center justify-center ${
@@ -70,7 +70,7 @@ export default function AccessibilityControls({
       {showAccessibilityMenu && (
         <div 
           ref={menuRef}
-          className="fixed top-1/2 right-14 transform -translate-y-1/2 z-40 accessibility-controls"
+          className="fixed top-1/3 right-14 transform -translate-y-1/2 z-40 accessibility-controls"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

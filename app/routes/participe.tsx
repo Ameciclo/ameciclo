@@ -57,7 +57,25 @@ export default function ParticiparPage() {
 
   useEffect(() => {
     document.body.classList.toggle('high-contrast', highContrast);
-  }, [highContrast]);
+    let styleElement = document.getElementById('high-contrast-styles');
+    if (highContrast && !styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = 'high-contrast-styles';
+      styleElement.innerHTML = `
+        .high-contrast * { color: #000 !important; background-color: #fff !important; border-color: #000 !important; }
+        .high-contrast.dark * { color: #fff !important; background-color: #000 !important; border-color: #fff !important; }
+        .high-contrast .text-green-500, .high-contrast .text-green-700 { color: #006600 !important; font-weight: bold; }
+        .high-contrast.dark .text-green-500, .high-contrast.dark .text-green-700 { color: #00ff00 !important; font-weight: bold; }
+        .high-contrast .text-red-500 { color: #cc0000 !important; font-weight: bold; }
+        .high-contrast.dark .text-red-500 { color: #ff0000 !important; font-weight: bold; }
+        .high-contrast .text-blue-500 { color: #0000cc !important; font-weight: bold; }
+        .high-contrast.dark .text-blue-500 { color: #0099ff !important; font-weight: bold; }
+      `;
+      document.head.appendChild(styleElement);
+    } else if (!highContrast && styleElement) {
+      styleElement.remove();
+    }
+  }, [highContrast, darkMode]);
 
   useEffect(() => {
     document.body.style.fontSize = `${fontSize}px`;
@@ -101,7 +119,7 @@ export default function ParticiparPage() {
               </div>
             </div>
 
-            <p className="text-gray-600 mb-6">
+            <p className={`${darkMode ? 'text-gray-200' : 'text-gray-600'} mb-6`}>
               Envolva-se em nossas atividades, eventos e ações. Sua participação 
               fortalece o movimento cicloativista.
             </p>
@@ -140,7 +158,7 @@ export default function ParticiparPage() {
               </div>
             </div>
 
-            <p className="text-gray-600 mb-6">
+            <p className={`${darkMode ? 'text-gray-200' : 'text-gray-600'} mb-6`}>
               Torne-se uma pessoa associada e tenha voz ativa nas decisões 
               da associação.
             </p>
@@ -175,7 +193,7 @@ export default function ParticiparPage() {
               </div>
             </div>
 
-            <p className="text-gray-600 mb-6">
+            <p className={`${darkMode ? 'text-gray-200' : 'text-gray-600'} mb-6`}>
               Junte-se ao Clube da Ciclovia! Cada R$15 se transforma em 1 metro 
               de estruturas cicloviárias.
             </p>
