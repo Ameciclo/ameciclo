@@ -40,8 +40,8 @@ export default function Contagens() {
     let pointsData: pointData[] = countsData.map((d: any) => ({
         key: d.id,
         type: 'ameciclo',
-        latitude: d.coordinates.x,
-        longitude: d.coordinates.y,
+        latitude: d.coordinates?.latitude || -8.0584364,
+        longitude: d.coordinates?.longitude || -34.945277,
         popup: {
             name: d.name,
             total: d.total_cyclists,
@@ -49,16 +49,17 @@ export default function Contagens() {
             url: `/contagens/${d.slug}`,
             obs: ""
         },
-        size: Math.round(d.total_cyclists / 250) + 5,
+        size: Math.round((d.total_cyclists || 0) / 250) + 5,
         color: "#008888"
-    }));
+    })).filter(point => 
+        point.latitude >= -90 && point.latitude <= 90 && 
+        point.longitude >= -180 && point.longitude <= 180 &&
+        point.latitude !== -8.0584364 && point.longitude !== -34.945277
+    );
 
     const controlPanel = [{
         type: 'ameciclo',
         color: '#008888'
-    }, {
-        type: 'prefeitura',
-        color: "#ef4444"
     }];
 
     const docs = archives.map((a: any) => {

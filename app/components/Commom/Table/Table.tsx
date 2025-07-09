@@ -8,6 +8,8 @@ import {
     useSortBy,
 } from "react-table";
 
+const SMALL_SCREEN_WIDTH = 768;
+
 function fuzzyTextFilterFn(rows: any, id: any, filterValue: any) {
     return matchSorter(rows, filterValue, { keys: [(row: any) => row.values[id]] });
 }
@@ -16,13 +18,8 @@ fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
 const Table = ({ title, data, columns }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
-
-    useEffect(() => {
-        const isSmallScreen = window.innerWidth < 768
-        setIsSmallScreen(isSmallScreen);
-        isSmallScreen ? setPageSize(5) : setPageSize(10)
-
-    }, []);
+    const safeData = data || [];
+    const safeColumns = columns || [];
 
     const filterTypes = React.useMemo(
         () => ({
@@ -58,8 +55,8 @@ const Table = ({ title, data, columns }: any) => {
         state: { pageIndex },
     }: any = useTable(
         {
-            columns,
-            data,
+            columns: safeColumns,
+            data: safeData,
             initialState: { pageIndex: 0, pageSize: 5 },
             filterTypes,
         },
@@ -68,23 +65,38 @@ const Table = ({ title, data, columns }: any) => {
         usePagination
     );
 
+    useEffect(() => {
+        const checkScreenSize = () => {
+            const isSmall = window.innerWidth < SMALL_SCREEN_WIDTH;
+            setIsSmallScreen(isSmall);
+            setPageSize(isSmall ? 5 : 10);
+        };
+        
+        checkScreenSize();
+        window.addEventListener('resize', checkScreenSize);
+        
+        return () => window.removeEventListener('resize', checkScreenSize);
+    }, [setPageSize]);
+
     function TableHead({ headerGroups, isSmallScreen = false }: any) {
         return (
             <thead>
-                {headerGroups.map((headerGroup: any) => (
+                {headerGroups.map((headerGroup: any, groupIndex: number) => (
                     <tr
+                        key={groupIndex}
                         {...headerGroup.getHeaderGroupProps()}
                         className="bg-gray-100 rounded-lg text-sm font-medium text-gray-700 text-left"
                     >
                         {headerGroup.headers.map((column: any, index: number) =>
                             isSmallScreen && index !== 0 ? null : (
                                 <th
+                                    key={index}
                                     {...column.getHeaderProps()}
                                     className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
                                 >
                                     <div
                                         {...column.getSortByToggleProps({ title: "Ordenar" })}
-                                        className="flex items-center"
+                                        className="flex items-center cursor-pointer"
                                     >
                                         <span className="inline-block">
                                             {column.isSorted
@@ -111,15 +123,15 @@ const Table = ({ title, data, columns }: any) => {
 
     function SingleColumnRow({ cells }: any) {
         return (
-            <tr>
-                {cells.map((cell: any) => {
+            <div>
+                {cells.map((cell: any, index: number) => {
                     return (
-                        <div>
+                        <div key={index} className="mb-2">
                             <strong>{cell.column.Header}:</strong> {cell.render("Cell")}
                         </div>
                     );
                 })}
-            </tr>
+            </div>
         );
     }
 
@@ -134,22 +146,28 @@ const Table = ({ title, data, columns }: any) => {
                 {...getTableBodyProps()}
                 className="bg-white divide-y divide-gray-200 text-sm font-normal text-gray-700"
             >
-                {page.map((row: any, i: any) => {
+                {page.map((row: any, i: number) => {
                     prepareRow(row);
                     return isSmallScreen ? (
-                        <div className="hover:bg-gray-100 border-b border-gray-200 p-3">
-                            <SingleColumnRow cells={row.cells} />
-                        </div>
+                        <tr key={i}>
+                            <td className="px-6 py-4">
+                                <div className="hover:bg-gray-100 border-b border-gray-200 p-3">
+                                    <SingleColumnRow cells={row.cells} />
+                                </div>
+                            </td>
+                        </tr>
                     ) : (
                         <tr
+                            key={i}
                             {...row.getRowProps()}
-                            className="hover:bg-gray-100 border-b border-gray-200 py-10"
+                            className="hover:bg-gray-100 border-b border-gray-200"
                         >
-                            {row.cells.map((cell: any) => {
+                            {row.cells.map((cell: any, cellIndex: number) => {
                                 return (
                                     <td
+                                        key={cellIndex}
                                         {...cell.getCellProps()}
-                                        className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-700 truncate max-w-sm"
+                                        className="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-700 truncate max-w-sm"
                                     >
                                         {cell.render("Cell")}
                                     </td>
@@ -201,9 +219,10 @@ const Table = ({ title, data, columns }: any) => {
         const pagesButtons = (numPages: any) => {
             var pages: any[] = [];
             for (let i = 1; i <= numPages; i++) {
-                if (i - 1 != pageIndex) {
+                if (i - 1 !== pageIndex) {
                     pages.push(
                         <button
+                            key={i}
                             className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
                             type="button"
                             style={{ transition: "all .15s ease" }}
@@ -215,6 +234,7 @@ const Table = ({ title, data, columns }: any) => {
                 } else {
                     pages.push(
                         <button
+                            key={i}
                             className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
                             type="button"
                             style={{ transition: "all .15s ease" }}
@@ -229,7 +249,7 @@ const Table = ({ title, data, columns }: any) => {
         };
         return (
             <div className="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
-                <p>Mostrando {rows.length} de {data.length} linhas ao todo.</p>
+                <p>Mostrando {rows.length} de {safeData.length} linhas ao todo.</p>
                 <p>Página {pageIndex + 1} de {pageOptions.length}.</p>
                 <div className="inline-flex mt-2 xs:mt-0">
                     {canPreviousPage && (

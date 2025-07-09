@@ -104,6 +104,6 @@ export const loader: LoaderFunction = async () => {
     objective,
     archives,
     cards,
-    dataCounts,
+    dataCounts: countsData, // Usando dados da API em vez do CMS
   });
 };
