@@ -125,10 +125,10 @@ export default function ParticiparPage() {
             </p>
             <div className="bg-white/70 rounded-lg p-4 mb-6">
               <ul className="text-left text-gray-700 space-y-2 text-sm">
-                <li>• Pesquisas de perfil do ciclista</li>
-                <li>• Avaliações cicloviárias</li>
-                <li>• Operações de Ghost Bike</li>
-                <li>• Grupos de trabalho</li>
+                <li style={{ fontSize: `${fontSize}px` }}>• Pesquisas de perfil do ciclista</li>
+                <li style={{ fontSize: `${fontSize}px` }}>• Avaliações cicloviárias</li>
+                <li style={{ fontSize: `${fontSize}px` }}>• Operações de Ghost Bike</li>
+                <li style={{ fontSize: `${fontSize}px` }}>• Grupos de trabalho</li>
               </ul>
             </div>
             <button 
@@ -198,12 +198,12 @@ export default function ParticiparPage() {
               de estruturas cicloviárias.
             </p>
             <div className="bg-white/70 rounded-lg p-4 mb-6">
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold text-ameciclo">85% dos recursos para 85% da população:</span> 
-                Defendemos que a maior parte do orçamento público de mobilidade seja destinada 
-                aos modos sustentáveis - bicicleta, caminhada e transporte coletivo - que 
-                representam a maioria das pessoas que se deslocam na cidade!
-              </p>
+              <ul className={`space-y-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <li><span className="font-semibold text-ameciclo">R$15+:</span> Cada R$15 vira 1 metro de estrutura cicloviária</li>
+                <li><span className="font-semibold text-ameciclo">R$25+:</span> Acesso ao Clube da Ciclovia +10.000 parceiros</li>
+                <li><span className="font-semibold text-ameciclo">R$30+:</span> Apoiadoras da Revolução</li>
+                <li><span className="font-semibold text-ameciclo">R$125+:</span> Parceiros da Revolução</li>
+              </ul>
             </div>
             <a 
               href="http://apoie.ameciclo.org"
@@ -233,8 +233,8 @@ export default function ParticiparPage() {
                   Nos organizamos principalmente via Telegram. Junte-se aos nossos canais:
                 </p>
                 <ul className="space-y-2">
-                  <li>• <strong>@ameciclobot</strong> - Nosso bot oficial</li>
-                  <li>• <strong>t.me/ameciclo</strong> - Canal de notícias</li>
+                  <li>• <strong><a href="https://t.me/ameciclobot" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">@ameciclobot</a></strong> - Nosso bot oficial</li>
+                  <li>• <strong><a href="https://t.me/ameciclo" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">t.me/ameciclo</a></strong> - Canal de notícias</li>
                 </ul>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-6">
@@ -248,8 +248,8 @@ export default function ParticiparPage() {
                 <ul className="space-y-2">
                   <li>• Pessoas associadas: direito a fala e voto</li>
                   <li>• Não associadas: direito a observação</li>
-                  <li>• Consulte <strong>pautas.ameciclo.org</strong></li>
-                  <li>• Veja o <strong>estatuto.ameciclo.org</strong></li>
+                  <li>• Consulte <strong><a href="https://docs.google.com/spreadsheets/d/15LGWKkfLicuKiJC_aX0pjXOGuwnp0gSkJijwH6moJaI/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">pautas.ameciclo.org</a></strong></li>
+                  <li>• Veja o <strong><a href="https://docs.google.com/document/d/1QgQZW7rT16jBBbJOskzayezMKm7ux-SdtmsTAHk9yAA/edit?tab=t.0#heading=h.gjdgxs" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">estatuto.ameciclo.org</a></strong></li>
                 </ul>
               </div>
             </div>
@@ -261,18 +261,18 @@ export default function ParticiparPage() {
               <UsersIcon className="w-8 h-8 text-ameciclo" />
               <h2 className={`text-2xl sm:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Grupos de Trabalho</h2>
             </div>
-            <p className={`text-center mb-6 sm:mb-8 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              Chamamos pessoas associadas para participar dos grupos de trabalho! 
-              Estes grupos são fundamentais para o desenvolvimento dos nossos projetos e ações. 
-              Acesse <a href="https://gts.ameciclo.org" target="_blank" rel="noopener noreferrer" className="text-ameciclo font-semibold hover:underline">gts.ameciclo.org</a> para ver todos os grupos.
-            </p>
+            <div className={`text-center mb-6 sm:mb-8 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className="mb-2">Chamamos pessoas associadas para participar dos grupos de trabalho!</p>
+              <p className="mb-2">Estes grupos são fundamentais para o desenvolvimento dos nossos projetos e ações.</p>
+              <p>Acesse <a href="https://t.me/addlist/Fd6XMYf6tJs1Mjgx" target="_blank" rel="noopener noreferrer" className="text-ameciclo font-semibold hover:underline">gts.ameciclo.org</a> para ver todos os grupos.</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-emerald-100">
+              <div className={`backdrop-blur p-6 rounded-lg border ${darkMode ? 'bg-gray-700/80 border-gray-600' : 'bg-white/80 border-emerald-100'}`}>
                 <div className="flex items-center gap-2 mb-3">
                   <UsersIcon className="w-5 h-5 text-ameciclo" />
                   <h4 className="font-semibold text-ameciclo">Como Participar</h4>
                 </div>
-                <ul className="space-y-2 text-gray-700">
+                <ul className={`space-y-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   <li>• Seja uma pessoa associada</li>
                   <li>• Participe das reuniões ordinárias</li>
                   <li>• Manifeste interesse em grupos específicos</li>
@@ -367,10 +367,10 @@ export default function ParticiparPage() {
                       <h5 className={`font-medium ${darkMode ? 'text-red-900' : 'text-red-700'}`}>Como Funciona:</h5>
                     </div>
                     <ul className="space-y-1 text-gray-700 text-sm">
-                      <li>• Chatbot no ChatGPT</li>
-                      <li>• Acesse: bicibot.ameciclo.org</li>
-                      <li>• Coleta dados organizados</li>
-                      <li>• Base de dados pública</li>
+                      <li style={{ fontSize: `${fontSize}px` }}>• Chatbot no ChatGPT</li>
+                      <li style={{ fontSize: `${fontSize}px` }}>• Acesse: bicibot.ameciclo.org</li>
+                      <li style={{ fontSize: `${fontSize}px` }}>• Coleta dados organizados</li>
+                      <li style={{ fontSize: `${fontSize}px` }}>• Base de dados pública</li>
                     </ul>
                   </div>
                   <div className={`p-4 rounded-lg ${darkMode ? 'bg-grey' : 'bg-orange-50'}`}>
@@ -420,10 +420,10 @@ export default function ParticiparPage() {
                   Venha conhecer nosso funcionamento, trocar ideias sobre mobilidade, conhecer nossos projetos!
                 </p>
                 <ul className="space-y-2 text-gray-700 text-sm">
-                  <li>• Conheça nosso funcionamento</li>
-                  <li>• Troca de ideias sobre mobilidade</li>
-                  <li>• Registro de ocorrências via Bicibot</li>
-                  <li>• Networking cicloativista</li>
+                  <li style={{ fontSize: `${fontSize}px` }}>• Conheça nosso funcionamento</li>
+                  <li style={{ fontSize: `${fontSize}px` }}>• Troca de ideias sobre mobilidade</li>
+                  <li style={{ fontSize: `${fontSize}px` }}>• Registro de ocorrências via Bicibot</li>
+                  <li style={{ fontSize: `${fontSize}px` }}>• Networking cicloativista</li>
                 </ul>
               </div>
               
@@ -529,7 +529,6 @@ export default function ParticiparPage() {
           </div>
         </div>
 
-
         <div className="bg-gradient-to-r from-ameciclo to-teal-700 text-white rounded-xl p-8 text-center shadow-2xl">
           <div className="flex items-center justify-center gap-4 mb-4">
             <EyeIcon className="w-8 h-8" />
@@ -563,6 +562,51 @@ export default function ParticiparPage() {
           </div>
         </div>
 
+        <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-100'} mt-16`}>
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <TechIcon className="w-8 h-8 text-purple-600" />
+            <h2 className={`text-2xl sm:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Contribua com Nossos Projetos Open Source</h2>
+          </div>
+          <p className={`text-center mb-6 sm:mb-8 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Nossos projetos são desenvolvidos de forma aberta e colaborativa. Você pode contribuir com código, documentação, testes ou ideias!
+          </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-purple-100">
+              <div className="flex items-center gap-2 mb-3">
+                <TechIcon className="w-5 h-5 text-purple-600" />
+                <h4 className="font-semibold text-purple-600">Como Contribuir</h4>
+              </div>
+              <ul className={`space-y-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <li>• Acesse nosso <a href="https://github.com/Ameciclo" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline font-semibold">GitHub</a></li>
+                <li>• Escolha um projeto que te interesse</li>
+                <li>• Leia a documentação e issues abertas</li>
+                <li>• Faça fork, implemente e envie pull request</li>
+              </ul>
+            </div>
+            <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-purple-100">
+              <div className="flex items-center gap-2 mb-3">
+                <InfoIcon className="w-5 h-5 text-purple-600" />
+                <h4 className="font-semibold text-purple-600">Áreas de Contribuição</h4>
+              </div>
+              <ul className={`space-y-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <li>• Desenvolvimento web (React, TypeScript)</li>
+                <li>• Análise de dados e visualizações</li>
+                <li>• Design e UX/UI</li>
+                <li>• Documentação e testes</li>
+              </ul>
+            </div>
+          </div>
+          <div className="text-center mt-6">
+            <a 
+              href="https://github.com/Ameciclo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 inline-block font-semibold shadow-lg"
+            >
+              🚀 Ver Projetos no GitHub
+            </a>
+          </div>
+        </div>
 
       </div>
       

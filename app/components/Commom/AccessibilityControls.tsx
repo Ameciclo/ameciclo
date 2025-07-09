@@ -70,7 +70,7 @@ export default function AccessibilityControls({
       {showAccessibilityMenu && (
         <div 
           ref={menuRef}
-          className="fixed top-1/3 right-14 transform -translate-y-1/2 z-40 accessibility-controls"
+          className="fixed top-1/4 right-14 transform -translate-y-1/2 -translate-y-8 z-40 accessibility-controls"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -138,7 +138,11 @@ export default function AccessibilityControls({
       {showScrollTop && (
         <button
           onClick={onScrollTop}
-          className="fixed bottom-8 right-8 bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50 accessibility-controls"
+          className={`fixed bottom-8 right-8 p-3 rounded-full shadow-lg transition-all duration-300 z-50 accessibility-controls ${
+            highContrast 
+              ? 'bg-black text-white border-2 border-white' 
+              : 'bg-green-600 hover:bg-green-700 text-white'
+          }`}
           aria-label="Voltar ao topo"
         >
           <ArrowUpIcon className="w-6 h-6" />
