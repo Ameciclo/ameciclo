@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Agenda() {
-    const { googleCalendarApiKey } = useLoaderData<typeof loader>();
+    const { googleCalendarApiKey, externalCalendarId, internalCalendarId } = useLoaderData<typeof loader>();
 
     return (
         <>
@@ -19,7 +19,11 @@ export default function Agenda() {
             <Breadcrumb label="Agenda" slug="/agenda" routes={["/"]} />
             <div className="container px-4 py-4 mx-auto my-10">
                 <div className="px-4 py-4 rounded border border-gray-300">
-                    <EventCalendar googleCalendarApiKey={googleCalendarApiKey} />
+                    <EventCalendar 
+                        googleCalendarApiKey={googleCalendarApiKey}
+                        externalCalendarId={externalCalendarId}
+                        internalCalendarId={internalCalendarId}
+                    />
                 </div>
             </div>
         </>

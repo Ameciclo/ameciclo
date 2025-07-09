@@ -4,7 +4,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  isRouteErrorResponse,
   useRouteError
 } from "@remix-run/react";
 import type { MetaFunction } from "@remix-run/node";
@@ -73,7 +72,6 @@ const metaConfig = {
       </html>
     );
   }
-
 
   export default function App() {
     return (

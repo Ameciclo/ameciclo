@@ -4,7 +4,9 @@ import googleCalendarPlugin from "@fullcalendar/google-calendar";
 import listPlugin from "@fullcalendar/list";
 import locale from "@fullcalendar/core/locales/pt-br";
 
-export default function EventCalendar({ googleCalendarApiKey }: any) {
+
+
+export default function EventCalendar({googleCalendarApiKey, externalCalendarId, internalCalendarId}: any) {
 
     const handleEventClick = (e: {
         jsEvent: { preventDefault: () => void };
@@ -23,12 +25,12 @@ export default function EventCalendar({ googleCalendarApiKey }: any) {
             googleCalendarApiKey={googleCalendarApiKey}
             eventSources={[
                 {
-                    googleCalendarId: "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
+                    googleCalendarId: externalCalendarId,
                     className: "agenda-externa",
                     color: "red",
                 },
                 {
-                    googleCalendarId: "ameciclo@gmail.com",
+                    googleCalendarId: internalCalendarId,
                     className: "agenda-interna",
                     color: "#008080",
                 },

@@ -1,5 +1,3 @@
-import { isRouteErrorResponse } from "@remix-run/react";
-
 function getCurrentRoute(): string {
   return typeof window !== "undefined" ? window.location.pathname : "DESCONHECIDA";
 }

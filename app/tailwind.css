@@ -2,6 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Estilos para a agenda - FullCalendar */
+.fc-button.fc-button-primary {
+  background-color: #008080 !important;
+  color: white !important;
+  border-radius: 0.375rem !important;
+  border-color: white !important;
+  padding: 0.375rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+.fc-button.fc-button-primary:hover {
+  background-color: #008080 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-width: 0 !important;
+}
+
+.fc-button:not(:disabled):active,
+.fc-button:not(:disabled).fc-button-primary.fc-button-active {
+  background-color: #dc2626 !important;
+  color: white !important;
+  border-radius: 0.375rem !important;
+  border-color: white !important;
+}
+
+.fc .fc-button:disabled {
+  background-color: #9ca3af !important;
+  color: white !important;
+  border-radius: 0.375rem !important;
+  border-color: white !important;
+}
+
+.fc-toolbar {
+  margin-bottom: 1rem !important;
+}
+
+.fc-toolbar-chunk {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.fc-button-group {
+  display: inline-flex !important;
+  gap: 0.25rem !important;
+}
+
+@media (max-width: 880px) {
+  .fc-header-toolbar.fc-toolbar.fc-toolbar-ltr {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+}
+
 .navigation-wrapper {
   position: relative;
   width: 100%;
