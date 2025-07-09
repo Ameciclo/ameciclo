@@ -1,9 +1,14 @@
 import { useEffect, useRef } from "react";
-import { ConfigIcon, ArrowUpIcon } from "~/components/Commom/Icones/DocumentationIcons";
+import { ArrowUpIcon } from "~/components/Commom/Icones/DocumentationIcons";
+
+const AccessibilityIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2M21 9v2a4 4 0 0 1-4 4h-3v4a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1z"/>
+  </svg>
+);
 
 interface AccessibilityControlsProps {
   darkMode: boolean;
-  setDarkMode: (value: boolean) => void;
   fontSize: number;
   setFontSize: (value: number) => void;
   highContrast: boolean;
@@ -16,7 +21,6 @@ interface AccessibilityControlsProps {
 
 export default function AccessibilityControls({
   darkMode,
-  setDarkMode,
   fontSize,
   setFontSize,
   highContrast,
@@ -65,22 +69,11 @@ export default function AccessibilityControls({
           }`}
           aria-label="Opções de acessibilidade"
         >
-          <ConfigIcon className="w-6 h-6 text-blue-500" />
+          <AccessibilityIcon className="w-6 h-6 text-blue-500" />
         </button>
       </div>
 
-      {/* Theme Toggle Button */}
-      <div className="fixed top-1/2 right-0 transform -translate-y-1/2 translate-y-16 z-40 accessibility-controls theme-toggle">
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className={`p-3 rounded-l-lg shadow-lg transition-colors flex items-center justify-center ${
-            darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-white hover:bg-gray-100"
-          }`}
-          aria-label={`Mudar para modo ${darkMode ? "claro" : "escuro"}`}
-        >
-          {darkMode ? "🌞" : "🌙"}
-        </button>
-      </div>
+
 
       {/* Accessibility Menu */}
       {showAccessibilityMenu && (
@@ -106,6 +99,17 @@ export default function AccessibilityControls({
                   aria-label="Aumentar tamanho da fonte"
                 >
                   A+
+                </button>
+                <button 
+                  onClick={() => setFontSize(16)} 
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    darkMode 
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  }`}
+                  aria-label="Tamanho normal da fonte"
+                >
+                  A
                 </button>
                 <button 
                   onClick={() => setFontSize(Math.max(fontSize - 2, 12))} 

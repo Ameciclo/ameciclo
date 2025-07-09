@@ -16,6 +16,7 @@ const getCategoryType = (category: string): "frontend" | "backend" => {
 import ServiceCard from "~/components/Status/ServiceCard";
 import StatusStats from "~/components/Status/StatusStats";
 import AccessibilityControls from "~/components/Commom/AccessibilityControls";
+import ChangeThemeButton from "~/components/Commom/ChangeThemeButton";
 
 
 const highContrastStyles = `
@@ -671,8 +672,7 @@ const statusMessages: Record<number, string> = {
 
 const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Service> | {}> => {
   const startTime = Date.now();
-  const isDev = process.env.NODE_ENV === 'development';
-  const timeout = isDev ? 120000 : 60000;
+  const timeout = 10000; // 10 segundos fixo
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   
@@ -705,7 +705,7 @@ const checkStatus = async (url: string): Promise<Omit<ServiceStatus, keyof Servi
     
     let errorMessage = "Erro desconhecido ao acessar o serviço.";
     if (error.name === 'AbortError') {
-      errorMessage = `Timeout: Serviço demorou mais de ${timeout/1000}s para responder`;
+      errorMessage = `Timeout: Serviço demorou mais de 10s para responder`;
     } else if (error.message) {
       errorMessage = error.message;
     }
@@ -748,7 +748,7 @@ export default function StatusPage() {
   const [showOfflineServices, setShowOfflineServices] = useState<boolean>(false);
   const [showLoadingServices, setShowLoadingServices] = useState<boolean>(false);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-  const [retryIntervals, setRetryIntervals] = useState<Record<number, NodeJS.Timeout>>({});
+
 
 
   const checkSingleService = async (service: Service, index: number) => {
@@ -761,42 +761,18 @@ export default function StatusPage() {
       return updated;
     });
     
-    // Se deu timeout, programa nova verificação em 10 segundos
-    if (statusData.errorMessage?.includes('Timeout')) {
-      const intervalId = setTimeout(() => {
-        checkSingleService(service, index);
-      }, 60000);
-      
-      setRetryIntervals(prev => ({ ...prev, [index]: intervalId }));
-    } else {
-      // Remove interval se serviço voltou a funcionar
-      setRetryIntervals(prev => {
-        if (prev[index]) {
-          clearTimeout(prev[index]);
-          const { [index]: removed, ...rest } = prev;
-          return rest;
-        }
-        return prev;
-      });
-    }
-    
     return statusData;
   };
 
   useEffect(() => {
     const checkAllServices = async () => {
-      const promises = initialServices.map((service, index) => 
-        checkSingleService(service, index)
-      );
-      await Promise.allSettled(promises);
+      // Verificação em série com timeout de 10s cada
+      for (let i = 0; i < initialServices.length; i++) {
+        await checkSingleService(initialServices[i], i);
+      }
     };
 
     checkAllServices();
-    
-    // Cleanup intervals on unmount
-    return () => {
-      Object.values(retryIntervals).forEach(clearTimeout);
-    };
   }, [origin, initialServices]);
 
   useEffect(() => {
@@ -836,8 +812,6 @@ export default function StatusPage() {
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      // Cleanup retry intervals
-      Object.values(retryIntervals).forEach(clearTimeout);
     };
   }, []);
 
@@ -887,12 +861,11 @@ export default function StatusPage() {
       return updated;
     });
     
-    // Verifica apenas os serviços offline
-    const promises = offlineServices.map(({ service, index }) => 
-      checkSingleService(service, index)
-    );
+    // Verifica serviços offline em série
+    for (const { service, index } of offlineServices) {
+      await checkSingleService(service, index);
+    }
     
-    await Promise.allSettled(promises);
     setLastUpdate(new Date());
   };
 
@@ -1225,7 +1198,6 @@ export default function StatusPage() {
 
       <AccessibilityControls
         darkMode={darkMode}
-        setDarkMode={setDarkMode}
         fontSize={fontSize}
         setFontSize={setFontSize}
         highContrast={highContrast}
@@ -1234,6 +1206,10 @@ export default function StatusPage() {
         setShowAccessibilityMenu={setShowAccessibilityMenu}
         showScrollTop={showScrollTop}
         onScrollTop={scrollToTop}
+      />
+      <ChangeThemeButton
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
       />
     </div>
   );

@@ -34,10 +34,6 @@ export const Footer = () => {
           url: "/documentacao",
         },
         {
-          label: "Status de Serviços",
-          url: "/status",
-        },
-        {
           label: "Biciclopedia (FAQ)",
           url: "/biciclopedia",
         },
@@ -105,7 +101,6 @@ function FooterColumn({ column }: FooterColumnProps) {
           <li key={i} className="mt-2">
             <Link
               to={content.url}
-              target="_blank"
               rel="noopener noreferrer"
               className="hover:underline text-gray-600 hover:text-red-600"
             >

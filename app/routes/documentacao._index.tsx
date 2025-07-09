@@ -85,6 +85,7 @@ import Testes from "~/components/Documentacao/Testes";
 import Configuracao from "~/components/Documentacao/Configuracao";
 import Solucoes from "~/components/Documentacao/Solucoes";
 import AccessibilityControls from "~/components/Commom/AccessibilityControls";
+import ChangeThemeButton from "~/components/Commom/ChangeThemeButton";
 
 export const meta: MetaFunction = () => {
   return [
@@ -333,7 +334,6 @@ export default function Docs() {
       </div>
       <AccessibilityControls
         darkMode={darkMode}
-        setDarkMode={setDarkMode}
         fontSize={fontSize}
         setFontSize={setFontSize}
         highContrast={highContrast}
@@ -342,6 +342,10 @@ export default function Docs() {
         setShowAccessibilityMenu={setShowAccessibilityMenu}
         showScrollTop={showScrollTop}
         onScrollTop={scrollToTop}
+      />
+      <ChangeThemeButton
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
       />
     </div>
   );
