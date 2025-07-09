@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { CardsSession } from "~/components/Commom/CardsSession";
+import { InfoCards } from "~/components/Contagens/InfoCards";
 import { getGeneralStatistics, getCityCardsByYear } from "./configuration";
 
 type SinistrosFataisProps = {
@@ -18,6 +19,7 @@ export default function SinistrosFataisClientSide({
 }: SinistrosFataisProps) {
   const [tipoLocal, setTipoLocal] = useState("ocorrencia");
   const [selectedYear, setSelectedYear] = useState(2023);
+  const [selectedCardCity, setSelectedCardCity] = useState(2611606); // Recife
 
   // Caixas de explicação padrão
   const defaultExplanationBoxes = [
@@ -54,6 +56,23 @@ export default function SinistrosFataisClientSide({
             : defaultExplanationBoxes
         }
       />
+
+      {/* Mortes por Cidade */}
+      <div className="mx-auto container my-12">
+        <h2 className="text-3xl font-bold text-center mb-4">
+          Mortes por Cidade
+        </h2>
+        <h3 className="text-xl text-center mb-8">
+          {tipoLocal === "ocorrencia" ? "Local de ocorrência" : "Local de residência"} - {selectedYear}
+        </h3>
+        <InfoCards
+          cards={getCityCardsByYear(citiesByYearData, selectedYear, tipoLocal).map(city => ({
+            label: city.label,
+            data: `${city.value} ${city.unit}`,
+            icon: "ride" // ícone padrão
+          }))}
+        />
+      </div>
 
       {/* Seção de Documentos */}
       {pageData.supportFiles && pageData.supportFiles.length > 0 && (

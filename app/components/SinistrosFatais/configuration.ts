@@ -4,14 +4,18 @@ import { IntlNumber, IntlPercentil } from "~/services/utils";
 // Tipos para melhorar a tipagem
 type CityData = {
   id: number;
-  nome: string;
+  nome?: string;
+  name?: string;
   [key: string]: any;
 };
 
 type CitiesByYearData = {
   tipo?: string;
+  locationType?: string;
   anos?: number[];
+  years?: number[];
   cidades?: CityData[];
+  cities?: CityData[];
 };
 
 type SummaryData = {
@@ -64,9 +68,13 @@ export function getGeneralStatistics(summaryData: SummaryData, tipoLocal = "ocor
 }
 
 // Função para formatar os dados de cidades por ano
-export function getCityCardsByYear(citiesByYearData: CitiesByYearData, selectedYear: number, tipoLocal = "ocorrencia", selectedEndYear: number | null = null) {
+export function getCityCardsByYear(citiesByYearData: any, selectedYear: number, tipoLocal = "ocorrencia", selectedEndYear: number | null = null) {
   if (!citiesByYearData || !selectedYear) return [];
-  if (!citiesByYearData.cidades || citiesByYearData.cidades.length === 0) {
+  
+  // Verificar se usa a estrutura nova (cities) ou antiga (cidades)
+  const cities = citiesByYearData.cities || citiesByYearData.cidades || [];
+  
+  if (cities.length === 0) {
     return [{
       id: 0,
       label: "Sem dados disponíveis",
@@ -75,8 +83,8 @@ export function getCityCardsByYear(citiesByYearData: CitiesByYearData, selectedY
     }];
   }
   
-  return citiesByYearData.cidades
-    .map(city => {
+  return cities
+    .map((city: any) => {
       let totalMortes = 0;
       
       if (selectedEndYear) {
@@ -89,12 +97,12 @@ export function getCityCardsByYear(citiesByYearData: CitiesByYearData, selectedY
       
       return {
         id: city.id,
-        label: city.nome,
+        label: city.name || city.nome, // API usa 'name', código antigo usa 'nome'
         value: totalMortes,
         unit: "mortes"
       };
     })
-    .sort((a, b) => b.value - a.value);
+    .sort((a: any, b: any) => b.value - a.value);
 }
 
 // Mapeamento de códigos de modo de transporte para nomes legíveis

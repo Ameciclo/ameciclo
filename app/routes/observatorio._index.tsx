@@ -21,6 +21,14 @@ export default function Observatorio() {
 
     const FEATURED_PAGES = [
         {
+            title: "Sinistros Fatais",
+            src: "/icons/home/sinistrosfatais.png",
+            url: "https://dados.ameciclo.org/sinistros-fatais",
+            description:
+                "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
+            target: "_self",
+        },
+        {
             title: "Execução Cicloviária",
             src: "/icons/dados/mapa.svg",
             url: "https://dados.ameciclo.org/observatorio",
@@ -42,14 +50,6 @@ export default function Observatorio() {
             url: "/observatorio/dom",
             description:
                 "Monitoramento do orçamento municipal conforme sua contribuição climática.",
-            target: "_self",
-        },
-        {
-            title: "Sinistros Fatais",
-            src: "/icons/home/sinistrosfatais.png",
-            url: "/dados/sinistros-fatais",
-            description:
-                "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
             target: "_self",
         },
     ];
