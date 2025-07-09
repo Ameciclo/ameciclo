@@ -1085,6 +1085,13 @@ export default function StatusPage() {
             const isCollapsed = collapsedSections[category];
             const categoryHasSlowServices = filteredServices.some(s => s.responseTime && s.responseTime > 3000);
             
+            const categoryResponseTimes = filteredServices
+              .filter(s => s.responseTime && s.status !== "LOADING")
+              .map(s => s.responseTime!);
+            const avgResponseTime = categoryResponseTimes.length > 0 
+              ? Math.round(categoryResponseTimes.reduce((a, b) => a + b, 0) / categoryResponseTimes.length)
+              : 0;
+            
             return (
               <div key={category} className={`rounded-lg border ${
                 darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
@@ -1112,6 +1119,17 @@ export default function StatusPage() {
                           filteredServices.some(s => s.status === "OFF") ? "OFF" : "LOADING"
                         } />
                         {fixEncoding(category)} ({filteredServices.length})
+                        {avgResponseTime > 0 && (
+                          <span className={`text-sm px-2 py-1 rounded ${
+                            avgResponseTime > 3000 
+                              ? (darkMode ? "bg-orange-600 text-white" : "bg-orange-200 text-orange-800")
+                              : avgResponseTime > 1000
+                                ? (darkMode ? "bg-yellow-600 text-white" : "bg-yellow-200 text-yellow-800")
+                                : (darkMode ? "bg-green-600 text-white" : "bg-green-200 text-green-800")
+                          }`}>
+                            {avgResponseTime < 1000 ? `${avgResponseTime}ms` : `${(avgResponseTime / 1000).toFixed(1)}s`}
+                          </span>
+                        )}
                         {categoryHasSlowServices && (
                           <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse" title="Categoria com serviços lentos"></div>
                         )}
