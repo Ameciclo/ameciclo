@@ -73,7 +73,7 @@ export default function ParticiparPage() {
       <Breadcrumb label="Participe" slug="/participe" routes={["/"]} />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Seção Principal */}
+
         <div className="text-center mb-12 lg:mb-16">
           <h1 className={`text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
             Faça Parte da Mudança
@@ -86,7 +86,7 @@ export default function ParticiparPage() {
           </p>
         </div>
 
-        {/* Cards de Participação */}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-16">
           <motion.div 
             className={`border-2 rounded-xl shadow-lg p-8 text-center hover:shadow-2xl transition-all duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-br from-teal-50 to-cyan-50 border-teal-100'}`}
@@ -198,9 +198,9 @@ export default function ParticiparPage() {
           </motion.div>
         </div>
 
-        {/* Seção de Formas de Participação */}
+
         <div className="space-y-12 lg:space-y-16 mb-12 lg:mb-16">
-          {/* Comunicação e Organização */}
+
           <div id="como-nos-organizamos" className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-xl p-8 text-white">
             <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8">
               Como nos Organizamos
@@ -237,7 +237,7 @@ export default function ParticiparPage() {
             </div>
           </div>
 
-          {/* Grupos de Trabalho */}
+
           <div className={`border rounded-xl shadow-lg p-8 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200'}`}>
             <div className="flex items-center justify-center gap-4 mb-8">
               <UsersIcon className="w-8 h-8 text-ameciclo" />
@@ -276,7 +276,7 @@ export default function ParticiparPage() {
             </div>
           </div>
 
-          {/* Voluntariado */}
+
           <div className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl p-8 text-white">
             <div className="flex items-center justify-center gap-4 mb-8">
               <VolunteerIcon className="w-8 h-8" />
@@ -321,7 +321,7 @@ export default function ParticiparPage() {
             </div>
           </div>
 
-          {/* Ferramentas de Denúncia */}
+
           <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-br from-red-50 to-orange-50 border-red-100'}`}>
             <div className="flex items-center justify-center gap-4 mb-8">
               <RobotIcon className="w-8 h-8 text-gray-800" />
@@ -386,7 +386,7 @@ export default function ParticiparPage() {
             </div>
           </div>
 
-          {/* Nossa Sede */}
+
           <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-100'}`}>
             <div className="flex items-center justify-center gap-4 mb-8">
               <BuildingIcon className="w-8 h-8 text-gray-800" />
@@ -511,7 +511,7 @@ export default function ParticiparPage() {
           </div>
         </div>
 
-        {/* Seção de Contato */}
+
         <div className="bg-gradient-to-r from-ameciclo to-teal-700 text-white rounded-xl p-8 text-center shadow-2xl">
           <div className="flex items-center justify-center gap-4 mb-4">
             <EyeIcon className="w-8 h-8" />

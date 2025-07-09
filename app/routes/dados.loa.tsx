@@ -65,7 +65,7 @@ export default function Loa() {
     return (
         <>
             <Banner image={cover?.url} alt="Capa da página do Loaclima" />
-            <Breadcrumb label="loa" slug="/dados/observatorio/loa" routes={["/", "/observatorio"]} />
+            <Breadcrumb label="LOA" slug="/dados/loa" routes={["/", "/dados"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
 
             {renderOthers ? (

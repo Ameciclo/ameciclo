@@ -35,32 +35,23 @@ export default function AccessibilityControls({
 
   useEffect(() => {
     if (showAccessibilityMenu) {
-      timeoutRef.current = setTimeout(() => {
-        setShowAccessibilityMenu(false);
-      }, 3000);
+      timeoutRef.current = setTimeout(() => setShowAccessibilityMenu(false), 3000);
     }
-
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [showAccessibilityMenu, setShowAccessibilityMenu]);
 
   const handleMouseEnter = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setShowAccessibilityMenu(false);
-    }, 3000);
+    timeoutRef.current = setTimeout(() => setShowAccessibilityMenu(false), 3000);
   };
   return (
     <>
-      {/* Accessibility Button */}
+
       <div className="fixed top-1/2 right-0 transform -translate-y-1/2 z-40 accessibility-controls">
         <button
           onClick={() => setShowAccessibilityMenu(!showAccessibilityMenu)}
@@ -75,7 +66,7 @@ export default function AccessibilityControls({
 
 
 
-      {/* Accessibility Menu */}
+
       {showAccessibilityMenu && (
         <div 
           ref={menuRef}
@@ -143,7 +134,7 @@ export default function AccessibilityControls({
         </div>
       )}
 
-      {/* Scroll to top button */}
+
       {showScrollTop && (
         <button
           onClick={onScrollTop}

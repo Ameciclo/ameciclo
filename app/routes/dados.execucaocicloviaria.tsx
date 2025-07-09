@@ -142,7 +142,7 @@ export default function ExecucaoCicloviaria() {
     return (
         <>
             <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
-            <Breadcrumb label="Execução Cicloviária" slug="/execucaocicloviaria" routes={["/", "/observatorio"]} />
+            <Breadcrumb label="Execução Cicloviária" slug="/dados/execucaocicloviaria" routes={["/", "/dados"]} />
             <StatisticsBox
                 title={"Execução Cicloviária"}
                 subtitle={"da Região Metropolitana do Recife"}
