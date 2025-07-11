@@ -1,10 +1,15 @@
-import { json, LoaderFunction, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { useState, useMemo } from "react";
+import { MetaFunction } from "@remix-run/node";
+import { useLoaderData, useNavigation } from "@remix-run/react";
+import { useState, useMemo, useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ProjectCard } from "~/components/Projetos/ProjectCard";
+import { FeaturedProjectsLoading } from "~/components/Projetos/FeaturedProjectsLoading";
+import { ProjectCardLoading } from "~/components/Projetos/ProjectCardLoading";
+import { projetosLoader } from "~/loader/projetos";
+import { ApiAlert } from "~/components/Commom/ApiAlert";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
 
 interface Project {
   id: string;
@@ -30,23 +35,23 @@ export const meta: MetaFunction = () => {
   return [{ title: "Projetos" }];
 };
 
-export const loader: LoaderFunction = async () => {
-  const API_URL = "https://cms.ameciclo.org";
-
-  const [projectsRes, workgroupsRes] = await Promise.all([
-    fetch(`${API_URL}/projects`).then((res) => res.json()).catch(() => []),
-    fetch(`${API_URL}/workgroups`).then((res) => res.json()).catch(() => []),
-  ]);
-
-  return json({ projects: projectsRes, workgroups: workgroupsRes });
-};
+export const loader = projetosLoader;
 
 export default function Projetos() {
-  const { projects } = useLoaderData<typeof loader>();
+  const { projects, error } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
+  const { setApiDown } = useApiStatus();
+  const isLoading = navigation.state === "loading";
+  const hasApiError = error === 'API_ERROR';
+  const showLoadingState = isLoading || hasApiError || !projects || projects.length === 0;
 
   const [status, setStatus] = useState<string>("");
   const [group, setGroup] = useState<string>("");
   const [showOtherProjects, setShowOtherProjects] = useState<boolean>(false);
+
+  useEffect(() => {
+    setApiDown(hasApiError);
+  }, [hasApiError, setApiDown]);
 
   const groupedProjects: GroupedProject[] = useMemo(() => {
     const groups: Record<string, GroupedProject> = {};
@@ -119,11 +124,14 @@ export default function Projetos() {
 
   return (
     <>
+      <ApiAlert />
       <Banner image="projetos.webp" />
       <div />
       <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
       <section className="container my-12 mx-auto">
-        {filteredProjects.highlighted.length > 0 && (
+        {showLoadingState ? (
+          <FeaturedProjectsLoading />
+        ) : filteredProjects.highlighted.length > 0 ? (
           <>
             <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -136,9 +144,18 @@ export default function Projetos() {
               ))}
             </div>
           </>
-        )}
+        ) : null}
 
-        {filteredProjects.ongoing.length > 0 && (
+        {showLoadingState ? (
+          <>
+            <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <ProjectCardLoading key={index} />
+              ))}
+            </div>
+          </>
+        ) : filteredProjects.ongoing.length > 0 ? (
           <>
             <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -151,7 +168,7 @@ export default function Projetos() {
               ))}
             </div>
           </>
-        )}
+        ) : null}
 
         {filteredProjects.others.length > 0 && !showOtherProjects && (
           <div className="text-center my-4">
@@ -168,13 +185,19 @@ export default function Projetos() {
           <>
             <h2 className="text-2xl font-bold my-4">Demais Projetos</h2>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {filteredProjects.others.map((groupedProject) => (
-                <ProjectCard
-                  key={groupedProject.main?.id}
-                  project={groupedProject.main}
-                  translations={groupedProject.translations}
-                />
-              ))}
+              {showLoadingState ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <ProjectCardLoading key={index} />
+                ))
+              ) : (
+                filteredProjects.others.map((groupedProject) => (
+                  <ProjectCard
+                    key={groupedProject.main?.id}
+                    project={groupedProject.main}
+                    translations={groupedProject.translations}
+                  />
+                ))
+              )}
             </div>
           </>
         )}

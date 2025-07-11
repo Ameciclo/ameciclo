@@ -39,7 +39,8 @@ export default function ServiceCard({ service, fontSize, darkMode, origin }: Ser
   };
 
   const formatResponseTime = (responseTime?: number) => {
-    if (!responseTime) return "";
+    if (responseTime === undefined || responseTime === null) return "";
+    if (responseTime === 0) return "1ms";
     if (responseTime < 1000) return `${responseTime}ms`;
     return `${(responseTime / 1000).toFixed(1)}s`;
   };
@@ -64,7 +65,7 @@ export default function ServiceCard({ service, fontSize, darkMode, origin }: Ser
             <h3 className="font-semibold truncate" style={{ fontSize }}>
               {fixEncoding(service.name)}
             </h3>
-            {service.responseTime && (
+            {(service.responseTime !== undefined && service.responseTime !== null) && (
               <span className={`text-xs font-mono ${getResponseTimeColor(service.responseTime)}`}>
                 {formatResponseTime(service.responseTime)}
               </span>

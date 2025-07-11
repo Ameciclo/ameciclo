@@ -1,28 +1,30 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 
-export const loader: LoaderFunction = async ({ params }) => {
-  const { projeto } = params;
-  
-  if (!projeto) {
-    throw new Response("Projeto não encontrado", { status: 404 });
-  }
+export const projetosLoader: LoaderFunction = async () => {
+  const API_URL = "https://cms.ameciclo.org";
 
   try {
-    const projectsResponse = await fetch("https://cms.ameciclo.org/projects");
-    
-    if (!projectsResponse.ok) {
-      throw new Response("Erro ao carregar projetos", { status: 500 });
-    }
+    const [projectsRes, workgroupsRes] = await Promise.all([
+      fetch(`${API_URL}/projects`).then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch projects');
+        return res.json();
+      }).catch(() => []),
+      fetch(`${API_URL}/workgroups`).then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch workgroups');
+        return res.json();
+      }).catch(() => []),
+    ]);
 
-    const projects = await projectsResponse.json();
-    const project = projects.find((p: any) => p.slug === projeto);
-    
-    if (!project) {
-      throw new Response("Projeto não encontrado", { status: 404 });
-    }
-    
-    return json({ project });
+    return json({ 
+      projects: Array.isArray(projectsRes) ? projectsRes : [], 
+      workgroups: Array.isArray(workgroupsRes) ? workgroupsRes : [],
+      error: projectsRes.length === 0 && workgroupsRes.length === 0 ? 'API_ERROR' : null
+    });
   } catch (error) {
-    throw new Response("Erro ao carregar projeto", { status: 500 });
+    return json({ 
+      projects: [], 
+      workgroups: [], 
+      error: 'API_ERROR' 
+    });
   }
 };

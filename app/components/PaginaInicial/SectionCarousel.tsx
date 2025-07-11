@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { Link } from "@remix-run/react";
-import DevelopingComponent from "../Commom/DevelopingComponent";
+import SectionCarouselLoading from "./SectionCarouselLoading";
 
-export default function SectionCarousel({ featuredProjects = [] }) {
+export default function SectionCarousel({ featuredProjects = [], isLoading = false, hasApiError = false }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -12,6 +12,16 @@ export default function SectionCarousel({ featuredProjects = [] }) {
   const autoplayIntervalRef = useRef(null);
   const progressIntervalRef = useRef(null);
   const AUTOPLAY_DURATION = 5000;
+
+  const ProjectSlideWithPause = ({ project }) => {
+    return (
+      <ProjectSlide 
+        project={project} 
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      />
+    );
+  };
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -70,64 +80,63 @@ export default function SectionCarousel({ featuredProjects = [] }) {
     }
   }, [loaded, instanceRef, isPaused]);
 
-  if (!featuredProjects || featuredProjects.length === 0) {
-    return (
-      <DevelopingComponent
-        title="Projetos em Destaque"
-        subtitle="Estamos arrumando um problema nessa seção..."
-      />
-    );
+  if (isLoading || hasApiError || !featuredProjects || featuredProjects.length === 0) {
+    return <SectionCarouselLoading />;
   }
 
   return (
     <section>
       <div className="mx-auto">
-        <div
-          className="navigation-wrapper"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}>
+        <div className="navigation-wrapper">
           <div
             ref={sliderRef}
             className="keen-slider"
+            style={{ opacity: loaded ? 1 : 0 }}
           >
             {featuredProjects.map((project, index) => (
               <div key={project.id || index} className="keen-slider__slide">
-                <ProjectSlide project={project} />
+                <ProjectSlideWithPause project={project} />
               </div>
             ))}
           </div>
           {loaded && instanceRef.current && (
             <>
-              <Arrow
-                left
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  instanceRef.current?.prev();
-                }}
-                disabled={currentSlide === 0 && !instanceRef.current.options.loop}
-              />
-              <Arrow
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  instanceRef.current?.next();
-                }}
-                disabled={
-                  currentSlide === instanceRef.current.track.details.slides.length - 1 &&
-                  !instanceRef.current.options.loop
-                }
-              />
+              <div
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                <Arrow
+                  left
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    instanceRef.current?.prev();
+                  }}
+                  disabled={currentSlide === 0 && !instanceRef.current.options.loop}
+                />
+              </div>
+              <div
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                <Arrow
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    instanceRef.current?.next();
+                  }}
+                  disabled={
+                    currentSlide === instanceRef.current.track.details.slides.length - 1 &&
+                    !instanceRef.current.options.loop
+                  }
+                />
+              </div>
             </>
           )}
           {loaded && instanceRef.current && (
-            <div className="dots-container">
-              {!isPaused && (
-                <div className="progress-bar-container">
-                  <div
-                    className="progress-bar"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              )}
+            <div 
+              className="dots-container"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
               <div className="dots">
                 {[...Array(instanceRef.current.track.details.slides.length)].map((_, idx) => (
                   <button
@@ -136,8 +145,39 @@ export default function SectionCarousel({ featuredProjects = [] }) {
                       instanceRef.current?.moveToIdx(idx);
                       setProgress(0);
                     }}
-                    className={`dot${currentSlide === idx ? " active" : ""}`}
-                  ></button>
+                    className="dot-line"
+                    style={{
+                      width: '24px',
+                      height: '3px',
+                      backgroundColor: currentSlide === idx && isPaused ? '#00A870' : '#d1d5db',
+                      border: 'none',
+                      borderRadius: '2px',
+                      margin: '0 4px',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#00A870';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#d1d5db';
+                    }}
+                  >
+                    {currentSlide === idx && !isPaused && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          height: '100%',
+                          backgroundColor: '#00A870',
+                          width: `${progress}%`,
+                          transition: 'width 50ms linear'
+                        }}
+                      />
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
@@ -148,7 +188,7 @@ export default function SectionCarousel({ featuredProjects = [] }) {
   );
 }
 
-function ProjectSlide({ project }: any) {
+function ProjectSlide({ project, onMouseEnter, onMouseLeave }: any) {
   const title = project.name || project.title || "";
   const description = project.description || "";
   const slug = project.slug || "";
@@ -163,7 +203,7 @@ function ProjectSlide({ project }: any) {
   }
 
   return (
-    <div className="flex min-h-[400px] md:min-h-[600px] relative w-full">
+    <div className="flex relative w-full h-full">
       <div className="w-full h-full">
         <div
           className="absolute inset-0 w-full h-full"
@@ -176,14 +216,18 @@ function ProjectSlide({ project }: any) {
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
 
         <div className="absolute inset-0 flex items-center justify-center p-4">
-          <div className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[320px] md:max-w-[850px] w-full">
+          <div 
+            className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[320px] md:max-w-[800px] w-full"
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+          >
             <div className="flex items-center justify-center mt-3 md:mt-5 text-gray-800">
-              <h1 className="text-lg md:text-3xl lg:text-6xl text-center px-2">{title}</h1>
+              <h1 className="text-xl md:text-3xl lg:text-6xl font-bold text-center px-2 leading-tight">{title}</h1>
             </div>
             <div className="mt-3 md:mt-5 text-center border-t border-gray-600">
               <div className="p-3 md:p-6 md:pr-24 md:pl-16 md:py-6">
                 <p
-                  className="text-sm md:text-xl text-gray-800"
+                  className="text-base md:text-xl text-gray-800 leading-relaxed font-medium"
                   style={{
                     overflow: "hidden",
                     display: "-webkit-box",
@@ -196,10 +240,10 @@ function ProjectSlide({ project }: any) {
                 {slug && (
                   <Link
                     to={`/projetos/${slug}`}
-                    className="flex items-baseline justify-center mt-2 md:mt-3 text-ameciclo hover:text-red-600 focus:text-red-600"
+                    className="flex items-baseline justify-center mt-3 md:mt-3 text-ameciclo hover:text-red-600 focus:text-red-600 font-semibold"
                   >
-                    <span className="text-sm md:text-base">Conheça mais</span>
-                    <span className="ml-1 text-xs">&#x279c;</span>
+                    <span className="text-base md:text-base">Conheça mais</span>
+                    <span className="ml-1 text-sm">&#x279c;</span>
                   </Link>
                 )}
               </div>

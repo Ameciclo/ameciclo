@@ -1,13 +1,12 @@
+import { Link } from "@remix-run/react";
 import React from "react";
-import Link from "next/link";
-import Image from "next/image";
 
 export const FeaturedProject = ({ project }) => {
   return (
     <>
-      <div className="flex min-h-[600px] relative">
-        <div className="keen-slider__slide max-h-[600px]">
-          <Image
+      <div className="flex maz-h-[300px] relative">
+        <div className="keen-slider__slide max">
+          <img
             src={project.media.url}
             alt={project.name}
             layout="fill"
@@ -34,7 +33,7 @@ export const FeaturedProject = ({ project }) => {
                   >
                     {project.description}
                   </p>
-                  <Link href={`/projetos/${project.slug}`}>
+                  <Link to={`/projetos/${project.slug}`}>
                     <a className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600">
                       <span>Conheça mais</span>
                       <span className="ml-1 text-xs">&#x279c;</span>

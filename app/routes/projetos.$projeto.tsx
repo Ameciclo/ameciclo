@@ -1,9 +1,9 @@
 import { useLoaderData } from "@remix-run/react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
-import { loader } from "../loader/projetos";
+import { projetoLoader } from "~/loader/projetos";
 
-export { loader };
+export const loader = projetoLoader;
 
 const ProjectDate = ({ project }: any) => {
   const dateOption: Intl.DateTimeFormatOptions = {

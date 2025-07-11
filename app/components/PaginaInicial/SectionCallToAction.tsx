@@ -9,7 +9,7 @@ export default function SectionCallToAction({ home }: any) {
         
         return (
             <section className="bg-ameciclo">
-                <div className="container px-6 py-20 mx-auto">
+                <div className="container px-6 py-6 mx-auto">
                     <div className="flex flex-wrap justify-around">
                         <Link className="buttom-call-actions" to="/participe"><Participe /></Link>
                         <Link className="buttom-call-actions" to={home.association_url}><Associe /></Link>

@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { animate } from "framer-motion";
+import CounterLoading from "../PaginaInicial/CounterLoading";
 
 const Counter = ({ label, number }: any) => {
   const nodeRef = useRef<HTMLHeadingElement | null>(null);
 
   useEffect(() => {
     const node = nodeRef.current;
-    if (!node) return;
+    if (!node || number === null) return;
 
     const controls = animate(0, number, {
       duration: 1,
@@ -17,6 +18,10 @@ const Counter = ({ label, number }: any) => {
 
     return () => controls.stop();
   }, [number]);
+
+  if (number === null) {
+    return <CounterLoading label={label} />;
+  }
 
   return (
     <div className="p-2 m-2 md:p-4 md:m-4 text-center text-white uppercase">
