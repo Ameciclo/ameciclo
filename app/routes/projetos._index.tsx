@@ -1,13 +1,12 @@
-import { MetaFunction } from "@remix-run/node";
-import { useLoaderData, useNavigation } from "@remix-run/react";
-import { useState, useMemo, useEffect } from "react";
+import { MetaFunction, defer } from "@remix-run/node";
+import { useLoaderData, Await } from "@remix-run/react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ProjectCard } from "~/components/Projetos/ProjectCard";
 import { FeaturedProjectsLoading } from "~/components/Projetos/FeaturedProjectsLoading";
 import { ProjectCardLoading } from "~/components/Projetos/ProjectCardLoading";
-import { projetosLoader } from "~/loader/projetos";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 
@@ -35,15 +34,34 @@ export const meta: MetaFunction = () => {
   return [{ title: "Projetos" }];
 };
 
-export const loader = projetosLoader;
+export const loader = async () => {
+  const API_URL = "https://cms.ameciclo.org";
 
-export default function Projetos() {
-  const { projects, error } = useLoaderData<typeof loader>();
-  const navigation = useNavigation();
+  const projectsPromise = Promise.all([
+    fetch(`${API_URL}/projects`).then((res) => {
+      if (!res.ok) throw new Error('Failed to fetch projects');
+      return res.json();
+    }).catch(() => []),
+    fetch(`${API_URL}/workgroups`).then((res) => {
+      if (!res.ok) throw new Error('Failed to fetch workgroups');
+      return res.json();
+    }).catch(() => []),
+  ]).then(([projectsRes, workgroupsRes]) => ({
+    projects: Array.isArray(projectsRes) ? projectsRes : [], 
+    workgroups: Array.isArray(workgroupsRes) ? workgroupsRes : [],
+    error: projectsRes.length === 0 && workgroupsRes.length === 0 ? 'API_ERROR' : null
+  }));
+
+  return defer({
+    projectsData: projectsPromise
+  });
+};
+
+function ProjectsContent({ projectsData }: { projectsData: any }) {
+  const { projects, error } = projectsData;
   const { setApiDown } = useApiStatus();
-  const isLoading = navigation.state === "loading";
   const hasApiError = error === 'API_ERROR';
-  const showLoadingState = isLoading || hasApiError || !projects || projects.length === 0;
+  const showLoadingState = hasApiError || !projects || projects.length === 0;
 
   const [status, setStatus] = useState<string>("");
   const [group, setGroup] = useState<string>("");
@@ -123,14 +141,16 @@ export default function Projetos() {
   }, [status, group, groupedProjects]);
 
   return (
-    <>
-      <ApiAlert />
-      <Banner image="projetos.webp" />
-      <div />
-      <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
-      <section className="container my-12 mx-auto">
+    <section className="container my-12 mx-auto">
         {showLoadingState ? (
-          <FeaturedProjectsLoading />
+          <>
+            <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <ProjectCardLoading key={index} />
+              ))}
+            </div>
+          </>
         ) : filteredProjects.highlighted.length > 0 ? (
           <>
             <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
@@ -150,7 +170,7 @@ export default function Projetos() {
           <>
             <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 4 }).map((_, index) => (
+              {Array.from({ length: 7 }).map((_, index) => (
                 <ProjectCardLoading key={index} />
               ))}
             </div>
@@ -201,7 +221,39 @@ export default function Projetos() {
             </div>
           </>
         )}
-      </section>
+    </section>
+  );
+}
+
+export default function Projetos() {
+  const { projectsData } = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <ApiAlert />
+      <Banner image="projetos.webp" />
+      <div />
+      <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
+      <Suspense fallback={
+        <section className="container my-12 mx-auto">
+          <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <ProjectCardLoading key={index} />
+            ))}
+          </div>
+          <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 7 }).map((_, index) => (
+              <ProjectCardLoading key={index} />
+            ))}
+          </div>
+        </section>
+      }>
+        <Await resolve={projectsData}>
+          {(data) => <ProjectsContent projectsData={data} />}
+        </Await>
+      </Suspense>
     </>
   );
 }
