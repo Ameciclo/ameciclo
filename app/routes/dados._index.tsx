@@ -1,23 +1,18 @@
 import { json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Await } from "@remix-run/react";
+import { Suspense } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import DadosLoading from "~/components/Dados/DadosLoading";
 
 import { loader } from "~/loader/dados";
 export { loader };
 export default function Dados() {
-    const { cover, description, partners, apiDown } = useLoaderData<typeof loader>();
-    const dataPartners = partners.map((p: any) => {
-        return {
-            src: p.image.url,
-            alt: p.title,
-            url: p.link,
-        };
-    });
+    const { dataPromise } = useLoaderData<typeof loader>();
     const FEATURED_PAGES = [
         {
             title: "Contagens",
@@ -58,12 +53,12 @@ export default function Dados() {
             target: "_blank",
         },
         {
-            title: "Execução Cicloviariá",
+            title: "Execução Cicloviária",
             src: "/icons/dados/mapa.svg",
-            url: "https://dados.ameciclo.org/observatorio",
+            url: "/dados/execucaocicloviaria",
             description:
-                "Monitoramento das estruturas cicloviariás projetadas e executadas conforme PDC.",
-            target: "_blank",
+                "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
+            target: "_self",
         },
         {
             title: "Orçamento Estadual para o Clima",
@@ -84,15 +79,38 @@ export default function Dados() {
     ];
     return (
         <>
-            <ApiStatusHandler apiDown={apiDown} />
-            <Banner image={cover?.url} alt="Capa da plataforma de dados" />
+            <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
+                <Await resolve={dataPromise}>
+                    {(data) => (
+                        <>
+                            <ApiStatusHandler apiDown={data.apiDown} />
+                            <Banner image={data.cover?.url} alt="Capa da plataforma de dados" />
+                        </>
+                    )}
+                </Await>
+            </Suspense>
             <Breadcrumb label="Dados" slug="/dados" routes={["/"]} />
-            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
-            <CardsSession
-                title="Navegue por nossas pesquisas"
-                cards={FEATURED_PAGES}
-            />
-            <ImagesGrid title="Outras plataformas de dados de parceiras" images={dataPartners} />
+            <Suspense fallback={<DadosLoading />}>
+                <Await resolve={dataPromise}>
+                    {(data) => (
+                        <>
+                            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: data.description }]} />
+                            <CardsSession
+                                title="Navegue por nossas pesquisas"
+                                cards={FEATURED_PAGES}
+                            />
+                            <ImagesGrid 
+                                title="Outras plataformas de dados de parceiras" 
+                                images={data.partners.map((p: any) => ({
+                                    src: p.image.url,
+                                    alt: p.title,
+                                    url: p.link,
+                                }))}
+                            />
+                        </>
+                    )}
+                </Await>
+            </Suspense>
         </>
     );
 

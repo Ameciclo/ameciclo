@@ -1,4 +1,4 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import { defer, LoaderFunction } from "@remix-run/node";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 
 export const loader: LoaderFunction = async () => {
@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async () => {
 
     return [
       {
-        title: "estrutura cicloviárias",
+        title: "estrutura cicloviárias existentes",
         unit: "km",
         value: IntlNumberMax1Digit(pdc_feito + out_pdc),
       },
@@ -42,21 +42,6 @@ export const loader: LoaderFunction = async () => {
       },
     ];
   };
-
-  const summaryWaysRes = await fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", {
-    cache: "no-cache",
-  });
-  const summaryWaysData = await summaryWaysRes.json();
-
-  const allWaysRes = await fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/all-ways", {
-    cache: "no-cache",
-  });
-  const allWaysData = await allWaysRes.json();
-
-  const allCitiesLayer = allWaysData.all as
-    | GeoJSON.Feature<GeoJSON.Geometry>
-    | GeoJSON.FeatureCollection<GeoJSON.Geometry>
-    | string;
 
   const PDCLayer = {
     id: "Não executado no PDC",
@@ -92,9 +77,6 @@ export const loader: LoaderFunction = async () => {
 
   const layersConf = [PDCLayer, PDCDoneLayer, NotPDC];
 
-  const citiesRes = await fetch("http://api.garfo.ameciclo.org/cities");
-  const citiesData = await citiesRes.json();
-
   function cityCycleStructureExecutionStatisticsByCity(
     citiesSummary: any,
     citiesData: any,
@@ -118,13 +100,22 @@ export const loader: LoaderFunction = async () => {
     return cityStats;
   }
 
-  const relationsByCityRes = await fetch("http://api.garfo.ameciclo.org/cyclist-infra/relationsByCity");
-  const relationsByCityData = await relationsByCityRes.json();
+  // Dados do mapa carregados síncronamente
+  const allWaysRes = await fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/all-ways", { cache: "no-cache" });
+  const allWaysData = await allWaysRes.json();
+  const allCitiesLayer = allWaysData.all;
 
-  const citiesStats = cityCycleStructureExecutionStatisticsByCity(
-    summaryWaysData.byCity,
-    citiesData,
-    relationsByCityData,
+  // Promises assíncronas para outras seções
+  const statsPromise = fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", { cache: "no-cache" })
+    .then(res => res.json())
+    .then(data => cycleStructureExecutionStatistics(data.all));
+
+  const citiesPromise = Promise.all([
+    fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", { cache: "no-cache" }).then(res => res.json()),
+    fetch("http://api.garfo.ameciclo.org/cities").then(res => res.json()),
+    fetch("http://api.garfo.ameciclo.org/cyclist-infra/relationsByCity").then(res => res.json())
+  ]).then(([summaryData, cities, relations]) => 
+    cityCycleStructureExecutionStatisticsByCity(summaryData.byCity, cities, relations)
   );
 
   const documents = {
@@ -173,18 +164,19 @@ export const loader: LoaderFunction = async () => {
     ]
   }
 
-  return json({
+  return defer({
+    // Dados imediatos
     cover: page_data.cover_image_url,
-    description: page_data.ExplanationBoxData.text_1,
-    boxes: cycleStructureExecutionStatistics(summaryWaysData.all),
     title1: page_data.ExplanationBoxData.title_1,
     title2: page_data.ExplanationBoxData.title_2,
     description1: page_data.ExplanationBoxData.text_1,
     description2: page_data.ExplanationBoxData.text_2,
+    documents,
+    // Dados do mapa (síncrono)
     allCitiesLayer,
     layersConf,
-    citiesData,
-    citiesStats,
-    documents,
+    // Promises assíncronas
+    statsPromise,
+    citiesPromise,
   });
 };

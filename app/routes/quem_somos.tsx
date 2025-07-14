@@ -1,10 +1,12 @@
-import { json, LoaderFunction, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { defer, MetaFunction } from "@remix-run/node";
+import { useLoaderData, Await } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
+import { Suspense } from "react";
 
 import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import QuemSomosLoading from "~/components/QuemSomos/QuemSomosLoading";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 type Ameciclista = {
@@ -21,53 +23,44 @@ type CustomData = {
   links: { id: string; title: string; link: string }[];
 };
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const server = "https://cms.ameciclo.org";
 
-  // Usando fetchWithTimeout com fallback para evitar timeouts
-  const ameciclistas = await fetchWithTimeout(
-    `${server}/ameciclistas`, 
-    { cache: "no-cache" }, 
-    5000, 
-    []
-  );
-  
-  const custom = await fetchWithTimeout(
-    `${server}/quem-somos`, 
-    { cache: "no-cache" }, 
-    5000, 
-    { definition: "Associação Metropolitana de Ciclistas do Recife", objective: "Promover a mobilidade ativa", links: [] }
-  )
+  const dataPromise = Promise.all([
+    fetchWithTimeout(
+      `${server}/ameciclistas`, 
+      { cache: "no-cache" }, 
+      5000, 
+      []
+    ),
+    fetchWithTimeout(
+      `${server}/quem-somos`, 
+      { cache: "no-cache" }, 
+      5000, 
+      { definition: "Associação Metropolitana de Ciclistas do Recife", objective: "Promover a mobilidade ativa", links: [] }
+    )
+  ]).then(([ameciclistas, custom]) => {
+    ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
+    return { ameciclistas, custom };
+  });
 
-  ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
-
-  return json({ ameciclistas, custom });
+  return defer({
+    pageData: dataPromise
+  });
 };
 
 export const meta: MetaFunction = () => {
   return [{ title: "Quem Somos" }];
 };
 
-export default function QuemSomos() {
-  const { ameciclistas, custom } = useLoaderData<typeof loader>();
+function QuemSomosContent({ pageData }: { pageData: any }) {
+  const { ameciclistas, custom } = pageData;
 
   const coordinators = ameciclistas.filter((a: any) => a.role === "coordenacao");
   const counselors = ameciclistas.filter((a: any) => a.role === "conselhofiscal");
 
   return (
-    <>
-      <SEO title="Quem Somos" />
-      <div className="relative py-24 w-full h-[52vh]">
-        <img
-          src="/quem_somos.webp"
-          alt="Quem somos?"
-          className="absolute inset-0 object-cover w-full h-full"
-          loading="lazy"
-        />
-      </div>
-      <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/"]} />
-
-      <div className="container mx-auto mt-8 mb-8">
+    <div className="container mx-auto mt-8 mb-8">
         <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">
           <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
             <div className="text-lg lg:text-3xl">
@@ -155,7 +148,33 @@ export default function QuemSomos() {
             ))}
           </TabPanel>
         </Tabs>
+    </div>
+  );
+}
+
+
+
+export default function QuemSomos() {
+  const { pageData } = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <SEO title="Quem Somos" />
+      <div className="relative py-24 w-full h-[52vh]">
+        <img
+          src="/quem_somos.webp"
+          alt="Quem somos?"
+          className="absolute inset-0 object-cover w-full h-full"
+          loading="lazy"
+        />
       </div>
+      <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/"]} />
+      
+      <Suspense fallback={<QuemSomosLoading />}>
+        <Await resolve={pageData}>
+          {(data) => <QuemSomosContent pageData={data} />}
+        </Await>
+      </Suspense>
     </>
   );
 }

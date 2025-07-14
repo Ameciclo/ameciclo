@@ -16,8 +16,9 @@ function fuzzyTextFilterFn(rows: any, id: any, filterValue: any) {
 
 fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
-const Table = ({ title, data, columns }: any) => {
+const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [shouldBlink, setShouldBlink] = useState(false);
     const safeData = data || [];
     const safeColumns = columns || [];
 
@@ -77,20 +78,41 @@ const Table = ({ title, data, columns }: any) => {
         
         return () => window.removeEventListener('resize', checkScreenSize);
     }, [setPageSize]);
+    
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    const timer = setTimeout(() => {
+                        setShouldBlink(true);
+                        setTimeout(() => setShouldBlink(false), 4000);
+                    }, 2000);
+                    observer.disconnect();
+                    return () => clearTimeout(timer);
+                }
+            },
+            { threshold: 0.5 }
+        );
+        
+        const tableSection = document.querySelector('section.container');
+        if (tableSection) observer.observe(tableSection);
+        
+        return () => observer.disconnect();
+    }, []);
 
-    function TableHead({ headerGroups, isSmallScreen = false }: any) {
+    function TableHead({ headerGroups, isSmallScreen = false, showFilters, setShowFilters }: any) {
         return (
             <thead>
                 {headerGroups.map((headerGroup: any, groupIndex: number) => (
                     <tr
                         key={groupIndex}
                         {...headerGroup.getHeaderGroupProps()}
-                        className="bg-gray-100 rounded-lg text-sm font-medium text-gray-700 text-left"
+                        className="bg-gray-100 rounded-lg text-sm font-medium text-gray-700 text-left relative"
                     >
                         {headerGroup.headers.map((column: any, index: number) =>
                             isSmallScreen && index !== 0 ? null : (
                                 <th
-                                    key={index}
+                                    key={column.id || index}
                                     {...column.getHeaderProps()}
                                     className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
                                 >
@@ -107,14 +129,10 @@ const Table = ({ title, data, columns }: any) => {
                                         </span>
                                         {column.render("Header")}
                                     </div>
-                                    {isSmallScreen && index !== 0
-                                        ? null
-                                        : column.canFilter
-                                            ? column.render("Filter")
-                                            : null}
                                 </th>
                             )
                         )}
+
                     </tr>
                 ))}
             </thead>
@@ -127,7 +145,7 @@ const Table = ({ title, data, columns }: any) => {
                 {cells.map((cell: any, index: number) => {
                     return (
                         <div key={index} className="mb-2">
-                            <strong>{cell.column.Header}:</strong> {cell.render("Cell")}
+                            <strong>{typeof cell.column.Header === 'function' ? 'Extensão executada' : cell.column.Header}:</strong> {cell.render("Cell")}
                         </div>
                     );
                 })}
@@ -165,9 +183,10 @@ const Table = ({ title, data, columns }: any) => {
                             {row.cells.map((cell: any, cellIndex: number) => {
                                 return (
                                     <td
-                                        key={cellIndex}
+                                        key={cell.column.id || cellIndex}
                                         {...cell.getCellProps()}
-                                        className="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-700 truncate max-w-sm"
+                                        className="px-6 py-4 text-sm leading-5 text-gray-700 break-words"
+                                        style={{ width: '20%' }}
                                     >
                                         {cell.render("Cell")}
                                     </td>
@@ -248,58 +267,39 @@ const Table = ({ title, data, columns }: any) => {
             return pages;
         };
         return (
-            <div className="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
-                <p>Mostrando {rows.length} de {safeData.length} linhas ao todo.</p>
-                <p>Página {pageIndex + 1} de {pageOptions.length}.</p>
-                <div className="inline-flex mt-2 xs:mt-0">
-                    {canPreviousPage && (
-                        <button
-                            className="hidden sm:block bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-2 mx-2"
-                            type="button"
-                            style={{ transition: "all .15s ease" }}
-                            onClick={() => previousPage()}
-                            disabled={!canPreviousPage}
-                        >
-                            Anterior
-                        </button>
-                    )}
-
-                    <div className="p-1">
-                        {shouldUseInput ? (
-                            <>
-                                <input
-                                    type="text"
-                                    className="border-gray-300 border p-1"
-                                    value={pageNumberInput}
-                                    onChange={handlePageNumberChange}
-                                    onKeyUp={handleKeyPress}
-                                    style={{ width: "40px", textAlign: "center" }}
-                                />
-                                <button
-                                    className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-2 py-1 rounded outline-none focus:outline-none mb-2 mx-1"
-                                    type="button"
-                                    style={{ transition: "all .15s ease" }}
-                                    onClick={handleGoToPage}
-                                >
-                                    Ir
-                                </button>
-                            </>
-                        ) : (
-                            pageOptions.length > 0 && pagesButtons(pageOptions.length)
-                        )}
+            <div className="bg-white px-6 py-3 border-t border-gray-200">
+                <div className="flex items-center justify-center sm:justify-end">
+                    <div className="flex items-center space-x-4">
+                        <div className="text-xs text-gray-500">
+                            {rows.length} resultados • Página {pageIndex + 1} de {pageOptions.length}
+                        </div>
+                        
+                        <div className="flex items-center space-x-1">
+                            <button
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                    canPreviousPage 
+                                        ? 'text-gray-600 hover:bg-gray-100' 
+                                        : 'text-gray-300 cursor-not-allowed'
+                                }`}
+                                onClick={() => canPreviousPage && previousPage()}
+                                disabled={!canPreviousPage}
+                            >
+                                ← Anterior
+                            </button>
+                            
+                            <button
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                    canNextPage 
+                                        ? 'text-gray-600 hover:bg-gray-100' 
+                                        : 'text-gray-300 cursor-not-allowed'
+                                }`}
+                                onClick={() => canNextPage && nextPage()}
+                                disabled={!canNextPage}
+                            >
+                                Próxima →
+                            </button>
+                        </div>
                     </div>
-
-                    {canNextPage && (
-                        <button
-                            className="hidden sm:block bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none mb-2 mx-1"
-                            type="button"
-                            style={{ transition: "all .15s ease" }}
-                            onClick={() => nextPage()}
-                            disabled={!canNextPage}
-                        >
-                            Próxima
-                        </button>
-                    )}
                 </div>
             </div>
         );
@@ -307,13 +307,93 @@ const Table = ({ title, data, columns }: any) => {
 
     return (
         <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
-            <h2 className="text-gray-600 text-3xl">{title}</h2>
-            <div className="shadow overflow-x-auto bg-white border-b border-gray-200 sm:rounded-lg">
+            <style jsx>{`
+                @keyframes blinkAmeciclo {
+                    0%, 100% { 
+                        background-color: white;
+                        color: #6b7280;
+                        border-color: #d1d5db;
+                    }
+                    50% { 
+                        background-color: #008080;
+                        color: white;
+                        border-color: #008080;
+                    }
+                }
+            `}</style>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-gray-600 text-3xl">{title}</h2>
+                {setShowFilters && (
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors ${
+                            showFilters 
+                                ? 'bg-[#008080] text-white border-[#008080]' 
+                                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                        }`}
+                        style={{
+                            animation: shouldBlink ? 'blinkAmeciclo 2s ease-in-out 2' : 'none'
+                        }}
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Filtros
+                    </button>
+                )}
+            </div>
+            
+            {/* Filtros ativos */}
+            <div className="mb-4">
+                <div className="flex flex-wrap gap-2">
+                    {headerGroups[0]?.headers?.map((column: any) => {
+                        if (column.filterValue) {
+                            const headerText = typeof column.Header === 'function' ? 'Extensão executada' : column.Header;
+                            const isExtensionColumn = headerText.includes('Extensão');
+                            const displayValue = isExtensionColumn ? `~${column.filterValue} km` : column.filterValue;
+                            return (
+                                <div key={column.id} className="inline-flex items-center bg-[#008080] text-white px-3 py-1 rounded-full text-sm">
+                                    <span className="mr-2">{headerText}: {displayValue}</span>
+                                    <button
+                                        onClick={() => column.setFilter(undefined)}
+                                        className="text-white hover:text-gray-200 font-bold"
+                                        title="Remover filtro"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })}
+                </div>
+            </div>
+            <div className="shadow overflow-hidden bg-white border-b border-gray-200 sm:rounded-lg">
                 <table
                     {...getTableProps()}
                     className="table-auto shadow min-w-full divide-y divide-gray-200"
                 >
-                    <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} />
+                    <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} showFilters={showFilters} setShowFilters={setShowFilters} />
+                    {showFilters && (
+                        <thead>
+                            <tr className="bg-gray-50 border-b border-gray-200">
+                                <td colSpan={headerGroups[0]?.headers?.length || 5} className="px-0 py-0">
+                                    <div className={`transition-all duration-500 ease-out overflow-hidden ${
+                                        showFilters ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
+                                    }`}>
+                                        <div className="flex px-6 py-3 gap-4">
+                                            {headerGroups[0]?.headers?.map((column: any, index: number) => (
+                                                <div key={column.id || index} className="flex-1">
+                                                    {column.canFilter && (!isSmallScreen || index === 0) && column.render('Filter')}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </thead>
+                    )}
+
                     <TableBody
                         getTableBodyProps={getTableBodyProps}
                         page={page}

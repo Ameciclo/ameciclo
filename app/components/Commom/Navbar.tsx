@@ -32,8 +32,10 @@ export const Navbar = ({ pages }: any) => {
 
   return (
     <>
-      <nav
-        className={"flex fixed left-0 right-0 items-center max-h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
+      <motion.nav
+        animate={{ y: isMenuOpen ? -120 : 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className={"flex fixed left-0 right-0 items-center h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
         role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
@@ -48,30 +50,40 @@ export const Navbar = ({ pages }: any) => {
           <button
             aria-label={isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
             aria-expanded={isMenuOpen}
-            className="lg:hidden relative w-8 h-8 flex justify-center items-center z-[70]"
+            className="lg:hidden relative w-10 h-10 flex justify-center items-center z-[70] rounded-md hover:bg-white hover:bg-opacity-10 transition-colors duration-200"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <div className="relative w-6 h-6 flex flex-col justify-center">
-              <span className={`absolute w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? "top-3 rotate-45" : "top-1"}`}></span>
-              <span className={`absolute w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? "opacity-0" : "top-3 opacity-100"}`}></span>
-              <span className={`absolute w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? "top-3 -rotate-45" : "top-5"}`}></span>
+              <span className={`absolute w-6 h-0.5 bg-white rounded-full transition-all duration-300 ease-in-out ${isMenuOpen ? "top-3 rotate-45" : "top-1.5"}`}></span>
+              <span className={`absolute w-6 h-0.5 bg-white rounded-full transition-all duration-300 ease-in-out ${isMenuOpen ? "opacity-0 scale-0" : "top-3 opacity-100 scale-100"}`}></span>
+              <span className={`absolute w-6 h-0.5 bg-white rounded-full transition-all duration-300 ease-in-out ${isMenuOpen ? "top-3 -rotate-45" : "top-4.5"}`}></span>
             </div>
           </button>
         </div>
 
-      </nav>
+      </motion.nav>
 
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div
-            initial={{ height: 0 }}
-            animate={{ height: "80vh" }}
-            exit={{ height: 0 }}
-            className="bg-ameciclo bg-opacity-95 lg:hidden fixed top-0 left-0 w-full z-[55] native-scrollbar"
-            style={{ maxHeight: "80vh" }}
-          >
-            <SmallMenu pages={pages} closeMenu={() => setIsMenuOpen(false)} />
-          </motion.div>
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[50]"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
+              className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-ameciclo shadow-2xl z-[60] overflow-y-auto"
+            >
+              <SmallMenu pages={pages} closeMenu={() => setIsMenuOpen(false)} />
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>
@@ -128,56 +140,47 @@ function SmallMenu({ pages, closeMenu }: any) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col items-center pt-16 pb-4 px-6"
-    >
-      <motion.ul
-        className="flex flex-col items-center w-full max-w-sm space-y-4 py-6"
-        role="menu"
-        aria-label="Menu de navegação"
-      >
-        {pages.map((page: any, index: number) => {
-          const isActive = isActivePage(page.url);
-          return (
-            <motion.li
-              key={page.name}
-              custom={index}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              variants={{
-                hidden: { opacity: 0, y: -10 },
-                visible: i => ({
-                  opacity: 1,
-                  y: 0,
-                  transition: { delay: i * 0.05, duration: 0.2 }
-                }),
-                exit: i => ({
-                  opacity: 0,
-                  y: -10,
-                  transition: { delay: (pages.length - i - 1) * 0.05, duration: 0.2 }
-                })
-              }}
-              className="w-full text-center"
-            >
-              <Link
-                to={page.url}
-                className={`block uppercase py-2 text-white transition-opacity ${
-                  isActive ? 'font-bold' : 'font-normal'
-                }`}
-                onClick={handleLinkClick}
+    <div className="flex flex-col h-full">
+      <div className="flex items-start justify-between p-4 border-b border-white border-opacity-20">
+        <AmecicloLogo isScrolled={false} />
+        <button
+          onClick={closeMenu}
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-10 transition-colors"
+          aria-label="Fechar menu"
+        >
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <nav className="flex-1 px-6 py-8">
+        <ul className="space-y-2" role="menu" aria-label="Menu de navegação">
+          {pages.map((page: any, index: number) => {
+            const isActive = isActivePage(page.url);
+            return (
+              <motion.li
+                key={page.name}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.3 }}
               >
-                {page.name}
-                <span className="block mx-auto mt-1 w-16 h-px bg-white opacity-50"></span>
-              </Link>
-            </motion.li>
-          );
-        })}
-      </motion.ul>
-    </motion.div>
+                <Link
+                  to={page.url}
+                  className={`block px-4 py-3 rounded-lg text-white uppercase font-medium transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-white bg-opacity-20 font-bold' 
+                      : 'hover:bg-white hover:bg-opacity-10'
+                  }`}
+                  onClick={handleLinkClick}
+                >
+                  {page.name}
+                </Link>
+              </motion.li>
+            );
+          })}
+        </ul>
+      </nav>
+    </div>
   );
 }

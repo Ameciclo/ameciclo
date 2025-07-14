@@ -1,44 +1,28 @@
 export default function SectionCarouselLoading() {
   return (
-    <section>
-      <div className="">
-
-        <div className="relative">
-
-          <div className="flex min-h-[300px] md:min-h-[400px] relative w-full animate-pulse">
-            <div className="w-full h-full bg-gray-300" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-0">
-              <div className="text-center py-8">
-                <h2 className="text-2xl font-bold mb-2">Projetos em Destaque</h2>
-                <p className="text-gray-600">Carregando projetos...</p>
+    <section className="relative min-h-[300px] md:min-h-[400px]">
+      <div className="w-full h-full bg-gray-300 animate-pulse" />
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="rounded-lg bg-white/90 max-w-[320px] md:max-w-[800px] w-full animate-pulse">
+          <div className="p-4 md:p-6">
+            <div className="h-8 md:h-16 bg-gray-300 rounded mb-4" />
+            <div className="border-t border-gray-200 pt-4">
+              <div className="space-y-3">
+                <div className="h-4 bg-gray-300 rounded" />
+                <div className="h-4 bg-gray-300 rounded w-4/5" />
+                <div className="h-4 bg-gray-300 rounded w-3/5" />
               </div>
-              <div className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[320px] md:max-w-[850px] w-full">
-                <div className="flex items-center justify-center mt-3 md:mt-5">
-                  <div className="h-6 md:h-12 lg:h-16 bg-gray-300 rounded w-3/4" />
-                </div>
-                <div className="mt-3 md:mt-5 border-t border-gray-300">
-                  <div className="p-3 md:p-6 md:pr-24 md:pl-16 md:py-6">
-                    <div className="space-y-2">
-                      <div className="h-4 md:h-5 bg-gray-300 rounded" />
-                      <div className="h-4 md:h-5 bg-gray-300 rounded w-5/6" />
-                      <div className="h-4 md:h-5 bg-gray-300 rounded w-4/6" />
-                    </div>
-                    <div className="flex justify-center mt-2 md:mt-3">
-                      <div className="h-4 md:h-5 bg-gray-300 rounded w-24" />
-                    </div>
-                  </div>
-                </div>
+              <div className="flex justify-center mt-4">
+                <div className="h-4 bg-gray-300 rounded w-28" />
               </div>
-            </div>
-          </div>
-          <div className="dots-container">
-            <div className="dots">
-              {Array.from({ length: 3 }).map((_, idx) => (
-                <div key={idx} className="dot bg-gray-300" />
-              ))}
             </div>
           </div>
         </div>
+      </div>
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-1">
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <div key={idx} className="w-8 h-1 bg-gray-400/60 rounded animate-pulse" />
+        ))}
       </div>
     </section>
   );

@@ -64,52 +64,131 @@ const MapMarker = ({ size = 20, icon, color = "#008888" }: any) => {
     );
 };
 
-const MapCommands = ({ handleClick }: any) => {
-    const controlStyle = { right: 10, top: 10 };
-    return (
-        <>
-            <div
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    padding: "10px",
-                    zIndex: 500,
-                }}
-            >
-                <button onClick={handleClick}>
-                    <FullscreenControl style={controlStyle} />
-                </button>
-            </div>
+const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport }: any) => {
+    const toggleFullscreen = () => {
+        if (typeof document === 'undefined') return;
+        
+        const mapContainer = document.querySelector('.map-container');
+        if (!document.fullscreenElement) {
+            mapContainer?.requestFullscreen();
+            setIsFullscreen(true);
+        } else {
+            document.exitFullscreen();
+            setIsFullscreen(false);
+        }
+    };
 
-            <div
-                style={{
-                    position: "absolute",
-                    top: 40,
-                    right: 0,
-                    padding: "10px",
-                    zIndex: 500,
-                }}
+    const handleZoomIn = () => {
+        setViewport({ ...viewport, zoom: viewport.zoom + 1 });
+    };
+
+    const handleZoomOut = () => {
+        setViewport({ ...viewport, zoom: viewport.zoom - 1 });
+    };
+    
+    const handleRecenter = () => {
+        setViewport(initialViewport);
+    };
+    
+    const isAtDefaultPosition = () => {
+        const tolerance = 0.001;
+        return Math.abs(viewport.latitude - initialViewport.latitude) < tolerance &&
+               Math.abs(viewport.longitude - initialViewport.longitude) < tolerance &&
+               Math.abs(viewport.zoom - initialViewport.zoom) < 0.1;
+    };
+
+    return (
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-50">
+            <button
+                onClick={toggleFullscreen}
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                title="Expandir mapa em tela cheia"
             >
-                <NavigationControl style={controlStyle} />
-            </div>
-        </>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+            </button>
+            
+            <button
+                onClick={handleZoomIn}
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                title="Zoom in"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+            </button>
+            
+            <button
+                onClick={handleZoomOut}
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                title="Zoom out"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                </svg>
+            </button>
+            
+            {!isAtDefaultPosition() && (
+                <button
+                    onClick={handleRecenter}
+                    className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                    title="Recentralizar mapa"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            )}
+        </div>
     );
 };
 
-const MapLayersPanel = ({ layersConf }: any) => {
+const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility, citiesStats }: any) => {
+    const calculateLayerLength = (layerId: string) => {
+        if (!citiesStats) return 0;
+        
+        const citiesArray = Object.values(citiesStats).filter((c: any) => c.name !== undefined);
+        
+        const totalLength = citiesArray.reduce((sum: number, city: any) => {
+            if (layerId === "Não executado no PDC") {
+                return sum + (city.pdc_total - city.pdc_feito || 0);
+            } else if (layerId === "Executados dentro do PDC") {
+                return sum + (city.pdc_feito || 0);
+            } else if (layerId === "Executados fora do PDC") {
+                return sum + (city.total - city.pdc_feito || 0);
+            }
+            return sum;
+        }, 0);
+        
+        return totalLength.toFixed(1);
+    };
+    
     return (
-        <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md">
-            <h3 className="font-bold mb-2">Legenda</h3>
+        <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md max-w-xs">
+            <h3 className="font-bold mb-2">Filtros do Mapa</h3>
             {layersConf.map((control: any) => {
                 const color = control.paint["line-color"];
+                const isVisible = layerVisibility[control.id] !== false;
+                const totalKm = calculateLayerLength(control.id);
                 return (
                     <div
-                        className="flex items-center mb-1 uppercase font-bold"
+                        className="flex items-center justify-between mb-1 uppercase font-bold"
                         key={control.id}
                     >
-                        <span className="ml-2 text-sm font-bold" style={{ color: color }}>
-                            {control.id}
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                checked={isVisible}
+                                onChange={() => toggleLayerVisibility(control.id)}
+                                className="mr-2"
+                            />
+                            <span className="text-xs font-bold" style={{ color: color }}>
+                                {control.id}
+                            </span>
+                        </div>
+                        <span className="text-xs text-gray-600 ml-2">
+                            {totalKm} km
                         </span>
                     </div>
                 );
@@ -180,7 +259,7 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
 const mapInicialState = {
     dragPan: true,
     dragRotate: true,
-    scrollZoom: false,
+    scrollZoom: true,
     touchZoom: true,
     touchRotate: true,
     keyboard: true,
@@ -239,6 +318,7 @@ export const PDCMap = ({
     layersConf,
     pointsData,
     controlPanel = [],
+    citiesStats,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -249,6 +329,7 @@ export const PDCMap = ({
     width?: string;
     height?: string;
     controlPanel?: any[];
+    citiesStats?: any;
 }) => {
     const inicialViewPort = getInicialViewPort(pointsData, layerData);
 
@@ -258,6 +339,14 @@ export const PDCMap = ({
 
     const [viewport, setViewport] = useState(inicialViewPort);
     const [settings, setsettings] = useState({ ...mapInicialState });
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    
+    const [layerVisibility, setLayerVisibility] = useState<Record<string, boolean>>(
+        layersConf?.reduce((obj, layer) => {
+            obj[layer.id] = true;
+            return obj;
+        }, {} as Record<string, boolean>) ?? {}
+    );
 
     const handleClick = () => {
         setsettings({
@@ -285,24 +374,46 @@ export const PDCMap = ({
             [key]: !prev?.[key],
         }));
     };
+    
+    const toggleLayerVisibility = (layerId: string) => {
+        setLayerVisibility((prev) => ({
+            ...prev,
+            [layerId]: !prev[layerId],
+        }));
+    };
 
     return (
         <section className="container mx-auto">
-            <div className="relative bg-green-200 rounded shadow-2xl">
+            <div className={`relative bg-gray-200 rounded shadow-2xl map-container ${
+                isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
+            }`}>
                 <Map
                     {...viewport}
                     {...settings}
-                    style={{ width: "100%", height: "500px" }}
+                    style={{ width: "100%", height: isFullscreen ? "100vh" : "500px" }}
                     onMove={(evt: any) => setViewport(evt.viewState)}
                     mapStyle={MAPBOXSTYLE}
                     mapboxAccessToken={MAPBOXTOKEN}
                 >
-                    <MapCommands handleClick={handleClick} />
+                    <style>{`
+                        .mapboxgl-ctrl-attrib {
+                            color: #d1d5db !important;
+                            font-size: 10px !important;
+                            opacity: 0.6 !important;
+                        }
+                        .mapboxgl-ctrl-attrib a {
+                            color: #d1d5db !important;
+                            font-size: 10px !important;
+                        }
+                    `}</style>
+                    <MapCommands handleClick={handleClick} viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={inicialViewPort} />
                     {layerData && (
                         <Source id="layersMap" type="geojson" data={layerData}>
-                            {layersConf?.map((layer: any, i: number) => (
-                                <Layer key={layer.id || i} {...layer} />
-                            ))}
+                            {layersConf?.map((layer: any, i: number) => 
+                                layerVisibility[layer.id] !== false && (
+                                    <Layer key={layer.id || i} {...layer} />
+                                )
+                            )}
                         </Source>
                     )}
                     {pointsData?.map(
@@ -335,6 +446,9 @@ export const PDCMap = ({
                     {layersConf && layersConf.length > 0 && (
                         <MapLayersPanel
                             layersConf={layersConf}
+                            layerVisibility={layerVisibility}
+                            toggleLayerVisibility={toggleLayerVisibility}
+                            citiesStats={citiesStats}
                         />
                     )}
                 </Map>

@@ -10,16 +10,13 @@ import { useEffect, Suspense } from "react";
 import { defer } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import SectionCarouselLoading from "~/components/PaginaInicial/SectionCarouselLoading";
-import CounterLoading from "~/components/PaginaInicial/CounterLoading";
+import SectionDataLoading from "~/components/PaginaInicial/SectionDataLoading";
 import { loader } from "../loader/home";
 export { loader };
 
 export default function Index() {
-  const { home, featuredProjects, allProjects, apiDown } = useLoaderData<any>();
+  const { homePromise, projectsPromise, apiDown } = useLoaderData<any>();
   const { setApiDown } = useApiStatus();
-  
-  const carouselNeedsLoading = !featuredProjects || featuredProjects.length === 0;
-  const dataHasApiError = !allProjects || allProjects.length === 0;
   
   useEffect(() => {
     setApiDown(apiDown);
@@ -32,26 +29,34 @@ export default function Index() {
         alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"
       />
       <ApiStatusHandler apiDown={apiDown} />
-      <SectionCallToAction home={home} />
-      <Suspense fallback={<SectionCarouselLoading />}>
-        <SectionCarousel 
-          featuredProjects={featuredProjects} 
-          isLoading={carouselNeedsLoading}
-          hasApiError={false}
-        />
+      
+      <Suspense fallback={<SectionCallToAction home={null} />}>
+        <Await resolve={homePromise}>
+          {(home) => <SectionCallToAction home={home} />}
+        </Await>
       </Suspense>
-      <Suspense fallback={
-        <section className="bg-ameciclo">
-          <div className="container px-6 py-20 mx-auto">
-            <div className="flex flex-wrap justify-around">
-              <CounterLoading label="Projetos" />
-              <CounterLoading label="Contagens" />
-              <CounterLoading label="Dados" />
-            </div>
-          </div>
-        </section>
-      }>
-        <SectionData projects={allProjects} apiDown={dataHasApiError} />
+      
+      <Suspense fallback={<SectionCarouselLoading />}>
+        <Await resolve={homePromise}>
+          {(home) => (
+            <SectionCarousel 
+              featuredProjects={home?.projects || []} 
+              isLoading={false}
+              hasApiError={false}
+            />
+          )}
+        </Await>
+      </Suspense>
+      
+      <Suspense fallback={<SectionDataLoading />}>
+        <Await resolve={projectsPromise}>
+          {(allProjects) => (
+            <SectionData 
+              projects={allProjects} 
+              apiDown={!allProjects || allProjects.length === 0} 
+            />
+          )}
+        </Await>
       </Suspense>
     </>
   );

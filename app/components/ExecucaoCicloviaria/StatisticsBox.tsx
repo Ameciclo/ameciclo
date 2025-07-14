@@ -22,12 +22,14 @@ export const StatisticsBox = ({ title, boxes, subtitle = "" }: any) => {
   );
 };
 
-function NumberBox({ title, value, unit = undefined }: any) {
+function NumberBox({ title, value, unit = undefined, color }: any) {
   return (
-    <div className="flex flex-col justify-center w-full p-6 text-center uppercase tracking-widest">
+    <div className="flex flex-col justify-between w-full p-6 text-center uppercase tracking-widest h-full">
       <h3>{title}</h3>
-      <h3 className="text-3xl sm:text-5xl font-bold mt-2">{value}</h3>
-      {unit && <p>{unit}</p>}
+      <div>
+        <h3 className={`text-4xl sm:text-5xl font-bold ${color || ''}`}>{value}</h3>
+        {unit && <p className={color || ''}>{unit}</p>}
+      </div>
     </div>
   );
 }

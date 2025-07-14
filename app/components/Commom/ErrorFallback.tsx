@@ -13,12 +13,12 @@ interface ErrorFallbackProps {
 
 export default function ErrorFallback({ error }: ErrorFallbackProps) {
   return (
-    <div className="flex flex-col pt-16 items-center justify-start h-max text-gray-900">
-      <h1 className="text-5xl font-bold pb-16">Ocorreu um erro 😢</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center text-gray-900 px-6 py-20">
+      <h1 className="text-3xl md:text-5xl font-bold mb-8 text-center">Ocorreu um erro</h1>
         <>
-          <p className="text-1xl font-bold pb-6">Tente mais tarde..</p>
-          <p className="text-5xl font-bold pb-6">{error.status}</p>
-          {error.data?.message && <p>Detalhes: {error.data.message}</p>}
+          <p className="text-lg md:text-xl font-bold mb-6 text-center">Tente mais tarde</p>
+          <p className="text-4xl md:text-5xl font-bold mb-6 text-center">{error.status}</p>
+          {error.data?.message && <p className="text-center mb-4">Detalhes: {error.data.message}</p>}
           <CallToContact
             message="Reportar"
             error={error}
@@ -64,7 +64,7 @@ Erro: ${errorMessage}
 
   return (
     <>
-      <p className="mb-2 text-1xl font-bold pt-6">Entre em contato:</p>
+      <p className="mb-2 text-lg md:text-xl font-bold pt-6 text-center">Entre em contato:</p>
       <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
         <button className="px-4 py-3 bg-ameciclo text-white rounded-md">
           {message}
