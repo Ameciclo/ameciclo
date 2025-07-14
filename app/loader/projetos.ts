@@ -40,12 +40,12 @@ export const loader: LoaderFunction = async ({ params }) => {
       }
       const projects = await response.json();
       if (!projects || projects.length === 0) {
-        throw new Error(`Project not found: ${projeto}`);
+        throw new Response("Not Found", { status: 404 });
       }
       return projects[0];
     } catch (error) {
       console.error(error);
-      return null;
+      throw new Response("Not Found", { status: 404 });
     }
   };
 

@@ -65,6 +65,7 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
 
   const [status, setStatus] = useState<string>("");
   const [group, setGroup] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>(""); // New state for search term
   const [showOtherProjects, setShowOtherProjects] = useState<boolean>(false);
 
   useEffect(() => {
@@ -97,8 +98,17 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
   const filteredProjects = useMemo(() => {
     let filtered = groupedProjects;
 
+    // Filter by search term
+    if (searchTerm) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter((groupedProject) => {
+        const project = groupedProject.main || Object.values(groupedProject.translations)[0];
+        return project?.name.toLowerCase().includes(lowerCaseSearchTerm);
+      });
+    }
+
     if (status || group) {
-      filtered = groupedProjects.filter((groupedProject) => {
+      filtered = filtered.filter((groupedProject) => {
         const project =
           groupedProject.main || Object.values(groupedProject.translations)[0];
         if (project) {
@@ -138,10 +148,19 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
     });
 
     return { highlighted, ongoing, paused, others };
-  }, [status, group, groupedProjects]);
+  }, [status, group, searchTerm, groupedProjects]); // Add searchTerm to dependencies
 
   return (
     <section className="container my-12 mx-auto">
+      <div className="mb-8">
+        <input
+          type="text"
+          placeholder="Buscar projetos por título..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ameciclo"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
         {showLoadingState ? (
           <>
             <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>

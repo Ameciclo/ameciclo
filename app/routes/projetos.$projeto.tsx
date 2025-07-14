@@ -1,4 +1,4 @@
-import { useLoaderData, Await } from "@remix-run/react";
+import { useLoaderData, Await, useCatch } from "@remix-run/react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
 import { loader } from "~/loader/projetos";
@@ -152,17 +152,23 @@ export default function Projeto() {
                                 .markdown-content h3 { font-size: 1.5rem; }
                                 .markdown-content h4 { font-size: 1.25rem; }
                                 .markdown-content p {
-                                    margin-bottom: 1.2em;
-                                    line-height: 1.8;
+                                    margin-bottom: 1em; /* Adjusted for better flow */
+                                    line-height: 1.7; /* Adjusted for better readability */
                                     text-align: justify;
                                 }
-                                .markdown-content ul, .markdown-content ol {
+                                .markdown-content ul {
+                                    list-style-type: disc;
                                     margin: 1.2em 0;
-                                    padding-left: 2em;
+                                    padding-left: 2.5em; /* Increased padding to ensure bullet visibility */
+                                }
+                                .markdown-content ol {
+                                    list-style-type: decimal;
+                                    margin: 1.2em 0;
+                                    padding-left: 2.5em; /* Increased padding to ensure number visibility */
                                 }
                                 .markdown-content li {
-                                    margin-bottom: 0.8em;
-                                    line-height: 1.7;
+                                    margin-bottom: 0.5em; /* Slightly reduced for tighter lists */
+                                    line-height: 1.6; /* Adjusted for better readability */
                                 }
                                 .markdown-content strong {
                                     font-weight: 600;

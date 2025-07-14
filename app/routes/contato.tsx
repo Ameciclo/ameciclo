@@ -1,4 +1,5 @@
 import { MetaFunction } from "@remix-run/node";
+import { useSearchParams } from "@remix-run/react";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import bannerContatact from "/contato.webp";
@@ -11,6 +12,8 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Contato() {
+  const [searchParams] = useSearchParams();
+  const initialMessage = searchParams.get("message") || "";
 
   return (
     <>
@@ -51,6 +54,7 @@ export default function Contato() {
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
                     placeholder="Sua mensagem..."
+                    defaultValue={initialMessage}
                   />
                 </div>
                 
