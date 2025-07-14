@@ -99,24 +99,43 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
     
     const [localSelectedCity, setLocalSelectedCity] = useState(() => filterByName(citiesStatsArray, "Recife"));
     const [showFixedBar, setShowFixedBar] = useState(false);
-    const [showFilterBar, setShowFilterBar] = useState(false);
+    const [showFloatingFilter, setShowFloatingFilter] = useState(false);
     const sectionRef = useRef<HTMLDivElement>(null);
+    const cardsRef = useRef<HTMLDivElement>(null);
     
     useEffect(() => {
         const handleScroll = () => {
-            if (sectionRef.current && filterRef.current) {
-                const sectionBottom = sectionRef.current.offsetTop + sectionRef.current.offsetHeight;
-                const filterTop = filterRef.current.offsetTop;
-                const scrollY = window.scrollY;
+            if (sectionRef.current && filterRef.current && cardsRef.current) {
+                // Busca pelo select dentro do filterRef
+                const selectElement = filterRef.current.querySelector('select');
+                const selectRect = selectElement?.getBoundingClientRect();
                 
-                setShowFixedBar(scrollY > sectionBottom);
-                setShowFilterBar(scrollY > filterTop + 100 && scrollY < sectionBottom - 200);
+                // Busca pela grid de cards
+                const cardsGrid = cardsRef.current.querySelector('.grid');
+                const cardsGridRect = cardsGrid?.getBoundingClientRect();
+                
+                const statsSection = sectionRef.current.querySelector('[data-stats-section]');
+                const statsRect = statsSection?.getBoundingClientRect();
+                
+                // FloatingFilter: aparece quando select sai da tela e desaparece quando grid de cards sai da tela
+                const selectOutOfView = selectRect ? selectRect.bottom < 0 : false;
+                const cardsStillVisible = cardsGridRect ? cardsGridRect.bottom > 56 : false;
+                const showFloating = selectOutOfView && cardsStillVisible;
+                setShowFloatingFilter(showFloating);
+                
+                // FixedBar: aparece quando stats entra na tela e desaparece na seção de documentos
+                const documentsSection = document.querySelector('[data-documents-section]');
+                const documentsRect = documentsSection?.getBoundingClientRect();
+                const documentsVisible = documentsRect ? documentsRect.top <= 56 : false;
+                
+                const showFixed = statsRect ? statsRect.top <= 56 && !documentsVisible : false;
+                setShowFixedBar(showFixed);
             }
         };
         
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [city_sort]);
     
     const sortedCards = React.useMemo(() => sortCards(citiesStatsArray, city_sort), [citiesStatsArray, city_sort]);
     
@@ -165,28 +184,30 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
     return (
         <div ref={sectionRef}>
             <div ref={filterRef}>
-                <CyclingInfrastructureByCity
-                    cards={sortedCards}
-                    data={{
-                        title: "Estrutura nas cidades",
-                        filters: sort_cities,
-                    }}
-                    options={{
-                        changeFunction: handleChangeCity,
-                        type: optionsType,
-                    }}
-                    selected={localSelectedCity?.id}
-                />
+                <div ref={cardsRef}>
+                    <CyclingInfrastructureByCity
+                        cards={sortedCards}
+                        data={{
+                            title: "Estrutura nas cidades",
+                            filters: sort_cities,
+                        }}
+                        options={{
+                            changeFunction: handleChangeCity,
+                            type: optionsType,
+                        }}
+                        selected={localSelectedCity?.id}
+                    />
+                </div>
             </div>
             
-            {showFilterBar && (
-                <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-[#008080] text-white py-2 px-6 rounded-lg shadow-lg z-40">
-                    <div className="flex items-center">
-                        <span className="text-sm font-medium mr-3">Dados:</span>
+            {showFloatingFilter && (
+                <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-[#008080] text-white py-2 px-4 rounded-lg shadow-lg z-[9999] max-w-[90vw]">
+                    <div className="flex items-center text-sm">
+                        <span className="font-medium mr-3 whitespace-nowrap">Exibir dados por:</span>
                         <select
                             value={city_sort}
                             onChange={(e) => sortCityAndType(e.target.value)}
-                            className="text-sm border-0 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
+                            className="text-sm border-0 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-white relative z-[10000]"
                         >
                             {sort_cities[0].items.map((item: any) => (
                                 <option key={item.value} value={item.value}>
@@ -217,19 +238,25 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
                 </div>
             )}
             
-            <StatisticsBox
-                title={localSelectedCity?.name || ""}
-                subtitle={"Estatísticas Gerais"}
-                boxes={cityCycleStats}
-            />
+
             
-            <Table
-                title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
-                data={localSelectedCity?.relations || []}
-                columns={columns}
-                showFilters={showFilters}
-                setShowFilters={setShowFilters}
-            />
+            <div data-stats-section>
+                <StatisticsBox
+                    title={localSelectedCity?.name || ""}
+                    subtitle={"Estatísticas Gerais"}
+                    boxes={cityCycleStats}
+                />
+            </div>
+            
+            <div data-table-section>
+                <Table
+                    title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
+                    data={localSelectedCity?.relations || []}
+                    columns={columns}
+                    showFilters={showFilters}
+                    setShowFilters={setShowFilters}
+                />
+            </div>
         </div>
     );
 }
@@ -491,7 +518,9 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             </div>
 
 
-            <CardsSession title={documents.title} cards={documents.cards} />
+            <div data-documents-section>
+                <CardsSession title={documents.title} cards={documents.cards} />
+            </div>
         </>
     );
 }
