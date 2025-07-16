@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 
 interface Action {
@@ -10,6 +11,7 @@ interface Action {
   vlrempenhado: number;
   vlrliquidado: number;
   cd_nm_subfuncao: string;
+  type?: 'good' | 'bad'; // Adicionando a propriedade type
 }
 
 interface LoaTableProps {
@@ -150,9 +152,10 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
           <tbody>
             {paginatedActions.map((action, index) => {
               const actualIndex = (currentPage - 1) * itemsPerPage + index;
+              const rowClassName = `cursor-pointer md:cursor-default hover:bg-gray-100 ${action.type === 'good' ? 'bg-green-50' : action.type === 'bad' ? 'bg-red-50' : ''}`;
               return (
                 <React.Fragment key={actualIndex}>
-                  <tr className="cursor-pointer md:cursor-default hover:bg-gray-100" onClick={() => handleRowClick(index)}>
+                  <tr className={rowClassName} onClick={() => handleRowClick(index)}>
                     <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(action.cd_nm_funcao, searchTerm)}</td>
                     <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-base">{getHighlightedText(action.cd_nm_prog, searchTerm)}</td>
                     <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-base">{getHighlightedText(action.cd_nm_acao, searchTerm)}</td>
