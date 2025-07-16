@@ -130,7 +130,7 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_funcao')}>
+              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_funcao')}>
                 Função{getSortIndicator('cd_nm_funcao')}
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_prog')}>
@@ -139,10 +139,10 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_acao')}>
                 Ação{getSortIndicator('cd_nm_acao')}
               </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrdotatualizada')}>
+              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrdotatualizada')}>
                 Dotação Atualizada{getSortIndicator('vlrdotatualizada')}
               </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrtotalpago')}>
+              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrtotalpago')}>
                 Total Pago{getSortIndicator('vlrtotalpago')}
               </th>
             </tr>
@@ -153,20 +153,24 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
               return (
                 <React.Fragment key={actualIndex}>
                   <tr className="cursor-pointer md:cursor-default hover:bg-gray-100" onClick={() => handleRowClick(index)}>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(action.cd_nm_funcao, searchTerm)}</td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(action.cd_nm_prog, searchTerm)}</td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(action.cd_nm_acao, searchTerm)}</td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(formatCurrency(action.vlrdotatualizada), searchTerm)}</td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(formatCurrency(action.vlrtotalpago), searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(action.cd_nm_funcao, searchTerm)}</td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-base">{getHighlightedText(action.cd_nm_prog, searchTerm)}</td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-base">{getHighlightedText(action.cd_nm_acao, searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(formatCurrency(action.vlrdotatualizada), searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(formatCurrency(action.vlrtotalpago), searchTerm)}</td>
                   </tr>
                   {expandedRow === actualIndex && (
                     <tr className="md:hidden">
-                      <td colSpan={5} className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                        <div className="space-y-2">
+                      <td colSpan={2} className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <div className="space-y-2 text-xs">
+                          <p><strong>Função:</strong> {getHighlightedText(action.cd_nm_funcao, searchTerm)}</p>
+                          <p><strong>Programa:</strong> {getHighlightedText(action.cd_nm_prog, searchTerm)}</p>
+                          <p><strong>Ação:</strong> {getHighlightedText(action.cd_nm_acao, searchTerm)}</p>
                           <p><strong>Sub-ação:</strong> {getHighlightedText(action.cd_nm_subacao, searchTerm)}</p>
+                          <p><strong>Sub-função:</strong> {getHighlightedText(action.cd_nm_subfuncao, searchTerm)}</p>
+                          <p><strong>Dotação Atualizada:</strong> {getHighlightedText(formatCurrency(action.vlrdotatualizada), searchTerm)}</p>
                           <p><strong>Valor Empenhado:</strong> {getHighlightedText(formatCurrency(action.vlrempenhado), searchTerm)}</p>
                           <p><strong>Valor Liquidado:</strong> {getHighlightedText(formatCurrency(action.vlrliquidado), searchTerm)}</p>
-                          <p><strong>Sub-função:</strong> {getHighlightedText(action.cd_nm_subfuncao, searchTerm)}</p>
                         </div>
                       </td>
                     </tr>
