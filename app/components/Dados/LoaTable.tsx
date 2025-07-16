@@ -40,7 +40,7 @@ const columnExplanations: Record<string, string> = {
 
 const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
-  const [sortConfig, setSortConfig] = useState<{ key: SortableKeys; direction: 'ascending' | 'descending' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: SortableKeys; direction: 'ascending' | 'descending' } | null>({ key: 'cd_nm_funcao', direction: 'ascending' });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
