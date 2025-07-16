@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 
 interface Action {
@@ -171,8 +172,9 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
     >
       {title}{getSortIndicator(key)}
       {hoveredColumn === key && columnExplanations[key] && (
-        <div className="absolute z-10 bg-gray-700 text-white text-xs p-2 rounded-md -mt-10 left-1/2 -translate-x-1/2 whitespace-normal w-48 shadow-lg">
+        <div className="absolute z-10 bg-gray-800 text-white text-xs p-3 rounded-lg -mt-2 left-1/2 -translate-x-1/2 whitespace-normal w-56 shadow-xl transition-opacity duration-300 opacity-100 group-hover:opacity-100">
           {columnExplanations[key]}
+          <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-gray-800"></div>
         </div>
       )}
     </th>
@@ -222,8 +224,8 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
           <thead>
             <tr>
               {renderColumnHeader('cd_nm_funcao', 'Função')}
-              {renderColumnHeader('cd_nm_funcao', 'Função')}
               {renderColumnHeader('cd_nm_prog', 'Programa')}
+              {renderColumnHeader('cd_nm_acao', 'Ação')}
               {renderColumnHeader('cd_nm_subacao', 'Sub-ação')}
               {renderColumnHeader('cd_nm_subfuncao', 'Sub-função')}
               {renderColumnHeader('vlrdotatualizada', 'Dotação Atualizada')}
