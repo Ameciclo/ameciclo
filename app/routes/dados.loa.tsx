@@ -7,7 +7,7 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import Loading from "~/components/Dom/Loading";
 import { loader } from "~/loader/dados.observatorio.loa";
 import Chart from "react-google-charts";
-import DevelopingComponent from "~/components/Commom/DevelopingComponent";
+import LoaTable from "~/components/Dados/LoaTable";
 export { loader };
 
 export default function Loa() {
@@ -246,7 +246,7 @@ export default function Loa() {
                         </section>
                     </div>
                     <section>
-                        <DevelopingComponent title="Tabela de Ações e Programas dos dados Abertos de Pernambuco" />
+                        <LoaTable actions={actions2023} />
                     </section>
                     <section className="bg-gray-50 rounded-lg p-4 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
