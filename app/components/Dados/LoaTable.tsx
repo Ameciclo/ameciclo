@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 
 interface Action {
@@ -170,8 +171,10 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
       onMouseLeave={() => setHoveredColumn(null)}
     >
       {title}{getSortIndicator(key)}
-      {hoveredColumn === key && columnExplanations[key] && (
-        <div className="absolute z-10 bg-[rgba(0,128,128,0.1)] text-gray-800 text-xs p-3 rounded-lg bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-normal w-56 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      {columnExplanations[key] && (
+        <div
+          className={`absolute z-10 bg-[rgba(0,128,128,0.1)] text-gray-800 text-xs p-3 rounded-lg bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-normal w-56 shadow-xl transition-opacity duration-300 ${hoveredColumn === key ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        >
           {columnExplanations[key]}
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-[rgba(0,128,128,0.1)]"></div>
         </div>
