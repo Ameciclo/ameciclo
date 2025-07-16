@@ -26,6 +26,12 @@ export default function Loa() {
         totalValueActions2021, 
         totalValueActions2022, 
         totalValueActions2023, 
+        totalValueBudgeted2024, 
+        totalValueBudgeted2025, 
+        totalValueExecuted2024, 
+        totalValueExecuted2025, 
+        totalValueActions2024, 
+        totalValueActions2025, 
         totalValueEmissions, 
         actions2023 
     } = useLoaderData<any>();
@@ -155,6 +161,8 @@ export default function Loa() {
                                             ['2021', totalValueBudgeted2021, totalValueExecuted2021],
                                             ['2022', totalValueBudgeted2022, totalValueExecuted2022],
                                             ['2023', totalValueBudgeted2023, totalValueExecuted2023],
+                                            ['2024', totalValueBudgeted2024, totalValueExecuted2024],
+                                            ['2025', totalValueBudgeted2025, totalValueExecuted2025],
                                         ]}
                                         width="100%"
                                         height="300px"
@@ -212,6 +220,8 @@ export default function Loa() {
                                             ['2021', totalValueActions2021],
                                             ['2022', totalValueActions2022],
                                             ['2023', totalValueActions2023],
+                                            ['2024', totalValueActions2024],
+                                            ['2025', totalValueActions2025],
                                         ]}
                                         width="100%"
                                         height="300px"
