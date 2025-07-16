@@ -72,7 +72,7 @@ export default function Loa() {
         <>
             <Banner image={cover?.url} alt="Capa da página do Loaclima" />
             <Breadcrumb label="LOA" slug="/dados/loa" routes={["/", "/dados"]} />
-            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
+            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: <p className="text-justify">O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas.</p> }]} />
 
             {renderOthers ? (
                 <div className="container mx-auto px-4 py-6">
