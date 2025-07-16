@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 
 interface Action {
@@ -165,16 +164,16 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
 
   const renderColumnHeader = (key: SortableKeys, title: string) => (
     <th
-      className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer relative"
+      className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer relative group"
       onClick={() => requestSort(key)}
       onMouseEnter={() => setHoveredColumn(key)}
       onMouseLeave={() => setHoveredColumn(null)}
     >
       {title}{getSortIndicator(key)}
       {hoveredColumn === key && columnExplanations[key] && (
-        <div className="absolute z-10 bg-gray-800 text-white text-xs p-3 rounded-lg -mt-2 left-1/2 -translate-x-1/2 whitespace-normal w-56 shadow-xl transition-opacity duration-300 opacity-100 group-hover:opacity-100">
+        <div className="absolute z-10 bg-[rgba(0,128,128,0.1)] text-gray-800 text-xs p-3 rounded-lg bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-normal w-56 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           {columnExplanations[key]}
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-gray-800"></div>
+          <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-[rgba(0,128,128,0.1)]"></div>
         </div>
       )}
     </th>
