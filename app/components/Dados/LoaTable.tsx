@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 
 interface Action {
@@ -26,12 +25,25 @@ const badActionsTags = [
   "4067", "4218", "1045", "3882", "4096", "4134", "4186", "4227"
 ];
 
+const columnExplanations: Record<string, string> = {
+  cd_nm_funcao: "Código e nome da função orçamentária, que agrupa as despesas por área de atuação do governo.",
+  cd_nm_prog: "Código e nome do programa orçamentário, que organiza as ações de governo em torno de objetivos comuns.",
+  cd_nm_acao: "Código e nome da ação orçamentária, que representa o detalhamento da despesa para alcançar os objetivos do programa.",
+  cd_nm_subacao: "Código e nome da sub-ação, um detalhamento adicional da ação orçamentária.",
+  cd_nm_subfuncao: "Código e nome da subfunção, que detalha ainda mais a função orçamentária.",
+  vlrdotatualizada: "Valor da dotação orçamentária atualizada, ou seja, o montante total autorizado para a despesa após eventuais suplementações ou reduções.",
+  vlrempenhado: "Valor empenhado, que é o montante da despesa que foi reservado no orçamento para um fim específico.",
+  vlrliquidado: "Valor liquidado, que é o montante da despesa que foi verificada e comprovada, tornando-a apta para pagamento.",
+  vlrtotalpago: "Valor total pago, que é o montante da despesa que foi efetivamente quitada.",
+};
+
 const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [sortConfig, setSortConfig] = useState<{ key: SortableKeys; direction: 'ascending' | 'descending' } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
+  const [hoveredColumn, setHoveredColumn] = useState<string | null>(null);
   const itemsPerPage = 10;
 
   const getActionCode = (action: Action) => {
@@ -150,6 +162,22 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
     );
   };
 
+  const renderColumnHeader = (key: SortableKeys, title: string) => (
+    <th
+      className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer relative"
+      onClick={() => requestSort(key)}
+      onMouseEnter={() => setHoveredColumn(key)}
+      onMouseLeave={() => setHoveredColumn(null)}
+    >
+      {title}{getSortIndicator(key)}
+      {hoveredColumn === key && columnExplanations[key] && (
+        <div className="absolute z-10 bg-gray-700 text-white text-xs p-2 rounded-md -mt-10 left-1/2 -translate-x-1/2 whitespace-normal w-48 shadow-lg">
+          {columnExplanations[key]}
+        </div>
+      )}
+    </th>
+  );
+
   return (
     <section>
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Ações e Programas da LOA</h2>
@@ -193,33 +221,15 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_funcao')}>
-                Função{getSortIndicator('cd_nm_funcao')}
-              </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_prog')}>
-                Programa{getSortIndicator('cd_nm_prog')}
-              </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_acao')}>
-                Ação{getSortIndicator('cd_nm_acao')}
-              </th>
-              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_subacao')}>
-                Sub-ação{getSortIndicator('cd_nm_subacao')}
-              </th>
-              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_subfuncao')}>
-                Sub-função{getSortIndicator('cd_nm_subfuncao')}
-              </th>
-              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrdotatualizada')}>
-                Dotação Atualizada{getSortIndicator('vlrdotatualizada')}
-              </th>
-              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrempenhado')}>
-                Valor Empenhado{getSortIndicator('vlrempenhado')}
-              </th>
-              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrliquidado')}>
-                Valor Liquidado{getSortIndicator('vlrliquidado')}
-              </th>
-              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrtotalpago')}>
-                Total Pago{getSortIndicator('vlrtotalpago')}
-              </th>
+              {renderColumnHeader('cd_nm_funcao', 'Função')}
+              {renderColumnHeader('cd_nm_funcao', 'Função')}
+              {renderColumnHeader('cd_nm_prog', 'Programa')}
+              {renderColumnHeader('cd_nm_subacao', 'Sub-ação')}
+              {renderColumnHeader('cd_nm_subfuncao', 'Sub-função')}
+              {renderColumnHeader('vlrdotatualizada', 'Dotação Atualizada')}
+              {renderColumnHeader('vlrempenhado', 'Valor Empenhado')}
+              {renderColumnHeader('vlrliquidado', 'Valor Liquidado')}
+              {renderColumnHeader('vlrtotalpago', 'Total Pago')}
             </tr>
           </thead>
           <tbody>
