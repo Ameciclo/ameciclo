@@ -17,8 +17,9 @@ function fuzzyTextFilterFn(rows: any, id: any, filterValue: any) {
 fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
 const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
-    const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
     const safeData = data || [];
     const safeColumns = columns || [];
 
@@ -71,13 +72,16 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
             const isSmall = window.innerWidth < SMALL_SCREEN_WIDTH;
             setIsSmallScreen(isSmall);
             setPageSize(isSmall ? 5 : 10);
+            if (!isInitialized) {
+                setIsInitialized(true);
+            }
         };
         
         checkScreenSize();
         window.addEventListener('resize', checkScreenSize);
         
         return () => window.removeEventListener('resize', checkScreenSize);
-    }, [setPageSize]);
+    }, [setPageSize, isInitialized]);
     
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -322,7 +326,12 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                 }
             `}</style>
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-gray-600 text-3xl">{title}</h2>
+                <div>
+                    <h2 className="text-gray-600 text-3xl">{title}</h2>
+                    <p className="text-gray-500 text-sm mt-1 md:hidden">
+                        Acesse a versão web para mais recursos de filtros
+                    </p>
+                </div>
                 {setShowFilters && (
                     <button
                         onClick={() => setShowFilters(!showFilters)}
@@ -338,7 +347,7 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                         </svg>
-                        Filtros
+                        <span className="hidden md:inline">Filtros</span>
                     </button>
                 )}
             </div>
@@ -373,7 +382,7 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                     {...getTableProps()}
                     className="table-auto shadow min-w-full divide-y divide-gray-200"
                 >
-                    <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} showFilters={showFilters} setShowFilters={setShowFilters} />
+                    {isInitialized && <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} showFilters={showFilters} setShowFilters={setShowFilters} />}
                     {showFilters && (
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200">
@@ -394,12 +403,12 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                         </thead>
                     )}
 
-                    <TableBody
+                    {isInitialized && <TableBody
                         getTableBodyProps={getTableBodyProps}
                         page={page}
                         prepareRow={prepareRow}
                         isSmallScreen={isSmallScreen}
-                    />
+                    />}
                 </table>
                 <TableFooter
                     rows={rows}

@@ -203,11 +203,11 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             {showFloatingFilter && (
                 <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-[#008080] text-white py-2 px-4 rounded-lg shadow-lg z-[9999] max-w-[90vw]">
                     <div className="flex items-center text-sm">
-                        <span className="font-medium mr-3 whitespace-nowrap">Exibir dados por:</span>
+                        <span className="font-medium mr-2 whitespace-nowrap text-sm">Dados:</span>
                         <select
                             value={city_sort}
                             onChange={(e) => sortCityAndType(e.target.value)}
-                            className="text-sm border-0 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-white relative z-[10000]"
+                            className="text-sm border-0 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-white relative z-[10000] max-w-[200px] truncate"
                         >
                             {sort_cities[0].items.map((item: any) => (
                                 <option key={item.value} value={item.value}>
@@ -222,7 +222,7 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             {showFixedBar && (
                 <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-[#008080] text-white py-2 px-6 rounded-lg shadow-lg z-50">
                     <div className="flex items-center">
-                        <span className="text-sm font-medium mr-3">Cidade selecionada:</span>
+                        <span className="text-sm font-medium mr-3">Cidade:</span>
                         <select
                             value={localSelectedCity?.id || ''}
                             onChange={(e) => handleChangeCity(parseInt(e.target.value))}

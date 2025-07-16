@@ -66,7 +66,7 @@ export default function Dados() {
             url: "/dados/loa",
             description:
                 "Monitoramento do orçamento estadual conforme sua contribuição climática.",
-            target: "_blank",
+            target: "_self",
         },
         {
             title: "Orçamento Municipal para o Clima",

@@ -95,14 +95,16 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
 
           <TabPanel name="tab-coord">
             {coordinators.map((c: any) => (
-              <div className="max-w-sm p-4" key={c.id}>
-                <div className="bg-white rounded shadow-lg" style={{ minHeight: "450px" }}>
-                  {c.media ? (
-                    <img src={c.media.url} alt={c.name} className="w-full h-64 object-cover rounded-t" />
-                  ) : (
-                    <div className="h-64 bg-gray-200 rounded-t" />
-                  )}
-                  <div className="p-4 pb-6">
+              <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" key={c.id}>
+                <div className="bg-white rounded shadow-lg h-[450px] flex flex-col">
+                  <div className="w-full aspect-square overflow-hidden rounded-t">
+                    {c.media ? (
+                      <img src={c.media.url} alt={c.name} className="w-full h-full object-cover object-center" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200" />
+                    )}
+                  </div>
+                  <div className="p-4 pb-6 flex-grow overflow-y-auto">
                     <h2 className="text-xl leading-normal text-gray-900">{c.name}</h2>
                     <p className="text-sm text-gray-600">{c.bio}</p>
                   </div>
@@ -113,14 +115,16 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
 
           <TabPanel name="tab-conselho">
             {counselors.map((c: any) => (
-              <div className="max-w-sm p-4" key={c.id}>
-                <div className="bg-white rounded shadow-lg" style={{ minHeight: "450px" }}>
-                  {c.media ? (
-                    <img src={c.media.url} alt={c.name} className="w-full h-64 object-cover rounded-t" />
-                  ) : (
-                    <div className="h-64 bg-gray-200 rounded-t" />
-                  )}
-                  <div className="p-4 pb-6">
+              <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" key={c.id}>
+                <div className="bg-white rounded shadow-lg h-[450px] flex flex-col">
+                  <div className="w-full aspect-square overflow-hidden rounded-t">
+                    {c.media ? (
+                      <img src={c.media.url} alt={c.name} className="w-full h-full object-cover object-center" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200" />
+                    )}
+                  </div>
+                  <div className="p-4 pb-6 flex-grow overflow-y-auto">
                     <h2 className="text-xl leading-normal text-gray-900">{c.name}</h2>
                     <p className="text-sm text-gray-600">{c.bio}</p>
                   </div>
@@ -131,16 +135,16 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
 
           <TabPanel name="tab-ameciclista">
             {ameciclistas.map((c: any) => (
-              <div className="max-w-sm p-4" key={c.id}>
-                <div className="bg-white rounded shadow-lg min-h-[270px] min-w-[270px]">
-                  <div className="aspect-w-1 aspect-h-1">
+              <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" key={c.id}>
+                <div className="bg-white rounded shadow-lg h-[350px] flex flex-col">
+                  <div className="w-full aspect-square overflow-hidden rounded-t">
                     {c.media ? (
-                      <img src={c.media.url} alt={c.name} className="w-full h-64 object-cover rounded-t" />
+                      <img src={c.media.url} alt={c.name} className="w-full h-full object-cover object-center" />
                     ) : (
-                      <div className="h-64 bg-gray-200 rounded-t" />
+                      <div className="w-full h-full bg-gray-200" />
                     )}
                   </div>
-                  <div className="p-4 pb-6">
+                  <div className="p-4 pb-6 flex-grow">
                     <h2 className="text-xl leading-normal text-gray-900">{c.name}</h2>
                   </div>
                 </div>
