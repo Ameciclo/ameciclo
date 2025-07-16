@@ -8,12 +8,7 @@ export const loader: LoaderFunction = async () => {
     }
 
     const data = await response.json();
-    const actions2023 = data.campos.map((action: any, index: number) => {
-      if (index < 10) {
-        return { ...action, type: index % 2 === 0 ? 'good' : 'bad' };
-      }
-      return action;
-    });
+    const actions2023 = data.campos;
 
     // Mock data for other values, since the new API only provides actions
     const cover = { url: "" };

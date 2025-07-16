@@ -11,7 +11,7 @@ interface Action {
   vlrempenhado: number;
   vlrliquidado: number;
   cd_nm_subfuncao: string;
-  type?: 'good' | 'bad'; // Adicionando a propriedade type
+  type?: 'good' | 'bad'; // Reintroduzindo a propriedade type
 }
 
 interface LoaTableProps {
@@ -20,20 +20,61 @@ interface LoaTableProps {
 
 type SortableKeys = keyof Action;
 
+const goodActionsTags = ["0398", "3308", "3378", "3382", "3389", "3786", "3891", "3906", "4122", "4123", "4165", "4167", "4185", "4294", "4313", "4482", "4648", "3198", "3340", "4202", "4642", "4646", "4176", "4483", "4166", "4074", "4055", "3721", "3725", "2755", "2796", "2286", "0569", "3877", "4131", "4235", "4679", "4682", "1313", "2967", "2730", "2733", "4650", "4669", "1537", "3178", "3187", "4116", "4440", "1896"];
+
+const badActionsTags = [
+  "4067", "4218", "1045", "3882", "4096", "4134", "4186", "4227"
+];
+
 const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [sortConfig, setSortConfig] = useState<{ key: SortableKeys; direction: 'ascending' | 'descending' } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
   const itemsPerPage = 10;
 
+  const getActionCode = (action: Action) => {
+    const match = action.cd_nm_acao.match(/^(\d+)/);
+    return match ? match[1] : '';
+  };
+
+  const isGoodAction = (action: Action) => {
+    const actionCode = getActionCode(action);
+    return goodActionsTags.includes(actionCode);
+  };
+
+  const isBadAction = (action: Action) => {
+    const actionCode = getActionCode(action);
+    return badActionsTags.includes(actionCode);
+  };
+
+  const classifiedActions = useMemo(() => {
+    return actions.map(action => {
+      if (isGoodAction(action)) {
+        return { ...action, type: 'good' };
+      } else if (isBadAction(action)) {
+        return { ...action, type: 'bad' };
+      }
+      return action;
+    });
+  }, [actions]);
+
   const filteredActions = useMemo(() => {
-    return actions.filter(action =>
+    let tempActions = classifiedActions.filter(action =>
       Object.values(action).some(value =>
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-  }, [actions, searchTerm]);
+
+    if (filterType === 'good') {
+      tempActions = tempActions.filter(action => action.type === 'good');
+    } else if (filterType === 'bad') {
+      tempActions = tempActions.filter(action => action.type === 'bad');
+    }
+
+    return tempActions;
+  }, [classifiedActions, searchTerm, filterType]);
 
   const sortedActions = useMemo(() => {
     let sortableItems = [...filteredActions];
@@ -128,6 +169,26 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
           className="w-full md:w-1/2 lg:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
+      <div className="flex space-x-2 mb-4">
+        <button
+          onClick={() => setFilterType('all')}
+          className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          Todas as Ações
+        </button>
+        <button
+          onClick={() => setFilterType('good')}
+          className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'good' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          Boas Ações
+        </button>
+        <button
+          onClick={() => setFilterType('bad')}
+          className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'bad' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          Má Ações
+        </button>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
@@ -141,8 +202,20 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_acao')}>
                 Ação{getSortIndicator('cd_nm_acao')}
               </th>
+              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_subacao')}>
+                Sub-ação{getSortIndicator('cd_nm_subacao')}
+              </th>
+              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('cd_nm_subfuncao')}>
+                Sub-função{getSortIndicator('cd_nm_subfuncao')}
+              </th>
               <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrdotatualizada')}>
                 Dotação Atualizada{getSortIndicator('vlrdotatualizada')}
+              </th>
+              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrempenhado')}>
+                Valor Empenhado{getSortIndicator('vlrempenhado')}
+              </th>
+              <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrliquidado')}>
+                Valor Liquidado{getSortIndicator('vlrliquidado')}
               </th>
               <th className="hidden md:table-cell px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider cursor-pointer" onClick={() => requestSort('vlrtotalpago')}>
                 Total Pago{getSortIndicator('vlrtotalpago')}
@@ -156,11 +229,15 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
               return (
                 <React.Fragment key={actualIndex}>
                   <tr className={rowClassName} onClick={() => handleRowClick(index)}>
-                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(action.cd_nm_funcao, searchTerm)}</td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-base">{getHighlightedText(action.cd_nm_prog, searchTerm)}</td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-base">{getHighlightedText(action.cd_nm_acao, searchTerm)}</td>
-                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(formatCurrency(action.vlrdotatualizada), searchTerm)}</td>
-                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500">{getHighlightedText(formatCurrency(action.vlrtotalpago), searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(action.cd_nm_funcao, searchTerm)}</td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(action.cd_nm_prog, searchTerm)}</td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(action.cd_nm_acao, searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(action.cd_nm_subacao, searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(action.cd_nm_subfuncao, searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(formatCurrency(action.vlrdotatualizada), searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(formatCurrency(action.vlrempenhado), searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(formatCurrency(action.vlrliquidado), searchTerm)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-xs md:text-sm">{getHighlightedText(formatCurrency(action.vlrtotalpago), searchTerm)}</td>
                   </tr>
                   {expandedRow === actualIndex && (
                     <tr className="md:hidden">
@@ -174,6 +251,7 @@ const LoaTable: React.FC<LoaTableProps> = ({ actions }) => {
                           <p><strong>Dotação Atualizada:</strong> {getHighlightedText(formatCurrency(action.vlrdotatualizada), searchTerm)}</p>
                           <p><strong>Valor Empenhado:</strong> {getHighlightedText(formatCurrency(action.vlrempenhado), searchTerm)}</p>
                           <p><strong>Valor Liquidado:</strong> {getHighlightedText(formatCurrency(action.vlrliquidado), searchTerm)}</p>
+                          <p><strong>Total Pago:</strong> {getHighlightedText(formatCurrency(action.vlrtotalpago), searchTerm)}</p>
                         </div>
                       </td>
                     </tr>
