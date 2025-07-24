@@ -66,7 +66,6 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
   const [status, setStatus] = useState<string>("");
   const [group, setGroup] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>(""); // New state for search term
-  const [showOtherProjects, setShowOtherProjects] = useState<boolean>(false);
 
   useEffect(() => {
     setApiDown(hasApiError);
@@ -151,19 +150,13 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
   }, [status, group, searchTerm, groupedProjects]); // Add searchTerm to dependencies
 
   return (
-    <section className="container my-12 mx-auto">
-      <div className="mb-8">
-        <input
-          type="text"
-          placeholder="Buscar projetos por título..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ameciclo"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+    <section className="container my-4 mx-auto">
         {showLoadingState ? (
           <>
-            <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
+            <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-50 py-4">
+              <div className="h-8 bg-gray-300 rounded w-64 animate-pulse"></div>
+              <div className="w-[500px] h-10 bg-gray-300 rounded animate-pulse"></div>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {Array.from({ length: 5 }).map((_, index) => (
                 <ProjectCardLoading key={index} />
@@ -172,7 +165,16 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
           </>
         ) : filteredProjects.highlighted.length > 0 ? (
           <>
-            <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
+            <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-50 py-4">
+              <h2 className="text-2xl font-bold">Projetos em Destaque</h2>
+              <input
+                type="text"
+                placeholder="Buscar projetos por título..."
+                className="w-[500px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ameciclo"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {filteredProjects.highlighted.map((groupedProject) => (
                 <ProjectCard
@@ -187,7 +189,7 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
 
         {showLoadingState ? (
           <>
-            <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
+            <div className="h-8 bg-gray-300 rounded w-64 animate-pulse mb-4"></div>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {Array.from({ length: 7 }).map((_, index) => (
                 <ProjectCardLoading key={index} />
@@ -196,7 +198,7 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
           </>
         ) : filteredProjects.ongoing.length > 0 ? (
           <>
-            <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
+            <h2 className="text-2xl font-bold mb-4">Projetos em Andamento</h2>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {filteredProjects.ongoing.map((groupedProject) => (
                 <ProjectCard
@@ -209,25 +211,17 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
           </>
         ) : null}
 
-        {filteredProjects.others.length > 0 && !showOtherProjects && (
-          <div className="text-center my-4">
-            <button
-              onClick={() => setShowOtherProjects(true)}
-              className="bg-ameciclo text-white px-4 py-2 rounded"
-            >
-              Mostrar demais projetos
-            </button>
-          </div>
-        )}
-
-        {showOtherProjects && (
+        {filteredProjects.others.length > 0 && (
           <>
-            <h2 className="text-2xl font-bold my-4">Demais Projetos</h2>
+            <h2 className="text-2xl font-bold mb-4">Demais Projetos</h2>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {showLoadingState ? (
-                Array.from({ length: 4 }).map((_, index) => (
-                  <ProjectCardLoading key={index} />
-                ))
+                <>
+                  <div className="h-8 bg-gray-300 rounded w-48 animate-pulse mb-4"></div>
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <ProjectCardLoading key={index} />
+                  ))}
+                </>
               ) : (
                 filteredProjects.others.map((groupedProject) => (
                   <ProjectCard
@@ -255,13 +249,16 @@ export default function Projetos() {
       <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
       <Suspense fallback={
         <section className="container my-12 mx-auto">
-          <h2 className="text-2xl font-bold my-4">Projetos em Destaque</h2>
+          <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-50 py-4">
+            <div className="h-8 bg-gray-300 rounded w-64 animate-pulse"></div>
+            <div className="w-[500px] h-10 bg-gray-300 rounded animate-pulse"></div>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {Array.from({ length: 5 }).map((_, index) => (
               <ProjectCardLoading key={index} />
             ))}
           </div>
-          <h2 className="text-2xl font-bold my-4">Projetos em Andamento</h2>
+          <div className="h-8 bg-gray-300 rounded w-64 animate-pulse mb-4 mt-8"></div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {Array.from({ length: 7 }).map((_, index) => (
               <ProjectCardLoading key={index} />

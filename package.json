@@ -33,7 +33,7 @@
     "react-google-charts": "^5.2.1",
     "react-highlighter-ts": "^18.0.1",
     "react-lazyload": "^3.2.1",
-    "react-map-gl": "^7.0.16",
+    "react-map-gl": "^6.1.21",
     "react-markdown": "^10.1.0",
     "react-spinners": "^0.17.0",
     "react-table": "^7.8.0",

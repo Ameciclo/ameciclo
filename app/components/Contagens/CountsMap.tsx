@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Map, Source, Layer, Marker, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl";
+import ReactMapGL, { Source, Layer, Marker, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl";
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
 import { Link } from "@remix-run/react";
@@ -142,13 +142,14 @@ export const CountsMap = ({
     return (
         <section className="container mx-auto">
             <div className="relative bg-green-200 rounded shadow-2xl overflow-hidden">
-                <Map
+                <ReactMapGL
                     {...viewport}
                     {...settings}
-                    onMove={(evt) => setViewport(evt.viewState)}
+                    onViewportChange={setViewport}
                     mapStyle={MAPBOXSTYLE}
-                    mapboxAccessToken={MAPBOXTOKEN}
-                    style={{ width, height }}
+                    mapboxApiAccessToken={MAPBOXTOKEN}
+                    width={width}
+                    height={height}
                 >
                     <NavigationControl position="top-right" showCompass={false} />
                     <FullscreenControl position="top-right" />
@@ -197,7 +198,7 @@ export const CountsMap = ({
                     )}
 
                     {layersConf && layersConf.length > 0 && <MapLayersPanel layersConf={layersConf} />}
-                </Map>
+                </ReactMapGL>
             </div>
         </section>
     );

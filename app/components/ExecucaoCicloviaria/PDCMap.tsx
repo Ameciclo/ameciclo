@@ -1,6 +1,5 @@
 import { useState } from "react";
-import {
-    Map,
+import ReactMapGL, {
     Source,
     Layer,
     Marker,
@@ -387,13 +386,14 @@ export const PDCMap = ({
             <div className={`relative bg-gray-200 rounded shadow-2xl map-container ${
                 isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
             }`}>
-                <Map
+                <ReactMapGL
                     {...viewport}
                     {...settings}
-                    style={{ width: "100%", height: isFullscreen ? "100vh" : "500px" }}
-                    onMove={(evt: any) => setViewport(evt.viewState)}
+                    width="100%"
+                    height={isFullscreen ? "100vh" : "500px"}
+                    onViewportChange={setViewport}
                     mapStyle={MAPBOXSTYLE}
-                    mapboxAccessToken={MAPBOXTOKEN}
+                    mapboxApiAccessToken={MAPBOXTOKEN}
                 >
                     <style>{`
                         .mapboxgl-ctrl-attrib {
@@ -451,7 +451,7 @@ export const PDCMap = ({
                             citiesStats={citiesStats}
                         />
                     )}
-                </Map>
+                </ReactMapGL>
             </div>
         </section>
     );
