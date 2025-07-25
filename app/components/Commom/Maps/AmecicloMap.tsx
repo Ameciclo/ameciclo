@@ -1,19 +1,12 @@
-import { useState } from "react";
-import ReactMapGL, {
-    Source,
-    Layer,
-    Marker,
-    FullscreenControl,
-    NavigationControl,
-    LayerProps,
-} from "react-map-gl";
+import { useState, useEffect } from "react";
+import Map, { Source, Layer, Marker, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl";
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
-import { pointData } from "../../../typings";
-import { Link } from "@remix-run/react";
+import { pointData } from "../../../../typings";
+import * as Remix from "@remix-run/react";
 
 function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
     return (
@@ -26,47 +19,16 @@ function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
             </button>
             <div className="text-center">
                 <h2 className="font-bold">{selectedPoint.popup.name}</h2>
-                <p className="py-2">
-                    {selectedPoint.popup.total} ciclistas em {selectedPoint.popup.date}
-                </p>
-                {selectedPoint.popup.obs != "" && (
-                    <p className="py-2 text-sm text-gray-700">
-                        {selectedPoint.popup.obs}
-                    </p>
-                )}
-                {selectedPoint.popup.url != "" && (
-                    <Link to={selectedPoint.popup.url}>
-                        <button className="bg-ameciclo text-white p-2">Ver mais</button>
-                    </Link>
-                )}
+                <p>Popup Content</p>
             </div>
         </div>
     );
 }
 
-const MapMarker = ({ size = 20, icon, color = "#008888" }: any) => {
-    return (
-        <>
-            <svg
-                height={size}
-                viewBox="0 0 24 24"
-                style={{
-                    cursor: "pointer",
-                    fill: color,
-                    stroke: "none",
-                    transform: `translate(${-size / 2}px,${-size}px)`,
-                }}
-            >
-                <path d={icon} />
-            </svg>
-        </>
-    );
-};
-
 const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
-        
+
         const mapContainer = document.querySelector('.map-container');
         if (!document.fullscreenElement) {
             mapContainer?.requestFullscreen();
@@ -84,16 +46,16 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     const handleZoomOut = () => {
         setViewport({ ...viewport, zoom: viewport.zoom - 1 });
     };
-    
+
     const handleRecenter = () => {
         setViewport(initialViewport);
     };
-    
+
     const isAtDefaultPosition = () => {
         const tolerance = 0.001;
         return Math.abs(viewport.latitude - initialViewport.latitude) < tolerance &&
-               Math.abs(viewport.longitude - initialViewport.longitude) < tolerance &&
-               Math.abs(viewport.zoom - initialViewport.zoom) < 0.1;
+            Math.abs(viewport.longitude - initialViewport.longitude) < tolerance &&
+            Math.abs(viewport.zoom - initialViewport.zoom) < 0.1;
     };
 
     return (
@@ -107,7 +69,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
             </button>
-            
+
             <button
                 onClick={handleZoomIn}
                 className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
@@ -117,7 +79,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
             </button>
-            
+
             <button
                 onClick={handleZoomOut}
                 className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
@@ -127,7 +89,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                 </svg>
             </button>
-            
+
             {!isAtDefaultPosition() && (
                 <button
                     onClick={handleRecenter}
@@ -143,33 +105,14 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     );
 };
 
-const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility, citiesStats }: any) => {
-    const calculateLayerLength = (layerId: string) => {
-        if (!citiesStats) return 0;
-        
-        const citiesArray = Object.values(citiesStats).filter((c: any) => c.name !== undefined);
-        
-        const totalLength = citiesArray.reduce((sum: number, city: any) => {
-            if (layerId === "Não executado no PDC") {
-                return sum + (city.pdc_total - city.pdc_feito || 0);
-            } else if (layerId === "Executados dentro do PDC") {
-                return sum + (city.pdc_feito || 0);
-            } else if (layerId === "Executados fora do PDC") {
-                return sum + (city.total - city.pdc_feito || 0);
-            }
-            return sum;
-        }, 0);
-        
-        return totalLength.toFixed(1);
-    };
-    
+const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: any) => {
+
     return (
         <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md max-w-xs">
             <h3 className="font-bold mb-2">Filtros do Mapa</h3>
             {layersConf.map((control: any) => {
-                const color = control.paint["line-color"];
-                const isVisible = layerVisibility[control.id] !== false;
-                const totalKm = calculateLayerLength(control.id);
+                const color = control.paint?.["line-color"];
+                const isVisible = control.id ? layerVisibility[control.id] !== false : true;
                 return (
                     <div
                         className="flex items-center justify-between mb-1 uppercase font-bold"
@@ -179,16 +122,13 @@ const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility, ci
                             <input
                                 type="checkbox"
                                 checked={isVisible}
-                                onChange={() => toggleLayerVisibility(control.id)}
+                                onChange={() => control.id && toggleLayerVisibility(control.id)}
                                 className="mr-2"
                             />
                             <span className="text-xs font-bold" style={{ color: color }}>
                                 {control.id}
                             </span>
                         </div>
-                        <span className="text-xs text-gray-600 ml-2">
-                            {totalKm} km
-                        </span>
                     </div>
                 );
             })}
@@ -203,7 +143,7 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
     let standardViewPort = {
         latitude: -8.0584364,
         longitude: -34.945277,
-        zoom: 20,
+        zoom: 10,
         bearing: 0,
         pitch: 0,
     };
@@ -212,8 +152,12 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
         [-34.9452, -8.05843],
         [-34.945277, -8.0584364],
     ];
-    if (pointsData)
+    if (pointsData) {
         points = pointsData.map((point: any) => [point.longitude, point.latitude]);
+        if (points.length === 1) {
+            points.push(points[0]);
+        }
+    }
     const lineStringFromPointData = turf.lineString(points);
     const [PminX, PminY, PmaxX, PmaxY] = bbox(lineStringFromPointData);
 
@@ -270,12 +214,19 @@ const dropIcon = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-1
 c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
 C20.1,15.8,20.2,15.8,20.2,15.7z`;
 
+interface MapControlPanelProps {
+    controlPanel: { type: string; color: string }[];
+    markerVisibility: Record<string, boolean>;
+    pointsData: pointData[];
+    handleMarkerToggle: (key: string) => void;
+}
+
 const MapControlPanel = ({
     controlPanel,
     markerVisibility,
     pointsData,
     handleMarkerToggle,
-}: any | [any[], any]) => {
+}: MapControlPanelProps) => {
     return (
         <div className="absolute bottom-0 right-0 bg-white border rounded p-4 mb-2 shadow">
             <h3 className="font-bold mb-2">Legenda</h3>
@@ -312,12 +263,11 @@ const MapControlPanel = ({
     );
 };
 
-export const PDCMap = ({
+export const AmecicloMap = ({
     layerData,
     layersConf,
     pointsData,
     controlPanel = [],
-    citiesStats,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -328,7 +278,6 @@ export const PDCMap = ({
     width?: string;
     height?: string;
     controlPanel?: any[];
-    citiesStats?: any;
 }) => {
     const inicialViewPort = getInicialViewPort(pointsData, layerData);
 
@@ -339,10 +288,12 @@ export const PDCMap = ({
     const [viewport, setViewport] = useState(inicialViewPort);
     const [settings, setsettings] = useState({ ...mapInicialState });
     const [isFullscreen, setIsFullscreen] = useState(false);
-    
+
     const [layerVisibility, setLayerVisibility] = useState<Record<string, boolean>>(
         layersConf?.reduce((obj, layer) => {
-            obj[layer.id] = true;
+            if (layer.id) {
+                obj[layer.id] = true;
+            }
             return obj;
         }, {} as Record<string, boolean>) ?? {}
     );
@@ -360,20 +311,29 @@ export const PDCMap = ({
         });
     };
 
-    const [markerVisibility, setMarkerVisibility] = useState<Record<string, boolean>>(
-        pointsData?.reduce((obj, marker) => {
-            obj[marker.key] = true;
-            return obj;
-        }, {} as Record<string, boolean>) ?? {}
-    );
+    const [markerVisibility, setMarkerVisibility] = useState<Record<string, boolean>>({});
+
+    useEffect(() => {
+        if (pointsData) {
+            const initialVisibility: Record<string, boolean> = {};
+            pointsData.forEach(marker => {
+                initialVisibility[marker.key] = true; // All markers visible by default
+            });
+            setMarkerVisibility(initialVisibility);
+        }
+    }, [pointsData]);
 
     const handleMarkerToggle = (key: string) => {
-        setMarkerVisibility((prev) => ({
-            ...prev,
-            [key]: !prev?.[key],
-        }));
+        setMarkerVisibility((prev) => {
+            const newState = {
+                ...prev,
+                [key]: !prev?.[key],
+            };
+            console.log(`Toggling marker ${key}. Old state: ${prev?.[key]}, New state: ${newState[key]}`);
+            return newState;
+        });
     };
-    
+
     const toggleLayerVisibility = (layerId: string) => {
         setLayerVisibility((prev) => ({
             ...prev,
@@ -383,10 +343,9 @@ export const PDCMap = ({
 
     return (
         <section className="container mx-auto">
-            <div className={`relative bg-gray-200 rounded shadow-2xl map-container ${
-                isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
-            }`}>
-                <ReactMapGL
+            <div className={`relative bg-gray-200 rounded shadow-2xl map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
+                }`}>
+                <Map
                     {...viewport}
                     {...settings}
                     width="100%"
@@ -409,26 +368,41 @@ export const PDCMap = ({
                     <MapCommands handleClick={handleClick} viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={inicialViewPort} />
                     {layerData && (
                         <Source id="layersMap" type="geojson" data={layerData}>
-                            {layersConf?.map((layer: any, i: number) => 
-                                layerVisibility[layer.id] !== false && (
+                            {layersConf?.map((layer: any, i: number) =>
+                                layer.id && layerVisibility[layer.id] !== false && (
                                     <Layer key={layer.id || i} {...layer} />
                                 )
                             )}
                         </Source>
                     )}
-                    {pointsData?.map(
-                        (point) =>
+                    {pointsData?.map((point) => {
+                        const { key, latitude, longitude, size, color } = point;
+                        console.log(`Rendering marker ${key}. Visibility: ${markerVisibility[key]}`);
+                        return (
                             markerVisibility &&
-                            markerVisibility[point.key] == true && (
-                                <Marker {...point} onClick={() => setSelectedPoint(point)}>
-                                    <MapMarker
-                                        icon={dropIcon}
-                                        size={point.size ? point.size : 15}
-                                        color={point.color ? point.color : "#008080"}
-                                    />
+                            markerVisibility[key] == true && (
+                                <Marker
+                                    key={key}
+                                    latitude={latitude}
+                                    longitude={longitude}
+                                    onClick={() => setSelectedPoint(point)}
+                                >
+                                    <svg
+                                        height={size ? size : 15}
+                                        viewBox="0 0 24 24"
+                                        style={{
+                                            cursor: "pointer",
+                                            fill: color ? color : "#008080",
+                                            stroke: "none",
+                                            transform: `translate(${- (size ? size : 15) / 2}px,${- (size ? size : 15)}px)`,
+                                        }}
+                                    >
+                                        <path d={dropIcon} />
+                                    </svg>
                                 </Marker>
                             )
-                    )}
+                        );
+                    })}
                     {selectedPoint !== undefined && (
                         <CountingPopUp
                             selectedPoint={selectedPoint}
@@ -448,10 +422,9 @@ export const PDCMap = ({
                             layersConf={layersConf}
                             layerVisibility={layerVisibility}
                             toggleLayerVisibility={toggleLayerVisibility}
-                            citiesStats={citiesStats}
                         />
                     )}
-                </ReactMapGL>
+                </Map>
             </div>
         </section>
     );

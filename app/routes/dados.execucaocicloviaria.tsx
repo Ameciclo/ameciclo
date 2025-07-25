@@ -8,16 +8,14 @@ import Table from "~/components/Commom/Table/Table";
 import { ColumnFilter, SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { CyclingInfrastructureByCity } from "~/components/ExecucaoCicloviaria/CyclingInfrastructureByCity";
-import { PDCMap } from "~/components/ExecucaoCicloviaria/PDCMap";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { StatisticsBoxLoading } from "~/components/ExecucaoCicloviaria/Loading/StatisticsBoxLoading";
 import { MapLoading } from "~/components/ExecucaoCicloviaria/Loading/MapLoading";
-import { CityCardsLoading } from "~/components/ExecucaoCicloviaria/Loading/CityCardsLoading";
-import { TableLoading } from "~/components/ExecucaoCicloviaria/Loading/TableLoading";
 import { CityStructureLoading } from "~/components/ExecucaoCicloviaria/Loading/CityStructureLoading";
 
 import { loader } from "~/loader/dados.execucaocicloviaria";
+import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 export { loader };
 
 export default function ExecucaoCicloviaria() {
@@ -484,10 +482,9 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             <Suspense fallback={<MapLoading />}>
                 <Await resolve={citiesPromise}>
                     {(citiesStats) => (
-                        <PDCMap 
+                        <AmecicloMap 
                             layerData={allCitiesLayer} 
-                            layersConf={layersConf as LayerProps[]} 
-                            citiesStats={citiesStats} 
+                            layersConf={layersConf as LayerProps[]}
                         />
                     )}
                 </Await>

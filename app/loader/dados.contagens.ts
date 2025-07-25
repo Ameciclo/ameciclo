@@ -1,6 +1,9 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { IntlPercentil } from "~/services/utils";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { CountEditionSummary } from "typings";
+import * as fs from "fs/promises";
+import * as path from "path";
 
 export const loader: LoaderFunction = async () => {
   // Usando fetchWithTimeout para evitar timeouts
@@ -31,7 +34,7 @@ export const loader: LoaderFunction = async () => {
   // Reutilizando os dados já obtidos para evitar chamada duplicada
   const pageData = data;
 
-  const CardsData = (summaryData: any) => {
+  const CardsData = (summaryData: CountEditionSummary) => {
     const {
       total_cyclists,
       total_cargo,
@@ -95,6 +98,15 @@ export const loader: LoaderFunction = async () => {
     ];
   };
   const cards = CardsData(summaryData);
+  let pcrCounts = [];
+  try {
+    const jsonPath = path.join(process.cwd(), "public", "dbs", "PCR_CONTAGENS.json");
+    const fileContent = await fs.readFile(jsonPath, "utf-8");
+    pcrCounts = JSON.parse(fileContent);
+  } catch (error) {
+    console.error("Error reading PCR_CONTAGENS.json:", error);
+  }
+
   return json({
     cover,
     summaryData,
@@ -105,5 +117,6 @@ export const loader: LoaderFunction = async () => {
     archives,
     cards,
     dataCounts: countsData, // Usando dados da API em vez do CMS
+    pcrCounts,
   });
 };

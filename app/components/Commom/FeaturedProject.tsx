@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import React from "react";
 
-export const FeaturedProject = ({ project }) => {
+export const FeaturedProject = ({ project }: { project: Project }) => {
   return (
     <>
       <div className="flex maz-h-[300px] relative">
@@ -9,8 +9,6 @@ export const FeaturedProject = ({ project }) => {
           <img
             src={project.media.url}
             alt={project.name}
-            layout="fill"
-            objectFit="cover"
           />
           <div className="container flex justify-center h-full mx-auto my-auto">
             <div
