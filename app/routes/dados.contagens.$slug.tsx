@@ -36,6 +36,7 @@ const characteristicsMap = new Map([
 
 import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
 import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
+import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
 
 // Placeholder para HourlyCyclistsChartProps
 interface HourlyCyclistsChartProps {
@@ -119,86 +120,6 @@ type pointData = {
   size?: number;
   color?: string;
   type?: string;
-};
-
-const CountingComparisionTable = ({ data, firstSlug }) => {
-  // TODO: Importar fuzzyTextFilterFn, ColumnFilter e Table
-  const filterTypes = React.useMemo(
-    () => ({
-      // Add a new fuzzyTextFilterFn filter type.
-      // fuzzyText: fuzzyTextFilterFn,
-      // Or, override the default text filter to use
-      // "startWith"
-      text: (rows, id, filterValue) => {
-        return rows.filter((row) => {
-          const rowValue = row.values[id];
-          return rowValue !== undefined
-            ? String(rowValue)
-                .toLowerCase()
-                .startsWith(String(filterValue).toLowerCase())
-            : true;
-        });
-      },
-    }),
-    []
-  );
-
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "Nome",
-        accessor: "name",
-        Cell: ({ row }) => (
-          <Link
-            className="text-ameciclo"
-            to={`contagens/${row.original.slug}`}
-            key={row.original.id}
-          >
-            {row.original.name}
-          </Link>
-        ),
-        // Filter: ColumnFilter,
-      },
-      {
-        Header: "Data",
-        accessor: "date",
-        Cell: ({ value }) => (
-          <span>{value.substr(0, 10).split("-").reverse().join("/")}</span>
-        ),
-        // Filter: ColumnFilter,
-      },
-      {
-        Header: "Total de Ciclistas",
-        accessor: "total_cyclists",
-        // Filter: ColumnFilter,
-        disableFilters: true,
-      },
-      {
-        Header: "COMPARE",
-        Cell: ({ row }) => (
-          <span>
-            <Link
-              className="text-ameciclo"
-              to={`/contagens/${firstSlug}/${row.original.slug}`}
-            >
-              COMPARE
-            </Link>
-          </span>
-        ),
-        disableFilters: true,
-      },
-    ],
-    []
-  );
-
-  return (
-    // <Table
-    //   title={"Compare com outras contagens"}
-    //   data={data}
-    //   columns={columns}
-    // />
-    <p>Tabela de comparação (Table não importado)</p>
-  );
 };
 
 function getChartData(sessions: CountEditionSession[]) {
