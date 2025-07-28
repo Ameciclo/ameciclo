@@ -288,27 +288,61 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     const fetchUniqueData = async (slug: string) => {
         const id = slug.split("-")[0];
         const URL = COUNTINGS_DATA + "/" + id;
-        const res = await fetch(URL, {
-            cache: "no-cache",
-        });
-        const responseJson = await res.json();
-        return responseJson;
+        try {
+            const res = await fetch(URL, {
+                cache: "no-cache",
+            });
+            if (!res.ok) {
+                
+                return null; // Or throw an error
+            }
+            const responseJson = await res.json();
+            
+            return responseJson;
+        } catch (error) {
+            
+            return null; // Or throw an error
+        }
     };
 
     const fetchData = async () => {
-        const dataRes = await fetch(COUNTINGS_SUMMARY_DATA, {
-            cache: "no-cache",
-        });
-        const dataJson = await dataRes.json();
-        const otherCounts = dataJson.counts;
+        let otherCounts = [];
+        let pageCover = null;
 
-        const pageDataRes = await fetch(COUNTINGS_PAGE_DATA, { cache: "no-cache" });
-        const pageCover = await pageDataRes.json();
+        try {
+            const dataRes = await fetch(COUNTINGS_SUMMARY_DATA, {
+                cache: "no-cache",
+            });
+            if (!dataRes.ok) {
+                console.error(`Error fetching summary data: ${dataRes.status} ${dataRes.statusText}`);
+            } else {
+                const dataJson = await dataRes.json();
+                otherCounts = dataJson.counts || [];
+            }
+        } catch (error) {
+            console.error("Error in fetchData (summary data):", error);
+        }
+
+        try {
+            const pageDataRes = await fetch(COUNTINGS_PAGE_DATA, { cache: "no-cache" });
+            if (!pageDataRes.ok) {
+                console.error(`Error fetching page data: ${pageDataRes.status} ${pageDataRes.statusText}`);
+            } else {
+                pageCover = await pageDataRes.json();
+                
+            }
+        } catch (error) {
+            console.error("Error in fetchData (page data):", error);
+        }
         return { pageCover, otherCounts };
     };
 
     const data: CountEdition = await fetchUniqueData(params.slug as string);
     const { pageCover, otherCounts } = await fetchData();
+
+    if (!data) {
+        throw new Response("Not Found", { status: 404 });
+    }
 
     return json({ data, pageCover, otherCounts });
 };

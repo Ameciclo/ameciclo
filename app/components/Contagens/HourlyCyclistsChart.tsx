@@ -11,6 +11,12 @@ interface HourlyCyclistsChartProps {
 }
 
 export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps) {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const options = {
     chart: {
       type: "line",
@@ -57,7 +63,7 @@ export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps)
       <div className="shadow-2xl rounded p-10 text-center overflow-x-scroll">
         <div style={{ minWidth: "500px" }}>
           <h2 className="text-gray-600 text-3xl">Quantidade de ciclistas por hora</h2>
-          <HighchartsReact highcharts={Highcharts} options={options} />
+          {isMounted ? <HighchartsReact highcharts={Highcharts} options={options} /> : null}
         </div>
       </div>
     </section>

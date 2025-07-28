@@ -49,8 +49,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Biciclopedia() {
   const { faqs, categories } = useLoaderData<LoaderData>();
   
-  console.log('FAQs:', faqs.length, 'Categories:', categories.length);
-  
   const disponibleCategories = categories.filter(category => category.faqs.length > 0);
   const sortedCategories = disponibleCategories.sort((a, b) => a.title.localeCompare(b.title));
 

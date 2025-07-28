@@ -358,8 +358,24 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                     {headerGroups[0]?.headers?.map((column: any) => {
                         if (column.filterValue) {
                             const headerText = typeof column.Header === 'function' ? 'Extensão executada' : column.Header;
-                            const isExtensionColumn = headerText.includes('Extensão');
-                            const displayValue = isExtensionColumn ? `~${column.filterValue} km` : column.filterValue;
+                            let displayValue;
+
+                            if (column.id === 'total_cyclists') {
+                                const [minVal, maxVal] = column.filterValue;
+                                if (minVal && maxVal) {
+                                    displayValue = `de ${minVal} a ${maxVal}`;
+                                } else if (minVal) {
+                                    displayValue = `a partir de ${minVal}`;
+                                } else if (maxVal) {
+                                    displayValue = `até ${maxVal}`;
+                                } else {
+                                    displayValue = ''; // Should not happen if filterValue is truthy
+                                }
+                            } else if (headerText.includes('Extensão')) {
+                                displayValue = `~${column.filterValue} km`;
+                            } else {
+                                displayValue = column.filterValue;
+                            }
                             return (
                                 <div key={column.id} className="inline-flex items-center bg-[#008080] text-white px-3 py-1 rounded-full text-sm">
                                     <span className="mr-2">{headerText}: {displayValue}</span>

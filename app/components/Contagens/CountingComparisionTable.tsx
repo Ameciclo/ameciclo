@@ -15,6 +15,12 @@ fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
 export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], firstSlug: string }) => {
   const [showFilters, setShowFilters] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const filterTypes = React.useMemo(
     () => ({
       // Add a new fuzzyTextFilterFn filter type.
@@ -93,13 +99,15 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
   );
 
   return (
-    <Table
-      title={"Compare com outras contagens"}
-      data={data}
-      columns={columns}
-      filterTypes={filterTypes}
-      showFilters={showFilters}
-      setShowFilters={setShowFilters}
-    />
+    isMounted ? (
+      <Table
+        title={"Compare com outras contagens"}
+        data={data}
+        columns={columns}
+        filterTypes={filterTypes}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+      />
+    ) : null
   );
 };

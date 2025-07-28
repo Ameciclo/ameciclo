@@ -329,7 +329,6 @@ export const AmecicloMap = ({
                 ...prev,
                 [key]: !prev?.[key],
             };
-            console.log(`Toggling marker ${key}. Old state: ${prev?.[key]}, New state: ${newState[key]}`);
             return newState;
         });
     };
@@ -377,7 +376,6 @@ export const AmecicloMap = ({
                     )}
                     {pointsData?.map((point) => {
                         const { key, latitude, longitude, size, color } = point;
-                        console.log(`Rendering marker ${key}. Visibility: ${markerVisibility[key]}`);
                         return (
                             markerVisibility &&
                             markerVisibility[key] == true && (

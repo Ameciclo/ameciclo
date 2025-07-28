@@ -43,8 +43,6 @@ export function NumberRangeColumnFilter({
                 onChange={(e) => {
                     let val = e.target.value;
                     setFilter((old = []) => {
-                        if (parseFloat(val) < min) val = "" + min;
-                        if (parseFloat(val) > max) val = "" + max;
                         return [val ? parseFloat(val) : undefined, old[1]];
                     });
                 }}
@@ -62,8 +60,6 @@ export function NumberRangeColumnFilter({
                 onChange={(e) => {
                     let val = e.target.value;
                     setFilter((old = []) => {
-                        if (parseFloat(val) < min) val = "" + min;
-                        if (parseFloat(val) > max) val = "" + max;
                         return [old[0], val ? parseFloat(val) : undefined];
                     });
                 }}

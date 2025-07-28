@@ -21,7 +21,6 @@ interface AccordionItemProps {
 }
 
 export const AccordionItem = ({ categories }: AccordionItemProps) => {
-  console.log('AccordionItem categories:', categories);
   const faqs = categories.faqs;
   const faqs_titles: [number, string, string, string | undefined][] = [];
   
