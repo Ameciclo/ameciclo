@@ -20,8 +20,11 @@ export default function Contagens() {
     const { cover, description, objective, summaryData, cards, countsData, dataCounts, archives, pcrCounts } = useLoaderData<typeof loader>();
 
     const allCountsStatistics = (summaryData: CountEditionSummary) => {
-        const { total_cyclists, number_counts, where_max_count, different_counts_points } = {
-            ...summaryData,
+        const { total_cyclists, number_counts, where_max_count, different_counts_points } = summaryData || {
+            total_cyclists: 0,
+            number_counts: 0,
+            where_max_count: { total_cyclists: 0 },
+            different_counts_points: 0,
         };
         return [
             {

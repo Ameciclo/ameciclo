@@ -1,3 +1,4 @@
+import { Link } from "@remix-run/react";
 import React, { useState, useEffect, useMemo } from "react";
 import type { ContagemData } from "~/services/contagens.service";
 import { IntlDateStr } from "~/services/utils";
@@ -122,12 +123,12 @@ export function ContagensTable({ data }: ContagensTableProps) {
             {paginatedData.map((item) => (
               <tr key={item.id} className="hover:bg-gray-100">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  <a
+                  <Link
                     className="text-ameciclo hover:underline"
-                    href={`/dados/contagens/${item.slug}`}
+                    to={`/dados/contagens/${item.slug}`}
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {IntlDateStr(item.date)}

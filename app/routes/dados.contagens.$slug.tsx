@@ -1,255 +1,499 @@
-import { useLoaderData } from "@remix-run/react";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { FlowContainer } from "../components/Charts/FlowChart/FlowContainer";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { GeneralCountStatistics } from "~/components/Contagens/GeneralCountStatistics";
-import { CountsMap } from "~/components/Contagens/CountsMap";
+import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { InfoCards } from "~/components/Contagens/InfoCards";
-import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
-import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-import { IntlNumber, IntlDateStr, IntlPercentil } from "~/services/utils";
-import { pointData } from "typings";
+import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
+import { colors } from "~/components/Charts/FlowChart/FlowContainer";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import React, { useEffect, useState } from "react";
+// import Table from "~/components/Commom/Table/Table"; // Comentado
+// import HighchartsReact from "highcharts-react-official"; // Comentado
+// import Highcharts from "highcharts"; // Adicionado
 
-export async function loader({ params }: LoaderFunctionArgs) {
-    const { slug } = params;
-    const id = slug?.split("-")[0];
-    
-    try {
-        const data = await fetchWithTimeout(
-            `http://api.garfo.ameciclo.org/cyclist-counts/edition/${id}`,
-            { cache: "no-cache" },
-            5000,
-            null
-        );
-        
-        if (!data) {
-            throw new Response("Contagem não encontrada", { status: 404 });
-        }
-        
-        const pageData = await fetchWithTimeout(
-            "https://cms.ameciclo.org/contagens",
-            { cache: "no-cache" },
-            5000,
-            { cover: null }
-        );
-        
-        return json({ contagem: data, cover: pageData?.cover });
-    } catch (error) {
-        throw new Response("Erro ao carregar contagem", { status: 500 });
-    }
+const characteristicsMap = new Map([
+  ["total_cyclists", { name: "Total" }],
+  ["total_women", { name: "Mulheres" }],
+  ["total_child", { name: "Crianças e Adolescentes" }],
+  ["total_ride", { name: "Carona" }],
+  ["total_helmet", { name: "Capacete" }],
+  ["total_service", { name: "Serviço" }],
+  ["total_cargo", { name: "Cargueira" }],
+  ["total_shared_bike", { name: "Compartilhada" }],
+  ["total_sidewalk", { name: "Calçada" }],
+  ["total_wrong_way", { name: "Contramão" }],
+  ["women", { name: "Mulheres" }],
+  ["child", { name: "Crianças e Adolescentes" }],
+  ["ride", { name: "Carona" }],
+  ["helmet", { name: "Capacete" }],
+  ["service", { name: "Serviço" }],
+  ["cargo", { name: "Cargueira" }],
+  ["shared_bike", { name: "Compartilhada" }],
+  ["sidewalk", { name: "Calçada" }],
+  ["wrong_way", { name: "Contramão" }],
+]);
+
+import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
+
+// Placeholder para HourlyCyclistsChartProps
+interface HourlyCyclistsChartProps {
+  series: Series[];
+  hours: number[];
 }
 
-function getPointsData(data: any): pointData[] {
-    const { name, coordinates } = data;
-    const coord = coordinates[0];
-    const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"];
-    
-    return [
-        {
-            key: name,
-            latitude: coord.latitude,
-            longitude: coord.longitude,
-            type: 'main',
-            popup: { name, total: data.summary.total_cyclists, date: data.date, url: '', obs: '' },
-            size: 20,
-            color: "#008888"
-        },
-        {
-            key: `${name}_north`,
-            latitude: coord.latitude + 0.001,
-            longitude: coord.longitude,
-            type: 'direction',
-            popup: { name: data.directions.north, total: '', date: '', url: '', obs: '' },
-            size: 15,
-            color: colors[0]
-        },
-        {
-            key: `${name}_south`,
-            latitude: coord.latitude - 0.001,
-            longitude: coord.longitude,
-            type: 'direction',
-            popup: { name: data.directions.south, total: '', date: '', url: '', obs: '' },
-            size: 15,
-            color: colors[1]
-        },
-        {
-            key: `${name}_east`,
-            latitude: coord.latitude,
-            longitude: coord.longitude + 0.001,
-            type: 'direction',
-            popup: { name: data.directions.east, total: '', date: '', url: '', obs: '' },
-            size: 15,
-            color: colors[2]
-        },
-        {
-            key: `${name}_west`,
-            latitude: coord.latitude,
-            longitude: coord.longitude - 0.001,
-            type: 'direction',
-            popup: { name: data.directions.west, total: '', date: '', url: '', obs: '' },
-            size: 15,
-            color: colors[3]
-        }
-    ];
+const COUNTINGS_SUMMARY_DATA = "http://api.garfo.ameciclo.org/cyclist-counts"
+const COUNTINGS_DATA = "http://api.garfo.ameciclo.org/cyclist-counts/edition"
+const COUNTINGS_PAGE_DATA = "https://cms.ameciclo.org/contagens"
+
+type Series = {
+  name: string | undefined;
+  data: number[];
+  visible?: boolean
+};
+
+interface CountEditionSummary {
+  max_hour: number;
+  total_cyclists: number;
+  total_cargo: number;
+  total_helmet: number;
+  total_juveniles: number;
+  total_motor: number;
+  total_ride: number;
+  total_service: number;
+  total_shared_bike: number;
+  total_sidewalk: number; 
+  total_women: number;
+  total_wrong_way: number;
 }
 
-function getCountingStatistics(data: any) {
-    const { id, date, summary } = data;
-    const { total_cyclists, max_hour } = summary;
-    
-    return [
-        { title: "Total de ciclistas", value: IntlNumber(total_cyclists) },
-        { title: "Pico em 1h", value: IntlNumber(max_hour) },
-        { title: "Data da Contagem", value: IntlDateStr(date) },
-        {
-            type: "LinksBox",
-            title: "Dados",
-            value: [{ label: "JSON", url: `http://api.garfo.ameciclo.org/cyclist-counts/edition/${id}` }]
-        }
-    ];
+interface CountEditionCoordinates {
+  point: {
+    x: number;
+    y: number;
+  };
+  type: string;
+  name: string;
 }
 
-function getCountingCards(summary: any) {
+interface CountEditionSession {
+  start_time: string;
+  end_time: string;
+  total_cyclists: number;
+  characteristics: {
+    [key: string]: number;
+  };
+  quantitative: {
+    [key: string]: number;
+  };
+}
+
+interface CountEditionDirections {
+  origin: string;
+  destin: string;
+  origin_cardinal: string;
+  destin_cardinal: string;
+}
+
+interface CountEdition {
+  id: number;
+  slug: string;
+  name: string;
+  date: string;
+  summary: CountEditionSummary;
+  coordinates: CountEditionCoordinates[];
+  sessions: {
+    [key: string]: CountEditionSession;
+  };
+  directions: {
+    [key: string]: CountEditionDirections;
+  };
+}
+
+type pointData = {
+  key: string;
+  latitude: number;
+  longitude: number;
+  popup?: any;
+  size?: number;
+  color?: string;
+  type?: string;
+};
+
+function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps) {
+  const options = {
+    chart: {
+      type: "line",
+    },
+    colors: colors,
+    plotOptions: {
+      column: {
+        dataLabels: {
+          enabled: true,
+        },
+      },
+    },
+    tooltip: {
+      headerFormat: "<b>{point.x}h</b><br/>",
+      pointFormat: "{series.name}: {point.y}<br/>",
+    },
+    title: {
+      text: "Fluxo horário de ciclistas",
+    },
+    xAxis: {
+      type: "category",
+      categories: hours,
+      title: {
+        text: "Hora",
+      },
+    },
+    yAxis: {
+      title: {
+        text: "Quantidade",
+      },
+      scrollbar: {
+        enabled: true,
+      },
+    },
+    series,
+
+    credits: {
+      enabled: true,
+    },
+  };
+
+  return (
+    <section className="container mx-auto grid grid-cols-1 auto-rows-auto gap-10 my-10">
+      <div className="shadow-2xl rounded p-10 text-center overflow-x-scroll">
+        <div style={{ minWidth: "500px" }}>
+          <h2 className="text-gray-600 text-3xl">Quantidade de ciclistas por hora</h2>
+          {/* TODO: Importar e usar HighchartsReact e Highcharts */}
+          {/* <HighchartsReact highcharts={Highcharts} options={options} /> */}
+          <p>Gráfico de ciclistas por hora (Highcharts não importado)</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const CountingComparisionTable = ({ data, firstSlug }) => {
+  // TODO: Importar fuzzyTextFilterFn, ColumnFilter e Table
+  const filterTypes = React.useMemo(
+    () => ({
+      // Add a new fuzzyTextFilterFn filter type.
+      // fuzzyText: fuzzyTextFilterFn,
+      // Or, override the default text filter to use
+      // "startWith"
+      text: (rows, id, filterValue) => {
+        return rows.filter((row) => {
+          const rowValue = row.values[id];
+          return rowValue !== undefined
+            ? String(rowValue)
+                .toLowerCase()
+                .startsWith(String(filterValue).toLowerCase())
+            : true;
+        });
+      },
+    }),
+    []
+  );
+
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: "Nome",
+        accessor: "name",
+        Cell: ({ row }) => (
+          <Link
+            className="text-ameciclo"
+            to={`contagens/${row.original.slug}`}
+            key={row.original.id}
+          >
+            {row.original.name}
+          </Link>
+        ),
+        // Filter: ColumnFilter,
+      },
+      {
+        Header: "Data",
+        accessor: "date",
+        Cell: ({ value }) => (
+          <span>{value.substr(0, 10).split("-").reverse().join("/")}</span>
+        ),
+        // Filter: ColumnFilter,
+      },
+      {
+        Header: "Total de Ciclistas",
+        accessor: "total_cyclists",
+        // Filter: ColumnFilter,
+        disableFilters: true,
+      },
+      {
+        Header: "COMPARE",
+        Cell: ({ row }) => (
+          <span>
+            <Link
+              className="text-ameciclo"
+              to={`/contagens/${firstSlug}/${row.original.slug}`}
+            >
+              COMPARE
+            </Link>
+          </span>
+        ),
+        disableFilters: true,
+      },
+    ],
+    []
+  );
+
+  return (
+    // <Table
+    //   title={"Compare com outras contagens"}
+    //   data={data}
+    //   columns={columns}
+    // />
+    <p>Tabela de comparação (Table não importado)</p>
+  );
+};
+
+function getChartData(sessions: CountEditionSession[]) {
+    const series: Series[] = [];
+    const hours: number[] = [];
+    const totalCyclists: number[] = [];
+
+    Object.values(sessions).forEach((session) => {
+        const { start_time, total_cyclists, characteristics } = session;
+        const hour = parseInt(start_time.split(":")[0]);
+        hours.push(hour);
+        totalCyclists.push(total_cyclists);
+
+        Object.entries(characteristics).forEach(([key, value]) => {
+            if (characteristicsMap.has(key)) {
+                const characteristic = characteristicsMap.get(key);
+                const seriesIndex = series.findIndex(
+                    (s) => s.name === characteristic?.name
+                );
+                if (seriesIndex !== -1) {
+                    series[seriesIndex].data.push(value);
+                } else {
+                    series.push({
+                        name: characteristic?.name || "",
+                        data: [value],
+                        visible: false,
+                    });
+                }
+            }
+        });
+    });
+
+    series.push({
+        name: "Total de Ciclistas",
+        data: totalCyclists,
+        visible: true,
+    });
+
+    return { series, hours };
+}
+function getCountingCards(data: CountEditionSummary) {
     const {
         total_cyclists,
         total_cargo,
         total_helmet,
         total_juveniles,
+        total_motor,
         total_ride,
         total_service,
         total_shared_bike,
         total_sidewalk,
         total_women,
-        total_wrong_way
-    } = summary;
-    
+        total_wrong_way,
+    } = { ...data };
     return [
-        { label: "Mulheres", icon: "women", data: IntlPercentil(total_women / total_cyclists) },
-        { label: "Crianças e Adolescentes", icon: "children", data: IntlPercentil(total_juveniles / total_cyclists) },
-        { label: "Carona", icon: "ride", data: IntlPercentil(total_ride / total_cyclists) },
-        { label: "Capacete", icon: "helmet", data: IntlPercentil(total_helmet / total_cyclists) },
-        { label: "Serviço", icon: "service", data: IntlPercentil(total_service / total_cyclists) },
-        { label: "Cargueira", icon: "cargo", data: IntlPercentil(total_cargo / total_cyclists) },
-        { label: "Compartilhada", icon: "shared_bike", data: IntlPercentil(total_shared_bike / total_cyclists) },
-        { label: "Calçada", icon: "sidewalk", data: IntlPercentil(total_sidewalk / total_cyclists) },
-        { label: "Contramão", icon: "wrong_way", data: IntlPercentil(total_wrong_way / total_cyclists) }
+        {
+            label: "Mulheres",
+            icon: "women",
+            data: IntlPercentil(total_women / total_cyclists),
+        },
+        {
+            label: "Crianças e Adolescentes",
+            icon: "children",
+            data: IntlPercentil(total_juveniles / total_cyclists),
+        },
+        {
+            label: "Carona",
+            icon: "ride",
+            data: IntlPercentil(total_ride / total_cyclists),
+        },
+        {
+            label: "Capacete",
+            icon: "helmet",
+            data: IntlPercentil(total_helmet / total_cyclists),
+        },
+        {
+            label: "Serviço",
+            icon: "service",
+            data: IntlPercentil(total_service / total_cyclists),
+        },
+        {
+            label: "Cargueira",
+            icon: "cargo",
+            data: IntlPercentil(total_cargo / total_cyclists),
+        },
+        {
+            label: "Compartilhada",
+            icon: "shared_bike",
+            data: IntlPercentil(total_shared_bike / total_cyclists),
+        },
+        {
+            label: "Calçada",
+            icon: "sidewalk",
+            data: IntlPercentil(total_sidewalk / total_cyclists),
+        },
+        {
+            label: "Contramão",
+            icon: "wrong_way",
+            data: IntlPercentil(total_wrong_way / total_cyclists),
+        },
     ];
 }
+function getPointsData(d: CountEdition) {
+    const { name, coordinates } = d;
+    const [centralPoint] = coordinates;
 
-function getChartData(sessions: any) {
-    const series: any[] = [];
-    const hours: number[] = [];
-    const totalCyclists: number[] = [];
-    
-    Object.values(sessions).forEach((session: any) => {
-        const { start_time, total_cyclists } = session;
-        const date = new Date(start_time);
-        const hour = date.getHours();
-        hours.push(hour);
-        totalCyclists.push(total_cyclists);
-    });
-    
-    series.push({
-        name: "Total de Ciclistas",
-        data: totalCyclists,
-        visible: true
-    });
-    
-    return { series, hours };
+    const points = [
+        {
+            key: name,
+            latitude: centralPoint.point.latitude,
+            longitude: centralPoint.point.longitude,
+        },
+        {
+            key: `${name}_north`,
+            latitude: centralPoint.point.latitude + 0.001,
+            longitude: centralPoint.point.longitude,
+            color: colors[0]
+        },
+        {
+            key: `${name}_south`,
+            latitude: centralPoint.point.latitude - 0.001,
+            longitude: centralPoint.point.longitude,
+            color: colors[1]
+        },
+        {
+            key: `${name}_east`,
+            latitude: centralPoint.point.latitude,
+            longitude: centralPoint.point.longitude + 0.001,
+            color: colors[2]
+        },
+        {
+            key: `${name}_west`,
+            latitude: centralPoint.point.latitude,
+            longitude: centralPoint.point.longitude - 0.001,
+            color: colors[3]
+        },
+    ];
+
+    return points;
 }
+const CountingStatistic = (data: CountEdition) => {
+    const { id, date, summary } = { ...data };
+    const { total_cyclists, max_hour } = { ...summary };
+    const JSON_URL = `${COUNTINGS_DATA}/${id}`;
+    return [
+        { title: "Total de ciclistas", value: IntlNumber(total_cyclists) },
+        {
+            title: "Pico em 1h",
+            value: IntlNumber(max_hour),
+        },
+        { title: "Data da Contagem", value: IntlDateStr(date) },
+        {
+            type: "LinksBox",
+            title: "Dados",
+            value: [
+                {
+                    label: "JSON",
+                    url: JSON_URL,
+                },
+            ],
+        },
+    ];
+};
 
-const FlowContainer = ({ data }: { data: any }) => {
-    const { directions, summary } = data;
-    
-    const calculateDirectionFlow = () => {
-        const flows = { north: 0, south: 0, east: 0, west: 0 };
-        
-        Object.values(data.sessions || {}).forEach((session: any) => {
-            const { quantitative } = session;
-            if (quantitative) {
-                flows.north += (quantitative.north_south || 0) + (quantitative.north_east || 0) + (quantitative.north_west || 0);
-                flows.south += (quantitative.south_north || 0) + (quantitative.south_east || 0) + (quantitative.south_west || 0);
-                flows.east += (quantitative.east_north || 0) + (quantitative.east_south || 0) + (quantitative.east_west || 0);
-                flows.west += (quantitative.west_north || 0) + (quantitative.west_south || 0) + (quantitative.west_east || 0);
-            }
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+    const fetchUniqueData = async (slug: string) => {
+        const id = slug.split("-")[0];
+        const URL = COUNTINGS_DATA + "/" + id;
+        const res = await fetch(URL, {
+            cache: "no-cache",
         });
-        
-        return flows;
+        const responseJson = await res.json();
+        return responseJson;
     };
-    
-    const flows = calculateDirectionFlow();
-    const maxFlow = Math.max(...Object.values(flows));
-    
+
+    const fetchData = async () => {
+        const dataRes = await fetch(COUNTINGS_SUMMARY_DATA, {
+            cache: "no-cache",
+        });
+        const dataJson = await dataRes.json();
+        const otherCounts = dataJson.counts;
+
+        const pageDataRes = await fetch(COUNTINGS_PAGE_DATA, { cache: "no-cache" });
+        const pageCover = await pageDataRes.json();
+        return { pageCover, otherCounts };
+    };
+
+    const data: CountEdition = await fetchUniqueData(params.slug as string);
+    const { pageCover, otherCounts } = await fetchData();
+
+    return json({ data, pageCover, otherCounts });
+};
+
+const Contagem = () => {
+    const { data, pageCover, otherCounts } = useLoaderData<typeof loader>();
+
+    let pageData = {
+        title: data.name,
+        src: pageCover.cover.url,
+    };
+
+    const crumb = {
+        label: data.name,
+        slug: data.slug,
+        routes: ["/", "/contagens", data.slug],
+        customColor: "bg-ameciclo",
+    };
+    const pointsData = getPointsData(data) as pointData[];
+    const { series, hours } = getChartData(data.sessions);
+    const [isMapVisible, setIsMapVisible] = useState(false);
+
+    useEffect(() => {
+        setIsMapVisible(true);
+    }, []);
+
     return (
-        <div className="bg-white rounded-lg shadow-xl p-6 h-full">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Fluxo por Direção</h3>
-            <div className="space-y-4">
-                {Object.entries(directions).map(([key, direction]) => {
-                    const flow = flows[key as keyof typeof flows];
-                    const percentage = maxFlow > 0 ? (flow / maxFlow) * 100 : 0;
-                    
-                    return (
-                        <div key={key} className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium text-gray-700 capitalize">
-                                    {direction as string}
-                                </span>
-                                <span className="text-sm text-gray-600">
-                                    {flow} ciclistas
-                                </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-3">
-                                <div 
-                                    className="bg-ameciclo h-3 rounded-full transition-all duration-300"
-                                    style={{ width: `${percentage}%` }}
-                                />
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-            <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="text-center">
-                    <span className="text-lg font-bold text-ameciclo">
-                        {summary.total_cyclists}
-                    </span>
-                    <p className="text-sm text-gray-600">Total de Ciclistas</p>
+        <main className="flex-auto">
+            <Banner />
+            <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
+            <StatisticsBox title={data.name} boxes={CountingStatistic(data)} />
+            <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
+                <div
+                    className="bg-green-200 rounded shadow-2xl lg:col-span-2 col-span-3"
+                    style={{ minHeight: "400px" }}
+                >
+                    {!isMapVisible && <p>Carregando mapa...</p>}
+                    {isMapVisible && <AmecicloMap pointsData={pointsData} height="400px" />}
                 </div>
-            </div>
-        </div>
+                <div className="rounded shadow-2xl lg:col-span-1 col-span-3 flex justify-between flex-col">
+                    <FlowContainer data={data} />
+                </div>
+            </section>
+            <InfoCards cards={getCountingCards(data.summary)} />
+            <HourlyCyclistsChart series={series as Series[]} hours={hours} />
+            <CountingComparisionTable
+                data={otherCounts.filter((d) => d.id !== data.id)}
+                firstSlug={data.slug}
+            />
+        </main>
     );
 };
 
-export default function ContagemIndividual() {
-    const { contagem, cover } = useLoaderData<typeof loader>();
-    
-    const pointsData = getPointsData(contagem);
-    const statistics = getCountingStatistics(contagem);
-    const cards = getCountingCards(contagem.summary);
-    const { series, hours } = getChartData(contagem.sessions);
-    
-    return (
-        <>
-            <Banner image={cover?.url || "/projetos.webp"} alt={`Capa da contagem ${contagem.name}`} />
-            <Breadcrumb 
-                label={contagem.name} 
-                slug={`/dados/contagens/${contagem.slug}`} 
-                routes={["/", "/dados", "/dados/contagens"]} 
-            />
-            
-            <GeneralCountStatistics title={contagem.name} boxes={statistics} />
-            
-            <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10 my-8">
-                <div className="lg:col-span-2 col-span-3">
-                    <CountsMap pointsData={pointsData} height="400px" />
-                </div>
-                <div className="lg:col-span-1 col-span-3">
-                    <FlowContainer data={contagem} />
-                </div>
-            </section>
-            
-            <InfoCards cards={cards} />
-            <HourlyCyclistsChart series={series} hours={hours} />
-        </>
-    );
-}
+export default Contagem;
