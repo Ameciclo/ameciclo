@@ -100,15 +100,12 @@ export function CountsTable({ data }: ContagensTableProps) {
   );
 
   return (
-    <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
-      <h2 className="text-gray-600 text-3xl mb-4">Nossas contagens</h2>
-      <Table
-        title="Contagens de Ciclistas"
-        data={data}
-        columns={columns}
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-      />
-    </section>
+    <Table
+      title="Contagens de Ciclistas"
+      data={data}
+      columns={columns}
+      showFilters={showFilters}
+      setShowFilters={setShowFilters}
+    />
   );
 }
