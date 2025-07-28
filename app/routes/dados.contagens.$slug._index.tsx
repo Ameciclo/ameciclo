@@ -5,8 +5,9 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { colors } from "~/components/Charts/FlowChart/FlowContainer";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { defer, LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData, Await } from "@remix-run/react";
+import { Suspense } from "react";
 import React, { useEffect, useState } from "react";
 // import Table from "~/components/Commom/Table/Table"; // Comentado
 // import HighchartsReact from "highcharts-react-official"; // Comentado
@@ -223,37 +224,96 @@ function getCountingCards(data: CountEditionSummary) {
     ];
 }
 function getPointsData(d: CountEdition) {
-    const { name, coordinates } = d;
+    const { name, coordinates, summary, date, slug, sessions } = d;
     const [centralPoint] = coordinates;
+
+    // Calcular fluxos por direção
+    const flows = {
+        north: 0,
+        south: 0,
+        east: 0,
+        west: 0
+    };
+    
+    Object.values(sessions || {}).forEach((session: any) => {
+        const { quantitative } = session;
+        if (quantitative) {
+            flows.north += (quantitative.north_south || 0) + (quantitative.north_east || 0) + (quantitative.north_west || 0);
+            flows.south += (quantitative.south_north || 0) + (quantitative.south_east || 0) + (quantitative.south_west || 0);
+            flows.east += (quantitative.east_north || 0) + (quantitative.east_south || 0) + (quantitative.east_west || 0);
+            flows.west += (quantitative.west_north || 0) + (quantitative.west_south || 0) + (quantitative.west_east || 0);
+        }
+    });
 
     const points = [
         {
             key: name,
             latitude: centralPoint.point.latitude,
             longitude: centralPoint.point.longitude,
+            popup: {
+                name: name,
+                total: summary.total_cyclists,
+                date: IntlDateStr(date),
+                url: `/dados/contagens/${slug}`,
+                obs: ""
+            },
+            size: 20,
+            color: "#008888"
         },
         {
             key: `${name}_north`,
             latitude: centralPoint.point.latitude + 0.001,
             longitude: centralPoint.point.longitude,
+            popup: {
+                name: `${name} - Norte`,
+                total: flows.north,
+                date: IntlDateStr(date),
+                url: "",
+                obs: "Fluxo de ciclistas saindo da direção Norte"
+            },
+            size: Math.max(10, Math.round(flows.north / 10) + 5),
             color: colors[0]
         },
         {
             key: `${name}_south`,
             latitude: centralPoint.point.latitude - 0.001,
             longitude: centralPoint.point.longitude,
+            popup: {
+                name: `${name} - Sul`,
+                total: flows.south,
+                date: IntlDateStr(date),
+                url: "",
+                obs: "Fluxo de ciclistas saindo da direção Sul"
+            },
+            size: Math.max(10, Math.round(flows.south / 10) + 5),
             color: colors[1]
         },
         {
             key: `${name}_east`,
             latitude: centralPoint.point.latitude,
             longitude: centralPoint.point.longitude + 0.001,
+            popup: {
+                name: `${name} - Leste`,
+                total: flows.east,
+                date: IntlDateStr(date),
+                url: "",
+                obs: "Fluxo de ciclistas saindo da direção Leste"
+            },
+            size: Math.max(10, Math.round(flows.east / 10) + 5),
             color: colors[2]
         },
         {
             key: `${name}_west`,
             latitude: centralPoint.point.latitude,
             longitude: centralPoint.point.longitude - 0.001,
+            popup: {
+                name: `${name} - Oeste`,
+                total: flows.west,
+                date: IntlDateStr(date),
+                url: "",
+                obs: "Fluxo de ciclistas saindo da direção Oeste"
+            },
+            size: Math.max(10, Math.round(flows.west / 10) + 5),
             color: colors[3]
         },
     ];
@@ -293,15 +353,12 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
                 cache: "no-cache",
             });
             if (!res.ok) {
-                
-                return null; // Or throw an error
+                return null;
             }
             const responseJson = await res.json();
-            
             return responseJson;
         } catch (error) {
-            
-            return null; // Or throw an error
+            return null;
         }
     };
 
@@ -329,7 +386,6 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
                 console.error(`Error fetching page data: ${pageDataRes.status} ${pageDataRes.statusText}`);
             } else {
                 pageCover = await pageDataRes.json();
-                
             }
         } catch (error) {
             console.error("Error in fetchData (page data):", error);
@@ -337,61 +393,98 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
         return { pageCover, otherCounts };
     };
 
-    const data: CountEdition = await fetchUniqueData(params.slug as string);
-    const { pageCover, otherCounts } = await fetchData();
+    const dataPromise = fetchUniqueData(params.slug as string);
+    const pageDataPromise = fetchData();
 
-    if (!data) {
-        throw new Response("Not Found", { status: 404 });
-    }
-
-    return json({ data, pageCover, otherCounts });
+    return defer({ dataPromise, pageDataPromise });
 };
 
 const Contagem = () => {
-    const { data, pageCover, otherCounts } = useLoaderData<typeof loader>();
-
-    let pageData = {
-        title: data.name,
-        src: pageCover.cover.url,
-    };
-
-    const crumb = {
-        label: data.name,
-        slug: data.slug,
-        routes: ["/", "/contagens", data.slug],
-        customColor: "bg-ameciclo",
-    };
-    const pointsData = getPointsData(data) as pointData[];
-    const { series, hours } = getChartData(data.sessions);
-    const [isMapVisible, setIsMapVisible] = useState(false);
-
-    useEffect(() => {
-        setIsMapVisible(true);
-    }, []);
+    const { dataPromise, pageDataPromise } = useLoaderData<typeof loader>();
 
     return (
         <main className="flex-auto">
-            <Banner />
+            <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
+                <Await resolve={pageDataPromise}>
+                    {(pageData) => (
+                        <Banner image={pageData.pageCover?.cover?.url} alt="Capa da contagem" />
+                    )}
+                </Await>
+            </Suspense>
+            
             <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
-            <StatisticsBox title={data.name} boxes={CountingStatistic(data)} />
-            <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
-                <div
-                    className="bg-green-200 rounded shadow-2xl lg:col-span-2 col-span-3"
-                    style={{ minHeight: "400px" }}
-                >
-                    {!isMapVisible && <p>Carregando mapa...</p>}
-                    {isMapVisible && <AmecicloMap pointsData={pointsData} height="400px" />}
-                </div>
-                <div className="rounded shadow-2xl lg:col-span-1 col-span-3 flex justify-between flex-col">
-                    <FlowContainer data={data} />
-                </div>
-            </section>
-            <InfoCards cards={getCountingCards(data.summary)} />
-            <HourlyCyclistsChart series={series as Series[]} hours={hours} />
-            <CountingComparisionTable
-                data={otherCounts.filter((d) => d.id !== data.id)}
-                firstSlug={data.slug}
-            />
+            
+            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-32" />}>
+                <Await resolve={dataPromise}>
+                    {(data) => {
+                        if (!data) {
+                            throw new Response("Not Found", { status: 404 });
+                        }
+                        return (
+                            <StatisticsBox title={data.name} boxes={CountingStatistic(data)} />
+                        );
+                    }}
+                </Await>
+            </Suspense>
+            
+            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
+                <Await resolve={dataPromise}>
+                    {(data) => {
+                        if (!data) return null;
+                        const pointsData = getPointsData(data) as pointData[];
+                        return (
+                            <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
+                                <div
+                                    className="bg-green-200 rounded shadow-2xl lg:col-span-2 col-span-3"
+                                    style={{ minHeight: "400px" }}
+                                >
+                                    <AmecicloMap pointsData={pointsData} height="400px" />
+                                </div>
+                                <div className="rounded shadow-2xl lg:col-span-1 col-span-3 flex justify-between flex-col">
+                                    <FlowContainer data={data} />
+                                </div>
+                            </section>
+                        );
+                    }}
+                </Await>
+            </Suspense>
+            
+            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
+                <Await resolve={dataPromise}>
+                    {(data) => {
+                        if (!data) return null;
+                        return (
+                            <InfoCards cards={getCountingCards(data.summary)} />
+                        );
+                    }}
+                </Await>
+            </Suspense>
+            
+            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
+                <Await resolve={dataPromise}>
+                    {(data) => {
+                        if (!data) return null;
+                        const { series, hours } = getChartData(data.sessions);
+                        return (
+                            <HourlyCyclistsChart series={series as Series[]} hours={hours} />
+                        );
+                    }}
+                </Await>
+            </Suspense>
+            
+            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
+                <Await resolve={Promise.all([dataPromise, pageDataPromise])}>
+                    {([data, pageData]) => {
+                        if (!data) return null;
+                        return (
+                            <CountingComparisionTable
+                                data={pageData.otherCounts.filter((d: any) => d.id !== data.id)}
+                                firstSlug={data.slug}
+                            />
+                        );
+                    }}
+                </Await>
+            </Suspense>
         </main>
     );
 };

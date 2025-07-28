@@ -1,10 +1,10 @@
-import { json, type LoaderFunction } from "@remix-run/node";
+import { defer, type LoaderFunction } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader: LoaderFunction = async () => {
   let apiDown = false;
   
-  const home = await fetchWithTimeout(
+  const homePromise = fetchWithTimeout(
     "https://cms.ameciclo.org/home", 
     { cache: "no-cache" }, 
     5000, 
@@ -12,7 +12,7 @@ export const loader: LoaderFunction = async () => {
     () => { apiDown = true; }
   );
   
-  const projects = await fetchWithTimeout(
+  const projectsPromise = fetchWithTimeout(
     "https://cms.ameciclo.org/projects", 
     { cache: "no-cache" }, 
     5000, 
@@ -20,9 +20,9 @@ export const loader: LoaderFunction = async () => {
     () => { apiDown = true; }
   );
 
-  return json({
-    home,
-    projects,
+  return defer({
+    homePromise,
+    projectsPromise,
     apiDown
   });
 };

@@ -1,4 +1,4 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import { defer, LoaderFunction } from "@remix-run/node";
 import { IntlPercentil } from "~/services/utils";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { CountEditionSummary } from "typings";
@@ -6,34 +6,6 @@ import * as fs from "fs/promises";
 import * as path from "path";
 
 export const loader: LoaderFunction = async () => {
-  // Usando fetchWithTimeout para evitar timeouts
-  const data = await fetchWithTimeout(
-    "https://cms.ameciclo.org/contagens", 
-    { cache: "no-cache" },
-    5000,
-    { cover: null, description: "Dados de contagens", objective: "Monitorar fluxo de ciclistas", archives: [], counts: [] }
-  );
-  
-  const cover = data?.cover;
-  const description = data?.description;
-  const objective = data?.objective;
-  const archives = data?.archives || [];
-  const dataCounts = data?.counts || [];
-
-  // Usando fetchWithTimeout para a API de contagens
-  const summaryDataJson = await fetchWithTimeout(
-    "http://api.garfo.ameciclo.org/cyclist-counts",
-    { cache: "no-cache" },
-    5000,
-    { summary: { total_cyclists: 0, total_women: 0, total_juveniles: 0, total_cargo: 0, total_helmet: 0, total_ride: 0, total_service: 0, total_shared_bike: 0, total_sidewalk: 0, total_wrong_way: 0, total_motor: 0 }, counts: [] }
-  );
-  
-  const summaryData = summaryDataJson?.summary || {};
-  const countsData = summaryDataJson?.counts || [];
-
-  // Reutilizando os dados já obtidos para evitar chamada duplicada
-  const pageData = data;
-
   const CardsData = (summaryData: CountEditionSummary) => {
     const {
       total_cyclists,
@@ -97,26 +69,40 @@ export const loader: LoaderFunction = async () => {
       },
     ];
   };
-  const cards = CardsData(summaryData);
-  let pcrCounts = [];
-  try {
-    const jsonPath = path.join(process.cwd(), "public", "dbs", "PCR_CONTAGENS.json");
-    const fileContent = await fs.readFile(jsonPath, "utf-8");
-    pcrCounts = JSON.parse(fileContent);
-  } catch (error) {
-    console.error("Error reading PCR_CONTAGENS.json:", error);
-  }
 
-  return json({
-    cover,
-    summaryData,
-    countsData,
-    pageData,
-    description,
-    objective,
-    archives,
-    cards,
-    dataCounts: countsData, // Usando dados da API em vez do CMS
-    pcrCounts,
+  const dataPromise = fetchWithTimeout(
+    "https://cms.ameciclo.org/contagens", 
+    { cache: "no-cache" },
+    5000,
+    { cover: null, description: "Dados de contagens", objective: "Monitorar fluxo de ciclistas", archives: [], counts: [] }
+  );
+  
+  const summaryDataPromise = fetchWithTimeout(
+    "http://api.garfo.ameciclo.org/cyclist-counts",
+    { cache: "no-cache" },
+    5000,
+    { summary: { total_cyclists: 0, total_women: 0, total_juveniles: 0, total_cargo: 0, total_helmet: 0, total_ride: 0, total_service: 0, total_shared_bike: 0, total_sidewalk: 0, total_wrong_way: 0, total_motor: 0 }, counts: [] }
+  ).then(data => {
+    const summaryData = data?.summary || {};
+    const countsData = data?.counts || [];
+    const cards = CardsData(summaryData);
+    return { summaryData, countsData, cards };
+  });
+
+  const pcrCountsPromise = (async () => {
+    try {
+      const jsonPath = path.join(process.cwd(), "public", "dbs", "PCR_CONTAGENS.json");
+      const fileContent = await fs.readFile(jsonPath, "utf-8");
+      return JSON.parse(fileContent);
+    } catch (error) {
+      console.error("Error reading PCR_CONTAGENS.json:", error);
+      return [];
+    }
+  })();
+
+  return defer({
+    dataPromise,
+    summaryDataPromise,
+    pcrCountsPromise,
   });
 };

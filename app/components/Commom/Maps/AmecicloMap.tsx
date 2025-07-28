@@ -9,6 +9,10 @@ import { pointData } from "../../../../typings";
 import * as Remix from "@remix-run/react";
 
 function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
+    const { popup } = selectedPoint;
+    const total = popup.total || 0;
+    const date = popup.date || "Data não disponível";
+    
     return (
         <div className="absolute top-0 left-0 max-w-sm bg-white shadow-md p-6 m-10 text-sm text-gray-600 uppercase">
             <button
@@ -18,8 +22,20 @@ function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
                 X
             </button>
             <div className="text-center">
-                <h2 className="font-bold">{selectedPoint.popup.name}</h2>
-                <p>Popup Content</p>
+                <h2 className="font-bold">{popup.name || "Ponto de contagem"}</h2>
+                <p className="py-2">
+                    {total} ciclistas em {date}
+                </p>
+                {popup.obs && popup.obs !== "" && (
+                    <p className="py-2 text-sm text-gray-700">
+                        {popup.obs}
+                    </p>
+                )}
+                {popup.url && popup.url !== "" && (
+                    <Remix.Link to={popup.url}>
+                        <button className="bg-ameciclo text-white p-2">Ver mais</button>
+                    </Remix.Link>
+                )}
             </div>
         </div>
     );
@@ -148,17 +164,13 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
         pitch: 0,
     };
 
-    let points = [
-        [-34.9452, -8.05843],
-        [-34.945277, -8.0584364],
-    ];
-    if (pointsData) {
-        points = pointsData.map((point: any) => [point.longitude, point.latitude]);
-        if (points.length === 1) {
-            points.push(points[0]);
-        }
+    let points = pointsData;
+
+    if (!points || points.length === 0) {
+        return standardViewPort;
     }
-    const lineStringFromPointData = turf.lineString(points);
+
+    const lineStringFromPointData = turf.lineString(points.map((point: any) => [point.longitude, point.latitude]));
     const [PminX, PminY, PmaxX, PmaxY] = bbox(lineStringFromPointData);
 
     let lineStringFromLayersData = lineStringFromPointData;
@@ -279,7 +291,25 @@ export const AmecicloMap = ({
     height?: string;
     controlPanel?: any[];
 }) => {
-    const inicialViewPort = getInicialViewPort(pointsData, layerData);
+    const [isClient, setIsClient] = useState(false);
+    const [isMapReady, setIsMapReady] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+        // Pequeno delay para garantir que tudo está hidratado
+        const timer = setTimeout(() => {
+            setIsMapReady(true);
+        }, 100);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const inicialViewPort = isClient ? getInicialViewPort(pointsData, layerData) : {
+        latitude: -8.0584364,
+        longitude: -34.945277,
+        zoom: 10,
+        bearing: 0,
+        pitch: 0,
+    };
 
     const [selectedPoint, setSelectedPoint] = useState<pointData | undefined>(
         undefined
@@ -289,14 +319,19 @@ export const AmecicloMap = ({
     const [settings, setsettings] = useState({ ...mapInicialState });
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    const [layerVisibility, setLayerVisibility] = useState<Record<string, boolean>>(
-        layersConf?.reduce((obj, layer) => {
-            if (layer.id) {
-                obj[layer.id] = true;
-            }
-            return obj;
-        }, {} as Record<string, boolean>) ?? {}
-    );
+    const [layerVisibility, setLayerVisibility] = useState<Record<string, boolean>>({});
+    
+    useEffect(() => {
+        if (layersConf && isClient) {
+            const initialVisibility = layersConf.reduce((obj, layer) => {
+                if (layer.id) {
+                    obj[layer.id] = true;
+                }
+                return obj;
+            }, {} as Record<string, boolean>);
+            setLayerVisibility(initialVisibility);
+        }
+    }, [layersConf, isClient]);
 
     const handleClick = () => {
         setsettings({
@@ -314,14 +349,14 @@ export const AmecicloMap = ({
     const [markerVisibility, setMarkerVisibility] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
-        if (pointsData) {
+        if (pointsData && isClient) {
             const initialVisibility: Record<string, boolean> = {};
             pointsData.forEach(marker => {
                 initialVisibility[marker.key] = true; // All markers visible by default
             });
             setMarkerVisibility(initialVisibility);
         }
-    }, [pointsData]);
+    }, [pointsData, isClient]);
 
     const handleMarkerToggle = (key: string) => {
         setMarkerVisibility((prev) => {
@@ -344,85 +379,87 @@ export const AmecicloMap = ({
         <section className="container mx-auto">
             <div className={`relative bg-gray-200 rounded shadow-2xl map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
                 }`}>
-                <Map
-                    {...viewport}
-                    {...settings}
-                    width="100%"
-                    height={isFullscreen ? "100vh" : "500px"}
-                    onViewportChange={setViewport}
-                    mapStyle={MAPBOXSTYLE}
-                    mapboxApiAccessToken={MAPBOXTOKEN}
-                >
-                    <style>{`
-                        .mapboxgl-ctrl-attrib {
-                            color: #d1d5db !important;
-                            font-size: 10px !important;
-                            opacity: 0.6 !important;
-                        }
-                        .mapboxgl-ctrl-attrib a {
-                            color: #d1d5db !important;
-                            font-size: 10px !important;
-                        }
-                    `}</style>
-                    <MapCommands handleClick={handleClick} viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={inicialViewPort} />
-                    {layerData && (
-                        <Source id="layersMap" type="geojson" data={layerData}>
-                            {layersConf?.map((layer: any, i: number) =>
-                                layer.id && layerVisibility[layer.id] !== false && (
-                                    <Layer key={layer.id || i} {...layer} />
-                                )
-                            )}
-                        </Source>
-                    )}
-                    {pointsData?.map((point) => {
-                        const { key, latitude, longitude, size, color } = point;
-                        return (
-                            markerVisibility &&
-                            markerVisibility[key] == true && (
-                                <Marker
-                                    key={key}
-                                    latitude={latitude}
-                                    longitude={longitude}
-                                    onClick={() => setSelectedPoint(point)}
-                                >
-                                    <svg
-                                        height={size ? size : 15}
-                                        viewBox="0 0 24 24"
-                                        style={{
-                                            cursor: "pointer",
-                                            fill: color ? color : "#008080",
-                                            stroke: "none",
-                                            transform: `translate(${- (size ? size : 15) / 2}px,${- (size ? size : 15)}px)`,
-                                        }}
+                {isClient && isMapReady && (
+                    <Map
+                        {...viewport}
+                        {...settings}
+                        width="100%"
+                        height={isFullscreen ? "100vh" : "500px"}
+                        onViewportChange={setViewport}
+                        mapStyle={MAPBOXSTYLE}
+                        mapboxApiAccessToken={MAPBOXTOKEN}
+                    >
+                        <style>{`
+                            .mapboxgl-ctrl-attrib {
+                                color: #d1d5db !important;
+                                font-size: 10px !important;
+                                opacity: 0.6 !important;
+                            }
+                            .mapboxgl-ctrl-attrib a {
+                                color: #d1d5db !important;
+                                font-size: 10px !important;
+                            }
+                        `}</style>
+                        <MapCommands handleClick={handleClick} viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={inicialViewPort} />
+                        {layerData && (
+                            <Source id="layersMap" type="geojson" data={layerData}>
+                                {layersConf?.map((layer: any, i: number) =>
+                                    layer.id && layerVisibility[layer.id] !== false && (
+                                        <Layer key={layer.id || i} {...layer} />
+                                    )
+                                )}
+                            </Source>
+                        )}
+                        {pointsData?.map((point) => {
+                            const { key, latitude, longitude, size, color } = point;
+                            return (
+                                markerVisibility &&
+                                markerVisibility[key] == true && (
+                                    <Marker
+                                        key={key}
+                                        latitude={latitude}
+                                        longitude={longitude}
+                                        onClick={() => setSelectedPoint(point)}
                                     >
-                                        <path d={dropIcon} />
-                                    </svg>
-                                </Marker>
-                            )
-                        );
-                    })}
-                    {selectedPoint !== undefined && (
-                        <CountingPopUp
-                            selectedPoint={selectedPoint}
-                            setSelectedPoint={setSelectedPoint}
-                        />
-                    )}
-                    {controlPanel.length > 0 && (
-                        <MapControlPanel
-                            controlPanel={controlPanel}
-                            markerVisibility={markerVisibility}
-                            pointsData={pointsData}
-                            handleMarkerToggle={handleMarkerToggle}
-                        />
-                    )}
-                    {layersConf && layersConf.length > 0 && (
-                        <MapLayersPanel
-                            layersConf={layersConf}
-                            layerVisibility={layerVisibility}
-                            toggleLayerVisibility={toggleLayerVisibility}
-                        />
-                    )}
-                </Map>
+                                        <svg
+                                            height={size ? size : 15}
+                                            viewBox="0 0 24 24"
+                                            style={{
+                                                cursor: "pointer",
+                                                fill: color ? color : "#008080",
+                                                stroke: "none",
+                                                transform: `translate(${- (size ? size : 15) / 2}px,${- (size ? size : 15)}px)`,
+                                            }}
+                                        >
+                                            <path d={dropIcon} />
+                                        </svg>
+                                    </Marker>
+                                )
+                            );
+                        })}
+                        {selectedPoint !== undefined && (
+                            <CountingPopUp
+                                selectedPoint={selectedPoint}
+                                setSelectedPoint={setSelectedPoint}
+                            />
+                        )}
+                        {controlPanel.length > 0 && (
+                            <MapControlPanel
+                                controlPanel={controlPanel}
+                                markerVisibility={markerVisibility}
+                                pointsData={pointsData}
+                                handleMarkerToggle={handleMarkerToggle}
+                            />
+                        )}
+                        {layersConf && layersConf.length > 0 && (
+                            <MapLayersPanel
+                                layersConf={layersConf}
+                                layerVisibility={layerVisibility}
+                                toggleLayerVisibility={toggleLayerVisibility}
+                            />
+                        )}
+                    </Map>
+                )}
             </div>
         </section>
     );

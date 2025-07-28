@@ -17,10 +17,10 @@ export default function Dados() {
         {
             title: "Contagens",
             src: "/icons/dados/contagem.svg",
-            url: "https://dados.ameciclo.org/contagens",
+            url: "/dados/contagens",
             description:
                 "Contagens das viagens de bicicleta e suas caracteristicas observáveis",
-            target: "_blank",
+            target: "_self",
         },
         {
             title: "Ideciclo",
