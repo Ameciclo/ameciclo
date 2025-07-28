@@ -27,22 +27,25 @@ interface CountEdition {
 
 function getBoxesForCountingComparision(data: CountEdition[]) {
   const boxes = data.map((d) => {
-    const { name, summary } = d;
+    const { name, date, summary } = d;
+    const totalCyclists = summary.total_cyclists; // Capture total_cyclists here
     const parameters = [
-      { titulo: "Cargueira", media: summary.total_cargo, mediaType: "number" },
-      { titulo: "Capacete", media: summary.total_helmet, mediaType: "number" },
-      { titulo: "Juvenis", media: summary.total_juveniles, mediaType: "number" },
-      { titulo: "Motor", media: summary.total_motor, mediaType: "number" },
-      { titulo: "Carona", media: summary.total_ride, mediaType: "number" },
-      { titulo: "Serviço", media: summary.total_service, mediaType: "number" },
-      { titulo: "Bike Compartilhada", media: summary.total_shared_bike, mediaType: "number" },
-      { titulo: "Calçada", media: summary.total_sidewalk, mediaType: "number" },
-      { titulo: "Mulheres", media: summary.total_women, mediaType: "number" },
-      { titulo: "Contramão", media: summary.total_wrong_way, mediaType: "number" },
+      { titulo: "Total", media: totalCyclists, mediaType: "number", total: totalCyclists },
+      { titulo: "Cargueira", media: summary.total_cargo, mediaType: "number", total: totalCyclists },
+      { titulo: "Capacete", media: summary.total_helmet, mediaType: "number", total: totalCyclists },
+      { titulo: "Juvenis", media: summary.total_juveniles, mediaType: "number", total: totalCyclists },
+      { titulo: "Motor", media: summary.total_motor, mediaType: "number", total: totalCyclists },
+      { titulo: "Carona", media: summary.total_ride, mediaType: "number", total: totalCyclists },
+      { titulo: "Serviço", media: summary.total_service, mediaType: "number", total: totalCyclists },
+      { titulo: "Bike Compartilhada", media: summary.total_shared_bike, mediaType: "number", total: totalCyclists },
+      { titulo: "Calçada", media: summary.total_sidewalk, mediaType: "number", total: totalCyclists },
+      { titulo: "Mulheres", media: summary.total_women, mediaType: "number", total: totalCyclists },
+      { titulo: "Contramão", media: summary.total_wrong_way, mediaType: "number", total: totalCyclists },
     ];
     return {
-      title: name,
-      value: summary.total_cyclists,
+      titulo: name,
+      value: totalCyclists,
+      date: date,
       parametros: parameters,
     };
   });

@@ -203,7 +203,6 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
 export default function Compare() {
   const { data, pageCover, otherCounts, toCompare, boxes } = useLoaderData<typeof loader>();
-  console.log("Boxes data in Compare component:", boxes);
 
   let pageData = {
     title: "Comparação de contagens",
@@ -222,7 +221,7 @@ export default function Compare() {
       <Breadcrumb {...crumb} customColor="bg-ameciclo" />
       <VerticalStatisticsBoxes
         title={"Comparação entre as contagens"}
-        boxes={boxes}
+        boxes={boxes.map((box: any) => ({ ...box, date: box.date }))}
       />
     </main>
   );

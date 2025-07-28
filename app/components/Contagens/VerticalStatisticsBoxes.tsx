@@ -22,7 +22,7 @@ export function VerticalStatisticsBoxes({ title, boxes }: any) {
     );
 }
 
-function VerticalBox({ titulo, media, mediaType = "", color, parametros }: any) {
+function VerticalBox({ titulo, media, mediaType = "", color, parametros, date }: any) {
     let newMedia = "N/A";
     switch (mediaType) {
         case "number":
@@ -43,7 +43,8 @@ function VerticalBox({ titulo, media, mediaType = "", color, parametros }: any) 
                 className="flex flex-col justify-center font-bold text-2xl uppercase w-full p-6 text-center tracking-widest"
                 style={{ background: color, flex: "1" }}
             >
-                <h3>{titulo}</h3>
+                <h3 className="text-3xl font-bold my-2">{titulo}</h3>
+                {date && <p className="text-xl font-normal mt-1">{IntlDateStr(date)}</p>}
                 <h3 className="text-4xl font-bold mt-2">{newMedia}</h3>
             </div>
             <div className="flex flex-col mx-4 md:mx-auto max-w-4xl divide-y divide-gray-200">
@@ -55,7 +56,7 @@ function VerticalBox({ titulo, media, mediaType = "", color, parametros }: any) 
     );
 }
 
-function StatisticBox({ titulo, media, mediaType, maior, menor }: any) {
+function StatisticBox({ titulo, media, mediaType, maior, menor, total }: any) {
     let text_color = "text-gray-900";
     if (!(maior & menor)) {
         if (maior) text_color = "text-ameciclo";
@@ -63,13 +64,20 @@ function StatisticBox({ titulo, media, mediaType, maior, menor }: any) {
     }
 
     let newMedia = "N/A";
+    let percentage = "";
 
     switch (mediaType) {
         case "number":
             newMedia = IntlNumber1Digit(media);
+            if (total && typeof media === 'number' && typeof total === 'number' && total > 0) {
+                percentage = ` (${(media / total * 100).toFixed(1)}%)`;
+            }
             break;
         case "numberMax1Digit":
             newMedia = IntlNumberMax1Digit(media);
+            if (total && typeof media === 'number' && typeof total === 'number' && total > 0) {
+                percentage = ` (${(media / total * 100).toFixed(1)}%)`;
+            }
             break;
         case "date":
             newMedia = IntlDateStr(media);
@@ -81,7 +89,7 @@ function StatisticBox({ titulo, media, mediaType, maior, menor }: any) {
     return (
         <div className="flex flex-col justify-center uppercase w-full p-6 text-center tracking-widest">
             <h3>{titulo}</h3>
-            <p className={`text-4xl font-bold mt-2 ${text_color}`}>{newMedia}</p>
+            <p className={`text-4xl font-bold mt-2 ${text_color}`}>{newMedia}{percentage}</p>
         </div>
     );
 }
