@@ -12,12 +12,13 @@ import { loader } from "~/loader/dados.contagens";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import { CountsTable } from "~/components/Contagens/CountsTable";
 import { MapLoading } from "~/components/ExecucaoCicloviaria/Loading/MapLoading";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
 export { loader };
 
 export default function Contagens() {
     const { dataPromise, summaryDataPromise, pcrCountsPromise } = useLoaderData<typeof loader>();
+    const [showFilters, setShowFilters] = useState(false);
 
     const allCountsStatistics = (summaryData: CountEditionSummary) => {
         const { total_cyclists = 0, number_counts = 0, where_max_count = { total_cyclists: 0 }, different_counts_points = 0 } = summaryData || {};
@@ -136,10 +137,18 @@ export default function Contagens() {
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
                 <Await resolve={summaryDataPromise}>
                     {(summaryResult) => (
-                        <CountsTable data={summaryResult.countsData} />
+                        <CountsTable data={summaryResult.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
                     )}
                 </Await>
             </Suspense>
+            <div className="container mx-auto px-4 py-4 text-right">
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="bg-ameciclo text-white px-4 py-2 rounded hover:bg-opacity-80"
+                >
+                    {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
+                </button>
+            </div>
             
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
                 <Await resolve={dataPromise}>

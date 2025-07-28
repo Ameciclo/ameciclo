@@ -32,10 +32,10 @@ export default function Dados() {
         {
             title: "Estudos e Pesquisas",
             src: "/icons/dados/relatorio.svg",
-            url: "https://dados.ameciclo.org/documentos",
+            url: "/dados/contagens",
             description:
                 "Nossos estudos, pesquisas e livros que participamos ou que fizeramos sobre nós.",
-            target: "_blank",
+            target: "",
         },
         {
             title: "Perfil",
