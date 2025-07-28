@@ -1,13 +1,15 @@
 import Banner from "~/components/Commom/Banner";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { loader as compareContagensLoader } from "~/loader/compareContagensLoader";
 import React from "react";
-import { VerticalStatisticsBoxes } from "~/components/ExecucaoCicloviaria/StatisticsBox";
+import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { colors } from "~/components/Charts/FlowChart/FlowContainer";
+import { VerticalStatisticsBoxes } from "~/components/Contagens/VerticalStatisticsBoxes";
 
 interface Series {
   name: string | undefined;
@@ -181,7 +183,9 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     return { pageCover, otherCounts };
   };
 
-  const toCompare = [params.slug].concat(params.compareSlug.split("_COMPARE_"));
+  const slugParam = params.slug || "";
+  const compareSlugParam = params.compareSlug || "";
+  const toCompare = [slugParam].concat(compareSlugParam.split("_COMPARE_")).filter(Boolean);
   const data = await Promise.all(
     toCompare.map(async (d) => {
       const result = await fetchUniqueData(d);
@@ -191,11 +195,15 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
   const { pageCover, otherCounts } = await fetchData();
 
-  return json({ data, pageCover, otherCounts, toCompare });
+  const boxesLoaderResult = await compareContagensLoader({ params });
+  const boxes = (await boxesLoaderResult.json()).boxes;
+
+  return json({ data, pageCover, otherCounts, toCompare, boxes });
 };
 
 export default function Compare() {
-  const { data, pageCover, otherCounts, toCompare } = useLoaderData<typeof loader>();
+  const { data, pageCover, otherCounts, toCompare, boxes } = useLoaderData<typeof loader>();
+  console.log("Boxes data in Compare component:", boxes);
 
   let pageData = {
     title: "Comparação de contagens",
@@ -205,13 +213,17 @@ export default function Compare() {
   const crumb = {
     label: "Comparação entre contagens",
     slug: toCompare.join("-"),
-    routes: ["/", "/contagens", toCompare.join("-")],
+    routes: ["/", "/contagens"],
   };
 
   return (
     <main className="flex-auto">
       <Banner image={pageData.src} alt={pageData.title} />
       <Breadcrumb {...crumb} customColor="bg-ameciclo" />
+      <VerticalStatisticsBoxes
+        title={"Comparação entre as contagens"}
+        boxes={boxes}
+      />
     </main>
   );
 }
