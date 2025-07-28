@@ -1,39 +1,65 @@
+"use client"
 import React from "react";
+import HighchartsReact from "highcharts-react-official";
+import Highcharts from "highcharts";
+import { Series } from "~/typings";
+import { colors } from "~/components/Charts/FlowChart/FlowContainer"
 
-export const HourlyCyclistsChart = ({ series, hours }: { series: any[], hours: number[] }) => {
-    if (!series.length || !hours.length) return null;
-    
-    const maxValue = Math.max(...series[0].data);
-    
-    return (
-        <section className="container mx-auto my-10">
-            <div className="bg-white rounded-lg shadow-xl p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Ciclistas por Hora</h2>
-                <div className="flex items-end justify-between h-64 border-b border-l border-gray-300">
-                    {hours.map((hour, index) => {
-                        const value = series[0].data[index];
-                        const height = (value / maxValue) * 200;
-                        
-                        return (
-                            <div key={hour} className="flex flex-col items-center">
-                                <div 
-                                    className="bg-ameciclo rounded-t"
-                                    style={{ 
-                                        height: `${height}px`,
-                                        width: '20px',
-                                        minHeight: '2px'
-                                    }}
-                                    title={`${hour}h: ${value} ciclistas`}
-                                />
-                                <span className="text-xs mt-2 text-gray-600">{hour}h</span>
-                            </div>
-                        );
-                    })}
-                </div>
-                <div className="mt-4 text-center text-gray-600">
-                    <p>Horário (24h)</p>
-                </div>
-            </div>
-        </section>
-    );
-};
+interface HourlyCyclistsChartProps {
+  series: Series[];
+  hours: number[];
+}
+
+export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps) {
+  const options = {
+    chart: {
+      type: "line",
+    },
+    colors: colors,
+    plotOptions: {
+      column: {
+        dataLabels: {
+          enabled: true,
+        },
+      },
+    },
+    tooltip: {
+      headerFormat: "<b>{point.x}h</b><br/>",
+      pointFormat: "{series.name}: {point.y}<br/>",
+    },
+    title: {
+      text: "Fluxo horário de ciclistas",
+    },
+    xAxis: {
+      type: "category",
+      categories: hours,
+      title: {
+        text: "Hora",
+      },
+    },
+    yAxis: {
+      title: {
+        text: "Quantidade",
+      },
+      scrollbar: {
+        enabled: true,
+      },
+    },
+    series,
+
+    credits: {
+      enabled: true,
+    },
+  };
+
+  return (
+    <section className="container mx-auto grid grid-cols-1 auto-rows-auto gap-10 my-10">
+      <div className="shadow-2xl rounded p-10 text-center overflow-x-scroll">
+        <div style={{ minWidth: "500px" }}>
+          <h2 className="text-gray-600 text-3xl">Quantidade de ciclistas por hora</h2>
+          <HighchartsReact highcharts={Highcharts} options={options} />
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -35,6 +35,7 @@ const characteristicsMap = new Map([
 ]);
 
 import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
+import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
 
 // Placeholder para HourlyCyclistsChartProps
 interface HourlyCyclistsChartProps {
@@ -119,62 +120,6 @@ type pointData = {
   color?: string;
   type?: string;
 };
-
-function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps) {
-  const options = {
-    chart: {
-      type: "line",
-    },
-    colors: colors,
-    plotOptions: {
-      column: {
-        dataLabels: {
-          enabled: true,
-        },
-      },
-    },
-    tooltip: {
-      headerFormat: "<b>{point.x}h</b><br/>",
-      pointFormat: "{series.name}: {point.y}<br/>",
-    },
-    title: {
-      text: "Fluxo horário de ciclistas",
-    },
-    xAxis: {
-      type: "category",
-      categories: hours,
-      title: {
-        text: "Hora",
-      },
-    },
-    yAxis: {
-      title: {
-        text: "Quantidade",
-      },
-      scrollbar: {
-        enabled: true,
-      },
-    },
-    series,
-
-    credits: {
-      enabled: true,
-    },
-  };
-
-  return (
-    <section className="container mx-auto grid grid-cols-1 auto-rows-auto gap-10 my-10">
-      <div className="shadow-2xl rounded p-10 text-center overflow-x-scroll">
-        <div style={{ minWidth: "500px" }}>
-          <h2 className="text-gray-600 text-3xl">Quantidade de ciclistas por hora</h2>
-          {/* TODO: Importar e usar HighchartsReact e Highcharts */}
-          {/* <HighchartsReact highcharts={Highcharts} options={options} /> */}
-          <p>Gráfico de ciclistas por hora (Highcharts não importado)</p>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 const CountingComparisionTable = ({ data, firstSlug }) => {
   // TODO: Importar fuzzyTextFilterFn, ColumnFilter e Table
@@ -263,7 +208,7 @@ function getChartData(sessions: CountEditionSession[]) {
 
     Object.values(sessions).forEach((session) => {
         const { start_time, total_cyclists, characteristics } = session;
-        const hour = parseInt(start_time.split(":")[0]);
+        const hour = parseInt(start_time.split('T')[1].split(':')[0]);
         hours.push(hour);
         totalCyclists.push(total_cyclists);
 
