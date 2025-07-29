@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Map, { Source, Layer, Marker, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl";
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
@@ -155,60 +155,44 @@ const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: 
 const MAPBOXTOKEN = "pk.eyJ1IjoiaWFjYXB1Y2EiLCJhIjoiODViMTRmMmMwMWE1OGIwYjgxNjMyMGFkM2Q5OWJmNzUifQ.OFgXp9wbN5BJlpuJEcDm4A";
 const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
 
-const getInicialViewPort = (pointsData: any, layerData: any) => {
-    let standardViewPort = {
-        latitude: -8.0584364,
+const getInicialViewPort = (layerData: any, pointsData: any, width: number, height: number) => {
+    const defaultViewport = {
+        latitude: -8.0584364, // Recife
         longitude: -34.945277,
         zoom: 10,
         bearing: 0,
         pitch: 0,
     };
 
-    let points = pointsData;
+    let bounds: [number, number, number, number] | null = null;
 
-    if (!points || points.length === 0) {
-        return standardViewPort;
-    }
-
-    const lineStringFromPointData = turf.lineString(points.map((point: any) => [point.longitude, point.latitude]));
-    const [PminX, PminY, PmaxX, PmaxY] = bbox(lineStringFromPointData);
-
-    let lineStringFromLayersData = lineStringFromPointData;
-    if (layerData) lineStringFromLayersData = layerData;
-    const [LminX, LminY, LmaxX, LmaxY] = bbox(lineStringFromLayersData);
-
-    let [minX, minY, maxX, maxY] = [PminX, PminY, PmaxX, PmaxY];
-    if (pointsData && layerData) {
-        minX = Math.min(PminX, LminX);
-        minY = Math.min(PminY, LminY);
-        maxX = Math.max(PmaxX, LmaxX);
-        maxY = Math.max(PmaxY, LmaxY);
-    } else if (!pointsData && layerData) {
-        [minX, minY, maxX, maxY] = [LminX, LminY, LmaxX, LmaxY]
-    }
-
-    const vp = new WebMercatorViewport({
-        width: 400,
-        height: 500,
-        ...standardViewPort,
-    });
-
-    const { longitude, latitude, zoom } = vp.fitBounds(
-        [
-            [minX, minY],
-            [maxX, maxY],
-        ],
-        {
-            padding: 40,
+    try {
+        if (layerData && layerData.features && layerData.features.length > 0) {
+            bounds = bbox(layerData);
+        } else if (pointsData && pointsData.length > 0) {
+            const line = turf.lineString(pointsData.map((p: any) => [p.longitude, p.latitude]));
+            bounds = bbox(line);
         }
-    );
 
-    if (latitude && longitude && zoom) {
-        standardViewPort.longitude = longitude;
-        standardViewPort.latitude = latitude;
-        standardViewPort.zoom = zoom;
+        if (bounds && bounds.length === 4) {
+            const [minX, minY, maxX, maxY] = bounds;
+
+            // Check for valid bounds
+            if (minX !== Infinity && minY !== Infinity && maxX !== Infinity && maxY !== Infinity) {
+                const vp = new WebMercatorViewport({ width, height });
+                const { longitude, latitude, zoom } = vp.fitBounds(
+                    [[minX, minY], [maxX, maxY]],
+                    { padding: 40 }
+                );
+
+                return { ...defaultViewport, longitude, latitude, zoom: zoom };
+            }
+        }
+    } catch (error) {
+        console.error("Error calculating viewport:", error);
     }
-    return standardViewPort;
+
+    return defaultViewport;
 };
 
 const mapInicialState = {
@@ -284,7 +268,8 @@ export const AmecicloMap = ({
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
     | GeoJSON.FeatureCollection<GeoJSON.Geometry>
-    | string;
+    | string
+    | JsonifyObject;
     layersConf?: LayerProps[];
     pointsData?: pointData[];
     width?: string;
@@ -293,6 +278,7 @@ export const AmecicloMap = ({
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
+    const mapRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsClient(true);
@@ -303,7 +289,7 @@ export const AmecicloMap = ({
         return () => clearTimeout(timer);
     }, []);
 
-    const inicialViewPort = isClient ? getInicialViewPort(pointsData, layerData) : {
+    const defaultViewport = {
         latitude: -8.0584364,
         longitude: -34.945277,
         zoom: 10,
@@ -311,11 +297,27 @@ export const AmecicloMap = ({
         pitch: 0,
     };
 
+    const [viewport, setViewport] = useState(defaultViewport);
+    const [inicialViewPort, setInicialViewPort] = useState(defaultViewport);
+    const [isViewportSet, setIsViewportSet] = useState(false);
+
+    useEffect(() => {
+        if (isMapReady && !isViewportSet && (layerData || (pointsData && pointsData.length > 0))) {
+            const width = mapRef.current?.offsetWidth;
+            const height = mapRef.current?.offsetHeight;
+
+            if (width && height && width > 0 && height > 0) {
+                const newViewport = getInicialViewPort(layerData, pointsData, width, height);
+                setViewport(newViewport);
+                setInicialViewPort(newViewport); // This will be used by the recenter button
+                setIsViewportSet(true); // Mark the initial viewport as set
+            }
+        }
+    }, [isMapReady, layerData, pointsData, isViewportSet]);
+
     const [selectedPoint, setSelectedPoint] = useState<pointData | undefined>(
         undefined
     );
-
-    const [viewport, setViewport] = useState(inicialViewPort);
     const [settings, setsettings] = useState({ ...mapInicialState });
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -377,7 +379,7 @@ export const AmecicloMap = ({
 
     return (
         <section className="container mx-auto">
-            <div className={`relative bg-gray-200 rounded shadow-2xl map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
+            <div ref={mapRef} className={`relative bg-gray-200 rounded shadow-2xl map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
                 }`}>
                 {isClient && isMapReady && (
                     <Map
@@ -385,7 +387,11 @@ export const AmecicloMap = ({
                         {...settings}
                         width="100%"
                         height={isFullscreen ? "100vh" : "500px"}
-                        onViewportChange={setViewport}
+                        onMove={evt => {
+                            if (isViewportSet) {
+                                setViewport(evt.viewState);
+                            }
+                        }}
                         mapStyle={MAPBOXSTYLE}
                         mapboxApiAccessToken={MAPBOXTOKEN}
                     >

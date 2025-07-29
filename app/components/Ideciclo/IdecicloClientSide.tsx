@@ -312,10 +312,12 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
             reviews.length > 0 && {
                 title: "IDECICLO " + reviews[0].year,
                 value: IntlNumber3Digit(reviews[0].ideciclo.toFixed(3)),
+                tooltip: "Índice de Desenvolvimento Cicloviário de " + reviews[0].year + ". Varia de 0 a 1, onde 0 = infraestrutura inexistente e 1 = infraestrutura ideal. Valores acima de 0,5 indicam boa qualidade cicloviária."
             },
             reviews.length > 1 && {
                 title: "IDECICLO " + reviews[1].year,
                 value: IntlNumber3Digit(reviews[1].ideciclo.toFixed(3)),
+                tooltip: "Índice de Desenvolvimento Cicloviário de " + reviews[1].year + ". Varia de 0 a 1, onde 0 = infraestrutura inexistente e 1 = infraestrutura ideal. Valores acima de 0,5 indicam boa qualidade cicloviária."
             },
             reviews.length && {
                 title: "Extensão avaliada",

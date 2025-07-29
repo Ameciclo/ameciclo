@@ -62,7 +62,7 @@ export const StatisticsBoxIdecicloDetalhes = ({ title, boxes, subtitle = "" }: a
         <div className="relative inline-flex items-center justify-center ">
         </div>
         {subtitle && (
-          <h3 className="text-2xl md:text-3xl text-gray-700 font-bold my-8">{subtitle}</h3>
+          <h3 className="text-2xl md:text-4xl text-black font-bold my-8">{subtitle}</h3>
         )}
       </div>
       <div className="relative z-1 rounded-lg mx-4 md:mx-auto max-w-4xl">
@@ -140,16 +140,36 @@ export const StatisticsBoxIdeciclo2 = ({ title, boxes, subtitle = "" }: any) => 
             ))}
           </div>
         </div>
+        
+        {/* Methodology explanation */}
+        <div className="mt-8 mx-4 md:mx-auto max-w-4xl lg:max-w-6xl">
+          <p className="text-xs text-gray-600 leading-relaxed text-justify">
+            <strong>Metodologia IDECICLO:</strong> O índice considera a extensão total da malha viária da cidade, não apenas as vias avaliadas. 
+            Calcula-se pela fórmula: (Extensão de infraestrutura cicloviária × Nota média das vias) ÷ Extensão total da malha viária urbana. 
+            Por isso, mesmo cidades com vias bem avaliadas (notas 7-10) podem ter IDECICLO baixo se a cobertura cicloviária for pequena 
+            em relação ao total de vias da cidade. O índice reflete tanto a qualidade quanto a abrangência da rede cicloviária.
+          </p>
+        </div>
       </div>
     </section>
   );
 };
 
 // texto dentro das box de "estatísticas gerais"
-function NumberBox({ title, value, unit = undefined }: any) {
+function NumberBox({ title, value, unit = undefined, tooltip }: any) {
   return (
-    <div className="flex flex-col justify-center w-full p-6 text-center uppercase tracking-widest">
-      <h3>{title}</h3>
+    <div className="flex flex-col justify-center w-full p-6 text-center uppercase tracking-widest relative group">
+      <h3 className="flex items-center justify-center gap-1">
+        {title}
+        {tooltip && (
+          <>
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64 text-center normal-case tracking-normal">
+              {tooltip}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+            </div>
+          </>
+        )}
+      </h3>
       <h3 className="text-3xl sm:text-5xl font-bold mt-2">{value}</h3>
       {unit && <p>{unit}</p>}
     </div>

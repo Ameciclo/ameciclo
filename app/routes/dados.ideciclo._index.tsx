@@ -1,6 +1,6 @@
 import { useLoaderData, Await } from "@remix-run/react";
 import { Suspense } from "react";
-import Banner from "~/components/Commom/Banner";
+
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
 import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
@@ -64,7 +64,19 @@ export default function Ideciclo() {
 
     return (
         <>
-            <Banner image="/pages_covers/ideciclo-navcover.png" alt="Capa da página do Ideciclo" />
+            <div className="relative py-24 w-full h-[52vh]">
+                <img
+                    src="/pages_covers/ideciclo-navcover.png"
+                    alt="Banner Ideciclo"
+                    className="absolute inset-0 object-cover w-full h-full"
+                    loading="lazy"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                    <h1 className="text-4xl md:text-6xl font-bold text-white text-center">
+                        IDECICLO
+                    </h1>
+                </div>
+            </div>
             <Breadcrumb label="Ideciclo" slug="/dados/ideciclo" routes={["/", "/dados"]} />
             
             <Suspense fallback={<div className="animate-pulse bg-gray-100 h-64" />}>

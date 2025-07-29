@@ -2,14 +2,14 @@ import React from "react";
 
 export function VerticalStatisticsBoxesIdeciclo({ title, boxes }: any) {
     return (
-        <section className="container mx-auto mt-[-450px] md:mt-[-250px]">
+        <section className="container mx-auto pt-10">
             <div className="mx-auto text-center my-12 md:my-6">
-                <h3 className="text-4xl font-bold p-6 my-8 mb-[100px] rounded-[40px] bg-[#6DBFAC] mx-auto w-[300px] md:w-[600px] lg:w-[700px] text-gray-700">
+                <h3 className="text-4xl font-bold p-6 my-8 mb-[100px] rounded-[40px] bg-[#6DBFAC] mx-auto w-[300px] md:w-[600px] lg:w-[700px] text-black">
                     {title}
                 </h3>
                 <section className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:grid-cols-2 auto-rows-auto gap-10 my-10">
-                    {boxes.map((param: any, index: number) => (
-                        <VerticalBoxIdeciclo key={`vt-st-links-box-${index}`} {...param} />
+                    {boxes.map((param: any) => (
+                        <VerticalBoxIdeciclo key={param.key} {...param} />
                     ))}
                 </section>
             </div>
@@ -38,7 +38,7 @@ function VerticalBoxIdeciclo({ titulo, media, color, parametros }: any) {
     return (
         <div className="flex flex-col items-center gap-[80px]">
             <div
-                className="flex flex-col rounded-[40px] justify-center font-semibold text-xl uppercase w-[234px] mt-10 p-6 text-center tracking-widest shadow-md relative md:min-h-[150px] text-gray-700"
+                className="flex flex-col rounded-[40px] justify-center font-semibold text-xl uppercase w-[234px] mt-10 p-6 text-center tracking-widest shadow-md relative md:min-h-[150px] text-black"
                 style={{ background: color, boxShadow: '0px 6px 8px 0px rgba(0, 0, 0, 0.25)' }}
             >
                 <img 
@@ -51,8 +51,8 @@ function VerticalBoxIdeciclo({ titulo, media, color, parametros }: any) {
                 <h3 className="text-4xl font-bold mt-1">{media}</h3>
             </div>
             <div className="flex flex-col gap-[80px] items-center">
-                {parametros?.map((innerParam: any, index: number) => (
-                    <StatisticBoxIdeciclo key={`stbx-links-box-${index}`} color={color} {...innerParam} />
+                {parametros?.map((innerParam: any) => (
+                    <StatisticBoxIdeciclo key={innerParam.key} color={color} {...innerParam} />
                 ))}
             </div>
         </div>
@@ -88,7 +88,7 @@ function StatisticBoxIdeciclo({ titulo, media, color }: any) {
 
     return (
         <div
-            className="relative border-4 rounded-[40px] flex flex-col justify-center uppercase w-[234px] p-6 text-center tracking-widest text-gray-700 bg-white"
+            className="relative border-4 rounded-[40px] flex flex-col justify-center uppercase w-[234px] p-6 text-center tracking-widest text-black bg-white"
             style={{ borderColor: color, boxShadow: '0px 6px 8px 0px rgba(0, 0, 0, 0.25)' }}
         >
             <img 

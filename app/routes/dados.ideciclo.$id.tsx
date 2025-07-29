@@ -256,8 +256,7 @@ function structureStatistics(structure: any, info: any) {
     ],
   };
 }
-async function getStructureMap(structure: any) {
-  // TRABALHA O MAPA
+async function getStructureMap(structure: any, request: Request) {
   const geoJsonMap = {
     type: "FeatureCollection",
     name: structure.street,
@@ -269,21 +268,27 @@ async function getStructureMap(structure: any) {
   };
 
   try {
-    const mapRes = await fetch('/dbs/malhacicloviariapermanente_mar2021.json');
-    const map = await mapRes.json();
-    
+    const url = new URL(request.url);
+    const mapUrl = new URL('/dbs/malhacicloviariapermanente_mar2021.json', url.origin);
+    const response = await fetch(mapUrl);
+    if (!response.ok) {
+      throw new Error('Failed to fetch map data');
+    }
+    const map = await response.json();
+
     structure.reviews[structure.reviews.length - 1].segments.forEach((seg: any) => {
-      const feature = map.features.filter((m: any) => m.properties.idunido == seg.geo_id)[0];
+      const feature = map.features.find((m: any) => String(m.properties.idunido) == String(seg.geo_id));
       if (feature) {
         geoJsonMap.features.push(feature);
       }
     });
 
     if (geoJsonMap.features.length === 0) {
-      geoJsonMap.features = map.features;
+      geoJsonMap.features = map.features.slice(0, 100); // Fallback to show some data
     }
   } catch (error) {
     console.error('Error loading map data:', error);
+    // On error, we might want to return an empty map or a default one
   }
 
   return geoJsonMap;
@@ -300,86 +305,74 @@ import { RadarChart } from "../components/Charts/RadarChart";
 
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import Banner from "~/components/Commom/Banner";
 
-export async function loader({ params }: LoaderFunctionArgs) {
-    const id = params.id;
-    if (!id) throw new Error("ID is required");
-    
-    const structureRes = await fetch(IDECICLO_STRUCTURES_DATA + "/" + id);
-    const structure = await structureRes.json();
-    
-    const new_review_form_id = structure.reviews[structure.reviews.length - 1].segments[0].form_id;
-    const formRes = await fetch(IDECICLO_FORMS_DATA + "/" + new_review_form_id);
-    const forms = await formRes.json();
-    
-    const pageDataRes = await fetch(IDECICLO_PAGE_DATA);
-    const pageData = await pageDataRes.json();
-    
-    const mapData = await getStructureMap(structure);
-    
-    return json({ structure, forms, pageData, mapData });
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const id = params.id;
+  if (!id) throw new Error("ID is required");
+
+  const structureRes = await fetch(IDECICLO_STRUCTURES_DATA + "/" + id);
+  const structure = await structureRes.json();
+
+  const new_review_form_id = structure.reviews[structure.reviews.length - 1].segments[0].form_id;
+  const formRes = await fetch(IDECICLO_FORMS_DATA + "/" + new_review_form_id);
+  const forms = await formRes.json();
+
+  const pageDataRes = await fetch(IDECICLO_PAGE_DATA);
+  const pageData = await pageDataRes.json();
+
+  const mapData = await getStructureMap(structure, request);
+
+  return json({ structure, forms, pageData, mapData });
 }
 
 export default function Ideciclo() {
-    const { structure, forms, pageData, mapData } = useLoaderData<typeof loader>();
-    
-    const info = getRatesSummary(structure, forms);
-    const GeneralStatistics = structureStatistics(structure, info);
+  const { structure, forms, pageData, mapData } = useLoaderData<typeof loader>();
 
-    return (
-        <>
-            <div className="relative py-24 w-full h-[52vh]">
-                <img
-                    src={pageData.cover?.url || "/pages_covers/ideciclo-navcover.png"}
-                    alt="Banner Ideciclo"
-                    className="absolute inset-0 object-cover w-full h-full"
-                    loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white text-center">
-                        {structure.street}
-                    </h1>
-                </div>
-            </div>
-            
-            <Breadcrumb 
-                label={structure.street}
-                slug={structure.id.toString()}
-                routes={["/", "/dados/ideciclo"]}
+  const info = getRatesSummary(structure, forms);
+  const GeneralStatistics = structureStatistics(structure, info);
+
+  return (
+    <>
+      <Banner title={structure.street} image={"/pages_covers/ideciclo-navcover.png"} />
+      <Breadcrumb
+        label={structure.street}
+        slug={structure.id.toString()}
+        routes={["/", "/dados/ideciclo"]}
+      />
+
+      <StatisticsBoxIdecicloDetalhes
+        title={GeneralStatistics.title}
+        subtitle={GeneralStatistics.subtitle}
+        boxes={GeneralStatistics.boxes}
+      />
+
+      <div className="w-full bg-amber-300 py-20">
+        <section className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-auto gap-10">
+          <div className="rounded bg-white shadow-2xl">
+            <IdecicloDescription info={info} />
+          </div>
+          <div className="bg-white rounded shadow-2xl">
+            <AmecicloMap
+              layerData={mapData}
+              layersConf={idecicloLayers}
+              height={"550px"}
             />
-            
-            <StatisticsBoxIdecicloDetalhes
-                title={GeneralStatistics.title}
-                subtitle={GeneralStatistics.subtitle}
-                boxes={GeneralStatistics.boxes}
+          </div>
+          <div className="rounded bg-white shadow-2xl">
+            <RadarChart
+              {...info}
+              title={"EVOLUÇÃO DA NOTA"}
+              subtitle={"Notas que compõem a média"}
             />
-            
-            <div className="w-full bg-amber-300 py-20">
-                <section className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-auto gap-10">
-                    <div className="rounded bg-white shadow-2xl">
-                        <IdecicloDescription info={info} />
-                    </div>
-                    <div className="bg-green-200 rounded shadow-2xl">
-                        <AmecicloMap
-                            layerData={mapData}
-                            layersConf={idecicloLayers}
-                            height={"550px"}
-                        />
-                    </div>
-                    <div className="rounded bg-white shadow-2xl">
-                        <RadarChart
-                            {...info}
-                            title={"EVOLUÇÃO DA NOTA"}
-                            subtitle={"Notas que compõem a média"}
-                        />
-                    </div>
-                </section>
-            </div>
-            
-            <VerticalStatisticsBoxesIdeciclo
-                title={"Detalhamento e composição das notas"}
-                boxes={info.parametros}
-            />
-        </>
-    );
+          </div>
+        </section>
+      </div>
+
+      <VerticalStatisticsBoxesIdeciclo
+        title={"Detalhamento e composição das notas"}
+        boxes={info.parametros}
+      />
+    </>
+  );
 }
