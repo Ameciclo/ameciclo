@@ -10,7 +10,7 @@ import {
 } from "~/services/utils";
 import { StatisticsBoxIdeciclo2 } from "./StatisticsBoxIdeciclo";
 import { IdecicloTable } from "./IdecicloTable";
-import DevelopingComponent from "../Commom/DevelopingComponent";
+
 
 export type city = {
     name: string;
@@ -379,7 +379,10 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
             )}
             {filteredCityData.length > 0 && (
                 <div id={"anchor"}>
-                    <DevelopingComponent title={"Componente Tabela de Dados do Ideciclo"} subtitle="Em desenvolvimento..."/>
+                    <IdecicloTable 
+                        title={`Vias de ${selectedCity.name}`}
+                        data={filteredCityData}
+                    />
                 </div>
             )}
         </>

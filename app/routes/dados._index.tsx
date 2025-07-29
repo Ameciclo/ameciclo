@@ -25,14 +25,14 @@ export default function Dados() {
         {
             title: "Ideciclo",
             src: "/icons/dados/ideciclo.svg",
-            url: "https://dados.ameciclo.org/ideciclo",
+            url: "/dados/ideciclo",
             description: "Índice que mede a malha e qualidade da estrutura cicloviaria",
             target: "_blank",
         },
         {
             title: "Estudos e Pesquisas",
             src: "/icons/dados/relatorio.svg",
-            url: "/dados/contagens",
+            url: "/dados/documentos",
             description:
                 "Nossos estudos, pesquisas e livros que participamos ou que fizeramos sobre nós.",
             target: "",
