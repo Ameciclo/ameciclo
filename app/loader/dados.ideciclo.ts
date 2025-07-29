@@ -1,16 +1,31 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import { defer, LoaderFunction } from "@remix-run/node";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader: LoaderFunction = async () => {
-    const idecicloRes = await fetch("https://api.ideciclo.ameciclo.org/reviews", { cache: "no-cache" });
-    const ideciclo = await idecicloRes.json();
+    const idecicloPromise = fetchWithTimeout(
+        "https://api.ideciclo.ameciclo.org/reviews", 
+        { cache: "no-cache" },
+        5000,
+        []
+    );
   
-    const structuresRes = await fetch("https://api.ideciclo.ameciclo.org/structures", {
-      cache: "no-cache",
+    const structuresPromise = fetchWithTimeout(
+        "https://api.ideciclo.ameciclo.org/structures",
+        { cache: "no-cache" },
+        5000,
+        []
+    );
+  
+    const pageDataPromise = fetchWithTimeout(
+        "https://cms.ameciclo.org/ideciclo", 
+        { cache: "no-cache" },
+        5000,
+        { description: "", objective: "", methodology: "" }
+    );
+  
+    return defer({ 
+        dataPromise: Promise.all([idecicloPromise, structuresPromise, pageDataPromise]).then(
+            ([ideciclo, structures, pageData]) => ({ ideciclo, structures, pageData })
+        )
     });
-    const structures = await structuresRes.json();
-  
-    const pageDataRes = await fetch("https://cms.ameciclo.org/ideciclo", { cache: "no-cache" });
-    const pageData = await pageDataRes.json();
-  
-    return json({ ideciclo, structures, pageData });
 };

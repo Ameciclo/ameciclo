@@ -9,8 +9,8 @@ import {
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
+let Highcharts: any;
+let HighchartsReact: any;
 
 import {
   getFiltersKeys,
@@ -68,20 +68,30 @@ export default function PerfilDashboard() {
   const [hcReady, setHcReady] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    Promise.all([
-      import("highcharts/highcharts-more"),
-      import("highcharts/modules/histogram-bellcurve"),
-      import("highcharts/modules/exporting"),
-      import("highcharts/modules/accessibility"),
-    ]).then(([More, Histogram, Exporting, Accessibility]) => {
-      More.default(Highcharts);
-      Histogram.default(Highcharts);
-      Exporting.default(Highcharts);
-      Accessibility.default?.(Highcharts);
-      setHcReady(true);
-    });
+    const loadHighcharts = async () => {
+      if (typeof window !== "undefined") {
+        const HighchartsModule = await import("highcharts");
+        const HighchartsReactModule = await import("highcharts-react-official");
+        
+        Highcharts = HighchartsModule.default;
+        HighchartsReact = HighchartsReactModule.default;
+        
+        const [More, Histogram, Exporting, Accessibility] = await Promise.all([
+          import("highcharts/highcharts-more"),
+          import("highcharts/modules/histogram-bellcurve"),
+          import("highcharts/modules/exporting"),
+          import("highcharts/modules/accessibility"),
+        ]);
+        
+        More.default(Highcharts);
+        Histogram.default(Highcharts);
+        Exporting.default(Highcharts);
+        Accessibility.default?.(Highcharts);
+        setHcReady(true);
+      }
+    };
+    
+    loadHighcharts();
   }, []);
 
   useEffect(() => {

@@ -1,9 +1,9 @@
-"use client"
 import React from "react";
-import HighchartsReact from "highcharts-react-official";
-import Highcharts from "highcharts";
 import { Series } from "~/typings";
 import { colors } from "~/components/Charts/FlowChart/FlowContainer"
+
+let Highcharts: any;
+let HighchartsReact: any;
 
 interface HourlyCyclistsChartProps {
   series: Series[];
@@ -11,10 +11,22 @@ interface HourlyCyclistsChartProps {
 }
 
 export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps) {
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [chartsLoaded, setChartsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    setIsMounted(true);
+    const loadHighcharts = async () => {
+      if (typeof window !== "undefined") {
+        const HighchartsModule = await import("highcharts");
+        const HighchartsReactModule = await import("highcharts-react-official");
+        
+        Highcharts = HighchartsModule.default;
+        HighchartsReact = HighchartsReactModule.default;
+        
+        setChartsLoaded(true);
+      }
+    };
+    
+    loadHighcharts();
   }, []);
 
   const options = {
@@ -63,7 +75,7 @@ export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps)
       <div className="shadow-2xl rounded p-10 text-center overflow-x-scroll">
         <div style={{ minWidth: "500px" }}>
           <h2 className="text-gray-600 text-3xl">Quantidade de ciclistas por hora</h2>
-          {isMounted ? <HighchartsReact highcharts={Highcharts} options={options} /> : null}
+          {chartsLoaded ? <HighchartsReact highcharts={Highcharts} options={options} /> : <div className="h-96 flex items-center justify-center">Carregando gráfico...</div>}
         </div>
       </div>
     </section>

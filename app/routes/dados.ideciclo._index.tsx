@@ -1,5 +1,5 @@
-import { json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Await } from "@remix-run/react";
+import { Suspense } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
@@ -60,39 +60,50 @@ function allCitiesStatistics(cities: any, structures: any) {
 }
 
 export default function Ideciclo() {
-    const { ideciclo, structures, pageData } = useLoaderData<typeof loader>();
-    const cidades = ideciclo.filter((c: any) => c.reviews.length > 0);
+    const { dataPromise } = useLoaderData<typeof loader>();
 
     return (
         <>
-            <Banner alt="Capa da página do Ideciclo" />
-
+            <Banner image="/pages_covers/ideciclo-navcover.png" alt="Capa da página do Ideciclo" />
             <Breadcrumb label="Ideciclo" slug="/dados/ideciclo" routes={["/", "/dados"]} />
-            <StatisticsBoxIdeciclo
-                title={"Estatísticas Gerais"}
-                boxes={allCitiesStatistics(cidades, structures)}
-            />
-            <ExplanationBoxesIdeciclo
-                boxes={[
-                    {
-                        title: "O que é?",
-                        description: pageData.description,
-                    },
-                    {
-                        title: "Para que serve?",
-                        description: pageData.objective,
-                    },
-                    {
-                        title: "Metodologia",
-                        description: pageData.methodology,
-                    },
-                ]}
-            />
-            <IdecicloClientSide
-                cidades={cidades}
-                structures={structures}
-                ideciclo={ideciclo}
-            />
+            
+            <Suspense fallback={<div className="animate-pulse bg-gray-100 h-64" />}>
+                <Await resolve={dataPromise}>
+                    {({ ideciclo, structures, pageData }) => {
+                        const cidades = ideciclo.filter((c: any) => c.reviews.length > 0);
+                        
+                        return (
+                            <>
+                                <StatisticsBoxIdeciclo
+                                    title={"Estatísticas Gerais"}
+                                    boxes={allCitiesStatistics(cidades, structures)}
+                                />
+                                <ExplanationBoxesIdeciclo
+                                    boxes={[
+                                        {
+                                            title: "O que é?",
+                                            description: pageData.description,
+                                        },
+                                        {
+                                            title: "Para que serve?",
+                                            description: pageData.objective,
+                                        },
+                                        {
+                                            title: "Metodologia",
+                                            description: pageData.methodology,
+                                        },
+                                    ]}
+                                />
+                                <IdecicloClientSide
+                                    cidades={cidades}
+                                    structures={structures}
+                                    ideciclo={ideciclo}
+                                />
+                            </>
+                        );
+                    }}
+                </Await>
+            </Suspense>
         </>
     );
 }

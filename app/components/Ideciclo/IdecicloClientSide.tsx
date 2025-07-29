@@ -380,7 +380,7 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
             {filteredCityData.length > 0 && (
                 <div id={"anchor"}>
                     <IdecicloTable 
-                        title={`Vias de ${selectedCity.name}`}
+                        title="Avaliações de cada via"
                         data={filteredCityData}
                     />
                 </div>
