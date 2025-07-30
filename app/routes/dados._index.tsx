@@ -27,7 +27,7 @@ export default function Dados() {
             src: "/icons/dados/ideciclo.svg",
             url: "/dados/ideciclo",
             description: "Índice que mede a malha e qualidade da estrutura cicloviaria",
-            target: "_blank",
+            target: "",
         },
         {
             title: "Estudos e Pesquisas",

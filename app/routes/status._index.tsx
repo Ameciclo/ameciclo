@@ -216,43 +216,43 @@ const servicesList: Service[] = [
   { 
     category: "Páginas Principais", 
     name: "Contagens de Ciclistas", 
-    url: "https://dados.ameciclo.org/contagens",
+    url: "/contagens",
     description: "Dados de contagens de ciclistas"
   },
   { 
     category: "Páginas Principais", 
     name: "Documentos", 
-    url: "https://dados.ameciclo.org/documentos",
+    url: "/documentos",
     description: "Biblioteca de documentos"
   },
   { 
     category: "Páginas Principais", 
     name: "Ideciclo", 
-    url: "https://dados.ameciclo.org/ideciclo",
+    url: "/dados/ideciclo",
     description: "Índice de desenvolvimento cicloviário"
   },
   { 
     category: "Páginas Principais", 
     name: "Perfil Demográfico", 
-    url: "https://dados.ameciclo.org/perfil",
+    url: "/perfil",
     description: "Dados demográficos da região"
   },
   { 
     category: "Páginas Principais", 
     name: "Execução Cicloviária", 
-    url: "https://dados.ameciclo.org/observatorio/execucao-cicloviaria",
+    url: "/dados/execucaocicloviaria",
     description: "Monitoramento da execução de projetos cicloviários"
   },
   { 
     category: "Páginas Principais", 
     name: "LOA Clima", 
-    url: "https://loaclima.ameciclo.org",
+    url: "/dados/loa",
     description: "Lei Orçamentária Anual - Clima"
   },
   { 
     category: "Páginas Principais", 
     name: "DOM - Diário Oficial", 
-    url: "https://dom.ameciclo.org",
+    url: "/dados/dom",
     description: "Monitoramento do Diário Oficial do Município"
   },
   { 
@@ -980,7 +980,7 @@ export default function StatusPage() {
                               }`}
                               onClick={() => {
                                 const url = service.url.startsWith('http') ? service.url : `${window.location.origin}${service.url}`;
-                                window.open(url, '_blank');
+                                window.open(url, '');
                               }}
                               title={`Clique para acessar: ${service.url}`}
                             >

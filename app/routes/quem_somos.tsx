@@ -1,7 +1,9 @@
 import { defer, MetaFunction } from "@remix-run/node";
 import { useLoaderData, Await } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
+
+import AmeCiclistaModal from "~/components/QuemSomos/AmeCiclistaModal";
 
 import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
@@ -27,21 +29,34 @@ export const loader = async () => {
   const server = "https://cms.ameciclo.org";
 
   const dataPromise = Promise.all([
+    fetchWithTimeout(`${server}/ameciclistas`, { cache: "no-cache" }, 15000, []),
     fetchWithTimeout(
-      `${server}/ameciclistas`, 
-      { cache: "no-cache" }, 
-      5000, 
-      []
-    ),
-    fetchWithTimeout(
-      `${server}/quem-somos`, 
-      { cache: "no-cache" }, 
-      5000, 
+      `${server}/quem-somos`,
+      { cache: "no-cache" },
+      15000,
       { definition: "Associação Metropolitana de Ciclistas do Recife", objective: "Promover a mobilidade ativa", links: [] }
     )
   ]).then(([ameciclistas, custom]) => {
-    ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
+    // Defensive check to ensure ameciclistas is an array before sorting
+    if (Array.isArray(ameciclistas)) {
+      ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      console.error("Data received for /ameciclistas is not an array:", ameciclistas);
+      // Return a safe value to prevent crashing
+      ameciclistas = [];
+    }
     return { ameciclistas, custom };
+  }).catch(error => {
+    console.error("Error fetching or processing data for Quem Somos:", error);
+    // Return a safe, default state to prevent the entire page from crashing
+    return {
+      ameciclistas: [],
+      custom: {
+        definition: "Associação Metropolitana de Ciclistas do Recife",
+        objective: "Promover a mobilidade ativa",
+        links: []
+      }
+    };
   });
 
   return defer({
@@ -55,6 +70,19 @@ export const meta: MetaFunction = () => {
 
 function QuemSomosContent({ pageData }: { pageData: any }) {
   const { ameciclistas, custom } = pageData;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAmeciclista, setSelectedAmeciclista] = useState(null);
+
+  const handleCardClick = (ameciclista: any) => {
+    setSelectedAmeciclista(ameciclista);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedAmeciclista(null);
+  };
 
   const coordinators = ameciclistas.filter((a: any) => a.role === "coordenacao");
   const counselors = ameciclistas.filter((a: any) => a.role === "conselhofiscal");
@@ -94,64 +122,76 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
           </TabsNav>
 
           <TabPanel name="tab-coord">
-            {coordinators.map((c: any) => (
-              <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" key={c.id}>
-                <div className="bg-white rounded shadow-lg h-[450px] flex flex-col">
-                  <div className="w-full aspect-square overflow-hidden rounded-t">
-                    {c.media ? (
-                      <img src={c.media.url} alt={c.name} className="w-full h-full object-cover object-center" />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200" />
-                    )}
-                  </div>
-                  <div className="p-4 pb-6 flex-grow overflow-y-auto">
-                    <h2 className="text-xl leading-normal text-gray-900">{c.name}</h2>
-                    <p className="text-sm text-gray-600">{c.bio}</p>
+            <div className="flex flex-wrap -m-4 justify-center">
+              {coordinators.map((c: any) => (
+                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4 cursor-pointer" key={c.id} onClick={() => handleCardClick(c)}>
+                  <div className="bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+                    <div className="relative w-full h-64 overflow-hidden">
+                      {c.media ? (
+                        <img src={c.media.url} alt={c.name} className="absolute w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200" />
+                      )}
+                    </div>
+                    <div className="p-6 flex-1">
+                      <h2 className="text-xl font-semibold text-gray-900">{c.name}</h2>
+                      <p className="text-sm text-gray-600 mt-2">{c.bio}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </TabPanel>
 
           <TabPanel name="tab-conselho">
-            {counselors.map((c: any) => (
-              <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" key={c.id}>
-                <div className="bg-white rounded shadow-lg h-[450px] flex flex-col">
-                  <div className="w-full aspect-square overflow-hidden rounded-t">
-                    {c.media ? (
-                      <img src={c.media.url} alt={c.name} className="w-full h-full object-cover object-center" />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200" />
-                    )}
-                  </div>
-                  <div className="p-4 pb-6 flex-grow overflow-y-auto">
-                    <h2 className="text-xl leading-normal text-gray-900">{c.name}</h2>
-                    <p className="text-sm text-gray-600">{c.bio}</p>
+            <div className="flex flex-wrap -m-4 justify-center">
+              {counselors.map((c: any) => (
+                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4 cursor-pointer" key={c.id} onClick={() => handleCardClick(c)}>
+                  <div className="bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+                    <div className="relative w-full h-64 overflow-hidden">
+                      {c.media ? (
+                        <img src={c.media.url} alt={c.name} className="absolute w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200" />
+                      )}
+                    </div>
+                    <div className="p-6 flex-1">
+                      <h2 className="text-xl font-semibold text-gray-900">{c.name}</h2>
+                      <p className="text-sm text-gray-600 mt-2">{c.bio}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </TabPanel>
 
           <TabPanel name="tab-ameciclista">
-            {ameciclistas.map((c: any) => (
-              <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" key={c.id}>
-                <div className="bg-white rounded shadow-lg h-[350px] flex flex-col">
-                  <div className="w-full aspect-square overflow-hidden rounded-t">
-                    {c.media ? (
-                      <img src={c.media.url} alt={c.name} className="w-full h-full object-cover object-center" />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200" />
-                    )}
-                  </div>
-                  <div className="p-4 pb-6 flex-grow">
-                    <h2 className="text-xl leading-normal text-gray-900">{c.name}</h2>
+            <div className="flex flex-wrap -m-4 justify-center">
+              {ameciclistas.map((c: any) => (
+                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4 cursor-pointer" key={c.id} onClick={() => handleCardClick(c)}>
+                  <div className="bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+                    <div className="relative w-full h-64 overflow-hidden">
+                      {c.media ? (
+                        <img src={c.media.url} alt={c.name} className="absolute w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200" />
+                      )}
+                    </div>
+                    <div className="p-6 flex-1">
+                      <h2 className="text-xl font-semibold text-gray-900">{c.name}</h2>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </TabPanel>
         </Tabs>
+
+        <AmeCiclistaModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          ameciclista={selectedAmeciclista}
+        />
     </div>
   );
 }
