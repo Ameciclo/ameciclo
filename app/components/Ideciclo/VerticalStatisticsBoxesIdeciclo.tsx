@@ -8,9 +8,19 @@ export function VerticalStatisticsBoxesIdeciclo({ title, boxes }: any) {
                     {title}
                 </h3>
                 <section className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:grid-cols-2 auto-rows-auto gap-10 my-10">
-                    {boxes.map((param: any) => (
-                        <VerticalBoxIdeciclo key={param.key} {...param} />
-                    ))}
+                    {boxes.map((box: any) => {
+                        const { key, titulo, media, mediaType, color, parametros } = box;
+                        return (
+                            <VerticalBoxIdeciclo
+                                key={key}
+                                titulo={titulo}
+                                media={media}
+                                mediaType={mediaType}
+                                color={color}
+                                parametros={parametros}
+                            />
+                        );
+                    })}
                 </section>
             </div>
         </section>
@@ -51,9 +61,20 @@ function VerticalBoxIdeciclo({ titulo, media, color, parametros }: any) {
                 <h3 className="text-4xl font-bold mt-1">{media}</h3>
             </div>
             <div className="flex flex-col gap-[80px] items-center">
-                {parametros?.map((innerParam: any) => (
-                    <StatisticBoxIdeciclo key={innerParam.key} color={color} {...innerParam} />
-                ))}
+                {parametros?.map((param: any) => {
+                    const { key, titulo, media, mediaType, different, better } = param;
+                    return (
+                        <StatisticBoxIdeciclo
+                            key={key}
+                            color={color}
+                            titulo={titulo}
+                            media={media}
+                            mediaType={mediaType}
+                            different={different}
+                            better={better}
+                        />
+                    );
+                })}
             </div>
         </div>
     );

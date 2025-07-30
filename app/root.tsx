@@ -13,6 +13,7 @@ import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
 import { ApiAlert } from "./components/Commom/ApiAlert";
 import { ApiStatusProvider } from "./contexts/ApiStatusContext";
 import "./tailwind.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 import PageNotFound from "./components/Commom/PageNotFound";
 import ErrorFallback from "./components/Commom/ErrorFallback";
 

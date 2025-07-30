@@ -348,18 +348,17 @@ export default function Ideciclo() {
       />
 
       <div className="w-full bg-amber-300 py-20">
-        <section className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-auto gap-10">
-          <div className="rounded bg-white shadow-2xl">
+        <section className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-auto gap-10 min-h-[500px]">
+          <div className="rounded bg-white shadow-2xl h-full">
             <IdecicloDescription info={info} />
           </div>
-          <div className="bg-white rounded shadow-2xl">
+          <div className="bg-white rounded shadow-2xl h-full">
             <AmecicloMap
               layerData={mapData}
               layersConf={idecicloLayers}
-              height={"550px"}
             />
           </div>
-          <div className="rounded bg-white shadow-2xl">
+          <div className="rounded bg-white shadow-2xl h-full">
             <RadarChart
               {...info}
               title={"EVOLUÇÃO DA NOTA"}
@@ -373,6 +372,14 @@ export default function Ideciclo() {
         title={"Detalhamento e composição das notas"}
         boxes={info.parametros}
       />
+      <div className="relative w-full h-[26vh]">
+        <img
+          src="/ideciclo/ideciclo-ciclovia.png"
+          alt="Ciclovia Ideciclo"
+          className="absolute inset-0 object-cover w-full h-full"
+          loading="lazy"
+        />
+      </div>
     </>
   );
 }

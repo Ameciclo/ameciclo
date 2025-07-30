@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactMapGL, { Source, Layer, Marker, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl";
+import 'mapbox-gl/dist/mapbox-gl.css';
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
 import { Link } from "@remix-run/react";

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Map, { Source, Layer, Marker, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 
@@ -278,15 +279,25 @@ export const AmecicloMap = ({
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
-    const mapRef = useRef<HTMLDivElement>(null);
+    const mapContainerRef = useRef<HTMLDivElement>(null);
+    const mapRef = useRef<any>(null); // Ref para a instância do mapa
 
     useEffect(() => {
         setIsClient(true);
-        // Pequeno delay para garantir que tudo está hidratado
         const timer = setTimeout(() => {
             setIsMapReady(true);
         }, 100);
-        return () => clearTimeout(timer);
+
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+        return () => {
+            clearTimeout(timer);
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
     }, []);
 
     const defaultViewport = {
@@ -303,8 +314,8 @@ export const AmecicloMap = ({
 
     useEffect(() => {
         if (isMapReady && !isViewportSet && (layerData || (pointsData && pointsData.length > 0))) {
-            const width = mapRef.current?.offsetWidth;
-            const height = mapRef.current?.offsetHeight;
+            const width = mapContainerRef.current?.offsetWidth;
+            const height = mapContainerRef.current?.offsetHeight;
 
             if (width && height && width > 0 && height > 0) {
                 const newViewport = getInicialViewPort(layerData, pointsData, width, height);
@@ -371,15 +382,25 @@ export const AmecicloMap = ({
     };
 
     const toggleLayerVisibility = (layerId: string) => {
-        setLayerVisibility((prev) => ({
-            ...prev,
-            [layerId]: !prev[layerId],
-        }));
+        setLayerVisibility((prev) => {
+            const newVisibility = { ...prev, [layerId]: !prev[layerId] };
+            if (mapRef.current) {
+                const map = mapRef.current;
+                if (map && map.setLayoutProperty) {
+                    map.setLayoutProperty(layerId, 'visibility', newVisibility[layerId] ? 'visible' : 'none');
+                }
+            }
+            return newVisibility;
+        });
+    };
+
+    const onMapLoad = (event: any) => {
+        mapRef.current = event.target;
     };
 
     return (
         <section className="container mx-auto">
-            <div ref={mapRef} className={`relative bg-gray-200 rounded shadow-2xl map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
+            <div ref={mapContainerRef} className={`relative bg-gray-200 rounded shadow-2xl map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
                 }`}>
                 {isClient && isMapReady && (
                     <Map
@@ -394,6 +415,7 @@ export const AmecicloMap = ({
                         }}
                         mapStyle={MAPBOXSTYLE}
                         mapboxApiAccessToken={MAPBOXTOKEN}
+                        onLoad={onMapLoad}
                     >
                         <style>{`
                             .mapboxgl-ctrl-attrib {

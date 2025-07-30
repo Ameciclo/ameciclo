@@ -27,6 +27,7 @@
     "highcharts-react-official": "^3.2.2",
     "isbot": "^4.1.0",
     "keen-slider": "^6.3.3",
+    "mapbox-gl": "^1.13.0",
     "match-sorter": "^8.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

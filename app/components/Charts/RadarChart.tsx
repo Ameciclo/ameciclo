@@ -21,12 +21,19 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
         try {
           const Highcharts = (await import("highcharts")).default;
           const HighchartsReactComponent = (await import("highcharts-react-official")).default;
-          const exporting = (await import("highcharts/modules/exporting")).default;
-          const highchartsMore = (await import("highcharts/highcharts-more")).default;
+          const ExportingModule = await import("highcharts/modules/exporting");
+          if (typeof ExportingModule === 'function') {
+            ExportingModule(Highcharts);
+          } else if (ExportingModule && typeof ExportingModule.default === 'function') {
+            ExportingModule.default(Highcharts);
+          }
 
-          // Inicializa os módulos
-          exporting(Highcharts);
-          highchartsMore(Highcharts);
+          const HighchartsMoreModule = await import("highcharts/highcharts-more");
+          if (typeof HighchartsMoreModule === 'function') {
+            HighchartsMoreModule(Highcharts);
+          } else if (HighchartsMoreModule && typeof HighchartsMoreModule.default === 'function') {
+            HighchartsMoreModule.default(Highcharts);
+          }
 
           const options = {
             chart: {
@@ -88,13 +95,13 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
   }, [isClient, series, categories, title, subtitle]);
 
   if (!isClient || !chartProps || !chartProps.Component) {
-    return <div className="w-full p-6 h-96 flex items-center justify-center">Carregando gráfico...</div>;
+    return <div className="w-full p-6 h-full flex items-center justify-center">Carregando gráfico...</div>;
   }
 
   const ChartComponent = chartProps.Component;
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full p-6 h-full">
       <ChartComponent highcharts={chartProps.Highcharts} options={chartProps.options} />
     </div>
   );
