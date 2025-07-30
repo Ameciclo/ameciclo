@@ -5,10 +5,12 @@ import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ProjectCard } from "~/components/Projetos/ProjectCard";
-import { FeaturedProjectsLoading } from "~/components/Projetos/FeaturedProjectsLoading";
+import { FeaturedProjectsLoading } from "~/components/Projetos/FeaturedProjectLoading";
 import { ProjectCardLoading } from "~/components/Projetos/ProjectCardLoading";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
+import SearchProject from "~/components/Projetos/SearchProject";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 interface Project {
   id: string;
@@ -37,24 +39,29 @@ export const meta: MetaFunction = () => {
 export const loader = async () => {
   const API_URL = "https://cms.ameciclo.org";
 
-  const projectsPromise = Promise.all([
-    fetch(`${API_URL}/projects`).then((res) => {
-      if (!res.ok) throw new Error('Failed to fetch projects');
-      return res.json();
-    }).catch(() => []),
-    fetch(`${API_URL}/workgroups`).then((res) => {
-      if (!res.ok) throw new Error('Failed to fetch workgroups');
-      return res.json();
-    }).catch(() => []),
-  ]).then(([projectsRes, workgroupsRes]) => ({
-    projects: Array.isArray(projectsRes) ? projectsRes : [], 
-    workgroups: Array.isArray(workgroupsRes) ? workgroupsRes : [],
-    error: projectsRes.length === 0 && workgroupsRes.length === 0 ? 'API_ERROR' : null
-  }));
+  try {
+    const [projectsRes, workgroupsRes] = await Promise.all([
+      fetchWithTimeout(`${API_URL}/projects`, { cache: "no-cache" }, 30000, []),
+      fetchWithTimeout(`${API_URL}/workgroups`, { cache: "no-cache" }, 30000, []),
+    ]);
 
-  return defer({
-    projectsData: projectsPromise
-  });
+    const projects = Array.isArray(projectsRes) ? projectsRes : [];
+    const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
+    const error = projects.length === 0 && workgroups.length === 0 ? 'API_ERROR' : null;
+
+    return defer({
+      projectsData: Promise.resolve({ projects, workgroups, error })
+    });
+  } catch (error) {
+    console.error("Critical Error in Projetos loader:", error);
+    return defer({
+      projectsData: Promise.resolve({
+        projects: [],
+        workgroups: [],
+        error: 'API_ERROR'
+      })
+    });
+  }
 };
 
 function ProjectsContent({ projectsData }: { projectsData: any }) {
@@ -149,91 +156,88 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
     return { highlighted, ongoing, paused, others };
   }, [status, group, searchTerm, groupedProjects]); // Add searchTerm to dependencies
 
+  const allProjectsCount = filteredProjects.highlighted.length +
+                           filteredProjects.ongoing.length +
+                           filteredProjects.paused.length +
+                           filteredProjects.others.length;
+
   return (
     <section className="container my-4 mx-auto">
+      <div className="flex justify-between items-center mb-4">
         {showLoadingState ? (
-          <>
-            <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-50 py-4">
-              <div className="h-8 bg-gray-300 rounded w-64 animate-pulse"></div>
-              <div className="w-[500px] h-10 bg-gray-300 rounded animate-pulse"></div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <ProjectCardLoading key={index} />
-              ))}
-            </div>
-          </>
-        ) : filteredProjects.highlighted.length > 0 ? (
-          <>
-            <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-50 py-4">
-              <h2 className="text-2xl font-bold">Projetos em Destaque</h2>
-              <input
-                type="text"
-                placeholder="Buscar projetos por título..."
-                className="w-[500px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ameciclo"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {filteredProjects.highlighted.map((groupedProject) => (
-                <ProjectCard
-                  key={groupedProject.main?.id}
-                  project={groupedProject.main}
-                  translations={groupedProject.translations}
-                />
-              ))}
-            </div>
-          </>
-        ) : null}
+          <div className="h-8 bg-gray-300 rounded w-64 animate-pulse"></div>
+        ) : (
+          searchTerm.trim() ? (
+            <h2 className="text-2xl font-bold">Buscar</h2>
+          ) : (
+            <h2 className="text-2xl font-bold">Projetos em Destaque</h2>
+          )
+        )}
+        <SearchProject searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      </div>
 
-        {showLoadingState ? (
+      {showLoadingState ? (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <ProjectCardLoading key={index} />
+            ))}
+          </div>
+        </>
+      ) : (
+        allProjectsCount === 0 && searchTerm ? (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-600">
+              Nenhum projeto encontrado com título "<span className="font-bold">{searchTerm}</span>"
+            </p>
+          </div>
+        ) : (
           <>
-            <div className="h-8 bg-gray-300 rounded w-64 animate-pulse mb-4"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 7 }).map((_, index) => (
-                <ProjectCardLoading key={index} />
-              ))}
-            </div>
-          </>
-        ) : filteredProjects.ongoing.length > 0 ? (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Projetos em Andamento</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {filteredProjects.ongoing.map((groupedProject) => (
-                <ProjectCard
-                  key={groupedProject.main?.id}
-                  project={groupedProject.main}
-                  translations={groupedProject.translations}
-                />
-              ))}
-            </div>
-          </>
-        ) : null}
-
-        {filteredProjects.others.length > 0 && (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Demais Projetos</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {showLoadingState ? (
-                <>
-                  <div className="h-8 bg-gray-300 rounded w-48 animate-pulse mb-4"></div>
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <ProjectCardLoading key={index} />
-                  ))}
-                </>
-              ) : (
-                filteredProjects.others.map((groupedProject) => (
+            {filteredProjects.highlighted.length > 0 && (
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {filteredProjects.highlighted.map((groupedProject) => (
                   <ProjectCard
                     key={groupedProject.main?.id}
                     project={groupedProject.main}
                     translations={groupedProject.translations}
                   />
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
+
+            {filteredProjects.ongoing.length > 0 && (
+              <>
+                <h2 className="text-2xl font-bold mb-4">Projetos em Andamento</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  {filteredProjects.ongoing.map((groupedProject) => (
+                    <ProjectCard
+                      key={groupedProject.main?.id}
+                      project={groupedProject.main}
+                      translations={groupedProject.translations}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {filteredProjects.others.length > 0 && (
+              <>
+                <h2 className="text-2xl font-bold mb-4">Demais Projetos</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  {filteredProjects.others.map((groupedProject) => (
+                    <ProjectCard
+                      key={groupedProject.main?.id}
+                      project={groupedProject.main}
+                      translations={groupedProject.translations}
+                    />
+                  ))
+                  }
+                </div>
+              </>
+            )}
           </>
-        )}
+        )
+      )}
     </section>
   );
 }
@@ -249,7 +253,7 @@ export default function Projetos() {
       <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
       <Suspense fallback={
         <section className="container my-12 mx-auto">
-          <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-50 py-4">
+          <div className="flex justify-between items-center mb-4">
             <div className="h-8 bg-gray-300 rounded w-64 animate-pulse"></div>
             <div className="w-[500px] h-10 bg-gray-300 rounded animate-pulse"></div>
           </div>

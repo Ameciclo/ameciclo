@@ -6,7 +6,7 @@ export function ApiAlert() {
   if (!isApiDown) return null;
 
   return (
-    <div className="fixed top-14 left-0 right-0 bg-orange-500 text-white px-4 py-2 text-center z-[70]">
+    <div className="fixed top-14 left-1/2 -translate-x-1/2 w-fit bg-orange-500 text-white px-3 py-2 text-center z-[90] rounded-b-lg">
       <p className="text-sm">
         ⚠️ Os dados do site estão temporariamente indisponíveis. Podem ocorrer erros na página.{' '}
         <button 

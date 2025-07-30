@@ -26,7 +26,7 @@ export default function Index() {
       />
       <ApiStatusHandler apiDown={apiDown} />
       
-      <Suspense fallback={<div className="animate-pulse bg-gray-200 h-32" />}>
+      <Suspense fallback={<SectionCallToAction home={{}} />}>
         <Await resolve={homePromise}>
           {(home) => (
             <SectionCallToAction home={home} />
