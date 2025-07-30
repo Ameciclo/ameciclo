@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type HighchartsReact from "highcharts-react-official";
+import LoadingSpinner from "../Ideciclo/loading/graphLoading";
 
 export function RadarChart({ series, categories, title = "", subtitle = "" }: any) {
   const [chartProps, setChartProps] = useState<any>(null);
@@ -95,7 +96,7 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
   }, [isClient, series, categories, title, subtitle]);
 
   if (!isClient || !chartProps || !chartProps.Component) {
-    return <div className="w-full p-6 h-full flex items-center justify-center">Carregando gráfico...</div>;
+    return <div className="w-full p-6 h-full flex items-center justify-center"><LoadingSpinner /></div>;
   }
 
   const ChartComponent = chartProps.Component;
