@@ -14,7 +14,6 @@ export async function fetchWithTimeout(
   fallbackData: any = null,
   onApiDown?: () => void
 ): Promise<any> {
-  // Cria um AbortController para cancelar a requisição se demorar muito
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   
@@ -29,14 +28,16 @@ export async function fetchWithTimeout(
     if (!response.ok) {
       console.warn(`Erro na requisição para ${url}: ${response.status}`);
       onApiDown?.();
+      // Retorna fallbackData se a resposta não for OK, mas não é um erro de rede/timeout
       return fallbackData;
     }
     
     return await response.json();
-  } catch (error) {
+  } catch (error: any) {
     clearTimeout(timeoutId);
     console.warn(`Falha ao acessar ${url}:`, error);
     onApiDown?.();
-    return fallbackData;
+    // Retorna um objeto de erro para que o loader possa identificá-lo
+    return { apiError: true, errorMessage: `Não foi possível carregar dados de ${url.split('/').pop()}.` };
   }
 }

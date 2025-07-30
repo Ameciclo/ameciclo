@@ -338,7 +338,7 @@ export default function Ideciclo() {
       <Breadcrumb
         label={structure.street}
         slug={structure.id.toString()}
-        routes={["/", "/dados/ideciclo"]}
+        routes={["/", "/dados", "/dados/ideciclo"]}
       />
 
       <StatisticsBoxIdecicloDetalhes

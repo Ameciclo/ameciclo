@@ -1,88 +1,101 @@
 import { useEffect, useState } from "react";
+import type HighchartsReact from "highcharts-react-official";
 
-let Highcharts: any;
-let HighchartsReact: any;
+export function RadarChart({ series, categories, title = "", subtitle = "" }: any) {
+  const [chartProps, setChartProps] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
 
-export function RadarChart({ series, categories, title="", subtitle="" }: any) {
-  const [chartsLoaded, setChartsLoaded] = useState(false);
+  console.log("RadarChart: Renderizando. isClient (inicial):", isClient);
 
   useEffect(() => {
-    const loadHighcharts = async () => {
-      if (typeof window !== "undefined") {
-        const HighchartsModule = await import("highcharts");
-        const HighchartsReactModule = await import("highcharts-react-official");
-        const HighchartsExporting = await import("highcharts/modules/exporting");
-        const HighchartsMore = await import("highcharts/highcharts-more");
-        
-        Highcharts = HighchartsModule.default;
-        HighchartsReact = HighchartsReactModule.default;
-        
-        HighchartsExporting.default(Highcharts);
-        HighchartsMore.default(Highcharts);
-        
-        setChartsLoaded(true);
-      }
-    };
-    
-    loadHighcharts();
+    // Este useEffect roda apenas uma vez no cliente, após a hidratação.
+    setIsClient(true);
+    console.log("RadarChart: useEffect []. isClient definido como TRUE.");
   }, []);
 
-  if (!chartsLoaded) {
+  useEffect(() => {
+    // Este useEffect roda quando isClient se torna true e quando as props mudam.
+    if (isClient) {
+      console.log("RadarChart: useEffect [isClient, ...props] acionado. Iniciando carregamento do Highcharts.");
+      const initChart = async () => {
+        try {
+          const Highcharts = (await import("highcharts")).default;
+          const HighchartsReactComponent = (await import("highcharts-react-official")).default;
+          const exporting = (await import("highcharts/modules/exporting")).default;
+          const highchartsMore = (await import("highcharts/highcharts-more")).default;
+
+          // Inicializa os módulos
+          exporting(Highcharts);
+          highchartsMore(Highcharts);
+
+          const options = {
+            chart: {
+              polar: true,
+            },
+            credits: {
+              enabled: false,
+            },
+            title: {
+              text: title,
+            },
+            subtitle: {
+              text: subtitle,
+            },
+            pane: {
+              size: "70%",
+            },
+            xAxis: {
+              categories: categories,
+              tickmarkPlacement: "on",
+            },
+            yAxis: {
+              gridLineInterpolation: "polygon",
+              min: 0,
+              max: 10,
+            },
+            tooltip: {
+              shared: true,
+              pointFormat:
+                '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>',
+            },
+            colors: [
+              "#008080",
+              "#E02F31",
+              "#000000",
+              "#DDDF00",
+              "#24CBE5",
+              "#64E572",
+              "#FF9655",
+              "#FFF263",
+              "#6AF9C4",
+            ],
+            series: series,
+          };
+
+          setChartProps({
+            Highcharts: Highcharts,
+            Component: HighchartsReactComponent,
+            options: options,
+          });
+          console.log("RadarChart: chartProps definido com sucesso.");
+        } catch (error) {
+          console.error("RadarChart: Erro durante a inicialização do gráfico:", error);
+        }
+      };
+
+      initChart();
+    }
+  }, [isClient, series, categories, title, subtitle]);
+
+  if (!isClient || !chartProps || !chartProps.Component) {
     return <div className="w-full p-6 h-96 flex items-center justify-center">Carregando gráfico...</div>;
   }
-  function getRadarOptions(series: any, categories: any) {
-    return {
-      chart: {
-        polar: true,
-      },
-      credits: {
-        enabled: false,
-      },
-      title: {
-        text: title,
-      },
-      subtitle: {
-        text: subtitle,
-      },
-      pane: {
-        size: "70%",
-        //      startAngle: 0,
-        //     endAngle: 120
-      },
-      xAxis: {
-        categories: categories,
-        tickmarkPlacement: "on",
-      },
-      yAxis: {
-        gridLineInterpolation: "polygon",
-        min: 0,
-        max: 10,
-      },
-      tooltip: {
-        shared: true,
-        pointFormat:
-          '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>',
-      },
-      colors: [
-        "#008080",
-        "#E02F31",
-        "#000000",
-        "#DDDF00",
-        "#24CBE5",
-        "#64E572",
-        "#FF9655",
-        "#FFF263",
-        "#6AF9C4",
-      ],
-      series: series,
-    };
-  }
+
+  const ChartComponent = chartProps.Component;
+
   return (
     <div className="w-full p-6">
-      <HighchartsReact
-        highcharts={Highcharts}
-        options={getRadarOptions(series, categories)}
-      />
+      <ChartComponent highcharts={chartProps.Highcharts} options={chartProps.options} />
     </div>
   );
 }

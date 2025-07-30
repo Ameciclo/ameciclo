@@ -17,11 +17,15 @@ export default function Banner({
         className="absolute inset-0 object-cover w-full h-full"
         loading="lazy"
       />
-      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-white text-center">
-          {title}
-        </h1>
-      </div>
+      
+      {
+        title && <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-white text-center">
+            {title}
+          </h1>
+        </div>
+      }
+
     </div>
   );
 }

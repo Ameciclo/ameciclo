@@ -8,24 +8,24 @@ export const loader: LoaderFunction = async () => {
         5000,
         []
     );
-  
+
     const structuresPromise = fetchWithTimeout(
         "https://api.ideciclo.ameciclo.org/structures",
         { cache: "no-cache" },
         5000,
         []
     );
-  
+
     const pageDataPromise = fetchWithTimeout(
         "https://cms.ameciclo.org/ideciclo", 
         { cache: "no-cache" },
         5000,
         { description: "", objective: "", methodology: "" }
     );
-  
-    return defer({ 
-        dataPromise: Promise.all([idecicloPromise, structuresPromise, pageDataPromise]).then(
-            ([ideciclo, structures, pageData]) => ({ ideciclo, structures, pageData })
-        )
+
+    return defer({
+        ideciclo: idecicloPromise,
+        structures: structuresPromise,
+        pageData: pageDataPromise,
     });
 };

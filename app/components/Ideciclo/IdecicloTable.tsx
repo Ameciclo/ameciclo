@@ -131,7 +131,7 @@ export const IdecicloTable = ({ title, data }: any) => {
 
     return (
         <div className="relative">
-            <div className="-mt-44 top-32 relative inline-flex items-center justify-center mb-10 w-full">
+            <div className="top-32 relative inline-flex items-center justify-center mb-10 w-full">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="100%" height="57" viewBox="0 0 488 57"

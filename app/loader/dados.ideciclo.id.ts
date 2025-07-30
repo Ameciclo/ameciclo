@@ -15,7 +15,7 @@ export const loader: LoaderFunction = async ({ params }) => {
         "https://cms.ameciclo.org/ideciclo",
         { cache: "no-cache" },
         5000,
-        { cover: { url: "/pages_covers/ideciclo-navcover.png" }, description: "", objective: "", methodology: "" }
+        { cover: { url: "/pages_covers/ideciclo-cover.png" }, description: "", objective: "", methodology: "" }
     );
 
     const formsPromise = structurePromise.then(async (structure) => {

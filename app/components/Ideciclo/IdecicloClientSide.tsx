@@ -380,8 +380,11 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
                 />
             )}
             {filteredCityData.length > 0 && (
-                <div id={"anchor"}>
-                    <IdecicloTable 
+                <div
+                    id={"anchor"}
+                    className="-mt-44"
+                >
+                    <IdecicloTable
                         title="Avaliações de cada via"
                         data={filteredCityData}
                     />

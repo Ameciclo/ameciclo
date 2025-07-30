@@ -1,5 +1,7 @@
 import { useLoaderData, Await } from "@remix-run/react";
 import { Suspense } from "react";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
+import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
@@ -29,6 +31,14 @@ function getTotalCityStates(input: any) {
 
 
 function allCitiesStatistics(cities: any, structures: any) {
+    // Verifica se cities é um objeto de erro e o trata como um array vazio se for
+    if (cities && cities.apiError) {
+        cities = [];
+    }
+    // Verifica se structures é um objeto de erro e o trata como um array vazio se for
+    if (structures && structures.apiError) {
+        structures = [];
+    }
 
     return [
         { title: "Cidades avaliadas", value: cities.length },
@@ -60,56 +70,167 @@ function allCitiesStatistics(cities: any, structures: any) {
 }
 
 export default function Ideciclo() {
-    const { dataPromise } = useLoaderData<typeof loader>();
+    const { ideciclo, structures, pageData } = useLoaderData<typeof loader>();
+    const { setApiDown } = useApiStatus();
 
     return (
         <>
-            <div className="relative py-24 w-full h-[52vh]">
-                <img
-                    src="/pages_covers/ideciclo-navcover.png"
-                    alt="Banner Ideciclo"
-                    className="absolute inset-0 object-cover w-full h-full"
-                    loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white text-center">
-                        IDECICLO
-                    </h1>
-                </div>
-            </div>
+            <Banner title="" image="/pages_covers/ideciclo-cover.png" />
             <Breadcrumb label="Ideciclo" slug="/dados/ideciclo" routes={["/", "/dados"]} />
             
-            <Suspense fallback={<div className="animate-pulse bg-gray-100 h-64" />}>
-                <Await resolve={dataPromise}>
-                    {({ ideciclo, structures, pageData }) => {
-                        const cidades = ideciclo.filter((c: any) => c.reviews.length > 0);
+            <Suspense fallback={
+    <div className="container mx-auto py-8">
+        {/* Skeleton para StatisticsBoxIdeciclo */}
+        <div className="animate-pulse bg-gray-200 h-10 w-1/3 mb-6 rounded"></div> {/* Título */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="bg-gray-200 h-32 rounded-lg"></div>
+            <div className="bg-gray-200 h-32 rounded-lg"></div>
+            <div className="bg-gray-200 h-32 rounded-lg"></div>
+            <div className="bg-gray-200 h-32 rounded-lg"></div>
+        </div>
+
+        {/* Skeleton para ExplanationBoxesIdeciclo */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+            </div>
+            <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+            </div>
+            <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+            </div>
+        </div>
+
+        {/* Skeleton para IdecicloClientSide (mapa e outros) */}
+        <div className="animate-pulse bg-gray-200 h-96 w-full rounded-lg mb-12"></div>
+    </div>
+}>
+                <Await resolve={Promise.allSettled([ideciclo, structures, pageData])}>
+                    {(results) => {
+                        let errorMessage = "";
+                        let idecicloData: any = null;
+                        let structuresData: any = null;
+                        let pageDataData: any = null;
+
+                        results.forEach((result, index) => {
+                            if (result.status === 'rejected') {
+                                errorMessage += `Erro ao carregar dados: ${result.reason.message || result.reason}. `;
+                            } else if (result.status === 'fulfilled') {
+                                if (result.value.apiError) {
+                                    errorMessage += result.value.errorMessage + " ";
+                                } else {
+                                    if (index === 0) idecicloData = result.value;
+                                    if (index === 1) structuresData = result.value;
+                                    if (index === 2) pageDataData = result.value;
+                                }
+                            }
+                        });
+
+                        if (errorMessage) {
+                            setApiDown(true);
+                            return (
+                                <div className="container mx-auto py-8">
+                                    {/* Skeletons para manter a estrutura visual */}
+                                    <div className="animate-pulse bg-gray-200 h-10 w-1/3 mb-6 rounded"></div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                                        <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                                            <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                                        </div>
+                                        <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                                            <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                                        </div>
+                                        <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                                            <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse bg-gray-200 h-96 w-full rounded-lg mb-12"></div>
+                                </div>
+                            );
+                        }
+
+                        // Certifique-se de que os dados não são nulos antes de usar
+                        if (!idecicloData || !structuresData || !pageDataData) {
+                            // Isso deve ser tratado pelo fallback do Suspense, mas como fallback
+                            setApiDown(true);
+                            return (
+                                <div className="container mx-auto py-8">
+                                    {/* Skeletons para manter a estrutura visual */}
+                                    <div className="animate-pulse bg-gray-200 h-10 w-1/3 mb-6 rounded"></div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                        <div className="bg-gray-200 h-32 rounded-lg"></div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                                        <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                                            <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                                        </div>
+                                        <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                                            <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                                        </div>
+                                        <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                                            <div className="animate-pulse bg-gray-300 h-6 w-3/4 mb-4 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-full mb-2 rounded"></div>
+                                            <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse bg-gray-200 h-96 w-full rounded-lg mb-12"></div>
+                                </div>
+                            );
+                        }
+
+                        const cidades = idecicloData.filter((c: any) => c.reviews.length > 0);
                         
                         return (
                             <>
                                 <StatisticsBoxIdeciclo
                                     title={"Estatísticas Gerais"}
-                                    boxes={allCitiesStatistics(cidades, structures)}
+                                    boxes={allCitiesStatistics(cidades, structuresData)}
                                 />
                                 <ExplanationBoxesIdeciclo
                                     boxes={[
                                         {
                                             title: "O que é?",
-                                            description: pageData.description,
+                                            description: pageDataData.description,
                                         },
                                         {
                                             title: "Para que serve?",
-                                            description: pageData.objective,
+                                            description: pageDataData.objective,
                                         },
                                         {
                                             title: "Metodologia",
-                                            description: pageData.methodology,
+                                            description: pageDataData.methodology,
                                         },
                                     ]}
                                 />
                                 <IdecicloClientSide
                                     cidades={cidades}
-                                    structures={structures}
-                                    ideciclo={ideciclo}
+                                    structures={structuresData}
+                                    ideciclo={idecicloData}
                                 />
                             </>
                         );
