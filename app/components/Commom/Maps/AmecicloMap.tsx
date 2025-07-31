@@ -67,6 +67,14 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
         setViewport(initialViewport);
     };
 
+    const handleToggleDragPan = () => {
+        setsettings((prev: any) => ({ 
+            ...prev, 
+            dragPan: !prev.dragPan,
+            scrollZoom: !prev.scrollZoom 
+        }));
+    };
+
     const isAtDefaultPosition = () => {
         const tolerance = 0.001;
         return Math.abs(viewport.latitude - initialViewport.latitude) < tolerance &&
@@ -104,6 +112,14 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                 </svg>
+            </button>
+
+            <button
+                onClick={handleToggleDragPan}
+                className={`bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors ${settings.dragPan ? 'text-blue-500' : ''}`}
+                title="Mover mapa"
+            >
+                <svg className="w-5 h-5" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><title/><path d="M23.016 5.484v14.531c0 2.203-1.828 3.984-4.031 3.984h-7.266c-1.078 0-2.109-0.422-2.859-1.172l-7.875-8.016s1.266-1.219 1.313-1.219c0.234-0.188 0.516-0.281 0.797-0.281 0.234 0 0.422 0.047 0.609 0.141 0.047 0 4.313 2.438 4.313 2.438v-11.906c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5v7.031h0.984v-9.516c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5v9.516h0.984v-8.531c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5v8.531h1.031v-5.531c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5z"/></svg>
             </button>
 
             {!isAtDefaultPosition() && (
@@ -226,9 +242,9 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
 };
 
 const mapInicialState = {
-    dragPan: true,
+    dragPan: false,
     dragRotate: true,
-    scrollZoom: true,
+    scrollZoom: false,
     touchZoom: true,
     touchRotate: true,
     keyboard: true,
@@ -355,19 +371,6 @@ export const AmecicloMap = ({
         }
     }, [layersConf, isClient]);
 
-    const handleClick = () => {
-        setsettings({
-            dragPan: true,
-            dragRotate: true,
-            scrollZoom: settings.scrollZoom ? false : true,
-            touchZoom: true,
-            touchRotate: true,
-            keyboard: true,
-            boxZoom: true,
-            doubleClickZoom: true,
-        });
-    };
-
     const [markerVisibility, setMarkerVisibility] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
@@ -410,6 +413,7 @@ export const AmecicloMap = ({
                         onViewportChange={setViewport}
                         mapStyle={MAPBOXSTYLE}
                         mapboxApiAccessToken={MAPBOXTOKEN}
+                        getCursor={({ isDragging }) => (settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer')}
                     >
                         <style>{`
                             .mapboxgl-ctrl-attrib {
@@ -422,7 +426,7 @@ export const AmecicloMap = ({
                                 font-size: 10px !important;
                             }
                         `}</style>
-                        <MapCommands handleClick={handleClick} viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} />
+                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} />
                         {layerData && (
                             <Source id="layersMap" type="geojson" data={layerData}>
                                 {layersConf?.map((layer: any, i: number) =>
