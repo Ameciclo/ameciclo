@@ -7,7 +7,8 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import Loading from "~/components/Dom/Loading";
 import { loader } from "~/loader/dados.observatorio.loa";
 import Chart from "react-google-charts";
-import LoaTable from "~/components/Dados/LoaTable";
+import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
+import { useMemo } from "react";
 export { loader };
 
 export default function Loa() {
@@ -36,6 +37,7 @@ export default function Loa() {
         actions2023 
     } = useLoaderData<any>();
     const [renderOthers, setRenderOthers] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -46,6 +48,103 @@ export default function Loa() {
     }, []);
 
     const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+    const goodActionsTags = ["0398", "3308", "3378", "3382", "3389", "3786", "3891", "3906", "4122", "4123", "4165", "4167", "4185", "4294", "4313", "4482", "4648", "3198", "3340", "4202", "4642", "4646", "4176", "4483", "4166", "4074", "4055", "3721", "3725", "2755", "2796", "2286", "0569", "3877", "4131", "4235", "4679", "4682", "1313", "2967", "2730", "2733", "4650", "4669", "1537", "3178", "3187", "4116", "4440", "1896"];
+
+    const badActionsTags = [
+        "4067", "4218", "1045", "3882", "4096", "4134", "4186", "4227"
+    ];
+
+    const getActionCode = (action: any) => {
+        const match = action.cd_nm_acao.match(/^(\d+)/);
+        return match ? match[1] : '';
+    };
+
+    const classifyAction = (action: any) => {
+        const actionCode = getActionCode(action);
+        if (goodActionsTags.includes(actionCode)) {
+            return 'good';
+        } else if (badActionsTags.includes(actionCode)) {
+            return 'bad';
+        }
+        return undefined;
+    };
+
+    const classifiedActions = useMemo(() => {
+        return actions2023.map((action: any) => ({
+            ...action,
+            type: classifyAction(action)
+        }));
+    }, [actions2023]);
+
+    const allColumns = useMemo(
+        () => [
+            {
+                Header: "Função",
+                accessor: "cd_nm_funcao",
+            },
+            {
+                Header: "Programa",
+                accessor: "cd_nm_prog",
+            },
+            {
+                Header: "Ação",
+                accessor: "cd_nm_acao",
+            },
+            {
+                Header: "Sub-ação",
+                accessor: "cd_nm_subacao",
+            },
+            {
+                Header: "Sub-função",
+                accessor: "cd_nm_subfuncao",
+            },
+            {
+                Header: "Dotação Atualizada",
+                accessor: "vlrdotatualizada",
+                Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            },
+            {
+                Header: "Valor Empenhado",
+                accessor: "vlrempenhado",
+                Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            },
+            {
+                Header: "Valor Liquidado",
+                accessor: "vlrliquidado",
+                Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            },
+            {
+                Header: "Total Pago",
+                accessor: "vlrtotalpago",
+                Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+                Filter: NumberRangeColumnFilter,
+                filter: 'numberRange',
+            },
+        ],
+        []
+    );
+
+    const columns = useMemo(
+        () => [
+            {
+                Header: "Ação",
+                accessor: "cd_nm_acao",
+            },
+            {
+                Header: "Sub-ação",
+                accessor: "cd_nm_subacao",
+            },
+            {
+                Header: "Total Pago",
+                accessor: "vlrtotalpago",
+                Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+                Filter: NumberRangeColumnFilter,
+                filter: 'numberRange',
+            },
+        ],
+        []
+    );
 
     function AnimatedNumber({ initialValue, finalValue, duration }: any) {
         const [value, setValue] = useState(initialValue);
@@ -70,9 +169,9 @@ export default function Loa() {
 
     return (
         <>
-            <Banner image={`/images/banners/faq.png?t=${Date.now()}`} alt="Capa da página do Loaclima" />
+            <Banner image="/images/banners/faq.png" alt="Capa da página do Loaclima" />
             <Breadcrumb label="LOA" slug="/dados/loa" routes={["/", "/dados"]} />
-            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: <p className="text-justify">O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas.</p> }]} />
+            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas." }]} />
 
             {renderOthers ? (
                 <div className="container mx-auto px-4 py-6">
@@ -256,7 +355,7 @@ export default function Loa() {
                         </section>
                     </div>
                     <section>
-                        <LoaTable actions={actions2023} />
+                        <Table title="Ações e Programas da LOA" data={classifiedActions} columns={columns} allColumns={allColumns} showFilters={showFilters} setShowFilters={setShowFilters} />
                     </section>
                     <section className="bg-gray-50 rounded-lg p-4 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

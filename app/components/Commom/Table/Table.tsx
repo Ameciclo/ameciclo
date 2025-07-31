@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { matchSorter } from "match-sorter";
 
-import {
-    useTable,
-    usePagination,
-    useFilters,
-    useSortBy,
-} from "react-table";
+import { useTable, usePagination, useFilters, useSortBy, useExpanded } from "react-table";
 
 const SMALL_SCREEN_WIDTH = 768;
 
@@ -16,11 +11,77 @@ function fuzzyTextFilterFn(rows: any, id: any, filterValue: any) {
 
 fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
-const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
+export function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, setFilter, id } }: any) {
+    const [min, max] = filterValue;
+
+    return (
+        <div className="flex space-x-2">
+            <input
+                value={min || ''}
+                type="number"
+                onChange={e => {
+                    const val = e.target.value;
+                    setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
+                }}
+                placeholder="Mínimo"
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+            <input
+                value={max || ''}
+                type="number"
+                onChange={e => {
+                    const val = e.target.value;
+                    setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
+                }}
+                placeholder="Máximo"
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+        </div>
+    );
+}
+
+export function numberRangeFilterFn(rows: any, id: any, filterValue: any) {
+    const [min, max] = filterValue;
+    return rows.filter((row: any) => {
+        const rowValue = row.values[id];
+        return (
+            (min === undefined || rowValue >= min) &&
+            (max === undefined || rowValue <= max)
+        );
+    });
+}
+
+numberRangeFilterFn.autoRemove = (val: any) => !val[0] && !val[1];
+
+function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter } }: any) {
+    const count = preFilteredRows.length;
+
+    return (
+        <input
+            value={filterValue || ''}
+            onChange={e => {
+                setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+            }}
+            placeholder={`Buscar ${count} registros...`}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+    );
+}
+
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }: any) => {
+    const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
-    const safeData = data || [];
+    const safeData = React.useMemo(() => {
+        let filteredData = data || [];
+        if (filterType === 'good') {
+            filteredData = filteredData.filter((row: any) => row.type === 'good');
+        } else if (filterType === 'bad') {
+            filteredData = filteredData.filter((row: any) => row.type === 'bad');
+        }
+        return filteredData;
+    }, [data, filterType]);
     const safeColumns = columns || [];
 
     const filterTypes = React.useMemo(
@@ -36,6 +97,14 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                         : true;
                 });
             },
+            numberRange: numberRangeFilterFn,
+        }),
+        []
+    );
+
+    const defaultColumn = React.useMemo(
+        () => ({
+            Filter: DefaultColumnFilter,
         }),
         []
     );
@@ -54,16 +123,18 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
         nextPage,
         previousPage,
         setPageSize,
-        state: { pageIndex },
+        state: { pageIndex, expanded },
     }: any = useTable(
         {
             columns: safeColumns,
             data: safeData,
             initialState: { pageIndex: 0, pageSize: 5 },
             filterTypes,
+            defaultColumn,
         },
         useFilters,
         useSortBy,
+        useExpanded,
         usePagination
     );
 
@@ -179,24 +250,43 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                             </td>
                         </tr>
                     ) : (
-                        <tr
-                            key={i}
-                            {...row.getRowProps()}
-                            className="hover:bg-gray-100 border-b border-gray-200"
-                        >
-                            {row.cells.map((cell: any, cellIndex: number) => {
-                                return (
-                                    <td
-                                        key={cell.column.id || cellIndex}
-                                        {...cell.getCellProps()}
-                                        className="px-6 py-4 text-sm leading-5 text-gray-700 break-words"
-                                        style={{ width: '20%' }}
-                                    >
-                                        {cell.render("Cell")}
+                        <React.Fragment key={i}>
+                            <tr
+                                {...row.getRowProps()}
+                                className={`hover:bg-gray-100 border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-green-50' : row.original.type === 'bad' ? 'bg-red-50' : ''}`}
+                                onClick={() => row.toggleRowExpanded()}
+                            >
+                                {row.cells.map((cell: any, cellIndex: number) => {
+                                    return (
+                                        <td
+                                            key={cell.column.id || cellIndex}
+                                            {...cell.getCellProps()}
+                                            className="px-6 py-4 text-sm leading-5 text-gray-700 break-words"
+                                            style={{ width: '20%' }}
+                                        >
+                                            {cell.render("Cell")}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                            {row.isExpanded ? (
+                                <tr>
+                                    <td colSpan={columns.length}>
+                                        <div className="p-4 bg-gray-50">
+                                            {allColumns.map((col: any) => {
+                                                const value = row.original[col.accessor];
+                                                const formattedValue = col.Cell ? col.Cell({ value }) : String(value);
+                                                return (
+                                                    <div key={col.accessor} className="mb-2">
+                                                        <strong>{col.Header}:</strong> {formattedValue}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     </td>
-                                );
-                            })}
-                        </tr>
+                                </tr>
+                            ) : null}
+                        </React.Fragment>
                     );
                 })}
             </tbody>
@@ -208,7 +298,7 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
         canPreviousPage,
         canNextPage,
         previousPage,
-        pageOptions,
+        pageOptions = [],
         nextPage,
         pageIndex,
         gotoPage,
@@ -275,7 +365,7 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                 <div className="flex items-center justify-center sm:justify-end">
                     <div className="flex items-center space-x-4">
                         <div className="text-xs text-gray-500">
-                            {rows.length} resultados • Página {pageIndex + 1} de {pageOptions.length}
+                            {rows.length} resultados • Página {pageIndex + 1} de {pageOptions?.length || 1}
                         </div>
                         
                         <div className="flex items-center space-x-1">
@@ -311,20 +401,6 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
 
     return (
         <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
-            <style jsx>{`
-                @keyframes blinkAmeciclo {
-                    0%, 100% { 
-                        background-color: white;
-                        color: #6b7280;
-                        border-color: #d1d5db;
-                    }
-                    50% { 
-                        background-color: #008080;
-                        color: white;
-                        border-color: #008080;
-                    }
-                }
-            `}</style>
             <div className="flex justify-between items-center mb-4">
                 <div>
                     <h2 className="text-gray-600 text-3xl">{title}</h2>
@@ -351,6 +427,26 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                     </button>
                 )}
             </div>
+            <div className="flex space-x-2 mb-4">
+                <button
+                    onClick={() => setFilterType('all')}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                >
+                    Todas as Ações
+                </button>
+                <button
+                    onClick={() => setFilterType('good')}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'good' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                >
+                    Boas Ações
+                </button>
+                <button
+                    onClick={() => setFilterType('bad')}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'bad' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                >
+                    Má Ações
+                </button>
+            </div>
             
             {/* Filtros ativos */}
             <div className="mb-4">
@@ -370,6 +466,17 @@ const Table = ({ title, data, columns, showFilters, setShowFilters }: any) => {
                                     displayValue = `até ${maxVal}`;
                                 } else {
                                     displayValue = ''; // Should not happen if filterValue is truthy
+                                }
+                            } else if (column.filter === 'numberRange') {
+                                const [minVal, maxVal] = column.filterValue;
+                                if (minVal && maxVal) {
+                                    displayValue = `de R$ ${minVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} a R$ ${maxVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                                } else if (minVal) {
+                                    displayValue = `a partir de R$ ${minVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                                } else if (maxVal) {
+                                    displayValue = `até R$ ${maxVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                                } else {
+                                    displayValue = '';
                                 }
                             } else if (headerText.includes('Extensão')) {
                                 displayValue = `~${column.filterValue} km`;
