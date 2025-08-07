@@ -1,5 +1,5 @@
-import { useLoaderData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useLoaderData, Await } from "@remix-run/react";
+import { useEffect, useState, Suspense } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import LazyLoad from 'react-lazyload';
@@ -9,6 +9,7 @@ import { loader } from "~/loader/dados.observatorio.loa";
 import Chart from "react-google-charts";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { useMemo } from "react";
+import { formatLargeValue } from "~/utils/formatCurrency";
 export { loader };
 
 export default function Loa() {
@@ -38,6 +39,7 @@ export default function Loa() {
     } = useLoaderData<any>();
     const [renderOthers, setRenderOthers] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
+    const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -71,11 +73,20 @@ export default function Loa() {
     };
 
     const classifiedActions = useMemo(() => {
-        return actions2023.map((action: any) => ({
+        if (!actions2023 || !Array.isArray(actions2023)) return [];
+        
+        let filtered = actions2023.map((action: any) => ({
             ...action,
             type: classifyAction(action)
         }));
-    }, [actions2023]);
+
+        if (filterType === 'good') {
+            filtered = filtered.filter((action: any) => action.type === 'good');
+        } else if (filterType === 'bad') {
+            filtered = filtered.filter((action: any) => action.type === 'bad');
+        }
+        return filtered;
+    }, [actions2023, filterType]);
 
     const allColumns = useMemo(
         () => [
@@ -117,7 +128,7 @@ export default function Loa() {
             {
                 Header: "Total Pago",
                 accessor: "vlrtotalpago",
-                Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+                Cell: ({ value }: any) => formatLargeValue(value),
                 Filter: NumberRangeColumnFilter,
                 filter: 'numberRange',
             },
@@ -138,7 +149,7 @@ export default function Loa() {
             {
                 Header: "Total Pago",
                 accessor: "vlrtotalpago",
-                Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+                Cell: ({ value }: any) => formatLargeValue(value),
                 Filter: NumberRangeColumnFilter,
                 filter: 'numberRange',
             },
@@ -355,7 +366,37 @@ export default function Loa() {
                         </section>
                     </div>
                     <section>
-                        <Table title="Ações e Programas da LOA" data={classifiedActions} columns={columns} allColumns={allColumns} showFilters={showFilters} setShowFilters={setShowFilters} />
+                        <Suspense fallback={<Loading />}>
+                            <Await resolve={actions2023}>
+                                {(resolvedActions) => {
+                                    const processedActions = resolvedActions ? resolvedActions.map((action: any) => ({
+                                        ...action,
+                                        type: classifyAction(action)
+                                    })) : [];
+                                    
+                                    let filteredActions = processedActions;
+                                    if (filterType === 'good') {
+                                        filteredActions = processedActions.filter((action: any) => action.type === 'good');
+                                    } else if (filterType === 'bad') {
+                                        filteredActions = processedActions.filter((action: any) => action.type === 'bad');
+                                    }
+                                    
+                                    return (
+                                        <Table 
+                                            title="Ações e Programas da LOA" 
+                                            data={filteredActions} 
+                                            columns={columns} 
+                                            allColumns={allColumns} 
+                                            showFilters={showFilters} 
+                                            setShowFilters={setShowFilters} 
+                                            filterType={filterType}
+                                            setFilterType={setFilterType}
+                                            classifyAction={classifyAction}
+                                        />
+                                    );
+                                }}
+                            </Await>
+                        </Suspense>
                     </section>
                     <section className="bg-gray-50 rounded-lg p-4 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

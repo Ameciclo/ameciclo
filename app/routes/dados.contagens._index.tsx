@@ -141,15 +141,6 @@ export default function Contagens() {
                     )}
                 </Await>
             </Suspense>
-            <div className="container mx-auto px-4 py-4 text-right">
-                <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="bg-ameciclo text-white px-4 py-2 rounded hover:bg-opacity-80"
-                >
-                    {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
-                </button>
-            </div>
-            
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
                 <Await resolve={dataPromise}>
                     {(data) => {

@@ -53,7 +53,7 @@ export function numberRangeFilterFn(rows: any, id: any, filterValue: any) {
 
 numberRangeFilterFn.autoRemove = (val: any) => !val[0] && !val[1];
 
-function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter } }: any) {
+function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter, Header } }: any) {
     const count = preFilteredRows.length;
 
     return (
@@ -62,26 +62,19 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
             onChange={e => {
                 setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
             }}
-            placeholder={`Buscar ${count} registros...`}
+            placeholder={`Buscar ${typeof Header === 'string' ? Header : ''}`}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }: any) => {
-    const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, classifyAction }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
     const safeData = React.useMemo(() => {
-        let filteredData = data || [];
-        if (filterType === 'good') {
-            filteredData = filteredData.filter((row: any) => row.type === 'good');
-        } else if (filterType === 'bad') {
-            filteredData = filteredData.filter((row: any) => row.type === 'bad');
-        }
-        return filteredData;
-    }, [data, filterType]);
+        return data || [];
+    }, [data]);
     const safeColumns = columns || [];
 
     const filterTypes = React.useMemo(
@@ -175,7 +168,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
         return () => observer.disconnect();
     }, []);
 
-    function TableHead({ headerGroups, isSmallScreen = false, showFilters, setShowFilters }: any) {
+    function TableHead({ headerGroups, isSmallScreen = false, showFilters, setShowFilters, rows }: any) {
         return (
             <thead>
                 {headerGroups.map((headerGroup: any, groupIndex: number) => (
@@ -202,7 +195,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
                                                     : "🔺 "
                                                 : "♦️ "}
                                         </span>
-                                        {column.render("Header")}
+                                        {column.Header === 'Ação' ? `Ação (${new Set(rows.map((row: any) => row.original.cd_nm_acao)).size})` : column.Header === 'Sub-ação' ? `Sub-ação (${rows.length})` : column.Header === 'Total Pago' ? `Total Pago (${(() => { const total = rows.reduce((sum: number, row: any) => sum + row.original.vlrtotalpago, 0); return total >= 1000000 ? (total >= 1000000000 ? `R$ ${(total / 1000000000).toFixed(1).replace('.0', '')} Bi` : `R$ ${(total / 1000000).toFixed(1).replace('.0', '')} Mi`) : `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`; })()})` : column.render("Header")}
                                     </div>
                                 </th>
                             )
@@ -242,18 +235,44 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
                 {page.map((row: any, i: number) => {
                     prepareRow(row);
                     return isSmallScreen ? (
-                        <tr key={i}>
-                            <td className="px-6 py-4">
-                                <div className="hover:bg-gray-100 border-b border-gray-200 p-3">
-                                    <SingleColumnRow cells={row.cells} />
-                                </div>
-                            </td>
-                        </tr>
+                        <React.Fragment key={i}>
+                            <tr
+                                {...row.getRowProps()}
+                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-green-700 text-white hover:bg-[#005000]' : row.original.type === 'bad' ? 'bg-red-700 text-white hover:bg-[#700000]' : 'hover:bg-gray-100'}`}
+                                onClick={() => row.toggleRowExpanded()}
+                            >
+                                <td className="px-6 py-4">
+                                    <div className={`hover:bg-gray-100 border-b border-gray-200 p-3 ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : ''}`}>
+                                        <SingleColumnRow cells={row.cells} />
+                                    </div>
+                                </td>
+                            </tr>
+                            {row.isExpanded ? (
+                                <tr>
+                                    <td colSpan={columns.length}>
+                                        <div className="p-4 bg-[#008080] text-white transition-all duration-300 ease-in-out overflow-hidden">
+                                            <div className="mb-2">
+                                                <strong>Tipo de Ação:</strong> {row.original.type === 'good' ? 'Boa Ação' : row.original.type === 'bad' ? 'Má Ação' : 'Ação Neutra'}
+                                            </div>
+                                            {allColumns.map((col: any) => {
+                                                const value = row.original[col.accessor];
+                                                const formattedValue = col.Cell ? col.Cell({ value }) : String(value);
+                                                return (
+                                                    <div key={col.accessor} className="mb-2">
+                                                        <strong>{col.Header}:</strong> {formattedValue}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : null}
+                        </React.Fragment>
                     ) : (
                         <React.Fragment key={i}>
                             <tr
                                 {...row.getRowProps()}
-                                className={`hover:bg-gray-100 border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-green-50' : row.original.type === 'bad' ? 'bg-red-50' : ''}`}
+                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-[#006400] text-white hover:bg-[#005000]' : row.original.type === 'bad' ? 'bg-[#8B0000] text-white hover:bg-[#700000]' : 'hover:bg-gray-100'}`}
                                 onClick={() => row.toggleRowExpanded()}
                             >
                                 {row.cells.map((cell: any, cellIndex: number) => {
@@ -261,7 +280,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
                                         <td
                                             key={cell.column.id || cellIndex}
                                             {...cell.getCellProps()}
-                                            className="px-6 py-4 text-sm leading-5 text-gray-700 break-words"
+                                            className={`px-6 py-4 text-sm leading-5 break-words ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : 'text-gray-700'}`}
                                             style={{ width: '20%' }}
                                         >
                                             {cell.render("Cell")}
@@ -272,7 +291,10 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
                             {row.isExpanded ? (
                                 <tr>
                                     <td colSpan={columns.length}>
-                                        <div className="p-4 bg-gray-50">
+                                        <div className="p-4 bg-[#008080] text-white transition-all duration-300 ease-in-out overflow-hidden">
+                                            <div className="mb-2">
+                                                <strong>Tipo de Ação:</strong> {row.original.type === 'good' ? 'Boa Ação' : row.original.type === 'bad' ? 'Má Ação' : 'Ação Neutra'}
+                                            </div>
                                             {allColumns.map((col: any) => {
                                                 const value = row.original[col.accessor];
                                                 const formattedValue = col.Cell ? col.Cell({ value }) : String(value);
@@ -402,11 +424,52 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
     return (
         <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
             <div className="flex justify-between items-center mb-4">
-                <div>
-                    <h2 className="text-gray-600 text-3xl">{title}</h2>
-                    <p className="text-gray-500 text-sm mt-1 md:hidden">
-                        Acesse a versão web para mais recursos de filtros
+                <div className="flex-1">
+                    <h2 className="text-gray-600 text-3xl mb-2">{title}</h2>
+                    
+                    {/* Subtítulo responsivo */}
+                    <p className="text-gray-500 text-sm mb-3 md:hidden">
+                        Acesse a versão web para mais recursos de filtros e melhor visualização
                     </p>
+                    <p className="text-gray-500 text-sm mb-3 hidden md:block">
+                        Explore, filtre e ordene os dados da Lei Orçamentária Anual. Clique nos cabeçalhos para ordenar, use os filtros avançados ou clique em uma linha para ver mais detalhes da ação.
+                    </p>
+                    
+                    {/* Tags de filtro */}
+                    {setFilterType && (
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            <button
+                                onClick={() => setFilterType('all')}
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${
+                                    filterType === 'all' 
+                                        ? 'bg-gray-300' 
+                                        : 'bg-gray-100 hover:bg-gray-200'
+                                }`}
+                            >
+                                Todas as Ações
+                            </button>
+                            <button
+                                onClick={() => setFilterType('good')}
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${
+                                    filterType === 'good' 
+                                        ? 'bg-green-200' 
+                                        : 'bg-green-100 hover:bg-green-150'
+                                }`}
+                            >
+                                Boas Ações
+                            </button>
+                            <button
+                                onClick={() => setFilterType('bad')}
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${
+                                    filterType === 'bad' 
+                                        ? 'bg-red-200' 
+                                        : 'bg-red-100 hover:bg-red-150'
+                                }`}
+                            >
+                                Más Ações
+                            </button>
+                        </div>
+                    )}
                 </div>
                 {setShowFilters && (
                     <button
@@ -426,26 +489,6 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
                         <span className="hidden md:inline">Filtros</span>
                     </button>
                 )}
-            </div>
-            <div className="flex space-x-2 mb-4">
-                <button
-                    onClick={() => setFilterType('all')}
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                >
-                    Todas as Ações
-                </button>
-                <button
-                    onClick={() => setFilterType('good')}
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'good' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                >
-                    Boas Ações
-                </button>
-                <button
-                    onClick={() => setFilterType('bad')}
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${filterType === 'bad' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                >
-                    Má Ações
-                </button>
             </div>
             
             {/* Filtros ativos */}
@@ -505,7 +548,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
                     {...getTableProps()}
                     className="table-auto shadow min-w-full divide-y divide-gray-200"
                 >
-                    {isInitialized && <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} showFilters={showFilters} setShowFilters={setShowFilters} />}
+                    {isInitialized && <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} showFilters={showFilters} setShowFilters={setShowFilters} rows={rows} />}
                     {showFilters && (
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200">
@@ -513,9 +556,9 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters }
                                     <div className={`transition-all duration-500 ease-out overflow-hidden ${
                                         showFilters ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
                                     }`}>
-                                        <div className="flex px-6 py-3 gap-4">
+                                        <div className="flex flex-wrap px-6 py-3 gap-4">
                                             {headerGroups[0]?.headers?.map((column: any, index: number) => (
-                                                <div key={column.id || index} className="flex-1">
+                                                <div key={column.id || index} className="w-full sm:flex-1">
                                                     {column.canFilter && (!isSmallScreen || index === 0) && column.render('Filter')}
                                                 </div>
                                             ))}

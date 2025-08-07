@@ -1,4 +1,4 @@
-import { json, type LoaderFunction } from "@remix-run/node";
+import { json, defer, type LoaderFunction } from "@remix-run/node";
 
 export const loader: LoaderFunction = async () => {
   const fetchYearlyData = async (url: string) => {
@@ -75,7 +75,7 @@ export const loader: LoaderFunction = async () => {
     const description = "";
     const totalValueEmissions = 0;
 
-    return json({
+    return defer({
       cover,
       description,
       totalValueBudgeted2020,
@@ -97,11 +97,11 @@ export const loader: LoaderFunction = async () => {
       totalValueActions2024,
       totalValueActions2025,
       totalValueEmissions,
-      actions2023
+      actions2023: Promise.resolve(actions2023)
     });
   } catch (error) {
     console.error("Error loading data:", error);
-    return json({
+    return defer({
       cover: null,
       description: "",
       totalGoodActions2023: [],
@@ -125,7 +125,7 @@ export const loader: LoaderFunction = async () => {
       totalValueActions2024: 0,
       totalValueActions2025: 0,
       totalValueEmissions: 0,
-      actions2023: []
+      actions2023: Promise.resolve([])
     });
   }
 };
