@@ -68,14 +68,70 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [hasError, setHasError] = useState(false);
+    
     const safeData = React.useMemo(() => {
-        return data || [];
+        try {
+            if (!Array.isArray(data)) {
+                console.warn('Table data is not an array:', data);
+                return [];
+            }
+            return data.filter(item => item && typeof item === 'object');
+        } catch (error) {
+            console.error('Error processing table data:', error);
+            setHasError(true);
+            return [];
+        }
     }, [data]);
-    const safeColumns = columns || [];
+    
+    const safeColumns = React.useMemo(() => {
+        try {
+            if (!Array.isArray(columns)) {
+                console.warn('Table columns is not an array:', columns);
+                return [];
+            }
+            return columns.filter(col => col && col.accessor);
+        } catch (error) {
+            console.error('Error processing table columns:', error);
+            setHasError(true);
+            return [];
+        }
+    }, [columns]);
+    
+    if (hasError) {
+        return (
+            <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-red-50">
+                <div className="text-center">
+                    <h2 className="text-red-800 text-2xl mb-4">Erro ao carregar tabela</h2>
+                    <p className="text-red-600 mb-4">Houve um problema ao processar os dados da tabela.</p>
+                    <button 
+                        onClick={() => {
+                            setHasError(false);
+                            window.location.reload();
+                        }}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            </section>
+        );
+    }
+    
+    if (safeData.length === 0) {
+        return (
+            <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+                <div className="text-center">
+                    <h2 className="text-gray-600 text-2xl mb-4">{title}</h2>
+                    <p className="text-gray-500 mb-4">Nenhum dado disponível no momento.</p>
+                </div>
+            </section>
+        );
+    }
 
     const filterTypes = React.useMemo(
         () => ({
@@ -243,7 +299,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             >
                                 <td className="px-6 py-4">
                                     <div className={`hover:bg-gray-100 border-b border-gray-200 p-3 ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : ''}`}>
-                                        <SingleColumnRow cells={row.cells} />
+                                        <SingleColumnRow cells={row.cells || []} />
                                     </div>
                                 </td>
                             </tr>
@@ -455,18 +511,18 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             </button>
                             <button
                                 onClick={() => setFilterType('good')}
-                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'good'
-                                    ? 'bg-green-200'
-                                    : 'bg-green-100 hover:bg-green-150'
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${filterType === 'good'
+                                    ? 'bg-[#006400] text-white'
+                                    : 'bg-green-100 text-green-800 hover:bg-green-200'
                                     }`}
                             >
                                 Boas Ações
                             </button>
                             <button
                                 onClick={() => setFilterType('bad')}
-                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'bad'
-                                    ? 'bg-red-200'
-                                    : 'bg-red-100 hover:bg-red-150'
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${filterType === 'bad'
+                                    ? 'bg-[#8B0000] text-white'
+                                    : 'bg-red-100 text-red-800 hover:bg-red-200'
                                     }`}
                             >
                                 Más Ações
@@ -496,10 +552,15 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             {/* Filtros ativos */}
             <div className="mb-4">
                 <div className="flex flex-wrap gap-2">
-                    {headerGroups[0]?.headers?.filter(column => {
-                        const hasFilter = column.filterValue && 
-                            (Array.isArray(column.filterValue) ? column.filterValue.some(val => val !== undefined && val !== '') : column.filterValue !== '');
-                        return hasFilter;
+                    {(headerGroups[0]?.headers || []).filter(column => {
+                        try {
+                            const hasFilter = column.filterValue && 
+                                (Array.isArray(column.filterValue) ? column.filterValue.some(val => val !== undefined && val !== '') : column.filterValue !== '');
+                            return hasFilter;
+                        } catch (error) {
+                            console.warn('Error filtering column:', column, error);
+                            return false;
+                        }
                     }).map((column: any) => {
                         const headerText = typeof column.Header === 'function' ? 'Extensão executada' : column.Header;
                         let displayValue = '';

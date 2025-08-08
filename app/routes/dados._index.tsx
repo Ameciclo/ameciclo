@@ -20,7 +20,7 @@ export default function Dados() {
             url: "/dados/contagens",
             description:
                 "Contagens das viagens de bicicleta e suas caracteristicas observáveis",
-            target: "_self",
+            target: "",
         },
         {
             title: "Ideciclo",
@@ -40,9 +40,9 @@ export default function Dados() {
         {
             title: "Perfil",
             src: "/icons/dados/perfil.svg",
-            url: "https://dados.ameciclo.org/perfil",
+            url: "/dados/perfil",
             description: "Dados socio-economicos dos ciclistas e suas percepções",
-            target: "_blank",
+            target: "",
         },
         {
             title: "Sinistros Fatais",
@@ -50,7 +50,7 @@ export default function Dados() {
             url: "/dados/sinistros-fatais",
             description:
                 "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
-            target: "_blank",
+            target: "",
         },
         {
             title: "Execução Cicloviária",
@@ -58,7 +58,7 @@ export default function Dados() {
             url: "/dados/execucaocicloviaria",
             description:
                 "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
-            target: "_self",
+            target: "",
         },
         {
             title: "Orçamento Estadual para o Clima",
@@ -66,7 +66,7 @@ export default function Dados() {
             url: "/dados/loa",
             description:
                 "Monitoramento do orçamento estadual conforme sua contribuição climática.",
-            target: "_self",
+            target: "",
         },
         {
             title: "Orçamento Municipal para o Clima",
@@ -74,7 +74,7 @@ export default function Dados() {
             url: "/dados/dom",
             description:
                 "Monitoramento do orçamento municipal conforme sua contribuição climática.",
-            target: "_blank",
+            target: "",
         },
     ];
     return (

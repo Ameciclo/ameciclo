@@ -5,6 +5,7 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import LazyLoad from 'react-lazyload';
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import Loading from "~/components/Dom/Loading";
+import LoaLoading from "~/components/Dom/LoaLoading";
 import { loader } from "~/loader/dados.observatorio.loa";
 import Chart from "react-google-charts";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
@@ -13,41 +14,9 @@ import { formatLargeValue } from "~/utils/formatCurrency";
 export { loader };
 
 export default function Loa() {
-    const { 
-        cover, 
-        description, 
-        totalValueBudgeted2020, 
-        totalValueBudgeted2021, 
-        totalValueBudgeted2022, 
-        totalValueBudgeted2023, 
-        totalValueExecuted2020, 
-        totalValueExecuted2021, 
-        totalValueExecuted2022, 
-        totalValueExecuted2023, 
-        totalValueActions2020, 
-        totalValueActions2021, 
-        totalValueActions2022, 
-        totalValueActions2023, 
-        totalValueBudgeted2024, 
-        totalValueBudgeted2025, 
-        totalValueExecuted2024, 
-        totalValueExecuted2025, 
-        totalValueActions2024, 
-        totalValueActions2025, 
-        totalValueEmissions, 
-        actions2023 
-    } = useLoaderData<any>();
-    const [renderOthers, setRenderOthers] = useState(false);
+    const { cover, description, totalValueEmissions, dataPromise } = useLoaderData<any>();
     const [showFilters, setShowFilters] = useState(false);
     const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setRenderOthers(true);
-        }, 2000);
-
-        return () => clearTimeout(timeout);
-    }, []);
 
     const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
@@ -72,21 +41,7 @@ export default function Loa() {
         return undefined;
     };
 
-    const classifiedActions = useMemo(() => {
-        if (!actions2023 || !Array.isArray(actions2023)) return [];
-        
-        let filtered = actions2023.map((action: any) => ({
-            ...action,
-            type: classifyAction(action)
-        }));
-
-        if (filterType === 'good') {
-            filtered = filtered.filter((action: any) => action.type === 'good');
-        } else if (filterType === 'bad') {
-            filtered = filtered.filter((action: any) => action.type === 'bad');
-        }
-        return filtered;
-    }, [actions2023, filterType]);
+    // Remove this useMemo since we're now handling data inside Await
 
     const allColumns = useMemo(
         () => [
@@ -185,14 +140,76 @@ export default function Loa() {
         return `${numParse(value)}`;
     }
 
+
+
     return (
         <>
             <Banner image="/images/banners/faq.png" alt="Capa da página do Loaclima" />
             <Breadcrumb label="LOA" slug="/dados/loa" routes={["/", "/dados"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas." }]} />
 
-            {renderOthers ? (
-                <div className="container mx-auto px-4 py-6">
+            <Suspense fallback={
+                <>
+                    <div className="animate-pulse bg-gray-300 h-64 w-full mb-4"></div>
+                    <div className="container mx-auto px-4 py-8">
+                        <div className="animate-pulse">
+                            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                                <div className="h-6 bg-gray-300 rounded w-48 mb-4"></div>
+                                <div className="space-y-2">
+                                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <LoaLoading />
+                </>
+            }>
+                <Await resolve={dataPromise} errorElement={
+                    <div className="container mx-auto px-4 py-8">
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                            <h2 className="text-xl font-semibold text-red-800 mb-2">Erro ao carregar dados</h2>
+                            <p className="text-red-600 mb-4">Não foi possível carregar os dados do LOA Clima no momento.</p>
+                            <button 
+                                onClick={() => window.location.reload()} 
+                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                            >
+                                Tentar novamente
+                            </button>
+                        </div>
+                    </div>
+                }>
+                    {(data) => {
+                        // Calculate totals from API data with error handling
+                        const actions2023 = data?.actions2023 || [];
+                        const climateActions = actions2023.filter((action: any) => {
+                            try {
+                                const actionCode = getActionCode(action);
+                                return goodActionsTags.includes(actionCode);
+                            } catch (error) {
+                                console.warn('Error processing action:', action, error);
+                                return false;
+                            }
+                        });
+                        
+                        const totalClimateBudgeted = climateActions.reduce((sum: number, action: any) => {
+                            const value = Number(action?.vlrdotatualizada) || 0;
+                            return sum + value;
+                        }, 0);
+                        
+                        const totalClimateExecuted = climateActions.reduce((sum: number, action: any) => {
+                            const value = Number(action?.vlrtotalpago) || 0;
+                            return sum + value;
+                        }, 0);
+                        
+                        const totalStateBudget = actions2023.reduce((sum: number, action: any) => {
+                            const value = Number(action?.vlrdotatualizada) || 0;
+                            return sum + value;
+                        }, 0);
+                        
+                        return (
+                            <div className="container mx-auto px-4 py-6">
                     <section className="mb-10">
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Investimentos e Emissões</h2>
                         <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações climáticas, orçamento total e custo por emissão de carbono.</p>
@@ -201,11 +218,11 @@ export default function Loa() {
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Investimento em ações climáticas">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span>0.5</span>
-                                        <span className="text-xl ml-1">Bi</span>
+                                        <span>{totalClimateBudgeted >= 1000000000 ? (totalClimateBudgeted / 1000000000).toFixed(1).replace('.0', '') : totalClimateBudgeted >= 1000000 ? (totalClimateBudgeted / 1000000).toFixed(1).replace('.0', '') : totalClimateBudgeted.toFixed(0)}</span>
+                                        <span className="text-xl ml-1">{totalClimateBudgeted >= 1000000000 ? 'Bi' : totalClimateBudgeted >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
                                     <p className="text-base mb-1">Investimento em ações climáticas:</p>
-                                    <p className="text-lg font-semibold">R$ 469.843.274,04</p>
+                                    <p className="text-lg font-semibold">{formatLargeValue(totalClimateBudgeted)}</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Ações climáticas</div>
                                 </LazyLoad>
                             </div>
@@ -213,20 +230,20 @@ export default function Loa() {
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Orçamento total do estado">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span>52.2</span>
-                                        <span className="text-xl ml-1">Bi</span>
+                                        <span>{totalStateBudget >= 1000000000 ? (totalStateBudget / 1000000000).toFixed(1).replace('.0', '') : totalStateBudget >= 1000000 ? (totalStateBudget / 1000000).toFixed(1).replace('.0', '') : totalStateBudget.toFixed(0)}</span>
+                                        <span className="text-xl ml-1">{totalStateBudget >= 1000000000 ? 'Bi' : totalStateBudget >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
                                     <p className="text-base mb-1">Orçamento total do estado:</p>
-                                    <p className="text-lg font-semibold">R$ 52.195.938.993,61</p>
+                                    <p className="text-lg font-semibold">{formatLargeValue(totalStateBudget)}</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Orçamento total</div>
                                 </LazyLoad>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Custo por tonelada de CO2 equivalente">
                                 <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
+                                    <h3 className="text-3xl font-bold mb-1">R$ {totalClimateExecuted > 0 ? (totalClimateExecuted / 154300).toFixed(0) : '3'} Mil / CO2e</h3>
                                     <p className="text-base mb-1">Custo por tonelada de CO2 equivalente</p>
-                                    <p className="text-lg font-semibold">R$ 3.045,975</p>
+                                    <p className="text-lg font-semibold">R$ {totalClimateExecuted > 0 ? (totalClimateExecuted / 154300).toLocaleString('pt-BR', { minimumFractionDigits: 3 }) : '3.045,975'}</p>
                                     <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
                                     <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
                                 </LazyLoad>
@@ -242,22 +259,22 @@ export default function Loa() {
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span>469.8</span>
-                                        <span className="text-xl ml-1">Mi</span>
+                                        <span>{totalClimateBudgeted >= 1000000000 ? (totalClimateBudgeted / 1000000000).toFixed(1).replace('.0', '') : totalClimateBudgeted >= 1000000 ? (totalClimateBudgeted / 1000000).toFixed(1).replace('.0', '') : totalClimateBudgeted.toFixed(0)}</span>
+                                        <span className="text-xl ml-1">{totalClimateBudgeted >= 1000000000 ? 'Bi' : totalClimateBudgeted >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
                                     <p className="text-base mb-1">Orçamento planejado para ações climáticas:</p>
-                                    <p className="text-lg font-semibold">R$ 469.843.274,04</p>
+                                    <p className="text-lg font-semibold">{formatLargeValue(totalClimateBudgeted)}</p>
                                 </LazyLoad>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-gray-400">
                                 <LazyLoad height={300} offset={0}>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span>178.3</span>
-                                        <span className="text-xl ml-1">Mi</span>
+                                        <span>{totalClimateExecuted >= 1000000000 ? (totalClimateExecuted / 1000000000).toFixed(1).replace('.0', '') : totalClimateExecuted >= 1000000 ? (totalClimateExecuted / 1000000).toFixed(1).replace('.0', '') : totalClimateExecuted.toFixed(0)}</span>
+                                        <span className="text-xl ml-1">{totalClimateExecuted >= 1000000000 ? 'Bi' : totalClimateExecuted >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
                                     <p className="text-base mb-1">Orçamento executado em ações climáticas:</p>
-                                    <p className="text-lg font-semibold">R$ 178.252.296,04</p>
+                                    <p className="text-lg font-semibold">{formatLargeValue(totalClimateExecuted)}</p>
                                 </LazyLoad>
                             </div>
                         </div>
@@ -274,12 +291,12 @@ export default function Loa() {
                                         chartType="Bar"
                                         data={[
                                             ["Ano", "Orçado (R$)", 'Executado (R$)'],
-                                            ['2020', totalValueBudgeted2020, totalValueExecuted2020],
-                                            ['2021', totalValueBudgeted2021, totalValueExecuted2021],
-                                            ['2022', totalValueBudgeted2022, totalValueExecuted2022],
-                                            ['2023', totalValueBudgeted2023, totalValueExecuted2023],
-                                            ['2024', totalValueBudgeted2024, totalValueExecuted2024],
-                                            ['2025', totalValueBudgeted2025, totalValueExecuted2025],
+                                            ['2020', data.totalValueBudgeted2020, data.totalValueExecuted2020],
+                                            ['2021', data.totalValueBudgeted2021, data.totalValueExecuted2021],
+                                            ['2022', data.totalValueBudgeted2022, data.totalValueExecuted2022],
+                                            ['2023', data.totalValueBudgeted2023, data.totalValueExecuted2023],
+                                            ['2024', data.totalValueBudgeted2024, data.totalValueExecuted2024],
+                                            ['2025', data.totalValueBudgeted2025, data.totalValueExecuted2025],
                                         ]}
                                         width="100%"
                                         height="300px"
@@ -333,12 +350,12 @@ export default function Loa() {
                                         chartType="Bar"
                                         data={[
                                             ["Ano", "Total (R$)"],
-                                            ['2020', totalValueActions2020],
-                                            ['2021', totalValueActions2021],
-                                            ['2022', totalValueActions2022],
-                                            ['2023', totalValueActions2023],
-                                            ['2024', totalValueActions2024],
-                                            ['2025', totalValueActions2025],
+                                            ['2020', data.totalValueActions2020],
+                                            ['2021', data.totalValueActions2021],
+                                            ['2022', data.totalValueActions2022],
+                                            ['2023', data.totalValueActions2023],
+                                            ['2024', data.totalValueActions2024],
+                                            ['2025', data.totalValueActions2025],
                                         ]}
                                         width="100%"
                                         height="300px"
@@ -372,14 +389,22 @@ export default function Loa() {
                             </div>
                         </section>
                     </div>
-                    <section>
-                        <Suspense fallback={<Loading />}>
-                            <Await resolve={actions2023}>
-                                {(resolvedActions) => {
-                                    const processedActions = resolvedActions ? resolvedActions.map((action: any) => ({
-                                        ...action,
-                                        type: classifyAction(action)
-                                    })) : [];
+                            <section>
+                                {(() => {
+                                    const processedActions = actions2023.map((action: any) => {
+                                        try {
+                                            return {
+                                                ...action,
+                                                type: classifyAction(action)
+                                            };
+                                        } catch (error) {
+                                            console.warn('Error processing action for table:', action, error);
+                                            return {
+                                                ...action,
+                                                type: undefined
+                                            };
+                                        }
+                                    });
                                     
                                     let filteredActions = processedActions;
                                     if (filterType === 'good') {
@@ -401,10 +426,8 @@ export default function Loa() {
                                             classifyAction={classifyAction}
                                         />
                                     );
-                                }}
-                            </Await>
-                        </Suspense>
-                    </section>
+                                })()}
+                            </section>
                     <section className="bg-gray-50 rounded-lg p-4 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div>
@@ -439,10 +462,13 @@ export default function Loa() {
                     </section>
 
                     <div className="text-right text-sm text-gray-500 mb-2">
-                        {!!actions2023?.length ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : ''}
+                        {actions2023.length > 0 ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : 'Dados não disponíveis'}
                     </div>
-                </div>
-            ) : <Loading />}
+                            </div>
+                        );
+                    }}
+                </Await>
+            </Suspense>
         </>
     );
 }

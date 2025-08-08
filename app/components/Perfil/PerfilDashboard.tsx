@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
+import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
-import HighchartsExporting from "highcharts/modules/exporting";
-import HighchartsHistogram from "highcharts/modules/histogram-bellcurve";
-import HighchartsMore from "highcharts/highcharts-more";
-import HorizontalBarChart from "../Commom/Charts/HorizontalBarChart";
+let Highcharts: any;
+let HighchartsReact: any;
 
 function getInicialFilters() {
   return [
@@ -86,11 +83,7 @@ function getHistogramData(data: any) {
 }
 
 
-if (typeof Highcharts === "object") {
-  HighchartsExporting(Highcharts);
-  HighchartsHistogram(Highcharts);
-  HighchartsMore(Highcharts);
-}
+
 
 async function fetchWithFilters(filters: any) {
   const PERFIL_DATA = "https://api.perfil.ameciclo.org/v1/cyclist-profile/summary/"
@@ -108,6 +101,7 @@ async function fetchWithFilters(filters: any) {
 
 function PerfilClientSide() {
   const [filters, setFilters] = useState(getInicialFilters());
+  const [chartsLoaded, setChartsLoaded] = useState(false);
 
   const [dayData, setDayData] = useState([]);
   const [yearData, setYearData] = useState([]);
@@ -119,11 +113,37 @@ function PerfilClientSide() {
   const [distanceOptions, setDistanceOptions] = useState(getHistogramData([]));
 
   useEffect(() => {
-    Highcharts.charts.forEach((c) => {
-      if (c !== undefined) {
-        setTimeout(() => c.reflow(), 300);
+    const loadHighcharts = async () => {
+      if (typeof window !== "undefined") {
+        try {
+          const HighchartsModule = await import("highcharts");
+          const HighchartsReactModule = await import("highcharts-react-official");
+          const HighchartsExporting = await import("highcharts/modules/exporting");
+          const HighchartsHistogram = await import("highcharts/modules/histogram-bellcurve");
+          const HighchartsMore = await import("highcharts/highcharts-more");
+          
+          Highcharts = HighchartsModule.default;
+          HighchartsReact = HighchartsReactModule.default;
+          
+          if (typeof HighchartsExporting.default === 'function') {
+            HighchartsExporting.default(Highcharts);
+          }
+          if (typeof HighchartsHistogram.default === 'function') {
+            HighchartsHistogram.default(Highcharts);
+          }
+          if (typeof HighchartsMore.default === 'function') {
+            HighchartsMore.default(Highcharts);
+          }
+          
+          setChartsLoaded(true);
+        } catch (error) {
+          console.error('Erro ao carregar Highcharts:', error);
+          setChartsLoaded(true); // Still set to true to show fallback
+        }
       }
-    });
+    };
+    
+    loadHighcharts();
   }, []);
 
   useEffect(() => {
@@ -206,47 +226,62 @@ function PerfilClientSide() {
 
   return (
     <>
-      <section className="container mx-auto shadow-md p-10">
-        <h2 className="font-bold text-3xl mt-5">Selecione seus filtros</h2>
-        <div className="border-gray-200 border p-8 flex flex-col">
-          {getFiltersKeys().map((key) => (
-            <div className="flex flex-wrap items-center space-y-4">
-              <h3 className="font-bold text-xl mt-5">{key.title}</h3>
-              <p>{"   "}</p>
-              {filters
-                .filter((f) => f.key === key.key)
-                .map((f, i) => (
-                  <ToogleButton
-                    value={f.value}
-                    checked={f.checked}
-                    onChange={() => toggleFilter(f, i)}
-                  />
-                ))}
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-row justify-center items-center mt-8 space-x-4">
-          <button
-            onClick={() => applyFilters()}
-            className="toggle-btn border border-teal-500 text-teal-500 hover:bg-ameciclo hover:text-white rounded px-4 py-2 mt-2 outline-none focus:outline-none"
-          >
-            Aplicar Filtros
-          </button>
-          <button
-            onClick={() => clearFilters()}
-            className="toggle-btn border border-teal-500 text-teal-500 hover:bg-ameciclo hover:text-white rounded px-4 py-2 mt-2 outline-none focus:outline-none"
-          >
-            Limpar Filtros
-          </button>
+      <section className="container mx-auto mb-8">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Filtros de Análise</h2>
+            <p className="text-gray-600 text-sm">Selecione os critérios para personalizar a visualização dos dados</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            {getFiltersKeys().map((key) => (
+              <div key={key.key} className="space-y-4">
+                <h3 className="text-lg font-medium text-gray-700 border-b border-gray-200 pb-2">{key.title}</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {filters
+                    .filter((f) => f.key === key.key)
+                    .map((f, i) => (
+                      <ToogleButton
+                        key={f.value}
+                        value={f.value}
+                        checked={f.checked}
+                        onChange={() => toggleFilter(f, i)}
+                      />
+                    ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6 border-t border-gray-200">
+            <button
+              onClick={() => applyFilters()}
+              className="w-full sm:w-auto bg-ameciclo text-white hover:bg-opacity-90 font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ameciclo focus:ring-opacity-50"
+            >
+              Aplicar Filtros
+            </button>
+            <button
+              onClick={() => clearFilters()}
+              className="w-full sm:w-auto border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50"
+            >
+              Limpar Filtros
+            </button>
+          </div>
         </div>
       </section>
 
       <section className="container mx-auto grid grid-cols-1 sm:grid-cols-2 auto-rows-auto gap-10 my-10">
-        {options.map((option) => (
-          <HorizontalBarChart {...option} />
+        {options.map((option, index) => (
+          <HorizontalBarChart key={index} {...option} />
         ))}
         <div className="shadow-2xl rounded p-10 text-center">
-          <HighchartsReact highcharts={Highcharts} options={distanceOptions} />
+          {chartsLoaded && Highcharts && HighchartsReact ? (
+            <HighchartsReact highcharts={Highcharts} options={distanceOptions} />
+          ) : (
+            <div className="h-96 flex items-center justify-center">
+              {chartsLoaded ? 'Erro ao carregar gráfico' : 'Carregando gráfico...'}
+            </div>
+          )}
         </div>
       </section>
     </>
@@ -257,16 +292,19 @@ export default PerfilClientSide;
 
 function ToogleButton({ value, onChange, checked }: any) {
   return (
-    <label key={value}>
+    <label className="cursor-pointer">
       <input
-        className="hidden bg-white text-gray-600"
+        className="sr-only"
         type="checkbox"
         onChange={onChange}
         checked={checked}
       />
       <div
-        className={` hover:bg-ameciclo hover:text-white toggle-btn rounded-3xl flex border switch w-32 h-10 items-center justify-center ${checked ? 'bg-red-500 text-white' : 'bg-white text-gray-600'
-          } outline-none focus:outline-none`}
+        className={`px-4 py-2 rounded-lg text-sm font-medium text-center transition-all duration-200 border ${
+          checked 
+            ? 'bg-ameciclo text-white border-ameciclo shadow-sm' 
+            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+        } focus-within:ring-2 focus-within:ring-ameciclo focus-within:ring-opacity-50`}
       >
         {value}
       </div>
