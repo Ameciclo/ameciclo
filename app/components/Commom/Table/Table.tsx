@@ -68,7 +68,7 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, classifyAction }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -393,8 +393,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         <div className="flex items-center space-x-1">
                             <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${canPreviousPage
-                                        ? 'text-gray-600 hover:bg-gray-100'
-                                        : 'text-gray-300 cursor-not-allowed'
+                                    ? 'text-gray-600 hover:bg-gray-100'
+                                    : 'text-gray-300 cursor-not-allowed'
                                     }`}
                                 onClick={() => canPreviousPage && previousPage()}
                                 disabled={!canPreviousPage}
@@ -404,8 +404,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
 
                             <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${canNextPage
-                                        ? 'text-gray-600 hover:bg-gray-100'
-                                        : 'text-gray-300 cursor-not-allowed'
+                                    ? 'text-gray-600 hover:bg-gray-100'
+                                    : 'text-gray-300 cursor-not-allowed'
                                     }`}
                                 onClick={() => canNextPage && nextPage()}
                                 disabled={!canNextPage}
@@ -425,16 +425,21 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                 <div className="flex-1">
                     <h2 className="text-gray-600 text-3xl mb-2">{title}</h2>
 
-                    {/* Subtítulo responsivo */}
-                    <p className="text-gray-500 text-sm mb-3 md:hidden">
-                        Acesse a versão web para mais recursos de filtros e melhor visualização
-                    </p>
-                    <p className="text-gray-500 text-sm mb-3 hidden md:block">
-                        Explore, filtre e ordene os dados da Lei Orçamentária Anual de 2025.
-                    </p>
-                    <p className="text-gray-500 text-sm mb-3 hidden md:block">
-                        ** Clique na coluna para ordenar <br /> ** Use os filtros avançados <br/> ** Clique na ação para ver mais detalhes.
-                    </p>
+                    {subtitle && (<p>{subtitle}</p>)}
+                    {pageLoa && (
+                        <>
+                            <p className="text-gray-500 text-sm mb-3 md:hidden">
+                                Acesse a versão web para mais recursos de filtros e melhor visualização
+                            </p>
+                            <p className="text-gray-500 text-sm mb-3 hidden md:block">
+                                Explore, filtre e ordene os dados da Lei Orçamentária Anual de 2025.
+                            </p>
+                            <p className="text-gray-500 text-sm mb-3 hidden md:block">
+                                ** Clique na coluna para ordenar <br /> ** Use os filtros avançados <br /> ** Clique na ação para ver mais detalhes.
+                            </p>
+                        </>
+                    )}
+
 
                     {/* Tags de filtro */}
                     {setFilterType && (
@@ -442,8 +447,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             <button
                                 onClick={() => setFilterType('all')}
                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'all'
-                                        ? 'bg-gray-300'
-                                        : 'bg-gray-100 hover:bg-gray-200'
+                                    ? 'bg-gray-300'
+                                    : 'bg-gray-100 hover:bg-gray-200'
                                     }`}
                             >
                                 Todas as Ações
@@ -451,8 +456,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             <button
                                 onClick={() => setFilterType('good')}
                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'good'
-                                        ? 'bg-green-200'
-                                        : 'bg-green-100 hover:bg-green-150'
+                                    ? 'bg-green-200'
+                                    : 'bg-green-100 hover:bg-green-150'
                                     }`}
                             >
                                 Boas Ações
@@ -460,8 +465,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             <button
                                 onClick={() => setFilterType('bad')}
                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'bad'
-                                        ? 'bg-red-200'
-                                        : 'bg-red-100 hover:bg-red-150'
+                                    ? 'bg-red-200'
+                                    : 'bg-red-100 hover:bg-red-150'
                                     }`}
                             >
                                 Más Ações
@@ -473,8 +478,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     <button
                         onClick={() => setShowFilters(!showFilters)}
                         className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors ${showFilters
-                                ? 'bg-[#008080] text-white border-[#008080]'
-                                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                            ? 'bg-[#008080] text-white border-[#008080]'
+                            : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                             }`}
                         style={{
                             animation: shouldBlink ? 'blinkAmeciclo 2s ease-in-out 2' : 'none'
@@ -491,52 +496,62 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             {/* Filtros ativos */}
             <div className="mb-4">
                 <div className="flex flex-wrap gap-2">
-                    {headerGroups[0]?.headers?.map((column: any) => {
-                        if (column.filterValue) {
-                            const headerText = typeof column.Header === 'function' ? 'Extensão executada' : column.Header;
-                            let displayValue;
+                    {headerGroups[0]?.headers?.filter(column => {
+                        const hasFilter = column.filterValue && 
+                            (Array.isArray(column.filterValue) ? column.filterValue.some(val => val !== undefined && val !== '') : column.filterValue !== '');
+                        return hasFilter;
+                    }).map((column: any) => {
+                        const headerText = typeof column.Header === 'function' ? 'Extensão executada' : column.Header;
+                        let displayValue = '';
 
+                        try {
                             if (column.id === 'total_cyclists') {
-                                const [minVal, maxVal] = column.filterValue;
+                                const [minVal, maxVal] = Array.isArray(column.filterValue) ? column.filterValue : [null, null];
                                 if (minVal && maxVal) {
                                     displayValue = `de ${minVal} a ${maxVal}`;
                                 } else if (minVal) {
                                     displayValue = `a partir de ${minVal}`;
                                 } else if (maxVal) {
                                     displayValue = `até ${maxVal}`;
-                                } else {
-                                    displayValue = ''; // Should not happen if filterValue is truthy
                                 }
                             } else if (column.filter === 'numberRange') {
-                                const [minVal, maxVal] = column.filterValue;
+                                const [minVal, maxVal] = Array.isArray(column.filterValue) ? column.filterValue : [null, null];
                                 if (minVal && maxVal) {
                                     displayValue = `de R$ ${minVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} a R$ ${maxVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
                                 } else if (minVal) {
                                     displayValue = `a partir de R$ ${minVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
                                 } else if (maxVal) {
                                     displayValue = `até R$ ${maxVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-                                } else {
-                                    displayValue = '';
                                 }
                             } else if (headerText.includes('Extensão')) {
                                 displayValue = `~${column.filterValue} km`;
                             } else {
-                                displayValue = column.filterValue;
+                                displayValue = String(column.filterValue);
                             }
-                            return (
-                                <div key={column.id} className="inline-flex items-center bg-[#008080] text-white px-3 py-1 rounded-full text-sm">
-                                    <span className="mr-2">{headerText}: {displayValue}</span>
-                                    <button
-                                        onClick={() => column.setFilter(undefined)}
-                                        className="text-white hover:text-gray-200 font-bold"
-                                        title="Remover filtro"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            );
+                        } catch (error) {
+                            displayValue = 'Filtro ativo';
                         }
-                        return null;
+
+                        if (!displayValue) return null;
+
+                        return (
+                            <div key={column.id} className="inline-flex items-center bg-[#008080] text-white px-3 py-1 rounded-full text-sm">
+                                <span className="mr-2">{headerText}: {displayValue}</span>
+                                <button
+                                    onClick={() => {
+                                        try {
+                                            column.setFilter(column.filter === 'numberRange' ? [undefined, undefined] : undefined);
+                                        } catch (error) {
+                                            console.warn('Erro ao remover filtro:', error);
+                                        }
+                                    }}
+                                    className="text-white hover:text-gray-200 font-bold ml-1"
+                                    title="Remover filtro"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        );
                     })}
                 </div>
             </div>

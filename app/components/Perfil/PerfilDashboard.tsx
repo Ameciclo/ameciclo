@@ -1,143 +1,178 @@
-import {
-  json,
-  type LoaderFunctionArgs,
-  type ActionFunctionArgs,
-} from "@remix-run/node";
-import {
-  useLoaderData,
-  useFetcher,
-} from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-let Highcharts: any;
-let HighchartsReact: any;
-
-import {
-  getFiltersKeys,
-  getHistogramData,
-  getInicialFilters,
-} from "~/services/utils";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import HighchartsExporting from "highcharts/modules/exporting";
+import HighchartsHistogram from "highcharts/modules/histogram-bellcurve";
+import HighchartsMore from "highcharts/highcharts-more";
 import HorizontalBarChart from "../Commom/Charts/HorizontalBarChart";
 
-type Filtro = { key: string; value: string; checked: boolean };
+function getInicialFilters() {
+  return [
+    { key: "gender", value: "Masculino", checked: true },
+    { key: "gender", value: "Feminino", checked: true },
+    { key: "gender", value: "Outro", checked: true },
+    { key: "color_race", value: "Amarela", checked: false },
+    { key: "color_race", value: "Branca", checked: false },
+    { key: "color_race", value: "Indígena", checked: false },
+    { key: "color_race", value: "Parda", checked: false },
+    { key: "color_race", value: "Preta", checked: false },
+  ];
+}
 
-async function fetchDataWithFilters(filters: Filtro[]) {
-  const res = await fetch(
-    "https://api.perfil.ameciclo.org/v1/cyclist-profile/summary/",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(filters.filter((f) => f.checked)),
+function getFiltersKeys() {
+  return [
+    { key: "gender", title: "Gênero" },
+    { key: "color_race", title: "Cor/Raça" },
+  ];
+}
+
+function getHistogramData(data: any) {
+  return {
+    title: {
+      text: "Quanto tempo você leva?",
     },
-  );
 
-  if (!res.ok) throw new Error(`Falha ao buscar dados: ${res.statusText}`);
-  const { data } = (await res.json()) as { data: any };
+    subtitle: {
+      text: "Histograma de agrupamento de distâncias em minutos",
+    },
+
+    xAxis: [
+      {
+        title: { text: "" },
+        alignTicks: false,
+      },
+      {
+        title: { text: "Distância em minutos" },
+        alignTicks: false,
+        opposite: false,
+      },
+    ],
+
+    yAxis: [
+      {
+        title: { text: "" },
+      },
+      {
+        title: { text: "Quantidade" },
+        opposite: false,
+      },
+    ],
+
+    series: [
+      {
+        name: "Total",
+        type: "histogram",
+        xAxis: 1,
+        yAxis: 1,
+        baseSeries: "s1",
+        zIndex: 2,
+      },
+      {
+        name: "",
+        type: "scatter",
+        data: data,
+        visible: false,
+        id: "s1",
+        marker: {
+          radius: 1.5,
+        },
+      },
+    ],
+    credits: {
+      enabled: false,
+    },
+  };
+}
+
+
+if (typeof Highcharts === "object") {
+  HighchartsExporting(Highcharts);
+  HighchartsHistogram(Highcharts);
+  HighchartsMore(Highcharts);
+}
+
+async function fetchWithFilters(filters: any) {
+  const PERFIL_DATA = "https://api.perfil.ameciclo.org/v1/cyclist-profile/summary/"
+
+  const res = await fetch(PERFIL_DATA, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(filters.filter((f) => f.checked)),
+  });
+  const { data } = await res.json();
   return data;
 }
 
-export async function loader({}: LoaderFunctionArgs) {
-  const initialFilters = getInicialFilters();
-  const dataset = await fetchDataWithFilters(initialFilters);
-  return json({ initialFilters, dataset });
-}
+function PerfilClientSide() {
+  const [filters, setFilters] = useState(getInicialFilters());
 
-export async function action({ request }: ActionFunctionArgs) {
-  const filters = (await request.json()) as Filtro[];
-  const dataset = await fetchDataWithFilters(filters);
-  return json({ dataset });
-}
-
-export default function PerfilDashboard() {
-  const { initialFilters, dataset } = useLoaderData<typeof loader>();
-  const fetcher = useFetcher<typeof action>();
-
-  const [filters, setFilters] = useState<Filtro[]>(initialFilters);
-
-  const [dayData, setDayData] = useState(dataset.dayAggregate);
-  const [yearData, setYearData] = useState(dataset.yearAggregate);
-  const [needData, setNeedData] = useState(dataset.needAggregate);
-  const [startData, setStartData] = useState(dataset.startAggregate);
-  const [continueData, setContinueData] = useState(dataset.continueAggregate);
-  const [issueData, setIssueData] = useState(dataset.issueAggregate);
-  const [collisionData, setCollisionData] = useState(dataset.collisionAggregate);
-  const [distanceOptions, setDistanceOptions] = useState(
-    getHistogramData(dataset.distances),
-  );
-
-  const [hcReady, setHcReady] = useState(false);
+  const [dayData, setDayData] = useState([]);
+  const [yearData, setYearData] = useState([]);
+  const [needData, setNeedData] = useState([]);
+  const [startData, setStartData] = useState([]);
+  const [continueData, setContinueData] = useState([]);
+  const [issueData, setIssueData] = useState([]);
+  const [collisionData, setCollisionData] = useState([]);
+  const [distanceOptions, setDistanceOptions] = useState(getHistogramData([]));
 
   useEffect(() => {
-    const loadHighcharts = async () => {
-      if (typeof window !== "undefined") {
-        const HighchartsModule = await import("highcharts");
-        const HighchartsReactModule = await import("highcharts-react-official");
-        
-        Highcharts = HighchartsModule.default;
-        HighchartsReact = HighchartsReactModule.default;
-        
-        const [More, Histogram, Exporting, Accessibility] = await Promise.all([
-          import("highcharts/highcharts-more"),
-          import("highcharts/modules/histogram-bellcurve"),
-          import("highcharts/modules/exporting"),
-          import("highcharts/modules/accessibility"),
-        ]);
-        
-        More.default(Highcharts);
-        Histogram.default(Highcharts);
-        Exporting.default(Highcharts);
-        Accessibility.default?.(Highcharts);
-        setHcReady(true);
+    Highcharts.charts.forEach((c) => {
+      if (c !== undefined) {
+        setTimeout(() => c.reflow(), 300);
       }
-    };
-    
-    loadHighcharts();
+    });
   }, []);
 
   useEffect(() => {
-    if (!hcReady) return;
-    const handle = setTimeout(() => {
-      Highcharts.charts.forEach((c) => c && c.reflow());
-    }, 300);
-
-    window.addEventListener("resize", () => Highcharts.charts.forEach((c) => c && c.reflow()));
-    return () => {
-      clearTimeout(handle);
-      window.removeEventListener("resize", () => {});
+    const fetchInitialData = async () => {
+      return await fetchWithFilters(getInicialFilters());
     };
-  }, [hcReady]);
-
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data?.dataset) {
-      const d = fetcher.data.dataset;
-      setDayData(d.dayAggregate);
-      setYearData(d.yearAggregate);
-      setNeedData(d.needAggregate);
-      setStartData(d.startAggregate);
-      setContinueData(d.continueAggregate);
-      setIssueData(d.issueAggregate);
-      setCollisionData(d.collisionAggregate);
-      setDistanceOptions(getHistogramData(d.distances));
-    }
-  }, [fetcher.state, fetcher.data]);
-
-  const submitFilters = () =>
-    fetcher.submit(JSON.stringify(filters), {
-      method: "post",
-      encType: "application/json",
+    applyFilters()
+    fetchInitialData().then((data) => {
+      setDayData(data.dayAggregate);
+      setYearData(data.yearAggregate);
+      setNeedData(data.needAggregate);
+      setStartData(data.startAggregate);
+      setContinueData(data.continueAggregate);
+      setIssueData(data.issueAggregate);
+      setCollisionData(data.collisionAggregate);
+      setDistanceOptions(() => getHistogramData(data.distances));
     });
+  }, []);
 
-  const clearFilters = () =>
-    setFilters((prev) => prev.map((f) => ({ ...f, checked: false })));
+  const applyFilters = async () => {
+    const data: any = await fetchWithFilters(filters);
+    setDayData(data.dayAggregate);
+    setYearData(data.yearAggregate);
+    setNeedData(data.needAggregate);
+    setStartData(data.startAggregate);
+    setContinueData(data.continueAggregate);
+    setIssueData(data.issueAggregate);
+    setCollisionData(data.collisionAggregate);
+  };
 
-  const toggleFilter = (f: Filtro) =>
-    setFilters((prev) =>
-      prev.map((item) =>
-        item.value === f.value ? { ...item, checked: !item.checked } : item,
-      ),
-    );
+  const clearFilters = () => {
+    setFilters((prevState) => {
+      return prevState.map((i: any) => {
+        return { ...i, checked: false };
+      });
+    });
+  };
 
-  const barOptions = [
+  const toggleFilter = (f: any, i: number) => {
+    setFilters((prevState) => {
+      return prevState.map((item: any) => {
+        return item.value === f.value
+          ? { ...item, checked: !item.checked }
+          : item;
+      });
+    });
+  };
+
+  const options = [
     {
       title:
         "Quantos dias da semana costuma utilizar a bicicleta como meio de transporte",
@@ -147,105 +182,94 @@ export default function PerfilDashboard() {
       title: "Há quanto tempo utiliza a bicicleta como meio de transporte",
       series: yearData,
     },
-    { title: "O que faria você pedalar mais?", series: needData },
-    { title: "Qual foi a sua motivação para começar?", series: startData },
+    {
+      title: "O que faria você pedalar mais?",
+      series: needData,
+    },
+    {
+      title: "Qual foi a sua motivação para começar?",
+      series: startData,
+    },
     {
       title: "Qual foi a sua motivação para continuar a pedalar?",
       series: continueData,
     },
-    { title: "Qual o seu maior problema ao pedalar?", series: issueData },
-    { title: "Já sofreu algum tipo de colisão?", series: collisionData },
+    {
+      title: "Qual o seu maior problema ao pedalar?",
+      series: issueData,
+    },
+    {
+      title: "Já sofreu algum tipo de colisão?",
+      series: collisionData,
+    },
   ];
 
-  if (!hcReady) {
-    return (
-      <div className="text-center font-semibold py-16">
-        Carregando gráficos…
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full overflow-x-hidden">
-      <section className="container mx-auto px-4 shadow-md py-10">
+    <>
+      <section className="container mx-auto shadow-md p-10">
         <h2 className="font-bold text-3xl mt-5">Selecione seus filtros</h2>
-
-        <div className="border-gray-200 border p-4 md:p-8 flex flex-col">
+        <div className="border-gray-200 border p-8 flex flex-col">
           {getFiltersKeys().map((key) => (
-            <div
-              key={key.key}
-              className="flex flex-wrap items-center space-y-4"
-            >
-              <h3 className="font-bold text-xl mt-5 w-full">{key.title}</h3>
-              <span className="mx-2" />
+            <div className="flex flex-wrap items-center space-y-4">
+              <h3 className="font-bold text-xl mt-5">{key.title}</h3>
+              <p>{"   "}</p>
               {filters
                 .filter((f) => f.key === key.key)
-                .map((f) => (
-                  <ToggleButton
-                    key={f.value}
+                .map((f, i) => (
+                  <ToogleButton
                     value={f.value}
                     checked={f.checked}
-                    onChange={() => toggleFilter(f)}
+                    onChange={() => toggleFilter(f, i)}
                   />
                 ))}
             </div>
           ))}
         </div>
-
         <div className="flex flex-row justify-center items-center mt-8 space-x-4">
           <button
-            onClick={submitFilters}
-            className="toggle-btn border border-teal-500 text-teal-500 hover:bg-ameciclo hover:text-white rounded px-4 py-2 mt-2 outline-none"
+            onClick={() => applyFilters()}
+            className="toggle-btn border border-teal-500 text-teal-500 hover:bg-ameciclo hover:text-white rounded px-4 py-2 mt-2 outline-none focus:outline-none"
           >
             Aplicar Filtros
           </button>
           <button
-            onClick={clearFilters}
-            className="toggle-btn border border-teal-500 text-teal-500 hover:bg-ameciclo hover:text-white rounded px-4 py-2 mt-2 outline-none"
+            onClick={() => clearFilters()}
+            className="toggle-btn border border-teal-500 text-teal-500 hover:bg-ameciclo hover:text-white rounded px-4 py-2 mt-2 outline-none focus:outline-none"
           >
             Limpar Filtros
           </button>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 auto-rows-auto gap-10 my-10">
-        {barOptions.map((opt) => (
-          <HorizontalBarChart key={opt.title} {...opt} />
+      <section className="container mx-auto grid grid-cols-1 sm:grid-cols-2 auto-rows-auto gap-10 my-10">
+        {options.map((option) => (
+          <HorizontalBarChart {...option} />
         ))}
-
-        <div className="shadow-2xl rounded p-4 md:p-10 text-center">
-          <HighchartsReact
-            highcharts={Highcharts}
-            options={distanceOptions}
-          />
+        <div className="shadow-2xl rounded p-10 text-center">
+          <HighchartsReact highcharts={Highcharts} options={distanceOptions} />
         </div>
       </section>
-    </div>
+    </>
   );
 }
 
-interface ToggleProps {
-  value: string;
-  checked: boolean;
-  onChange: () => void;
-}
+export default PerfilClientSide;
 
-function ToggleButton({ value, checked, onChange }: ToggleProps) {
+function ToogleButton({ value, onChange, checked }: any) {
   return (
-    <label>
+    <label key={value}>
       <input
+        className="hidden bg-white text-gray-600"
         type="checkbox"
-        checked={checked}
         onChange={onChange}
-        className="hidden"
+        checked={checked}
       />
-      <span
-        className={`toggle-btn rounded-3xl flex w-32 h-10 items-center justify-center border ${
-          checked ? "bg-red-500 text-white" : "bg-white text-gray-600"
-        } hover:bg-ameciclo hover:text-white`}
+      <div
+        className={` hover:bg-ameciclo hover:text-white toggle-btn rounded-3xl flex border switch w-32 h-10 items-center justify-center ${checked ? 'bg-red-500 text-white' : 'bg-white text-gray-600'
+          } outline-none focus:outline-none`}
       >
         {value}
-      </span>
+      </div>
     </label>
   );
 }

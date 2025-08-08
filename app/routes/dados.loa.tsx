@@ -325,7 +325,7 @@ export default function Loa() {
 
                         <section className="h-auto">
                             <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Total por Ano</h2>
-                            <p className="text-gray-600 mb-4">Evolução do orçamento total do estado para todas as ações entre 2020 e 2023.</p>
+                            <p className="text-gray-600 mb-4">Evolução do orçamento total do estado para todas as ações entre 2020 e 2025</p>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                 <div className="w-full max-w-[500px]">
@@ -428,7 +428,9 @@ export default function Loa() {
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Baixe os Dados</h3>
                                 <ul className="space-y-2">
-                                    <li><a href="https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/bd2f90f2-3cc1-4b46-ab8d-9b15a1b0d453/download/acoes_e_programas_json_2023_20231010.json" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 10/10/2023</a></li>
+                                    <li><a href="https://dados.pe.gov.br/dataset/acoes-e-programas/resource/bd2f90f2-3cc1-4b46-ab8d-9b15a1b0d453" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2025</a></li>
+                                    <li><a href="https://dados.pe.gov.br/dataset/acoes-e-programas/resource/6d2fff01-6bb7-43c2-baea-c82a5cdfb206" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2024</a></li>
+                                    <li><a href="https://dados.pe.gov.br/dataset/acoes-e-programas/resource/421e1035-ef96-4ac9-99cc-07a34ab93444" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2023</a></li>
                                     <li><a href="https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/55784447-97e8-4fb0-b062-99c368bf6384/download/acoes_e_programas_json_2022_20221231.json" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2022</a></li>
                                     <li><a href="https://dados.pe.gov.br/dataset/38401a88-5a99-4b21-99d2-2d4a36a241f1/resource/0a2e8fd7-7a65-46df-bd1b-15f2dfaaded7/download/acoes_e_programas_json_2021_20211231.json" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Ações e Programas - 2021</a></li>
                                 </ul>
@@ -437,7 +439,7 @@ export default function Loa() {
                     </section>
 
                     <div className="text-right text-sm text-gray-500 mb-2">
-                        {!!actions2023?.length ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : 'ATUALIZADO: 10/10/2023'}
+                        {!!actions2023?.length ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : ''}
                     </div>
                 </div>
             ) : <Loading />}
