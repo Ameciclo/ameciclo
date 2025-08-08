@@ -140,13 +140,13 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                 setIsInitialized(true);
             }
         };
-        
+
         checkScreenSize();
         window.addEventListener('resize', checkScreenSize);
-        
+
         return () => window.removeEventListener('resize', checkScreenSize);
     }, [setPageSize, isInitialized]);
-    
+
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
@@ -161,10 +161,10 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             },
             { threshold: 0.5 }
         );
-        
+
         const tableSection = document.querySelector('section.container');
         if (tableSection) observer.observe(tableSection);
-        
+
         return () => observer.disconnect();
     }, []);
 
@@ -195,7 +195,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                                     : "🔺 "
                                                 : "♦️ "}
                                         </span>
-                                        {column.Header === 'Ação' ? `Ação (${new Set(rows.map((row: any) => row.original.cd_nm_acao)).size})` : column.Header === 'Sub-ação' ? `Sub-ação (${rows.length})` : column.Header === 'Total Pago' ? `Total Pago (${(() => { const total = rows.reduce((sum: number, row: any) => sum + row.original.vlrtotalpago, 0); return total >= 1000000 ? (total >= 1000000000 ? `R$ ${(total / 1000000000).toFixed(1).replace('.0', '')} Bi` : `R$ ${(total / 1000000).toFixed(1).replace('.0', '')} Mi`) : `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`; })()})` : column.render("Header")}
+                                        {column.Header === 'Ação' ? `Ação (${new Set(rows.map((row: any) => row.original.cd_nm_acao)).size})` : column.Header === 'Sub-ação' ? `Sub-ação (${rows.length})` : column.Header === 'Total Empenhado' ? `Total Empenhado (${(() => { const total = rows.reduce((sum: number, row: any) => sum + row.original.vlrdotatualizada, 0); return total >= 1000000 ? (total >= 1000000000 ? `R$ ${(total / 1000000000).toFixed(1).replace('.0', '')} Bi` : `R$ ${(total / 1000000).toFixed(1).replace('.0', '')} Mi`) : `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`; })()})` : column.Header === 'Total Pago' ? `Total Pago (${(() => { const total = rows.reduce((sum: number, row: any) => sum + row.original.vlrtotalpago, 0); return total >= 1000000 ? (total >= 1000000000 ? `R$ ${(total / 1000000000).toFixed(1).replace('.0', '')} Bi` : `R$ ${(total / 1000000).toFixed(1).replace('.0', '')} Mi`) : `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`; })()})` : column.render("Header")}
                                     </div>
                                 </th>
                             )
@@ -389,26 +389,24 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         <div className="text-xs text-gray-500">
                             {rows.length} resultados • Página {pageIndex + 1} de {pageOptions?.length || 1}
                         </div>
-                        
+
                         <div className="flex items-center space-x-1">
                             <button
-                                className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    canPreviousPage 
-                                        ? 'text-gray-600 hover:bg-gray-100' 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${canPreviousPage
+                                        ? 'text-gray-600 hover:bg-gray-100'
                                         : 'text-gray-300 cursor-not-allowed'
-                                }`}
+                                    }`}
                                 onClick={() => canPreviousPage && previousPage()}
                                 disabled={!canPreviousPage}
                             >
                                 ← Anterior
                             </button>
-                            
+
                             <button
-                                className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    canNextPage 
-                                        ? 'text-gray-600 hover:bg-gray-100' 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${canNextPage
+                                        ? 'text-gray-600 hover:bg-gray-100'
                                         : 'text-gray-300 cursor-not-allowed'
-                                }`}
+                                    }`}
                                 onClick={() => canNextPage && nextPage()}
                                 disabled={!canNextPage}
                             >
@@ -426,45 +424,45 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             <div className="flex justify-between items-center mb-4">
                 <div className="flex-1">
                     <h2 className="text-gray-600 text-3xl mb-2">{title}</h2>
-                    
+
                     {/* Subtítulo responsivo */}
                     <p className="text-gray-500 text-sm mb-3 md:hidden">
                         Acesse a versão web para mais recursos de filtros e melhor visualização
                     </p>
                     <p className="text-gray-500 text-sm mb-3 hidden md:block">
-                        Explore, filtre e ordene os dados da Lei Orçamentária Anual. Clique nos cabeçalhos para ordenar, use os filtros avançados ou clique em uma linha para ver mais detalhes da ação.
+                        Explore, filtre e ordene os dados da Lei Orçamentária Anual de 2025.
                     </p>
-                    
+                    <p className="text-gray-500 text-sm mb-3 hidden md:block">
+                        ** Clique na coluna para ordenar <br /> ** Use os filtros avançados <br/> ** Clique na ação para ver mais detalhes.
+                    </p>
+
                     {/* Tags de filtro */}
                     {setFilterType && (
                         <div className="flex flex-wrap gap-2 mb-2">
                             <button
                                 onClick={() => setFilterType('all')}
-                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${
-                                    filterType === 'all' 
-                                        ? 'bg-gray-300' 
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'all'
+                                        ? 'bg-gray-300'
                                         : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
+                                    }`}
                             >
                                 Todas as Ações
                             </button>
                             <button
                                 onClick={() => setFilterType('good')}
-                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${
-                                    filterType === 'good' 
-                                        ? 'bg-green-200' 
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'good'
+                                        ? 'bg-green-200'
                                         : 'bg-green-100 hover:bg-green-150'
-                                }`}
+                                    }`}
                             >
                                 Boas Ações
                             </button>
                             <button
                                 onClick={() => setFilterType('bad')}
-                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${
-                                    filterType === 'bad' 
-                                        ? 'bg-red-200' 
+                                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors text-black ${filterType === 'bad'
+                                        ? 'bg-red-200'
                                         : 'bg-red-100 hover:bg-red-150'
-                                }`}
+                                    }`}
                             >
                                 Más Ações
                             </button>
@@ -474,11 +472,10 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                 {setShowFilters && (
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                            showFilters 
-                                ? 'bg-[#008080] text-white border-[#008080]' 
+                        className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors ${showFilters
+                                ? 'bg-[#008080] text-white border-[#008080]'
                                 : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                        }`}
+                            }`}
                         style={{
                             animation: shouldBlink ? 'blinkAmeciclo 2s ease-in-out 2' : 'none'
                         }}
@@ -490,7 +487,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     </button>
                 )}
             </div>
-            
+
             {/* Filtros ativos */}
             <div className="mb-4">
                 <div className="flex flex-wrap gap-2">
@@ -553,9 +550,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200">
                                 <td colSpan={headerGroups[0]?.headers?.length || 5} className="px-0 py-0">
-                                    <div className={`transition-all duration-500 ease-out overflow-hidden ${
-                                        showFilters ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
-                                    }`}>
+                                    <div className={`transition-all duration-500 ease-out overflow-hidden ${showFilters ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
+                                        }`}>
                                         <div className="flex flex-wrap px-6 py-3 gap-4">
                                             {headerGroups[0]?.headers?.map((column: any, index: number) => (
                                                 <div key={column.id || index} className="w-full sm:flex-1">

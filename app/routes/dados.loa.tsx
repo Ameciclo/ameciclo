@@ -147,6 +147,13 @@ export default function Loa() {
                 accessor: "cd_nm_subacao",
             },
             {
+                Header: "Total Empenhado",
+                accessor: "vlrdotatualizada",
+                Cell: ({ value }: any) => formatLargeValue(value),
+                Filter: NumberRangeColumnFilter,
+                filter: 'numberRange',
+            },
+            {
                 Header: "Total Pago",
                 accessor: "vlrtotalpago",
                 Cell: ({ value }: any) => formatLargeValue(value),
