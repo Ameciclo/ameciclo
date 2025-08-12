@@ -148,24 +148,7 @@ export default function Loa() {
             <Breadcrumb label="LOA" slug="/dados/loa" routes={["/", "/dados"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas." }]} />
 
-            <Suspense fallback={
-                <>
-                    <div className="animate-pulse bg-gray-300 h-64 w-full mb-4"></div>
-                    <div className="container mx-auto px-4 py-8">
-                        <div className="animate-pulse">
-                            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                                <div className="h-6 bg-gray-300 rounded w-48 mb-4"></div>
-                                <div className="space-y-2">
-                                    <div className="h-4 bg-gray-200 rounded w-full"></div>
-                                    <div className="h-4 bg-gray-200 rounded w-full"></div>
-                                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <LoaLoading />
-                </>
-            }>
+            <Suspense fallback={<LoaLoading />}>
                 <Await resolve={dataPromise} errorElement={
                     <div className="container mx-auto px-4 py-8">
                         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -182,8 +165,8 @@ export default function Loa() {
                 }>
                     {(data) => {
                         // Calculate totals from API data with error handling
-                        const actions2023 = data?.actions2023 || [];
-                        const climateActions = actions2023.filter((action: any) => {
+                        const actions2025 = data?.actions2025 || [];
+                        const climateActions = actions2025.filter((action: any) => {
                             try {
                                 const actionCode = getActionCode(action);
                                 return goodActionsTags.includes(actionCode);
@@ -203,7 +186,7 @@ export default function Loa() {
                             return sum + value;
                         }, 0);
                         
-                        const totalStateBudget = actions2023.reduce((sum: number, action: any) => {
+                        const totalStateBudget = actions2025.reduce((sum: number, action: any) => {
                             const value = Number(action?.vlrdotatualizada) || 0;
                             return sum + value;
                         }, 0);
@@ -217,34 +200,31 @@ export default function Loa() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Investimento em ações climáticas">
                                 <LazyLoad height={300} offset={0}>
+                                    <div className="mb-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Ações climáticas</div>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span>{totalClimateBudgeted >= 1000000000 ? (totalClimateBudgeted / 1000000000).toFixed(1).replace('.0', '') : totalClimateBudgeted >= 1000000 ? (totalClimateBudgeted / 1000000).toFixed(1).replace('.0', '') : totalClimateBudgeted.toFixed(0)}</span>
                                         <span className="text-xl ml-1">{totalClimateBudgeted >= 1000000000 ? 'Bi' : totalClimateBudgeted >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
-                                    <p className="text-base mb-1">Investimento em ações climáticas:</p>
-                                    <p className="text-lg font-semibold">{formatLargeValue(totalClimateBudgeted)}</p>
-                                    <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Ações climáticas</div>
+                                    <p className="text-base mb-1">Recursos destinados a programas de sustentabilidade e meio ambiente</p>
                                 </LazyLoad>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Orçamento total do estado">
                                 <LazyLoad height={300} offset={0}>
+                                    <div className="mb-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Orçamento total</div>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span>{totalStateBudget >= 1000000000 ? (totalStateBudget / 1000000000).toFixed(1).replace('.0', '') : totalStateBudget >= 1000000 ? (totalStateBudget / 1000000).toFixed(1).replace('.0', '') : totalStateBudget.toFixed(0)}</span>
                                         <span className="text-xl ml-1">{totalStateBudget >= 1000000000 ? 'Bi' : totalStateBudget >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
-                                    <p className="text-base mb-1">Orçamento total do estado:</p>
-                                    <p className="text-lg font-semibold">{formatLargeValue(totalStateBudget)}</p>
-                                    <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Orçamento total</div>
+                                    <p className="text-base mb-1">Soma de todos os recursos públicos estaduais</p>
                                 </LazyLoad>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Custo por tonelada de CO2 equivalente">
                                 <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1">R$ {totalClimateExecuted > 0 ? (totalClimateExecuted / 154300).toFixed(0) : '3'} Mil / CO2e</h3>
-                                    <p className="text-base mb-1">Custo por tonelada de CO2 equivalente</p>
-                                    <p className="text-lg font-semibold">R$ {totalClimateExecuted > 0 ? (totalClimateExecuted / 154300).toLocaleString('pt-BR', { minimumFractionDigits: 3 }) : '3.045,975'}</p>
-                                    <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
+                                    <div className="mb-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
+                                    <h3 className="text-3xl font-bold mb-1">R$ 1400 Mil / CO2e</h3>
+                                    <p className="text-base mb-1">Valor investido para cada tonelada de CO2 reduzida</p>
                                     <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
                                 </LazyLoad>
                             </div>
@@ -258,23 +238,23 @@ export default function Loa() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo">
                                 <LazyLoad height={300} offset={0}>
+                                    <div className="mb-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Valor Orçado 2025</div>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span>{totalClimateBudgeted >= 1000000000 ? (totalClimateBudgeted / 1000000000).toFixed(1).replace('.0', '') : totalClimateBudgeted >= 1000000 ? (totalClimateBudgeted / 1000000).toFixed(1).replace('.0', '') : totalClimateBudgeted.toFixed(0)}</span>
                                         <span className="text-xl ml-1">{totalClimateBudgeted >= 1000000000 ? 'Bi' : totalClimateBudgeted >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
-                                    <p className="text-base mb-1">Orçamento planejado para ações climáticas:</p>
-                                    <p className="text-lg font-semibold">{formatLargeValue(totalClimateBudgeted)}</p>
+                                    <p className="text-base mb-1">Dotação orçamentária aprovada para políticas ambientais em 2025</p>
                                 </LazyLoad>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-gray-400">
                                 <LazyLoad height={300} offset={0}>
+                                    <div className="mb-2 inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">Valor Executado 2025</div>
                                     <h3 className="text-3xl font-bold mb-1 flex items-baseline">
                                         <span>{totalClimateExecuted >= 1000000000 ? (totalClimateExecuted / 1000000000).toFixed(1).replace('.0', '') : totalClimateExecuted >= 1000000 ? (totalClimateExecuted / 1000000).toFixed(1).replace('.0', '') : totalClimateExecuted.toFixed(0)}</span>
                                         <span className="text-xl ml-1">{totalClimateExecuted >= 1000000000 ? 'Bi' : totalClimateExecuted >= 1000000 ? 'Mi' : ''}</span>
                                     </h3>
-                                    <p className="text-base mb-1">Orçamento executado em ações climáticas:</p>
-                                    <p className="text-lg font-semibold">{formatLargeValue(totalClimateExecuted)}</p>
+                                    <p className="text-base mb-1">Recursos efetivamente pagos em programas climáticos em 2025</p>
                                 </LazyLoad>
                             </div>
                         </div>
@@ -283,7 +263,7 @@ export default function Loa() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
                         <section className="h-auto">
                             <h2 className="text-2xl font-bold text-gray-800 mb-2">Evolução Orçamentária Climática</h2>
-                            <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados e executados em ações para o clima ao longo dos anos.</p>
+                            <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados e executados em ações para o clima ao longo dos anos entre 2020 e 2025.</p>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                 <div className="w-full max-w-[500px]">
@@ -302,7 +282,7 @@ export default function Loa() {
                                         height="300px"
                                         options={{
                                             chart: {
-                                                subtitle: "Comparativo anual 2020-2023",
+                                                subtitle: "Comparativo anual 2020-2025",
                                             },
                                             colors: ['#38A169', '#3182CE'],
                                             accessibility: {
@@ -361,7 +341,7 @@ export default function Loa() {
                                         height="300px"
                                         options={{
                                             chart: {
-                                                subtitle: "Orçamento total 2020-2023",
+                                                subtitle: "Orçamento total 2020-2025",
                                             },
                                             colors: ['#3182CE'],
                                             accessibility: {
@@ -391,7 +371,7 @@ export default function Loa() {
                     </div>
                             <section>
                                 {(() => {
-                                    const processedActions = actions2023.map((action: any) => {
+                                    const processedActions = actions2025.map((action: any) => {
                                         try {
                                             return {
                                                 ...action,
@@ -462,7 +442,7 @@ export default function Loa() {
                     </section>
 
                     <div className="text-right text-sm text-gray-500 mb-2">
-                        {actions2023.length > 0 ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : 'Dados não disponíveis'}
+                        {actions2025.length > 0 ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : 'Dados não disponíveis'}
                     </div>
                             </div>
                         );
