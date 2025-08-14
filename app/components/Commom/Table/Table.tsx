@@ -294,7 +294,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         <React.Fragment key={i}>
                             <tr
                                 {...row.getRowProps()}
-                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-green-700 text-white hover:bg-[#005000]' : row.original.type === 'bad' ? 'bg-red-700 text-white hover:bg-[#700000]' : 'hover:bg-gray-100'}`}
+                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-200' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                                 onClick={() => row.toggleRowExpanded()}
                             >
                                 <td className="px-6 py-4">
@@ -328,7 +328,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         <React.Fragment key={i}>
                             <tr
                                 {...row.getRowProps()}
-                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-[#006400] text-white hover:bg-[#005000]' : row.original.type === 'bad' ? 'bg-[#8B0000] text-white hover:bg-[#700000]' : 'hover:bg-gray-100'}`}
+                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-700' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                                 onClick={() => row.toggleRowExpanded()}
                             >
                                 {row.cells.map((cell: any, cellIndex: number) => {
@@ -512,8 +512,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             <button
                                 onClick={() => setFilterType('good')}
                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${filterType === 'good'
-                                    ? 'bg-[#006400] text-white'
-                                    : 'bg-green-100 text-green-800 hover:bg-green-200'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                                     }`}
                             >
                                 Boas Ações
@@ -521,8 +521,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             <button
                                 onClick={() => setFilterType('bad')}
                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${filterType === 'bad'
-                                    ? 'bg-[#8B0000] text-white'
-                                    : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                    ? 'bg-yellow-600 text-white'
+                                    : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                                     }`}
                             >
                                 Más Ações
