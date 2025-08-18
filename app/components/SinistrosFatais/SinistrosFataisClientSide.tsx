@@ -732,10 +732,28 @@ export default function SinistrosFataisClientSide({
           {getFullFilterTextNoYear()}
         </h3>
         
-        <div className="shadow-2xl rounded p-6 pt-4 text-center">
-          <h3 className="text-lg font-semibold mb-4">Distribuição de Mortes por Modo de Transporte ao Longo dos Anos</h3>
-          <p className="text-gray-600">Gráfico em desenvolvimento...</p>
-        </div>
+        {(() => {
+          const stackedData = getStackedTransportModeData(citiesByYearData, selectedCardCity, tipoLocal);
+          
+          if (!stackedData.categories.length || !stackedData.series.length) {
+            return (
+              <div className="shadow-2xl rounded p-6 pt-4 text-center">
+                <h3 className="text-lg font-semibold mb-4">Distribuição de Mortes por Modo de Transporte ao Longo dos Anos</h3>
+                <p className="text-gray-600">Dados não disponíveis para os filtros selecionados.</p>
+              </div>
+            );
+          }
+          
+          return (
+            <StackedBarChart
+              title="Distribuição de Mortes por Modo de Transporte ao Longo dos Anos"
+              xAxisTitle="Ano"
+              yAxisTitle="Número de Mortes"
+              categories={stackedData.categories}
+              series={stackedData.series}
+            />
+          );
+        })()}
       </div>
 
       {/* Matriz de Colisão */}

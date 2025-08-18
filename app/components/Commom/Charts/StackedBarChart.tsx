@@ -32,6 +32,11 @@ function StackedBarChart({
         title: {
           text: xAxisTitle,
         },
+        labels: {
+          style: {
+            fontWeight: "300"
+          }
+        },
       },
       yAxis: {
         min: 0,
@@ -39,13 +44,16 @@ function StackedBarChart({
           text: isPercentage ? "Percentual (%)" : yAxisTitle,
         },
         labels: {
-          format: isPercentage ? '{value}%' : '{value}'
+          format: isPercentage ? '{value}%' : '{value}',
+          style: {
+            fontWeight: "300"
+          }
         },
         stackLabels: {
           enabled: true,
           format: isPercentage ? '{total}%' : '{total}',
           style: {
-            fontWeight: "bold",
+            fontWeight: "300",
             color: "gray",
           },
         },
