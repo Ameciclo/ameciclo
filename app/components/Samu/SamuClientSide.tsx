@@ -54,7 +54,10 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     if (cityData?.historico_anual && Array.isArray(cityData.historico_anual)) {
       const chartData = cityData.historico_anual.map((item: any) => ({
         label: item.ano.toString(),
-        value: item.total_chamados,
+        atendimento_concluido: item.validos?.atendimento_concluido || 0,
+        removido_particulares: item.validos?.removido_particulares || 0,
+        removido_bombeiros: item.validos?.removido_bombeiros || 0,
+        obito_local: item.validos?.obito_local || 0,
       }));
 
       setFilteredEvolutionData({
@@ -247,8 +250,8 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
             data={filteredEvolutionData.data}
             series={[]}
             xKey="label"
-            yKeys={["value"]}
-            colors={["#3b82f6"]}
+            yKeys={["atendimento_concluido", "removido_particulares", "removido_bombeiros", "obito_local"]}
+            colors={["#10b981", "#3b82f6", "#f59e0b", "#dc2626"]}
           />
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-6 text-center">
