@@ -90,7 +90,10 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       let yearsToProcess = [selectedYear];
       if (selectedEndYear) {
         yearsToProcess = [];
-        for (let year = selectedYear; year <= selectedEndYear; year++) {
+        const startYear = Math.min(selectedYear, selectedEndYear);
+        const endYear = Math.max(selectedYear, selectedEndYear);
+        console.log("anos", startYear,endYear)
+        for (let year = startYear; year <= endYear; year++) {
           yearsToProcess.push(year);
         }
       }
@@ -131,16 +134,19 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           {
             label: "Masculino",
             value: (aggregatedData.por_sexo.masculino / genderTotal * 100).toFixed(1),
+            total: aggregatedData.por_sexo.masculino,
             color: "#3b82f6"
           },
           {
             label: "Feminino",
             value: (aggregatedData.por_sexo.feminino / genderTotal * 100).toFixed(1),
+            total: aggregatedData.por_sexo.feminino,
             color: "#ec4899"
           },
           {
             label: "Não Informado",
             value: (aggregatedData.por_sexo.nao_informado / genderTotal * 100).toFixed(1),
+            total: aggregatedData.por_sexo.nao_informado,
             color: "#6b7280"
           }
         ]);
@@ -154,6 +160,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           ageEntries.map(([key, value]: [string, any], index) => ({
             label: key.replace(/_/g, ' '),
             value: ((value || 0) / ageTotal * 100).toFixed(1),
+            total: value || 0,
             color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626"][index % 5]
           }))
         );
@@ -180,6 +187,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           categoryEntries.map(([key, value]: [string, any], index) => ({
             label: categoryLabels[key as keyof typeof categoryLabels] || key,
             value: ((value || 0) / categoryTotal * 100).toFixed(1),
+            total: value || 0,
             color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4", "#84cc16", "#f97316", "#6366f1"][index % 9]
           }))
         );
@@ -193,7 +201,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     if (selectedCity && selectedYear) {
       getProfileDataFromHistory();
     }
-  }, [selectedCity, selectedYear, citiesData]);
+  }, [selectedCity, selectedYear, selectedEndYear, citiesData]);
 
   useEffect(() => {
     if (selectedCity) {
@@ -349,9 +357,9 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                       } else if (year === selectedYear) {
                         // Manter seleção
                       } else if (year < selectedYear) {
-                        setSelectedEndYear(selectedYear);
                         setSelectedYear(year);
-                      } else {
+                        setSelectedEndYear(selectedYear);
+                      }else {
                         setSelectedEndYear(year);
                       }
                     }}
@@ -386,7 +394,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                         ></div>
                         <span className="text-sm">{item.label}</span>
                       </div>
-                      <span className="font-bold">{item.value}%</span>
+                      <span className="font-bold">{item.total?.toLocaleString()} ({item.value}%)</span>
                     </div>
                   ))
                 ) : (
@@ -413,7 +421,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                         ></div>
                         <span className="text-sm">{item.label}</span>
                       </div>
-                      <span className="font-bold">{item.value}%</span>
+                      <span className="font-bold">{item.total?.toLocaleString()} ({item.value}%)</span>
                     </div>
                   ))
                 ) : (
@@ -440,7 +448,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                         ></div>
                         <span className="text-sm">{item.label}</span>
                       </div>
-                      <span className="font-bold">{item.value}%</span>
+                      <span className="font-bold">{item.total?.toLocaleString()} ({item.value}%)</span>
                     </div>
                   ))
                 ) : (
