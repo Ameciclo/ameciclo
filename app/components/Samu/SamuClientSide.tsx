@@ -122,7 +122,13 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
 
           // Agregar dados de categoria
           Object.entries(yearData.por_categoria || {}).forEach(([key, value]: [string, any]) => {
-            aggregatedData.por_categoria[key] = (aggregatedData.por_categoria[key] || 0) + (value || 0);
+            if (key === 'atropelamento_bicicleta') {
+              aggregatedData.por_categoria['sinistro_bicicleta'] = (aggregatedData.por_categoria['sinistro_bicicleta'] || 0) + (value || 0);
+            } else if (['atropelamento_carro', 'atropelamento_moto', 'atropelamento_onibus_caminhao'].includes(key)) {
+              aggregatedData.por_categoria['atropelamento_motorizado'] = (aggregatedData.por_categoria['atropelamento_motorizado'] || 0) + (value || 0);
+            } else {
+              aggregatedData.por_categoria[key] = (aggregatedData.por_categoria[key] || 0) + (value || 0);
+            }
           });
         }
       });
@@ -170,19 +176,17 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       const categoryLabels = {
         sinistro_moto: "Sinistro de Moto",
         sinistro_carro: "Sinistro de Carro",
-        atropelamento_carro: "Atropelamento por Carro",
-        atropelamento_moto: "Atropelamento por Moto",
+        atropelamento_motorizado: "Atropelamento por Motorizado",
         sinistro_bicicleta: "Sinistro de Bicicleta",
         sinistro_onibus_caminhao: "Sinistro Ônibus/Caminhão",
-        atropelamento_onibus_caminhao: "Atropelamento Ônibus/Caminhão",
-        atropelamento_bicicleta: "Atropelamento por Bicicleta",
         outro: "Outro",
         nao_informado: "Não Informado"
       };
 
       const categoryTotal = Object.values(aggregatedData.por_categoria).reduce((sum: number, val: any) => sum + (val || 0), 0);
       if (categoryTotal > 0) {
-        const categoryEntries = Object.entries(aggregatedData.por_categoria);
+        const categoryEntries = Object.entries(aggregatedData.por_categoria)
+          .sort(([,a], [,b]) => (b || 0) - (a || 0));
         setTransportData(
           categoryEntries.map(([key, value]: [string, any], index) => ({
             label: categoryLabels[key as keyof typeof categoryLabels] || key,
