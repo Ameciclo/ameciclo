@@ -243,16 +243,38 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         </h2>
         {filteredEvolutionData?.data &&
         filteredEvolutionData.data.length > 0 ? (
-          <VerticalBarChart
-            title={`Chamadas por Ano em ${selectedCity}`}
-            xAxisTitle="Ano"
-            yAxisTitle="Número de Chamadas"
-            data={filteredEvolutionData.data}
-            series={[]}
-            xKey="label"
-            yKeys={["atendimento_concluido", "removido_particulares", "removido_bombeiros", "obito_local"]}
-            colors={["#10b981", "#3b82f6", "#f59e0b", "#dc2626"]}
-          />
+          <div className="shadow-2xl rounded p-6 pt-4 text-center">
+            <h3 className="text-lg font-semibold mb-4">Distribuição de Chamadas por Tipo de Desfecho ao Longo dos Anos</h3>
+            
+            {/* Legenda */}
+            <div className="flex justify-center mb-4 flex-wrap gap-4">
+              {[
+                { key: "atendimento_concluido", label: "Atendimento Concluído", color: "#10b981" },
+                { key: "removido_particulares", label: "Removido Particulares", color: "#3b82f6" },
+                { key: "removido_bombeiros", label: "Removido Bombeiros", color: "#f59e0b" },
+                { key: "obito_local", label: "Óbito Local", color: "#dc2626" }
+              ].map((item) => (
+                <div key={item.key} className="flex items-center">
+                  <div
+                    className="w-4 h-4 mr-2"
+                    style={{ backgroundColor: item.color }}
+                  ></div>
+                  <span className="text-sm">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            
+            <VerticalBarChart
+              title={`Chamadas por Ano em ${selectedCity}`}
+              xAxisTitle="Ano"
+              yAxisTitle="Número de Chamadas"
+              data={filteredEvolutionData.data}
+              series={[]}
+              xKey="label"
+              yKeys={["atendimento_concluido", "removido_particulares", "removido_bombeiros", "obito_local"]}
+              colors={["#10b981", "#3b82f6", "#f59e0b", "#dc2626"]}
+            />
+          </div>
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-6 text-center">
             <p className="text-gray-500">Carregando dados de evolução...</p>
