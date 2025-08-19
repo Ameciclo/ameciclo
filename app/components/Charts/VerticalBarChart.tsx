@@ -67,7 +67,20 @@ function VerticalBarChart({
         column: {
           stacking: 'normal',
           dataLabels: {
-            enabled: false
+            enabled: true,
+            formatter: function() {
+              // Mostrar apenas o total no topo da pilha
+              if (this.point.stackY === this.point.total) {
+                return this.point.total;
+              }
+              return null;
+            },
+            style: {
+              fontWeight: 'bold',
+              color: '#000000'
+            },
+            verticalAlign: 'top',
+            y: -20
           }
         }
       }
