@@ -1,19 +1,22 @@
 import { json } from "@remix-run/node";
-import { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA, SAMU_EVOLUTION_DATA } from "~/servers";
+import { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA } from "~/servers";
 
 export async function loader() {
   try {
+    // Validar se as URLs estão definidas
+    if (!SAMU_SUMMARY_DATA || !SAMU_CITIES_DATA) {
+      throw new Error("URLs do SAMU não estão configuradas corretamente");
+    }
+
     // Buscar dados em paralelo
-    const [summaryRes, citiesRes, evolutionRes] = await Promise.all([
+    const [summaryRes, citiesRes] = await Promise.all([
       fetch(SAMU_SUMMARY_DATA, { cache: "no-cache" }),
-      fetch(SAMU_CITIES_DATA, { cache: "no-cache" }),
-      fetch(SAMU_EVOLUTION_DATA, { cache: "no-cache" })
+      fetch(SAMU_CITIES_DATA, { cache: "no-cache" })
     ]);
 
-    const [summaryData, citiesData, evolutionData] = await Promise.all([
+    const [summaryData, citiesData] = await Promise.all([
       summaryRes.json(),
-      citiesRes.json(),
-      evolutionRes.json()
+      citiesRes.json()
     ]);
 
     // Calcular estatísticas para o StatisticsBox
@@ -22,20 +25,13 @@ export async function loader() {
 
       const totalChamadas = summaryData.totalDesfechosValidos || 0;
 
-      // Extrair período dos dados de evolução
-      const anos = evolutionData?.series?.[0]?.data?.map(([ano]: any) => parseInt(ano)) || [];
-      const anoInicio = Math.min(...anos) || 2018;
-      const anoFim = Math.max(...anos) || 2024;
-
-      // Encontrar ano mais violento
-      const dadosAnuais = evolutionData?.series?.[0]?.data || [];
-      const anoMaisViolento = dadosAnuais.reduce(
-        (max: any, [ano, total]: any) => {
-          const totalNum = parseInt(total);
-          return totalNum > max.total ? { ano, total: totalNum } : max;
-        },
-        { ano: "2024", total: 0 }
-      );
+      // Usar dados do summary para período e ano mais violento
+      const anoInicio = summaryData.periodoInicio || 2018;
+      const anoFim = summaryData.periodoFim || 2024;
+      const anoMaisViolento = {
+        ano: summaryData.anoMaisViolento || "2024",
+        total: summaryData.totalAnoMaisViolento || 0
+      };
 
       // Contar cidades avaliadas
       const cidadesAvaliadas = citiesData?.total || 0;
@@ -100,7 +96,6 @@ export async function loader() {
       statisticsBoxes,
       summaryData,
       citiesData,
-      evolutionData,
     });
   } catch (error) {
     console.error("Erro ao buscar dados do SAMU:", error);
@@ -131,7 +126,6 @@ export async function loader() {
       statisticsBoxes: [],
       summaryData: {},
       citiesData: { cidades: [], total: 0 },
-      evolutionData: {},
     });
   }
 }

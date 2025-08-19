@@ -39,13 +39,4 @@ export const PLATAFORMAS_PAGE_DATA = `https://do.strapi.ameciclo.org/api/platafo
 
 // Endpoints para o Observatório de Chamadas do SAMU
 export const SAMU_SUMMARY_DATA = `http://localhost:8080/samu-calls/summary`
-export const SAMU_TOP_STREETS_DATA = `http://localhost:8080/samu-calls/top-streets`
-export const SAMU_EVOLUTION_DATA = `http://localhost:8080/samu-calls/evolution`
-export const SAMU_RANKING_CITIES_DATA = `http://localhost:8080/samu-calls/ranking-cities`
-export const SAMU_CATEGORIES_BY_CITY_YEAR_DATA = `http://localhost:8080/samu-calls/categories-by-city-year`
-export const SAMU_OUTCOMES_DATA = `http://localhost:8080/samu-calls/outcomes`
-export const SAMU_FINALIZATIONS_DATA = `http://localhost:8080/samu-calls/finalizations`
-export const SAMU_GENDER_PROFILE_DATA = `http://localhost:8080/samu-calls/gender-profile`
-export const SAMU_AGE_PROFILE_DATA = `http://localhost:8080/samu-calls/age-profile`
-export const SAMU_TRANSPORT_PROFILE_DATA = `http://localhost:8080/samu-calls/transport-profile`
 export const SAMU_CITIES_DATA = `http://localhost:8080/samu-calls/cities`

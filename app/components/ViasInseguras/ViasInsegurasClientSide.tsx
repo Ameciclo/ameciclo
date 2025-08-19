@@ -23,25 +23,28 @@ export default function ViasInsegurasClientSide({ viasData }: ViasInsegurasClien
   const availableYears = [2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Gráfico de Percentuais Acumulativos */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">Concentração de Sinistros</h2>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <p className="text-gray-600 mb-4">
+    <section className="container mx-auto my-12 space-y-12">
+      <div className="mx-auto container my-12">
+        <h2 className="text-3xl font-bold text-center mb-4">
+          Gráfico de Concentração de Sinistros
+        </h2>
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <p className="text-gray-600 mb-4 text-center">
             Gráfico de percentuais acumulativos mostrando como os sinistros se concentram em poucas vias
           </p>
           <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
             <span className="text-gray-500">Gráfico será implementado aqui</span>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Mapa das Vias */}
-      <section className="mb-12">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Mapa das Vias Inseguras</h2>
-          <div className="text-center">
+      <div className="mx-auto container my-12">
+        <h2 className="text-3xl font-bold text-center mb-4">
+          Mapa das Vias Inseguras
+        </h2>
+        
+        {availableYears.length > 0 && (
+          <div className="mb-6 text-center">
             <p className="text-sm text-gray-600 mb-3">
               Período selecionado: {selectedEndYear ? `${selectedYear} a ${selectedEndYear}` : `${selectedYear}`}
             </p>
@@ -83,20 +86,19 @@ export default function ViasInsegurasClientSide({ viasData }: ViasInsegurasClien
                 : "Clique em outro ano para selecionar um intervalo"}
             </p>
           </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        )}
+        
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="h-96 bg-gray-100 rounded flex items-center justify-center">
             <span className="text-gray-500">Mapa interativo será implementado aqui</span>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Ranking das Vias */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6">Ranking das Vias Mais Inseguras</h2>
+      <div className="mx-auto container my-2">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <Table
-            title=""
+            title="Ranking das Vias Mais Inseguras"
             data={viasData.vias.map((via) => ({
               ranking: via.ranking,
               nome_via: via.nome,
@@ -129,7 +131,7 @@ export default function ViasInsegurasClientSide({ viasData }: ViasInsegurasClien
             ]}
           />
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

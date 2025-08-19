@@ -25,7 +25,7 @@ export default function ViasInsegurasPage() {
   return (
     <>
       <Banner
-        image={cover}
+        image="/public/pages_covers/vias-inseguras.png"
         alt="Capa da página do Observatório de Vias Inseguras"
       />
       <Breadcrumb

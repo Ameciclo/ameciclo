@@ -3,11 +3,6 @@ import Table from "../Commom/Table/Table";
 import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
-import {
-  SAMU_GENDER_PROFILE_DATA,
-  SAMU_AGE_PROFILE_DATA,
-  SAMU_TRANSPORT_PROFILE_DATA,
-} from "~/servers";
 
 interface SamuClientSideProps {
   citiesData: any;
