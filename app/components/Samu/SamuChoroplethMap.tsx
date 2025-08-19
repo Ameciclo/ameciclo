@@ -115,7 +115,8 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
       })
       .catch((error) => console.error("Erro ao carregar GeoJSON:", error));
   }, [citiesData]);
-
+  
+  const totalCities = citiesData.length;
   const layersConf = geoJsonData
     ? [
         {
@@ -124,13 +125,13 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
           paint: {
             "fill-color": [
               "case",
-              [">", ["get", "intensity"], 0.8],
+              [">", ["get", "intensity"], 0.7],
               "#800026",
-              [">", ["get", "intensity"], 0.6],
-              "#BD0026",
               [">", ["get", "intensity"], 0.4],
+              "#BD0026",
+              [">", ["get", "intensity"], 0.15],
               "#E31A1C",
-              [">", ["get", "intensity"], 0.2],
+              [">", ["get", "intensity"], 0.05],
               "#FC4E2A",
               [">", ["get", "intensity"], 0],
               "#FD8D3C",
@@ -268,7 +269,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
               </button>
               <h4 className="font-bold text-lg mb-2">{selectedCity.name}</h4>
               <p className="text-sm mb-1">
-                Ranking: {selectedCity.ranking}º de 73 municípios
+                Ranking: {selectedCity.ranking}º de {totalCities} municípios
               </p>
               <p className="text-sm mb-2">
                 Total: {selectedCity.calls} chamadas

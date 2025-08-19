@@ -4,10 +4,9 @@ import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
 import {
-  SAMU_OUTCOMES_DATA,
-  SAMU_FINALIZATIONS_DATA,
   SAMU_GENDER_PROFILE_DATA,
   SAMU_AGE_PROFILE_DATA,
+  SAMU_TRANSPORT_PROFILE_DATA,
 } from "~/servers";
 
 interface SamuClientSideProps {
@@ -16,11 +15,9 @@ interface SamuClientSideProps {
 
 export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   const [selectedCity, setSelectedCity] = useState("Recife");
-  const [selectedMode, setSelectedMode] = useState("");
-  const [outcomeData, setOutcomeData] = useState([]);
-  const [finalizationData, setFinalizationData] = useState([]);
   const [genderData, setGenderData] = useState([]);
   const [ageData, setAgeData] = useState([]);
+  const [transportData, setTransportData] = useState([]);
   const [filteredEvolutionData, setFilteredEvolutionData] = useState<any>(null);
 
   const cityStats =
@@ -69,51 +66,12 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     }
   };
 
-  const fetchOutcomeData = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (selectedCity) params.append("cidade", selectedCity);
-      if (selectedMode) params.append("modo", selectedMode);
-      const response = await fetch(`${SAMU_OUTCOMES_DATA}?${params}`);
-      const data = await response.json();
-      setOutcomeData(
-        data.map((item: any, index: number) => ({
-          label: item.desfecho,
-          value: item.percentual,
-          color: ["#dc2626", "#ea580c", "#f59e0b", "#10b981"][index % 4],
-        }))
-      );
-    } catch (error) {
-      console.error("Erro ao buscar dados de desfecho:", error);
-      setOutcomeData([]);
-    }
-  };
 
-  const fetchFinalizationData = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (selectedCity) params.append("cidade", selectedCity);
-      if (selectedMode) params.append("modo", selectedMode);
-      const response = await fetch(`${SAMU_FINALIZATIONS_DATA}?${params}`);
-      const data = await response.json();
-      setFinalizationData(
-        data.map((item: any, index: number) => ({
-          label: item.finalizacao,
-          value: item.percentual,
-          color: ["#3b82f6", "#8b5cf6", "#f59e0b", "#dc2626"][index % 4],
-        }))
-      );
-    } catch (error) {
-      console.error("Erro ao buscar dados de finalização:", error);
-      setFinalizationData([]);
-    }
-  };
 
   const fetchGenderData = async () => {
     try {
       const params = new URLSearchParams();
       if (selectedCity) params.append("cidade", selectedCity);
-      if (selectedMode) params.append("modo", selectedMode);
       const response = await fetch(`${SAMU_GENDER_PROFILE_DATA}?${params}`);
       const data = await response.json();
       setGenderData(
@@ -133,7 +91,6 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     try {
       const params = new URLSearchParams();
       if (selectedCity) params.append("cidade", selectedCity);
-      if (selectedMode) params.append("modo", selectedMode);
       const response = await fetch(`${SAMU_AGE_PROFILE_DATA}?${params}`);
       const data = await response.json();
       setAgeData(
@@ -151,14 +108,34 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     }
   };
 
+  const fetchTransportData = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (selectedCity) params.append("cidade", selectedCity);
+      const response = await fetch(`${SAMU_TRANSPORT_PROFILE_DATA}?${params}`);
+      const data = await response.json();
+      setTransportData(
+        data.map((item: any, index: number) => ({
+          label: item.modo_transporte,
+          value: item.percentual,
+          color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626"][
+            index % 5
+          ],
+        }))
+      );
+    } catch (error) {
+      console.error("Erro ao buscar dados de transporte:", error);
+      setTransportData([]);
+    }
+  };
+
   useEffect(() => {
-    if (selectedCity || selectedMode) {
-      fetchOutcomeData();
-      fetchFinalizationData();
+    if (selectedCity) {
       fetchGenderData();
       fetchAgeData();
+      fetchTransportData();
     }
-  }, [selectedCity, selectedMode]);
+  }, [selectedCity]);
 
   useEffect(() => {
     if (selectedCity) {
@@ -282,100 +259,12 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         )}
       </div>
 
-      <div className="mx-auto container my-12">
-        <h2 className="text-3xl font-bold text-center mb-4">
-          Chamadas por Modo de Transporte
-        </h2>
-        <p className="text-xl text-center mb-8 text-gray-600">
-          Selecione um modo para ver perfis específicos
-        </p>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Acidente Moto", value: "acidente-moto" },
-            { label: "Acidente Carro", value: "acidente-carro" },
-            { label: "Atropelamento Carro", value: "atropelamento-carro" },
-            { label: "Atropelamento Moto", value: "atropelamento-moto" },
-            { label: "Acidente Bicicleta", value: "acidente-bicicleta" },
-            { label: "Ônibus/Caminhão", value: "acidente-onibus-caminhao" },
-            { label: "Outros", value: "outro" },
-            { label: "Todos", value: "" },
-          ].map((mode) => (
-            <button
-              key={mode.value}
-              onClick={() => setSelectedMode(mode.value)}
-              className={`p-3 rounded-lg border-2 transition-all ${
-                selectedMode === mode.value
-                  ? "border-ameciclo bg-ameciclo text-white"
-                  : "border-gray-200 hover:border-ameciclo hover:bg-gray-50"
-              }`}
-            >
-              <div className="font-bold text-sm">{mode.label}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {(selectedCity || selectedMode) && (
+      {selectedCity && (
         <div className="mx-auto container my-12">
           <h2 className="text-3xl font-bold text-center mb-4">
-            Perfis - {selectedCity || "RMR"}{" "}
-            {selectedMode && `- ${selectedMode}`}
+            Perfis das Chamadas - {selectedCity}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h4 className="text-lg font-bold mb-4">Desfechos (%)</h4>
-              <div className="space-y-3">
-                {outcomeData && outcomeData.length > 0 ? (
-                  outcomeData.map((item: any, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center"
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className="w-4 h-4 rounded mr-2"
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <span className="text-sm">{item.label}</span>
-                      </div>
-                      <span className="font-bold">{item.value}%</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-sm">
-                    Selecione uma cidade ou modo
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h4 className="text-lg font-bold mb-4">Finalizações (%)</h4>
-              <div className="space-y-3">
-                {finalizationData && finalizationData.length > 0 ? (
-                  finalizationData.map((item: any, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center"
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className="w-4 h-4 rounded mr-2"
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <span className="text-sm">{item.label}</span>
-                      </div>
-                      <span className="font-bold">{item.value}%</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-sm">
-                    Selecione uma cidade ou modo
-                  </p>
-                )}
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h4 className="text-lg font-bold mb-4">Perfil de Sexo (%)</h4>
@@ -398,7 +287,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                   ))
                 ) : (
                   <p className="text-gray-500 text-sm">
-                    Selecione uma cidade ou modo
+                    Carregando dados...
                   </p>
                 )}
               </div>
@@ -425,7 +314,34 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                   ))
                 ) : (
                   <p className="text-gray-500 text-sm">
-                    Selecione uma cidade ou modo
+                    Carregando dados...
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h4 className="text-lg font-bold mb-4">Modo de Transporte (%)</h4>
+              <div className="space-y-3">
+                {transportData && transportData.length > 0 ? (
+                  transportData.map((item: any, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center"
+                    >
+                      <div className="flex items-center">
+                        <div
+                          className="w-4 h-4 rounded mr-2"
+                          style={{ backgroundColor: item.color }}
+                        ></div>
+                        <span className="text-sm">{item.label}</span>
+                      </div>
+                      <span className="font-bold">{item.value}%</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    Carregando dados...
                   </p>
                 )}
               </div>

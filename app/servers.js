@@ -47,4 +47,5 @@ export const SAMU_OUTCOMES_DATA = `http://localhost:8080/samu-calls/outcomes`
 export const SAMU_FINALIZATIONS_DATA = `http://localhost:8080/samu-calls/finalizations`
 export const SAMU_GENDER_PROFILE_DATA = `http://localhost:8080/samu-calls/gender-profile`
 export const SAMU_AGE_PROFILE_DATA = `http://localhost:8080/samu-calls/age-profile`
+export const SAMU_TRANSPORT_PROFILE_DATA = `http://localhost:8080/samu-calls/transport-profile`
 export const SAMU_CITIES_DATA = `http://localhost:8080/samu-calls/cities`
