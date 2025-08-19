@@ -76,6 +76,14 @@ export default function Dados() {
                 "Monitoramento do orçamento municipal conforme sua contribuição climática.",
             target: "",
         },
+        {
+            title: "Observatório SAMU",
+            src: "/icons/home/warning.svg",
+            url: "/dados/observatorio/samu",
+            description:
+                "Análise das chamadas do SAMU para sinistros de trânsito com mapa interativo e estatísticas.",
+            target: "",
+        },
     ];
     return (
         <>
