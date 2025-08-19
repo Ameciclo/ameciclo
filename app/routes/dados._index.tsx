@@ -84,6 +84,14 @@ export default function Dados() {
                 "Análise das chamadas do SAMU para sinistros de trânsito com mapa interativo e estatísticas.",
             target: "",
         },
+        {
+            title: "Vias Inseguras",
+            src: "/icons/dados/mapa.svg",
+            url: "/dados/observatorio/vias-inseguras",
+            description:
+                "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+            target: "",
+        },
     ];
     return (
         <>
