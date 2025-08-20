@@ -40,3 +40,10 @@ export const PLATAFORMAS_PAGE_DATA = `https://do.strapi.ameciclo.org/api/platafo
 // Endpoints para o Observatório de Chamadas do SAMU
 export const SAMU_SUMMARY_DATA = `http://localhost:8080/samu-calls/summary`
 export const SAMU_CITIES_DATA = `http://localhost:8080/samu-calls/cities`
+
+// Endpoints para Vias Inseguras
+export const VIAS_INSEGURAS_BASE_URL = `http://localhost:8080`
+export const VIAS_INSEGURAS_SUMMARY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/summary`
+export const VIAS_INSEGURAS_TOP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/top`
+export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map`
+export const VIAS_INSEGURAS_HISTORY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/history`

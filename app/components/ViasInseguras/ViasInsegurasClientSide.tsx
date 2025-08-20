@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { AmecicloMap } from "../Commom/Maps/AmecicloMap";
+import { InfoCards } from "../Contagens/InfoCards";
 import ConcentrationChart from "./ConcentrationChart";
-import ViasInsegurasMap from "./ViasInsegurasMap";
 import TemporalAnalysis from "./TemporalAnalysis";
-import ViaSearch from "./ViaSearch";
-import ViasRankingTable from "./ViasRankingTable";
-import AdvancedFilters from "./AdvancedFilters";
-import InsightsPanel from "./InsightsPanel";
+import Table from "../Commom/Table/Table";
 
 interface ViasInsegurasClientSideProps {
   summaryData: any;
@@ -54,282 +52,242 @@ export default function ViasInsegurasClientSide({
   mapData, 
   historyData 
 }: ViasInsegurasClientSideProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'map' | 'ranking' | 'temporal' | 'search'>('overview');
-  const [selectedVia, setSelectedVia] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [filteredData, setFilteredData] = useState({
-    topVias: topViasData,
-    mapVias: mapData,
-    history: historyData
-  });
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Função para buscar dados filtrados por período
-  const fetchFilteredData = async (startYear: number, endYear?: number) => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams({
-        anoInicio: startYear.toString(),
-        anoFim: (endYear || startYear).toString(),
-        limite: '50'
-      });
-
-      // Buscar dados filtrados (simulado - substituir por chamadas reais)
-      // const [topResponse, mapResponse] = await Promise.all([
-      //   fetch(`http://localhost:8080/samu-calls/streets/top?${params}`),
-      //   fetch(`http://localhost:8080/samu-calls/streets/map?${params}`)
-      // ]);
-      
-      // Por enquanto, usar dados existentes
-      setFilteredData({
-        topVias: topViasData,
-        mapVias: mapData,
-        history: historyData
-      });
-    } catch (error) {
-      console.error('Erro ao buscar dados filtrados:', error);
-    } finally {
-      setIsLoading(false);
+  // Preparar dados para InfoCards
+  const infoCards = [
+    {
+      label: "Total de Sinistros",
+      data: parseInt(summaryData.totalSinistros || "0").toLocaleString(),
+      icon: "crash"
+    },
+    {
+      label: "Vias Analisadas", 
+      data: parseInt(summaryData.totalVias || "0").toLocaleString(),
+      icon: "road"
+    },
+    {
+      label: "Ano Mais Perigoso",
+      data: summaryData.anoMaisPerigoso?.ano || "N/A",
+      icon: "calendar"
     }
+  ];
+
+  // Converter dados das vias para GeoJSON
+  const layerData = {
+    type: "FeatureCollection" as const,
+    features: mapData.vias.map((via) => ({
+      type: "Feature" as const,
+      properties: {
+        id: via.id,
+        nome: via.nome,
+        sinistros: via.sinistros,
+      },
+      geometry: via.geometria,
+    })),
   };
 
-  // Função para buscar dados de uma via específica
-  const fetchViaData = async (viaName: string) => {
-    if (!viaName) {
-      setFilteredData({
-        topVias: topViasData,
-        mapVias: mapData,
-        history: historyData
-      });
-      return;
-    }
+  // Configuração das camadas do mapa
+  const layersConf = [
+    {
+      id: "vias-inseguras",
+      type: "line" as const,
+      paint: {
+        "line-color": [
+          "interpolate",
+          ["linear"],
+          ["get", "sinistros"],
+          0, "#FEF3C7",
+          50, "#F59E0B", 
+          100, "#DC2626",
+          200, "#7F1D1D",
+        ],
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["get", "sinistros"],
+          0, 2,
+          50, 4,
+          100, 6,
+          200, 8,
+        ],
+        "line-opacity": 0.8,
+      },
+    },
+  ];
 
-    setIsLoading(true);
-    try {
-      // Buscar histórico da via específica
-      // const response = await fetch(
-      //   `http://localhost:8080/samu-calls/streets/history?via=${encodeURIComponent(viaName)}`
-      // );
-      
-      // Por enquanto, simular dados filtrados
-      const mockViaHistory = {
-        evolucao: historyData.evolucao.map(year => ({
-          ...year,
-          sinistros: Math.floor(year.sinistros * 0.1) // Simular dados da via específica
-        })),
-        via: viaName
-      };
+  // Preparar dados para a tabela
+  const tableData = topViasData.dados.map((via, index) => ({
+    ranking: via.top,
+    nome_via: `Via ${via.top}`,
+    total_sinistros: via.sinistros.toLocaleString(),
+    extensao_km: `${via.km.toFixed(1)} km`,
+    densidade: `${via.sinistros_por_km.toFixed(1)}/km`,
+    percentual: `${via.percentual_total.toFixed(2)}%`,
+  }));
 
-      setFilteredData(prev => ({
-        ...prev,
-        history: mockViaHistory
-      }));
-    } catch (error) {
-      console.error('Erro ao buscar dados da via:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleViaSearch = (query: string) => {
-    // Implementar lógica de busca se necessário
-  };
-
-  const handleViaSelect = (via: string) => {
-    setSelectedVia(via);
-    fetchViaData(via);
-  };
-
-  const tabs = [
-    { id: 'overview', label: 'Visão Geral', icon: '📊' },
-    { id: 'map', label: 'Mapa', icon: '🗺️' },
-    { id: 'ranking', label: 'Ranking', icon: '🏆' },
-    { id: 'temporal', label: 'Análise Temporal', icon: '📈' },
-    { id: 'insights', label: 'Insights', icon: '💡' },
-    { id: 'search', label: 'Buscar Via', icon: '🔍' },
-    { id: 'filters', label: 'Filtros', icon: '⚙️' },
+  const tableColumns = [
+    { Header: "Ranking", accessor: "ranking", disableFilters: true },
+    { Header: "Nome da Via", accessor: "nome_via", disableFilters: true },
+    { Header: "Total de Sinistros", accessor: "total_sinistros", disableFilters: true },
+    { Header: "Extensão", accessor: "extensao_km", disableFilters: true },
+    { Header: "Densidade", accessor: "densidade", disableFilters: true },
+    { Header: "% do Total", accessor: "percentual", disableFilters: true },
   ];
 
   return (
-    <section className="container mx-auto my-12 space-y-8">
-      {/* Navegação por abas */}
-      <div className="bg-white rounded-lg shadow-lg p-2">
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all ${
-                activeTab === tab.id
-                  ? 'bg-ameciclo text-white shadow-md'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <span>{tab.icon}</span>
-              <span className="font-medium">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+    <>
+      {/* Cards informativos */}
+      <InfoCards cards={infoCards} />
 
-      {/* Indicador de carregamento */}
-      {isLoading && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-            <span className="text-blue-800">Carregando dados...</span>
+      {/* Gráfico de concentração */}
+      <section className="container mx-auto my-12">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            Concentração de Sinistros por Via
+          </h2>
+          <p className="text-gray-600 max-w-3xl mx-auto">
+            Este gráfico mostra como os sinistros se concentram em poucas vias da cidade, 
+            evidenciando a necessidade de intervenções focalizadas nos pontos críticos.
+          </p>
+        </div>
+        <ConcentrationChart data={topViasData.dados} />
+      </section>
+
+      {/* Mapa das vias inseguras */}
+      <section className="container mx-auto my-12">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            Mapa das Vias Inseguras
+          </h2>
+          <p className="text-gray-600 max-w-3xl mx-auto">
+            Visualização geoespacial das vias com maior concentração de sinistros. 
+            A cor e espessura das linhas indicam a intensidade dos acidentes.
+          </p>
+        </div>
+        
+        {/* Legenda do mapa */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6 max-w-2xl mx-auto">
+          <h4 className="font-semibold mb-3 text-center">Legenda</h4>
+          <div className="flex flex-wrap justify-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-1 bg-yellow-200 rounded"></div>
+              <span>0-50 sinistros</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-1 bg-yellow-500 rounded"></div>
+              <span>50-100 sinistros</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-1 bg-red-600 rounded"></div>
+              <span>100-200 sinistros</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-1 bg-red-900 rounded"></div>
+              <span>200+ sinistros</span>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Via selecionada */}
-      {selectedVia && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-green-600">📍</span>
-              <div>
-                <span className="font-medium text-green-800">Via selecionada: </span>
-                <span className="text-green-700">{selectedVia}</span>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                setSelectedVia("");
-                fetchViaData("");
-              }}
-              className="text-green-600 hover:text-green-800 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        {mapData.vias.length > 0 ? (
+          <AmecicloMap
+            layerData={layerData}
+            layersConf={layersConf}
+          />
+        ) : (
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="text-gray-400 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
               </svg>
-            </button>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Mapa não disponível</h3>
+            <p className="text-gray-500">Os dados geoespaciais das vias não estão disponíveis no momento.</p>
           </div>
+        )}
+      </section>
+
+      {/* Análise temporal */}
+      <section className="container mx-auto my-12">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            Evolução Temporal dos Sinistros
+          </h2>
+          <p className="text-gray-600 max-w-3xl mx-auto">
+            Análise da evolução dos sinistros ao longo do tempo, identificando padrões 
+            sazonais, semanais e horários que podem orientar políticas de prevenção.
+          </p>
         </div>
+        <TemporalAnalysis 
+          data={historyData.evolucao}
+          selectedVia={historyData.via}
+        />
+      </section>
+
+      {/* Tabela de ranking */}
+      <section className="container mx-auto my-12">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            Ranking das Vias Mais Inseguras
+          </h2>
+          <p className="text-gray-600 max-w-3xl mx-auto">
+            Lista das vias com maior número de sinistros, incluindo dados de densidade 
+            por quilômetro para identificar os trechos que necessitam intervenção prioritária.
+          </p>
+        </div>
+        
+        <Table
+          title="Ranking das Vias Mais Inseguras"
+          subtitle={`Período: ${topViasData.parametros.periodo || `${summaryData.periodoInicio} - ${summaryData.periodoFim}`}`}
+          data={tableData}
+          columns={tableColumns}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+        />
+      </section>
+
+      {/* Estatísticas resumidas */}
+      {topViasData.dados.length > 0 && (
+        <section className="container mx-auto my-12">
+          <div className="bg-blue-50 rounded-lg p-8">
+            <h3 className="text-2xl font-bold text-blue-900 mb-6 text-center">
+              Principais Insights
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
+              <div className="bg-white rounded-lg p-6 shadow">
+                <div className="text-3xl font-bold text-ameciclo mb-2">
+                  {topViasData.dados.slice(0, 10).reduce((sum, via) => sum + via.percentual_total, 0).toFixed(1)}%
+                </div>
+                <div className="text-sm text-gray-600">
+                  dos sinistros concentrados nas top 10 vias
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-6 shadow">
+                <div className="text-3xl font-bold text-ameciclo mb-2">
+                  {topViasData.dados[0]?.sinistros_por_km.toFixed(1) || "0"}
+                </div>
+                <div className="text-sm text-gray-600">
+                  sinistros/km na via mais perigosa
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-6 shadow">
+                <div className="text-3xl font-bold text-ameciclo mb-2">
+                  {topViasData.dados.reduce((sum, via) => sum + via.km, 0).toFixed(1)}
+                </div>
+                <div className="text-sm text-gray-600">
+                  km de vias analisadas
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 text-center">
+              <p className="text-blue-800 text-sm">
+                <strong>Recomendação:</strong> Priorizar intervenções nas vias com maior densidade de sinistros 
+                para maximizar o impacto das políticas de segurança viária.
+              </p>
+            </div>
+          </div>
+        </section>
       )}
-
-      {/* Conteúdo das abas */}
-      <div className="space-y-8">
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-3xl font-bold text-center mb-6">
-                Concentração de Sinistros
-              </h2>
-              <ConcentrationChart data={filteredData.topVias.dados} />
-            </div>
-            
-            {/* Resumo estatístico */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-lg shadow p-6 text-center">
-                <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {summaryData.totalSinistros?.toLocaleString() || '0'}
-                </div>
-                <div className="text-gray-600">Total de Sinistros</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-6 text-center">
-                <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {summaryData.totalVias?.toLocaleString() || '0'}
-                </div>
-                <div className="text-gray-600">Vias Analisadas</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-6 text-center">
-                <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {summaryData.anoMaisPerigoso?.ano || 'N/A'}
-                </div>
-                <div className="text-gray-600">Ano Mais Perigoso</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-6 text-center">
-                <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {summaryData.viaMaisPerigosa?.total || '0'}
-                </div>
-                <div className="text-gray-600">Máx. por Via</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'map' && (
-          <div>
-            <h2 className="text-3xl font-bold text-center mb-6">
-              Mapa das Vias Inseguras
-            </h2>
-            <ViasInsegurasMap 
-              vias={filteredData.mapVias.vias}
-              onYearChange={fetchFilteredData}
-            />
-          </div>
-        )}
-
-        {activeTab === 'ranking' && (
-          <div>
-            <ViasRankingTable
-              data={filteredData.topVias.dados}
-              totalSinistros={filteredData.topVias.parametros.total_sinistros || summaryData.totalSinistros || 0}
-              periodo={filteredData.topVias.parametros.periodo || `${summaryData.periodoInicio} - ${summaryData.periodoFim}`}
-              onViaClick={(ranking) => {
-                // Implementar seleção de via por ranking
-                const via = `Via ${ranking}`;
-                setSelectedVia(via);
-                fetchViaData(via);
-              }}
-            />
-          </div>
-        )}
-
-        {activeTab === 'temporal' && (
-          <div>
-            <h2 className="text-3xl font-bold text-center mb-6">
-              Análise Temporal dos Sinistros
-            </h2>
-            <TemporalAnalysis 
-              data={filteredData.history.evolucao}
-              selectedVia={filteredData.history.via}
-            />
-          </div>
-        )}
-
-        {activeTab === 'insights' && (
-          <div>
-            <h2 className="text-3xl font-bold text-center mb-6">
-              Insights e Recomendações
-            </h2>
-            <InsightsPanel
-              summaryData={summaryData}
-              topViasData={filteredData.topVias}
-              historyData={filteredData.history}
-            />
-          </div>
-        )}
-
-        {activeTab === 'search' && (
-          <div>
-            <h2 className="text-3xl font-bold text-center mb-6">
-              Buscar Via Específica
-            </h2>
-            <ViaSearch
-              onSearch={handleViaSearch}
-              onViaSelect={handleViaSelect}
-              isLoading={isLoading}
-            />
-          </div>
-        )}
-
-        {activeTab === 'filters' && (
-          <div>
-            <h2 className="text-3xl font-bold text-center mb-6">
-              Configurações e Filtros
-            </h2>
-            <AdvancedFilters
-              onFiltersChange={(filters) => {
-                // Implementar aplicação dos filtros
-                console.log('Filtros aplicados:', filters);
-                fetchFilteredData(filters.anoInicio, filters.anoFim);
-              }}
-              isLoading={isLoading}
-            />
-          </div>
-        )}
-      </div>
-    </section>
+    </>
   );
 }

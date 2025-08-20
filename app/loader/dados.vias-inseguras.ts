@@ -1,6 +1,10 @@
 import { json } from "@remix-run/node";
-
-const API_BASE_URL = "http://localhost:8080";
+import { 
+  VIAS_INSEGURAS_SUMMARY,
+  VIAS_INSEGURAS_TOP,
+  VIAS_INSEGURAS_MAP,
+  VIAS_INSEGURAS_HISTORY
+} from "../servers.js";
 
 async function fetchWithTimeout(url: string, timeout = 5000) {
   const controller = new AbortController();
@@ -19,42 +23,42 @@ async function fetchWithTimeout(url: string, timeout = 5000) {
 export async function loader() {
   try {
     // Buscar dados do resumo geral
-    const summaryResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/summary`);
+    const summaryResponse = await fetchWithTimeout(VIAS_INSEGURAS_SUMMARY);
     const summaryData = summaryResponse.ok ? await summaryResponse.json() : null;
 
     // Buscar top vias
-    const topViasResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/top?limite=50`);
+    const topViasResponse = await fetchWithTimeout(`${VIAS_INSEGURAS_TOP}?limite=50`);
     const topViasData = topViasResponse.ok ? await topViasResponse.json() : null;
 
     // Buscar dados do mapa
-    const mapResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/map?limite=50`);
+    const mapResponse = await fetchWithTimeout(`${VIAS_INSEGURAS_MAP}?limite=50`);
     const mapData = mapResponse.ok ? await mapResponse.json() : null;
 
     // Buscar histórico geral
-    const historyResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/history`);
+    const historyResponse = await fetchWithTimeout(VIAS_INSEGURAS_HISTORY);
     const historyData = historyResponse.ok ? await historyResponse.json() : null;
 
     // Processar dados para estatísticas
     const statisticsBoxes = summaryData ? [
       {
         title: "Total de sinistros",
-        value: summaryData.totalSinistros?.toLocaleString() || "0",
+        value: parseInt(summaryData.totalSinistros).toLocaleString(),
         unit: `${summaryData.periodoInicio} - ${summaryData.periodoFim}`,
       },
       {
         title: "Ano mais perigoso",
         value: summaryData.anoMaisPerigoso?.ano || "N/A",
-        unit: `${summaryData.anoMaisPerigoso?.total?.toLocaleString() || "0"} sinistros`,
+        unit: `${parseInt(summaryData.anoMaisPerigoso?.total || "0").toLocaleString()} sinistros`,
       },
       {
         title: "Total de vias",
-        value: summaryData.totalVias?.toLocaleString() || "0",
+        value: parseInt(summaryData.totalVias).toLocaleString(),
         unit: "vias analisadas",
       },
       {
         title: "Via com mais sinistros",
-        value: `${summaryData.viaMaisPerigosa?.total || "0"}`,
-        unit: summaryData.viaMaisPerigosa?.nome || "N/A",
+        value: summaryData.viaMaisPerigosa?.nome || "N/A",
+        unit: `${summaryData.viaMaisPerigosa?.total || "0"} sinistros (${summaryData.viaMaisPerigosa?.percentual || "0"}%)`,
       },
     ] : [];
 
