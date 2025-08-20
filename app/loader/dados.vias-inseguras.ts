@@ -57,8 +57,8 @@ export async function loader() {
       },
       {
         title: "Via com mais sinistros",
-        value: summaryData.viaMaisPerigosa?.nome || "N/A",
-        unit: `${summaryData.viaMaisPerigosa?.total || "0"} sinistros (${summaryData.viaMaisPerigosa?.percentual || "0"}%)`,
+        value: `${summaryData.viaMaisPerigosa?.percentual || "0"}%`,
+        unit: summaryData.viaMaisPerigosa?.nome || "N/A",
       },
     ] : [];
 
