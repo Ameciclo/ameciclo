@@ -451,7 +451,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                   <div className="space-y-1 text-sm text-orange-700">
                     {projectionsInfo.map((info) => (
                       <p key={info.ano}>
-                        Ano {info.ano} - Dados até {info.dataUltimoDado}, total de {info.totalDias} dias
+                        Ano {info.ano} - Dados até {info.dataUltimoDado}, total de {info.totalDias} dias, {Math.round(info.totalDias/3.65)}% do ano
                       </p>
                     ))}
                   </div>
