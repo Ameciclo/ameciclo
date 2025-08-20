@@ -422,6 +422,45 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
               ]}
               colors={["#ac1666", "#10b981", "#3b82f6", "#f59e0b", "#dc2626"]}
             />
+            
+            {/* Legenda de Projeções */}
+            {(() => {
+              const cityData = citiesData?.cidades?.find(
+                (city) => city.name === selectedCity || city.municipio_samu === selectedCity
+              );
+              
+
+              
+              const projectionsInfo = cityData?.historico_anual
+                ?.filter((item: any) => item.projecao_total_chamados && item.ultimaData)
+                ?.map((item: any) => {
+                  const lastDataDate = new Date(item.ultimaData);
+                  const yearStart = new Date(item.ano, 0, 1);
+                  const daysDiff = Math.floor((lastDataDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                  
+                  return {
+                    ano: item.ano,
+                    dataUltimoDado: lastDataDate.toLocaleDateString('pt-BR'),
+                    totalDias: daysDiff
+                  };
+                }) || [];
+              
+              return projectionsInfo.length > 0 ? (
+                <div className="mt-6 bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-orange-800 mb-3">PROJEÇÕES:</h4>
+                  <div className="space-y-1 text-sm text-orange-700">
+                    {projectionsInfo.map((info) => (
+                      <p key={info.ano}>
+                        Ano {info.ano} - Dados até {info.dataUltimoDado}, total de {info.totalDias} dias
+                      </p>
+                    ))}
+                  </div>
+                  <p className="text-xs text-orange-600 mt-2 italic">
+                    * Projeções calculadas com base na tendência linear dos dados disponíveis no ano
+                  </p>
+                </div>
+              ) : null;
+            })()}
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-6 text-center">
