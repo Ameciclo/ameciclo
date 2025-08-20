@@ -46,11 +46,11 @@ interface ViasInsegurasClientSideProps {
   };
 }
 
-export default function ViasInsegurasClientSide({ 
-  summaryData, 
-  topViasData, 
-  mapData, 
-  historyData 
+export default function ViasInsegurasClientSide({
+  summaryData,
+  topViasData,
+  mapData,
+  historyData,
 }: ViasInsegurasClientSideProps) {
   const [showFilters, setShowFilters] = useState(false);
 
@@ -59,18 +59,18 @@ export default function ViasInsegurasClientSide({
     {
       label: "Total de Sinistros",
       data: parseInt(summaryData.totalSinistros || "0").toLocaleString(),
-      icon: "crash"
+      icon: "crash",
     },
     {
-      label: "Vias Analisadas", 
+      label: "Vias Analisadas",
       data: parseInt(summaryData.totalVias || "0").toLocaleString(),
-      icon: "road"
+      icon: "road",
     },
     {
       label: "Ano Mais Perigoso",
       data: summaryData.anoMaisPerigoso?.ano || "N/A",
-      icon: "calendar"
-    }
+      icon: "calendar",
+    },
   ];
 
   // Converter dados das vias para GeoJSON
@@ -97,19 +97,27 @@ export default function ViasInsegurasClientSide({
           "interpolate",
           ["linear"],
           ["get", "sinistros"],
-          0, "#FEF3C7",
-          50, "#F59E0B", 
-          100, "#DC2626",
-          200, "#7F1D1D",
+          0,
+          "#FEF3C7",
+          50,
+          "#F59E0B",
+          100,
+          "#DC2626",
+          200,
+          "#7F1D1D",
         ],
         "line-width": [
           "interpolate",
           ["linear"],
           ["get", "sinistros"],
-          0, 2,
-          50, 4,
-          100, 6,
-          200, 8,
+          0,
+          2,
+          50,
+          4,
+          100,
+          6,
+          200,
+          8,
         ],
         "line-opacity": 0.8,
       },
@@ -129,7 +137,11 @@ export default function ViasInsegurasClientSide({
   const tableColumns = [
     { Header: "Ranking", accessor: "ranking", disableFilters: true },
     { Header: "Nome da Via", accessor: "nome_via", disableFilters: true },
-    { Header: "Total de Sinistros", accessor: "total_sinistros", disableFilters: true },
+    {
+      Header: "Total de Sinistros",
+      accessor: "total_sinistros",
+      disableFilters: true,
+    },
     { Header: "Extensão", accessor: "extensao_km", disableFilters: true },
     { Header: "Densidade", accessor: "densidade", disableFilters: true },
     { Header: "% do Total", accessor: "percentual", disableFilters: true },
@@ -147,8 +159,9 @@ export default function ViasInsegurasClientSide({
             Concentração de Sinistros por Via
           </h2>
           <p className="text-gray-600 max-w-3xl mx-auto">
-            Este gráfico mostra como os sinistros se concentram em poucas vias da cidade, 
-            evidenciando a necessidade de intervenções focalizadas nos pontos críticos.
+            Este gráfico mostra como os sinistros se concentram em poucas vias
+            da cidade, evidenciando a necessidade de intervenções focalizadas
+            nos pontos críticos.
           </p>
         </div>
         <ConcentrationChart data={topViasData.dados} />
@@ -161,11 +174,12 @@ export default function ViasInsegurasClientSide({
             Mapa das Vias Inseguras
           </h2>
           <p className="text-gray-600 max-w-3xl mx-auto">
-            Visualização geoespacial das vias com maior concentração de sinistros. 
-            A cor e espessura das linhas indicam a intensidade dos acidentes.
+            Visualização geoespacial das vias com maior concentração de
+            sinistros. A cor e espessura das linhas indicam a intensidade dos
+            acidentes.
           </p>
         </div>
-        
+
         {/* Legenda do mapa */}
         <div className="bg-white rounded-lg shadow p-4 mb-6 max-w-2xl mx-auto">
           <h4 className="font-semibold mb-3 text-center">Legenda</h4>
@@ -190,24 +204,35 @@ export default function ViasInsegurasClientSide({
         </div>
 
         {mapData.vias.length > 0 ? (
-          <AmecicloMap
-            layerData={layerData}
-            layersConf={layersConf}
-          />
+          <AmecicloMap layerData={layerData} layersConf={layersConf} />
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="text-gray-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Mapa não disponível</h3>
-            <p className="text-gray-500">Os dados geoespaciais das vias não estão disponíveis no momento.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Mapa não disponível
+            </h3>
+            <p className="text-gray-500">
+              Os dados geoespaciais das vias não estão disponíveis no momento.
+            </p>
           </div>
         )}
       </section>
 
-      {/* Análise temporal */}
+      {/* Análise temporal
       <section className="container mx-auto my-12">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">
@@ -223,7 +248,7 @@ export default function ViasInsegurasClientSide({
           selectedVia={historyData.via}
         />
       </section>
-
+ */}
       {/* Tabela de ranking */}
       <section className="container mx-auto my-12">
         <div className="text-center mb-8">
@@ -231,14 +256,18 @@ export default function ViasInsegurasClientSide({
             Ranking das Vias Mais Inseguras
           </h2>
           <p className="text-gray-600 max-w-3xl mx-auto">
-            Lista das vias com maior número de sinistros, incluindo dados de densidade 
-            por quilômetro para identificar os trechos que necessitam intervenção prioritária.
+            Lista das vias com maior número de sinistros, incluindo dados de
+            densidade por quilômetro para identificar os trechos que necessitam
+            intervenção prioritária.
           </p>
         </div>
-        
+
         <Table
           title="Ranking das Vias Mais Inseguras"
-          subtitle={`Período: ${topViasData.parametros.periodo || `${summaryData.periodoInicio} - ${summaryData.periodoFim}`}`}
+          subtitle={`Período: ${
+            topViasData.parametros.periodo ||
+            `${summaryData.periodoInicio} - ${summaryData.periodoFim}`
+          }`}
           data={tableData}
           columns={tableColumns}
           showFilters={showFilters}
@@ -256,7 +285,11 @@ export default function ViasInsegurasClientSide({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
               <div className="bg-white rounded-lg p-6 shadow">
                 <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {topViasData.dados.slice(0, 10).reduce((sum, via) => sum + via.percentual_total, 0).toFixed(1)}%
+                  {topViasData.dados
+                    .slice(0, 10)
+                    .reduce((sum, via) => sum + via.percentual_total, 0)
+                    .toFixed(1)}
+                  %
                 </div>
                 <div className="text-sm text-gray-600">
                   dos sinistros concentrados nas top 10 vias
@@ -272,7 +305,9 @@ export default function ViasInsegurasClientSide({
               </div>
               <div className="bg-white rounded-lg p-6 shadow">
                 <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {topViasData.dados.reduce((sum, via) => sum + via.km, 0).toFixed(1)}
+                  {topViasData.dados
+                    .reduce((sum, via) => sum + via.km, 0)
+                    .toFixed(1)}
                 </div>
                 <div className="text-sm text-gray-600">
                   km de vias analisadas
@@ -281,8 +316,9 @@ export default function ViasInsegurasClientSide({
             </div>
             <div className="mt-6 text-center">
               <p className="text-blue-800 text-sm">
-                <strong>Recomendação:</strong> Priorizar intervenções nas vias com maior densidade de sinistros 
-                para maximizar o impacto das políticas de segurança viária.
+                <strong>Recomendação:</strong> Priorizar intervenções nas vias
+                com maior densidade de sinistros para maximizar o impacto das
+                políticas de segurança viária.
               </p>
             </div>
           </div>
