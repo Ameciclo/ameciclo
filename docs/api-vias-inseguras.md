@@ -1,217 +1,244 @@
-# API Vias Inseguras - Especificação de Dados
+### Resumo Geral de Vias
 
-## Visão Geral
-API para fornecer dados sobre vias inseguras no Recife baseado nos atendimentos do SAMU para sinistros de trânsito.
+**Endpoint:** `/samu-calls/streets/summary`
 
-## Endpoints Necessários
+**Método:** GET
 
-### 1. Estatísticas Gerais
-**Endpoint:** `/api/vias-inseguras/estatisticas`
+**Descrição:** Retorna estatísticas gerais sobre vias com sinistros do SAMU.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/streets/summary
+```
 
 **Resposta:**
 ```json
 {
   "totalSinistros": 15420,
-  "totalVias": 2847,
-  "periodoInicio": "2018",
+  "totalVias": 2341,
+  "periodoInicio": "2016",
   "periodoFim": "2024",
+  "mesUltimoDado": "2024.03",
   "anoMaisPerigoso": {
-    "ano": "2022",
-    "total": 2834
+    "ano": "2023",
+    "total": 1850
   },
   "viaMaisPerigosa": {
-    "nome": "Av. Boa Viagem",
-    "total": 287,
-    "percentual": 1.86
+    "nome": "Avenida Norte Miguel Arraes de Alencar",
+    "id": 1,
+    "total": 245,
+    "percentual": 1.59,
+    "extensao": 2321
   }
 }
 ```
 
-### 2. Ranking das Vias
-**Endpoint:** `/api/vias-inseguras/ranking`
+### Top Vias com Dados Cumulativos
+
+**Endpoint:** `/samu-calls/streets/top`
+
+**Método:** GET
 
 **Parâmetros:**
-- `periodo` (opcional): "2018-2024", "2022-2024", "2024"
-- `limite` (opcional): número de vias a retornar (padrão: 50)
+- `intervalo` (opcional): Intervalo para agrupamento (padrão: 1)
+- `anoInicio` (opcional): Ano inicial para filtrar (padrão: 2018)
+- `anoFim` (opcional): Ano final para filtrar (padrão: 2024)
+- `limite` (opcional): Número máximo de vias (padrão: 50)
 
-**Resposta:**
-```json
-{
-  "vias": [
-    {
-      "ranking": 1,
-      "nome": "Av. Boa Viagem",
-      "sinistros": 287,
-      "percentual": 1.86,
-      "extensao": 8.2,
-      "sinistrosPorKm": 35.0,
-      "coordenadas": {
-        "inicio": [-34.9058, -8.1137],
-        "fim": [-34.8951, -8.0889]
-      }
-    }
-  ],
-  "totalSinistros": 15420,
-  "periodo": "2018-2024"
-}
+**Descrição:** Retorna análise cumulativa das vias mais perigosas, com dados de sinistros, quilometragem e densidade.
+
+**Exemplos de Uso:**
+```
+# Top 50 vias com dados cumulativos
+GET http://localhost:8080/samu-calls/streets/top
+
+# Top 20 vias entre 2020-2023 com intervalo de 5
+GET http://localhost:8080/samu-calls/streets/top?limite=20&anoInicio=2020&anoFim=2023&intervalo=5
 ```
 
-### 3. Dados para Mapa
-**Endpoint:** `/api/vias-inseguras/mapa`
-
-**Parâmetros:**
-- `periodo` (opcional): "2018-2024", "2022-2024", "2024"
-
 **Resposta:**
 ```json
 {
-  "vias": [
-    {
-      "nome": "Av. Boa Viagem",
-      "sinistros": 287,
-      "intensidade": "alta",
-      "geometria": {
-        "type": "LineString",
-        "coordinates": [
-          [-34.9058, -8.1137],
-          [-34.9051, -8.1130],
-          [-34.8951, -8.0889]
-        ]
-      }
-    }
-  ],
-  "legendas": {
-    "baixa": "1-10 sinistros",
-    "media": "11-50 sinistros", 
-    "alta": "51+ sinistros"
-  }
-}
-```
-
-### 4. Dados para Gráfico de Concentração
-**Endpoint:** `/api/vias-inseguras/concentracao`
-
-**Parâmetros:**
-- `periodo` (opcional): "2018-2024", "2022-2024", "2024"
-- `tipo`: "vias" ou "quilometragem"
-
-**Resposta:**
-```json
-{
-  "tipo": "vias",
   "dados": [
     {
-      "quantidade": 10,
-      "percentualSinistros": 33.2,
-      "percentualAcumulado": 33.2
+      "top": 1,
+      "sinistros": 245,
+      "km": 12.5,
+      "sinistros_por_km": 19.6,
+      "percentual_total": 1.59
     },
     {
-      "quantidade": 50,
-      "percentualSinistros": 15.8,
-      "percentualAcumulado": 49.0
-    },
-    {
-      "quantidade": 100,
-      "percentualSinistros": 8.5,
-      "percentualAcumulado": 57.5
+      "top": 2,
+      "sinistros": 467,
+      "km": 25.8,
+      "sinistros_por_km": 18.1,
+      "percentual_total": 3.03
     }
-  ]
+  ],
+  "parametros": {
+    "intervalo": 1,
+    "periodo": "2018-2024",
+    "total_sinistros": 15420
+  }
 }
 ```
 
-### 5. Evolução Temporal
-**Endpoint:** `/api/vias-inseguras/evolucao`
+### Mapa GeoJSON das Vias
+
+**Endpoint:** `/samu-calls/streets/map`
+
+**Método:** GET
 
 **Parâmetros:**
-- `via` (opcional): nome da via específica
+- `anoInicio` (opcional): Ano inicial para filtrar (padrão: 2018)
+- `anoFim` (opcional): Ano final para filtrar (padrão: 2024)
+- `limite` (opcional): Número máximo de vias (padrão: 50)
+- `desfechos` (opcional): Filtro de desfechos - `validos` (padrão), `invalidos`, ou `todos`
+
+**Descrição:** Retorna dados geoespaciais das vias com sinistros em formato adequado para mapas.
+
+**Exemplos de Uso:**
+```
+# Mapa das 50 vias mais perigosas (desfechos válidos)
+GET http://localhost:8080/samu-calls/streets/map
+
+# Mapa das 20 vias entre 2020-2023 incluindo todos os desfechos
+GET http://localhost:8080/samu-calls/streets/map?limite=20&anoInicio=2020&anoFim=2023&desfechos=todos
+```
+
+**Resposta:**
+```json
+{
+  "vias": [
+    {
+      "id": 12345,
+      "nome": "Avenida Norte Miguel Arraes de Alencar",
+      "sinistros": 245,
+      "geometria": {
+        "type": "LineString",
+        "coordinates": [[-34.123, -8.456], [-34.124, -8.457]]
+      }
+    }
+  ],
+  "filtro_desfechos": "validos"
+}
+```
+
+### Buscar Sinistros por Via
+
+**Endpoint:** `/samu-calls/streets/search`
+
+**Método:** GET
+
+**Parâmetros:**
+- `street` (obrigatório): Nome da via para buscar
+- `limit` (opcional): Número máximo de resultados (padrão: 100)
+
+**Descrição:** Busca chamadas do SAMU em uma via específica.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/streets/search?street=Boa%20Viagem&limit=50
+```
+
+### Histórico de Sinistros por Via
+
+**Endpoint:** `/samu-calls/streets/history`
+
+**Método:** GET
+
+**Parâmetros:**
+- `via` (opcional): Nome da via para filtrar (busca parcial)
+- `desfechos` (opcional): Filtro de desfechos - `validos` (padrão), `invalidos`, ou `todos`
+
+**Descrição:** Retorna histórico detalhado de sinistros por ano, incluindo distribuição mensal, por dia da semana, por horário, dias com dados e dias com sinistros.
+
+**Exemplos de Uso:**
+```
+# Histórico geral (todos os anos, desfechos válidos)
+GET http://localhost:8080/samu-calls/streets/history
+
+# Histórico de uma via específica
+GET http://localhost:8080/samu-calls/streets/history?via=Avenida Norte Miguel Arraes
+
+# Histórico incluindo desfechos inválidos
+GET http://localhost:8080/samu-calls/streets/history?via=Boa Viagem&desfechos=invalidos
+
+# Histórico com todos os desfechos
+GET http://localhost:8080/samu-calls/streets/history?desfechos=todos
+```
 
 **Resposta:**
 ```json
 {
   "evolucao": [
     {
-      "ano": 2018,
-      "sinistros": 2156
-    },
-    {
-      "ano": 2019,
-      "sinistros": 2298
-    },
-    {
-      "ano": 2020,
-      "sinistros": 1987
+      "ano": 2023,
+      "sinistros": 150,
+      "meses": {
+        "1": 12,  // Janeiro
+        "2": 15,  // Fevereiro
+        "3": 18,  // Março
+        "4": 10,  // Abril
+        "5": 14,  // Maio
+        "6": 16,  // Junho
+        "7": 13,  // Julho
+        "8": 11,  // Agosto
+        "9": 9,   // Setembro
+        "10": 12, // Outubro
+        "11": 10, // Novembro
+        "12": 10  // Dezembro
+      },
+      "dias_com_dados": 365,      // Dias com dados no ano (geral)
+      "dias_com_sinistros": 89,   // Dias com sinistros na via específica
+      "ultimo_dia": "2023-12-31",
+      "dias_semana": {
+        "0": 20,  // Domingo
+        "1": 25,  // Segunda-feira
+        "2": 22,  // Terça-feira
+        "3": 18,  // Quarta-feira
+        "4": 24,  // Quinta-feira
+        "5": 26,  // Sexta-feira
+        "6": 15   // Sábado
+      },
+      "horarios": {
+        "0": 2,   // 00:00-00:59
+        "1": 1,   // 01:00-01:59
+        "2": 0,   // 02:00-02:59
+        "3": 1,   // 03:00-03:59
+        "4": 2,   // 04:00-04:59
+        "5": 4,   // 05:00-05:59
+        "6": 8,   // 06:00-06:59
+        "7": 12,  // 07:00-07:59
+        "8": 15,  // 08:00-08:59
+        "9": 10,  // 09:00-09:59
+        "10": 8,  // 10:00-10:59
+        "11": 9,  // 11:00-11:59
+        "12": 11, // 12:00-12:59
+        "13": 9,  // 13:00-13:59
+        "14": 7,  // 14:00-14:59
+        "15": 6,  // 15:00-15:59
+        "16": 8,  // 16:00-16:59
+        "17": 12, // 17:00-17:59
+        "18": 14, // 18:00-18:59
+        "19": 8,  // 19:00-19:59
+        "20": 6,  // 20:00-20:59
+        "21": 4,  // 21:00-21:59
+        "22": 3,  // 22:00-22:59
+        "23": 2   // 23:00-23:59
+      }
     }
   ],
-  "via": null
+  "via": "Avenida Norte Miguel Arraes",
+  "filtro_desfechos": "validos"
 }
 ```
 
-## Dados Necessários no Backend
-
-### Tabela: sinistros_vias
-```sql
-CREATE TABLE sinistros_vias (
-  id SERIAL PRIMARY KEY,
-  via_nome VARCHAR(255) NOT NULL,
-  via_extensao DECIMAL(10,2),
-  latitude DECIMAL(10,8),
-  longitude DECIMAL(11,8),
-  data_sinistro DATE,
-  ano INTEGER,
-  mes INTEGER,
-  gravidade VARCHAR(50),
-  tipo_sinistro VARCHAR(100),
-  geometria_via GEOMETRY(LINESTRING, 4326),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### Índices Recomendados
-```sql
-CREATE INDEX idx_sinistros_vias_nome ON sinistros_vias(via_nome);
-CREATE INDEX idx_sinistros_vias_ano ON sinistros_vias(ano);
-CREATE INDEX idx_sinistros_vias_data ON sinistros_vias(data_sinistro);
-CREATE INDEX idx_sinistros_vias_geometria ON sinistros_vias USING GIST(geometria_via);
-```
-
-## Processamento de Dados
-
-### 1. Agregação por Via
-- Agrupar sinistros por nome da via
-- Calcular total de sinistros por via
-- Calcular percentual em relação ao total geral
-- Calcular sinistros por quilômetro (sinistros/extensão)
-
-### 2. Classificação de Intensidade
-```python
-def classificar_intensidade(sinistros):
-    if sinistros >= 51:
-        return "alta"
-    elif sinistros >= 11:
-        return "media"
-    else:
-        return "baixa"
-```
-
-### 3. Cálculo de Concentração
-- Ordenar vias por número de sinistros (decrescente)
-- Calcular percentual acumulado de sinistros
-- Gerar pontos para gráfico de Pareto
-
-## Considerações Técnicas
-
-### Cache
-- Implementar cache Redis para consultas frequentes
-- TTL de 1 hora para dados agregados
-- Invalidar cache quando novos dados forem inseridos
-
-### Performance
-- Usar views materializadas para agregações complexas
-- Implementar paginação nos endpoints de ranking
-- Otimizar consultas geoespaciais com índices apropriados
-
-### Filtros Adicionais (Futuro)
-- Filtro por tipo de sinistro
-- Filtro por gravidade
-- Filtro por período do dia
-- Filtro por dia da semana
+**Métricas Incluídas:**
+- **sinistros**: Total de sinistros no ano
+- **meses**: Distribuição mensal (1-12)
+- **dias_com_dados**: Dias com dados no sistema (geral do ano)
+- **dias_com_sinistros**: Dias com sinistros na via específica
+- **ultimo_dia**: Última data com dados no ano
+- **dias_semana**: Distribuição por dia da semana (0=Domingo, 6=Sábado)
+- **horarios**: Distribuição por hora do dia (0-23h)

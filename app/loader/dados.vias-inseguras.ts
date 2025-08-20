@@ -1,47 +1,62 @@
 import { json } from "@remix-run/node";
 
+const API_BASE_URL = "http://localhost:8080";
+
+async function fetchWithTimeout(url: string, timeout = 5000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
 export async function loader() {
   try {
-    // TODO: Substituir por chamadas reais da API quando estiver pronta
-    
-    const mockViasData = {
-      totalSinistros: 15420,
-      totalVias: 2847,
-      periodoInicio: "2018",
-      periodoFim: "2024",
-      anoMaisPerigoso: { ano: "2022", total: 2834 },
-      viaMaisPerigosa: { nome: "Av. Boa Viagem", total: 287, percentual: 1.86 },
-      vias: [
-        { ranking: 1, nome: "Av. Boa Viagem", sinistros: 287, percentual: 1.86, extensao: 8.2 },
-        { ranking: 2, nome: "Av. Recife", sinistros: 245, percentual: 1.59, extensao: 12.5 },
-        { ranking: 3, nome: "Av. Norte", sinistros: 198, percentual: 1.28, extensao: 15.3 },
-        { ranking: 4, nome: "BR-101", sinistros: 176, percentual: 1.14, extensao: 22.1 },
-        { ranking: 5, nome: "Av. Caxangá", sinistros: 164, percentual: 1.06, extensao: 18.7 }
-      ]
-    };
+    // Buscar dados do resumo geral
+    const summaryResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/summary`);
+    const summaryData = summaryResponse.ok ? await summaryResponse.json() : null;
 
-    const statisticsBoxes = [
+    // Buscar top vias
+    const topViasResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/top?limite=50`);
+    const topViasData = topViasResponse.ok ? await topViasResponse.json() : null;
+
+    // Buscar dados do mapa
+    const mapResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/map?limite=50`);
+    const mapData = mapResponse.ok ? await mapResponse.json() : null;
+
+    // Buscar histórico geral
+    const historyResponse = await fetchWithTimeout(`${API_BASE_URL}/samu-calls/streets/history`);
+    const historyData = historyResponse.ok ? await historyResponse.json() : null;
+
+    // Processar dados para estatísticas
+    const statisticsBoxes = summaryData ? [
       {
         title: "Total de sinistros",
-        value: mockViasData.totalSinistros.toLocaleString(),
-        unit: `${mockViasData.periodoInicio} - ${mockViasData.periodoFim}`,
+        value: summaryData.totalSinistros?.toLocaleString() || "0",
+        unit: `${summaryData.periodoInicio} - ${summaryData.periodoFim}`,
       },
       {
         title: "Ano mais perigoso",
-        value: mockViasData.anoMaisPerigoso.ano,
-        unit: `${mockViasData.anoMaisPerigoso.total.toLocaleString()} sinistros`,
+        value: summaryData.anoMaisPerigoso?.ano || "N/A",
+        unit: `${summaryData.anoMaisPerigoso?.total?.toLocaleString() || "0"} sinistros`,
       },
       {
         title: "Total de vias",
-        value: mockViasData.totalVias.toLocaleString(),
+        value: summaryData.totalVias?.toLocaleString() || "0",
         unit: "vias analisadas",
       },
       {
         title: "Via com mais sinistros",
-        value: `${mockViasData.viaMaisPerigosa.total}`,
-        unit: mockViasData.viaMaisPerigosa.nome,
+        value: `${summaryData.viaMaisPerigosa?.total || "0"}`,
+        unit: summaryData.viaMaisPerigosa?.nome || "N/A",
       },
-    ];
+    ] : [];
 
     const documents = {
       title: "Documentos relacionados",
@@ -58,24 +73,43 @@ export async function loader() {
           url: "#dados",
           target: "_self",
         },
+        {
+          title: "API de Vias Inseguras",
+          description: "Documentação da API para desenvolvedores",
+          url: "/docs/api-vias-inseguras",
+          target: "_blank",
+        },
       ],
     };
 
     return json({
-      cover: "/pages_covers/viasinseguras.png",
+      cover: "/pages_covers/vias-inseguras.png",
       title1: "O que são vias inseguras?",
-      description1: "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU, permitindo mapear os pontos críticos da cidade.",
+      description1: "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU, permitindo mapear os pontos críticos da cidade e orientar políticas públicas de segurança viária.",
       title2: "Como analisamos os dados?",
-      description2: "Processamos dados georreferenciados dos atendimentos do SAMU para identificar padrões de sinistralidade por via, considerando frequência, gravidade e extensão das vias.",
+      description2: "Processamos dados georreferenciados dos atendimentos do SAMU para identificar padrões de sinistralidade por via, considerando frequência, gravidade, extensão das vias e densidade de sinistros por quilômetro.",
       documents,
       statisticsBoxes,
-      viasData: mockViasData,
+      summaryData: summaryData || {},
+      topViasData: topViasData || { dados: [], parametros: {} },
+      mapData: mapData || { vias: [] },
+      historyData: historyData || { evolucao: [] },
     });
   } catch (error) {
     console.error("Erro ao buscar dados das vias inseguras:", error);
     
+    // Fallback com dados mock em caso de erro
+    const mockData = {
+      totalSinistros: 15420,
+      totalVias: 2341,
+      periodoInicio: "2016",
+      periodoFim: "2024",
+      anoMaisPerigoso: { ano: "2023", total: 1850 },
+      viaMaisPerigosa: { nome: "Avenida Norte Miguel Arraes de Alencar", total: 245, percentual: 1.59 }
+    };
+
     return json({
-      cover: "/pages_covers/viasinseguras.png",
+      cover: "/pages_covers/vias-inseguras.png",
       title1: "O que são vias inseguras?",
       description1: "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU.",
       title2: "Como analisamos os dados?",
@@ -84,8 +118,32 @@ export async function loader() {
         title: "Documentos relacionados",
         cards: [],
       },
-      statisticsBoxes: [],
-      viasData: { vias: [], totalSinistros: 0, totalVias: 0 },
+      statisticsBoxes: [
+        {
+          title: "Total de sinistros",
+          value: mockData.totalSinistros.toLocaleString(),
+          unit: `${mockData.periodoInicio} - ${mockData.periodoFim}`,
+        },
+        {
+          title: "Ano mais perigoso",
+          value: mockData.anoMaisPerigoso.ano,
+          unit: `${mockData.anoMaisPerigoso.total.toLocaleString()} sinistros`,
+        },
+        {
+          title: "Total de vias",
+          value: mockData.totalVias.toLocaleString(),
+          unit: "vias analisadas",
+        },
+        {
+          title: "Via com mais sinistros",
+          value: `${mockData.viaMaisPerigosa.total}`,
+          unit: mockData.viaMaisPerigosa.nome,
+        },
+      ],
+      summaryData: mockData,
+      topViasData: { dados: [], parametros: {} },
+      mapData: { vias: [] },
+      historyData: { evolucao: [] },
     });
   }
 }

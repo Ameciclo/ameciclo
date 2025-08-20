@@ -19,13 +19,16 @@ export default function ViasInsegurasPage() {
     description2,
     documents,
     statisticsBoxes,
-    viasData,
+    summaryData,
+    topViasData,
+    mapData,
+    historyData,
   } = useLoaderData<typeof loader>();
 
   return (
     <>
       <Banner
-        image="/public/pages_covers/vias-inseguras.png"
+        image="/pages_covers/vias-inseguras.png"
         alt="Capa da página do Observatório de Vias Inseguras"
       />
       <Breadcrumb
@@ -50,7 +53,12 @@ export default function ViasInsegurasPage() {
           },
         ]}
       />
-      <ViasInsegurasClientSide viasData={viasData} />
+      <ViasInsegurasClientSide 
+        summaryData={summaryData}
+        topViasData={topViasData}
+        mapData={mapData}
+        historyData={historyData}
+      />
       <CardsSession title={documents.title} cards={documents.cards} />
     </>
   );
