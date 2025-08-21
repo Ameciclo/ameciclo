@@ -78,7 +78,7 @@ export default function Dados() {
         },
         {
             title: "Observatório SAMU",
-            src: "/icons/home/warning.svg",
+            src: "/icons/home/sinistrosfatais.png",
             url: "/dados/observatorio/samu",
             description:
                 "Análise das chamadas do SAMU para sinistros de trânsito com mapa interativo e estatísticas.",
@@ -90,6 +90,30 @@ export default function Dados() {
             url: "/dados/observatorio/vias-inseguras",
             description:
                 "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+            target: "",
+        },
+        {
+            title: "Chamados de Sinistros",
+            src: "/icons/dados/mapa.svg",
+            url: "/dados/observatorio/vias-inseguras",
+            description:
+                "Detalhamento dos dados de chamados de sinistros pela CTTU e SAMU.",
+            target: "",
+        },
+        {
+            title: "Infrações de trânsito",
+            src: "/icons/dados/mapa.svg",
+            url: "/dados/observatorio/vias-inseguras",
+            description:
+                "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+            target: "",
+        },
+        {
+            title: "Pedidos de Informação",
+            src: "/icons/dados/mapa.svg",
+            url: "/dados/observatorio/vias-inseguras",
+            description:
+                "Acesso à todos os os Pedidos de Acesso à Informação à Prefeitura do Recife.",
             target: "",
         },
     ];

@@ -10,7 +10,7 @@ import { IntlNumber } from "~/services/utils";
 import ViaTemporalCharts from "~/components/ViasInseguras/ViaTemporalCharts";
 import ViaIndividualMap from "~/components/ViasInseguras/ViaIndividualMap";
 import Table from "~/components/Commom/Table/Table";
-import { VIAS_INSEGURAS_HISTORY, VIAS_INSEGURAS_BASE_URL, VIAS_INSEGURAS_SEARCH } from "~/servers";
+import { VIAS_INSEGURAS_HISTORY, VIAS_INSEGURAS_BASE_URL, VIAS_INSEGURAS_SEARCH, VIAS_INSEGURAS_LIST } from "~/servers";
 
 const VIAS_INSEGURAS_PAGE_DATA = "https://cms.ameciclo.org/vias-inseguras";
 
@@ -30,8 +30,24 @@ interface ViaHistoryData {
 }
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const fetchViaData = async (slug: string) => {
-    const viaName = unslugify(slug);
+  const fetchViaName = async (slug: string) => {
+    const url = `${VIAS_INSEGURAS_LIST}?slug=${slug}`;
+    
+    try {
+      const res = await fetch(url, { cache: "no-cache" });
+      if (!res.ok) {
+        console.error(`List API Error: ${res.status} ${res.statusText}`);
+        return null;
+      }
+      const data = await res.json();
+      return data?.via || null;
+    } catch (error) {
+      console.error("Error fetching via name:", error);
+      return null;
+    }
+  };
+
+  const fetchViaData = async (viaName: string) => {
     const url = `${VIAS_INSEGURAS_HISTORY}?via=${encodeURIComponent(viaName)}`;
     
     try {
@@ -47,8 +63,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     }
   };
 
-  const fetchViaMapData = async (slug: string) => {
-    const viaName = unslugify(slug);
+  const fetchViaMapData = async (viaName: string) => {
     const url = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?via=${encodeURIComponent(viaName)}&includeGeom=true`;
     
     try {
@@ -66,8 +81,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     }
   };
 
-  const fetchViaSinistrosData = async (slug: string) => {
-    const viaName = unslugify(slug);
+  const fetchViaSinistrosData = async (viaName: string) => {
     const url = `${VIAS_INSEGURAS_SEARCH}?street=${encodeURIComponent(viaName)}&limit=all&includeGeom=false`;
     
     try {
@@ -95,9 +109,17 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     }
   };
 
-  const dataPromise = fetchViaData(params.slug as string);
-  const mapDataPromise = fetchViaMapData(params.slug as string);
-  const sinistrosDataPromise = fetchViaSinistrosData(params.slug as string);
+  const viaNamePromise = fetchViaName(params.slug as string);
+  
+  const dataPromise = viaNamePromise.then(viaName => 
+    viaName ? fetchViaData(viaName) : null
+  );
+  const mapDataPromise = viaNamePromise.then(viaName => 
+    viaName ? fetchViaMapData(viaName) : null
+  );
+  const sinistrosDataPromise = viaNamePromise.then(viaName => 
+    viaName ? fetchViaSinistrosData(viaName) : null
+  );
   const pageDataPromise = fetchPageData();
 
   return defer({ dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise });
