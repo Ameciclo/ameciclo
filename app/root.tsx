@@ -11,6 +11,7 @@ import { Navbar } from "./components/Commom/Navbar";
 import { Footer } from "./components/Commom/Footer";
 import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
 import { ApiAlert } from "./components/Commom/ApiAlert";
+import { MainContent } from "./components/Commom/MainContent";
 import { ApiStatusProvider } from "./contexts/ApiStatusContext";
 import "./tailwind.css";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -61,9 +62,9 @@ const metaConfig = {
             <div className="flex flex-col min-h-screen">
               <Navbar />
               <ApiAlert />
-              <main>
+              <MainContent>
                 {error.status !== 404 ? <ErrorFallback error={error} /> : <PageNotFound />}
-              </main>
+              </MainContent>
               <Footer />
             </div>
           </ApiStatusProvider>
@@ -86,9 +87,9 @@ const metaConfig = {
             <div className="flex flex-col min-h-screen">
               <Navbar />
               <ApiAlert />
-              <main>
+              <MainContent>
                 <Outlet />
-              </main>
+              </MainContent>
               <Footer />
             </div>
           </ApiStatusProvider>
