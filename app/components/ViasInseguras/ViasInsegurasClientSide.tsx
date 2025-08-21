@@ -135,7 +135,7 @@ export default function ViasInsegurasClientSide({
     nome_via: via.nome,
     total_sinistros: via.sinistros,
     extensao_km: via.km,
-    densidade: via.km >= 0.5 ? via.sinistros_por_km : null,
+    densidade: via.km >= 1 ? via.sinistros_por_km : null,
     percentual: via.percentual,
   }));
 
@@ -170,12 +170,12 @@ export default function ViasInsegurasClientSide({
       Cell: ({ value }: any) => value ? `${value.toFixed(1)} km` : '-'
     },
     { 
-      Header: "Densidade (/km)", 
+      Header: "Densidade (vítimas/km)", 
       accessor: "densidade", 
       disableFilters: false,
       Filter: NumberRangeColumnFilter,
       filter: 'numberRange',
-      Cell: ({ value }: any) => value ? `${value.toFixed(1)}/km` : 'N/A'
+      Cell: ({ value }: any) => value ? `${value.toFixed(1)}` : 'N/A'
     },
     { 
       Header: "% do Total", 
@@ -271,17 +271,6 @@ export default function ViasInsegurasClientSide({
  */}
       {/* Tabela de ranking */}
       <section className="container mx-auto my-12">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Ranking das Vias Mais Inseguras
-          </h2>
-          <p className="text-gray-600 max-w-3xl mx-auto">
-            Lista das vias com maior número de sinistros, incluindo dados de
-            densidade por quilômetro para identificar os trechos que necessitam
-            intervenção prioritária.
-          </p>
-        </div>
-
         <Table
           title="Ranking das Vias Mais Inseguras"
           data={tableData}
