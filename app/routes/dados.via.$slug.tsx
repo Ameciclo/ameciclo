@@ -49,7 +49,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
   const fetchViaMapData = async (slug: string) => {
     const viaName = unslugify(slug);
-    const url = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?via=${encodeURIComponent(viaName)}`;
+    const url = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?via=${encodeURIComponent(viaName)}&includeGeom=true`;
     
     try {
       const res = await fetch(url, { cache: "no-cache" });
@@ -57,7 +57,9 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
         console.error(`Map API Error: ${res.status} ${res.statusText}`);
         return null;
       }
-      return await res.json();
+      const mapData = await res.json();
+      console.log('Map Data:', mapData);
+      return mapData;
     } catch (error) {
       console.error("Error fetching via map data:", error);
       return null;
@@ -372,6 +374,9 @@ export default function ViaInsegura() {
             {([data, mapData]) => {
               if (!data || !data.via) return null;
               
+              console.log('Via name:', data.via);
+              console.log('Map data in component:', mapData);
+              
               const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);
 
               return (
@@ -402,19 +407,7 @@ export default function ViaInsegura() {
                 <section className="mb-12">
                   <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                     Evolução Anual de Sinistros
-                  </h2>
-                  <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                      {data.evolucao.map((year) => (
-                        <div key={year.ano} className="text-center p-4 border rounded-lg">
-                          <div className="text-2xl font-bold text-blue-600">{year.ano}</div>
-                          <div className="text-lg font-semibold">{IntlNumber(year.sinistros)}</div>
-                          <div className="text-sm text-gray-600">sinistros</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
+                  </h2>               
                   {/* Gráficos Temporais Interativos */}
                   <ViaTemporalCharts data={data.evolucao} />
                 </section>
@@ -442,7 +435,19 @@ export default function ViaInsegura() {
                 "Não Informado": "Não Informado",
               };
               
+              // Filtrar apenas as categorias de desfecho permitidas
+              const allowedDesfechos = [
+                'Atendimento Concluído com Êxito',
+                'Removido por Particulares', 
+                'Removido pelos Bombeiros/CIODS',
+                'Óbito no Local/Atendimento'
+              ];
+              
               const tableData = sinistrosData.sinistros
+                .filter((sinistro: any) => {
+                  const desfecho = sinistro.motivo_desf_cat || '';
+                  return allowedDesfechos.includes(desfecho);
+                })
                 .map((sinistro: any) => {
                   const mappedCategoria = categoryLabels[sinistro.categoria as keyof typeof categoryLabels] || sinistro.categoria || '-';
                   return {

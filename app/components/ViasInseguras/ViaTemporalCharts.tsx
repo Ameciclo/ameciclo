@@ -16,7 +16,7 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
   const [selectedYears, setSelectedYears] = useState<string[]>(
     data.length > 0 ? [data[data.length - 1].ano] : []
   );
-  const [activeChart, setActiveChart] = useState<'meses' | 'dias_semana' | 'horarios'>('meses');
+  const [activeChart, setActiveChart] = useState<'evolucao_anual' | 'meses' | 'dias_semana' | 'horarios'>('evolucao_anual');
 
   const filteredData = data.filter(d => selectedYears.includes(d.ano));
 
@@ -41,29 +41,43 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
   };
 
   const getChartData = () => {
-    const aggregated = aggregateData(activeChart);
-    
     switch (activeChart) {
+      case 'evolucao_anual':
+        return data.map(yearData => ({
+          label: yearData.ano,
+          value: yearData.sinistros
+        }));
+        
       case 'meses':
-        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
-                      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        return meses.map((mes, i) => ({
-          label: mes,
-          value: aggregated[String(i + 1)] || 0
-        }));
-        
       case 'dias_semana':
-        const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        return dias.map((dia, i) => ({
-          label: dia,
-          value: aggregated[String(i)] || 0
-        }));
-        
       case 'horarios':
-        return Array.from({ length: 24 }, (_, i) => ({
-          label: `${i}h`,
-          value: aggregated[String(i)] || 0
-        }));
+        const aggregated = aggregateData(activeChart);
+        
+        if (activeChart === 'meses') {
+          const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                        'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+          return meses.map((mes, i) => ({
+            label: mes,
+            value: aggregated[String(i + 1)] || 0
+          }));
+        }
+        
+        if (activeChart === 'dias_semana') {
+          const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+          return dias.map((dia, i) => ({
+            label: dia,
+            value: aggregated[String(i)] || 0
+          }));
+        }
+        
+        if (activeChart === 'horarios') {
+          return Array.from({ length: 24 }, (_, i) => ({
+            label: `${i}h`,
+            value: aggregated[String(i)] || 0
+          }));
+        }
+        
+        return [];
         
       default:
         return [];
@@ -114,6 +128,7 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="flex flex-wrap gap-2 mb-6">
           {[
+            { key: 'evolucao_anual', label: 'Evolução Anual' },
             { key: 'meses', label: 'Por Mês' },
             { key: 'dias_semana', label: 'Por Dia da Semana' },
             { key: 'horarios', label: 'Por Horário' }
@@ -133,33 +148,32 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
         </div>
 
         {/* Gráfico de Barras Simples */}
-        {selectedYears.length > 0 && (
+        {(activeChart === 'evolucao_anual' || selectedYears.length > 0) && (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">
-              Distribuição de Sinistros - {
-                activeChart === 'meses' ? 'Por Mês' :
-                activeChart === 'dias_semana' ? 'Por Dia da Semana' :
-                'Por Horário'
+              {
+                activeChart === 'evolucao_anual' ? 'Evolução Anual de Sinistros' :
+                activeChart === 'meses' ? 'Distribuição de Sinistros - Por Mês' :
+                activeChart === 'dias_semana' ? 'Distribuição de Sinistros - Por Dia da Semana' :
+                'Distribuição de Sinistros - Por Horário'
               }
             </h4>
             
-            <div className="grid gap-2" style={{
-              gridTemplateColumns: `repeat(${chartData.length}, 1fr)`
-            }}>
+            <div className="flex items-end justify-center gap-2 h-64 p-4 bg-gray-50 rounded-lg">
               {chartData.map((item, index) => (
-                <div key={index} className="flex flex-col items-center">
+                <div key={index} className="flex flex-col items-center justify-end h-full">
+                  <div className="text-xs text-gray-600 mb-1 font-medium">
+                    {item.value}
+                  </div>
                   <div 
-                    className="bg-blue-500 rounded-t w-full min-h-[4px] transition-all duration-300 hover:bg-blue-600"
+                    className={`${activeChart === 'evolucao_anual' ? 'bg-ameciclo' : 'bg-blue-500'} rounded-t w-8 min-h-[4px] transition-all duration-300 hover:opacity-80 flex items-end`}
                     style={{
                       height: `${Math.max(4, (item.value / maxValue) * 200)}px`
                     }}
                     title={`${item.label}: ${item.value} sinistros`}
                   />
-                  <div className="text-xs text-center mt-2 font-medium">
+                  <div className="text-xs text-center mt-2 font-medium text-gray-700">
                     {item.label}
-                  </div>
-                  <div className="text-xs text-gray-600 text-center">
-                    {item.value}
                   </div>
                 </div>
               ))}
@@ -176,7 +190,7 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
       </div>
 
       {/* Resumo Estatístico */}
-      {selectedYears.length > 0 && (
+      {(activeChart === 'evolucao_anual' || selectedYears.length > 0) && (
         <div className="bg-gray-50 rounded-lg p-6">
           <h4 className="font-semibold text-gray-800 mb-3">Resumo do Período Selecionado</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -188,13 +202,19 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {filteredData.reduce((sum, year) => sum + year.sinistros, 0)}
+                {activeChart === 'evolucao_anual' 
+                  ? data.reduce((sum, year) => sum + year.sinistros, 0)
+                  : filteredData.reduce((sum, year) => sum + year.sinistros, 0)
+                }
               </div>
               <div className="text-gray-600">Total Sinistros</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {(filteredData.reduce((sum, year) => sum + year.sinistros, 0) / selectedYears.length).toFixed(0)}
+                {activeChart === 'evolucao_anual'
+                  ? (data.reduce((sum, year) => sum + year.sinistros, 0) / data.length).toFixed(0)
+                  : (filteredData.reduce((sum, year) => sum + year.sinistros, 0) / selectedYears.length).toFixed(0)
+                }
               </div>
               <div className="text-gray-600">Média/Ano</div>
             </div>
