@@ -51,9 +51,9 @@ export async function loader() {
         unit: `${parseInt(summaryData.anoMaisPerigoso?.total || "0").toLocaleString()} sinistros`,
       },
       {
-        title: "Total de vias",
+        title: "Vias identificadas",
         value: parseInt(summaryData.totalVias).toLocaleString(),
-        unit: "vias analisadas",
+        unit: `com ${summaryData.totalViasIdentificadas} sinistros`,
       },
       {
         title: "Via com mais sinistros",

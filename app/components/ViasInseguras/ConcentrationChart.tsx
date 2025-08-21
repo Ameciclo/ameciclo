@@ -7,6 +7,8 @@ interface ConcentrationChartProps {
   data: Array<{
     top: number;
     sinistros: number;
+    sinistros_acum: number;
+    km_acum: number;
     percentual: number;
     percentual_acum: number;
   }>;
@@ -46,8 +48,14 @@ export default function ConcentrationChart({ data }: ConcentrationChartProps) {
     name: `Top ${item.top}`,
     y: item.percentual_acum,
     sinistros: item.sinistros,
+    sinistros_acum: item.sinistros_acum,
+    km_acum: item.km_acum,
     individual: item.percentual
   }));
+
+  // Calcular valor máximo para eixo Y dinâmico
+  const maxValue = Math.max(...data.map(item => item.percentual_acum));
+  const yAxisMax = Math.ceil(maxValue / 5) * 5; // Arredonda para múltiplo de 5
 
   const options = {
     chart: {
@@ -72,7 +80,7 @@ export default function ConcentrationChart({ data }: ConcentrationChartProps) {
       title: {
         text: "Percentual Acumulativo (%)"
       },
-      max: 100,
+      max: yAxisMax,
       labels: {
         format: '{value}%'
       }
@@ -82,7 +90,9 @@ export default function ConcentrationChart({ data }: ConcentrationChartProps) {
         const point = this.point as any;
         return `<b>${point.category}</b><br/>
                 Percentual acumulativo: <b>${point.y.toFixed(2)}%</b><br/>
-                Sinistros: <b>${point.sinistros}</b><br/>
+                Sinistros acumulados: <b>${point.sinistros_acum.toLocaleString()}</b><br/>
+                Km acumulados: <b>${point.km_acum.toFixed(1)} km</b><br/>
+                Sinistros individuais: <b>${point.sinistros}</b><br/>
                 Percentual individual: <b>${point.individual.toFixed(2)}%</b>`;
       }
     },
