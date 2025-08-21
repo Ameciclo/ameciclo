@@ -47,3 +47,4 @@ export const VIAS_INSEGURAS_SUMMARY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/str
 export const VIAS_INSEGURAS_TOP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/top?limite=2111&intervalor=1`
 export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?limite=2111`
 export const VIAS_INSEGURAS_HISTORY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/history`
+export const VIAS_INSEGURAS_SEARCH = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/search`

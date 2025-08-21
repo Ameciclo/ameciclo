@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { Link } from "@remix-run/react";
 import Table from "../Commom/Table/Table";
+import { slugify } from "~/utils/slugify";
 
 interface ViaRanking {
   top: number;
+  nome?: string;
   sinistros: number;
   km: number;
   sinistros_por_km: number;
@@ -30,7 +33,8 @@ export default function ViasRankingTable({
   // Processar dados para a tabela
   const tableData = data.map((via) => ({
     ranking: via.top,
-    nome_via: `Via ${via.top}`, // Nome seria obtido de outra fonte
+    nome_via: via.nome || `Via ${via.top}`,
+    slug: via.nome ? slugify(via.nome) : `via-${via.top}`,
     total_sinistros: via.sinistros.toLocaleString(),
     extensao_km: via.km.toFixed(1),
     sinistros_por_km: via.sinistros_por_km.toFixed(1),
@@ -88,15 +92,15 @@ export default function ViasRankingTable({
       Header: "Nome da Via",
       accessor: "nome_via",
       Cell: ({ value, row }: any) => (
-        <button
-          onClick={() => onViaClick?.(row.original.ranking)}
-          className="text-left hover:text-ameciclo hover:underline transition-colors"
+        <Link
+          to={`/dados/via/${row.original.slug}`}
+          className="text-left hover:text-ameciclo hover:underline transition-colors block"
         >
           <div className="font-medium">{value}</div>
           <div className="text-sm text-gray-500">
             Clique para ver detalhes
           </div>
-        </button>
+        </Link>
       ),
     },
     {

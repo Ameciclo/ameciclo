@@ -3,21 +3,9 @@ import ViasInsegurasMap from "./ViasInsegurasMap";
 import ConcentrationChart from "./ConcentrationChart";
 import ConcentrationByKmChart from "./ConcentrationByKmChart";
 import ConcentrationInfoCards from "./ConcentrationInfoCards";
-import Table, { NumberRangeColumnFilter } from "../Commom/Table/Table";
+import ViasRankingTable from "./ViasRankingTable";
 
-// Filtro padrão para texto
-function DefaultColumnFilter({ column: { filterValue, setFilter, Header } }: any) {
-  return (
-    <input
-      value={filterValue || ''}
-      onChange={e => {
-        setFilter(e.target.value || undefined);
-      }}
-      placeholder={`Buscar ${typeof Header === 'string' ? Header : ''}`}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-    />
-  );
-}
+
 
 interface ViasInsegurasClientSideProps {
   summaryData: any;
@@ -76,7 +64,6 @@ export default function ViasInsegurasClientSide({
   mapData,
   historyData,
 }: ViasInsegurasClientSideProps) {
-  const [showFilters, setShowFilters] = useState(false);
 
   // Converter dados das vias para GeoJSON
   const layerData = {
@@ -129,63 +116,15 @@ export default function ViasInsegurasClientSide({
     },
   ];
 
-  // Preparar dados para a tabela usando mapData que tem todas as informações
-  const tableData = mapData.vias.map((via, index) => ({
-    ranking: via.top,
-    nome_via: via.nome,
-    total_sinistros: via.sinistros,
-    extensao_km: via.km,
-    densidade: via.km >= 1 ? via.sinistros_por_km : null,
-    percentual: via.percentual,
+  // Preparar dados para o componente ViasRankingTable
+  const rankingData = mapData.vias.map((via) => ({
+    top: via.top,
+    nome: via.nome,
+    sinistros: via.sinistros,
+    km: via.km,
+    sinistros_por_km: via.sinistros_por_km,
+    percentual_total: via.percentual,
   }));
-
-  const tableColumns = [
-    { 
-      Header: "Ranking", 
-      accessor: "ranking", 
-      disableFilters: false,
-      Filter: NumberRangeColumnFilter,
-      filter: 'numberRange'
-    },
-    { 
-      Header: "Nome da Via", 
-      accessor: "nome_via", 
-      disableFilters: false,
-      Filter: DefaultColumnFilter
-    },
-    {
-      Header: "Total de Sinistros",
-      accessor: "total_sinistros",
-      disableFilters: false,
-      Filter: NumberRangeColumnFilter,
-      filter: 'numberRange',
-      Cell: ({ value }: any) => value?.toLocaleString() || '0'
-    },
-    { 
-      Header: "Extensão (km)", 
-      accessor: "extensao_km", 
-      disableFilters: false,
-      Filter: NumberRangeColumnFilter,
-      filter: 'numberRange',
-      Cell: ({ value }: any) => value ? `${value.toFixed(1)} km` : '-'
-    },
-    { 
-      Header: "Densidade (vítimas/km)", 
-      accessor: "densidade", 
-      disableFilters: false,
-      Filter: NumberRangeColumnFilter,
-      filter: 'numberRange',
-      Cell: ({ value }: any) => value ? `${value.toFixed(1)}` : 'N/A'
-    },
-    { 
-      Header: "% do Total", 
-      accessor: "percentual", 
-      disableFilters: false,
-      Filter: NumberRangeColumnFilter,
-      filter: 'numberRange',
-      Cell: ({ value }: any) => value ? `${value.toFixed(2)}%` : '0%'
-    },
-  ];
 
   return (
     <>
@@ -271,12 +210,10 @@ export default function ViasInsegurasClientSide({
  */}
       {/* Tabela de ranking */}
       <section className="container mx-auto my-12">
-        <Table
-          title="Ranking das Vias Mais Inseguras"
-          data={tableData}
-          columns={tableColumns}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
+        <ViasRankingTable
+          data={rankingData}
+          totalSinistros={topViasData.parametros.total_sinistros}
+          periodo={topViasData.parametros.periodo}
         />
       </section>
     </>
