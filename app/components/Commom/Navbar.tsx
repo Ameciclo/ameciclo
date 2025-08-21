@@ -28,13 +28,18 @@ export const Navbar = ({ pages }: any) => {
   if (!pages) pages = pagesDefault;
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hideRedNavbar, setHideRedNavbar] = useState(false);
   const location = useLocation();
   const isDataPage = location.pathname.startsWith('/dados');
 
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 1;
+      const coverImageHeight = 400;
+      const hideRed = window.scrollY > coverImageHeight;
+      
       setIsHeaderScrolled(scrolled);
+      setHideRedNavbar(hideRed);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -82,7 +87,10 @@ export const Navbar = ({ pages }: any) => {
       {isDataPage && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ 
+            opacity: hideRedNavbar ? 0 : 1, 
+            y: hideRedNavbar ? -42 : 0 
+          }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
           className="fixed top-14 left-0 right-0 bg-red-600 z-[79] shadow-sm"
