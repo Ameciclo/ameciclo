@@ -3,13 +3,28 @@ import ViasInsegurasMap from "./ViasInsegurasMap";
 import ConcentrationChart from "./ConcentrationChart";
 import ConcentrationByKmChart from "./ConcentrationByKmChart";
 import ConcentrationInfoCards from "./ConcentrationInfoCards";
-import Table from "../Commom/Table/Table";
+import Table, { NumberRangeColumnFilter } from "../Commom/Table/Table";
+
+// Filtro padrão para texto
+function DefaultColumnFilter({ column: { filterValue, setFilter, Header } }: any) {
+  return (
+    <input
+      value={filterValue || ''}
+      onChange={e => {
+        setFilter(e.target.value || undefined);
+      }}
+      placeholder={`Buscar ${typeof Header === 'string' ? Header : ''}`}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+    />
+  );
+}
 
 interface ViasInsegurasClientSideProps {
   summaryData: any;
   topViasData: {
     dados: Array<{
       top: number;
+      nome?: string;
       sinistros: number;
       sinistros_acum: number;
       km: number;
@@ -30,7 +45,11 @@ interface ViasInsegurasClientSideProps {
     vias: Array<{
       id: number;
       nome: string;
+      top: number;
       sinistros: number;
+      km: number;
+      sinistros_por_km: number;
+      percentual: number;
       geometria: {
         type: string;
         coordinates: number[][];
@@ -110,27 +129,62 @@ export default function ViasInsegurasClientSide({
     },
   ];
 
-  // Preparar dados para a tabela
-  const tableData = topViasData.dados.map((via, index) => ({
+  // Preparar dados para a tabela usando mapData que tem todas as informações
+  const tableData = mapData.vias.map((via, index) => ({
     ranking: via.top,
-    nome_via: `Via ${via.top}`,
-    total_sinistros: via.sinistros.toLocaleString(),
-    extensao_km: `${via.km.toFixed(1)} km`,
-    densidade: `${via.sinistros_por_km.toFixed(1)}/km`,
-    percentual: `${via.percentual.toFixed(2)}%`,
+    nome_via: via.nome,
+    total_sinistros: via.sinistros,
+    extensao_km: via.km,
+    densidade: via.km >= 0.5 ? via.sinistros_por_km : null,
+    percentual: via.percentual,
   }));
 
   const tableColumns = [
-    { Header: "Ranking", accessor: "ranking", disableFilters: true },
-    { Header: "Nome da Via", accessor: "nome_via", disableFilters: true },
+    { 
+      Header: "Ranking", 
+      accessor: "ranking", 
+      disableFilters: false,
+      Filter: NumberRangeColumnFilter,
+      filter: 'numberRange'
+    },
+    { 
+      Header: "Nome da Via", 
+      accessor: "nome_via", 
+      disableFilters: false,
+      Filter: DefaultColumnFilter
+    },
     {
       Header: "Total de Sinistros",
       accessor: "total_sinistros",
-      disableFilters: true,
+      disableFilters: false,
+      Filter: NumberRangeColumnFilter,
+      filter: 'numberRange',
+      Cell: ({ value }: any) => value?.toLocaleString() || '0'
     },
-    { Header: "Extensão", accessor: "extensao_km", disableFilters: true },
-    { Header: "Densidade", accessor: "densidade", disableFilters: true },
-    { Header: "% do Total", accessor: "percentual", disableFilters: true },
+    { 
+      Header: "Extensão (km)", 
+      accessor: "extensao_km", 
+      disableFilters: false,
+      Filter: NumberRangeColumnFilter,
+      filter: 'numberRange',
+      Cell: ({ value }: any) => value ? `${value.toFixed(1)} km` : '-'
+    },
+    { 
+      Header: "Densidade (/km)", 
+      accessor: "densidade", 
+      disableFilters: false,
+      Filter: NumberRangeColumnFilter,
+      filter: 'numberRange',
+      Cell: ({ value }: any) => value ? `${value.toFixed(1)}/km` : 'N/A'
+    },
+    { 
+      Header: "% do Total", 
+      accessor: "percentual", 
+      disableFilters: false,
+      Filter: NumberRangeColumnFilter,
+      filter: 'numberRange',
+      Cell: ({ value }: any) => value ? `${value.toFixed(2)}%` : '0%'
+    },
   ];
 
   return (

@@ -7,7 +7,6 @@ interface ConcentrationByKmChartProps {
   data: Array<{
     top: number;
     sinistros: number;
-    sinistros_acum: number;
     km_acum: number;
     percentual_acum: number;
   }>;
@@ -46,7 +45,6 @@ export default function ConcentrationByKmChart({ data }: ConcentrationByKmChartP
     x: item.km_acum,
     y: item.percentual_acum,
     sinistros: item.sinistros,
-    sinistros_acum: item.sinistros_acum,
     ranking: item.top
   }));
 
@@ -88,8 +86,7 @@ export default function ConcentrationByKmChart({ data }: ConcentrationByKmChartP
         return `<b>Top ${point.ranking}</b><br/>
                 Extensão acumulativa: <b>${point.x.toFixed(1)} km</b><br/>
                 Percentual acumulativo: <b>${point.y.toFixed(2)}%</b><br/>
-                Sinistros acumulados: <b>${point.sinistros_acum.toLocaleString()}</b><br/>
-                Sinistros individuais: <b>${point.sinistros}</b>`;
+                Sinistros: <b>${point.sinistros}</b>`;
       }
     },
     series: [{
@@ -132,7 +129,7 @@ export default function ConcentrationByKmChart({ data }: ConcentrationByKmChartP
         <p>
           <strong>Interpretação:</strong> Este gráfico mostra a eficiência da concentração 
           de sinistros. Em apenas {data[Math.min(9, data.length - 1)]?.km_acum.toFixed(1)} km 
-          das vias mais perigosas ({((data[Math.min(9, data.length - 1)]?.km_acum / 2500) * 100).toFixed(1)}% da extensão total), 
+          das vias mais perigosas ({((data[Math.min(9, data.length - 1)]?.km_acum / data[data.length - 1]?.km_acum) * 100).toFixed(1)}% da extensão total), 
           concentram-se {data[Math.min(9, data.length - 1)]?.percentual_acum.toFixed(1)}% dos sinistros.
         </p>
       </div>
