@@ -4,6 +4,7 @@ export { default as ViasInsegurasClientSide } from './ViasInsegurasClientSide';
 // Componentes de visualização
 export { default as ConcentrationChart } from './ConcentrationChart';
 export { default as ConcentrationByKmChart } from './ConcentrationByKmChart';
+export { default as ConcentrationInfoCards } from './ConcentrationInfoCards';
 export { default as ViasInsegurasMap } from './ViasInsegurasMap';
 export { default as TemporalAnalysis } from './TemporalAnalysis';
 

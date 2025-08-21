@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AmecicloMap } from "../Commom/Maps/AmecicloMap";
 import ConcentrationChart from "./ConcentrationChart";
 import ConcentrationByKmChart from "./ConcentrationByKmChart";
+import ConcentrationInfoCards from "./ConcentrationInfoCards";
 import Table from "../Commom/Table/Table";
 
 interface ViasInsegurasClientSideProps {
@@ -152,6 +153,9 @@ export default function ViasInsegurasClientSide({
           <ConcentrationByKmChart data={topViasData.dados} />
         </div>
       </section>
+
+      {/* InfoCards de concentração */}
+      <ConcentrationInfoCards data={topViasData.dados} />
 
       {/* Mapa das vias inseguras */}
       <section className="container mx-auto my-12">
