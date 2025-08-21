@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AmecicloMap } from "../Commom/Maps/AmecicloMap";
+import ViasInsegurasMap from "./ViasInsegurasMap";
 import ConcentrationChart from "./ConcentrationChart";
 import ConcentrationByKmChart from "./ConcentrationByKmChart";
 import ConcentrationInfoCards from "./ConcentrationInfoCards";
@@ -169,31 +169,8 @@ export default function ViasInsegurasClientSide({
           </p>
         </div>
 
-        {/* Legenda do mapa */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6 max-w-2xl mx-auto">
-          <h4 className="font-semibold mb-3 text-center">Legenda</h4>
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-1 bg-yellow-200 rounded"></div>
-              <span>0-50 sinistros</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-1 bg-yellow-500 rounded"></div>
-              <span>50-150 sinistros</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-1 bg-red-600 rounded"></div>
-              <span>150-300 sinistros</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-1 bg-red-900 rounded"></div>
-              <span>300+ sinistros</span>
-            </div>
-          </div>
-        </div>
-
         {mapData.vias.length > 0 ? (
-          <AmecicloMap layerData={layerData} layersConf={layersConf} />
+          <ViasInsegurasMap layerData={layerData} layersConf={layersConf} />
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="text-gray-400 mb-4">
