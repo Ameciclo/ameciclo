@@ -87,9 +87,9 @@ export default function ViasInsegurasClientSide({
           "#FEF3C7",
           50,
           "#F59E0B",
-          100,
+          150,
           "#DC2626",
-          200,
+          300,
           "#7F1D1D",
         ],
         "line-width": [
@@ -100,9 +100,9 @@ export default function ViasInsegurasClientSide({
           2,
           50,
           4,
-          100,
+          150,
           6,
-          200,
+          300,
           8,
         ],
         "line-opacity": 0.8,
@@ -165,8 +165,7 @@ export default function ViasInsegurasClientSide({
           </h2>
           <p className="text-gray-600 max-w-3xl mx-auto">
             Visualização geoespacial das vias com maior concentração de
-            sinistros. A cor e espessura das linhas indicam a intensidade dos
-            acidentes.
+            sinistros com vítima.
           </p>
         </div>
 
@@ -180,15 +179,15 @@ export default function ViasInsegurasClientSide({
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-1 bg-yellow-500 rounded"></div>
-              <span>50-100 sinistros</span>
+              <span>50-150 sinistros</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-1 bg-red-600 rounded"></div>
-              <span>100-200 sinistros</span>
+              <span>150-300 sinistros</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-1 bg-red-900 rounded"></div>
-              <span>200+ sinistros</span>
+              <span>300+ sinistros</span>
             </div>
           </div>
         </div>
