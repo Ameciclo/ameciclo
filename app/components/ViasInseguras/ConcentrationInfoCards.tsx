@@ -4,9 +4,12 @@ interface ConcentrationInfoCardsProps {
     km_acum: number;
     percentual_acum: number;
   }>;
+  summaryData: {
+    extensaoTotalKm?: number;
+  };
 }
 
-export default function ConcentrationInfoCards({ data }: ConcentrationInfoCardsProps) {
+export default function ConcentrationInfoCards({ data, summaryData }: ConcentrationInfoCardsProps) {
   if (!data || data.length === 0) {
     return null;
   }
@@ -30,9 +33,9 @@ export default function ConcentrationInfoCards({ data }: ConcentrationInfoCardsP
   ];
 
   const kmCards = [
-    { title: "Primeiros 125 km", value: getConcentrationByKm(125), subtitle: "dos sinistros com vítima" },
-    { title: "Primeiros 250 km", value: getConcentrationByKm(250), subtitle: "dos sinistros com vítima" },
-    { title: "Primeiros 500 km", value: getConcentrationByKm(500), subtitle: "dos sinistros com vítima" }
+    { title: "Primeiros 150 km", value: getConcentrationByKm(150), subtitle: "dos sinistros com vítima" },
+    { title: "Primeiros 300 km", value: getConcentrationByKm(300), subtitle: "dos sinistros com vítima" },
+    { title: "Primeiros 450 km", value: getConcentrationByKm(450), subtitle: "dos sinistros com vítima" }
   ];
 
   return (
@@ -66,9 +69,12 @@ export default function ConcentrationInfoCards({ data }: ConcentrationInfoCardsP
 
       {/* Cards por Quilometragem */}
       <div>
-        <h3 className="text-xl font-semibold text-gray-700 mb-4 text-center">
+        <h3 className="text-xl font-semibold text-gray-700 mb-2 text-center">
           Concentração por Extensão de Vias
         </h3>
+        <p className="text-sm text-gray-500 mb-4 text-center">
+          O Recife possui cerca de {summaryData.extensaoTotalKm ? Math.round(summaryData.extensaoTotalKm).toLocaleString() : '3.000'} km de vias mapeadas
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {kmCards.map((card, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg p-6 text-center border-l-4 border-red-500">

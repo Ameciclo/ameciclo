@@ -155,7 +155,7 @@ export default function ViasInsegurasClientSide({
       </section>
 
       {/* InfoCards de concentração */}
-      <ConcentrationInfoCards data={topViasData.dados} />
+      <ConcentrationInfoCards data={topViasData.dados} summaryData={summaryData} />
 
       {/* Mapa das vias inseguras */}
       <section className="container mx-auto my-12">
