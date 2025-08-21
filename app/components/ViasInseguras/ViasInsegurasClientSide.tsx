@@ -9,14 +9,19 @@ interface ViasInsegurasClientSideProps {
     dados: Array<{
       top: number;
       sinistros: number;
+      sinistros_acum: number;
       km: number;
+      km_acum: number;
       sinistros_por_km: number;
-      percentual_total: number;
+      sinistros_por_km_acum: number;
+      percentual: number;
+      percentual_acum: number;
     }>;
     parametros: {
       intervalo: number;
       periodo: string;
       total_sinistros: number;
+      limite: number;
     };
   };
   mapData: {
@@ -110,7 +115,7 @@ export default function ViasInsegurasClientSide({
     total_sinistros: via.sinistros.toLocaleString(),
     extensao_km: `${via.km.toFixed(1)} km`,
     densidade: `${via.sinistros_por_km.toFixed(1)}/km`,
-    percentual: `${via.percentual_total.toFixed(2)}%`,
+    percentual: `${via.percentual.toFixed(2)}%`,
   }));
 
   const tableColumns = [

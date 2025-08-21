@@ -7,7 +7,8 @@ interface ConcentrationChartProps {
   data: Array<{
     top: number;
     sinistros: number;
-    percentual_total: number;
+    percentual: number;
+    percentual_acum: number;
   }>;
 }
 
@@ -40,17 +41,13 @@ export default function ConcentrationChart({ data }: ConcentrationChartProps) {
     );
   }
 
-  // Calcular percentuais acumulativos
-  let cumulativePercentage = 0;
-  const chartData = data.map((item, index) => {
-    cumulativePercentage += item.percentual_total;
-    return {
-      name: `Top ${item.top}`,
-      y: cumulativePercentage,
-      sinistros: item.sinistros,
-      individual: item.percentual_total
-    };
-  });
+  // Usar dados acumulativos já calculados pela API
+  const chartData = data.map((item) => ({
+    name: `Top ${item.top}`,
+    y: item.percentual_acum,
+    sinistros: item.sinistros,
+    individual: item.percentual
+  }));
 
   const options = {
     chart: {
@@ -129,7 +126,7 @@ export default function ConcentrationChart({ data }: ConcentrationChartProps) {
         <p>
           <strong>Interpretação:</strong> Este gráfico mostra como os sinistros se concentram 
           em poucas vias. As primeiras {Math.min(10, data.length)} vias mais perigosas 
-          concentram {chartData[Math.min(9, data.length - 1)]?.y.toFixed(1)}% de todos os sinistros.
+          concentram {data[Math.min(9, data.length - 1)]?.percentual_acum.toFixed(1)}% de todos os sinistros.
         </p>
       </div>
     </div>

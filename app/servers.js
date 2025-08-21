@@ -44,6 +44,6 @@ export const SAMU_CITIES_DATA = `http://localhost:8080/samu-calls/cities`
 // Endpoints para Vias Inseguras
 export const VIAS_INSEGURAS_BASE_URL = `http://localhost:8080`
 export const VIAS_INSEGURAS_SUMMARY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/summary`
-export const VIAS_INSEGURAS_TOP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/top`
+export const VIAS_INSEGURAS_TOP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/top?limite=100`
 export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?limit=200`
 export const VIAS_INSEGURAS_HISTORY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/history`
