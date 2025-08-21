@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AmecicloMap } from "../Commom/Maps/AmecicloMap";
 import ConcentrationChart from "./ConcentrationChart";
+import ConcentrationByKmChart from "./ConcentrationByKmChart";
 import Table from "../Commom/Table/Table";
 
 interface ViasInsegurasClientSideProps {
@@ -134,19 +135,22 @@ export default function ViasInsegurasClientSide({
   return (
     <>
 
-      {/* Gráfico de concentração */}
+      {/* Gráficos de concentração */}
       <section className="container mx-auto my-12">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Concentração de Sinistros por Via
+            Análise de Concentração de Sinistros
           </h2>
-          <p className="text-gray-600 max-w-3xl mx-auto">
-            Este gráfico mostra como os sinistros se concentram em poucas vias
-            da cidade, evidenciando a necessidade de intervenções focalizadas
-            nos pontos críticos.
+          <p className="text-gray-600 max-w-4xl mx-auto">
+            Estes gráficos mostram como os sinistros se concentram tanto por ranking das vias
+            quanto por extensão, evidenciando a eficiência das intervenções focalizadas.
           </p>
         </div>
-        <ConcentrationChart data={topViasData.dados} />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ConcentrationChart data={topViasData.dados} />
+          <ConcentrationByKmChart data={topViasData.dados} />
+        </div>
       </section>
 
       {/* Mapa das vias inseguras */}
