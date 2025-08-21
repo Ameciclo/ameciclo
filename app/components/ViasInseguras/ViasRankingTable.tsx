@@ -122,23 +122,29 @@ export default function ViasRankingTable({
       disableFilters: true,
       Cell: ({ value }: any) => (
         <div className="text-right">
-          <span className="font-mono">{value} km</span>
+          <span className="font-mono">{value}</span>
         </div>
       ),
     },
     {
-      Header: "Densidade",
+      Header: "Vítimas/km",
       accessor: "sinistros_por_km",
       disableFilters: true,
       Cell: ({ value, row }: any) => (
         <div className="text-right">
-          <div className="font-semibold">{value}/km</div>
-          <span className={`
-            inline-block px-2 py-1 rounded-full text-xs font-medium
-            ${getDensityColor(row.original.densidade_categoria)}
-          `}>
-            {row.original.densidade_categoria}
-          </span>
+          {row.original._km >= 1 ? (
+            <>
+              <div className="font-semibold">{value}</div>
+              <span className={`
+                inline-block px-2 py-1 rounded-full text-xs font-medium
+                ${getDensityColor(row.original.densidade_categoria)}
+              `}>
+                {row.original.densidade_categoria}
+              </span>
+            </>
+          ) : (
+            <div className="text-gray-400 text-sm">-</div>
+          )}
         </div>
       ),
     },
