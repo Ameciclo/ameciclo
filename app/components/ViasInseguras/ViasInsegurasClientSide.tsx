@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { AmecicloMap } from "../Commom/Maps/AmecicloMap";
-import { InfoCards } from "../Contagens/InfoCards";
 import ConcentrationChart from "./ConcentrationChart";
-import TemporalAnalysis from "./TemporalAnalysis";
 import Table from "../Commom/Table/Table";
 
 interface ViasInsegurasClientSideProps {
@@ -53,25 +51,6 @@ export default function ViasInsegurasClientSide({
   historyData,
 }: ViasInsegurasClientSideProps) {
   const [showFilters, setShowFilters] = useState(false);
-
-  // Preparar dados para InfoCards
-  const infoCards = [
-    {
-      label: "Total de Sinistros",
-      data: parseInt(summaryData.totalSinistros || "0").toLocaleString(),
-      icon: "crash",
-    },
-    {
-      label: "Vias Analisadas",
-      data: parseInt(summaryData.totalVias || "0").toLocaleString(),
-      icon: "road",
-    },
-    {
-      label: "Ano Mais Perigoso",
-      data: summaryData.anoMaisPerigoso?.ano || "N/A",
-      icon: "calendar",
-    },
-  ];
 
   // Converter dados das vias para GeoJSON
   const layerData = {
@@ -149,8 +128,6 @@ export default function ViasInsegurasClientSide({
 
   return (
     <>
-      {/* Cards informativos */}
-      <InfoCards cards={infoCards} />
 
       {/* Gráfico de concentração */}
       <section className="container mx-auto my-12">
@@ -264,66 +241,12 @@ export default function ViasInsegurasClientSide({
 
         <Table
           title="Ranking das Vias Mais Inseguras"
-          subtitle={`Período: ${
-            topViasData.parametros.periodo ||
-            `${summaryData.periodoInicio} - ${summaryData.periodoFim}`
-          }`}
           data={tableData}
           columns={tableColumns}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
         />
       </section>
-
-      {/* Estatísticas resumidas */}
-      {topViasData.dados.length > 0 && (
-        <section className="container mx-auto my-12">
-          <div className="bg-blue-50 rounded-lg p-8">
-            <h3 className="text-2xl font-bold text-blue-900 mb-6 text-center">
-              Principais Insights
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
-              <div className="bg-white rounded-lg p-6 shadow">
-                <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {topViasData.dados
-                    .slice(0, 10)
-                    .reduce((sum, via) => sum + via.percentual_total, 0)
-                    .toFixed(1)}
-                  %
-                </div>
-                <div className="text-sm text-gray-600">
-                  dos sinistros concentrados nas top 10 vias
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-6 shadow">
-                <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {topViasData.dados[0]?.sinistros_por_km.toFixed(1) || "0"}
-                </div>
-                <div className="text-sm text-gray-600">
-                  sinistros/km na via mais perigosa
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-6 shadow">
-                <div className="text-3xl font-bold text-ameciclo mb-2">
-                  {topViasData.dados
-                    .reduce((sum, via) => sum + via.km, 0)
-                    .toFixed(1)}
-                </div>
-                <div className="text-sm text-gray-600">
-                  km de vias analisadas
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 text-center">
-              <p className="text-blue-800 text-sm">
-                <strong>Recomendação:</strong> Priorizar intervenções nas vias
-                com maior densidade de sinistros para maximizar o impacto das
-                políticas de segurança viária.
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
     </>
   );
 }

@@ -26,12 +26,10 @@ export async function loader() {
       const totalChamadas = summaryData.totalDesfechosValidos || 0;
 
       // Usar dados do summary para período e ano mais violento
-      const anoInicio = summaryData.periodoInicio || 2018;
-      const anoFim = summaryData.periodoFim || 2024;
-      const anoMaisViolento = {
-        ano: summaryData.anoMaisViolento || "2024",
-        total: summaryData.totalAnoMaisViolento || 0
-      };
+      const anoInicio = summaryData.periodo.inicio;
+      const anoFim = summaryData.periodo.fim;
+      const anoMaisViolento = summaryData.evolucaoAnual
+        ?.reduce((max: any, current: any) => current.count > max.count ? current : max, { ano: 0, count: 0 }) || { ano: "N/A", count: 0 };
 
       // Contar cidades avaliadas
       const cidadesAvaliadas = citiesData?.total || 0;
@@ -50,7 +48,7 @@ export async function loader() {
         {
           title: "Ano mais violento",
           value: anoMaisViolento.ano,
-          unit: `${anoMaisViolento.total.toLocaleString()} chamadas`,
+          unit: `${anoMaisViolento.count.toLocaleString()} chamadas`,
         },
         {
           title: "Área de cobertura (PE)",

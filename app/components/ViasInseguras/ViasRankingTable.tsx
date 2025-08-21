@@ -147,7 +147,6 @@ export default function ViasRankingTable({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
           <div>
             <h3 className="text-xl font-semibold mb-2">Ranking das Vias Mais Inseguras</h3>
-            <p className="text-gray-600">Período: {periodo}</p>
           </div>
           
           <div className="mt-4 md:mt-0">
