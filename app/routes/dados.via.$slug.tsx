@@ -429,22 +429,35 @@ export default function ViaInsegura() {
             {(sinistrosData) => {
               if (!sinistrosData?.sinistros?.length) return null;
               
-              const tableData = sinistrosData.sinistros.map((sinistro: any) => ({
-                data: new Date(sinistro.data).toLocaleDateString('pt-BR'),
-                hora: sinistro.hora_minuto?.substring(0, 5) || '-',
-                endereco: sinistro.endereco || '-',
-                bairro: sinistro.nomeBairro || '-',
-                categoria: sinistro.categoria || '-',
-                sexo: sinistro.sexo || '-',
-                idade: sinistro.idade || '-',
-                desfecho: sinistro.motivo_desf_cat || '-',
-              }));
+              const categoryLabels = {
+                "Acidente de Moto": "Sinistro de Moto",
+                "Acidente de Carro": "Sinistro de Carro",
+                "Atropelamento por Carro": "Atropelamento por Carro",
+                "Atropelamento por Moto": "Atropelamento por Moto",
+                "Acidente de Bicicleta": "Sinistro de Bicicleta",
+                "Acidente de Ônibus/Caminhão": "Sinistro Ônibus/Caminhão",
+                "Atropelamento por Ônibus/Caminhão": "Atropelamento Ônibus/Caminhão",
+                "Atropelamento de Bicicleta": "Sinistro de Bicicleta",
+                "Outro": "Outro",
+                "Não Informado": "Não Informado",
+              };
+              
+              const tableData = sinistrosData.sinistros
+                .map((sinistro: any) => {
+                  const mappedCategoria = categoryLabels[sinistro.categoria as keyof typeof categoryLabels] || sinistro.categoria || '-';
+                  return {
+                    data_hora: `${new Date(sinistro.data).toLocaleDateString('pt-BR')} ${sinistro.hora_minuto?.substring(0, 5) || ''}`.trim(),
+                    categoria: mappedCategoria,
+                    sexo: sinistro.sexo || '-',
+                    idade: sinistro.idade || '-',
+                    desfecho: sinistro.motivo_desf_cat || '-',
+                    _sortDate: new Date(sinistro.data + ' ' + (sinistro.hora_minuto || '00:00')),
+                  };
+                })
+                .sort((a, b) => b._sortDate.getTime() - a._sortDate.getTime());
 
               const columns = [
-                { Header: "Data", accessor: "data", disableFilters: false },
-                { Header: "Hora", accessor: "hora", disableFilters: false },
-                { Header: "Endereço", accessor: "endereco", disableFilters: false },
-                { Header: "Bairro", accessor: "bairro", disableFilters: false },
+                { Header: "Data e Hora", accessor: "data_hora", disableFilters: false },
                 { Header: "Categoria", accessor: "categoria", disableFilters: false },
                 { Header: "Sexo", accessor: "sexo", disableFilters: false },
                 { Header: "Idade", accessor: "idade", disableFilters: false },
@@ -458,7 +471,7 @@ export default function ViaInsegura() {
                   </h2>
                   <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                     <Table
-                      title={`${sinistrosData.total} sinistros registrados`}
+                      title={`${tableData.length} sinistros registrados`}
                       data={tableData}
                       columns={columns}
                       showFilters={true}
