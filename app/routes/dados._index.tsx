@@ -77,17 +77,9 @@ export default function Dados() {
             target: "",
         },
         {
-            title: "Observatório SAMU",
-            src: "/icons/home/sinistrosfatais.png",
-            url: "/dados/observatorio/samu",
-            description:
-                "Análise das chamadas do SAMU para sinistros de trânsito com mapa interativo e estatísticas.",
-            target: "",
-        },
-        {
             title: "Vias Inseguras",
             src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/vias-inseguras",
+            url: "/dados/vias-inseguras",
             description:
                 "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
             target: "",
@@ -95,27 +87,27 @@ export default function Dados() {
         {
             title: "Chamados de Sinistros",
             src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/vias-inseguras",
+            url: "/dados/samu",
             description:
-                "Detalhamento dos dados de chamados de sinistros pela CTTU e SAMU.",
+                "Detalhamento dos dados de chamados de sinistros pela SAMU.",
             target: "",
-        },
-        {
-            title: "Infrações de trânsito",
-            src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/vias-inseguras",
-            description:
-                "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
-            target: "",
-        },
-        {
-            title: "Pedidos de Informação",
-            src: "/icons/dados/mapa.svg",
-            url: "/dados/observatorio/vias-inseguras",
-            description:
-                "Acesso à todos os os Pedidos de Acesso à Informação à Prefeitura do Recife.",
-            target: "",
-        },
+         },
+        // {
+        //     title: "Infrações de trânsito",
+        //     src: "/icons/dados/mapa.svg",
+        //     url: "/dados/observatorio/vias-inseguras",
+        //     description:
+        //         "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+        //     target: "",
+        // },
+        // {
+        //     title: "Pedidos de Informação",
+        //     src: "/icons/dados/mapa.svg",
+        //     url: "/dados/observatorio/vias-inseguras",
+        //     description:
+        //         "Acesso à todos os os Pedidos de Acesso à Informação à Prefeitura do Recife.",
+        //     target: "",
+        // },
     ];
     return (
         <>

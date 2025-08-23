@@ -37,13 +37,15 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       const res = await fetch(url, { cache: "no-cache" });
       if (!res.ok) {
         console.error(`List API Error: ${res.status} ${res.statusText}`);
-        return null;
+        // Fallback to unslugify if endpoint fails
+        return unslugify(slug);
       }
       const data = await res.json();
-      return data?.via || null;
+      return data?.via || unslugify(slug);
     } catch (error) {
       console.error("Error fetching via name:", error);
-      return null;
+      // Fallback to unslugify if endpoint fails
+      return unslugify(slug);
     }
   };
 
