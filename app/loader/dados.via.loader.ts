@@ -25,7 +25,15 @@ export const fetchViaData = async (viaName: string) => {
   const url = `${VIAS_INSEGURAS_HISTORY}?via=${encodeURIComponent(viaName)}`;
   
   try {
-    const res = await fetch(url, { cache: "no-cache" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    
+    const res = await fetch(url, { 
+      cache: "no-cache",
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    
     if (!res.ok) {
       console.error(`API Error: ${res.status} ${res.statusText}`);
       return null;
@@ -54,10 +62,18 @@ export const fetchViaMapData = async (viaName: string) => {
 };
 
 export const fetchViaSinistrosData = async (viaName: string) => {
-  const url = `${VIAS_INSEGURAS_SEARCH}?street=${encodeURIComponent(viaName)}&limit=all&includeGeom=false`;
+  const url = `${VIAS_INSEGURAS_SEARCH}?street=${encodeURIComponent(viaName)}&limit=100&includeGeom=false`; // Limitando para 100 registros
   
   try {
-    const res = await fetch(url, { cache: "no-cache" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout para esta API mais lenta
+    
+    const res = await fetch(url, { 
+      cache: "no-cache",
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    
     if (!res.ok) {
       console.error(`Sinistros API Error: ${res.status} ${res.statusText}`);
       return null;
