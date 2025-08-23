@@ -184,6 +184,12 @@ export default function ViaIndividualMap({ viaName, totalSinistros, mapData }: V
             },
         ],
     };
+    
+    console.log('🗺️ ViaIndividualMap received data:', {
+        hasMapData: !!mapData,
+        hasFeatures: mapData?.features?.length > 0,
+        usingFallback: !mapData
+    });
 
     const [viewport, setViewport] = useState({
         latitude: -8.0584364,
@@ -204,8 +210,15 @@ export default function ViaIndividualMap({ viaName, totalSinistros, mapData }: V
 
     const [settings, setsettings] = useState({ ...mapInicialState });
 
+    const hasRealData = mapData && mapData.features && mapData.features.length > 0;
+
     return (
         <div className="relative bg-gray-200 rounded shadow-2xl">
+            {!hasRealData && (
+                <div className="absolute top-4 left-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-3 py-2 rounded z-50 text-sm">
+                    ⚠️ Usando localização aproximada - dados de geometria não disponíveis
+                </div>
+            )}
             {isClient && isMapReady && (
                 <Map
                     {...viewport}

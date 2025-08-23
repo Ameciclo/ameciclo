@@ -68,14 +68,56 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   const fetchViaMapData = async (viaName: string) => {
     const url = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?via=${encodeURIComponent(viaName)}&includeGeom=true`;
     
+    console.log('🗺️ Fetching map data for via:', viaName);
+    console.log('🔗 Map API URL:', url);
+    
     try {
       const res = await fetch(url, { cache: "no-cache" });
+      console.log('📡 Map API Response status:', res.status, res.statusText);
+      
       if (!res.ok) {
         console.error(`Map API Error: ${res.status} ${res.statusText}`);
+        const errorText = await res.text();
+        console.error('Map API Error body:', errorText);
         return null;
       }
+      
       const mapData = await res.json();
-      console.log('Map Data:', mapData);
+      
+      // Log estrutura sem coordenadas
+      const logData = {
+        hasData: !!mapData,
+        keys: mapData ? Object.keys(mapData) : [],
+        filtro_desfechos: mapData?.filtro_desfechos,
+        filtro_via: mapData?.filtro_via,
+        vias: mapData?.vias ? {
+          length: mapData.vias.length,
+          firstVia: mapData.vias[0] ? {
+            id: mapData.vias[0].id,
+            nome: mapData.vias[0].nome,
+            sinistros: mapData.vias[0].sinistros,
+            km: mapData.vias[0].km,
+            geometria: {
+              type: mapData.vias[0].geometria?.type,
+              coordinates: mapData.vias[0].geometria?.coordinates ? 'HAS_COORDS' : 'NO_COORDS',
+              coordinatesLength: Array.isArray(mapData.vias[0].geometria?.coordinates) ? mapData.vias[0].geometria.coordinates.length : 0
+            }
+          } : null
+        } : null
+      };
+      
+      console.log('🗺️ Map Data structure:', JSON.stringify(logData, null, 2));
+      
+      // Log adicional para debug
+      if (mapData?.vias?.[0]?.geometria) {
+        console.log('🔍 Geometria details:', {
+          hasGeometria: !!mapData.vias[0].geometria,
+          geometriaKeys: Object.keys(mapData.vias[0].geometria),
+          coordinatesExists: 'coordinates' in mapData.vias[0].geometria,
+          coordinatesLength: mapData.vias[0].geometria.coordinates?.length || 0
+        });
+      }
+      
       return mapData;
     } catch (error) {
       console.error("Error fetching via map data:", error);
@@ -458,10 +500,30 @@ export default function ViaInsegura() {
             {([data, mapData]) => {
               if (!data || !data.via) return null;
               
-              console.log('Via name:', data.via);
-              console.log('Map data in component:', mapData);
-              
               const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);
+              
+              // Converter dados da API para GeoJSON
+              let geoJsonData = null;
+              if (mapData?.vias?.length > 0) {
+                const via = mapData.vias[0];
+                if (via.geometria && via.geometria.coordinates) {
+                  geoJsonData = {
+                    type: "FeatureCollection",
+                    features: [{
+                      type: "Feature",
+                      properties: {
+                        nome: via.nome || data.via,
+                        sinistros: via.sinistros || totalSinistros,
+                        km: via.km,
+                        sinistros_por_km: via.sinistros_por_km
+                      },
+                      geometry: via.geometria
+                    }]
+                  };
+                }
+              }
+              
+              console.log('🗺️ GeoJSON data for map:', geoJsonData ? 'HAS_DATA' : 'NO_DATA');
 
               return (
                 <section className="mb-12">
@@ -472,7 +534,7 @@ export default function ViaInsegura() {
                     <ViaIndividualMap 
                       viaName={data.via} 
                       totalSinistros={totalSinistros}
-                      mapData={mapData}
+                      mapData={geoJsonData}
                     />
                   </div>
                 </section>
