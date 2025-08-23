@@ -220,6 +220,21 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
               </>
             )}
 
+            {filteredProjects.paused.length > 0 && (
+              <>
+                <h2 className="text-2xl font-bold mb-4">Projetos Pausados</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  {filteredProjects.paused.map((groupedProject) => (
+                    <ProjectCard
+                      key={groupedProject.main?.id}
+                      project={groupedProject.main}
+                      translations={groupedProject.translations}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
             {filteredProjects.others.length > 0 && (
               <>
                 <h2 className="text-2xl font-bold mb-4">Demais Projetos</h2>

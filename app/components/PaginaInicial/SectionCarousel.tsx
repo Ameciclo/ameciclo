@@ -26,6 +26,8 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
     loop: true,
+    drag: true,
+    mode: "free-snap",
     slides: {
       perView: 1,
       spacing: 0,

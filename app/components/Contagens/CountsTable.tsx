@@ -80,8 +80,22 @@ export function CountsTable({ data }: ContagensTableProps) {
         },
       },
       {
+        Header: "Comparar",
+        accessor: "slug",
+        Cell: ({ row }: any) => (
+          <Link
+            className="text-ameciclo hover:underline"
+            to={`/dados/contagens/${row.original.slug}/comparar`}
+          >
+            Comparar
+          </Link>
+        ),
+        disableFilters: true,
+        disableSortBy: true,
+      },
+      {
         Header: "Dados",
-        accessor: "id", // Usar id para o link, mas não exibir diretamente
+        accessor: "id",
         Cell: ({ value }: any) => (
           <a
             className="text-ameciclo hover:underline"
@@ -92,8 +106,8 @@ export function CountsTable({ data }: ContagensTableProps) {
             JSON
           </a>
         ),
-        disableFilters: true, // Desabilitar filtro para esta coluna
-        disableSortBy: true, // Desabilitar ordenação para esta coluna
+        disableFilters: true,
+        disableSortBy: true,
       },
     ],
     []

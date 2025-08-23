@@ -2,9 +2,10 @@ import { useLoaderData, Await, useCatch } from "@remix-run/react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
 import { loader } from "~/loader/projetos";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import LanguageSelector from '~/components/Projetos/LanguageSelector';
 import ProjetoLoading from '~/components/Projetos/ProjetoLoading';
+import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 
 export { loader };
 
@@ -129,6 +130,13 @@ const StepCard = ({ step }: any) => {
 
 export default function Projeto() {
     const { project } = useLoaderData<typeof loader>();
+    const [galleryOpen, setGalleryOpen] = useState(false);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    const openGallery = (index: number) => {
+        setSelectedImageIndex(index);
+        setGalleryOpen(true);
+    };
 
     return (
         <Suspense fallback={<ProjetoLoading />}>
@@ -197,7 +205,7 @@ export default function Projeto() {
                             `
                         }} />
                         <div
-                            className="flex items-center justify-center object-fill h-auto px-10 py-24 my-auto text-white bg-center bg-cover relative"
+                            className="flex items-center justify-center object-fill h-auto px-10 py-24 my-auto text-white bg-center bg-cover"
                             style={{
                                 width: "100%",
                                 height: "52vh",
@@ -340,14 +348,17 @@ export default function Projeto() {
 
                                 {project?.gallery && project.gallery.length > 0 && (
                                     <div className="px-4 pb-6">
+                                        <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">Galeria de Imagens</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                             {project.gallery.map((photo: any, index: number) => (
-                                                <div key={photo.id || index} className="aspect-square">
+                                                <div key={photo.id || index} className="aspect-square group">
                                                     <img
                                                         src={photo.url}
                                                         alt={photo.caption || `Galeria ${index + 1}`}
-                                                        className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                                                        className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
+                                                        onClick={() => openGallery(index)}
                                                     />
+
                                                 </div>
                                             ))}
                                         </div>
@@ -423,6 +434,20 @@ export default function Projeto() {
                                 </div>
                             )}
                         </section>
+
+                        {/* Modal da Galeria */}
+                        <Suspense fallback={null}>
+                            <Await resolve={project}>
+                                {(resolvedProject) => (
+                                    <ImageGalleryWithZoom
+                                        images={resolvedProject?.gallery || []}
+                                        isOpen={galleryOpen}
+                                        onClose={() => setGalleryOpen(false)}
+                                        initialIndex={selectedImageIndex}
+                                    />
+                                )}
+                            </Await>
+                        </Suspense>
                     </>
                     );
                 }}
