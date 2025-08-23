@@ -76,6 +76,38 @@ export default function Dados() {
                 "Monitoramento do orçamento municipal conforme sua contribuição climática.",
             target: "",
         },
+        {
+            title: "Vias Inseguras",
+            src: "/icons/dados/vias-inseguras.svg",
+            url: "/dados/vias-inseguras",
+            description:
+                "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+            target: "",
+        },
+        // {
+        //     title: "Chamados de Sinistros",
+        //     src: "/icons/dados/chamados_sinistros.svg",
+        //     url: "/dados/samu",
+        //     description:
+        //         "Detalhamento dos dados de chamados de sinistros pela SAMU.",
+        //     target: "",
+        //  },
+        // {
+        //     title: "Infrações de trânsito",
+        //     src: "/icons/dados/mapa.svg",
+        //     url: "/dados/observatorio/vias-inseguras",
+        //     description:
+        //         "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+        //     target: "",
+        // },
+        // {
+        //     title: "Pedidos de Informação",
+        //     src: "/icons/dados/mapa.svg",
+        //     url: "/dados/observatorio/vias-inseguras",
+        //     description:
+        //         "Acesso à todos os os Pedidos de Acesso à Informação à Prefeitura do Recife.",
+        //     target: "",
+        // },
     ];
     return (
         <>

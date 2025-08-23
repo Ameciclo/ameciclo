@@ -37,7 +37,7 @@ export async function fetchWithTimeout(
     clearTimeout(timeoutId);
     console.warn(`Falha ao acessar ${url}:`, error);
     onApiDown?.();
-    // Retorna um objeto de erro para que o loader possa identificá-lo
-    return { apiError: true, errorMessage: `Não foi possível carregar dados de ${url.split('/').pop()}.` };
+    // Retorna fallbackData quando há erro
+    return fallbackData;
   }
 }

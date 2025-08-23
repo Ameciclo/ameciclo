@@ -3,6 +3,19 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AmecicloLogo } from "./NavBar/AmecicloLogo";
 
+const dataSubPages = [
+  { name: "Contagens", url: "/dados/contagens" },
+  { name: "Perfil", url: "/dados/perfil" },
+  { name: "Ideciclo", url: "/dados/ideciclo" },
+  { name: "Execução Cicloviaria", url: "/dados/execucaocicloviaria" },
+  { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
+  //{ name: "SAMU", url: "/dados/samu" },
+  { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
+  { name: "LOA", url: "/dados/loa" },
+  { name: "DOM", url: "/dados/dom" },
+  { name: "Documentos", url: "/dados/documentos" },
+];
+
 export const Navbar = ({ pages }: any) => {
   const pagesDefault = [
     { name: "Inicial", url: "/" },
@@ -15,11 +28,18 @@ export const Navbar = ({ pages }: any) => {
   if (!pages) pages = pagesDefault;
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hideRedNavbar, setHideRedNavbar] = useState(false);
+  const location = useLocation();
+  const isDataPage = location.pathname.startsWith('/dados');
 
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 1;
+      const coverImageHeight = 400;
+      const hideRed = window.scrollY > coverImageHeight;
+      
       setIsHeaderScrolled(scrolled);
+      setHideRedNavbar(hideRed);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -39,8 +59,8 @@ export const Navbar = ({ pages }: any) => {
         role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
-          <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)}>
-            <AmecicloLogo isScrolled={isHeaderScrolled} />
+          <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)} className="relative z-[85] pointer-events-auto">
+            <AmecicloLogo isScrolled={isHeaderScrolled || isDataPage} />
           </Link>
 
           <div className="hidden lg:flex space-x-6">
@@ -62,6 +82,44 @@ export const Navbar = ({ pages }: any) => {
         </div>
 
       </motion.nav>
+
+      {/* Segunda linha vermelha para subpáginas de dados */}
+      {isDataPage && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: hideRedNavbar ? 0 : 1, 
+            y: hideRedNavbar ? -42 : 0 
+          }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="fixed top-14 left-0 right-0 bg-red-600 z-[79] shadow-sm"
+        >
+          <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
+            <div></div>
+            <div className="hidden xl:flex space-x-6 py-2">
+              {dataSubPages.map((subPage) => {
+                const isActive = location.pathname === subPage.url || 
+                  location.pathname.startsWith(subPage.url + '/');
+                return (
+                  <Link
+                    key={subPage.name}
+                    to={subPage.url}
+                    className={`text-white text-sm uppercase px-3 py-1 relative group transition-all duration-200 z-[81] pointer-events-auto ${
+                      isActive ? 'font-semibold' : ''
+                    }`}
+                  >
+                    <span>{subPage.name}</span>
+                    <span className={`absolute left-0 bottom-0 h-0.5 transition-all duration-300 ease-out ${
+                      isActive ? 'w-full bg-white' : 'w-0 bg-white group-hover:w-full'
+                    }`}></span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <AnimatePresence>
         {isMenuOpen && (
