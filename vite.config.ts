@@ -26,6 +26,7 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   build: {
+    sourcemap: false, // Remove sourcemaps em produção para evitar warnings
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
