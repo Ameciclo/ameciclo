@@ -1,6 +1,7 @@
 import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { vercelPreset } from "@vercel/remix/vite";
 
 
 
@@ -10,6 +11,7 @@ export default defineConfig({
   },
   plugins: [
     remix({
+      presets: [vercelPreset()],
       future: {
         v3_fetcherPersist: true,
         v3_relativeSplatPath: true,
@@ -20,6 +22,29 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('highcharts')) {
+              return 'highcharts';
+            }
+            if (id.includes('react-map-gl') || id.includes('mapbox-gl')) {
+              return 'mapbox';
+            }
+            if (id.includes('@fullcalendar')) {
+              return 'calendar';
+            }
+          }
+        }
+      }
+    },
+    ssr: {
+      noExternal: ['@remix-run/server-runtime']
+    }
+  },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   }
