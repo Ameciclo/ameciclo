@@ -189,7 +189,7 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
         )}
       </div>
 
-      {/* Resumo Estatístico */}
+      {/* Resumo Estatístico 
       {(activeChart === 'evolucao_anual' || selectedYears.length > 0) && (
         <div className="bg-gray-50 rounded-lg p-6">
           <h4 className="font-semibold text-gray-800 mb-3">Resumo do Período Selecionado</h4>
@@ -226,7 +226,7 @@ export default function ViaTemporalCharts({ data }: ViaTemporalChartsProps) {
             </div>
           </div>
         </div>
-      )}
+      )}*/}
     </div>
   );
 }

@@ -169,18 +169,39 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   return defer({ dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise });
 };
 
-const getViaStatistics = (data: ViaHistoryData) => {
+const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);
-  const mediaAnual = Math.round(totalSinistros / data.evolucao.length);
-  const ultimoAno = data.evolucao[data.evolucao.length - 1];
-  const primeiroAno = data.evolucao[0];
   
-  return [
-    { title: "Total de Sinistros", value: IntlNumber(totalSinistros) },
-    { title: "Média Anual", value: IntlNumber(mediaAnual) },
-    { title: "Período Analisado", value: `${primeiroAno.ano} - ${ultimoAno.ano}` },
-    { title: "Último Ano", value: `${IntlNumber(ultimoAno.sinistros)} (${ultimoAno.ano})` },
+  // Calcular média anual ajustada por dias com dados
+  const mediaAjustada = data.evolucao.reduce((sum, year) => {
+    const diasComDados = year.dias_com_dados || 365;
+    const sinistrosPorDia = year.sinistros / diasComDados;
+    return sum + (sinistrosPorDia * 365);
+  }, 0) / data.evolucao.length;
+  
+  // Encontrar ano mais perigoso
+  const anoMaisPerigoso = data.evolucao.reduce((max, year) => {
+    const diasComDados = year.dias_com_dados || 365;
+    const sinistrosPorDia = year.sinistros / diasComDados;
+    const maxDiasComDados = max.dias_com_dados || 365;
+    const maxSinistrosPorDia = max.sinistros / maxDiasComDados;
+    return sinistrosPorDia > maxSinistrosPorDia ? year : max;
+  });
+  
+  const primeiroAno = data.evolucao[0];
+  const ultimoAno = data.evolucao[data.evolucao.length - 1];
+  
+  // Extensão da via (se disponível nos dados do mapa)
+  const extensaoVia = mapData?.vias?.[0]?.km;
+  
+  const stats = [
+    { title: "Total de vítimas", value: IntlNumber(totalSinistros), unit: `${primeiroAno.ano} - ${ultimoAno.ano}` },
+    { title: "Média Anual", value: IntlNumber(Math.round(mediaAjustada)), unit: "ajustada pelas projeções" },
+    { title: "Ano Mais Perigoso", value: `${anoMaisPerigoso.ano}`, unit: `com ${anoMaisPerigoso.ano} sinsitros` },
+    { title: "Extensão da Via", value: `${extensaoVia.toFixed(1)}`, unit: "km" }
   ];
+
+  return stats;
 };
 
 export default function ViaInsegura() {
@@ -239,13 +260,13 @@ export default function ViaInsegura() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
-          <Await resolve={dataPromise}>
-            {(data) => {
+          <Await resolve={Promise.all([dataPromise, mapDataPromise])}>
+            {([data, mapData]) => {
               if (!data || !data.via) return null;
               return (
                 <StatisticsBox 
                   title={data.via} 
-                  boxes={getViaStatistics(data)} 
+                  boxes={getViaStatistics(data, mapData)} 
                 />
               );
             }}
