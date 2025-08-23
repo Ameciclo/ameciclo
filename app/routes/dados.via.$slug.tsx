@@ -311,6 +311,27 @@ export default function ViaInsegura() {
                     {/* Por Sexo */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
                       <h4 className="text-lg font-bold mb-4">Perfil de Sexo (%)</h4>
+                      
+                      {/* Barra de percentual */}
+                      {genderData.length > 0 && (
+                        <div className="flex h-8 mb-3 rounded-md overflow-hidden">
+                          {genderData.map((item, index) => (
+                            <div
+                              key={index}
+                              className="h-full flex items-center justify-center text-white text-xs font-bold"
+                              style={{
+                                width: `${item.value}%`,
+                                backgroundColor: item.color,
+                                minWidth: parseFloat(item.value) > 3 ? "auto" : "0",
+                              }}
+                              title={`${item.label}: ${item.total.toLocaleString()} (${item.value}%)`}
+                            >
+                              {parseFloat(item.value) > 10 ? `${Math.round(parseFloat(item.value))}%` : ""}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
                       <div className="space-y-3">
                         {genderData.length > 0 ? (
                           genderData.map((item, index) => (
@@ -336,6 +357,27 @@ export default function ViaInsegura() {
                     {/* Por Faixa Etária */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
                       <h4 className="text-lg font-bold mb-4">Perfil de Idade (%)</h4>
+                      
+                      {/* Barra de percentual */}
+                      {ageData.length > 0 && (
+                        <div className="flex h-8 mb-3 rounded-md overflow-hidden">
+                          {ageData.map((item, index) => (
+                            <div
+                              key={index}
+                              className="h-full flex items-center justify-center text-white text-xs font-bold"
+                              style={{
+                                width: `${item.value}%`,
+                                backgroundColor: item.color,
+                                minWidth: parseFloat(item.value) > 3 ? "auto" : "0",
+                              }}
+                              title={`${item.label}: ${item.total.toLocaleString()} (${item.value}%)`}
+                            >
+                              {parseFloat(item.value) > 10 ? `${Math.round(parseFloat(item.value))}%` : ""}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
                       <div className="space-y-3">
                         {ageData.length > 0 ? (
                           ageData.map((item, index) => (
@@ -361,6 +403,27 @@ export default function ViaInsegura() {
                     {/* Por Categoria */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
                       <h4 className="text-lg font-bold mb-4">Tipo de Sinistro (%)</h4>
+                      
+                      {/* Barra de percentual */}
+                      {categoryData.length > 0 && (
+                        <div className="flex h-8 mb-3 rounded-md overflow-hidden">
+                          {categoryData.map((item, index) => (
+                            <div
+                              key={index}
+                              className="h-full flex items-center justify-center text-white text-xs font-bold"
+                              style={{
+                                width: `${item.value}%`,
+                                backgroundColor: item.color,
+                                minWidth: parseFloat(item.value) > 3 ? "auto" : "0",
+                              }}
+                              title={`${item.label}: ${item.total.toLocaleString()} (${item.value}%)`}
+                            >
+                              {parseFloat(item.value) > 10 ? `${Math.round(parseFloat(item.value))}%` : ""}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
                       <div className="space-y-3">
                         {categoryData.length > 0 ? (
                           categoryData.map((item, index) => (

@@ -528,6 +528,27 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h4 className="text-lg font-bold mb-4">Perfil de Sexo (%)</h4>
+              
+              {/* Barra de percentual */}
+              {genderData && genderData.length > 0 && (
+                <div className="flex h-8 mb-3 rounded-md overflow-hidden">
+                  {genderData.map((item: any, index) => (
+                    <div
+                      key={index}
+                      className="h-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{
+                        width: `${item.value}%`,
+                        backgroundColor: item.color,
+                        minWidth: parseFloat(item.value) > 3 ? "auto" : "0",
+                      }}
+                      title={`${item.label}: ${item.total?.toLocaleString()} (${item.value}%)`}
+                    >
+                      {parseFloat(item.value) > 10 ? `${Math.round(parseFloat(item.value))}%` : ""}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
               <div className="space-y-3">
                 {genderData && genderData.length > 0 ? (
                   genderData.map((item: any, index) => (
@@ -555,6 +576,27 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
 
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h4 className="text-lg font-bold mb-4">Perfil de Idade (%)</h4>
+              
+              {/* Barra de percentual */}
+              {ageData && ageData.length > 0 && (
+                <div className="flex h-8 mb-3 rounded-md overflow-hidden">
+                  {ageData.map((item: any, index) => (
+                    <div
+                      key={index}
+                      className="h-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{
+                        width: `${item.value}%`,
+                        backgroundColor: item.color,
+                        minWidth: parseFloat(item.value) > 3 ? "auto" : "0",
+                      }}
+                      title={`${item.label}: ${item.total?.toLocaleString()} (${item.value}%)`}
+                    >
+                      {parseFloat(item.value) > 10 ? `${Math.round(parseFloat(item.value))}%` : ""}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
               <div className="space-y-3">
                 {ageData && ageData.length > 0 ? (
                   ageData.map((item: any, index) => (
@@ -582,6 +624,27 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
 
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h4 className="text-lg font-bold mb-4">Modo de Transporte (%)</h4>
+              
+              {/* Barra de percentual */}
+              {transportData && transportData.length > 0 && (
+                <div className="flex h-8 mb-3 rounded-md overflow-hidden">
+                  {transportData.map((item: any, index) => (
+                    <div
+                      key={index}
+                      className="h-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{
+                        width: `${item.value}%`,
+                        backgroundColor: item.color,
+                        minWidth: parseFloat(item.value) > 3 ? "auto" : "0",
+                      }}
+                      title={`${item.label}: ${item.total?.toLocaleString()} (${item.value}%)`}
+                    >
+                      {parseFloat(item.value) > 10 ? `${Math.round(parseFloat(item.value))}%` : ""}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
               <div className="space-y-3">
                 {transportData && transportData.length > 0 ? (
                   transportData.map((item: any, index) => (
