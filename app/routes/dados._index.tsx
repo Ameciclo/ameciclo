@@ -84,14 +84,14 @@ export default function Dados() {
                 "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
             target: "",
         },
-        {
-            title: "Chamados de Sinistros",
-            src: "/icons/dados/chamados_sinistros.svg",
-            url: "/dados/samu",
-            description:
-                "Detalhamento dos dados de chamados de sinistros pela SAMU.",
-            target: "",
-         },
+        // {
+        //     title: "Chamados de Sinistros",
+        //     src: "/icons/dados/chamados_sinistros.svg",
+        //     url: "/dados/samu",
+        //     description:
+        //         "Detalhamento dos dados de chamados de sinistros pela SAMU.",
+        //     target: "",
+        //  },
         // {
         //     title: "Infrações de trânsito",
         //     src: "/icons/dados/mapa.svg",
