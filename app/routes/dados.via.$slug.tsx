@@ -188,11 +188,8 @@ export default function ViaInsegura() {
               return (
                 <div className="text-center mb-8">
                   <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                    {data.via}
+                    Observatório das Vias Inseguras
                   </h1>
-                  <p className="text-lg text-gray-600">
-                    Parte do Observatório das Vias Inseguras
-                  </p>
                 </div>
               );
             }}
@@ -205,7 +202,7 @@ export default function ViaInsegura() {
               if (!data || !data.via) return null;
               return (
                 <StatisticsBox 
-                  title="Estatísticas Gerais da Via" 
+                  title={data.via} 
                   boxes={getViaStatistics(data)} 
                 />
               );
