@@ -1,4 +1,3 @@
-import { defer, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, Await } from "@remix-run/react";
 import { Suspense } from "react";
 import Banner from "~/components/Commom/Banner";
@@ -9,13 +8,9 @@ import { IntlNumber } from "~/services/utils";
 import ViaTemporalCharts from "~/components/ViasInseguras/ViaTemporalCharts";
 import ViaIndividualMap from "~/components/ViasInseguras/ViaIndividualMap";
 import Table from "~/components/Commom/Table/Table";
-import { 
-  fetchViaName, 
-  fetchViaData, 
-  fetchViaMapData, 
-  fetchViaSinistrosData, 
-  fetchPageData 
-} from "~/loader/dados.via.loader";
+
+import { loader } from "~/loader/dados.via.loader";
+export { loader };
 
 interface ViaHistoryData {
   evolucao: Array<{
@@ -32,22 +27,7 @@ interface ViaHistoryData {
   filtro_desfechos: string;
 }
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const viaNamePromise = fetchViaName(params.slug as string);
-  
-  const dataPromise = viaNamePromise.then(viaName => 
-    viaName ? fetchViaData(viaName) : null
-  );
-  const mapDataPromise = viaNamePromise.then(viaName => 
-    viaName ? fetchViaMapData(viaName) : null
-  );
-  const sinistrosDataPromise = viaNamePromise.then(viaName => 
-    viaName ? fetchViaSinistrosData(viaName) : null
-  );
-  const pageDataPromise = fetchPageData();
 
-  return defer({ dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise });
-};
 
 const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);

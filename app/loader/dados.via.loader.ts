@@ -1,3 +1,4 @@
+import { defer, LoaderFunctionArgs } from "@remix-run/node";
 import { unslugify } from "~/utils/slugify";
 import { VIAS_INSEGURAS_HISTORY, VIAS_INSEGURAS_BASE_URL, VIAS_INSEGURAS_SEARCH, VIAS_INSEGURAS_LIST } from "~/servers";
 
@@ -78,4 +79,21 @@ export const fetchPageData = async () => {
   } catch (error) {
     return { cover: { url: "/pages_covers/vias-inseguras.png" }, archives: [] };
   }
+};
+
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const viaNamePromise = fetchViaName(params.slug as string);
+  
+  const dataPromise = viaNamePromise.then(viaName => 
+    viaName ? fetchViaData(viaName) : null
+  );
+  const mapDataPromise = viaNamePromise.then(viaName => 
+    viaName ? fetchViaMapData(viaName) : null
+  );
+  const sinistrosDataPromise = viaNamePromise.then(viaName => 
+    viaName ? fetchViaSinistrosData(viaName) : null
+  );
+  const pageDataPromise = fetchPageData();
+
+  return defer({ dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise });
 };
