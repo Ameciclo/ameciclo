@@ -294,8 +294,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         <React.Fragment key={i}>
                             <tr
                                 {...row.getRowProps()}
-                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-200' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
-                                onClick={() => row.toggleRowExpanded()}
+                                className={`border-b border-gray-200 ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-200' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                             >
                                 <td className="px-6 py-4">
                                     <div className={`hover:bg-gray-100 border-b border-gray-200 p-3 ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : ''}`}>
@@ -328,8 +327,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         <React.Fragment key={i}>
                             <tr
                                 {...row.getRowProps()}
-                                className={`border-b border-gray-200 cursor-pointer ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-700' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
-                                onClick={() => row.toggleRowExpanded()}
+                                className={`border-b border-gray-200 ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-700' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                             >
                                 {row.cells.map((cell: any, cellIndex: number) => {
                                     return (

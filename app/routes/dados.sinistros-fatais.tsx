@@ -9,7 +9,7 @@ export const loader = async () => {
   let pageData = {
     id: 4,
     title: "Observatório de Sinistros Fatais",
-    coverImage: "/images/covers/sinistros-fatais.jpg",
+    coverImage: "/public/pages_covers/sinistros-fatais.png",
     explanationBoxes: [],
     supportFiles: []
   };
