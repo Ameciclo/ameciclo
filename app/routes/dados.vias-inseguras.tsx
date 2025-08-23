@@ -59,7 +59,7 @@ export default function ViasInsegurasPage() {
         mapData={mapData}
         historyData={historyData}
       />
-      <CardsSession title={documents.title} cards={documents.cards} />
+      {/* <CardsSession title={documents.title} cards={documents.cards} /> */}
     </>
   );
 }

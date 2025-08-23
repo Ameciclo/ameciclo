@@ -91,6 +91,7 @@ export default function ViasRankingTable({
     {
       Header: "Nome da Via",
       accessor: "nome_via",
+      disableFilters: false,
       Cell: ({ value, row }: any) => (
         <Link
           to={`/dados/via/${row.original.slug}`}
@@ -128,18 +129,18 @@ export default function ViasRankingTable({
     },
     {
       Header: "Vítimas/km",
-      accessor: "sinistros_por_km",
-      disableFilters: true,
+      accessor: "densidade_categoria",
+      disableFilters: false,
       Cell: ({ value, row }: any) => (
         <div className="text-right">
           {row.original._km >= 1 ? (
             <>
-              <div className="font-semibold">{value}</div>
+              <div className="font-semibold">{row.original.sinistros_por_km}</div>
               <span className={`
                 inline-block px-2 py-1 rounded-full text-xs font-medium
-                ${getDensityColor(row.original.densidade_categoria)}
+                ${getDensityColor(value)}
               `}>
-                {row.original.densidade_categoria}
+                {value}
               </span>
             </>
           ) : (
@@ -196,7 +197,7 @@ export default function ViasRankingTable({
             title=""
             data={tableData}
             columns={columns}
-            showFilters={false}
+            showFilters={true}
           />
         ) : (
           <div className="p-8 text-center">
