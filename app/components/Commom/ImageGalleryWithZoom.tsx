@@ -221,19 +221,19 @@ export default function ImageGalleryWithZoom({
 
         {/* Caption */}
         {currentImage.caption && (
-          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 text-white text-center bg-black bg-opacity-70 px-6 py-3 rounded-lg max-w-2xl">
+          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-40 text-white text-center bg-black bg-opacity-70 px-6 py-3 rounded-lg max-w-2xl">
             {currentImage.caption}
           </div>
         )}
 
         {/* Contador e zoom info */}
-        <div className="absolute bottom-4 right-4 text-white text-sm bg-black bg-opacity-70 px-3 py-2 rounded-lg">
+        <div className="absolute bottom-4 right-4 z-40 text-white text-sm bg-black bg-opacity-70 px-3 py-2 rounded-lg">
           <div>{currentIndex + 1} / {images.length}</div>
           <div className="text-xs opacity-75">Zoom: {Math.round(zoom * 100)}%</div>
         </div>
 
         {/* Instruções */}
-        <div className="absolute bottom-4 left-4 text-white text-xs bg-black bg-opacity-70 px-3 py-2 rounded-lg max-w-xs">
+        <div className="absolute bottom-4 left-4 z-40 text-white text-xs bg-black bg-opacity-70 px-3 py-2 rounded-lg max-w-xs">
           <div>← → Navegar</div>
           <div>+ − Zoom</div>
           <div>Scroll: Zoom</div>

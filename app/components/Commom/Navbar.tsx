@@ -7,12 +7,12 @@ const dataSubPages = [
   { name: "Contagens", url: "/dados/contagens" },
   { name: "Perfil", url: "/dados/perfil" },
   { name: "Ideciclo", url: "/dados/ideciclo" },
-  { name: "Execução Cicloviaria", url: "/dados/execucaocicloviaria" },
+  { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
   { name: "SAMU", url: "/dados/samu" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
-  { name: "LOA", url: "/dados/loa" },
-  { name: "DOM", url: "/dados/dom" },
+  { name: "LOA Clima", url: "/dados/loa" },
+  { name: "DOM Clima", url: "/dados/dom" },
   { name: "Documentos", url: "/dados/documentos" },
 ];
 
@@ -63,7 +63,7 @@ export const Navbar = ({ pages }: any) => {
             <AmecicloLogo isScrolled={isHeaderScrolled || isDataPage} />
           </Link>
 
-          <div className="hidden lg:flex space-x-6">
+          <div className="hidden lg:flex space-x-8">
             <BigMenu pages={pages} />
           </div>
 
@@ -83,7 +83,7 @@ export const Navbar = ({ pages }: any) => {
 
       </motion.nav>
 
-      {/* Segunda linha vermelha para subpáginas de dados */}
+      {/* Sub barra de navegação para dados */}
       {isDataPage && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -93,29 +93,49 @@ export const Navbar = ({ pages }: any) => {
           }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="fixed top-14 left-0 right-0 bg-red-600 z-[79] shadow-sm"
+          className="fixed top-14 left-0 right-0 bg-gradient-to-r from-red-600 to-red-700 z-[79] shadow-lg border-b border-red-500"
         >
-          <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
-            <div></div>
-            <div className="hidden xl:flex space-x-6 py-2">
-              {dataSubPages.map((subPage) => {
+          <div className="w-full flex items-center justify-center px-8 py-0 m-0 lg:px-32 xl:px-32">
+            <div className="hidden xl:flex items-center space-x-1 py-3">
+              {dataSubPages.map((subPage, index) => {
                 const isActive = location.pathname === subPage.url || 
                   location.pathname.startsWith(subPage.url + '/');
                 return (
                   <Link
                     key={subPage.name}
                     to={subPage.url}
-                    className={`text-white text-sm uppercase px-3 py-1 relative group transition-all duration-200 z-[81] pointer-events-auto ${
-                      isActive ? 'font-semibold' : ''
+                    className={`text-white text-xs font-medium tracking-wide px-4 py-2 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 ${
+                      isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
                     }`}
                   >
-                    <span>{subPage.name}</span>
-                    <span className={`absolute left-0 bottom-0 h-0.5 transition-all duration-300 ease-out ${
-                      isActive ? 'w-full bg-white' : 'w-0 bg-white group-hover:w-full'
-                    }`}></span>
+                    <span className="relative z-10">{subPage.name}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
+                        initial={false}
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
                   </Link>
                 );
               })}
+            </div>
+            
+            {/* Menu mobile para dados */}
+            <div className="xl:hidden flex items-center py-3">
+              <select 
+                className="bg-white bg-opacity-10 text-white text-sm font-medium px-3 py-2 rounded-md border border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                value={location.pathname}
+                onChange={(e) => window.location.href = e.target.value}
+              >
+                <option value="/dados" className="text-gray-800">Selecione uma seção</option>
+                {dataSubPages.map((subPage) => (
+                  <option key={subPage.name} value={subPage.url} className="text-gray-800">
+                    {subPage.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </motion.div>
