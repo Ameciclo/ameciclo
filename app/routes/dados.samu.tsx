@@ -21,6 +21,8 @@ export default function SamuPage() {
     statisticsBoxes,
     citiesData,
   } = useLoaderData<typeof loader>();
+  
+
 
   return (
     <>
