@@ -5,14 +5,17 @@ import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
-import { unslugify } from "~/utils/slugify";
 import { IntlNumber } from "~/services/utils";
 import ViaTemporalCharts from "~/components/ViasInseguras/ViaTemporalCharts";
 import ViaIndividualMap from "~/components/ViasInseguras/ViaIndividualMap";
 import Table from "~/components/Commom/Table/Table";
-import { VIAS_INSEGURAS_HISTORY, VIAS_INSEGURAS_BASE_URL, VIAS_INSEGURAS_SEARCH, VIAS_INSEGURAS_LIST } from "~/servers";
-
-const VIAS_INSEGURAS_PAGE_DATA = "https://cms.ameciclo.org/vias-inseguras";
+import { 
+  fetchViaName, 
+  fetchViaData, 
+  fetchViaMapData, 
+  fetchViaSinistrosData, 
+  fetchPageData 
+} from "~/loader/dados.via.loader";
 
 interface ViaHistoryData {
   evolucao: Array<{
@@ -30,129 +33,6 @@ interface ViaHistoryData {
 }
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const fetchViaName = async (slug: string) => {
-    const url = `${VIAS_INSEGURAS_LIST}?slug=${slug}`;
-    
-    try {
-      const res = await fetch(url, { cache: "no-cache" });
-      if (!res.ok) {
-        console.error(`List API Error: ${res.status} ${res.statusText}`);
-        // Fallback to unslugify if endpoint fails
-        return unslugify(slug);
-      }
-      const data = await res.json();
-      return data?.via || unslugify(slug);
-    } catch (error) {
-      console.error("Error fetching via name:", error);
-      // Fallback to unslugify if endpoint fails
-      return unslugify(slug);
-    }
-  };
-
-  const fetchViaData = async (viaName: string) => {
-    const url = `${VIAS_INSEGURAS_HISTORY}?via=${encodeURIComponent(viaName)}`;
-    
-    try {
-      const res = await fetch(url, { cache: "no-cache" });
-      if (!res.ok) {
-        console.error(`API Error: ${res.status} ${res.statusText}`);
-        return null;
-      }
-      return await res.json();
-    } catch (error) {
-      console.error("Error fetching via data:", error);
-      return null;
-    }
-  };
-
-  const fetchViaMapData = async (viaName: string) => {
-    const url = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?via=${encodeURIComponent(viaName)}&includeGeom=true`;
-    
-    console.log('🗺️ Fetching map data for via:', viaName);
-    console.log('🔗 Map API URL:', url);
-    
-    try {
-      const res = await fetch(url, { cache: "no-cache" });
-      console.log('📡 Map API Response status:', res.status, res.statusText);
-      
-      if (!res.ok) {
-        console.error(`Map API Error: ${res.status} ${res.statusText}`);
-        const errorText = await res.text();
-        console.error('Map API Error body:', errorText);
-        return null;
-      }
-      
-      const mapData = await res.json();
-      
-      // Log estrutura sem coordenadas
-      const logData = {
-        hasData: !!mapData,
-        keys: mapData ? Object.keys(mapData) : [],
-        filtro_desfechos: mapData?.filtro_desfechos,
-        filtro_via: mapData?.filtro_via,
-        vias: mapData?.vias ? {
-          length: mapData.vias.length,
-          firstVia: mapData.vias[0] ? {
-            id: mapData.vias[0].id,
-            nome: mapData.vias[0].nome,
-            sinistros: mapData.vias[0].sinistros,
-            km: mapData.vias[0].km,
-            geometria: {
-              type: mapData.vias[0].geometria?.type,
-              coordinates: mapData.vias[0].geometria?.coordinates ? 'HAS_COORDS' : 'NO_COORDS',
-              coordinatesLength: Array.isArray(mapData.vias[0].geometria?.coordinates) ? mapData.vias[0].geometria.coordinates.length : 0
-            }
-          } : null
-        } : null
-      };
-      
-      console.log('🗺️ Map Data structure:', JSON.stringify(logData, null, 2));
-      
-      // Log adicional para debug
-      if (mapData?.vias?.[0]?.geometria) {
-        console.log('🔍 Geometria details:', {
-          hasGeometria: !!mapData.vias[0].geometria,
-          geometriaKeys: Object.keys(mapData.vias[0].geometria),
-          coordinatesExists: 'coordinates' in mapData.vias[0].geometria,
-          coordinatesLength: mapData.vias[0].geometria.coordinates?.length || 0
-        });
-      }
-      
-      return mapData;
-    } catch (error) {
-      console.error("Error fetching via map data:", error);
-      return null;
-    }
-  };
-
-  const fetchViaSinistrosData = async (viaName: string) => {
-    const url = `${VIAS_INSEGURAS_SEARCH}?street=${encodeURIComponent(viaName)}&limit=all&includeGeom=false`;
-    
-    try {
-      const res = await fetch(url, { cache: "no-cache" });
-      if (!res.ok) {
-        console.error(`Sinistros API Error: ${res.status} ${res.statusText}`);
-        return null;
-      }
-      return await res.json();
-    } catch (error) {
-      console.error("Error fetching via sinistros data:", error);
-      return null;
-    }
-  };
-
-  const fetchPageData = async () => {
-    try {
-      const res = await fetch(VIAS_INSEGURAS_PAGE_DATA, { cache: "no-cache" });
-      if (!res.ok) {
-        return { cover: { url: "/pages_covers/vias-inseguras.png" }, archives: [] };
-      }
-      return await res.json();
-    } catch (error) {
-      return { cover: { url: "/pages_covers/vias-inseguras.png" }, archives: [] };
-    }
-  };
-
   const viaNamePromise = fetchViaName(params.slug as string);
   
   const dataPromise = viaNamePromise.then(viaName => 
