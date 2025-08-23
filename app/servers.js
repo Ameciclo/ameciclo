@@ -37,12 +37,14 @@ export const OBSERVATORIO_SINISTROS_PAGE_DATA = `https://do.strapi.ameciclo.org/
 // Endpoint do Strapi para dados das plataformas (mantido para compatibilidade)
 export const PLATAFORMAS_PAGE_DATA = `https://do.strapi.ameciclo.org/api/plataformas-de-dados?populate=*`
 
-// Endpoints para o Observatório de Chamadas do SAMU
-export const SAMU_SUMMARY_DATA = `http://localhost:8080/samu-calls/summary`
-export const SAMU_CITIES_DATA = `http://localhost:8080/samu-calls/cities`
 
 // Endpoints para Vias Inseguras
-export const VIAS_INSEGURAS_BASE_URL = `http://localhost:8080`
+export const VIAS_INSEGURAS_BASE_URL = `https://api.garfo.ameciclo.org`
+
+// Endpoints para o Observatório de Chamadas do SAMU
+export const SAMU_SUMMARY_DATA = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/summary`
+export const SAMU_CITIES_DATA = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/cities`
+
 export const VIAS_INSEGURAS_SUMMARY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/summary`
 export const VIAS_INSEGURAS_TOP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/top?limite=2111&intervalor=1`
 export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?limite=2111`

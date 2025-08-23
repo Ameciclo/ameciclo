@@ -2,7 +2,7 @@ import { defer, LoaderFunctionArgs } from "@remix-run/node";
 import { unslugify } from "~/utils/slugify";
 import { VIAS_INSEGURAS_HISTORY, VIAS_INSEGURAS_BASE_URL, VIAS_INSEGURAS_SEARCH, VIAS_INSEGURAS_LIST } from "~/servers";
 
-const VIAS_INSEGURAS_PAGE_DATA = "https://cms.ameciclo.org/vias-inseguras";
+
 
 export const fetchViaName = async (slug: string) => {
   const url = `${VIAS_INSEGURAS_LIST}?slug=${slug}`;
@@ -70,15 +70,7 @@ export const fetchViaSinistrosData = async (viaName: string) => {
 };
 
 export const fetchPageData = async () => {
-  try {
-    const res = await fetch(VIAS_INSEGURAS_PAGE_DATA, { cache: "no-cache" });
-    if (!res.ok) {
-      return { cover: { url: "/pages_covers/vias-inseguras.png" }, archives: [] };
-    }
-    return await res.json();
-  } catch (error) {
-    return { cover: { url: "/pages_covers/vias-inseguras.png" }, archives: [] };
-  }
+  return { cover: { url: "/pages_covers/vias-inseguras.png" }, archives: [] };
 };
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
@@ -93,7 +85,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   const sinistrosDataPromise = viaNamePromise.then(viaName => 
     viaName ? fetchViaSinistrosData(viaName) : null
   );
-  const pageDataPromise = fetchPageData();
+  const pageDataPromise = Promise.resolve(fetchPageData());
 
   return defer({ dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise });
 };
