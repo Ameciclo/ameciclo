@@ -10,7 +10,7 @@
 export async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},
-  timeout: number = 10000,
+  timeout: number = 15000,
   fallbackData: any = null,
   onApiDown?: () => void
 ): Promise<any> {

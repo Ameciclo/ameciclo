@@ -9,9 +9,14 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
   const [loaded, setLoaded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isClient, setIsClient] = useState(false);
   const autoplayIntervalRef = useRef(null);
   const progressIntervalRef = useRef(null);
   const AUTOPLAY_DURATION = 5000;
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const ProjectSlideWithPause = ({ project }) => {
     return (
@@ -84,6 +89,22 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
 
   if (isLoading || hasApiError || !featuredProjects || featuredProjects.length === 0) {
     return <SectionCarouselLoading />;
+  }
+
+  if (!isClient) {
+    return (
+      <section>
+        <div className="mx-auto">
+          <div className="navigation-wrapper">
+            <div className="keen-slider" style={{ height: '400px' }}>
+              <div className="keen-slider__slide">
+                <ProjectSlideWithPause project={featuredProjects[0]} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -219,7 +240,7 @@ function ProjectSlide({ project, onMouseEnter, onMouseLeave }: any) {
 
         <div className="absolute inset-0 flex items-center justify-center p-4">
           <div 
-            className="rounded-lg shadow-xl bg-white bg-opacity-80 max-w-[320px] md:max-w-[800px] w-full"
+            className="rounded-lg shadow-xl bg-white bg-opacity-65 max-w-[320px] md:max-w-[800px] w-full"
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
           >

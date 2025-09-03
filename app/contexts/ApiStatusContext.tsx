@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface ApiStatusContextType {
   isApiDown: boolean;
@@ -14,7 +14,11 @@ export function ApiStatusProvider({
   children: ReactNode;
   initialApiDown?: boolean;
 }) {
-  const [isApiDown, setIsApiDown] = useState(initialApiDown);
+  const [isApiDown, setIsApiDown] = useState(false);
+  
+  useEffect(() => {
+    setIsApiDown(initialApiDown);
+  }, [initialApiDown]);
 
   const setApiDown = (status: boolean) => {
     setIsApiDown(status);
