@@ -478,9 +478,21 @@ export default function Compare() {
             {(data) => {
               const pointsData = getPointsDataForComparingCounting(data);
               return (
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
                   <AmecicloMap pointsData={pointsData} height="500px" />
                 </div>
+              );
+            }}
+          </Await>
+        </Suspense>
+
+        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96 rounded-lg" />}>
+          <Await resolve={dataPromise}>
+            {(data) => {
+              const allSessions = data.flatMap((d: CountEdition) => Object.values(d.sessions));
+              const { series, hours } = getChartData(allSessions);
+              return (
+                <HourlyCyclistsChart series={series as Series[]} hours={hours} />
               );
             }}
           </Await>
