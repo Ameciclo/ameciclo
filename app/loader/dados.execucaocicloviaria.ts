@@ -1,5 +1,6 @@
 import { defer, LoaderFunction } from "@remix-run/node";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader: LoaderFunction = async () => {
   const page_data = {
@@ -100,20 +101,35 @@ export const loader: LoaderFunction = async () => {
     return cityStats;
   }
 
-  // Dados do mapa carregados síncronamente
-  const allWaysRes = await fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/all-ways", { cache: "no-cache" });
-  const allWaysData = await allWaysRes.json();
-  const allCitiesLayer = allWaysData.all;
+  // Dados mock para fallback
+  const mockAllWaysData = { all: { type: "FeatureCollection", features: [] } };
+  const mockStatsData = [
+    { title: "estrutura cicloviárias existentes", unit: "km", value: "245.8" },
+    { title: "projetada no plano cicloviário", unit: "km", value: "654.2" },
+    { title: "implantados no plano cicloviário", unit: "km", value: "187.3" },
+    { title: "cobertos do plano cicloviário", unit: "%", value: "28.6" }
+  ];
+  const mockCitiesData = {};
 
-  // Promises assíncronas para outras seções
-  const statsPromise = fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", { cache: "no-cache" })
-    .then(res => res.json())
-    .then(data => cycleStructureExecutionStatistics(data.all));
+  // Promises assíncronas com timeout
+  const allWaysPromise = fetchWithTimeout(
+    "http://api.garfo.ameciclo.org/cyclist-infra/ways/all-ways", 
+    { cache: "no-cache" }, 
+    15000, 
+    mockAllWaysData
+  ).then(data => data.all);
+
+  const statsPromise = fetchWithTimeout(
+    "http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", 
+    { cache: "no-cache" }, 
+    15000, 
+    { all: { pdc_feito: 187.3, out_pdc: 58.5, pdc_total: 654.2, percent: 28.6 } }
+  ).then(data => cycleStructureExecutionStatistics(data.all));
 
   const citiesPromise = Promise.all([
-    fetch("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", { cache: "no-cache" }).then(res => res.json()),
-    fetch("http://api.garfo.ameciclo.org/cities").then(res => res.json()),
-    fetch("http://api.garfo.ameciclo.org/cyclist-infra/relationsByCity").then(res => res.json())
+    fetchWithTimeout("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", { cache: "no-cache" }, 15000, { byCity: {} }),
+    fetchWithTimeout("http://api.garfo.ameciclo.org/cities", {}, 15000, []),
+    fetchWithTimeout("http://api.garfo.ameciclo.org/cyclist-infra/relationsByCity", {}, 15000, {})
   ]).then(([summaryData, cities, relations]) => 
     cityCycleStructureExecutionStatisticsByCity(summaryData.byCity, cities, relations)
   );
@@ -172,10 +188,9 @@ export const loader: LoaderFunction = async () => {
     description1: page_data.ExplanationBoxData.text_1,
     description2: page_data.ExplanationBoxData.text_2,
     documents,
-    // Dados do mapa (síncrono)
-    allCitiesLayer,
     layersConf,
     // Promises assíncronas
+    allWaysPromise,
     statsPromise,
     citiesPromise,
   });

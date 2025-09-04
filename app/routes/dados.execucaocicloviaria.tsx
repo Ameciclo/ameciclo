@@ -26,7 +26,7 @@ export default function ExecucaoCicloviaria() {
         description1,
         description2,
         documents,
-        allCitiesLayer,
+        allWaysPromise,
         layersConf,
         statsPromise,
         citiesPromise,
@@ -480,8 +480,8 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
                 ]}
             />
             <Suspense fallback={<MapLoading />}>
-                <Await resolve={citiesPromise}>
-                    {(citiesStats) => (
+                <Await resolve={allWaysPromise}>
+                    {(allCitiesLayer) => (
                         <AmecicloMap 
                             layerData={allCitiesLayer} 
                             layersConf={layersConf as LayerProps[]}
