@@ -38,8 +38,9 @@ function LinksBox({ title, value }: any) {
   return (
     <div className="flex flex-col justify-center w-full p-6 text-center uppercase tracking-widest">
       <h3>{title}</h3>
-      {value.map((v: any) => (
+      {value.map((v: any, index: number) => (
         <Link
+          key={`link-${index}`}
           to={v.url}
           className="border border-teal-500 bg-ameciclo text-white hover:bg-red-500 hover:border-red-300 rounded px-4 py-2 mt-2"
         >

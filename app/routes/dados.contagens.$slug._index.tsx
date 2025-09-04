@@ -72,8 +72,8 @@ interface CountEditionSummary {
 
 interface CountEditionCoordinates {
   point: {
-    x: number;
-    y: number;
+    latitude: number;
+    longitude: number;
   };
   type: string;
   name: string;
@@ -225,7 +225,22 @@ function getCountingCards(data: CountEditionSummary) {
 }
 function getPointsData(d: CountEdition) {
     const { name, coordinates, summary, date, slug, sessions } = d;
+    
+    if (!coordinates || coordinates.length === 0) {
+        console.warn('No coordinates found for:', name);
+        return [];
+    }
+    
     const [centralPoint] = coordinates;
+    
+    // Verificar se as coordenadas existem e são válidas
+    const lat = centralPoint.point.latitude || centralPoint.point.y;
+    const lng = centralPoint.point.longitude || centralPoint.point.x;
+    
+    if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
+        console.warn('Invalid coordinates for:', name, { lat, lng });
+        return [];
+    }
 
     // Calcular fluxos por direção
     const flows = {
@@ -248,8 +263,8 @@ function getPointsData(d: CountEdition) {
     const points = [
         {
             key: name,
-            latitude: centralPoint.point.latitude,
-            longitude: centralPoint.point.longitude,
+            latitude: lat,
+            longitude: lng,
             popup: {
                 name: name,
                 total: summary.total_cyclists,
@@ -262,8 +277,8 @@ function getPointsData(d: CountEdition) {
         },
         {
             key: `${name}_north`,
-            latitude: centralPoint.point.latitude + 0.001,
-            longitude: centralPoint.point.longitude,
+            latitude: lat + 0.001,
+            longitude: lng,
             popup: {
                 name: `${name} - Norte`,
                 total: flows.north,
@@ -276,8 +291,8 @@ function getPointsData(d: CountEdition) {
         },
         {
             key: `${name}_south`,
-            latitude: centralPoint.point.latitude - 0.001,
-            longitude: centralPoint.point.longitude,
+            latitude: lat - 0.001,
+            longitude: lng,
             popup: {
                 name: `${name} - Sul`,
                 total: flows.south,
@@ -290,8 +305,8 @@ function getPointsData(d: CountEdition) {
         },
         {
             key: `${name}_east`,
-            latitude: centralPoint.point.latitude,
-            longitude: centralPoint.point.longitude + 0.001,
+            latitude: lat,
+            longitude: lng + 0.001,
             popup: {
                 name: `${name} - Leste`,
                 total: flows.east,
@@ -304,8 +319,8 @@ function getPointsData(d: CountEdition) {
         },
         {
             key: `${name}_west`,
-            latitude: centralPoint.point.latitude,
-            longitude: centralPoint.point.longitude - 0.001,
+            latitude: lat,
+            longitude: lng - 0.001,
             popup: {
                 name: `${name} - Oeste`,
                 total: flows.west,
@@ -476,9 +491,10 @@ const Contagem = () => {
                 <Await resolve={Promise.all([dataPromise, pageDataPromise])}>
                     {([data, pageData]) => {
                         if (!data) return null;
+                        const filteredData = pageData.otherCounts?.filter((d: any) => d.id !== data.id) || [];
                         return (
                             <CountingComparisionTable
-                                data={pageData.otherCounts.filter((d: any) => d.id !== data.id)}
+                                data={filteredData}
                                 firstSlug={data.slug}
                             />
                         );

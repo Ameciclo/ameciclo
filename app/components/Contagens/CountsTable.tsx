@@ -79,20 +79,7 @@ export function CountsTable({ data }: ContagensTableProps) {
           });
         },
       },
-      {
-        Header: "Comparar",
-        accessor: "slug",
-        Cell: ({ row }: any) => (
-          <Link
-            className="text-ameciclo hover:underline"
-            to={`/dados/contagens/${row.original.slug}/comparar`}
-          >
-            Comparar
-          </Link>
-        ),
-        disableFilters: true,
-        disableSortBy: true,
-      },
+
       {
         Header: "Dados",
         accessor: "id",

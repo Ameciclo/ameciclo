@@ -82,32 +82,52 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
       },
       {
         Header: "COMPARE",
+        accessor: "compare", // Adiciona accessor
         Cell: ({ row }: { row: any }) => (
-          <span>
-            <Link
-              className="text-ameciclo"
-              to={`/dados/contagens/${firstSlug}/${row.original.slug}`}
-            >
-              COMPARE
-            </Link>
-          </span>
+          <Link
+            className="text-ameciclo hover:underline font-medium"
+            to={`/dados/contagens/${firstSlug}/${row.original.slug}`}
+          >
+            COMPARE
+          </Link>
         ),
         disableFilters: true,
+        disableSortBy: true,
       },
     ],
     [firstSlug]
   );
 
+  if (!isMounted) {
+    return (
+      <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-gray-600 text-2xl mb-4">Compare com outras contagens</h2>
+          <p className="text-gray-500 mb-4">Carregando dados...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-gray-600 text-2xl mb-4">Compare com outras contagens</h2>
+          <p className="text-gray-500 mb-4">Nenhuma outra contagem disponível para comparação no momento.</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    isMounted ? (
-      <Table
-        title={"Compare com outras contagens"}
-        data={data}
-        columns={columns}
-        filterTypes={filterTypes}
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-      />
-    ) : null
+    <Table
+      title={"Compare com outras contagens"}
+      data={data}
+      columns={columns}
+      filterTypes={filterTypes}
+      showFilters={showFilters}
+      setShowFilters={setShowFilters}
+    />
   );
 };
