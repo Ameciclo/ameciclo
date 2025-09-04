@@ -103,38 +103,27 @@ const characteristicsMap = new Map([
   ["total_wrong_way", { name: "Contramão" }],
 ]);
 
-function getChartData(sessions: CountEditionSession[]) {
+function getChartData(data: CountEdition[]) {
     const series: Series[] = [];
-    const hours: number[] = [];
+    const hours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 
-    Object.values(sessions).forEach((session) => {
-        const { start_time, total_cyclists, characteristics } = session;
-        const hour = parseInt(start_time.split('T')[1].split(':')[0]);
-        hours.push(hour);
-
-        Object.entries(characteristics).forEach(([key, value]) => {
-            if (characteristicsMap.has(key)) {
-                const characteristic = characteristicsMap.get(key);
-                const seriesIndex = series.findIndex(
-                    (s) => s.name === characteristic?.name
-                );
-                if (seriesIndex !== -1) {
-                    series[seriesIndex].data.push(value);
-                } else {
-                    series.push({
-                        name: characteristic?.name || "",
-                        data: [value],
-                        visible: false,
-                    });
-                }
+    data.forEach((countData, index) => {
+        const countSessions = Object.values(countData.sessions);
+        const hourlyData = new Array(hours.length).fill(0);
+        
+        countSessions.forEach((session) => {
+            const hour = parseInt(session.start_time.split('T')[1].split(':')[0]);
+            const hourIndex = hours.indexOf(hour);
+            if (hourIndex !== -1) {
+                hourlyData[hourIndex] += session.total_cyclists;
             }
         });
-    });
 
-    series.push({
-        name: "Total de Ciclistas",
-        data: hours.map((_, i) => Object.values(sessions)[i].total_cyclists),
-        visible: true,
+        series.push({
+            name: countData.name,
+            data: hourlyData,
+            visible: true,
+        });
     });
 
     return { series, hours };
@@ -489,10 +478,24 @@ export default function Compare() {
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96 rounded-lg" />}>
           <Await resolve={dataPromise}>
             {(data) => {
-              const allSessions = data.flatMap((d: CountEdition) => Object.values(d.sessions));
-              const { series, hours } = getChartData(allSessions);
+              const { series, hours } = getChartData(data);
               return (
                 <HourlyCyclistsChart series={series as Series[]} hours={hours} />
+              );
+            }}
+          </Await>
+        </Suspense>
+
+        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
+          <Await resolve={Promise.all([dataPromise, pageDataPromise])}>
+            {([data, pageData]) => {
+              const excludeIds = data.map((d: CountEdition) => d.id);
+              const filteredData = pageData.otherCounts.filter((d: any) => !excludeIds.includes(d.id));
+              return (
+                <CountingComparisionTable
+                  data={filteredData}
+                  firstSlug={data[0]?.slug}
+                />
               );
             }}
           </Await>
