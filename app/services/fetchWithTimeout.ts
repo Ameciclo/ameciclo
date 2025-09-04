@@ -15,7 +15,9 @@ export async function fetchWithTimeout(
   onApiDown?: () => void
 ): Promise<any> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, timeout);
   
   try {
     const response = await fetch(url, {
@@ -28,16 +30,21 @@ export async function fetchWithTimeout(
     if (!response.ok) {
       console.warn(`Erro na requisição para ${url}: ${response.status}`);
       onApiDown?.();
-      // Retorna fallbackData se a resposta não for OK, mas não é um erro de rede/timeout
       return fallbackData;
     }
     
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error: any) {
     clearTimeout(timeoutId);
-    console.warn(`Falha ao acessar ${url}:`, error);
+    
+    if (error.name === 'AbortError') {
+      console.warn(`Timeout na requisição para ${url} após ${timeout}ms`);
+    } else {
+      console.warn(`Falha ao acessar ${url}:`, error.message || error);
+    }
+    
     onApiDown?.();
-    // Retorna fallbackData quando há erro
     return fallbackData;
   }
 }
