@@ -68,7 +68,7 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction, customHeader }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -475,9 +475,14 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
 
     return (
         <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
+            {customHeader && (
+                <div className="mb-6">
+                    {customHeader}
+                </div>
+            )}
             <div className="flex justify-between items-center mb-4">
                 <div className="flex-1">
-                    <h2 className="text-gray-600 text-3xl mb-2">{title}</h2>
+                    {!customHeader && <h2 className="text-gray-600 text-3xl mb-2">{title}</h2>}
 
                     {subtitle && (<p>{subtitle}</p>)}
                     {pageLoa && (

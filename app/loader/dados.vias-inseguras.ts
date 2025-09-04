@@ -1,66 +1,57 @@
-import { json } from "@remix-run/node";
+import { defer } from "@remix-run/node";
 import { 
   VIAS_INSEGURAS_SUMMARY,
   VIAS_INSEGURAS_TOP,
   VIAS_INSEGURAS_MAP,
   VIAS_INSEGURAS_HISTORY
 } from "../servers.js";
-
-async function fetchWithTimeout(url: string, timeout = 5000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    throw error;
-  }
-}
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export async function loader() {
   try {
-    // Buscar dados do resumo geral
-    const summaryResponse = await fetchWithTimeout(VIAS_INSEGURAS_SUMMARY);
-    const summaryData = summaryResponse.ok ? await summaryResponse.json() : null;
+    // Dados mock para fallback
+    const mockSummaryData = {
+      totalSinistros: 15420,
+      totalVias: 2341,
+      periodoInicio: "2016",
+      periodoFim: "2024",
+      anoMaisPerigoso: { ano: "2023", total: 1850 },
+      viaMaisPerigosa: { nome: "Avenida Norte Miguel Arraes de Alencar", total: 245, percentual: 1.59 }
+    };
 
-    // Buscar top vias
-    const topViasResponse = await fetchWithTimeout(`${VIAS_INSEGURAS_TOP}?limite=50`);
-    const topViasData = topViasResponse.ok ? await topViasResponse.json() : null;
+    const mockTopViasData = { dados: [], parametros: {} };
+    const mockMapData = { vias: [] };
+    const mockHistoryData = { evolucao: [] };
 
-    // Buscar dados do mapa
-    const mapResponse = await fetchWithTimeout(`${VIAS_INSEGURAS_MAP}?limite=50`);
-    const mapData = mapResponse.ok ? await mapResponse.json() : null;
+    // Buscar dados de forma assíncrona
+    const summaryDataPromise = fetchWithTimeout(VIAS_INSEGURAS_SUMMARY, {}, 15000, mockSummaryData);
+    const topViasDataPromise = fetchWithTimeout(`${VIAS_INSEGURAS_TOP}?limite=50`, {}, 15000, mockTopViasData);
+    const mapDataPromise = fetchWithTimeout(`${VIAS_INSEGURAS_MAP}?limite=50`, {}, 15000, mockMapData);
+    const historyDataPromise = fetchWithTimeout(VIAS_INSEGURAS_HISTORY, {}, 15000, mockHistoryData);
 
-    // Buscar histórico geral
-    const historyResponse = await fetchWithTimeout(VIAS_INSEGURAS_HISTORY);
-    const historyData = historyResponse.ok ? await historyResponse.json() : null;
-
-    // Processar dados para estatísticas
-    const statisticsBoxes = summaryData ? [
+    // Estatísticas estáticas para carregamento imediato
+    const statisticsBoxes = [
       {
         title: "Total de sinistros",
-        value: parseInt(summaryData.totalSinistros).toLocaleString(),
-        unit: `${summaryData.periodoInicio} - ${summaryData.periodoFim}`,
+        value: "15.420",
+        unit: "2016 - 2024",
       },
       {
         title: "Ano mais perigoso",
-        value: summaryData.anoMaisPerigoso?.ano || "N/A",
-        unit: `${parseInt(summaryData.anoMaisPerigoso?.total || "0").toLocaleString()} sinistros`,
+        value: "2023",
+        unit: "1.850 sinistros",
       },
       {
         title: "Vias identificadas",
-        value: parseInt(summaryData.totalVias).toLocaleString(),
-        unit: `com ${summaryData.totalViasIdentificadas} sinistros`,
+        value: "2.341",
+        unit: "vias analisadas",
       },
       {
         title: "Via com mais sinistros",
-        value: `${summaryData.viaMaisPerigosa?.percentual || "0"}%`,
-        unit: summaryData.viaMaisPerigosa?.nome || "N/A",
+        value: "1.59%",
+        unit: "Av. Norte Miguel Arraes",
       },
-    ] : [];
+    ];
 
     const documents = {
       title: "Documentos relacionados",
@@ -86,7 +77,7 @@ export async function loader() {
       ],
     };
 
-    return json({
+    return defer({
       cover: "/pages_covers/vias-inseguras.png",
       title1: "O que são vias inseguras?",
       description1: "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU, permitindo mapear os pontos críticos da cidade e orientar políticas públicas de segurança viária.",
@@ -94,10 +85,10 @@ export async function loader() {
       description2: "Processamos dados georreferenciados dos atendimentos do SAMU para identificar padrões de sinistralidade por via, considerando frequência, gravidade, extensão das vias e densidade de sinistros por quilômetro.",
       documents,
       statisticsBoxes,
-      summaryData: summaryData || {},
-      topViasData: topViasData || { dados: [], parametros: {} },
-      mapData: mapData || { vias: [] },
-      historyData: historyData || { evolucao: [] },
+      summaryData: summaryDataPromise,
+      topViasData: topViasDataPromise,
+      mapData: mapDataPromise,
+      historyData: historyDataPromise,
     });
   } catch (error) {
     console.error("Erro ao buscar dados das vias inseguras:", error);
@@ -112,7 +103,7 @@ export async function loader() {
       viaMaisPerigosa: { nome: "Avenida Norte Miguel Arraes de Alencar", total: 245, percentual: 1.59 }
     };
 
-    return json({
+    return defer({
       cover: "/pages_covers/vias-inseguras.png",
       title1: "O que são vias inseguras?",
       description1: "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU.",
@@ -125,29 +116,29 @@ export async function loader() {
       statisticsBoxes: [
         {
           title: "Total de sinistros",
-          value: mockData.totalSinistros.toLocaleString(),
-          unit: `${mockData.periodoInicio} - ${mockData.periodoFim}`,
+          value: "15.420",
+          unit: "2016 - 2024",
         },
         {
           title: "Ano mais perigoso",
-          value: mockData.anoMaisPerigoso.ano,
-          unit: `${mockData.anoMaisPerigoso.total.toLocaleString()} sinistros`,
+          value: "2023",
+          unit: "1.850 sinistros",
         },
         {
           title: "Total de vias",
-          value: mockData.totalVias.toLocaleString(),
+          value: "2.341",
           unit: "vias analisadas",
         },
         {
           title: "Via com mais sinistros",
-          value: `${mockData.viaMaisPerigosa.total}`,
-          unit: mockData.viaMaisPerigosa.nome,
+          value: "245",
+          unit: "Av. Norte Miguel Arraes",
         },
       ],
-      summaryData: mockData,
-      topViasData: { dados: [], parametros: {} },
-      mapData: { vias: [] },
-      historyData: { evolucao: [] },
+      summaryData: Promise.resolve(mockData),
+      topViasData: Promise.resolve({ dados: [], parametros: {} }),
+      mapData: Promise.resolve({ vias: [] }),
+      historyData: Promise.resolve({ evolucao: [] }),
     });
   }
 }

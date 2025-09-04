@@ -1,5 +1,5 @@
-import React from "react";
-import { useLoaderData } from "@remix-run/react";
+import React, { Suspense } from "react";
+import { useLoaderData, Await } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -53,12 +53,22 @@ export default function ViasInsegurasPage() {
           },
         ]}
       />
-      <ViasInsegurasClientSide 
-        summaryData={summaryData}
-        topViasData={topViasData}
-        mapData={mapData}
-        historyData={historyData}
-      />
+      <Suspense fallback={
+        <div className="container mx-auto py-8">
+          <div className="animate-pulse bg-gray-200 h-96 w-full rounded-lg mb-12"></div>
+        </div>
+      }>
+        <Await resolve={Promise.all([summaryData, topViasData, mapData, historyData])}>
+          {([resolvedSummaryData, resolvedTopViasData, resolvedMapData, resolvedHistoryData]) => (
+            <ViasInsegurasClientSide 
+              summaryData={resolvedSummaryData}
+              topViasData={resolvedTopViasData}
+              mapData={resolvedMapData}
+              historyData={resolvedHistoryData}
+            />
+          )}
+        </Await>
+      </Suspense>
       {/* <CardsSession title={documents.title} cards={documents.cards} /> */}
     </>
   );
