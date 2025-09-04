@@ -55,9 +55,16 @@ export default function SamuPage() {
           <div className="animate-pulse bg-gray-200 h-96 w-full rounded-lg mb-12"></div>
         </div>
       }>
-        <Await resolve={citiesData}>
+        <Await resolve={citiesData} errorElement={
+          <div className="container mx-auto py-8">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+              <h3 className="text-yellow-800 font-medium mb-2">Dados temporariamente indisponíveis</h3>
+              <p className="text-yellow-700 text-sm">Os dados do SAMU estão sendo carregados. Tente novamente em alguns instantes.</p>
+            </div>
+          </div>
+        }>
           {(resolvedCitiesData) => (
-            <SamuClientSide citiesData={resolvedCitiesData} />
+            <SamuClientSide citiesData={resolvedCitiesData || { cidades: [], total: 0 }} />
           )}
         </Await>
       </Suspense>

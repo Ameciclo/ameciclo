@@ -78,9 +78,11 @@ export async function loader() {
       ]
     };
 
-    // Buscar dados de forma assíncrona com timeout reduzido
-    const summaryDataPromise = fetchWithTimeout(SAMU_SUMMARY_DATA, {}, 15000, mockSummaryData);
-    const citiesDataPromise = fetchWithTimeout(SAMU_CITIES_DATA, {}, 15000, mockCitiesData);
+    // Buscar dados de forma assíncrona com timeout reduzido e tratamento de erro
+    const summaryDataPromise = fetchWithTimeout(SAMU_SUMMARY_DATA, {}, 15000, mockSummaryData)
+      .catch(() => mockSummaryData);
+    const citiesDataPromise = fetchWithTimeout(SAMU_CITIES_DATA, {}, 15000, mockCitiesData)
+      .catch(() => mockCitiesData);
 
     // Dados estáticos para carregamento imediato
     const statisticsBoxes = [
@@ -253,8 +255,8 @@ export async function loader() {
           unit: "55.1% das chamadas",
         },
       ],
-      summaryData: Promise.resolve(mockSummaryData),
-      citiesData: Promise.resolve(mockCitiesData),
+      summaryData: Promise.resolve(mockSummaryData).catch(() => mockSummaryData),
+      citiesData: Promise.resolve(mockCitiesData).catch(() => mockCitiesData),
     });
   }
 }

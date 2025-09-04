@@ -45,6 +45,7 @@ export async function fetchWithTimeout(
     }
     
     onApiDown?.();
+    // Sempre retorna fallbackData, nunca lança exceção
     return fallbackData;
   }
 }
