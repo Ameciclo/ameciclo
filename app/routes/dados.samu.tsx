@@ -1,5 +1,5 @@
-import React from "react";
-import { useLoaderData } from "@remix-run/react";
+import React, { Suspense } from "react";
+import { useLoaderData, Await } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -21,8 +21,6 @@ export default function SamuPage() {
     statisticsBoxes,
     citiesData,
   } = useLoaderData<typeof loader>();
-  
-
 
   return (
     <>
@@ -52,7 +50,17 @@ export default function SamuPage() {
           },
         ]}
       />
-      <SamuClientSide citiesData={citiesData} />
+      <Suspense fallback={
+        <div className="container mx-auto py-8">
+          <div className="animate-pulse bg-gray-200 h-96 w-full rounded-lg mb-12"></div>
+        </div>
+      }>
+        <Await resolve={citiesData}>
+          {(resolvedCitiesData) => (
+            <SamuClientSide citiesData={resolvedCitiesData} />
+          )}
+        </Await>
+      </Suspense>
       <CardsSession title={documents.title} cards={documents.cards} />
     </>
   );

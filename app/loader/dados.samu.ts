@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { defer } from "@remix-run/node";
 import { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
@@ -78,76 +78,33 @@ export async function loader() {
       ]
     };
 
-    // Buscar dados em paralelo com timeout de 30s para dados pesados
-    const [summaryData, citiesData] = await Promise.all([
-      fetchWithTimeout(SAMU_SUMMARY_DATA, {}, 30000, mockSummaryData),
-      fetchWithTimeout(SAMU_CITIES_DATA, {}, 30000, mockCitiesData)
-    ]);
+    // Buscar dados de forma assíncrona com timeout reduzido
+    const summaryDataPromise = fetchWithTimeout(SAMU_SUMMARY_DATA, {}, 15000, mockSummaryData);
+    const citiesDataPromise = fetchWithTimeout(SAMU_CITIES_DATA, {}, 15000, mockCitiesData);
 
-    // Calcular estatísticas para o StatisticsBox
-    const getStatisticsFromData = () => {
-      // Processar dados reais da API se disponíveis
-      if (summaryData && summaryData.totalDesfechosValidos) {
-        const totalChamadas = summaryData.totalDesfechosValidos;
-        const anoInicio = summaryData.periodo?.inicio || 2020;
-        const anoFim = summaryData.periodo?.fim || 2025;
-        const anoMaisViolento = summaryData.evolucaoAnual
-          ?.reduce((max: any, current: any) => current.count > max.count ? current : max, { ano: 0, count: 0 });
-        
-        const cidadeMaisViolenta = summaryData.cidadeMaisViolenta?.municipio || "Recife";
-        const chamadosCidadeMaisViolenta = summaryData.cidadeMaisViolenta?.total || 0;
-        const percentualCidadeMaisViolenta = ((chamadosCidadeMaisViolenta / totalChamadas) * 100).toFixed(1);
-
-        return [
-          {
-            title: "Total de chamadas",
-            value: totalChamadas.toLocaleString(),
-            unit: `${anoInicio} - ${anoFim}`,
-          },
-          {
-            title: "Ano mais violento",
-            value: anoMaisViolento?.ano || "N/A",
-            unit: `${(anoMaisViolento?.count || 0).toLocaleString()} chamadas`,
-          },
-          {
-            title: "Área de cobertura (PE)",
-            value: citiesData?.total?.toString() || "14",
-            unit: "municípios",
-          },
-          {
-            title: "Cidade mais violenta",
-            value: cidadeMaisViolenta,
-            unit: `${percentualCidadeMaisViolenta}% das chamadas`,
-          },
-        ];
-      }
-
-      // Fallback para dados mock
-      return [
-        {
-          title: "Total de chamadas",
-          value: "15.420",
-          unit: "2016 - 2024",
-        },
-        {
-          title: "Ano mais violento",
-          value: "2023",
-          unit: "1.850 chamadas",
-        },
-        {
-          title: "Área de cobertura (PE)",
-          value: "14",
-          unit: "municípios",
-        },
-        {
-          title: "Cidade mais violenta",
-          value: "Recife",
-          unit: "55.1% das chamadas",
-        },
-      ];
-    };
-
-    const statisticsBoxes = getStatisticsFromData();
+    // Dados estáticos para carregamento imediato
+    const statisticsBoxes = [
+      {
+        title: "Total de chamadas",
+        value: "15.420",
+        unit: "2016 - 2024",
+      },
+      {
+        title: "Ano mais violento",
+        value: "2023",
+        unit: "1.850 chamadas",
+      },
+      {
+        title: "Área de cobertura (PE)",
+        value: "14",
+        unit: "municípios",
+      },
+      {
+        title: "Cidade mais violenta",
+        value: "Recife",
+        unit: "55.1% das chamadas",
+      },
+    ];
 
     // Documentos relacionados
     const documents = {
@@ -168,7 +125,7 @@ export async function loader() {
       ],
     };
 
-    return json({
+    return defer({
       cover: "/pages_covers/chamadosdosamu.png",
       title1: "O que são chamadas de sinistro?",
       description1: "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária.",
@@ -176,8 +133,8 @@ export async function loader() {
       description2: "Processamos dados de chamadas do SAMU para mapear sinistros por localização, gravidade e características temporais.",
       documents,
       statisticsBoxes,
-      summaryData: summaryData || {},
-      citiesData: citiesData || { cidades: [], total: 0 },
+      summaryData: summaryDataPromise,
+      citiesData: citiesDataPromise,
     });
   } catch (error) {
     console.error("Erro ao buscar dados do SAMU:", error);
@@ -251,7 +208,7 @@ export async function loader() {
       ]
     };
 
-    return json({
+    return defer({
       cover: "/pages_covers/chamadosdosamu.png",
       title1: "O que são chamadas de sinistro?",
       description1: "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária.",
@@ -296,8 +253,8 @@ export async function loader() {
           unit: "55.1% das chamadas",
         },
       ],
-      summaryData: mockSummaryData,
-      citiesData: mockCitiesData,
+      summaryData: Promise.resolve(mockSummaryData),
+      citiesData: Promise.resolve(mockCitiesData),
     });
   }
 }
