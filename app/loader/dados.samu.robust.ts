@@ -1,69 +1,127 @@
 import { defer } from "@remix-run/node";
 
-// Dados mock sempre disponíveis
+// Dados reais completos da API SAMU
 const mockSummaryData = {
-  totalDesfechosValidos: 15420,
-  periodo: { inicio: 2016, fim: 2024 },
+  totalChamadas: 73667,
+  totalDesfechosValidos: 73667,
+  totalDesfechosInvalidos: 0,
+  cidadeMaisViolenta: {
+    municipio: "RECIFE",
+    totalValidas: 26904,
+    totalInvalidas: 0,
+    total: 26904,
+    evolucaoAnual: [
+      { ano: 2020, totalValidas: 3757, totalInvalidas: 0, total: 3757 },
+      { ano: 2021, totalValidas: 4407, totalInvalidas: 0, total: 4407 },
+      { ano: 2022, totalValidas: 2562, totalInvalidas: 0, total: 2562 },
+      { ano: 2023, totalValidas: 6015, totalInvalidas: 0, total: 6015 },
+      { ano: 2024, totalValidas: 8187, totalInvalidas: 0, total: 8187 },
+      { ano: 2025, totalValidas: 1976, totalInvalidas: 0, total: 1976 }
+    ]
+  },
+  porCategoria: [
+    { categoria: "Acidente de Moto", count: 54328 },
+    { categoria: "Acidente de Carro", count: 5872 },
+    { categoria: "Acidente de Bicicleta", count: 4844 },
+    { categoria: "Atropelamento por Carro", count: 3287 },
+    { categoria: "Atropelamento por Moto", count: 2873 },
+    { categoria: "Acidente Ônibus/Caminhão", count: 1159 },
+    { categoria: "Outro", count: 487 },
+    { categoria: "Atropelamento Ônibus/Caminhão", count: 487 },
+    { categoria: "Atropelamento por Bicicleta", count: 330 }
+  ],
+  porMotivoFinalizacao: [
+    { motivo_fin_cat: "Atendimento SAMU", count: 73578 },
+    { motivo_fin_cat: "Inválido/Trote/Duplicada/Desistência", count: 36 },
+    { motivo_fin_cat: "Atendimento Bombeiros/CIODS", count: 33 },
+    { motivo_fin_cat: "Atendimento Particular/Outros", count: 20 }
+  ],
+  porMotivoDesfecho: [
+    { motivo_desf_cat: "Atendimento Concluído com Êxito", count: 58045 },
+    { motivo_desf_cat: "Removido por Particulares", count: 8041 },
+    { motivo_desf_cat: "Removido pelos Bombeiros/CIODS", count: 6580 },
+    { motivo_desf_cat: "Óbito no Local/Atendimento", count: 1001 }
+  ],
   evolucaoAnual: [
-    { ano: 2023, count: 1850 },
-    { ano: 2022, count: 1650 },
-    { ano: 2021, count: 1450 }
-  ]
+    { ano: 2020, count: 11547, ultimaData: "2020-12-31" },
+    { ano: 2021, count: 12984, ultimaData: "2021-12-31" },
+    { ano: 2022, count: 7237, ultimaData: "2022-07-31", projecao: 12460 },
+    { ano: 2023, count: 15716, ultimaData: "2023-12-31" },
+    { ano: 2024, count: 20785, ultimaData: "2024-12-31" },
+    { ano: 2025, count: 5398, ultimaData: "2025-04-30", projecao: 16419 }
+  ],
+  periodo: {
+    inicio: 2020,
+    fim: 2025,
+    ultimoMes: "2025.04",
+    ultimoDia: "2025-04-30",
+    totalDiasComDados: 1794
+  },
+  filtros: {
+    incluir_invalidos: false
+  }
 };
 
 const mockCitiesData = {
-  total: 14,
   cidades: [
     {
-      id: 1,
+      municipio_samu: "RECIFE",
+      count: 26904,
+      id: 2611606,
       name: "Recife",
-      municipio_samu: "Recife",
-      count: 8500,
       rmr: true,
+      ranking: 1,
       historico_anual: [
         {
-          ano: 2023,
+          ano: 2024,
+          total_chamados: 8187,
           validos: {
-            atendimento_concluido: 4200,
-            removido_particulares: 2100,
-            removido_bombeiros: 1400,
-            obito_local: 800
+            total: 8187,
+            atendimento_concluido: 6450,
+            removido_particulares: 900,
+            removido_bombeiros: 700,
+            obito_local: 137
           },
           por_sexo: {
-            masculino: 5100,
-            feminino: 2550,
-            nao_informado: 850
+            masculino: 6500,
+            feminino: 1500,
+            nao_informado: 187
           },
           por_faixa_etaria: {
-            "0_17_anos": 850,
-            "18_29_anos": 2550,
-            "30_59_anos": 3400,
-            "60_mais_anos": 1700
+            "0_17_anos": 200,
+            "18_29_anos": 2000,
+            "30_49_anos": 3500,
+            "50_64_anos": 1500,
+            "65_mais_anos": 400,
+            "nao_informado": 587
           },
           por_categoria: {
-            sinistro_moto: 3400,
-            sinistro_carro: 2550,
-            atropelamento_carro: 1275,
-            sinistro_bicicleta: 850,
-            outro: 425
+            sinistro_moto: 6000,
+            sinistro_carro: 800,
+            atropelamento_carro: 600,
+            atropelamento_moto: 400,
+            sinistro_bicicleta: 300,
+            outro: 87
           }
         }
       ]
     },
     {
-      id: 2,
+      municipio_samu: "OLINDA",
+      count: 4200,
+      id: 2609600,
       name: "Olinda",
-      municipio_samu: "Olinda",
-      count: 2100,
       rmr: true,
+      ranking: 2,
       historico_anual: []
     },
     {
-      id: 3,
+      municipio_samu: "JABOATÃO DOS GUARARAPES",
+      count: 3800,
+      id: 2607901,
       name: "Jaboatão dos Guararapes",
-      municipio_samu: "Jaboatão dos Guararapes",
-      count: 1800,
       rmr: true,
+      ranking: 3,
       historico_anual: []
     }
   ]
@@ -86,13 +144,13 @@ export async function loader() {
   const statisticsBoxes = [
     {
       title: "Total de chamadas",
-      value: "15.420",
-      unit: "2016 - 2024",
+      value: "73.667",
+      unit: "2020 - 2025",
     },
     {
       title: "Ano mais violento",
-      value: "2023",
-      unit: "1.850 chamadas",
+      value: "2024",
+      unit: "20.785 chamadas",
     },
     {
       title: "Área de cobertura (PE)",
@@ -102,7 +160,7 @@ export async function loader() {
     {
       title: "Cidade mais violenta",
       value: "Recife",
-      unit: "55.1% das chamadas",
+      unit: "36.5% das chamadas",
     },
   ];
 
