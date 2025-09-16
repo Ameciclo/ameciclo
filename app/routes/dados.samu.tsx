@@ -7,7 +7,7 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import SamuClientSide from "~/components/Samu/SamuClientSide";
 
-import { loader } from "~/loader/dados.samu";
+import { loader } from "~/loader/dados.samu.robust";
 export { loader };
 
 export default function SamuPage() {

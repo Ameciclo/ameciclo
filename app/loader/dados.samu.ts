@@ -3,11 +3,16 @@ import { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export async function loader() {
+  console.log('🚑 SAMU Loader iniciado');
+  
   try {
     // Validar se as URLs estão definidas
     if (!SAMU_SUMMARY_DATA || !SAMU_CITIES_DATA) {
+      console.error('❌ URLs do SAMU não configuradas:', { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA });
       throw new Error("URLs do SAMU não estão configuradas corretamente");
     }
+    
+    console.log('✅ URLs do SAMU configuradas:', { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA });
 
     // Dados mock para fallback
     const mockSummaryData = {
@@ -79,10 +84,19 @@ export async function loader() {
     };
 
     // Buscar dados de forma assíncrona com timeout reduzido e tratamento de erro
-    const summaryDataPromise = fetchWithTimeout(SAMU_SUMMARY_DATA, {}, 15000, mockSummaryData)
-      .catch(() => mockSummaryData);
-    const citiesDataPromise = fetchWithTimeout(SAMU_CITIES_DATA, {}, 15000, mockCitiesData)
-      .catch(() => mockCitiesData);
+    const summaryDataPromise = fetchWithTimeout(SAMU_SUMMARY_DATA, {}, 10000, mockSummaryData)
+      .then(data => data || mockSummaryData)
+      .catch(() => {
+        console.warn('Fallback para dados mock do SAMU summary');
+        return mockSummaryData;
+      });
+    
+    const citiesDataPromise = fetchWithTimeout(SAMU_CITIES_DATA, {}, 10000, mockCitiesData)
+      .then(data => data || mockCitiesData)
+      .catch(() => {
+        console.warn('Fallback para dados mock do SAMU cities');
+        return mockCitiesData;
+      });
 
     // Dados estáticos para carregamento imediato
     const statisticsBoxes = [
@@ -127,6 +141,8 @@ export async function loader() {
       ],
     };
 
+    console.log('✅ SAMU Loader retornando defer com promises');
+    
     return defer({
       cover: "/pages_covers/chamadosdosamu.png",
       title1: "O que são chamadas de sinistro?",
@@ -255,8 +271,8 @@ export async function loader() {
           unit: "55.1% das chamadas",
         },
       ],
-      summaryData: Promise.resolve(mockSummaryData).catch(() => mockSummaryData),
-      citiesData: Promise.resolve(mockCitiesData).catch(() => mockCitiesData),
+      summaryData: Promise.resolve(mockSummaryData),
+      citiesData: Promise.resolve(mockCitiesData),
     });
   }
 }
