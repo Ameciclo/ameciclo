@@ -88,20 +88,26 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         setSelectedYear(years[years.length - 1]);
       }
 
-      const chartData = cityData.historico_anual.map((item: any) => ({
-        label: item.ano.toString(),
-        atendimento_concluido: item.validos?.atendimento_concluido || 0,
-        removido_particulares: item.validos?.removido_particulares || 0,
-        removido_bombeiros: item.validos?.removido_bombeiros || 0,
-        obito_local: item.validos?.obito_local || 0,
-        projecao: item.projecao_total_chamados
-          ? item.projecao_total_chamados - item.total_chamados
-          : 0,
-      }));
+      const chartData = cityData.historico_anual
+        .sort((a: any, b: any) => a.ano - b.ano)
+        .map((item: any) => {
+          const total = (item.validos?.atendimento_concluido || 0) + 
+                       (item.validos?.removido_particulares || 0) + 
+                       (item.validos?.removido_bombeiros || 0) + 
+                       (item.validos?.obito_local || 0);
+          return {
+            label: item.ano.toString(),
+            total: total,
+            atendimento_concluido: item.validos?.atendimento_concluido || 0,
+            removido_particulares: item.validos?.removido_particulares || 0,
+            removido_bombeiros: item.validos?.removido_bombeiros || 0,
+            obito_local: item.validos?.obito_local || 0,
+          };
+        });
 
       setFilteredEvolutionData({
         data: chartData,
-        title: `Chamadas por Ano em ${selectedCity}`,
+        title: `Evolução das Chamadas SAMU - ${selectedCity}`,
         xAxisTitle: "Ano",
         yAxisTitle: "Número de Chamadas",
       });
@@ -371,96 +377,61 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         {filteredEvolutionData?.data &&
         filteredEvolutionData.data.length > 0 ? (
           <div className="shadow-2xl rounded p-6 pt-4 text-center">
-            <h3 className="text-lg font-semibold mb-4">
-              Distribuição de Chamadas por Tipo de Desfecho ao Longo dos Anos
-            </h3>
-
-            {/* Legenda */}
-            <div className="flex justify-center mb-4 flex-wrap gap-4">
-              {[
-                {
-                  key: "atendimento_concluido",
-                  label: "Atendimento Concluído",
-                  color: "#10b981",
-                },
-                {
-                  key: "removido_particulares",
-                  label: "Removido Particulares",
-                  color: "#3b82f6",
-                },
-                {
-                  key: "removido_bombeiros",
-                  label: "Removido Bombeiros",
-                  color: "#f59e0b",
-                },
-                { key: "obito_local", label: "Óbito Local", color: "#dc2626" },
-                { key: "projecao", label: "Projeção", color: "#ac1666" },
-              ].map((item) => (
-                <div key={item.key} className="flex items-center">
-                  <div
-                    className="w-4 h-4 mr-2"
-                    style={{ backgroundColor: item.color }}
-                  ></div>
-                  <span className="text-sm">{item.label}</span>
-                </div>
-              ))}
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                Evolução Anual das Chamadas SAMU
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Distribuição por tipo de desfecho dos atendimentos
+              </p>
+              
+              {/* Legenda */}
+              <div className="flex justify-center mb-6 flex-wrap gap-6">
+                {[
+                  {
+                    key: "atendimento_concluido",
+                    label: "Atendimento Concluído",
+                    color: "#059669",
+                  },
+                  {
+                    key: "removido_particulares",
+                    label: "Removido por Particulares",
+                    color: "#2563eb",
+                  },
+                  {
+                    key: "removido_bombeiros",
+                    label: "Removido pelos Bombeiros",
+                    color: "#d97706",
+                  },
+                  { key: "obito_local", label: "Óbito no Local", color: "#dc2626" },
+                ].map((item) => (
+                  <div key={item.key} className="flex items-center">
+                    <div
+                      className="w-4 h-4 mr-2 rounded-sm"
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                    <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <VerticalBarChart
-              title={`Chamadas por Ano em ${selectedCity}`}
+              title=""
               xAxisTitle="Ano"
               yAxisTitle="Número de Chamadas"
               data={filteredEvolutionData.data}
               series={[]}
               xKey="label"
               yKeys={[
-                "projecao",
                 "atendimento_concluido",
                 "removido_particulares",
                 "removido_bombeiros",
                 "obito_local",
               ]}
-              colors={["#ac1666", "#10b981", "#3b82f6", "#f59e0b", "#dc2626"]}
+              colors={["#059669", "#2563eb", "#d97706", "#dc2626"]}
             />
-            
-            {/* Legenda de Projeções */}
-            {(() => {
-              const cityData = citiesData?.cidades?.find(
-                (city) => city.name === selectedCity || city.municipio_samu === selectedCity
-              );
-              
 
-              
-              const projectionsInfo = cityData?.historico_anual
-                ?.filter((item: any) => item.projecao_total_chamados && item.ultimaData)
-                ?.map((item: any) => {
-                  const lastDataDate = new Date(item.ultimaData);
-                  const yearStart = new Date(item.ano, 0, 1);
-                  const daysDiff = Math.floor((lastDataDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                  
-                  return {
-                    ano: item.ano,
-                    dataUltimoDado: lastDataDate.toLocaleDateString('pt-BR'),
-                    totalDias: daysDiff
-                  };
-                }) || [];
-              
-              return projectionsInfo.length > 0 ? (
-                <div className="mt-6 bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-orange-800 mb-3">PROJEÇÕES:</h4>
-                  <div className="space-y-1 text-sm text-orange-700">
-                    {projectionsInfo.map((info) => (
-                      <p key={info.ano}>
-                        Ano {info.ano} - Dados até {info.dataUltimoDado}, total de {info.totalDias} dias, {Math.round(info.totalDias/3.65)}% do ano
-                      </p>
-                    ))}
-                  </div>
-                  <p className="text-xs text-orange-600 mt-2 italic">
-                    * Projeções calculadas com base na tendência linear dos dados disponíveis no ano
-                  </p>
-                </div>
-              ) : null;
-            })()}
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-6 text-center">

@@ -31,10 +31,9 @@ function VerticalBarChart({
     
     chartSeries = yKeys.map((key, index) => ({
       name: key === "atendimento_concluido" ? "Atendimento Concluído" :
-            key === "removido_particulares" ? "Removido Particulares" :
-            key === "removido_bombeiros" ? "Removido Bombeiros" :
-            key === "projecao" ? "Projeção" :
-            key === "obito_local" ? "Óbito Local" : key,
+            key === "removido_particulares" ? "Removido por Particulares" :
+            key === "removido_bombeiros" ? "Removido pelos Bombeiros" :
+            key === "obito_local" ? "Óbito no Local" : key,
       data: data.map(item => item[key] || 0),
       color: colors && colors[index] ? colors[index] : undefined
     }));
@@ -67,22 +66,41 @@ function VerticalBarChart({
       plotOptions: {
         column: {
           stacking: 'normal',
+          borderWidth: 0,
           dataLabels: {
             enabled: true,
             formatter: function() {
               // Mostrar apenas o total no topo da pilha
               if (this.point.stackY === this.point.total) {
-                return this.point.total;
+                return '<b>' + this.point.total.toLocaleString() + '</b>';
               }
               return null;
             },
             style: {
               fontWeight: 'bold',
-              color: '#000000'
+              color: '#374151',
+              fontSize: '12px',
+              textOutline: 'none'
             },
             verticalAlign: 'top',
-            y: -20
+            y: -25
           }
+        }
+      },
+      tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function() {
+          let tooltip = '<b>' + this.x + '</b><br/>';
+          let total = 0;
+          this.points.forEach(function(point) {
+            tooltip += '<span style="color:' + point.color + '">●</span> ' + 
+                      point.series.name + ': <b>' + point.y.toLocaleString() + '</b><br/>';
+            total += point.y;
+          });
+          tooltip += '<hr style="margin: 5px 0;"/>';
+          tooltip += '<b>Total: ' + total.toLocaleString() + '</b>';
+          return tooltip;
         }
       }
     };

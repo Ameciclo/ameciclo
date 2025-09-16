@@ -37,7 +37,6 @@ export const OBSERVATORIO_SINISTROS_PAGE_DATA = `https://do.strapi.ameciclo.org/
 // Endpoint do Strapi para dados das plataformas (mantido para compatibilidade)
 export const PLATAFORMAS_PAGE_DATA = `https://do.strapi.ameciclo.org/api/plataformas-de-dados?populate=*`
 
-
 // Endpoints para Vias Inseguras
 export const VIAS_INSEGURAS_BASE_URL = `https://api.garfo.ameciclo.org`
 
