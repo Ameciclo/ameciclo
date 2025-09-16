@@ -1,4 +1,4 @@
-import { defer, MetaFunction } from "@remix-run/node";
+import { MetaFunction } from "@remix-run/node";
 import { useLoaderData, Await } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
 import { Suspense, useState } from "react";
@@ -9,7 +9,8 @@ import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import QuemSomosLoading from "~/components/QuemSomos/QuemSomosLoading";
-import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { loader } from "~/loader/quem_somos";
+export { loader };
 
 type Ameciclista = {
   id: string;
@@ -25,44 +26,7 @@ type CustomData = {
   links: { id: string; title: string; link: string }[];
 };
 
-export const loader = async () => {
-  const server = "https://cms.ameciclo.org";
 
-  const dataPromise = Promise.all([
-    fetchWithTimeout(`${server}/ameciclistas`, { cache: "no-cache" }, 15000, []),
-    fetchWithTimeout(
-      `${server}/quem-somos`,
-      { cache: "no-cache" },
-      15000,
-      { definition: "Associação Metropolitana de Ciclistas do Recife", objective: "Promover a mobilidade ativa", links: [] }
-    )
-  ]).then(([ameciclistas, custom]) => {
-    // Defensive check to ensure ameciclistas is an array before sorting
-    if (Array.isArray(ameciclistas)) {
-      ameciclistas.sort((a, b) => a.name.localeCompare(b.name));
-    } else {
-      console.error("Data received for /ameciclistas is not an array:", ameciclistas);
-      // Return a safe value to prevent crashing
-      ameciclistas = [];
-    }
-    return { ameciclistas, custom };
-  }).catch(error => {
-    console.error("Error fetching or processing data for Quem Somos:", error);
-    // Return a safe, default state to prevent the entire page from crashing
-    return {
-      ameciclistas: [],
-      custom: {
-        definition: "Associação Metropolitana de Ciclistas do Recife",
-        objective: "Promover a mobilidade ativa",
-        links: []
-      }
-    };
-  });
-
-  return defer({
-    pageData: dataPromise
-  });
-};
 
 export const meta: MetaFunction = () => {
   return [{ title: "Quem Somos" }];

@@ -1,7 +1,14 @@
+import { useLocation } from '@remix-run/react';
 import { useApiStatus } from '~/contexts/ApiStatusContext';
 
 export function ApiAlert() {
   const { isApiDown } = useApiStatus();
+  const location = useLocation();
+  
+  // Não mostrar o alerta nas páginas de dados
+  if (location.pathname.startsWith('/dados')) {
+    return null;
+  }
 
   if (!isApiDown) return null;
 

@@ -1,7 +1,7 @@
 import { useLoaderData, Await, useCatch } from "@remix-run/react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
-import { loader } from "~/loader/projetos";
+import { projetoLoader as loader } from "~/loader/projetos";
 import { Suspense, useState } from "react";
 import LanguageSelector from '~/components/Projetos/LanguageSelector';
 import ProjetoLoading from '~/components/Projetos/ProjetoLoading';

@@ -6,17 +6,9 @@ import { useLoaderData, Await } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import bannerSchedule from "/agenda.webp";
 import { Suspense } from "react";
-export const loader = async () => {
-    const configPromise = Promise.resolve({
-        googleCalendarApiKey: process.env.GOOGLE_CALENDAR_API_KEY,
-        externalCalendarId: process.env.GOOGLE_CALENDAR_EXTERNAL_ID,
-        internalCalendarId: process.env.GOOGLE_CALENDAR_INTERNAL_ID
-    });
-    
-    return defer({
-        calendarConfig: configPromise
-    });
-};
+import { loader } from "../loader/agenda";
+export { loader };
+
 export const meta: MetaFunction = () => {
     return [{ title: "Agenda" }];
 };
@@ -41,8 +33,8 @@ function AgendaContent({ calendarConfig }: { calendarConfig: any }) {
                             <p className="text-yellow-600 mb-4">
                                 A chave da API do Google Calendar não está definida.
                             </p>
-                            <a 
-                                href="/contato" 
+                            <a
+                                href="/contato"
                                 className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
                             >
                                 Reportar problema
@@ -57,7 +49,7 @@ function AgendaContent({ calendarConfig }: { calendarConfig: any }) {
     return (
         <div className="container px-4 py-4 mx-auto my-10">
             <div className="px-4 py-4 rounded border border-gray-300">
-                <EventCalendar 
+                <EventCalendar
                     googleCalendarApiKey={googleCalendarApiKey}
                     externalCalendarId={externalCalendarId}
                     internalCalendarId={internalCalendarId}

@@ -1,4 +1,4 @@
-import { MetaFunction, defer } from "@remix-run/node";
+import { MetaFunction } from "@remix-run/node";
 import { useLoaderData, Await } from "@remix-run/react";
 import { useState, useMemo, useEffect, Suspense } from "react";
 import Banner from "~/components/Commom/Banner";
@@ -10,7 +10,8 @@ import { ProjectCardLoading } from "~/components/Projetos/ProjectCardLoading";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import SearchProject from "~/components/Projetos/SearchProject";
-import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { loader } from "~/loader/projetos";
+export { loader };
 
 interface Project {
   id: string;
@@ -36,33 +37,7 @@ export const meta: MetaFunction = () => {
   return [{ title: "Projetos" }];
 };
 
-export const loader = async () => {
-  const API_URL = "https://cms.ameciclo.org";
 
-  try {
-    const [projectsRes, workgroupsRes] = await Promise.all([
-      fetchWithTimeout(`${API_URL}/projects`, { cache: "no-cache" }, 30000, []),
-      fetchWithTimeout(`${API_URL}/workgroups`, { cache: "no-cache" }, 30000, []),
-    ]);
-
-    const projects = Array.isArray(projectsRes) ? projectsRes : [];
-    const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
-    const error = projects.length === 0 && workgroups.length === 0 ? 'API_ERROR' : null;
-
-    return defer({
-      projectsData: Promise.resolve({ projects, workgroups, error })
-    });
-  } catch (error) {
-    console.error("Critical Error in Projetos loader:", error);
-    return defer({
-      projectsData: Promise.resolve({
-        projects: [],
-        workgroups: [],
-        error: 'API_ERROR'
-      })
-    });
-  }
-};
 
 function ProjectsContent({ projectsData }: { projectsData: any }) {
   const { projects, error } = projectsData;

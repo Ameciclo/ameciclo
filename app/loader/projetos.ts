@@ -1,44 +1,44 @@
-import { json, defer, type LoaderFunction } from "@remix-run/node";
+import { defer, type LoaderFunction } from "@remix-run/node";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 const API_URL = "https://cms.ameciclo.org";
 
 export const projetosLoader: LoaderFunction = async () => {
   try {
     const [projectsRes, workgroupsRes] = await Promise.all([
-      fetch(`${API_URL}/projects`).then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch projects');
-        return res.json();
-      }).catch(() => []),
-      fetch(`${API_URL}/workgroups`).then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch workgroups');
-        return res.json();
-      }).catch(() => []),
+      fetchWithTimeout(`${API_URL}/projects`, { cache: "no-cache" }, 30000, []),
+      fetchWithTimeout(`${API_URL}/workgroups`, { cache: "no-cache" }, 30000, []),
     ]);
 
-    return json({
-      projects: Array.isArray(projectsRes) ? projectsRes : [],
-      workgroups: Array.isArray(workgroupsRes) ? workgroupsRes : [],
-      error: projectsRes.length === 0 && workgroupsRes.length === 0 ? 'API_ERROR' : null
+    const projects = Array.isArray(projectsRes) ? projectsRes : [];
+    const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
+    const error = projects.length === 0 && workgroups.length === 0 ? 'API_ERROR' : null;
+
+    return defer({
+      projectsData: Promise.resolve({ projects, workgroups, error })
     });
   } catch (error) {
-    return json({
-      projects: [],
-      workgroups: [],
-      error: 'API_ERROR'
+    console.error("Critical Error in Projetos loader:", error);
+    return defer({
+      projectsData: Promise.resolve({
+        projects: [],
+        workgroups: [],
+        error: 'API_ERROR'
+      })
     });
   }
 };
 
-export const loader: LoaderFunction = async ({ params }) => {
+// Loader para projetos._index.tsx
+export const loader = projetosLoader;
+
+// Loader para projetos.$projeto.tsx
+export const projetoLoader: LoaderFunction = async ({ params }) => {
   const { projeto } = params;
 
   const fetchProject = async () => {
     try {
-      const response = await fetch(`${API_URL}/projects?slug=${projeto}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch project: ${projeto}`);
-      }
-      const projects = await response.json();
+      const projects = await fetchWithTimeout(`${API_URL}/projects?slug=${projeto}`, {}, 15000, []);
       if (!projects || projects.length === 0) {
         throw new Response("Not Found", { status: 404 });
       }

@@ -1,10 +1,8 @@
-import { json, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
+import { type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
 import Breadcrumb from "../components/Commom/Breadcrumb";
-import { fetchJsonFromCMS } from "../services/cmsApi";
-
-const server = "https://cms.ameciclo.org";
+import { loader } from "~/loader/biciclopedia.$question";
 
 interface FAQTag {
   id: number;
@@ -24,6 +22,8 @@ interface LoaderData {
   question: Question;
 }
 
+export { loader };
+
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data?.question) {
     return [
@@ -35,28 +35,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     { title: `${data.question.title} - Biciclopedia` },
     { name: "description", content: data.question.description },
   ];
-};
-
-export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const questionId = params.question;
-  
-  if (!questionId) {
-    throw new Response("Question ID is required", { status: 400 });
-  }
-
-  try {
-    const questions = await fetchJsonFromCMS<Question[]>(`${server}/faqs?id=${questionId}`);
-    const question = questions[0];
-    
-    if (!question) {
-      throw new Response("Question not found", { status: 404 });
-    }
-
-    return json({ question });
-  } catch (error) {
-    console.error('Error loading question:', error);
-    throw new Response("Error loading question", { status: 500 });
-  }
 };
 
 export default function Question() {

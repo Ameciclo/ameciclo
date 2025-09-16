@@ -1,11 +1,9 @@
-import { json, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
+import { type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { SearchComponent } from "../components/Biciclopedia/SearchComponent";
 import { AccordionItem } from "../components/Biciclopedia/AccordionFAQ";
-import { fetchJsonFromCMS } from "../services/cmsApi";
-
-const server = "https://cms.ameciclo.org";
+import { loader } from "~/loader/biciclopedia";
 
 interface FAQ {
   id: number;
@@ -25,25 +23,13 @@ interface LoaderData {
   categories: Category[];
 }
 
+export { loader };
+
 export const meta: MetaFunction = () => {
   return [
     { title: "Biciclopedia - Ameciclo" },
     { name: "description", content: "Perguntas e respostas sobre mobilidade urbana e ciclismo" },
   ];
-};
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  try {
-    const [faqs, categories] = await Promise.all([
-      fetchJsonFromCMS<FAQ[]>(`${server}/faqs`),
-      fetchJsonFromCMS<Category[]>(`${server}/faq-tags`)
-    ]);
-
-    return json({ faqs: faqs || [], categories: categories || [] });
-  } catch (error) {
-    console.error('Error loading biciclopedia data:', error);
-    return json({ faqs: [], categories: [] });
-  }
 };
 
 export default function Biciclopedia() {

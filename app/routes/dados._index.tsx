@@ -15,33 +15,6 @@ export default function Dados() {
     const { dataPromise } = useLoaderData<typeof loader>();
     const FEATURED_PAGES = [
         {
-            title: "Chamados de Sinistros",
-            src: "/icons/home/chamados_sinistros.svg",
-            url: "/dados/samu",
-            description:
-                "Detalhamento dos dados de chamados de sinistros pela SAMU.",
-            target: "",
-            isNew: true,
-        },
-        {
-            title: "Vias Inseguras",
-            src: "/icons/home/vias-inseguras.svg",
-            url: "/dados/vias-inseguras",
-            description:
-                "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
-            target: "",
-            isNew: true,
-        },
-        {
-            title: "Sinistros Fatais",
-            src: "/icons/home/sinistrosfatais.png",
-            url: "/dados/sinistros-fatais",
-            description:
-                "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
-            target: "",
-            isNew: true,
-        },
-        {
             title: "Contagens",
             src: "/icons/dados/contagem.svg",
             url: "/dados/contagens",
@@ -93,6 +66,30 @@ export default function Dados() {
             url: "/dados/dom",
             description:
                 "Monitoramento do orçamento municipal conforme sua contribuição climática.",
+            target: "",
+        },
+        {
+            title: "Chamados de Sinistros",
+            src: "/icons/home/chamados_sinistros.svg",
+            url: "/dados/samu",
+            description:
+                "Detalhamento dos dados de chamados de sinistros pela SAMU.",
+            target: "",
+        },
+        {
+            title: "Vias Inseguras",
+            src: "/icons/home/vias-inseguras.svg",
+            url: "/dados/vias-inseguras",
+            description:
+                "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+            target: "",
+        },
+        {
+            title: "Sinistros Fatais",
+            src: "/icons/home/sinistrosfatais.png",
+            url: "/dados/sinistros-fatais",
+            description:
+                "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
             target: "",
         },
         // {
