@@ -1,4 +1,4 @@
-import { Await, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { pointData, CountEditionSummary, CountEdition, PcrCounting } from "typings";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -11,13 +11,12 @@ import { CardsSession } from "~/components/Commom/CardsSession";
 import { loader } from "~/loader/dados.contagens";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import { CountsTable } from "~/components/Contagens/CountsTable";
-import { MapLoading } from "~/components/ExecucaoCicloviaria/Loading/MapLoading";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 
 export { loader };
 
 export default function Contagens() {
-    const { dataPromise, summaryDataPromise, pcrCountsPromise } = useLoaderData<typeof loader>();
+    const { data, summaryData, pcrCounts } = useLoaderData<typeof loader>();
     const [showFilters, setShowFilters] = useState(false);
 
     const allCountsStatistics = (summaryData: CountEditionSummary) => {
@@ -47,120 +46,69 @@ export default function Contagens() {
         color: "#ef4444"
     }];
 
+    let pointsData: pointData[] = summaryData.countsData.map((d: CountEdition) => ({
+        key: d.id,
+        type: 'ameciclo',
+        latitude: d.coordinates?.latitude || -8.0584364,
+        longitude: d.coordinates?.longitude || -34.945277,
+        popup: {
+            name: d.name,
+            total: d.total_cyclists,
+            date: IntlDateStr(d.date),
+            url: `/dados/contagens/${d.slug}`,
+            obs: ""
+        },
+        size: Math.round((d.total_cyclists || 0) / 250) + 5,
+        color: "#008888"
+    })).filter((point: pointData) =>
+        point.latitude >= -90 && point.latitude <= 90 &&
+        point.longitude >= -180 && point.longitude <= 180 &&
+        point.latitude !== -8.0584364 && point.longitude !== -34.945277
+    );
+
+    const pcrPointsData: pointData[] = pcrCounts.map((d: PcrCounting, index: number) => ({
+        key: "pcr_" + index,
+        type: 'prefeitura',
+        latitude: d.location.coordinates[0],
+        longitude: d.location.coordinates[1],
+        popup: {
+            name: d.name,
+            total: d.summary.total,
+            date: IntlDateStr(d.date),
+            url: "",
+            obs: "Contagem realizadas pela ocasião do Diagnóstico do Plano de Mobilidade (ICPS/PCR)."
+        },
+        size: Math.round((d.summary.total || 0) / 250) + 5,
+        color: "#ef4444"
+    }));
+
+    pointsData = pointsData.concat(pcrPointsData);
+
+    const docs = (data?.archives || []).map((a: any) => {
+        return {
+            title: a.filename,
+            description: a.description,
+            src: a.image?.url,
+            url: a.file.url,
+        };
+    });
+
     return (
         <>
-            <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
-                <Await resolve={dataPromise}>
-                    {(data) => (
-                        <Banner image={data?.cover?.url} alt="Capa da página de contagens" />
-                    )}
-                </Await>
-            </Suspense>
-            
+            <Banner image={data?.cover?.url} alt="Capa da página de contagens" />
             <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
-            
-            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-32" />}>
-                <Await resolve={summaryDataPromise}>
-                    {(summaryResult) => (
-                        <GeneralCountStatistics title={"Estatísticas Gerais"} boxes={allCountsStatistics(summaryResult.summaryData)} />
-                    )}
-                </Await>
-            </Suspense>
-            
-            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
-                <Await resolve={dataPromise}>
-                    {(data) => (
-                        <ExplanationBoxes boxes={[{ title: "O que é?", description: data?.description || "Dados de contagens", }, { title: "E o que mais?", description: data?.objective || "Monitorar fluxo de ciclistas" }]} />
-                    )}
-                </Await>
-            </Suspense>
-            
-            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
-                <Await resolve={summaryDataPromise}>
-                    {(summaryResult) => (
-                        <InfoCards cards={summaryResult.cards} />
-                    )}
-                </Await>
-            </Suspense>
-            
-            <Suspense fallback={<MapLoading />}>
-                <Await resolve={Promise.all([summaryDataPromise, pcrCountsPromise])}>
-                    {([summaryResult, pcrCounts]) => {
-                        let pointsData: pointData[] = summaryResult.countsData.map((d: CountEdition) => ({
-                            key: d.id,
-                            type: 'ameciclo',
-                            latitude: d.coordinates?.latitude || -8.0584364,
-                            longitude: d.coordinates?.longitude || -34.945277,
-                            popup: {
-                                name: d.name,
-                                total: d.total_cyclists,
-                                date: IntlDateStr(d.date),
-                                url: `/dados/contagens/${d.slug}`,
-                                obs: ""
-                            },
-                            size: Math.round((d.total_cyclists || 0) / 250) + 5,
-                            color: "#008888"
-                        })).filter((point: pointData) =>
-                            point.latitude >= -90 && point.latitude <= 90 &&
-                            point.longitude >= -180 && point.longitude <= 180 &&
-                            point.latitude !== -8.0584364 && point.longitude !== -34.945277
-                        );
-
-                        const pcrPointsData: pointData[] = pcrCounts.map((d: PcrCounting, index: number) => ({
-                            key: "pcr_" + index,
-                            type: 'prefeitura',
-                            latitude: d.location.coordinates[0],
-                            longitude: d.location.coordinates[1],
-                            popup: {
-                                name: d.name,
-                                total: d.summary.total,
-                                date: IntlDateStr(d.date),
-                                url: "",
-                                obs: "Contagem realizadas pela ocasião do Diagnóstico do Plano de Mobilidade (ICPS/PCR)."
-                            },
-                            size: Math.round((d.summary.total || 0) / 250) + 5,
-                            color: "#ef4444"
-                        }));
-
-                        pointsData = pointsData.concat(pcrPointsData);
-                        
-                        return (
-                            <AmecicloMap
-                                pointsData={pointsData} 
-                                controlPanel={controlPanel}
-                            />
-                        );
-                    }}
-                </Await>
-            </Suspense>
-            
-            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-                <Await resolve={summaryDataPromise}>
-                    {(summaryResult) => (
-                        <CountsTable data={summaryResult.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
-                    )}
-                </Await>
-            </Suspense>
-            <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
-                <Await resolve={dataPromise}>
-                    {(data) => {
-                        const docs = (data?.archives || []).map((a: any) => {
-                            return {
-                                title: a.filename,
-                                description: a.description,
-                                src: a.image?.url,
-                                url: a.file.url,
-                            };
-                        });
-                        return (
-                            <CardsSession
-                                title={"Documentos para realizar contagens de ciclistas."}
-                                cards={docs}
-                            />
-                        );
-                    }}
-                </Await>
-            </Suspense>
+            <GeneralCountStatistics title={"Estatísticas Gerais"} boxes={allCountsStatistics(summaryData.summaryData)} />
+            <ExplanationBoxes boxes={[{ title: "O que é?", description: data?.description || "Dados de contagens", }, { title: "E o que mais?", description: data?.objective || "Monitorar fluxo de ciclistas" }]} />
+            <InfoCards cards={summaryData.cards} />
+            <AmecicloMap
+                pointsData={pointsData} 
+                controlPanel={controlPanel}
+            />
+            <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
+            <CardsSession
+                title={"Documentos para realizar contagens de ciclistas."}
+                cards={docs}
+            />
         </>
     );
 }

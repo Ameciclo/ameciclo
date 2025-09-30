@@ -12,40 +12,48 @@ export async function fetchWithTimeout(
   options: RequestInit = {},
   timeout: number = 15000,
   fallbackData: any = null,
-  onApiDown?: () => void
+  onApiDown?: () => void,
+  retries: number = 2
 ): Promise<any> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, timeout);
-  
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
     
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      console.warn(`Erro na requisição para ${url}: ${response.status}`);
-      onApiDown?.();
-      return fallbackData;
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Validação básica
+      if (data === null || data === undefined) {
+        throw new Error('Invalid data received');
+      }
+      
+      return data;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      if (attempt === retries) {
+        console.warn(`Falha final para ${url} após ${retries + 1} tentativas:`, error.message || error);
+        onApiDown?.();
+        return fallbackData;
+      }
+      
+      // Backoff exponencial: 1s, 2s, 4s...
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
     }
-    
-    const data = await response.json();
-    return data;
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-    
-    if (error.name === 'AbortError') {
-      console.warn(`Timeout na requisição para ${url} após ${timeout}ms`);
-    } else {
-      console.warn(`Falha ao acessar ${url}:`, error.message || error);
-    }
-    
-    onApiDown?.();
-    // Sempre retorna fallbackData, nunca lança exceção
-    return fallbackData;
   }
+  
+  return fallbackData;
 }

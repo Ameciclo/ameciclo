@@ -1,6 +1,6 @@
 import { MetaFunction } from "@remix-run/node";
-import { useLoaderData, Await } from "@remix-run/react";
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useLoaderData } from "@remix-run/react";
+import { useState, useMemo, useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -241,29 +241,7 @@ export default function Projetos() {
       <Banner image="projetos.webp" />
       <div />
       <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
-      <Suspense fallback={
-        <section className="container my-12 mx-auto">
-          <div className="flex justify-between items-center mb-4">
-            <div className="h-8 bg-gray-300 rounded w-64 animate-pulse"></div>
-            <div className="w-[500px] h-10 bg-gray-300 rounded animate-pulse"></div>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <ProjectCardLoading key={index} />
-            ))}
-          </div>
-          <div className="h-8 bg-gray-300 rounded w-64 animate-pulse mb-4 mt-8"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 7 }).map((_, index) => (
-              <ProjectCardLoading key={index} />
-            ))}
-          </div>
-        </section>
-      }>
-        <Await resolve={projectsData}>
-          {(data) => <ProjectsContent projectsData={data} />}
-        </Await>
-      </Suspense>
+      <ProjectsContent projectsData={projectsData} />
     </>
   );
 }

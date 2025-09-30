@@ -1,7 +1,7 @@
 import { MetaFunction } from "@remix-run/node";
-import { useLoaderData, Await } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 
 import AmeCiclistaModal from "~/components/QuemSomos/AmeCiclistaModal";
 
@@ -177,12 +177,7 @@ export default function QuemSomos() {
         />
       </div>
       <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/"]} />
-      
-      <Suspense fallback={<QuemSomosLoading />}>
-        <Await resolve={pageData}>
-          {(data) => <QuemSomosContent pageData={data} />}
-        </Await>
-      </Suspense>
+      <QuemSomosContent pageData={pageData} />
     </>
   );
 }

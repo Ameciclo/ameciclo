@@ -1,10 +1,8 @@
-import { useLoaderData, Await, useCatch } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
 import { projetoLoader as loader } from "~/loader/projetos";
-import { Suspense, useState } from "react";
-import LanguageSelector from '~/components/Projetos/LanguageSelector';
-import ProjetoLoading from '~/components/Projetos/ProjetoLoading';
+import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 
 export { loader };
@@ -138,14 +136,10 @@ export default function Projeto() {
         setGalleryOpen(true);
     };
 
-    return (
-        <Suspense fallback={<ProjetoLoading />}>
-            <Await resolve={project}>
-                {(project) => {
-                    const flagLinks = project?.Links?.filter((link: any) => /^(?:\uD83C[\uDDE6-\uDDFF]){2}$/.test(link.title)) || [];
-                    const otherLinks = project?.Links?.filter((link: any) => !/^(?:\uD83C[\uDDE6-\uDDFF]){2}$/.test(link.title)) || [];
+    const flagLinks = project?.Links?.filter((link: any) => /^(?:\uD83C[\uDDE6-\uDDFF]){2}$/.test(link.title)) || [];
+    const otherLinks = project?.Links?.filter((link: any) => !/^(?:\uD83C[\uDDE6-\uDDFF]){2}$/.test(link.title)) || [];
 
-                    return (
+    return (
                     <>
                         <style dangerouslySetInnerHTML={{
                             __html: `
@@ -436,22 +430,12 @@ export default function Projeto() {
                         </section>
 
                         {/* Modal da Galeria */}
-                        <Suspense fallback={null}>
-                            <Await resolve={project}>
-                                {(resolvedProject) => (
-                                    <ImageGalleryWithZoom
-                                        images={resolvedProject?.gallery || []}
-                                        isOpen={galleryOpen}
-                                        onClose={() => setGalleryOpen(false)}
-                                        initialIndex={selectedImageIndex}
-                                    />
-                                )}
-                            </Await>
-                        </Suspense>
+                        <ImageGalleryWithZoom
+                            images={project?.gallery || []}
+                            isOpen={galleryOpen}
+                            onClose={() => setGalleryOpen(false)}
+                            initialIndex={selectedImageIndex}
+                        />
                     </>
-                    );
-                }}
-            </Await>
-        </Suspense>
     );
 }

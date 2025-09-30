@@ -1,4 +1,4 @@
-import { defer, type LoaderFunction } from "@remix-run/node";
+import { json, type LoaderFunction } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 const API_URL = "https://cms.ameciclo.org";
@@ -14,17 +14,17 @@ export const projetosLoader: LoaderFunction = async () => {
     const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
     const error = projects.length === 0 && workgroups.length === 0 ? 'API_ERROR' : null;
 
-    return defer({
-      projectsData: Promise.resolve({ projects, workgroups, error })
+    return json({
+      projectsData: { projects, workgroups, error }
     });
   } catch (error) {
     console.error("Critical Error in Projetos loader:", error);
-    return defer({
-      projectsData: Promise.resolve({
+    return json({
+      projectsData: {
         projects: [],
         workgroups: [],
         error: 'API_ERROR'
-      })
+      }
     });
   }
 };
@@ -36,20 +36,16 @@ export const loader = projetosLoader;
 export const projetoLoader: LoaderFunction = async ({ params }) => {
   const { projeto } = params;
 
-  const fetchProject = async () => {
-    try {
-      const projects = await fetchWithTimeout(`${API_URL}/projects?slug=${projeto}`, {}, 15000, []);
-      if (!projects || projects.length === 0) {
-        throw new Response("Not Found", { status: 404 });
-      }
-      return projects[0];
-    } catch (error) {
-      console.error(error);
+  try {
+    const projects = await fetchWithTimeout(`${API_URL}/projects?slug=${projeto}`, {}, 15000, []);
+    if (!projects || projects.length === 0) {
       throw new Response("Not Found", { status: 404 });
     }
-  };
-
-  return defer({
-    project: fetchProject(),
-  });
+    return json({
+      project: projects[0]
+    });
+  } catch (error) {
+    console.error(error);
+    throw new Response("Not Found", { status: 404 });
+  }
 };

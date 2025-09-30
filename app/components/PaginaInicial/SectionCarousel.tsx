@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { Link } from "@remix-run/react";
@@ -18,15 +18,13 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
     setIsClient(true);
   }, []);
 
-  const ProjectSlideWithPause = ({ project }) => {
-    return (
-      <ProjectSlide 
-        project={project} 
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-      />
-    );
-  };
+  const ProjectSlideWithPause = useCallback(({ project }) => (
+    <ProjectSlide 
+      project={project} 
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    />
+  ), []);
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -45,26 +43,26 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
     },
   });
 
-  const startAutoplay = () => {
+  const startAutoplay = useCallback(() => {
     if (loaded && instanceRef.current && !autoplayIntervalRef.current) {
       setProgress(0);
 
-      // Atualizar progresso a cada 50ms
+      // Atualizar progresso a cada 100ms (reduzido de 50ms)
       progressIntervalRef.current = setInterval(() => {
         setProgress(prev => {
-          const newProgress = prev + (50 / AUTOPLAY_DURATION) * 100;
+          const newProgress = prev + (100 / AUTOPLAY_DURATION) * 100;
           return newProgress >= 100 ? 100 : newProgress;
         });
-      }, 50);
+      }, 100);
 
       autoplayIntervalRef.current = setInterval(() => {
         instanceRef.current?.next();
         setProgress(0);
       }, AUTOPLAY_DURATION);
     }
-  };
+  }, [loaded, AUTOPLAY_DURATION]);
 
-  const stopAutoplay = () => {
+  const stopAutoplay = useCallback(() => {
     if (autoplayIntervalRef.current) {
       clearInterval(autoplayIntervalRef.current);
       autoplayIntervalRef.current = null;
@@ -73,19 +71,21 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (loaded && instanceRef.current) {
       if (!isPaused) {
         startAutoplay();
-      }
-
-      return () => {
+      } else {
         stopAutoplay();
-      };
+      }
     }
-  }, [loaded, instanceRef, isPaused]);
+
+    return () => {
+      stopAutoplay();
+    };
+  }, [loaded, isPaused, startAutoplay, stopAutoplay]);
 
   if (isLoading || hasApiError || !featuredProjects || featuredProjects.length === 0) {
     return <SectionCarouselLoading />;
@@ -117,8 +117,12 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
             style={{ opacity: loaded ? 1 : 0 }}
           >
             {featuredProjects.map((project, index) => (
-              <div key={project.id || index} className="keen-slider__slide">
-                <ProjectSlideWithPause project={project} />
+              <div key={`${project.id}-${index}`} className="keen-slider__slide">
+                <ProjectSlide 
+                  project={project} 
+                  onMouseEnter={() => setIsPaused(true)}
+                  onMouseLeave={() => setIsPaused(false)}
+                />
               </div>
             ))}
           </div>
@@ -211,19 +215,20 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
   );
 }
 
-function ProjectSlide({ project, onMouseEnter, onMouseLeave }: any) {
+const ProjectSlide = memo(({ project, onMouseEnter, onMouseLeave }: any) => {
   const title = project.name || project.title || "";
   const description = project.description || "";
   const slug = project.slug || "";
+  const imageUrl = project.media.url || "";
 
-  let imageUrl = "/backgroundImage.webp";
-  if (project.media && project.media.url) {
-    imageUrl = project.media.url;
-  } else if (project.image && project.image.url) {
-    imageUrl = project.image.url;
-  } else if (project.cover && project.cover.url) {
-    imageUrl = project.cover.url;
-  }
+  useEffect(() => {
+    console.log({
+      name: project.name,
+      description: project.description,
+      slug: project.slug,
+      imageUrl: project.media.url,
+    })
+  }, [])
 
   return (
     <div className="flex relative w-full h-full">
@@ -276,7 +281,7 @@ function ProjectSlide({ project, onMouseEnter, onMouseLeave }: any) {
       </div>
     </div>
   );
-}
+});
 
 function Arrow(props: any) {
   const disabledClass = props.disabled ? " arrow--disabled" : "";

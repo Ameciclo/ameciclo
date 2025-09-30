@@ -1,19 +1,19 @@
-import { defer, LoaderFunction } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader: LoaderFunction = async () => {
     let apiDown = false;
     
-    const dataPromise = fetchWithTimeout(
-        "https://cms.ameciclo.org/plataforma-de-dados",
-        { cache: "no-cache" },
-        5000,
-        { cover: null, description: null, partners: [] },
-        () => { apiDown = true; }
-    ).then(data => {
+    try {
+        const data = await fetchWithTimeout(
+            "https://cms.ameciclo.org/plataforma-de-dados",
+            { cache: "no-cache" },
+            5000,
+            { cover: null, description: null, partners: [] }
+        );
         const { cover, description, partners } = data || {};
-        return { cover, description, partners, apiDown };
-    });
-
-    return defer({ dataPromise });
+        return json({ data: { cover, description, partners, apiDown } });
+    } catch (error) {
+        return json({ data: { cover: null, description: null, partners: [], apiDown: true } });
+    }
 };

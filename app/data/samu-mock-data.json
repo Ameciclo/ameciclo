@@ -1,0 +1,531 @@
+{
+  "summaryData": {
+    "totalChamadas": 73667,
+    "totalDesfechosValidos": 73667,
+    "cidadeMaisViolenta": {
+      "municipio": "RECIFE",
+      "totalValidas": 26904,
+      "total": 26904
+    },
+    "evolucaoAnual": [
+      { "ano": 2016, "count": 8234, "ultimaData": "2016-12-31" },
+      { "ano": 2017, "count": 9156, "ultimaData": "2017-12-31" },
+      { "ano": 2018, "count": 10287, "ultimaData": "2018-12-31" },
+      { "ano": 2019, "count": 11432, "ultimaData": "2019-12-31" },
+      { "ano": 2020, "count": 11547, "ultimaData": "2020-12-31" },
+      { "ano": 2021, "count": 12984, "ultimaData": "2021-12-31" },
+      { "ano": 2022, "count": 7237, "ultimaData": "2022-07-31", "projecao": 12460 },
+      { "ano": 2023, "count": 15716, "ultimaData": "2023-12-31" },
+      { "ano": 2024, "count": 20785, "ultimaData": "2024-12-31" }
+    ],
+    "periodo": {
+      "inicio": 2016,
+      "fim": 2024,
+      "ultimoMes": "2024.12",
+      "ultimoDia": "2024-12-31"
+    }
+  },
+  "citiesData": {
+    "total": 72,
+    "cidades": [
+      {
+        "municipio_samu": "RECIFE",
+        "count": 26904,
+        "id": 2611606,
+        "name": "Recife",
+        "rmr": true,
+        "ranking": 1,
+        "historico_anual": [
+          {
+            "ano": 2016,
+            "total_chamados": 3245,
+            "ultimaData": "2016-12-31",
+            "validos": {
+              "total": 3245,
+              "atendimento_concluido": 2789,
+              "removido_particulares": 221,
+              "removido_bombeiros": 198,
+              "obito_local": 37
+            },
+            "por_sexo": {
+              "masculino": 2467,
+              "feminino": 665,
+              "nao_informado": 113
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 81,
+              "18_29_anos": 943,
+              "30_49_anos": 1125,
+              "50_64_anos": 291,
+              "65_mais_anos": 95,
+              "nao_informado": 710
+            },
+            "por_categoria": {
+              "sinistro_moto": 2534,
+              "sinistro_carro": 144,
+              "atropelamento_carro": 139,
+              "atropelamento_moto": 142,
+              "sinistro_bicicleta": 201,
+              "sinistro_onibus_caminhao": 37,
+              "atropelamento_onibus_caminhao": 20,
+              "atropelamento_bicicleta": 18,
+              "outro": 10
+            }
+          },
+          {
+            "ano": 2017,
+            "total_chamados": 3612,
+            "ultimaData": "2017-12-31",
+            "validos": {
+              "total": 3612,
+              "atendimento_concluido": 3102,
+              "removido_particulares": 246,
+              "removido_bombeiros": 220,
+              "obito_local": 44
+            },
+            "por_sexo": {
+              "masculino": 2745,
+              "feminino": 740,
+              "nao_informado": 127
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 90,
+              "18_29_anos": 1049,
+              "30_49_anos": 1251,
+              "50_64_anos": 324,
+              "65_mais_anos": 106,
+              "nao_informado": 792
+            },
+            "por_categoria": {
+              "sinistro_moto": 2820,
+              "sinistro_carro": 160,
+              "atropelamento_carro": 155,
+              "atropelamento_moto": 158,
+              "sinistro_bicicleta": 224,
+              "sinistro_onibus_caminhao": 41,
+              "atropelamento_onibus_caminhao": 22,
+              "atropelamento_bicicleta": 20,
+              "outro": 12
+            }
+          },
+          {
+            "ano": 2018,
+            "total_chamados": 4058,
+            "ultimaData": "2018-12-31",
+            "validos": {
+              "total": 4058,
+              "atendimento_concluido": 3485,
+              "removido_particulares": 276,
+              "removido_bombeiros": 247,
+              "obito_local": 50
+            },
+            "por_sexo": {
+              "masculino": 3084,
+              "feminino": 831,
+              "nao_informado": 143
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 101,
+              "18_29_anos": 1179,
+              "30_49_anos": 1405,
+              "50_64_anos": 364,
+              "65_mais_anos": 119,
+              "nao_informado": 890
+            },
+            "por_categoria": {
+              "sinistro_moto": 3168,
+              "sinistro_carro": 180,
+              "atropelamento_carro": 174,
+              "atropelamento_moto": 177,
+              "sinistro_bicicleta": 252,
+              "sinistro_onibus_caminhao": 46,
+              "atropelamento_onibus_caminhao": 25,
+              "atropelamento_bicicleta": 23,
+              "outro": 13
+            }
+          },
+          {
+            "ano": 2019,
+            "total_chamados": 4512,
+            "ultimaData": "2019-12-31",
+            "validos": {
+              "total": 4512,
+              "atendimento_concluido": 3874,
+              "removido_particulares": 307,
+              "removido_bombeiros": 275,
+              "obito_local": 56
+            },
+            "por_sexo": {
+              "masculino": 3429,
+              "feminino": 924,
+              "nao_informado": 159
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 113,
+              "18_29_anos": 1311,
+              "30_49_anos": 1562,
+              "50_64_anos": 405,
+              "65_mais_anos": 132,
+              "nao_informado": 989
+            },
+            "por_categoria": {
+              "sinistro_moto": 3522,
+              "sinistro_carro": 200,
+              "atropelamento_carro": 194,
+              "atropelamento_moto": 197,
+              "sinistro_bicicleta": 280,
+              "sinistro_onibus_caminhao": 51,
+              "atropelamento_onibus_caminhao": 28,
+              "atropelamento_bicicleta": 25,
+              "outro": 15
+            }
+          },
+          {
+            "ano": 2020,
+            "total_chamados": 4623,
+            "ultimaData": "2020-12-31",
+            "validos": {
+              "total": 4623,
+              "atendimento_concluido": 3969,
+              "removido_particulares": 314,
+              "removido_bombeiros": 281,
+              "obito_local": 59
+            },
+            "por_sexo": {
+              "masculino": 3512,
+              "feminino": 947,
+              "nao_informado": 164
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 115,
+              "18_29_anos": 1343,
+              "30_49_anos": 1600,
+              "50_64_anos": 415,
+              "65_mais_anos": 135,
+              "nao_informado": 1015
+            },
+            "por_categoria": {
+              "sinistro_moto": 3609,
+              "sinistro_carro": 205,
+              "atropelamento_carro": 198,
+              "atropelamento_moto": 202,
+              "sinistro_bicicleta": 287,
+              "sinistro_onibus_caminhao": 52,
+              "atropelamento_onibus_caminhao": 29,
+              "atropelamento_bicicleta": 26,
+              "outro": 15
+            }
+          },
+          {
+            "ano": 2021,
+            "total_chamados": 5198,
+            "ultimaData": "2021-12-31",
+            "validos": {
+              "total": 5198,
+              "atendimento_concluido": 4463,
+              "removido_particulares": 354,
+              "removido_bombeiros": 316,
+              "obito_local": 65
+            },
+            "por_sexo": {
+              "masculino": 3950,
+              "feminino": 1065,
+              "nao_informado": 183
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 130,
+              "18_29_anos": 1511,
+              "30_49_anos": 1800,
+              "50_64_anos": 467,
+              "65_mais_anos": 152,
+              "nao_informado": 1138
+            },
+            "por_categoria": {
+              "sinistro_moto": 4059,
+              "sinistro_carro": 230,
+              "atropelamento_carro": 223,
+              "atropelamento_moto": 227,
+              "sinistro_bicicleta": 323,
+              "sinistro_onibus_caminhao": 59,
+              "atropelamento_onibus_caminhao": 32,
+              "atropelamento_bicicleta": 29,
+              "outro": 16
+            }
+          },
+          {
+            "ano": 2022,
+            "total_chamados": 2897,
+            "ultimaData": "2022-07-31",
+            "validos": {
+              "total": 2897,
+              "atendimento_concluido": 2487,
+              "removido_particulares": 197,
+              "removido_bombeiros": 176,
+              "obito_local": 37
+            },
+            "por_sexo": {
+              "masculino": 2201,
+              "feminino": 593,
+              "nao_informado": 103
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 72,
+              "18_29_anos": 842,
+              "30_49_anos": 1003,
+              "50_64_anos": 260,
+              "65_mais_anos": 85,
+              "nao_informado": 635
+            },
+            "por_categoria": {
+              "sinistro_moto": 2262,
+              "sinistro_carro": 128,
+              "atropelamento_carro": 124,
+              "atropelamento_moto": 126,
+              "sinistro_bicicleta": 180,
+              "sinistro_onibus_caminhao": 33,
+              "atropelamento_onibus_caminhao": 18,
+              "atropelamento_bicicleta": 16,
+              "outro": 10
+            }
+          },
+          {
+            "ano": 2023,
+            "total_chamados": 7529,
+            "ultimaData": "2023-12-31",
+            "validos": {
+              "total": 7529,
+              "atendimento_concluido": 6450,
+              "removido_particulares": 512,
+              "removido_bombeiros": 507,
+              "obito_local": 60
+            },
+            "por_sexo": {
+              "masculino": 5721,
+              "feminino": 1540,
+              "nao_informado": 268
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 188,
+              "18_29_anos": 2184,
+              "30_49_anos": 2606,
+              "50_64_anos": 676,
+              "65_mais_anos": 220,
+              "nao_informado": 1655
+            },
+            "por_categoria": {
+              "sinistro_moto": 5873,
+              "sinistro_carro": 333,
+              "atropelamento_carro": 323,
+              "atropelamento_moto": 329,
+              "sinistro_bicicleta": 465,
+              "sinistro_onibus_caminhao": 85,
+              "atropelamento_onibus_caminhao": 46,
+              "atropelamento_bicicleta": 42,
+              "outro": 33
+            }
+          },
+          {
+            "ano": 2024,
+            "total_chamados": 8187,
+            "ultimaData": "2024-12-31",
+            "validos": {
+              "total": 8187,
+              "atendimento_concluido": 7026,
+              "removido_particulares": 558,
+              "removido_bombeiros": 553,
+              "obito_local": 50
+            },
+            "por_sexo": {
+              "masculino": 6226,
+              "feminino": 1678,
+              "nao_informado": 283
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 204,
+              "18_29_anos": 2376,
+              "30_49_anos": 2835,
+              "50_64_anos": 735,
+              "65_mais_anos": 240,
+              "nao_informado": 1797
+            },
+            "por_categoria": {
+              "sinistro_moto": 6391,
+              "sinistro_carro": 362,
+              "atropelamento_carro": 351,
+              "atropelamento_moto": 358,
+              "sinistro_bicicleta": 506,
+              "sinistro_onibus_caminhao": 92,
+              "atropelamento_onibus_caminhao": 50,
+              "atropelamento_bicicleta": 46,
+              "outro": 31
+            }
+          }
+        ]
+      },
+      {
+        "municipio_samu": "JABOATAO DOS GUARARAPES",
+        "count": 6184,
+        "id": 2607901,
+        "name": "Jaboatão dos Guararapes",
+        "rmr": true,
+        "ranking": 2,
+        "historico_anual": [
+          {
+            "ano": 2023,
+            "total_chamados": 1845,
+            "ultimaData": "2023-12-31",
+            "validos": {
+              "total": 1845,
+              "atendimento_concluido": 1190,
+              "removido_particulares": 263,
+              "removido_bombeiros": 295,
+              "obito_local": 97
+            },
+            "por_sexo": {
+              "masculino": 1340,
+              "feminino": 360,
+              "nao_informado": 145
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 46,
+              "18_29_anos": 536,
+              "30_49_anos": 639,
+              "50_64_anos": 166,
+              "65_mais_anos": 54,
+              "nao_informado": 404
+            },
+            "por_categoria": {
+              "sinistro_moto": 1440,
+              "sinistro_carro": 82,
+              "atropelamento_carro": 79,
+              "atropelamento_moto": 81,
+              "sinistro_bicicleta": 114,
+              "sinistro_onibus_caminhao": 21,
+              "atropelamento_onibus_caminhao": 11,
+              "atropelamento_bicicleta": 10,
+              "outro": 7
+            }
+          },
+          {
+            "ano": 2024,
+            "total_chamados": 2012,
+            "ultimaData": "2024-12-31",
+            "validos": {
+              "total": 2012,
+              "atendimento_concluido": 1298,
+              "removido_particulares": 287,
+              "removido_bombeiros": 322,
+              "obito_local": 105
+            },
+            "por_sexo": {
+              "masculino": 1462,
+              "feminino": 393,
+              "nao_informado": 157
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 50,
+              "18_29_anos": 585,
+              "30_49_anos": 697,
+              "50_64_anos": 181,
+              "65_mais_anos": 59,
+              "nao_informado": 440
+            },
+            "por_categoria": {
+              "sinistro_moto": 1571,
+              "sinistro_carro": 89,
+              "atropelamento_carro": 86,
+              "atropelamento_moto": 88,
+              "sinistro_bicicleta": 125,
+              "sinistro_onibus_caminhao": 23,
+              "atropelamento_onibus_caminhao": 12,
+              "atropelamento_bicicleta": 11,
+              "outro": 7
+            }
+          }
+        ]
+      },
+      {
+        "municipio_samu": "OLINDA",
+        "count": 4532,
+        "id": 2609600,
+        "name": "Olinda",
+        "rmr": true,
+        "ranking": 3,
+        "historico_anual": [
+          {
+            "ano": 2023,
+            "total_chamados": 1354,
+            "ultimaData": "2023-12-31",
+            "validos": {
+              "total": 1354,
+              "atendimento_concluido": 865,
+              "removido_particulares": 171,
+              "removido_bombeiros": 242,
+              "obito_local": 76
+            },
+            "por_sexo": {
+              "masculino": 947,
+              "feminino": 288,
+              "nao_informado": 119
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 34,
+              "18_29_anos": 393,
+              "30_49_anos": 469,
+              "50_64_anos": 122,
+              "65_mais_anos": 40,
+              "nao_informado": 296
+            },
+            "por_categoria": {
+              "sinistro_moto": 1057,
+              "sinistro_carro": 60,
+              "atropelamento_carro": 58,
+              "atropelamento_moto": 59,
+              "sinistro_bicicleta": 84,
+              "sinistro_onibus_caminhao": 15,
+              "atropelamento_onibus_caminhao": 8,
+              "atropelamento_bicicleta": 8,
+              "outro": 5
+            }
+          },
+          {
+            "ano": 2024,
+            "total_chamados": 1478,
+            "ultimaData": "2024-12-31",
+            "validos": {
+              "total": 1478,
+              "atendimento_concluido": 945,
+              "removido_particulares": 187,
+              "removido_bombeiros": 264,
+              "obito_local": 82
+            },
+            "por_sexo": {
+              "masculino": 1034,
+              "feminino": 315,
+              "nao_informado": 129
+            },
+            "por_faixa_etaria": {
+              "0_17_anos": 37,
+              "18_29_anos": 429,
+              "30_49_anos": 512,
+              "50_64_anos": 133,
+              "65_mais_anos": 43,
+              "nao_informado": 324
+            },
+            "por_categoria": {
+              "sinistro_moto": 1154,
+              "sinistro_carro": 65,
+              "atropelamento_carro": 63,
+              "atropelamento_moto": 65,
+              "sinistro_bicicleta": 92,
+              "sinistro_onibus_caminhao": 17,
+              "atropelamento_onibus_caminhao": 9,
+              "atropelamento_bicicleta": 8,
+              "outro": 5
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

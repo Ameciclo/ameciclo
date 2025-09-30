@@ -1,11 +1,9 @@
-import { defer, MetaFunction } from "@remix-run/node";
+import { MetaFunction } from "@remix-run/node";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import EventCalendar from "~/components/Agenda/EventCalendar";
-import AgendaLoading from "~/components/Agenda/AgendaLoading";
-import { useLoaderData, Await } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import bannerSchedule from "/agenda.webp";
-import { Suspense } from "react";
 import { loader } from "../loader/agenda";
 export { loader };
 
@@ -68,11 +66,7 @@ export default function Agenda() {
         <>
             <Banner image={bannerSchedule} alt="Várias pessoas associadas ameciclo segurando uma faixa que diz Dia Mundial Sem Carro em cima de um barco no rio capibaribe" />
             <Breadcrumb label="Agenda" slug="/agenda" routes={["/"]} />
-            <Suspense fallback={<AgendaLoading />}>
-                <Await resolve={calendarConfig}>
-                    {(data) => <AgendaContent calendarConfig={data} />}
-                </Await>
-            </Suspense>
+            <AgendaContent calendarConfig={calendarConfig} />
         </>
     );
 }

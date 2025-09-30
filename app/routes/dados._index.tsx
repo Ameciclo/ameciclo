@@ -1,18 +1,15 @@
-import { json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData, Await } from "@remix-run/react";
-import { Suspense } from "react";
+import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import DadosLoading from "~/components/Dados/DadosLoading";
 
 import { loader } from "~/loader/dados";
 export { loader };
 export default function Dados() {
-    const { dataPromise } = useLoaderData<typeof loader>();
+    const { data } = useLoaderData<typeof loader>();
     const FEATURED_PAGES = [
         {
             title: "Contagens",
@@ -111,38 +108,22 @@ export default function Dados() {
     ];
     return (
         <>
-            <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
-                <Await resolve={dataPromise}>
-                    {(data) => (
-                        <>
-                            <ApiStatusHandler apiDown={data.apiDown} />
-                            <Banner image={data.cover?.url} alt="Capa da plataforma de dados" />
-                        </>
-                    )}
-                </Await>
-            </Suspense>
+            <ApiStatusHandler apiDown={data.apiDown} />
+            <Banner image={data.cover?.url} alt="Capa da plataforma de dados" />
             <Breadcrumb label="Dados" slug="/dados" routes={["/"]} />
-            <Suspense fallback={<DadosLoading />}>
-                <Await resolve={dataPromise}>
-                    {(data) => (
-                        <>
-                            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: data.description }]} />
-                            <CardsSession
-                                title="Navegue por nossas pesquisas"
-                                cards={FEATURED_PAGES}
-                            />
-                            <ImagesGrid 
-                                title="Outras plataformas de dados de parceiras" 
-                                images={data.partners.map((p: any) => ({
-                                    src: p.image.url,
-                                    alt: p.title,
-                                    url: p.link,
-                                }))}
-                            />
-                        </>
-                    )}
-                </Await>
-            </Suspense>
+            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: data.description }]} />
+            <CardsSession
+                title="Navegue por nossas pesquisas"
+                cards={FEATURED_PAGES}
+            />
+            <ImagesGrid 
+                title="Outras plataformas de dados de parceiras" 
+                images={data.partners.map((p: any) => ({
+                    src: p.image.url,
+                    alt: p.title,
+                    url: p.link,
+                }))}
+            />
         </>
     );
 
