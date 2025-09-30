@@ -144,33 +144,39 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
         const isDadosPage = page.url === '/dados';
         return (
           <li key={page.name} className={`h-full relative group`}>
-            <Link
-              to={page.url}
-              className={`uppercase h-14 flex items-center relative ${
-                isActive ? 'font-semibold' : 'text-white'
-              } ${isDadosPage ? 'dados-button' : ''}`}
-              onClick={(e) => {
-                if (isDadosPage) {
-                  e.preventDefault();
-                  setIsSubmenuVisible(!isSubmenuVisible);
-                }
-              }}
-            >
-              <span>{page.name}</span>
+            <div className={`uppercase h-14 flex items-center relative ${
+              isActive ? 'font-semibold' : 'text-white'
+            } ${isDadosPage ? 'dados-button' : ''}`}>
+              <Link to={page.url} className="flex items-center">
+                <span>{page.name}</span>
+              </Link>
               {isDadosPage && (
-                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsSubmenuVisible(!isSubmenuVisible);
+                  }}
+                  className="ml-1 p-1 hover:bg-white hover:bg-opacity-10 rounded transition-colors"
+                >
+                  <svg className={`w-3 h-3 transition-transform duration-200 ${isSubmenuVisible ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               )}
               <span className={`absolute left-0 bottom-0 h-0.5 transition-all duration-300 ease-out ${
                 isActive ? 'w-full bg-white' : 'w-0 bg-white group-hover:w-full'
               }`}></span>
-            </Link>
-            {isDadosPage && isSubmenuVisible && (
-              <div
-                className="submenu-container fixed top-14 left-0 right-0 z-[81] shadow-lg transition-all duration-300 opacity-100 pointer-events-auto"
-                style={{backgroundColor: '#008080'}}
-              >
+            </div>
+            <AnimatePresence>
+              {isDadosPage && isSubmenuVisible && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="submenu-container fixed top-14 left-0 right-0 z-[81] shadow-lg pointer-events-auto"
+                  style={{backgroundColor: '#008080'}}
+                >
                 <div className="w-full flex items-center justify-center px-8 py-1 m-0 lg:px-32 xl:px-32">
                   <div className="hidden xl:flex items-center space-x-1 py-1">
                     {dataSubPages.map((subPage, index) => {
@@ -213,8 +219,9 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
                     </select>
                   </div>
                 </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </li>
         );
       })}
