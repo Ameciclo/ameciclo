@@ -7,9 +7,10 @@ interface MainContentProps {
 export function MainContent({ children }: MainContentProps) {
   const location = useLocation();
   const isDataPage = location.pathname.startsWith('/dados');
+  const isCicloDadosPage = location.pathname === '/dados/ciclodados';
   
   return (
-    <main className={isDataPage ? "pt-14 xl:pt-20" : "pt-14"}>
+    <main className={isDataPage && !isCicloDadosPage ? "pt-14 xl:pt-20" : "pt-14"}>
       {children}
     </main>
   );

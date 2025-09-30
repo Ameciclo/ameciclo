@@ -89,6 +89,14 @@ export default function Dados() {
                 "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária.",
             target: "",
         },
+        {
+            title: "CicloDados",
+            src: "/icons/dados/ciclodados.svg",
+            url: "/dados/ciclodados",
+            description:
+                "Plataforma integrada de dados sobre mobilidade urbana e infraestrutura cicloviária",
+            target: "",
+        },
         // {
         //     title: "Infrações de trânsito",
         //     src: "/icons/dados/mapa.svg",

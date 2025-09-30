@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220" width="360" height="220" fill="none" stroke="#00797b" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Rodas -->
+  <circle cx="110" cy="150" r="48" />
+  <circle cx="250" cy="150" r="48" />
+
+  <!-- Quadro (triangular, geométrico) -->
+  <line x1="110" y1="150" x2="170" y2="150" />  <!-- chainstay até BB -->
+  <line x1="170" y1="150" x2="210" y2="95" />   <!-- BB -> headtube lower -->
+  <line x1="210" y1="95"  x2="250" y2="150" />  <!-- headtube -> roda dianteira -->
+  <line x1="110" y1="150" x2="210" y2="95" />   <!-- top tube -->
+  <line x1="170" y1="150" x2="250" y2="150" />  <!-- linha da corrente -->
+
+  <!-- Selim -->
+  <line x1="170" y1="150" x2="170" y2="112" />
+  <line x1="157" y1="112" x2="183" y2="112" />
+
+  <!-- Guidão -->
+  <line x1="210" y1="95" x2="225" y2="72" />
+  <line x1="225" y1="72" x2="255" y2="72" />
+
+  <!-- Pedivela (ponto) -->
+  <circle cx="170" cy="150" r="7" fill="#00797b" stroke="#00797b" />
+
+  <!-- Círculo com gráfico (separado) -->
+  <circle cx="60" cy="60" r="44" />
+
+  <!-- Barras do gráfico (centralizadas dentro do círculo) -->
+  <g fill="#00797b" stroke="none">
+    <!-- baseline ~ y=94 -->
+    <rect x="46" y="72" width="10" height="22" rx="2"/>
+    <rect x="64" y="62" width="10" height="32" rx="2"/>
+    <rect x="82" y="52" width="10" height="42" rx="2"/>
+  </g>
+</svg>
