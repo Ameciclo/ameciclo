@@ -310,6 +310,8 @@ export const AmecicloMap = ({
     layersConf,
     pointsData,
     controlPanel = [],
+    width = "auto",
+    height = "500px",
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -401,15 +403,14 @@ export const AmecicloMap = ({
     };
 
     return (
-        <section className="container mx-auto">
-            <div className={`relative bg-gray-200 rounded shadow-2xl map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : ''
-                }`}>
+        <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
+            <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
                 {isClient && isMapReady && (
                     <Map
                         {...viewport}
                         {...settings}
                         width="100%"
-                        height={isFullscreen ? "100vh" : "500px"}
+                        height={isFullscreen ? "100vh" : height}
                         onViewportChange={setViewport}
                         mapStyle={MAPBOXSTYLE}
                         mapboxApiAccessToken={MAPBOXTOKEN}

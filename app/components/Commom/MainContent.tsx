@@ -10,8 +10,9 @@ export function MainContent({ children }: MainContentProps) {
   const isCicloDadosPage = location.pathname === '/dados/ciclodados';
   
   return (
-    <main className={isDataPage && !isCicloDadosPage ? "pt-14 xl:pt-20" : "pt-14"}>
+    <main className={isCicloDadosPage ? "" : "pt-14"}>
       {children}
     </main>
   );
+
 }

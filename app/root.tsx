@@ -4,7 +4,8 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useRouteError
+  useRouteError,
+  useLocation
 } from "@remix-run/react";
 import type { MetaFunction } from "@remix-run/node";
 import { Navbar } from "./components/Commom/Navbar";
@@ -90,7 +91,7 @@ const metaConfig = {
               <MainContent>
                 <Outlet />
               </MainContent>
-              <Footer />
+              <ConditionalFooter />
             </div>
           </ApiStatusProvider>
           <ScrollRestoration />
@@ -99,5 +100,16 @@ const metaConfig = {
         </body>
       </html>
     );
+  }
+
+  function ConditionalFooter() {
+    const location = useLocation();
+    const isCicloDadosPage = location.pathname === '/dados/ciclodados';
+    
+    if (isCicloDadosPage) {
+      return null;
+    }
+    
+    return <Footer />;
   }
 

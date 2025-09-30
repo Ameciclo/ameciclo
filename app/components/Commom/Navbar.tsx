@@ -29,8 +29,10 @@ export const Navbar = ({ pages }: any) => {
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hideRedNavbar, setHideRedNavbar] = useState(false);
+  const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
   const location = useLocation();
-  const isDataPage = location.pathname.startsWith('/dados');
+  const isDataPage = location.pathname.startsWith('/dados') && location.pathname !== '/dados/ciclodados';
+  const isCicloDadosPage = location.pathname === '/dados/ciclodados';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,13 +44,26 @@ export const Navbar = ({ pages }: any) => {
       setHideRedNavbar(hideRed);
     };
 
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.submenu-container') && !target.closest('.dados-button')) {
+        setIsSubmenuVisible(false);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
+    document.addEventListener("click", handleClickOutside);
     handleScroll();
     
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
+  if (isCicloDadosPage) {
+    return null;
+  }
 
   return (
     <>
@@ -60,11 +75,11 @@ export const Navbar = ({ pages }: any) => {
       >
         <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
           <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)} className="relative z-[85] pointer-events-auto">
-            <AmecicloLogo isScrolled={isHeaderScrolled || isDataPage} />
+            <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
           </Link>
 
           <div className="hidden lg:flex space-x-8">
-            <BigMenu pages={pages} />
+            <BigMenu pages={pages} setIsSubmenuVisible={setIsSubmenuVisible} isSubmenuVisible={isSubmenuVisible} />
           </div>
 
           <button
@@ -83,63 +98,7 @@ export const Navbar = ({ pages }: any) => {
 
       </motion.nav>
 
-      {/* Sub barra de navegação para dados */}
-      {isDataPage && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ 
-            opacity: hideRedNavbar ? 0 : 1, 
-            y: hideRedNavbar ? -42 : 0 
-          }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="fixed top-14 left-0 right-0 bg-gradient-to-r from-red-600 to-red-700 z-[79] shadow-lg border-b border-red-500"
-        >
-          <div className="w-full flex items-center justify-center px-8 py-0 m-0 lg:px-32 xl:px-32">
-            <div className="hidden xl:flex items-center space-x-1 py-1">
-              {dataSubPages.map((subPage, index) => {
-                const isActive = location.pathname === subPage.url || 
-                  location.pathname.startsWith(subPage.url + '/');
-                return (
-                  <Link
-                    key={subPage.name}
-                    to={subPage.url}
-                    className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 ${
-                      isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
-                    }`}
-                  >
-                    <span className="relative z-10">{subPage.name}</span>
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
-                        initial={false}
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-            
-            {/* Menu mobile para dados */}
-            <div className="xl:hidden flex items-center py-1">
-              <select 
-                className="bg-white bg-opacity-10 text-white text-sm font-medium px-3 py-2 rounded-md border border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-                value={location.pathname}
-                onChange={(e) => window.location.href = e.target.value}
-              >
-                <option value="/dados" className="text-gray-800">Selecione uma seção</option>
-                {dataSubPages.map((subPage) => (
-                  <option key={subPage.name} value={subPage.url} className="text-gray-800">
-                    {subPage.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </motion.div>
-      )}
+
 
       <AnimatePresence>
         {isMenuOpen && (
@@ -168,7 +127,7 @@ export const Navbar = ({ pages }: any) => {
   );
 };
 
-function BigMenu({ pages }: any) {
+function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
   const location = useLocation();
   
   const isActivePage = (pageUrl: string) => {
@@ -182,19 +141,80 @@ function BigMenu({ pages }: any) {
     <ul className="flex space-x-6 h-full">
       {pages.map((page: any, i: any) => {
         const isActive = isActivePage(page.url);
+        const isDadosPage = page.url === '/dados';
         return (
-          <li key={page.name} className="h-full">
+          <li key={page.name} className={`h-full relative group`}>
             <Link
               to={page.url}
-              className={`uppercase h-14 flex items-center relative group ${
+              className={`uppercase h-14 flex items-center relative ${
                 isActive ? 'font-semibold' : 'text-white'
-              }`}
+              } ${isDadosPage ? 'dados-button' : ''}`}
+              onClick={(e) => {
+                if (isDadosPage) {
+                  e.preventDefault();
+                  setIsSubmenuVisible(!isSubmenuVisible);
+                }
+              }}
             >
               <span>{page.name}</span>
+              {isDadosPage && (
+                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              )}
               <span className={`absolute left-0 bottom-0 h-0.5 transition-all duration-300 ease-out ${
                 isActive ? 'w-full bg-white' : 'w-0 bg-white group-hover:w-full'
               }`}></span>
             </Link>
+            {isDadosPage && isSubmenuVisible && (
+              <div
+                className="submenu-container fixed top-14 left-0 right-0 z-[81] shadow-lg transition-all duration-300 opacity-100 pointer-events-auto"
+                style={{backgroundColor: '#008080'}}
+              >
+                <div className="w-full flex items-center justify-center px-8 py-1 m-0 lg:px-32 xl:px-32">
+                  <div className="hidden xl:flex items-center space-x-1 py-1">
+                    {dataSubPages.map((subPage, index) => {
+                      const isActive = location.pathname === subPage.url || 
+                        location.pathname.startsWith(subPage.url + '/');
+                      return (
+                        <Link
+                          key={subPage.name}
+                          to={subPage.url}
+                          className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 ${
+                            isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
+                          }`}
+                        >
+                          <span className="relative z-10">{subPage.name}</span>
+                          {isActive && (
+                            <motion.div
+                              layoutId="activeTab"
+                              className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
+                              initial={false}
+                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="xl:hidden flex items-center py-1">
+                    <select 
+                      className="bg-white bg-opacity-10 text-white text-sm font-medium px-3 py-2 rounded-md border border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                      value={location.pathname}
+                      onChange={(e) => window.location.href = e.target.value}
+                    >
+                      <option value="/dados" className="text-gray-800">Selecione uma seção</option>
+                      {dataSubPages.map((subPage) => (
+                        <option key={subPage.name} value={subPage.url} className="text-gray-800">
+                          {subPage.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
           </li>
         );
       })}
