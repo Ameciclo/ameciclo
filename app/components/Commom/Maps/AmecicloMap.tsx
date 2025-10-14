@@ -7,6 +7,7 @@ import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
 import { pointData } from "../../../../typings";
 import * as Remix from "@remix-run/react";
+import { Move } from 'lucide-react';
 
 function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
     const { popup } = selectedPoint;
@@ -119,7 +120,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                 className={`bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors ${settings.dragPan ? 'text-blue-500' : ''}`}
                 title="Mover mapa"
             >
-                <svg className="w-5 h-5" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><title/><path d="M23.016 5.484v14.531c0 2.203-1.828 3.984-4.031 3.984h-7.266c-1.078 0-2.109-0.422-2.859-1.172l-7.875-8.016s1.266-1.219 1.313-1.219c0.234-0.188 0.516-0.281 0.797-0.281 0.234 0 0.422 0.047 0.609 0.141 0.047 0 4.313 2.438 4.313 2.438v-11.906c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5v7.031h0.984v-9.516c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5v9.516h0.984v-8.531c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5v8.531h1.031v-5.531c0-0.844 0.656-1.5 1.5-1.5s1.5 0.656 1.5 1.5z"/></svg>
+                <Move className="w-5 h-5" />
             </button>
 
             {!isAtDefaultPosition() && (
@@ -241,16 +242,16 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
     return standardViewPort;
 };
 
-const mapInicialState = {
-    dragPan: false,
+const getMapInitialState = (defaultDragPan: boolean) => ({
+    dragPan: defaultDragPan,
     dragRotate: true,
-    scrollZoom: false,
+    scrollZoom: defaultDragPan,
     touchZoom: true,
     touchRotate: true,
     keyboard: true,
     boxZoom: true,
     doubleClickZoom: true,
-};
+});
 
 const dropIcon = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,4.5,2,10c0,2,0.6,3.9,1.6,5.4c0,0.1,0.1,0.2,0.2,0.3
 c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
@@ -310,8 +311,10 @@ export const AmecicloMap = ({
     layersConf,
     pointsData,
     controlPanel = [],
+    showLayersPanel = true,
     width = "auto",
     height = "500px",
+    defaultDragPan = false,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -322,6 +325,8 @@ export const AmecicloMap = ({
     width?: string;
     height?: string;
     controlPanel?: any[];
+    showLayersPanel?: boolean;
+    defaultDragPan?: boolean;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -356,7 +361,7 @@ export const AmecicloMap = ({
             setInitialViewport(calculatedViewport);
         }
     }, [isClient, isMapReady, pointsData, layerData]);
-    const [settings, setsettings] = useState({ ...mapInicialState });
+    const [settings, setsettings] = useState(getMapInitialState(defaultDragPan));
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const [layerVisibility, setLayerVisibility] = useState<Record<string, boolean>>({});
@@ -438,7 +443,7 @@ export const AmecicloMap = ({
                             </Source>
                         )}
                         {pointsData?.map((point) => {
-                            const { key, latitude, longitude, size, color } = point;
+                            const { key, latitude, longitude, size, color, customIcon } = point;
                             return (
                                 markerVisibility &&
                                 markerVisibility[key] == true && (
@@ -448,18 +453,24 @@ export const AmecicloMap = ({
                                         longitude={longitude}
                                         onClick={() => setSelectedPoint(point)}
                                     >
-                                        <svg
-                                            height={size ? size : 15}
-                                            viewBox="0 0 24 24"
-                                            style={{
-                                                cursor: "pointer",
-                                                fill: color ? color : "#008080",
-                                                stroke: "none",
-                                                transform: `translate(${- (size ? size : 15) / 2}px,${- (size ? size : 15)}px)`,
-                                            }}
-                                        >
-                                            <path d={dropIcon} />
-                                        </svg>
+                                        {customIcon ? (
+                                            <div style={{ cursor: "pointer", transform: "translate(-50%, -100%)" }}>
+                                                {customIcon}
+                                            </div>
+                                        ) : (
+                                            <svg
+                                                height={size ? size : 15}
+                                                viewBox="0 0 24 24"
+                                                style={{
+                                                    cursor: "pointer",
+                                                    fill: color ? color : "#008080",
+                                                    stroke: "none",
+                                                    transform: `translate(${- (size ? size : 15) / 2}px,${- (size ? size : 15)}px)`,
+                                                }}
+                                            >
+                                                <path d={dropIcon} />
+                                            </svg>
+                                        )}
                                     </Marker>
                                 )
                             );
@@ -478,7 +489,7 @@ export const AmecicloMap = ({
                                 handleMarkerToggle={handleMarkerToggle}
                             />
                         )}
-                        {layersConf && layersConf.length > 0 && (
+                        {showLayersPanel && layersConf && layersConf.length > 0 && (
                             <MapLayersPanel
                                 layersConf={layersConf}
                                 layerVisibility={layerVisibility}
