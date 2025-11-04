@@ -8,7 +8,20 @@ export type document = {
 };
 import { Link } from "@remix-run/react";
 
-export const DocumentsList = ({ documents, docTypes }: any) => {
+const highlightText = (text: string, searchTerm: string) => {
+  if (!searchTerm) return text;
+  
+  const regex = new RegExp(`(${searchTerm})`, 'gi');
+  const parts = text.split(regex);
+  
+  return parts.map((part, index) => 
+    regex.test(part) ? (
+      <mark key={index} className="bg-yellow-200 px-1 rounded">{part}</mark>
+    ) : part
+  );
+};
+
+export const DocumentsList = ({ documents, docTypes, searchTerm }: any) => {
   return (
     <div className="mt-5 mx-3 px-10 shadow border grid grid-cols-1 min-[450px]:grid-cols-2 md:grid-cols-3  auto-cols-max lg:grid-cols-4 gap-10">
       {documents.map((document: document) => (
@@ -16,6 +29,7 @@ export const DocumentsList = ({ documents, docTypes }: any) => {
           {...{
             document,
             indicator: docTypes.filter((d: any) => document.type === d.value)[0],
+            searchTerm,
           }}
         />
       ))}
@@ -46,7 +60,7 @@ export function ImageWithLink({
   );
 }
 
-const DocumentCard = ({ document, indicator }: any) => {
+const DocumentCard = ({ document, indicator, searchTerm }: any) => {
   return (
     <div
       className="bg-white relative rounded-lg border"
@@ -69,7 +83,7 @@ const DocumentCard = ({ document, indicator }: any) => {
       ) : (
         <div style={{ minHeight: "270px" }} />
       )}
-      <DocumentDescription {...document} />
+      <DocumentDescription {...document} searchTerm={searchTerm} />
     </div>
   );
 };
@@ -92,13 +106,13 @@ const DocumentTypeIndicator = ({ label, color, fontColor }: any) => {
   );
 };
 
-const DocumentDescription = ({ title, url, release_date, description }: any) => {
+const DocumentDescription = ({ title, url, release_date, description, searchTerm }: any) => {
   return (
     <div className="px-4 py-5 lg:p-6">
       <dl className="pb-6">
         <Link to={url}>
           <dt className="mt-1 text-2xl font-semibold leading-9 text-gray-900 cursor-pointer">
-            {title} ({release_date.substr(0, 4)})
+            {highlightText(title, searchTerm)} ({release_date.substr(0, 4)})
           </dt>
         </Link>
         <dt
@@ -111,7 +125,7 @@ const DocumentDescription = ({ title, url, release_date, description }: any) => 
             WebkitBoxOrient: "vertical",
           }}
         >
-          {description}
+          {highlightText(description || '', searchTerm)}
         </dt>
       </dl>
     </div>
