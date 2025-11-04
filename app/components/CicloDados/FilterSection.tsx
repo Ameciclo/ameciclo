@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { PatternDisplay } from './PatternDisplay';
 
 interface FilterSectionProps {
@@ -56,26 +57,25 @@ export function FilterSection({
         <div className="px-2 pb-2 space-y-1">
           <button
             onClick={toggleAll}
-            className={`mb-2 px-2 py-1 text-xs rounded ${
+            className={`mb-2 px-2 py-1 text-xs rounded flex items-center gap-1 ${
               selectedOptions.length === options.length
                 ? 'bg-teal-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
+            {selectedOptions.length === options.length ? <Eye size={12} /> : <EyeOff size={12} />}
             Todas
           </button>
           {options.map((option) => (
-            <label key={option.name} className={`${hasPattern ? 'block' : 'flex items-center space-x-2'} p-1 hover:bg-gray-50 rounded cursor-pointer`}>
+            <div key={option.name} onClick={() => onToggle(option.name)} className={`${hasPattern ? 'block' : 'flex items-center space-x-2'} p-2 rounded cursor-pointer transition-all duration-200 ${selectedOptions.includes(option.name) ? 'bg-teal-50 border border-teal-200 shadow-sm' : 'hover:bg-gray-50 border border-transparent'}`}>
               {hasPattern ? (
                 <>
                   <div className="flex items-center space-x-2 mb-1">
-                    <input
-                      type="checkbox"
-                      checked={selectedOptions.includes(option.name)}
-                      onChange={() => onToggle(option.name)}
-                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                    />
-                    <span className="text-sm text-gray-700">{option.name}</span>
+                    {selectedOptions.includes(option.name) ? 
+                      <Eye size={12} className="text-teal-600" /> : 
+                      <EyeOff size={12} className="text-gray-400" />
+                    }
+                    <span className={`text-sm transition-colors ${selectedOptions.includes(option.name) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{option.name}</span>
                   </div>
                   <PatternDisplay 
                     pattern={option.pattern || 'solid'} 
@@ -86,16 +86,14 @@ export function FilterSection({
                 </>
               ) : (
                 <>
-                  <input
-                    type="checkbox"
-                    checked={selectedOptions.includes(option.name)}
-                    onChange={() => onToggle(option.name)}
-                    className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                  />
-                  <span className="text-sm text-gray-700">{option.name}</span>
+                  {selectedOptions.includes(option.name) ? 
+                    <Eye size={12} className="text-teal-600" /> : 
+                    <EyeOff size={12} className="text-gray-400" />
+                  }
+                  <span className={`text-sm transition-colors ${selectedOptions.includes(option.name) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{option.name}</span>
                 </>
               )}
-            </label>
+            </div>
           ))}
         </div>
       )}

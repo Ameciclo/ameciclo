@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useCicloDadosState(
   infraOptions: Array<{ name: string; color: string; pattern: string }>,
@@ -11,17 +11,115 @@ export function useCicloDadosState(
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
-  const [selectedInfra, setSelectedInfra] = useState<string[]>(infraOptions.map(opt => opt.name));
-  const [selectedContagem, setSelectedContagem] = useState<string[]>(contagemOptions);
-  const [selectedPdc, setSelectedPdc] = useState<string[]>(pdcOptions.map(opt => opt.name));
-  const [selectedInfracao, setSelectedInfracao] = useState<string[]>(infracaoOptions);
-  const [selectedSinistro, setSelectedSinistro] = useState<string[]>(sinistroOptions);
-  const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(estacionamentoOptions);
-  const [selectedGenero, setSelectedGenero] = useState<string>("Todas");
-  const [selectedRaca, setSelectedRaca] = useState<string>("Todas");
-  const [selectedSocio, setSelectedSocio] = useState<string>("Salários entre X");
-  const [selectedDias, setSelectedDias] = useState<string>("1 dia");
-  const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');
+  const getStoredValue = (key: string, defaultValue: any) => {
+    if (typeof window === 'undefined') return defaultValue;
+    try {
+      const stored = localStorage.getItem(`ciclodados_${key}`);
+      return stored ? JSON.parse(stored) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  };
+
+  const [selectedInfra, setSelectedInfra] = useState<string[]>(() => 
+    getStoredValue('selectedInfra', infraOptions.map(opt => opt.name))
+  );
+  const [selectedContagem, setSelectedContagem] = useState<string[]>(() => 
+    getStoredValue('selectedContagem', contagemOptions)
+  );
+  const [selectedPdc, setSelectedPdc] = useState<string[]>(() => 
+    getStoredValue('selectedPdc', pdcOptions.map(opt => opt.name))
+  );
+  const [selectedInfracao, setSelectedInfracao] = useState<string[]>(() => 
+    getStoredValue('selectedInfracao', infracaoOptions)
+  );
+  const [selectedSinistro, setSelectedSinistro] = useState<string[]>(() => 
+    getStoredValue('selectedSinistro', sinistroOptions)
+  );
+  const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(() => 
+    getStoredValue('selectedEstacionamento', estacionamentoOptions)
+  );
+  const [selectedGenero, setSelectedGenero] = useState<string>(() => 
+    getStoredValue('selectedGenero', "Todas")
+  );
+  const [selectedRaca, setSelectedRaca] = useState<string>(() => 
+    getStoredValue('selectedRaca', "Todas")
+  );
+  const [selectedSocio, setSelectedSocio] = useState<string>(() => 
+    getStoredValue('selectedSocio', "Salários entre X")
+  );
+  const [selectedDias, setSelectedDias] = useState<string>(() => 
+    getStoredValue('selectedDias', "1 dia")
+  );
+  const [viewMode, setViewMode] = useState<'map' | 'mural'>(() => 
+    getStoredValue('viewMode', 'map')
+  );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedInfra', JSON.stringify(selectedInfra));
+    }
+  }, [selectedInfra]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedContagem', JSON.stringify(selectedContagem));
+    }
+  }, [selectedContagem]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedPdc', JSON.stringify(selectedPdc));
+    }
+  }, [selectedPdc]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedInfracao', JSON.stringify(selectedInfracao));
+    }
+  }, [selectedInfracao]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedSinistro', JSON.stringify(selectedSinistro));
+    }
+  }, [selectedSinistro]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify(selectedEstacionamento));
+    }
+  }, [selectedEstacionamento]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedGenero', JSON.stringify(selectedGenero));
+    }
+  }, [selectedGenero]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedRaca', JSON.stringify(selectedRaca));
+    }
+  }, [selectedRaca]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedSocio', JSON.stringify(selectedSocio));
+    }
+  }, [selectedSocio]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedDias', JSON.stringify(selectedDias));
+    }
+  }, [selectedDias]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_viewMode', JSON.stringify(viewMode));
+    }
+  }, [viewMode]);
 
   const toggleInfraOption = (optionName: string) => {
     setSelectedInfra(prev => 

@@ -9,8 +9,8 @@ export function ImagesGrid({ title, images }: any) {
           className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           style={{ justifyItems: "center" }}
         >
-          {images?.map((image: any) => (
-            <div className="bg-white rounded-lg shadow-xl w-full">
+          {images?.map((image: any, index: number) => (
+            <div key={image.url || index} className="bg-white rounded-lg shadow-xl w-full">
               <ImageWithLink {...image} />
             </div>
           ))}

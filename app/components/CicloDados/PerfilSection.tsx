@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface PerfilSectionProps {
   selectedGenero: string;
@@ -58,12 +59,15 @@ export function PerfilSection({
                 <button
                   key={option}
                   onClick={() => onGeneroChange(option)}
-                  className={`px-2 py-1 text-xs rounded ${
+                  className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
                     selectedGenero === option
                       ? 'bg-teal-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
+                  {option === 'Todas' && (
+                    selectedGenero === option ? <Eye size={12} /> : <EyeOff size={12} />
+                  )}
                   {option}
                 </button>
               ))}
@@ -78,12 +82,15 @@ export function PerfilSection({
                 <button
                   key={option}
                   onClick={() => onRacaChange(option)}
-                  className={`px-2 py-1 text-xs rounded ${
+                  className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
                     selectedRaca === option
                       ? 'bg-teal-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
+                  {option === 'Todas' && (
+                    selectedRaca === option ? <Eye size={12} /> : <EyeOff size={12} />
+                  )}
                   {option}
                 </button>
               ))}

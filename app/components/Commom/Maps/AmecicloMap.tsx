@@ -42,7 +42,7 @@ function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
     );
 }
 
-const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport }: any) => {
+const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, radius, setRadius }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 
@@ -84,9 +84,13 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     return (
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-50">
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-[60]">
             <button
-                onClick={toggleFullscreen}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleFullscreen();
+                }}
                 className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
                 title="Expandir mapa em tela cheia"
             >
@@ -96,7 +100,11 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
             </button>
 
             <button
-                onClick={handleZoomIn}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleZoomIn();
+                }}
                 className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
                 title="Zoom in"
             >
@@ -106,7 +114,11 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
             </button>
 
             <button
-                onClick={handleZoomOut}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleZoomOut();
+                }}
                 className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
                 title="Zoom out"
             >
@@ -116,16 +128,91 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
             </button>
 
             <button
-                onClick={handleToggleDragPan}
-                className={`bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors ${settings.dragPan ? 'text-blue-500' : ''}`}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleToggleDragPan();
+                }}
+                className={`bg-white hover:bg-gray-100 rounded p-2 shadow-md transition-all ${
+                    settings.dragPan ? 'bg-gray-200 border-[3px] border-gray-400' : 'border border-gray-300'
+                }`}
                 title="Mover mapa"
             >
                 <Move className="w-5 h-5" />
             </button>
 
+
+            
+            {toggleSelectionMode && (
+                <>
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            if (!isSelectionMode) {
+                                // Ativar seleção e desativar modo mover
+                                setsettings((prev: any) => ({ 
+                                    ...prev, 
+                                    dragPan: false,
+                                    scrollZoom: false 
+                                }));
+                            } else {
+                                // Desativar seleção e reativar modo mover
+                                setsettings((prev: any) => ({ 
+                                    ...prev, 
+                                    dragPan: true,
+                                    scrollZoom: true 
+                                }));
+                            }
+                            
+                            toggleSelectionMode();
+                        }}
+                        className={`bg-white hover:bg-gray-100 rounded p-2 shadow-md transition-all ${
+                            isSelectionMode ? 'bg-gray-200 border-[3px] border-gray-400' : 'border border-gray-300'
+                        }`}
+                        title="Selecionar área no mapa"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                        </svg>
+                    </button>
+                    
+                    {isSelectionMode && setRadius && (
+                        <div className="flex flex-col items-center gap-1">
+                            <input
+                                type="range"
+                                min="100"
+                                max="2000"
+                                step="100"
+                                value={radius}
+                                onChange={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setRadius(Number(e.target.value));
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onMouseUp={(e) => e.stopPropagation()}
+                                onMouseMove={(e) => e.stopPropagation()}
+                                onClick={(e) => e.stopPropagation()}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onPointerUp={(e) => e.stopPropagation()}
+                                onPointerMove={(e) => e.stopPropagation()}
+                                className="w-12 h-1"
+                            />
+                            <div className="text-xs text-white bg-black bg-opacity-50 px-1 rounded">{radius}m</div>
+                        </div>
+                    )}
+                </>
+            )}
+            
             {!isAtDefaultPosition() && (
                 <button
-                    onClick={handleRecenter}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRecenter();
+                    }}
                     className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
                     title="Recentralizar mapa"
                 >
@@ -190,7 +277,7 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-    if (hasPoints) {
+    if (hasPoints && pointsData.length > 1) {
         try {
             const lineStringFromPointData = turf.lineString(pointsData.map((point: any) => [point.longitude, point.latitude]));
             const [pMinX, pMinY, pMaxX, pMaxY] = bbox(lineStringFromPointData);
@@ -315,6 +402,14 @@ export const AmecicloMap = ({
     width = "auto",
     height = "500px",
     defaultDragPan = false,
+    onMapClick,
+    isSelectionMode,
+    toggleSelectionMode,
+    radius,
+    setRadius,
+    selectedCircles = [],
+    hoverPoint,
+    onMouseMove,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -327,6 +422,14 @@ export const AmecicloMap = ({
     controlPanel?: any[];
     showLayersPanel?: boolean;
     defaultDragPan?: boolean;
+    onMapClick?: (event: any) => void;
+    isSelectionMode?: boolean;
+    toggleSelectionMode?: () => void;
+    radius?: number;
+    setRadius?: (radius: number) => void;
+    selectedCircles?: Array<{ lat: number; lng: number; radius: number; id: string }>;
+    hoverPoint?: { lat: number; lng: number } | null;
+    onMouseMove?: (event: any) => void;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -337,10 +440,32 @@ export const AmecicloMap = ({
         const timer = setTimeout(() => {
             setIsMapReady(true);
         }, 100);
+        
+        // Adicionar CSS para mapbox no head
+        if (typeof document !== 'undefined') {
+            const existingStyle = document.getElementById('mapbox-custom-styles');
+            if (!existingStyle) {
+                const style = document.createElement('style');
+                style.id = 'mapbox-custom-styles';
+                style.textContent = `
+                    .mapboxgl-ctrl-attrib {
+                        color: #d1d5db !important;
+                        font-size: 10px !important;
+                        opacity: 0.6 !important;
+                    }
+                    .mapboxgl-ctrl-attrib a {
+                        color: #d1d5db !important;
+                        font-size: 10px !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
         return () => clearTimeout(timer);
     }, []);
 
-    const [selectedPoint, setSelectedPoint] = useState<pointData | undefined>(
+    const [selectedMarker, setSelectedMarker] = useState<pointData | undefined>(
         undefined
     );
 
@@ -355,12 +480,12 @@ export const AmecicloMap = ({
 
 
     useEffect(() => {
-        if (isClient && isMapReady) {
+        if (isClient && isMapReady && !viewport.latitude) {
             const calculatedViewport = getInicialViewPort(pointsData, layerData);
             setViewport(calculatedViewport);
             setInitialViewport(calculatedViewport);
         }
-    }, [isClient, isMapReady, pointsData, layerData]);
+    }, [isClient, isMapReady]);
     const [settings, setsettings] = useState(getMapInitialState(defaultDragPan));
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -419,20 +544,16 @@ export const AmecicloMap = ({
                         onViewportChange={setViewport}
                         mapStyle={MAPBOXSTYLE}
                         mapboxApiAccessToken={MAPBOXTOKEN}
-                        getCursor={({ isDragging }) => (settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer')}
+                        getCursor={({ isDragging }) => {
+                            if (isSelectionMode) return 'pointer';
+                            return settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer';
+                        }}
+                        onClick={onMapClick}
+                        onMouseDown={onMapClick}
+                        onMouseMove={onMouseMove}
                     >
-                        <style>{`
-                            .mapboxgl-ctrl-attrib {
-                                color: #d1d5db !important;
-                                font-size: 10px !important;
-                                opacity: 0.6 !important;
-                            }
-                            .mapboxgl-ctrl-attrib a {
-                                color: #d1d5db !important;
-                                font-size: 10px !important;
-                            }
-                        `}</style>
-                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} />
+
+                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} radius={radius} setRadius={setRadius} />
                         {layerData && (
                             <Source id="layersMap" type="geojson" data={layerData}>
                                 {layersConf?.map((layer: any, i: number) =>
@@ -451,7 +572,7 @@ export const AmecicloMap = ({
                                         key={key}
                                         latitude={latitude}
                                         longitude={longitude}
-                                        onClick={() => setSelectedPoint(point)}
+                                        onClick={() => setSelectedMarker(point)}
                                     >
                                         {customIcon ? (
                                             <div style={{ cursor: "pointer", transform: "translate(-50%, -100%)" }}>
@@ -475,10 +596,61 @@ export const AmecicloMap = ({
                                 )
                             );
                         })}
-                        {selectedPoint !== undefined && (
+
+                        {hoverPoint && radius && (() => {
+                            const metersPerPixel = 156543.03392 * Math.cos(hoverPoint.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
+                            const radiusInPixels = radius / metersPerPixel;
+                            const circleSize = Math.max(10, Math.min(400, radiusInPixels * 2));
+                            
+                            return (
+                                <Marker
+                                    latitude={hoverPoint.lat}
+                                    longitude={hoverPoint.lng}
+                                >
+                                    <div 
+                                        style={{
+                                            width: `${circleSize}px`,
+                                            height: `${circleSize}px`,
+                                            borderRadius: '50%',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                            border: '2px dashed #ef4444',
+                                            transform: 'translate(-50%, -50%)',
+                                            pointerEvents: 'none'
+                                        }}
+                                    />
+                                </Marker>
+                            );
+                        })()}
+                        {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
+                            const metersPerPixel = 156543.03392 * Math.cos(circle.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
+                            const radiusInPixels = circle.radius / metersPerPixel;
+                            const circleSize = Math.max(10, Math.min(400, radiusInPixels * 2));
+                            
+                            return (
+                                <Marker
+                                    key={circle.id}
+                                    latitude={circle.lat}
+                                    longitude={circle.lng}
+                                >
+                                    <div 
+                                        style={{
+                                            width: `${circleSize}px`,
+                                            height: `${circleSize}px`,
+                                            borderRadius: '50%',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                                            border: '2px solid #ef4444',
+                                            transform: 'translate(-50%, -50%)',
+                                            pointerEvents: 'none'
+                                        }}
+                                    />
+                                </Marker>
+                            );
+                        })}
+
+                        {selectedMarker !== undefined && (
                             <CountingPopUp
-                                selectedPoint={selectedPoint}
-                                setSelectedPoint={setSelectedPoint}
+                                selectedPoint={selectedMarker}
+                                setSelectedPoint={setSelectedMarker}
                             />
                         )}
                         {controlPanel.length > 0 && (
