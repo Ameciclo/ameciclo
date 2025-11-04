@@ -1,9 +1,51 @@
-import { chartData } from './utils/chartData';
+import { useState } from 'react';
+import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart } from './utils/chartData';
 
 interface RightSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   viewMode: 'map' | 'mural';
+}
+
+function ChartDataCards() {
+  const [infraPercentage, setInfraPercentage] = useState(100);
+  
+  const chartData = [
+    {
+      id: 1,
+      title: "Av. Gov. Agamenon Magalhães",
+      value: "2.846",
+      description: "contagens de ciclistas (Jan/2024)",
+      chart: <MiniContagensChart />
+    },
+    {
+      id: 2,
+      title: "Vítimas fatais",
+      value: "78",
+      chart: <MiniSinistrosChart />
+    },
+    {
+      id: 3,
+      title: "Infra. cicloviária executada",
+      value: `${infraPercentage}%`,
+      chart: <MiniInfraChart onPercentageChange={setInfraPercentage} />
+    }
+  ];
+  
+  return (
+    <div className="px-3 pb-3">
+      <div className="space-y-4">
+        {chartData.map((item) => (
+          <div key={item.id} className="border rounded-lg p-3 shadow-sm bg-gray-50">
+            <h3 className="font-medium text-gray-800 mb-1">{item.title}</h3>
+            <p className="text-2xl font-bold text-black mb-2">{item.value}</p>
+            {item.chart}
+            {item.description && <p className="text-xs text-gray-500 mt-2">{item.description}</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export function RightSidebar({ isOpen, onToggle, viewMode }: RightSidebarProps) {
@@ -33,20 +75,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode }: RightSidebarProps) 
           </button>
         </div>
         
-        {isOpen && (
-          <div className="px-3 pb-3">
-            <div className="space-y-4">
-              {chartData.map((item) => (
-                <div key={item.id} className="border rounded-lg p-3 shadow-sm bg-gray-50">
-                  <h3 className="font-medium text-gray-800 mb-1">{item.title}</h3>
-                  <p className="text-2xl font-bold text-black mb-2">{item.value}</p>
-                  {item.chart}
-                  {item.description && <p className="text-xs text-gray-500 mt-2">{item.description}</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {isOpen && <ChartDataCards />}
       </div>
     </aside>
   );

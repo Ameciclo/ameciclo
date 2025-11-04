@@ -1,40 +1,142 @@
-export const chartData = [
-  {
-    id: 1,
-    title: "Av. Gov. Agamenon Magalhães",
-    value: "2.846",
-    description: "contagens de ciclistas (Jan/2024)",
-    chart: (
-      <svg className="w-full h-16" viewBox="0 0 200 60">
-        <path d="M0,60 Q10,50 20,45 Q30,30 40,35 Q50,40 60,25 Q70,20 80,30 Q90,35 100,20 Q110,15 120,22 Q130,25 140,18 Q150,10 160,25 Q170,30 180,22 Q190,20 200,25 L200,60 Z" 
-          fill="#1d4ed8" fillOpacity="0.3" stroke="#1d4ed8" strokeWidth="2"/>
-      </svg>
-    )
-  },
-  {
-    id: 2,
-    title: "Sinistros com vítima",
-    value: "1.323",
-    chart: (
-      <svg className="w-full h-16" viewBox="0 0 200 60">
-        <rect x="20" y="40" width="15" height="20" fill="#1d4ed8"/>
-        <rect x="45" y="30" width="15" height="30" fill="#1d4ed8"/>
-        <rect x="70" y="35" width="15" height="25" fill="#1d4ed8"/>
-        <rect x="95" y="25" width="15" height="35" fill="#1d4ed8"/>
-        <rect x="120" y="45" width="15" height="15" fill="#1d4ed8"/>
-        <rect x="145" y="20" width="15" height="40" fill="#1d4ed8"/>
-        <rect x="170" y="38" width="15" height="22" fill="#1d4ed8"/>
-      </svg>
-    )
-  },
-  {
-    id: 3,
-    title: "Infra. cicloviária executada",
-    value: "78%",
-    chart: (
-      <div className="w-full bg-gray-200 rounded-full h-4">
-        <div className="bg-blue-700 h-4 rounded-full transition-all duration-500" style={{width: '78%'}}></div>
+import { useState, useEffect } from 'react';
+
+const MiniContagensChart = () => {
+  const [Chart, setChart] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const loadChart = async () => {
+      const [Highcharts, HighchartsReact] = await Promise.all([
+        import('highcharts'),
+        import('highcharts-react-official')
+      ]);
+      
+      const ChartComponent = () => (
+        <HighchartsReact.default 
+          highcharts={Highcharts.default} 
+          options={{
+            chart: { type: 'areaspline', height: 64, backgroundColor: 'transparent', margin: [5, 5, 5, 5] },
+            title: { text: null },
+            legend: { enabled: false },
+            credits: { enabled: false },
+            xAxis: { categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'], visible: false },
+            yAxis: { visible: false, min: 0 },
+            plotOptions: {
+              areaspline: {
+                fillColor: { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, 'rgba(59, 130, 246, 0.3)'], [1, 'rgba(59, 130, 246, 0.1)']] },
+                lineColor: '#3b82f6',
+                lineWidth: 2,
+                marker: { enabled: false }
+              }
+            },
+            series: [{ name: 'Ciclistas', data: [2400, 2650, 2846, 2720, 2580, 2390], showInLegend: false }],
+            tooltip: { enabled: false }
+          }} 
+        />
+      );
+      
+      setChart(() => ChartComponent);
+    };
+    
+    loadChart();
+  }, [isClient]);
+
+  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded animate-pulse"></div>;
+  return <Chart />;
+};
+
+const MiniSinistrosChart = () => {
+  const [Chart, setChart] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const loadChart = async () => {
+      const [Highcharts, HighchartsReact] = await Promise.all([
+        import('highcharts'),
+        import('highcharts-react-official')
+      ]);
+      
+      const ChartComponent = () => (
+        <HighchartsReact.default 
+          highcharts={Highcharts.default} 
+          options={{
+            chart: { type: 'column', height: 64, backgroundColor: 'transparent', margin: [5, 5, 5, 5] },
+            title: { text: null },
+            legend: { enabled: false },
+            credits: { enabled: false },
+            xAxis: { categories: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'], visible: false },
+            yAxis: { visible: false, min: 0 },
+            plotOptions: { column: { color: '#ef4444', borderWidth: 0, pointPadding: 0.1 } },
+            series: [{ name: 'Vítimas Fatais', data: [28, 32, 38, 45, 52, 58, 65, 72, 78], showInLegend: false }],
+            tooltip: { enabled: false }
+          }} 
+        />
+      );
+      
+      setChart(() => ChartComponent);
+    };
+    
+    loadChart();
+  }, [isClient]);
+
+  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded animate-pulse"></div>;
+  return <Chart />;
+};
+
+const MiniInfraChart = ({ onPercentageChange }: { onPercentageChange: (value: number) => void }) => {
+  const [currentPercentage, setCurrentPercentage] = useState(100);
+  const targetPercentage = 18;
+  
+  const getColor = (value: number) => {
+    if (value <= 20) return '#ef4444'; // red
+    if (value <= 50) return '#f97316'; // orange
+    if (value <= 80) return '#eab308'; // yellow
+    return '#22c55e'; // green
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        setCurrentPercentage(prev => {
+          const newValue = prev <= targetPercentage ? targetPercentage : prev - 1;
+          onPercentageChange(newValue);
+          if (prev <= targetPercentage) {
+            clearInterval(interval);
+          }
+          return newValue;
+        });
+      }, 30);
+      return () => clearInterval(interval);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [onPercentageChange]);
+
+  return (
+    <div className="w-full h-16 flex items-center">
+      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div 
+          className="h-full rounded-full transition-colors duration-200"
+          style={{ 
+            width: `${currentPercentage}%`, 
+            backgroundColor: getColor(currentPercentage) 
+          }}
+        />
       </div>
-    )
-  }
-];
+    </div>
+  );
+};
+
+export { MiniContagensChart, MiniSinistrosChart, MiniInfraChart };

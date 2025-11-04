@@ -63,7 +63,7 @@ export function FilterSection({
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            {selectedOptions.length === options.length ? <Eye size={12} /> : <EyeOff size={12} />}
+            {selectedOptions.length === options.length ? <Eye size={16} /> : <EyeOff size={16} />}
             Todas
           </button>
           {options.map((option) => (
@@ -71,10 +71,12 @@ export function FilterSection({
               {hasPattern ? (
                 <>
                   <div className="flex items-center space-x-2 mb-1">
-                    {selectedOptions.includes(option.name) ? 
-                      <Eye size={12} className="text-teal-600" /> : 
-                      <EyeOff size={12} className="text-gray-400" />
-                    }
+                    <div className="flex-shrink-0">
+                      {selectedOptions.includes(option.name) ? 
+                        <Eye size={16} className="text-teal-600" /> : 
+                        <EyeOff size={16} className="text-gray-400" />
+                      }
+                    </div>
                     <span className={`text-sm transition-colors ${selectedOptions.includes(option.name) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{option.name}</span>
                   </div>
                   <PatternDisplay 
@@ -86,10 +88,12 @@ export function FilterSection({
                 </>
               ) : (
                 <>
-                  {selectedOptions.includes(option.name) ? 
-                    <Eye size={12} className="text-teal-600" /> : 
-                    <EyeOff size={12} className="text-gray-400" />
-                  }
+                  <div className="flex-shrink-0">
+                    {selectedOptions.includes(option.name) ? 
+                      <Eye size={16} className="text-teal-600" /> : 
+                      <EyeOff size={16} className="text-gray-400" />
+                    }
+                  </div>
                   <span className={`text-sm transition-colors ${selectedOptions.includes(option.name) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{option.name}</span>
                 </>
               )}
