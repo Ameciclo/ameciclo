@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { User, Shield, RotateCcw, Users, Package, Wrench, Bike } from 'lucide-react';
+import { User, Shield, RotateCcw, Users, Package, Wrench, Bike, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CyclistChart = () => {
   const options = {
@@ -290,12 +290,92 @@ const SpeedChart = () => {
   return <HighchartsReact highcharts={Highcharts} options={options} />;
 };
 
+const MountainChart = () => {
+  const options = {
+    chart: {
+      type: 'areaspline',
+      height: 300,
+      backgroundColor: 'transparent'
+    },
+    title: {
+      text: null
+    },
+    legend: {
+      enabled: true,
+      align: 'center',
+      verticalAlign: 'top',
+      y: 20,
+      itemStyle: {
+        fontSize: '14px',
+        fontWeight: 'normal'
+      }
+    },
+    xAxis: {
+      categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+      title: {
+        text: 'Meses'
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Valores'
+      },
+      min: 0
+    },
+    plotOptions: {
+      areaspline: {
+        lineWidth: 3,
+        marker: {
+          enabled: true,
+          radius: 4
+        },
+        fillOpacity: 0.3
+      }
+    },
+    series: [{
+      name: 'Série Azul',
+      data: [120, 135, 158, 142, 165, 180, 195, 175, 160, 145, 130, 125],
+      color: '#3b82f6',
+      fillColor: {
+        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+        stops: [
+          [0, 'rgba(59, 130, 246, 0.4)'],
+          [1, 'rgba(59, 130, 246, 0.1)']
+        ]
+      }
+    }, {
+      name: 'Série Verde',
+      data: [80, 95, 110, 125, 140, 155, 170, 185, 200, 180, 165, 150],
+      color: '#10b981',
+      fillColor: {
+        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+        stops: [
+          [0, 'rgba(16, 185, 129, 0.4)'],
+          [1, 'rgba(16, 185, 129, 0.1)']
+        ]
+      }
+    }],
+    tooltip: {
+      shared: true,
+      crosshairs: true
+    },
+    credits: { enabled: false }
+  };
+
+  return <HighchartsReact highcharts={Highcharts} options={options} />;
+};
+
 export function MuralView() {
   const [activeTab, setActiveTab] = useState('contagens');
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const containerRef = useRef(null);
   
   return (
-    <div className="h-full bg-gray-50 p-6 overflow-y-auto">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-full bg-gray-50 p-6 overflow-y-auto overflow-x-hidden">
+      <div className="w-full max-w-[75vw] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
           <div className="bg-white rounded-lg shadow h-[200px] p-4 flex flex-col">
             <div className="space-y-2">
@@ -346,6 +426,7 @@ export function MuralView() {
             </div>
           </div>
         </div>
+
         
         <div className="mt-5">
           <div className="bg-white rounded-lg shadow h-[400px] p-6">
@@ -470,8 +551,105 @@ export function MuralView() {
         <div className="mt-5">
           <div className="bg-white rounded-lg shadow h-[500px] p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Análise completa dos dados</h3>
-            <div className="h-full flex items-center justify-center text-gray-500">
-              Gráfico de análise completa
+            
+            {/* Carrossel de Cards */}
+            <div className="relative mb-6">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => {
+                    const newPosition = Math.max(0, scrollPosition - 220);
+                    setScrollPosition(newPosition);
+                    containerRef.current?.scrollTo({ left: newPosition, behavior: 'smooth' });
+                  }}
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                
+                <div 
+                  ref={containerRef}
+                  className={`flex gap-4 overflow-x-scroll flex-1 select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                  style={{ 
+                    scrollbarWidth: 'none', 
+                    msOverflowStyle: 'none',
+                    WebkitOverflowScrolling: 'touch'
+                  }}
+                  onMouseDown={(e) => {
+                    setIsDragging(true);
+                    setStartX(e.pageX - containerRef.current.offsetLeft);
+                    setScrollLeft(containerRef.current.scrollLeft);
+                  }}
+                  onMouseLeave={() => setIsDragging(false)}
+                  onMouseUp={() => setIsDragging(false)}
+                  onMouseMove={(e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    const x = e.pageX - containerRef.current.offsetLeft;
+                    const walk = (x - startX) * 2;
+                    containerRef.current.scrollLeft = scrollLeft - walk;
+                  }}
+                  onScroll={(e) => setScrollPosition(e.target.scrollLeft)}
+                >
+                  {[
+                    { title: 'Estacionar em Ciclovia', label: 'Infrações registradas', value: '1.247', progress: 85 },
+                    { title: 'Trafegar em Ciclofaixa', label: 'Veículos autuados', value: '892', progress: 72 },
+                    { title: 'Obstruir Ciclovia', label: 'Multas aplicadas', value: '634', progress: 68 },
+                    { title: 'Não Respeitar Preferência', label: 'Acidentes evitados', value: '156', progress: 45 },
+                    { title: 'Ultrapassagem Irregular', label: 'Flagrantes de risco', value: '2.103', progress: 91 },
+                    { title: 'Fechada de Ciclista', label: 'Ocorrências reportadas', value: '789', progress: 78 },
+                    { title: 'Buzinar para Ciclista', label: 'Denúncias recebidas', value: '1.456', progress: 83 },
+                    { title: 'Porta Aberta', label: 'Casos documentados', value: '567', progress: 76 },
+                    { title: 'Invasão de Faixa', label: 'Registros de conflito', value: '423', progress: 64 },
+                    { title: 'Velocidade Excessiva', label: 'Radares em ciclovias', value: '1.892', progress: 89 },
+                    { title: 'Parar sobre Faixa', label: 'Bloqueios identificados', value: '345', progress: 55 },
+                    { title: 'Desrespeito à Sinalização', label: 'Violações flagradas', value: '2.567', progress: 92 }
+                  ].map((item, i) => (
+                    <div key={i} className="w-[200px] h-[100px] bg-blue-50 rounded-lg border border-blue-200 flex-shrink-0 p-3 flex">
+                      <div className="flex-1">
+                        <h4 className="text-xs font-semibold text-gray-800 mb-1">{item.title}</h4>
+                        <p className="text-xs text-gray-500 mb-2">{item.label}</p>
+                        <p className="text-xl font-bold text-gray-900">{item.value}</p>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="relative w-12 h-12">
+                          <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+                            <path
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              fill="none"
+                              stroke="#e5e7eb"
+                              strokeWidth="2"
+                            />
+                            <path
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              fill="none"
+                              stroke="#3b82f6"
+                              strokeWidth="2"
+                              strokeDasharray={`${item.progress}, 100`}
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                </div>
+                
+                <button 
+                  onClick={() => {
+                    const maxScroll = (13 * 220) - containerRef.current?.clientWidth;
+                    const newPosition = Math.min(maxScroll, scrollPosition + 220);
+                    setScrollPosition(newPosition);
+                    containerRef.current?.scrollTo({ left: newPosition, behavior: 'smooth' });
+                  }}
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="h-full">
+              <MountainChart />
             </div>
           </div>
         </div>
