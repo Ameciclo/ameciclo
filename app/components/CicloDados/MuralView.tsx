@@ -450,6 +450,31 @@ export function MuralView() {
             </div>
           </div>
         </div>
+        
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="bg-white rounded-lg shadow h-[500px] p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Perfil de ciclistas</h3>
+            <div className="h-full flex items-center justify-center text-gray-500">
+              Gráfico do perfil de ciclistas
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow h-[500px] p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Ciclistas por gênero</h3>
+            <div className="h-full flex items-center justify-center text-gray-500">
+              Gráfico de ciclistas por gênero
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-5">
+          <div className="bg-white rounded-lg shadow h-[500px] p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Análise completa dos dados</h3>
+            <div className="h-full flex items-center justify-center text-gray-500">
+              Gráfico de análise completa
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
