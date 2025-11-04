@@ -4,9 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AmecicloLogo } from "./NavBar/AmecicloLogo";
 
 const dataSubPages = [
-  { name: "SAMU", url: "/dados/samu" },
-  { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
-  { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
   { name: "Contagens", url: "/dados/contagens" },
   { name: "Ideciclo", url: "/dados/ideciclo" },
   { name: "Documentos", url: "/dados/documentos" },
@@ -14,6 +11,10 @@ const dataSubPages = [
   { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria" },
   { name: "LOA", url: "/dados/loa" },
   { name: "DOM", url: "/dados/dom" },
+  { name: "SAMU", url: "/dados/samu" },
+  { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
+  { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
+  { name: "CicloDados", url: "/dados/ciclodados" },
 ];
 
 export const Navbar = ({ pages }: any) => {
