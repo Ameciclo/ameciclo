@@ -429,7 +429,7 @@ export function MuralView() {
 
         
         <div className="mt-5">
-          <div className="bg-white rounded-lg shadow h-[400px] p-6">
+          <div className="bg-white rounded-lg shadow h-auto lg:h-[400px] p-6">
             {/* Barra de Filtros */}
             <div className="flex items-center gap-6 pb-4 border-b mb-4">
               <div className="text-lg font-semibold text-gray-800">
@@ -461,14 +461,14 @@ export function MuralView() {
             </div>
             
             {/* Conteúdo Principal */}
-            <div className="flex h-[300px] gap-6">
+            <div className="flex flex-col lg:flex-row h-auto lg:h-[300px] gap-6">
               {/* Gráfico */}
-              <div className="flex-1">
+              <div className="flex-1 h-[250px] lg:h-auto">
                 {activeTab === 'contagens' ? <EvolutionChart /> : <SinistrosChart />}
               </div>
               
               {/* Características */}
-              <div className="w-64">
+              <div className="w-full lg:w-64">
                 <h3 className="font-semibold text-gray-800 mb-2">Características</h3>
                 <div className="space-y-1">
                   <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">

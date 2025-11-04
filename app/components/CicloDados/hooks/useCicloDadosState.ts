@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768;
+};
+
 export function useCicloDadosState(
   infraOptions: Array<{ name: string; color: string; pattern: string }>,
   contagemOptions: string[],
@@ -9,6 +14,17 @@ export function useCicloDadosState(
   estacionamentoOptions: string[]
 ) {
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
+  
+  // Auto-minimize sidebar on mobile after 2 seconds
+  useEffect(() => {
+    if (isMobile()) {
+      const timer = setTimeout(() => {
+        setLeftSidebarOpen(false);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
   const getStoredValue = (key: string, defaultValue: any) => {
