@@ -64,11 +64,11 @@ export function LeftSidebar({
 }: LeftSidebarProps) {
   return (
     <aside className={`bg-gray-50 border-r transition-all duration-300 flex-shrink-0 overflow-hidden ${
-      isOpen ? 'w-72' : 'w-12'
+      isOpen ? 'w-72' : 'w-0 md:w-12'
     }`} style={{height: '100%'}}>
       <div className="h-full overflow-y-auto">
-        <div className={`flex items-center justify-between p-3 ${
-          isOpen ? 'mb-4' : 'mb-0 flex-col gap-2'
+        <div className={`items-center justify-between p-3 ${
+          isOpen ? 'flex mb-4' : 'hidden md:flex mb-0 flex-col gap-2'
         }`}>
           {isOpen && <h2 className="font-semibold text-gray-800">Camadas de dados</h2>}
           <button 
@@ -152,6 +152,19 @@ export function LeftSidebar({
           </div>
         )}
       </div>
+      
+      {/* Floating toggle button for mobile when minimized */}
+      {!isOpen && (
+        <button 
+          onClick={onToggle}
+          className="md:hidden fixed top-20 left-4 z-50 bg-gray-50 border rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+          title="Expandir filtros"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
     </aside>
   );
 }

@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { User, Shield, RotateCcw, Users, Package, Wrench, Bike, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Shield, RotateCcw, Users, Package, Wrench, Bike } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
 const CyclistChart = () => {
   const options = {
@@ -367,11 +369,6 @@ const MountainChart = () => {
 
 export function MuralView() {
   const [activeTab, setActiveTab] = useState('contagens');
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const containerRef = useRef(null);
   
   return (
     <div className="h-full bg-gray-50 p-6 overflow-y-auto overflow-x-hidden">
@@ -552,59 +549,29 @@ export function MuralView() {
           <div className="bg-white rounded-lg shadow h-[500px] p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Análise completa dos dados</h3>
             
-            {/* Carrossel de Cards */}
-            <div className="relative mb-6">
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => {
-                    const newPosition = Math.max(0, scrollPosition - 220);
-                    setScrollPosition(newPosition);
-                    containerRef.current?.scrollTo({ left: newPosition, behavior: 'smooth' });
-                  }}
-                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                
-                <div 
-                  ref={containerRef}
-                  className={`flex gap-4 overflow-x-scroll flex-1 select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-                  style={{ 
-                    scrollbarWidth: 'none', 
-                    msOverflowStyle: 'none',
-                    WebkitOverflowScrolling: 'touch'
-                  }}
-                  onMouseDown={(e) => {
-                    setIsDragging(true);
-                    setStartX(e.pageX - containerRef.current.offsetLeft);
-                    setScrollLeft(containerRef.current.scrollLeft);
-                  }}
-                  onMouseLeave={() => setIsDragging(false)}
-                  onMouseUp={() => setIsDragging(false)}
-                  onMouseMove={(e) => {
-                    if (!isDragging) return;
-                    e.preventDefault();
-                    const x = e.pageX - containerRef.current.offsetLeft;
-                    const walk = (x - startX) * 2;
-                    containerRef.current.scrollLeft = scrollLeft - walk;
-                  }}
-                  onScroll={(e) => setScrollPosition(e.target.scrollLeft)}
-                >
-                  {[
-                    { title: 'Estacionar em Ciclovia', label: 'Infrações registradas', value: '1.247', progress: 85 },
-                    { title: 'Trafegar em Ciclofaixa', label: 'Veículos autuados', value: '892', progress: 72 },
-                    { title: 'Obstruir Ciclovia', label: 'Multas aplicadas', value: '634', progress: 68 },
-                    { title: 'Não Respeitar Preferência', label: 'Acidentes evitados', value: '156', progress: 45 },
-                    { title: 'Ultrapassagem Irregular', label: 'Flagrantes de risco', value: '2.103', progress: 91 },
-                    { title: 'Fechada de Ciclista', label: 'Ocorrências reportadas', value: '789', progress: 78 },
-                    { title: 'Buzinar para Ciclista', label: 'Denúncias recebidas', value: '1.456', progress: 83 },
-                    { title: 'Porta Aberta', label: 'Casos documentados', value: '567', progress: 76 },
-                    { title: 'Invasão de Faixa', label: 'Registros de conflito', value: '423', progress: 64 },
-                    { title: 'Velocidade Excessiva', label: 'Radares em ciclovias', value: '1.892', progress: 89 },
-                    { title: 'Parar sobre Faixa', label: 'Bloqueios identificados', value: '345', progress: 55 },
-                    { title: 'Desrespeito à Sinalização', label: 'Violações flagradas', value: '2.567', progress: 92 }
-                  ].map((item, i) => (
-                    <div key={i} className="w-[200px] h-[100px] bg-blue-50 rounded-lg border border-blue-200 flex-shrink-0 p-3 flex">
+            {/* Carrossel de Cards com Swiper */}
+            <div className="mb-6 overflow-hidden">
+              <Swiper
+                spaceBetween={16}
+                slidesPerView="auto"
+                className="!overflow-visible"
+              >
+                {[
+                  { title: 'Estacionar em Ciclovia', label: 'Infrações registradas', value: '1.247', progress: 85 },
+                  { title: 'Trafegar em Ciclofaixa', label: 'Veículos autuados', value: '892', progress: 72 },
+                  { title: 'Obstruir Ciclovia', label: 'Multas aplicadas', value: '634', progress: 68 },
+                  { title: 'Não Respeitar Preferência', label: 'Acidentes evitados', value: '156', progress: 45 },
+                  { title: 'Ultrapassagem Irregular', label: 'Flagrantes de risco', value: '2.103', progress: 91 },
+                  { title: 'Fechada de Ciclista', label: 'Ocorrências reportadas', value: '789', progress: 78 },
+                  { title: 'Buzinar para Ciclista', label: 'Denúncias recebidas', value: '1.456', progress: 83 },
+                  { title: 'Porta Aberta', label: 'Casos documentados', value: '567', progress: 76 },
+                  { title: 'Invasão de Faixa', label: 'Registros de conflito', value: '423', progress: 64 },
+                  { title: 'Velocidade Excessiva', label: 'Radares em ciclovias', value: '1.892', progress: 89 },
+                  { title: 'Parar sobre Faixa', label: 'Bloqueios identificados', value: '345', progress: 55 },
+                  { title: 'Desrespeito à Sinalização', label: 'Violações flagradas', value: '2.567', progress: 92 }
+                ].map((item, i) => (
+                  <SwiperSlide key={i} className="!w-[200px]">
+                    <div className="w-[200px] h-[100px] bg-blue-50 rounded-lg border border-blue-200 p-3 flex">
                       <div className="flex-1">
                         <h4 className="text-xs font-semibold text-gray-800 mb-1">{item.title}</h4>
                         <p className="text-xs text-gray-500 mb-2">{item.label}</p>
@@ -630,22 +597,9 @@ export function MuralView() {
                         </div>
                       </div>
                     </div>
-                  ))}
-
-                </div>
-                
-                <button 
-                  onClick={() => {
-                    const maxScroll = (13 * 220) - containerRef.current?.clientWidth;
-                    const newPosition = Math.min(maxScroll, scrollPosition + 220);
-                    setScrollPosition(newPosition);
-                    containerRef.current?.scrollTo({ left: newPosition, behavior: 'smooth' });
-                  }}
-                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
             
             <div className="h-full">

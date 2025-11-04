@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
+import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart } from './utils/chartData';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
 interface MapViewProps {
   selectedInfra: string[];
@@ -24,8 +27,7 @@ export function MapView({
   contagemData,
   getContagemIcon
 }: MapViewProps) {
-  const [showCoordinates, setShowCoordinates] = useState(false);
-  const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 });
+
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedCircles, setSelectedCircles] = useState<Array<{ lat: number; lng: number; radius: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
@@ -106,33 +108,45 @@ export function MapView({
     }
   };
 
+  const [infraPercentage, setInfraPercentage] = useState(100);
+  
+  const chartData = [
+    {
+      id: 1,
+      title: "Av. Gov. Agamenon Magalhães",
+      value: "2.846",
+      description: "contagens de ciclistas (Jan/2024)",
+      chart: <MiniContagensChart />
+    },
+    {
+      id: 2,
+      title: "Vítimas fatais",
+      value: "78",
+      chart: <MiniSinistrosChart />
+    },
+    {
+      id: 3,
+      title: "Infra. cicloviária executada",
+      value: `${infraPercentage}%`,
+      chart: <MiniInfraChart onPercentageChange={setInfraPercentage} />
+    }
+  ];
+
   return (
-    <div style={{height: 'calc(100vh - 64px)'}} className="relative">
-      {showCoordinates && coordinates.lat && coordinates.lng && (
-        <div className="absolute top-4 left-4 bg-white p-3 rounded shadow-lg z-50 border">
-          <h3 className="font-semibold text-sm mb-1">Área Selecionada:</h3>
-          <p className="text-xs text-gray-600">Lat: {coordinates.lat.toFixed(6)}</p>
-          <p className="text-xs text-gray-600">Lng: {coordinates.lng.toFixed(6)}</p>
-          <p className="text-xs text-gray-600">Raio: {radius}m</p>
-          <button 
-            onClick={() => setShowCoordinates(false)}
-            className="absolute top-1 right-1 text-gray-400 hover:text-gray-600"
-          >
-            ×
-          </button>
-        </div>
-      )}
-      <AmecicloMap
-        layerData={(() => {
-          const allFeatures = [
-            ...(infraData?.features || []),
-            ...(pdcData?.features || [])
-          ];
-          return allFeatures.length > 0 ? {
-            type: "FeatureCollection",
-            features: allFeatures
-          } : null;
-        })()}
+    <div style={{height: 'calc(100vh - 64px)'}} className="relative flex flex-col">
+
+      <div className="flex-1 md:h-full">
+        <AmecicloMap
+          layerData={(() => {
+            const allFeatures = [
+              ...(infraData?.features || []),
+              ...(pdcData?.features || [])
+            ];
+            return allFeatures.length > 0 ? {
+              type: "FeatureCollection",
+              features: allFeatures
+            } : null;
+          })()}
         layersConf={layersConf || []}
         pointsData={contagemData ? contagemData.features.map((feature: any) => ({
           key: `contagem-${feature.properties.type}`,
@@ -157,9 +171,39 @@ export function MapView({
         setRadius={setRadius}
         selectedCircles={selectedCircles}
         hoverPoint={hoverPoint}
-        onMouseMove={handleMouseMove}
-
-      />
+          onMouseMove={handleMouseMove}
+        />
+      </div>
+      
+      {/* Bottom panel for mobile with chart data */}
+      <div 
+        className="md:hidden bg-white border-t p-4 absolute bottom-0 left-0 right-0 z-[70]"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseMove={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h4 className="text-sm font-medium mb-3">Dados dos Gráficos</h4>
+        <Swiper
+          spaceBetween={16}
+          slidesPerView="auto"
+          className="w-full"
+        >
+          {chartData.map((item) => (
+            <SwiperSlide key={item.id} className="!w-[280px]">
+              <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
+                <h3 className="font-medium text-gray-800 mb-1 text-sm">{item.title}</h3>
+                <p className="text-xl font-bold text-black mb-2">{item.value}</p>
+                <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}>{item.chart}</div>
+                {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
     </div>
   );
 }

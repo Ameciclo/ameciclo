@@ -172,6 +172,17 @@
 }
 
 @layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+
+  
   .buttom-call-actions {
     @apply p-4 text-center text-white rounded-md transition-transform transform hover:scale-110 hover:opacity-80 w-36 h-36 md:w-auto md:h-auto;
     display: flex;

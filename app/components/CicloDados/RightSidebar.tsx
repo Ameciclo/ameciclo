@@ -52,7 +52,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode }: RightSidebarProps) 
   if (viewMode !== 'map') return null;
 
   return (
-    <aside className={`bg-white border-l flex flex-col transition-all duration-300 flex-shrink-0 overflow-hidden ${
+    <aside className={`hidden md:flex bg-white border-l flex-col transition-all duration-300 flex-shrink-0 overflow-hidden ${
       isOpen ? 'w-80' : 'w-12'
     }`} style={{height: '100%'}}>
       <div className="flex-1 overflow-y-auto min-h-0">

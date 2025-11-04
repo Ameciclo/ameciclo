@@ -1,0 +1,11 @@
+/* Hide scrollbar for webkit browsers */
+.overflow-x-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure touch scrolling works on mobile */
+.overflow-x-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
