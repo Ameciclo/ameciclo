@@ -72,7 +72,7 @@ export default function CicloDados() {
 
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden" style={{height: '100vh', maxHeight: '100vh'}}>
+    <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
       <CicloDadosHeader 
         viewMode={viewMode} 
         onViewModeChange={setViewMode} 

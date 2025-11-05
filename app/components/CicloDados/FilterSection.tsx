@@ -72,6 +72,88 @@ function OptionText({ isSelected, text }: { isSelected: boolean; text: string })
   );
 }
 
+function OptionItem({ 
+  option, 
+  isSelected, 
+  hasPattern, 
+  isPdc, 
+  onToggle 
+}: { 
+  option: { name: string; color?: string; pattern?: string };
+  isSelected: boolean;
+  hasPattern: boolean;
+  isPdc: boolean;
+  onToggle: (option: string) => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  const baseClassName = `${hasPattern ? 'block' : 'flex items-center space-x-2'} p-2 rounded cursor-pointer transition-all duration-200`;
+  const defaultClassName = `${baseClassName} hover:bg-gray-50 border border-transparent`;
+  const selectedClassName = `${baseClassName} bg-teal-50 border border-teal-200 shadow-sm`;
+  
+  if (!mounted) {
+    return (
+      <div onClick={() => onToggle(option.name)} className={defaultClassName}>
+        {hasPattern ? (
+          <>
+            <div className="flex items-center space-x-2 mb-1">
+              <div className="flex-shrink-0">
+                <div className="w-4 h-4" />
+              </div>
+              <span className="text-sm transition-colors text-gray-700">{option.name}</span>
+            </div>
+            <PatternDisplay 
+              pattern={option.pattern || 'solid'} 
+              color={option.color || '#000'} 
+              name={option.name}
+              isPdc={isPdc}
+            />
+          </>
+        ) : (
+          <>
+            <div className="flex-shrink-0">
+              <div className="w-4 h-4" />
+            </div>
+            <span className="text-sm transition-colors text-gray-700">{option.name}</span>
+          </>
+        )}
+      </div>
+    );
+  }
+  
+  return (
+    <div onClick={() => onToggle(option.name)} className={isSelected ? selectedClassName : defaultClassName}>
+      {hasPattern ? (
+        <>
+          <div className="flex items-center space-x-2 mb-1">
+            <div className="flex-shrink-0">
+              <EyeIcon isVisible={isSelected} />
+            </div>
+            <OptionText isSelected={isSelected} text={option.name} />
+          </div>
+          <PatternDisplay 
+            pattern={option.pattern || 'solid'} 
+            color={option.color || '#000'} 
+            name={option.name}
+            isPdc={isPdc}
+          />
+        </>
+      ) : (
+        <>
+          <div className="flex-shrink-0">
+            <EyeIcon isVisible={isSelected} />
+          </div>
+          <OptionText isSelected={isSelected} text={option.name} />
+        </>
+      )}
+    </div>
+  );
+}
+
 interface FilterSectionProps {
   title: string;
   options: Array<{ name: string; color?: string; pattern?: string }>;
@@ -130,31 +212,14 @@ export function FilterSection({
             onClick={toggleAll}
           />
           {options.map((option) => (
-            <div key={option.name} onClick={() => onToggle(option.name)} className={`${hasPattern ? 'block' : 'flex items-center space-x-2'} p-2 rounded cursor-pointer transition-all duration-200 ${selectedOptions.includes(option.name) ? 'bg-teal-50 border border-teal-200 shadow-sm' : 'hover:bg-gray-50 border border-transparent'}`}>
-              {hasPattern ? (
-                <>
-                  <div className="flex items-center space-x-2 mb-1">
-                    <div className="flex-shrink-0">
-                      <EyeIcon isVisible={selectedOptions.includes(option.name)} />
-                    </div>
-                    <OptionText isSelected={selectedOptions.includes(option.name)} text={option.name} />
-                  </div>
-                  <PatternDisplay 
-                    pattern={option.pattern || 'solid'} 
-                    color={option.color || '#000'} 
-                    name={option.name}
-                    isPdc={isPdc}
-                  />
-                </>
-              ) : (
-                <>
-                  <div className="flex-shrink-0">
-                    <EyeIcon isVisible={selectedOptions.includes(option.name)} />
-                  </div>
-                  <OptionText isSelected={selectedOptions.includes(option.name)} text={option.name} />
-                </>
-              )}
-            </div>
+            <OptionItem 
+              key={option.name}
+              option={option}
+              isSelected={selectedOptions.includes(option.name)}
+              hasPattern={hasPattern}
+              isPdc={isPdc}
+              onToggle={onToggle}
+            />
           ))}
         </div>
       )}

@@ -63,31 +63,33 @@ export function LeftSidebar({
   onDiasChange
 }: LeftSidebarProps) {
   return (
-    <aside className={`bg-gray-50 border-r transition-all duration-300 flex-shrink-0 overflow-hidden ${
+    <aside className={`bg-gray-50 border-r transition-all duration-300 flex-shrink-0 overflow-hidden flex flex-col ${
       isOpen ? 'w-72' : 'w-0'
     }`} style={{height: '100%'}}>
-      <div className="h-full overflow-y-auto">
-        <div className={`items-center justify-between p-3 ${
-          isOpen ? 'flex mb-4' : 'hidden md:flex mb-0 flex-col gap-2'
-        }`}>
-          {isOpen && <h2 className="font-semibold text-gray-800">Camadas de dados</h2>}
-          <button 
-            onClick={onToggle}
-            className={`hover:bg-gray-200 rounded transition-colors ${
-              isOpen ? 'p-1' : 'p-2 w-8 h-8 flex items-center justify-center'
-            }`}
-            title={isOpen ? 'Minimizar' : 'Expandir'}
-          >
-            <svg className={`w-4 h-4 transition-transform ${
-              isOpen ? '' : 'rotate-180'
-            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        </div>
-        
-        {isOpen && (
-          <div className="px-3 pb-3">
+      {/* Fixed header */}
+      <div className={`items-center justify-between p-3 bg-gray-50 border-b border-gray-200 flex-shrink-0 ${
+        isOpen ? 'flex' : 'hidden md:flex flex-col gap-2'
+      }`}>
+        {isOpen && <h2 className="font-semibold text-gray-800">Camadas de dados</h2>}
+        <button 
+          onClick={onToggle}
+          className={`hover:bg-gray-200 rounded transition-colors ${
+            isOpen ? 'p-1' : 'p-2 w-8 h-8 flex items-center justify-center'
+          }`}
+          title={isOpen ? 'Minimizar' : 'Expandir'}
+        >
+          <svg className={`w-4 h-4 transition-transform ${
+            isOpen ? '' : 'rotate-180'
+          }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Scrollable content */}
+      {isOpen && (
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-3 py-3">
             <div className="space-y-2">
               <FilterSection
                 title="Infraestrutura cicloviária"
@@ -150,8 +152,8 @@ export function LeftSidebar({
               />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       
       {/* Floating toggle button when minimized */}
       {!isOpen && (

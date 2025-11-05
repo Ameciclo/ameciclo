@@ -7,7 +7,7 @@ interface CicloDadosHeaderProps {
 
 export function CicloDadosHeader({ viewMode, onViewModeChange }: CicloDadosHeaderProps) {
   return (
-    <header className="flex items-center bg-teal-700 text-white px-2 sm:px-4 py-2 flex-shrink-0" style={{minHeight: 'auto'}}>
+    <header className="flex items-center bg-teal-700 text-white px-2 sm:px-4 py-3 sm:py-2 flex-shrink-0" style={{minHeight: 'auto'}}>
       <div className="flex items-center flex-shrink-0">
         <a href="/dados" className="hover:opacity-80 transition-opacity">
           <img src="/ciclodados/Logo.svg" alt="CicloDados" className="h-8 sm:h-12" />
@@ -42,7 +42,7 @@ export function CicloDadosHeader({ viewMode, onViewModeChange }: CicloDadosHeade
         <input
           type="text"
           placeholder="Buscar"
-          className="px-2 sm:px-3 py-1 rounded border text-black focus:outline-none focus:ring-2 focus:ring-white text-xs sm:text-sm min-w-0 flex-1 max-w-xs"
+          className="px-2 sm:px-3 py-1 rounded border text-black focus:outline-none focus:ring-2 focus:ring-white text-xs sm:text-sm min-w-0 flex-1 max-w-[120px] sm:max-w-xs"
         />
       </div>
     </header>

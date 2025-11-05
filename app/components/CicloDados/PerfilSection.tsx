@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 interface PerfilSectionProps {
@@ -23,6 +23,11 @@ export function PerfilSection({
   onDiasChange
 }: PerfilSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const generoOptions = ["Todas", "Masculino", "Feminino"];
   const racaOptions = ["Todas", "Branco", "Preto", "Pardo", "Amarelo", "Indígena"];
@@ -60,12 +65,12 @@ export function PerfilSection({
                   key={option}
                   onClick={() => onGeneroChange(option)}
                   className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                    selectedGenero === option
+                    mounted && selectedGenero === option
                       ? 'bg-teal-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {option === 'Todas' && (
+                  {option === 'Todas' && mounted && (
                     selectedGenero === option ? <Eye size={12} /> : <EyeOff size={12} />
                   )}
                   {option}
@@ -83,12 +88,12 @@ export function PerfilSection({
                   key={option}
                   onClick={() => onRacaChange(option)}
                   className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                    selectedRaca === option
+                    mounted && selectedRaca === option
                       ? 'bg-teal-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {option === 'Todas' && (
+                  {option === 'Todas' && mounted && (
                     selectedRaca === option ? <Eye size={12} /> : <EyeOff size={12} />
                   )}
                   {option}
@@ -106,7 +111,7 @@ export function PerfilSection({
                   key={option}
                   onClick={() => onSocioChange(option)}
                   className={`px-2 py-1 text-xs rounded ${
-                    selectedSocio === option
+                    mounted && selectedSocio === option
                       ? 'bg-teal-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
@@ -126,7 +131,7 @@ export function PerfilSection({
                   key={option}
                   onClick={() => onDiasChange(option)}
                   className={`px-2 py-1 text-xs rounded ${
-                    selectedDias === option
+                    mounted && selectedDias === option
                       ? 'bg-teal-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}

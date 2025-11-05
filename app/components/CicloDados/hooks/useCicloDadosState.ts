@@ -66,9 +66,13 @@ export function useCicloDadosState(
   const [selectedDias, setSelectedDias] = useState<string>(() => 
     getStoredValue('selectedDias', "1 dia")
   );
-  const [viewMode, setViewMode] = useState<'map' | 'mural'>(() => 
-    getStoredValue('viewMode', 'map')
-  );
+  const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');
+
+  // Set viewMode from localStorage after hydration
+  useEffect(() => {
+    const storedViewMode = getStoredValue('viewMode', 'map');
+    setViewMode(storedViewMode);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
