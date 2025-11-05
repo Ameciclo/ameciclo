@@ -108,6 +108,9 @@ const MiniInfraChart = ({ onPercentageChange }: { onPercentageChange: (value: nu
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      const totalSteps = currentPercentage - targetPercentage;
+      const stepDuration = 3000 / totalSteps;
+      
       const interval = setInterval(() => {
         setCurrentPercentage(prev => {
           const newValue = prev <= targetPercentage ? targetPercentage : prev - 1;
@@ -117,7 +120,7 @@ const MiniInfraChart = ({ onPercentageChange }: { onPercentageChange: (value: nu
           }
           return newValue;
         });
-      }, 30);
+      }, stepDuration);
       return () => clearInterval(interval);
     }, 500);
     

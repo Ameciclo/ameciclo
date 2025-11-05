@@ -16,16 +16,14 @@ export function useCicloDadosState(
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   
-  // Auto-minimize both sidebars on mobile after 1 second
+  // Auto-minimize both sidebars after 5 seconds
   useEffect(() => {
-    if (isMobile()) {
-      const timer = setTimeout(() => {
-        setLeftSidebarOpen(false);
-        setRightSidebarOpen(false);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      setLeftSidebarOpen(false);
+      setRightSidebarOpen(false);
+    }, 10000);
+    
+    return () => clearTimeout(timer);
   }, []);
   const [chatOpen, setChatOpen] = useState(false);
   const getStoredValue = (key: string, defaultValue: any) => {

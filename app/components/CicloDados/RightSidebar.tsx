@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart } from './utils/chartData';
 
 interface RightSidebarProps {
@@ -10,19 +10,22 @@ interface RightSidebarProps {
 function ChartDataCards() {
   const [infraPercentage, setInfraPercentage] = useState(100);
   
+  const contagensChart = useMemo(() => <MiniContagensChart />, []);
+  const sinistrosChart = useMemo(() => <MiniSinistrosChart />, []);
+  
   const chartData = [
     {
       id: 1,
       title: "Av. Gov. Agamenon Magalhães",
       value: "2.846",
       description: "contagens de ciclistas (Jan/2024)",
-      chart: <MiniContagensChart />
+      chart: contagensChart
     },
     {
       id: 2,
       title: "Vítimas fatais",
       value: "78",
-      chart: <MiniSinistrosChart />
+      chart: sinistrosChart
     },
     {
       id: 3,
@@ -52,31 +55,46 @@ export function RightSidebar({ isOpen, onToggle, viewMode }: RightSidebarProps) 
   if (viewMode !== 'map') return null;
 
   return (
-    <aside className={`hidden md:flex bg-white border-l flex-col transition-all duration-300 flex-shrink-0 overflow-hidden ${
-      isOpen ? 'w-80' : 'w-12'
-    }`} style={{height: '100%'}}>
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className={`bg-blue-500 flex items-center justify-between ${
-          isOpen ? 'p-3 mb-4' : 'p-2 m-2 flex-col gap-2'
-        }`}>
-          {isOpen && <h2 className="font-semibold text-white">Dados em gráficos</h2>}
-          <button 
-            onClick={onToggle}
-            className={`hover:bg-white hover:bg-opacity-20 rounded text-white transition-colors ${
-              isOpen ? 'p-1' : 'p-2 w-8 h-8 flex items-center justify-center'
-            }`}
-            title={isOpen ? 'Minimizar' : 'Expandir'}
-          >
-            <svg className={`w-4 h-4 transition-transform ${
-              isOpen ? '' : 'rotate-180'
-            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+    <>
+      <aside className={`hidden md:flex bg-white border-l flex-col transition-all duration-300 flex-shrink-0 overflow-hidden ${
+        isOpen ? 'w-80' : 'w-0'
+      }`} style={{height: '100%'}}>
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className={`bg-blue-500 flex items-center justify-between ${
+            isOpen ? 'p-3 mb-4' : 'p-2 m-2 flex-col gap-2'
+          }`}>
+            {isOpen && <h2 className="font-semibold text-white">Dados em gráficos</h2>}
+            <button 
+              onClick={onToggle}
+              className={`hover:bg-white hover:bg-opacity-20 rounded text-white transition-colors ${
+                isOpen ? 'p-1' : 'p-2 w-8 h-8 flex items-center justify-center'
+              }`}
+              title={isOpen ? 'Minimizar' : 'Expandir'}
+            >
+              <svg className={`w-4 h-4 transition-transform ${
+                isOpen ? '' : 'rotate-180'
+              }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+          
+          {isOpen && <ChartDataCards />}
         </div>
-        
-        {isOpen && <ChartDataCards />}
-      </div>
-    </aside>
+      </aside>
+      
+      {/* Floating toggle button when minimized */}
+      {!isOpen && (
+        <button 
+          onClick={onToggle}
+          className="fixed top-1/2 -translate-y-1/2 right-4 z-[60] bg-white border rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors"
+          title="Expandir gráficos"
+        >
+          <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+    </>
   );
 }

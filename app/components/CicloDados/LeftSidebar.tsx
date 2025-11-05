@@ -64,7 +64,7 @@ export function LeftSidebar({
 }: LeftSidebarProps) {
   return (
     <aside className={`bg-gray-50 border-r transition-all duration-300 flex-shrink-0 overflow-hidden ${
-      isOpen ? 'w-72' : 'w-0 md:w-12'
+      isOpen ? 'w-72' : 'w-0'
     }`} style={{height: '100%'}}>
       <div className="h-full overflow-y-auto">
         <div className={`items-center justify-between p-3 ${
@@ -153,14 +153,14 @@ export function LeftSidebar({
         )}
       </div>
       
-      {/* Floating toggle button for mobile when minimized */}
+      {/* Floating toggle button when minimized */}
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="md:hidden fixed top-20 left-4 z-50 bg-gray-50 border rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+          className="fixed top-1/2 -translate-y-1/2 left-4 z-[60] bg-white border rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors"
           title="Expandir filtros"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
