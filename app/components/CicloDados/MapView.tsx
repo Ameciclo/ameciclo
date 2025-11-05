@@ -108,29 +108,7 @@ export function MapView({
     }
   };
 
-  const [infraPercentage, setInfraPercentage] = useState(100);
-  
-  const chartData = [
-    {
-      id: 1,
-      title: "Av. Gov. Agamenon Magalhães",
-      value: "2.846",
-      description: "contagens de ciclistas (Jan/2024)",
-      chart: <MiniContagensChart />
-    },
-    {
-      id: 2,
-      title: "Vítimas fatais",
-      value: "78",
-      chart: <MiniSinistrosChart />
-    },
-    {
-      id: 3,
-      title: "Infra. cicloviária executada",
-      value: `${infraPercentage}%`,
-      chart: <MiniInfraChart onPercentageChange={setInfraPercentage} />
-    }
-  ];
+
 
   return (
     <div style={{height: 'calc(100vh - 64px)'}} className="relative flex flex-col">
@@ -192,16 +170,28 @@ export function MapView({
           slidesPerView="auto"
           className="w-full"
         >
-          {chartData.map((item) => (
-            <SwiperSlide key={item.id} className="!w-[280px]">
-              <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-                <h3 className="font-medium text-gray-800 mb-1 text-sm">{item.title}</h3>
-                <p className="text-xl font-bold text-black mb-2">{item.value}</p>
-                <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}>{item.chart}</div>
-                {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
-              </div>
-            </SwiperSlide>
-          ))}
+          <SwiperSlide className="!w-[280px]">
+            <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">Av. Gov. Agamenon Magalhães</h3>
+              <p className="text-xl font-bold text-black mb-2">2.846</p>
+              <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniContagensChart /></div>
+              <p className="text-xs text-gray-500">contagens de ciclistas (Jan/2024)</p>
+            </div>
+          </SwiperSlide>
+          <SwiperSlide className="!w-[280px]">
+            <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">Vítimas fatais</h3>
+              <p className="text-xl font-bold text-black mb-2">78</p>
+              <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniSinistrosChart /></div>
+            </div>
+          </SwiperSlide>
+          <SwiperSlide className="!w-[280px]">
+            <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">Infra. cicloviária executada</h3>
+              <p className="text-xl font-bold text-black mb-2">18%</p>
+              <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniInfraChart onPercentageChange={() => {}} /></div>
+            </div>
+          </SwiperSlide>
         </Swiper>
       </div>
     </div>

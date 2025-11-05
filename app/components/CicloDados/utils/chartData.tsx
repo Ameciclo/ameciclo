@@ -25,6 +25,7 @@ const MiniContagensChart = () => {
             title: { text: null },
             legend: { enabled: false },
             credits: { enabled: false },
+            accessibility: { enabled: false },
             xAxis: { categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'], visible: false },
             yAxis: { visible: false, min: 0 },
             plotOptions: {
@@ -76,6 +77,7 @@ const MiniSinistrosChart = () => {
             title: { text: null },
             legend: { enabled: false },
             credits: { enabled: false },
+            accessibility: { enabled: false },
             xAxis: { categories: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'], visible: false },
             yAxis: { visible: false, min: 0 },
             plotOptions: { column: { color: '#ef4444', borderWidth: 0, pointPadding: 0.1 } },
@@ -114,7 +116,6 @@ const MiniInfraChart = ({ onPercentageChange }: { onPercentageChange: (value: nu
       const interval = setInterval(() => {
         setCurrentPercentage(prev => {
           const newValue = prev <= targetPercentage ? targetPercentage : prev - 1;
-          onPercentageChange(newValue);
           if (prev <= targetPercentage) {
             clearInterval(interval);
           }
@@ -125,7 +126,11 @@ const MiniInfraChart = ({ onPercentageChange }: { onPercentageChange: (value: nu
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [onPercentageChange]);
+  }, [targetPercentage]);
+
+  useEffect(() => {
+    onPercentageChange(currentPercentage);
+  }, [currentPercentage, onPercentageChange]);
 
   return (
     <div className="w-full h-16 flex items-center">
