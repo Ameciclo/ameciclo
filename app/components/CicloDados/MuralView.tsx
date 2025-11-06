@@ -374,7 +374,7 @@ const AnimatedPieChart = ({ motivation, socioeconomic }: { motivation: string, s
   const options = {
     chart: {
       type: 'pie',
-      height: 280,
+      height: 350,
       backgroundColor: 'transparent',
       animation: {
         duration: 1000
@@ -519,9 +519,9 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
         onCardToggle={handleCardToggle}
       />
       
-      <div className="flex-1 bg-gray-50 p-6 overflow-y-auto overflow-x-hidden">
-        <div className="w-full max-w-[75vw] mx-auto">
-        <div className="mural-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+      <div className="flex-1 bg-gray-50 p-3 md:p-6 overflow-y-auto overflow-x-hidden">
+        <div className="w-full max-w-full mx-auto">
+        <div className="mural-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-5">
           {(cardVisibility.sinistros || animatingCards.has('sinistros')) && (
             <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
               animatingCards.has('sinistros') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
@@ -622,10 +622,10 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
 
 
         {(cardVisibility.dados_gerais || animatingCards.has('dados_gerais')) && (
-          <div className={`mt-5 mural-card transition-all duration-300 ${
+          <div className={`mt-3 md:mt-5 mural-card transition-all duration-300 ${
             animatingCards.has('dados_gerais') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
           }`}>
-            <div className="bg-white rounded-lg shadow h-auto lg:h-[400px] p-6">
+            <div className="bg-white rounded-lg shadow h-auto lg:h-[400px] p-3 md:p-6 relative overflow-hidden">
             {/* Barra de Filtros */}
             <div className="flex items-center gap-6 pb-4 border-b mb-4">
               <div className="flex items-center gap-2">
@@ -735,9 +735,9 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
           </div>
         )}
 
-        <div className="mt-5 mural-grid grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="mt-3 md:mt-5 mural-grid grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-5">
           {(cardVisibility.perfil || animatingCards.has('perfil')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-6 transition-all duration-300 ${
+            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-3 md:p-6 transition-all duration-300 relative overflow-hidden ${
               animatingCards.has('perfil') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
             <div className="flex items-center gap-2 mb-1">
@@ -839,7 +839,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
           )}
 
           {(cardVisibility.raca || animatingCards.has('raca')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-6 transition-all duration-300 ${
+            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-3 md:p-6 transition-all duration-300 relative overflow-hidden ${
               animatingCards.has('raca') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
             <div className="flex items-center justify-between mb-4">
@@ -853,52 +853,51 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
             </div>
             
             {/* Filtros */}
-            <div className="mb-4 space-y-3">
+            <div className="mb-4 space-y-4 bg-gray-50 p-3 rounded-lg">
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-2 block">Motivação</label>
-                <div className="flex flex-wrap gap-1">
-                  {[
-                    { label: 'Todas', value: 'todas' },
-                    { label: 'Rápido e prático', value: 'rapido_pratico' },
-                    { label: 'Mais saudável', value: 'saudavel' },
-                    { label: 'Mais barato', value: 'barato' },
-                    { label: 'Segurança', value: 'seguranca' }
-                  ].map(motiv => (
-                    <button 
-                      key={motiv.value} 
-                      onClick={() => setSelectedMotivation(motiv.value)}
-                      className={`px-2 py-1 text-xs rounded transition-colors ${
-                        selectedMotivation === motiv.value 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                      }`}
-                    >
-                      {motiv.label}
-                    </button>
-                  ))}
-                </div>
+                <label className="text-xs font-semibold text-gray-700 mb-3 block uppercase tracking-wide">Motivação</label>
+                <select 
+                  value={selectedMotivation}
+                  onChange={(e) => setSelectedMotivation(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="todas">Todas as motivações</option>
+                  <option value="rapido_pratico">Rápido e prático</option>
+                  <option value="saudavel">Mais saudável</option>
+                  <option value="barato">Mais barato</option>
+                  <option value="seguranca">Segurança</option>
+                </select>
               </div>
               
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-2 block">Socioeconômico</label>
-                <div className="flex flex-wrap gap-1">
+                <label className="text-xs font-semibold text-gray-700 mb-3 block uppercase tracking-wide">Nível Socioeconômico</label>
+                <div className="grid grid-cols-2 gap-2">
                   {[
                     { label: 'Todos', value: 'todos' },
                     { label: '1-2 SM', value: '1-2 SM' },
                     { label: '2-3 SM', value: '2-3 SM' },
                     { label: '3+ SM', value: '3+ SM' }
                   ].map(socio => (
-                    <button 
+                    <label 
                       key={socio.value}
-                      onClick={() => setSelectedSocioeconomic(socio.value)}
-                      className={`px-2 py-1 text-xs rounded transition-colors ${
-                        selectedSocioeconomic === socio.value 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-green-50 text-green-700 hover:bg-green-100'
-                      }`}
+                      className="flex items-center cursor-pointer"
                     >
-                      {socio.label}
-                    </button>
+                      <input
+                        type="radio"
+                        name="socioeconomic"
+                        value={socio.value}
+                        checked={selectedSocioeconomic === socio.value}
+                        onChange={(e) => setSelectedSocioeconomic(e.target.value)}
+                        className="sr-only"
+                      />
+                      <div className={`flex-1 px-3 py-2 text-xs font-medium text-center rounded-md border-2 transition-all ${
+                        selectedSocioeconomic === socio.value 
+                          ? 'bg-green-500 text-white border-green-500 shadow-md' 
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-green-300 hover:bg-green-50'
+                      }`}>
+                        {socio.label}
+                      </div>
+                    </label>
                   ))}
                 </div>
               </div>

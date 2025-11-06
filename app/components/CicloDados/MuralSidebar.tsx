@@ -84,102 +84,82 @@ export function MuralSidebar({
   const totalCards = cardToggles.length;
 
   return (
-    <aside className={`bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 overflow-hidden flex flex-col shadow-sm ${
-      isOpen ? 'w-80' : 'w-0'
+    <aside className={`bg-white border-r border-gray-100 transition-all duration-300 flex-shrink-0 overflow-hidden flex flex-col ${
+      isOpen ? 'w-72' : 'w-0'
     }`} style={{height: '100%'}}>
       
       {/* Header */}
-      <div className={`items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 flex-shrink-0 ${
+      <div className={`items-center justify-between p-6 border-b border-gray-100 flex-shrink-0 ${
         isOpen ? 'flex' : 'hidden'
       }`}>
         <div>
-          <h2 className="font-semibold text-gray-800 text-lg">Visualização</h2>
-          <p className="text-sm text-gray-500">{visibleCards} de {totalCards} cards visíveis</p>
+          <h2 className="font-medium text-gray-900 text-base">Controles</h2>
+          <p className="text-xs text-gray-500 mt-1">{visibleCards}/{totalCards} visíveis</p>
         </div>
         <button 
           onClick={onToggle}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-          title="Minimizar painel"
+          className="p-1.5 hover:bg-gray-50 rounded-md transition-colors"
+          title="Minimizar"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-600 group-hover:text-gray-800" />
+          <ChevronLeft className="w-4 h-4 text-gray-400" />
         </button>
       </div>
       
       {/* Cards Toggle List */}
       {isOpen && (
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-3">
-            <div className="mb-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                <Eye size={16} className="text-gray-500" />
-                Controle de Cards
-              </h3>
-              
-              {/* Quick Actions */}
-              <div className="flex gap-2 mb-4">
-                <button
-                  onClick={() => {
-                    cardToggles.forEach(card => {
-                      if (!card.visible) onCardToggle(card.id);
-                    });
-                  }}
-                  className="flex-1 px-3 py-2 text-xs bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
-                >
-                  Mostrar Todos
-                </button>
-                <button
-                  onClick={() => {
-                    cardToggles.forEach(card => {
-                      if (card.visible) onCardToggle(card.id);
-                    });
-                  }}
-                  className="flex-1 px-3 py-2 text-xs bg-gray-50 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  Ocultar Todos
-                </button>
-              </div>
+          <div className="space-y-1">
+            {/* Quick Actions */}
+            <div className="flex gap-1 mb-4">
+              <button
+                onClick={() => {
+                  cardToggles.forEach(card => {
+                    if (!card.visible) onCardToggle(card.id);
+                  });
+                }}
+                className="flex-1 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 rounded transition-colors"
+              >
+                Todos
+              </button>
+              <button
+                onClick={() => {
+                  cardToggles.forEach(card => {
+                    if (card.visible) onCardToggle(card.id);
+                  });
+                }}
+                className="flex-1 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 rounded transition-colors"
+              >
+                Nenhum
+              </button>
             </div>
 
             {/* Card Toggle Buttons */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               {cardToggles.map((card) => (
                 <button
                   key={card.id}
                   onClick={() => onCardToggle(card.id)}
-                  className={`w-full p-3 rounded-xl border-2 transition-all duration-200 group hover:shadow-md ${
+                  className={`w-full p-3 rounded-lg transition-all duration-200 text-left group ${
                     card.visible 
-                      ? `${card.color} border-opacity-100 shadow-sm` 
-                      : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'
+                      ? 'bg-gray-50 hover:bg-gray-100' 
+                      : 'hover:bg-gray-25'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        card.visible 
-                          ? 'bg-white bg-opacity-80' 
-                          : 'bg-gray-200'
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full transition-colors ${
+                      card.visible ? 'bg-blue-500' : 'bg-gray-300'
+                    }`} />
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className={`transition-colors ${
+                        card.visible ? 'text-gray-700' : 'text-gray-400'
                       }`}>
                         {card.icon}
                       </div>
-                      <div className="text-left">
-                        <p className={`font-medium text-sm ${
-                          card.visible ? '' : 'text-gray-500'
-                        }`}>
-                          {card.label}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className={`p-1.5 rounded-full transition-colors ${
-                      card.visible 
-                        ? 'bg-white bg-opacity-80 text-gray-700' 
-                        : 'bg-gray-200 text-gray-400'
-                    }`}>
-                      {card.visible ? (
-                        <Eye size={14} />
-                      ) : (
-                        <EyeOff size={14} />
-                      )}
+                      <span className={`text-sm font-medium transition-colors ${
+                        card.visible ? 'text-gray-900' : 'text-gray-400'
+                      }`}>
+                        {card.label}
+                      </span>
                     </div>
                   </div>
                 </button>
@@ -193,10 +173,10 @@ export function MuralSidebar({
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="fixed top-1/2 -translate-y-1/2 left-4 z-[60] bg-white border-2 border-gray-200 rounded-full p-3 shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-200 group"
-          title="Expandir controles de visualização"
+          className="fixed top-1/2 -translate-y-1/2 left-4 z-[60] bg-white border border-gray-200 rounded-lg p-2 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200"
+          title="Expandir controles"
         >
-          <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-gray-800" />
+          <ChevronRight className="w-4 h-4 text-gray-500" />
         </button>
       )}
     </aside>
