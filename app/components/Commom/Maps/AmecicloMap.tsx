@@ -408,8 +408,11 @@ export const AmecicloMap = ({
     radius,
     setRadius,
     selectedCircles = [],
+    selectedPoints = [],
     hoverPoint,
     onMouseMove,
+    initialViewState,
+    onViewStateChange,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -428,8 +431,11 @@ export const AmecicloMap = ({
     radius?: number;
     setRadius?: (radius: number) => void;
     selectedCircles?: Array<{ lat: number; lng: number; radius: number; id: string }>;
+    selectedPoints?: Array<{ lat: number; lng: number; id: string; customIcon?: React.ReactNode }>;
     hoverPoint?: { lat: number; lng: number } | null;
     onMouseMove?: (event: any) => void;
+    initialViewState?: { latitude: number; longitude: number; zoom: number };
+    onViewStateChange?: (viewState: any) => void;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -479,13 +485,29 @@ export const AmecicloMap = ({
     const [initialViewport, setInitialViewport] = useState(viewport);
 
 
+    const [hasSetInitialViewport, setHasSetInitialViewport] = useState(false);
+
     useEffect(() => {
-        if (isClient && isMapReady && !viewport.latitude) {
-            const calculatedViewport = getInicialViewPort(pointsData, layerData);
-            setViewport(calculatedViewport);
-            setInitialViewport(calculatedViewport);
+        if (isClient && isMapReady && !hasSetInitialViewport) {
+            let newViewport;
+            if (initialViewState) {
+                // Usar viewState fornecido via props
+                newViewport = {
+                    ...initialViewState,
+                    bearing: 0,
+                    pitch: 0
+                };
+
+            } else {
+                // Calcular baseado nos dados
+                newViewport = getInicialViewPort(pointsData, layerData);
+
+            }
+            setViewport(newViewport);
+            setInitialViewport(newViewport);
+            setHasSetInitialViewport(true);
         }
-    }, [isClient, isMapReady]);
+    }, [isClient, isMapReady, initialViewState, hasSetInitialViewport]);
     const [settings, setsettings] = useState(getMapInitialState(defaultDragPan));
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -541,7 +563,12 @@ export const AmecicloMap = ({
                         {...settings}
                         width="100%"
                         height={isFullscreen ? "100vh" : height}
-                        onViewportChange={setViewport}
+                        onViewportChange={(newViewport) => {
+                            setViewport(newViewport);
+                            if (onViewStateChange) {
+                                onViewStateChange(newViewport);
+                            }
+                        }}
                         mapStyle={MAPBOXSTYLE}
                         mapboxApiAccessToken={MAPBOXTOKEN}
                         getCursor={({ isDragging }) => {
@@ -646,6 +673,18 @@ export const AmecicloMap = ({
                                 </Marker>
                             );
                         })}
+
+                        {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => (
+                            <Marker
+                                key={point.id}
+                                latitude={point.lat}
+                                longitude={point.lng}
+                            >
+                                <div style={{ transform: "translate(-50%, -100%)" }}>
+                                    {point.customIcon}
+                                </div>
+                            </Marker>
+                        ))}
 
                         {selectedMarker !== undefined && (
                             <CountingPopUp

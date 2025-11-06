@@ -232,6 +232,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
 
 function SmallMenu({ pages, closeMenu }: any) {
   const location = useLocation();
+  const [isDataSubmenuOpen, setIsDataSubmenuOpen] = useState(false);
   
   const isActivePage = (pageUrl: string) => {
     if (pageUrl === "/") {
@@ -264,6 +265,8 @@ function SmallMenu({ pages, closeMenu }: any) {
         <ul className="space-y-2" role="menu" aria-label="Menu de navegação">
           {pages.map((page: any, index: number) => {
             const isActive = isActivePage(page.url);
+            const isDadosPage = page.url === '/dados';
+            
             return (
               <motion.li
                 key={page.name}
@@ -271,17 +274,68 @@ function SmallMenu({ pages, closeMenu }: any) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.3 }}
               >
-                <Link
-                  to={page.url}
-                  className={`block px-4 py-3 rounded-lg text-white uppercase font-medium transition-all duration-200 ${
-                    isActive 
-                      ? 'bg-white bg-opacity-20 font-bold' 
-                      : 'hover:bg-white hover:bg-opacity-10'
-                  }`}
-                  onClick={handleLinkClick}
-                >
-                  {page.name}
-                </Link>
+                {isDadosPage ? (
+                  <div>
+                    <button
+                      onClick={() => setIsDataSubmenuOpen(!isDataSubmenuOpen)}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-white uppercase font-medium transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-white bg-opacity-20 font-bold' 
+                          : 'hover:bg-white hover:bg-opacity-10'
+                      }`}
+                    >
+                      <span>{page.name}</span>
+                      <svg className={`w-4 h-4 transition-transform duration-200 ${isDataSubmenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {isDataSubmenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pl-4 pt-2 space-y-1">
+                            {dataSubPages.map((subPage) => {
+                              const isSubActive = location.pathname === subPage.url || 
+                                location.pathname.startsWith(subPage.url + '/');
+                              return (
+                                <Link
+                                  key={subPage.name}
+                                  to={subPage.url}
+                                  className={`block px-3 py-2 rounded text-white text-sm transition-all duration-200 ${
+                                    isSubActive 
+                                      ? 'bg-white bg-opacity-15 font-semibold' 
+                                      : 'hover:bg-white hover:bg-opacity-10'
+                                  }`}
+                                  onClick={handleLinkClick}
+                                >
+                                  {subPage.name}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <Link
+                    to={page.url}
+                    className={`block px-4 py-3 rounded-lg text-white uppercase font-medium transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-white bg-opacity-20 font-bold' 
+                        : 'hover:bg-white hover:bg-opacity-10'
+                    }`}
+                    onClick={handleLinkClick}
+                  >
+                    {page.name}
+                  </Link>
+                )}
               </motion.li>
             );
           })}
