@@ -79,36 +79,38 @@ export default function CicloDados() {
       />
 
       <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
-        <LeftSidebar
-          isOpen={leftSidebarOpen}
-          onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
-          infraOptions={infraOptions}
-          selectedInfra={selectedInfra}
-          onInfraToggle={toggleInfraOption}
-          contagemOptions={contagemOptions}
-          selectedContagem={selectedContagem}
-          onContagemToggle={toggleContagemOption}
-          pdcOptions={pdcOptions}
-          selectedPdc={selectedPdc}
-          onPdcToggle={togglePdcOption}
-          infracaoOptions={infracaoOptions}
-          selectedInfracao={selectedInfracao}
-          onInfracaoToggle={toggleInfracaoOption}
-          sinistroOptions={sinistroOptions}
-          selectedSinistro={selectedSinistro}
-          onSinistroToggle={toggleSinistroOption}
-          estacionamentoOptions={estacionamentoOptions}
-          selectedEstacionamento={selectedEstacionamento}
-          onEstacionamentoToggle={toggleEstacionamentoOption}
-          selectedGenero={selectedGenero}
-          onGeneroChange={setSelectedGenero}
-          selectedRaca={selectedRaca}
-          onRacaChange={setSelectedRaca}
-          selectedSocio={selectedSocio}
-          onSocioChange={setSelectedSocio}
-          selectedDias={selectedDias}
-          onDiasChange={setSelectedDias}
-        />
+        {viewMode === 'map' && (
+          <LeftSidebar
+            isOpen={leftSidebarOpen}
+            onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+            infraOptions={infraOptions}
+            selectedInfra={selectedInfra}
+            onInfraToggle={toggleInfraOption}
+            contagemOptions={contagemOptions}
+            selectedContagem={selectedContagem}
+            onContagemToggle={toggleContagemOption}
+            pdcOptions={pdcOptions}
+            selectedPdc={selectedPdc}
+            onPdcToggle={togglePdcOption}
+            infracaoOptions={infracaoOptions}
+            selectedInfracao={selectedInfracao}
+            onInfracaoToggle={toggleInfracaoOption}
+            sinistroOptions={sinistroOptions}
+            selectedSinistro={selectedSinistro}
+            onSinistroToggle={toggleSinistroOption}
+            estacionamentoOptions={estacionamentoOptions}
+            selectedEstacionamento={selectedEstacionamento}
+            onEstacionamentoToggle={toggleEstacionamentoOption}
+            selectedGenero={selectedGenero}
+            onGeneroChange={setSelectedGenero}
+            selectedRaca={selectedRaca}
+            onRacaChange={setSelectedRaca}
+            selectedSocio={selectedSocio}
+            onSocioChange={setSelectedSocio}
+            selectedDias={selectedDias}
+            onDiasChange={setSelectedDias}
+          />
+        )}
 
         <main className="flex-1 relative">
           {viewMode === 'map' ? (
@@ -125,7 +127,10 @@ export default function CicloDados() {
               getContagemIcon={getContagemIcon}
             />
           ) : (
-            <MuralView />
+            <MuralView 
+              sidebarOpen={leftSidebarOpen}
+              onSidebarToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+            />
           )}
         </main>
 

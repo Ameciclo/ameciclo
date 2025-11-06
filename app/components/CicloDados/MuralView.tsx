@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { User, Shield, RotateCcw, Users, Package, Wrench, Bike, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import { MuralSidebar } from './MuralSidebar';
 
 const CyclistChart = () => {
   const options = {
@@ -367,14 +368,16 @@ const MountainChart = () => {
   return <HighchartsReact highcharts={Highcharts} options={options} />;
 };
 
-const AnimatedPieChart = () => {
+const AnimatedPieChart = ({ motivation, socioeconomic }: { motivation: string, socioeconomic: string }) => {
+  const data = mockRaceData[motivation]?.[socioeconomic] || mockRaceData.todas.todos;
+  
   const options = {
     chart: {
       type: 'pie',
-      height: 400,
+      height: 280,
       backgroundColor: 'transparent',
       animation: {
-        duration: 2000
+        duration: 1000
       }
     },
     title: { text: null },
@@ -385,17 +388,17 @@ const AnimatedPieChart = () => {
         cursor: 'pointer',
         dataLabels: {
           enabled: true,
-          distance: 30,
+          distance: 20,
           format: '{point.name}: {point.percentage:.1f}%',
           style: {
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 'normal'
           }
         },
         showInLegend: false,
         innerSize: '40%',
         animation: {
-          duration: 2000
+          duration: 1000
         },
         states: {
           hover: {
@@ -408,13 +411,13 @@ const AnimatedPieChart = () => {
       name: 'Raça/Cor',
       colorByPoint: true,
       data: [
-        { name: 'Parda', y: 50, color: '#8b5cf6' },
-        { name: 'Branca', y: 25, color: '#10b981' },
-        { name: 'Preta', y: 15, color: '#f59e0b' },
-        { name: 'Outros', y: 3, color: '#6b7280' }
+        { name: 'Parda', y: data.parda, color: '#8b5cf6' },
+        { name: 'Branca', y: data.branca, color: '#10b981' },
+        { name: 'Preta', y: data.preta, color: '#f59e0b' },
+        { name: 'Outros', y: data.outros, color: '#6b7280' }
       ],
       animation: {
-        duration: 2000
+        duration: 1000
       }
     }],
     tooltip: {
@@ -431,87 +434,227 @@ const AnimatedPieChart = () => {
   );
 };
 
-export function MuralView() {
+interface MuralViewProps {
+  sidebarOpen: boolean;
+  onSidebarToggle: () => void;
+}
+
+// Mock data for race/color analysis
+const mockRaceData = {
+  "todas": {
+    "todos": { parda: 50, branca: 25, preta: 15, outros: 10 },
+    "1-2 SM": { parda: 65, branca: 20, preta: 12, outros: 3 },
+    "2-3 SM": { parda: 45, branca: 35, preta: 15, outros: 5 },
+    "3+ SM": { parda: 30, branca: 50, preta: 15, outros: 5 }
+  },
+  "rapido_pratico": {
+    "todos": { parda: 55, branca: 28, preta: 12, outros: 5 },
+    "1-2 SM": { parda: 70, branca: 18, preta: 10, outros: 2 },
+    "2-3 SM": { parda: 48, branca: 38, preta: 12, outros: 2 },
+    "3+ SM": { parda: 25, branca: 60, preta: 12, outros: 3 }
+  },
+  "saudavel": {
+    "todos": { parda: 42, branca: 35, preta: 18, outros: 5 },
+    "1-2 SM": { parda: 58, branca: 25, preta: 15, outros: 2 },
+    "2-3 SM": { parda: 38, branca: 42, preta: 18, outros: 2 },
+    "3+ SM": { parda: 28, branca: 55, preta: 15, outros: 2 }
+  },
+  "barato": {
+    "todos": { parda: 68, branca: 18, preta: 12, outros: 2 },
+    "1-2 SM": { parda: 75, branca: 15, preta: 8, outros: 2 },
+    "2-3 SM": { parda: 60, branca: 25, preta: 13, outros: 2 },
+    "3+ SM": { parda: 45, branca: 35, preta: 18, outros: 2 }
+  },
+  "seguranca": {
+    "todos": { parda: 45, branca: 30, preta: 20, outros: 5 },
+    "1-2 SM": { parda: 55, branca: 25, preta: 18, outros: 2 },
+    "2-3 SM": { parda: 40, branca: 35, preta: 22, outros: 3 },
+    "3+ SM": { parda: 35, branca: 40, preta: 20, outros: 5 }
+  }
+};
+
+export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
   const [activeTab, setActiveTab] = useState('contagens');
+  const [cardVisibility, setCardVisibility] = useState({
+    sinistros: true,
+    velocidade: true,
+    fluxo: true,
+    mulheres: true,
+    dados_gerais: true,
+    perfil: true,
+    raca: true,
+    analise: true
+  });
+
+  const [animatingCards, setAnimatingCards] = useState<Set<string>>(new Set());
+  const [selectedMotivation, setSelectedMotivation] = useState('todas');
+  const [selectedSocioeconomic, setSelectedSocioeconomic] = useState('todos');
+
+  const handleCardToggle = (cardId: string) => {
+    const isVisible = cardVisibility[cardId];
+    
+    if (isVisible) {
+      // Hiding card - add exit animation
+      setAnimatingCards(prev => new Set(prev).add(cardId));
+      setTimeout(() => {
+        setCardVisibility(prev => ({ ...prev, [cardId]: false }));
+        setAnimatingCards(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(cardId);
+          return newSet;
+        });
+      }, 300);
+    } else {
+      // Showing card - show immediately with enter animation
+      setCardVisibility(prev => ({ ...prev, [cardId]: true }));
+    }
+  };
 
   return (
-    <div className="h-full bg-gray-50 p-6 overflow-y-auto overflow-x-hidden">
-      <div className="w-full max-w-[75vw] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-          <div className="bg-white rounded-lg shadow h-[200px] p-4 flex flex-col">
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-600">Sinistros Totais</h3>
-              <p className="text-3xl font-bold text-gray-900">581</p>
-              <p className="text-sm text-gray-600 flex items-center gap-1">Redução dos Fatais 12% <span className="text-green-500">▲</span></p>
-              <p className="text-sm text-gray-600 flex items-center gap-1">Aumento nos não fatais 11% <span className="text-red-500">▼</span></p>
-            </div>
-            <div className="flex-1"></div>
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">Ano anterior: 482</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow h-[200px] p-4 flex flex-col">
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-600">Velocidade média</h3>
-              <p className="text-3xl font-bold text-gray-900">24km/h</p>
-            </div>
-            <div className="flex-1 flex flex-col justify-end">
-              <div className="h-16 mb-2">
-                <SpeedChart />
+    <div className="h-full flex">
+      <MuralSidebar 
+        isOpen={sidebarOpen}
+        onToggle={onSidebarToggle}
+        cardVisibility={cardVisibility}
+        onCardToggle={handleCardToggle}
+      />
+      
+      <div className="flex-1 bg-gray-50 p-6 overflow-y-auto overflow-x-hidden">
+        <div className="w-full max-w-[75vw] mx-auto">
+        <div className="mural-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+          {(cardVisibility.sinistros || animatingCards.has('sinistros')) && (
+            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+              animatingCards.has('sinistros') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-600">Sinistros Totais</h3>
+                  <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                    <span className="text-xs text-gray-600">i</span>
+                    <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                      Total de sinistros registrados no período analisado
+                    </div>
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">581</p>
+                <p className="text-sm text-gray-600 flex items-center gap-1">Redução dos Fatais 12% <span className="text-green-500">▲</span></p>
+                <p className="text-sm text-gray-600 flex items-center gap-1">Aumento nos não fatais 11% <span className="text-red-500">▼</span></p>
               </div>
-              <p className="text-sm text-gray-500">Fluxo de automóveis: 65.214</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow h-[200px] p-4 flex flex-col">
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-600">Fluxo de ciclistas</h3>
-              <p className="text-3xl font-bold text-gray-900">6,560</p>
-            </div>
-            <div className="flex-1 flex flex-col justify-end">
-              <div className="h-16 mb-2">
-                <CyclistChart />
+              <div className="flex-1"></div>
+              <div className="mt-2">
+                <p className="text-sm text-gray-500">Ano anterior: 482</p>
               </div>
-              <p className="text-sm text-gray-500">Horário de pico: 423</p>
             </div>
-          </div>
-          <div className="bg-white rounded-lg shadow h-[200px] p-4 flex flex-col">
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-600">Percentual de mulheres</h3>
-              <p className="text-3xl font-bold text-gray-900">12%</p>
-            </div>
-            <div className="flex-1 flex flex-col justify-end">
-              <div className="h-16 mb-2">
-                <WomenChart />
+          )}
+          {(cardVisibility.velocidade || animatingCards.has('velocidade')) && (
+            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+              animatingCards.has('velocidade') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-600">Velocidade média</h3>
+                  <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                    <span className="text-xs text-gray-600">i</span>
+                    <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                      Velocidade média dos veículos na via
+                    </div>
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">24km/h</p>
               </div>
-              <p className="text-sm text-gray-600 flex items-center gap-1">Aumento 4% <span className="text-green-500">▲</span> <span className="text-gray-500">(2019)</span></p>
+              <div className="flex-1 flex flex-col justify-end">
+                <div className="h-16 mb-2">
+                  <SpeedChart />
+                </div>
+                <p className="text-sm text-gray-500">Fluxo de automóveis: 65.214</p>
+              </div>
             </div>
-          </div>
+          )}
+          {(cardVisibility.fluxo || animatingCards.has('fluxo')) && (
+            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+              animatingCards.has('fluxo') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-600">Fluxo de ciclistas</h3>
+                  <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                    <span className="text-xs text-gray-600">i</span>
+                    <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                      Número total de ciclistas contabilizados
+                    </div>
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">6,560</p>
+              </div>
+              <div className="flex-1 flex flex-col justify-end">
+                <div className="h-16 mb-2">
+                  <CyclistChart />
+                </div>
+                <p className="text-sm text-gray-500">Horário de pico: 423</p>
+              </div>
+            </div>
+          )}
+          {(cardVisibility.mulheres || animatingCards.has('mulheres')) && (
+            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+              animatingCards.has('mulheres') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-600">Percentual de mulheres</h3>
+                  <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                    <span className="text-xs text-gray-600">i</span>
+                    <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                      Percentual de mulheres entre os ciclistas
+                    </div>
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">12%</p>
+              </div>
+              <div className="flex-1 flex flex-col justify-end">
+                <div className="h-16 mb-2">
+                  <WomenChart />
+                </div>
+                <p className="text-sm text-gray-600 flex items-center gap-1">Aumento 4% <span className="text-green-500">▲</span> <span className="text-gray-500">(2019)</span></p>
+              </div>
+            </div>
+          )}
         </div>
 
 
-        <div className="mt-5">
-          <div className="bg-white rounded-lg shadow h-auto lg:h-[400px] p-6">
+        {(cardVisibility.dados_gerais || animatingCards.has('dados_gerais')) && (
+          <div className={`mt-5 mural-card transition-all duration-300 ${
+            animatingCards.has('dados_gerais') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+          }`}>
+            <div className="bg-white rounded-lg shadow h-auto lg:h-[400px] p-6">
             {/* Barra de Filtros */}
             <div className="flex items-center gap-6 pb-4 border-b mb-4">
-              <div className="text-lg font-semibold text-gray-800">
-                Agamenon Magalhães
+              <div className="flex items-center gap-2">
+                <div className="text-lg font-semibold text-gray-800">
+                  Dados Gerais
+                </div>
+                <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                  <span className="text-xs text-gray-600">i</span>
+                  <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    Visão geral dos dados coletados
+                  </div>
+                </div>
               </div>
 
-              <div className="flex gap-1">
+              <div className="flex gap-6">
                 <button
                   onClick={() => setActiveTab('contagens')}
-                  className={`px-3 py-1 text-xs rounded ${activeTab === 'contagens'
-                      ? 'bg-teal-100 text-teal-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                  className={`px-1 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'contagens'
+                      ? 'text-teal-600 border-teal-600'
+                      : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
                     }`}
                 >
                   Contagens
                 </button>
                 <button
                   onClick={() => setActiveTab('sinistros')}
-                  className={`px-3 py-1 text-xs rounded ${activeTab === 'sinistros'
-                      ? 'bg-red-100 text-red-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                  className={`px-1 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'sinistros'
+                      ? 'text-red-600 border-red-600'
+                      : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
                     }`}
                 >
                   Sinistros
@@ -588,12 +731,24 @@ export function MuralView() {
                 </div>
               </div>
             </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="bg-white rounded-lg shadow h-[500px] p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">Perfil de ciclistas</h3>
+        <div className="mt-5 mural-grid grid grid-cols-1 md:grid-cols-2 gap-5">
+          {(cardVisibility.perfil || animatingCards.has('perfil')) && (
+            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-6 transition-all duration-300 ${
+              animatingCards.has('perfil') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold text-gray-800">Perfil de ciclistas</h3>
+              <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                <span className="text-xs text-gray-600">i</span>
+                <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  Análise do perfil demográfico dos ciclistas
+                </div>
+              </div>
+            </div>
             <p className="text-xs text-gray-500 mb-4">Av. Agamenon Magalhães x Av. Boa Vista</p>
             <div className="flex gap-3 mb-4">
               <div className="flex-1 bg-white rounded-lg shadow h-[150px] p-4 flex flex-col">
@@ -680,9 +835,13 @@ export function MuralView() {
             <div className="flex-1 overflow-hidden">
               <PerfilTable />
             </div>
-          </div>
+            </div>
+          )}
 
-          <div className="bg-white rounded-lg shadow h-[500px] p-6">
+          {(cardVisibility.raca || animatingCards.has('raca')) && (
+            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-6 transition-all duration-300 ${
+              animatingCards.has('raca') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-800">Ciclistas por raça/cor</h3>
               <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
@@ -692,15 +851,82 @@ export function MuralView() {
                 </div>
               </div>
             </div>
-            <div className="h-full flex items-center justify-center">
-              <AnimatedPieChart />
+            
+            {/* Filtros */}
+            <div className="mb-4 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-600 mb-2 block">Motivação</label>
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    { label: 'Todas', value: 'todas' },
+                    { label: 'Rápido e prático', value: 'rapido_pratico' },
+                    { label: 'Mais saudável', value: 'saudavel' },
+                    { label: 'Mais barato', value: 'barato' },
+                    { label: 'Segurança', value: 'seguranca' }
+                  ].map(motiv => (
+                    <button 
+                      key={motiv.value} 
+                      onClick={() => setSelectedMotivation(motiv.value)}
+                      className={`px-2 py-1 text-xs rounded transition-colors ${
+                        selectedMotivation === motiv.value 
+                          ? 'bg-blue-500 text-white' 
+                          : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                      }`}
+                    >
+                      {motiv.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-xs font-medium text-gray-600 mb-2 block">Socioeconômico</label>
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    { label: 'Todos', value: 'todos' },
+                    { label: '1-2 SM', value: '1-2 SM' },
+                    { label: '2-3 SM', value: '2-3 SM' },
+                    { label: '3+ SM', value: '3+ SM' }
+                  ].map(socio => (
+                    <button 
+                      key={socio.value}
+                      onClick={() => setSelectedSocioeconomic(socio.value)}
+                      className={`px-2 py-1 text-xs rounded transition-colors ${
+                        selectedSocioeconomic === socio.value 
+                          ? 'bg-green-500 text-white' 
+                          : 'bg-green-50 text-green-700 hover:bg-green-100'
+                      }`}
+                    >
+                      {socio.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+            
+            <div className="flex-1 flex items-center justify-center">
+              <AnimatedPieChart motivation={selectedMotivation} socioeconomic={selectedSocioeconomic} />
+            </div>
+            
+
+            </div>
+          )}
         </div>
 
-        <div className="mt-5">
-          <div className="bg-white rounded-lg shadow h-[500px] p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Análise completa dos dados</h3>
+        {(cardVisibility.analise || animatingCards.has('analise')) && (
+          <div className={`mt-5 mural-card transition-all duration-300 ${
+            animatingCards.has('analise') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+          }`}>
+            <div className="bg-white rounded-lg shadow h-[500px] p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Análise completa dos dados</h3>
+              <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                <span className="text-xs text-gray-600">i</span>
+                <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  Dados consolidados de infrações e ocorrências de trânsito
+                </div>
+              </div>
+            </div>
 
             {/* Carrossel de Cards com Swiper */}
             <div className="mb-6 overflow-hidden">
@@ -758,7 +984,9 @@ export function MuralView() {
             <div className="h-full">
               <MountainChart />
             </div>
+            </div>
           </div>
+        )}
         </div>
       </div>
     </div>
@@ -859,14 +1087,20 @@ function PerfilTable() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedData.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-3 py-2 text-xs text-gray-900">{item.motivacao}</td>
-                  <td className="px-3 py-2 text-xs text-gray-900">{item.masculino}</td>
-                  <td className="px-3 py-2 text-xs text-gray-900">{item.feminino}</td>
-                  <td className="px-3 py-2 text-xs font-medium text-gray-900">{item.total}</td>
-                </tr>
-              ))}
+              {paginatedData.map((item, index) => {
+                const totalGeral = 1247; // Total de respondentes
+                const percentage = ((item.total / totalGeral) * 100).toFixed(1);
+                return (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 text-xs text-gray-900">{item.motivacao}</td>
+                    <td className="px-3 py-2 text-xs text-gray-900">{item.masculino}</td>
+                    <td className="px-3 py-2 text-xs text-gray-900">{item.feminino}</td>
+                    <td className="px-3 py-2 text-xs font-medium text-gray-900">
+                      {item.total} <span className="text-gray-500">({percentage}%)</span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

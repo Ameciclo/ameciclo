@@ -1,5 +1,6 @@
 export { CicloDadosHeader } from './CicloDadosHeader';
 export { LeftSidebar } from './LeftSidebar';
+export { MuralSidebar } from './MuralSidebar';
 export { RightSidebar } from './RightSidebar';
 export { MapView } from './MapView';
 export { MuralView } from './MuralView';

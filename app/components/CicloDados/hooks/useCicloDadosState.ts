@@ -15,17 +15,27 @@ export function useCicloDadosState(
 ) {
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
-  
-  // Auto-minimize both sidebars after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLeftSidebarOpen(false);
-      setRightSidebarOpen(false);
-    }, 5000);
-    
-    return () => clearTimeout(timer);
-  }, []);
   const [chatOpen, setChatOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');
+  
+  // Auto-minimize both sidebars after 5 seconds only in map mode
+  useEffect(() => {
+    if (viewMode === 'map') {
+      const timer = setTimeout(() => {
+        setLeftSidebarOpen(false);
+        setRightSidebarOpen(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [viewMode]);
+  
+  // Keep sidebar open when switching to mural mode
+  useEffect(() => {
+    if (viewMode === 'mural') {
+      setLeftSidebarOpen(true);
+    }
+  }, [viewMode]);
   const getStoredValue = (key: string, defaultValue: any) => {
     if (typeof window === 'undefined') return defaultValue;
     try {
@@ -66,8 +76,6 @@ export function useCicloDadosState(
   const [selectedDias, setSelectedDias] = useState<string>(() => 
     getStoredValue('selectedDias', "1 dia")
   );
-  const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');
-
   // Set viewMode from localStorage after hydration
   useEffect(() => {
     const storedViewMode = getStoredValue('viewMode', 'map');
