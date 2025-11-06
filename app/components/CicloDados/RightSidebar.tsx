@@ -87,7 +87,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode }: RightSidebarProps) 
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="hidden md:block fixed top-1/2 -translate-y-1/2 right-4 z-[60] bg-white border rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors"
+          className="hidden md:block fixed top-1/2 -translate-y-1/2 right-20 z-[55] bg-white border rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors"
           title="Expandir gráficos"
         >
           <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">

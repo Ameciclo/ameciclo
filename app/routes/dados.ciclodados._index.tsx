@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   CicloDadosHeader,
   LeftSidebar,
@@ -68,8 +69,17 @@ export default function CicloDados() {
   const contagemData = generateContagemData(selectedContagem);
   const layersConf = generateLayersConf(selectedInfra, selectedPdc, infraOptions, pdcOptions);
 
-
-
+  // Auto-abrir sidebars após 3 segundos quando em modo mapa
+  useEffect(() => {
+    if (viewMode === 'map') {
+      const timer = setTimeout(() => {
+        setLeftSidebarOpen(true);
+        setRightSidebarOpen(true);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [viewMode, setLeftSidebarOpen, setRightSidebarOpen]);
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>

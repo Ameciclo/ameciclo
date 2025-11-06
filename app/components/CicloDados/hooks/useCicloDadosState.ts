@@ -13,22 +13,12 @@ export function useCicloDadosState(
   sinistroOptions: string[],
   estacionamentoOptions: string[]
 ) {
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
-  const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');
   
-  // Auto-minimize both sidebars after 5 seconds only in map mode
-  useEffect(() => {
-    if (viewMode === 'map') {
-      const timer = setTimeout(() => {
-        setLeftSidebarOpen(false);
-        setRightSidebarOpen(false);
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [viewMode]);
+
   
   // Keep sidebar open when switching to mural mode
   useEffect(() => {
