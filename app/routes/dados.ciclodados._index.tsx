@@ -3,15 +3,8 @@ import { json, LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  try {
-    const response = await fetch('http://192.168.10.102:3005/v1/bicycle-racks/geojson');
-    if (!response.ok) throw new Error('Failed to fetch bicycle racks');
-    const bicicletarios = await response.json();
-    return json({ bicicletarios });
-  } catch (error) {
-    console.error('Error fetching bicycle racks:', error);
-    return json({ bicicletarios: null });
-  }
+  // Remover fetch do servidor para evitar timeout
+  return json({ bicicletarios: null });
 }
 import {
   CicloDadosHeader,
@@ -30,7 +23,8 @@ import {
 } from '~/components/CicloDados';
 
 export default function CicloDados() {
-  const { bicicletarios } = useLoaderData<typeof loader>();
+  // Dados carregados via hooks no cliente
+  const { bicicletarios } = { bicicletarios: null };
   
   const {
     infraOptions,
