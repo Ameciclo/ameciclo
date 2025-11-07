@@ -73,6 +73,19 @@
     - [ ] CardsSession
     - [ ] ImagesGrid
 
+  - [x] `/dados/ciclodados` - **NOVA PÁGINA IMPLEMENTADA**
+    Componentes
+    - [x] CicloDadosHeader - Cabeçalho com toggle mapa/mural
+    - [x] LeftSidebar - Filtros de infraestrutura, contagem, PDC, infrações, sinistros, estacionamento e perfil
+    - [x] RightSidebar - Cards com dados e gráficos (3 cards implementados)
+    - [x] MapView - Visualização do mapa com camadas
+    - [x] MuralView - Visualização em mural
+    - [x] FloatingChat - Chat flutuante
+    - [x] useCicloDadosData - Hook para dados e configurações
+    - [x] useCicloDadosState - Hook para gerenciamento de estado
+    - [ ] #PENDENTE - Integração com API real (dados atualmente mockados)
+    - [ ] #PENDENTE - Estados de loading e tratamento de erros
+
   - [ ] `/dados/contagens`
     Componentes
     - [ ] Banner

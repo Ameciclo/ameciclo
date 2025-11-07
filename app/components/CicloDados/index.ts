@@ -11,6 +11,8 @@ export { PerfilSection } from './PerfilSection';
 
 export { useCicloDadosData } from './hooks/useCicloDadosData';
 export { useCicloDadosState } from './hooks/useCicloDadosState';
+export { useMapSelection } from './hooks/useMapSelection';
 
 export { generateInfraData, generatePdcData, generateContagemData, getContagemIcon } from './utils/mapDataUtils';
 export { generateLayersConf } from './utils/layerUtils';
+export { MiniContagensChart, MiniSinistrosChart, MiniInfraChart, MiniVelocidadeChart, MiniFluxoChart, MiniGeneroChart, MiniCaracteristicasChart, MiniInfraestruturaChart, MiniAcessibilidadeChart } from './utils/chartData';

@@ -521,9 +521,9 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
       
       <div className="flex-1 bg-gray-50 p-3 md:p-6 overflow-y-auto overflow-x-hidden">
         <div className="w-full max-w-full mx-auto">
-        <div className="mural-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 w-full">
           {(cardVisibility.sinistros || animatingCards.has('sinistros')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+            <div className={`bg-white rounded-lg shadow min-h-[180px] max-h-[220px] p-4 flex flex-col transition-all duration-300 min-w-0 w-full ${
               animatingCards.has('sinistros') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
               <div className="space-y-2">
@@ -547,7 +547,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
             </div>
           )}
           {(cardVisibility.velocidade || animatingCards.has('velocidade')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+            <div className={`bg-white rounded-lg shadow min-h-[180px] max-h-[220px] p-4 flex flex-col transition-all duration-300 min-w-0 w-full ${
               animatingCards.has('velocidade') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
               <div className="space-y-2">
@@ -571,7 +571,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
             </div>
           )}
           {(cardVisibility.fluxo || animatingCards.has('fluxo')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+            <div className={`bg-white rounded-lg shadow min-h-[180px] max-h-[220px] p-4 flex flex-col transition-all duration-300 min-w-0 w-full ${
               animatingCards.has('fluxo') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
               <div className="space-y-2">
@@ -595,7 +595,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
             </div>
           )}
           {(cardVisibility.mulheres || animatingCards.has('mulheres')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[200px] p-4 flex flex-col transition-all duration-300 ${
+            <div className={`bg-white rounded-lg shadow min-h-[180px] max-h-[220px] p-4 flex flex-col transition-all duration-300 min-w-0 w-full ${
               animatingCards.has('mulheres') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
               <div className="space-y-2">
@@ -622,10 +622,10 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
 
 
         {(cardVisibility.dados_gerais || animatingCards.has('dados_gerais')) && (
-          <div className={`mt-3 md:mt-5 mural-card transition-all duration-300 ${
+          <div className={`mt-3 md:mt-5 transition-all duration-300 w-full ${
             animatingCards.has('dados_gerais') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
           }`}>
-            <div className="bg-white rounded-lg shadow h-auto lg:h-[400px] p-3 md:p-6 relative overflow-hidden">
+            <div className="bg-white rounded-lg shadow min-h-[300px] max-h-[500px] p-3 md:p-6 relative overflow-hidden w-full">
             {/* Barra de Filtros */}
             <div className="flex items-center gap-6 pb-4 border-b mb-4">
               <div className="flex items-center gap-2">
@@ -735,9 +735,9 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
           </div>
         )}
 
-        <div className="mt-3 md:mt-5 mural-grid grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-5">
+        <div className="mt-3 md:mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 w-full">
           {(cardVisibility.perfil || animatingCards.has('perfil')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-3 md:p-6 transition-all duration-300 relative overflow-hidden ${
+            <div className={`bg-white rounded-lg shadow min-h-[400px] max-h-[600px] p-3 md:p-6 transition-all duration-300 relative overflow-hidden w-full ${
               animatingCards.has('perfil') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
             <div className="flex items-center gap-2 mb-1">
@@ -751,7 +751,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
             </div>
             <p className="text-xs text-gray-500 mb-4">Av. Agamenon Magalhães x Av. Boa Vista</p>
             <div className="flex gap-3 mb-4">
-              <div className="flex-1 bg-white rounded-lg shadow h-[150px] p-4 flex flex-col">
+              <div className="flex-1 bg-white rounded-lg shadow min-h-[120px] max-h-[150px] p-4 flex flex-col">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-gray-600">Participação feminina</h4>
@@ -791,7 +791,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                 </div>
               </div>
 
-              <div className="flex-1 bg-white rounded-lg shadow h-[150px] p-4 flex flex-col">
+              <div className="flex-1 bg-white rounded-lg shadow min-h-[120px] max-h-[150px] p-4 flex flex-col">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-gray-600">Tempo médio de trajeto</h4>
@@ -839,7 +839,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
           )}
 
           {(cardVisibility.raca || animatingCards.has('raca')) && (
-            <div className={`mural-card bg-white rounded-lg shadow h-[500px] p-3 md:p-6 transition-all duration-300 relative overflow-hidden ${
+            <div className={`bg-white rounded-lg shadow min-h-[400px] max-h-[600px] p-3 md:p-6 transition-all duration-300 relative overflow-hidden w-full ${
               animatingCards.has('raca') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
             }`}>
             <div className="flex items-center justify-between mb-4">
@@ -913,10 +913,10 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
         </div>
 
         {(cardVisibility.analise || animatingCards.has('analise')) && (
-          <div className={`mt-5 mural-card transition-all duration-300 ${
+          <div className={`mt-5 transition-all duration-300 w-full overflow-hidden ${
             animatingCards.has('analise') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
           }`}>
-            <div className="bg-white rounded-lg shadow h-[500px] p-6">
+            <div className="bg-white rounded-lg shadow min-h-[400px] max-h-[600px] p-6 w-full overflow-hidden">
             <div className="flex items-center gap-2 mb-4">
               <h3 className="text-lg font-semibold text-gray-800">Análise completa dos dados</h3>
               <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
@@ -932,7 +932,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
               <Swiper
                 spaceBetween={16}
                 slidesPerView="auto"
-                className="!overflow-visible"
+                className="!overflow-hidden"
               >
                 {[
                   { title: 'Estacionar em Ciclovia', label: 'Infrações registradas', value: '1.247', progress: 85 },
@@ -948,8 +948,8 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                   { title: 'Parar sobre Faixa', label: 'Bloqueios identificados', value: '345', progress: 55 },
                   { title: 'Desrespeito à Sinalização', label: 'Violações flagradas', value: '2.567', progress: 92 }
                 ].map((item, i) => (
-                  <SwiperSlide key={i} className="!w-[200px]">
-                    <div className="w-[200px] h-[100px] bg-blue-50 rounded-lg border border-blue-200 p-3 flex">
+                  <SwiperSlide key={i} className="!w-[180px] !max-w-[180px] flex-shrink-0">
+                    <div className="w-[180px] h-[100px] bg-blue-50 rounded-lg border border-blue-200 p-3 flex flex-shrink-0">
                       <div className="flex-1">
                         <h4 className="text-xs font-semibold text-gray-800 mb-1">{item.title}</h4>
                         <p className="text-xs text-gray-500 mb-2">{item.label}</p>

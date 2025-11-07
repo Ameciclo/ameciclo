@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart } from './utils/chartData';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { MapPin } from 'lucide-react';
+import { MapPin, Bike } from 'lucide-react';
+import { createClusters } from './utils/clustering';
+import { useBicicletarios } from './hooks/useBicicletarios';
 import 'swiper/css';
 
 interface MapViewProps {
@@ -16,6 +18,7 @@ interface MapViewProps {
   pdcData: any;
   contagemData: any;
   getContagemIcon: (count: number) => React.ReactNode;
+  bicicletarios: any;
 }
 
 export function MapView({
@@ -27,7 +30,7 @@ export function MapView({
   pdcData,
   contagemData,
   getContagemIcon
-}: MapViewProps) {
+}: Omit<MapViewProps, 'bicicletarios'>) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
@@ -54,6 +57,29 @@ export function MapView({
   // Salvar posição do mapa no localStorage com debounce
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Calcular bounds do viewport atual
+  const viewportBounds = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    
+    const { latitude, longitude, zoom } = mapViewState;
+    const metersPerPixel = 156543.03392 * Math.cos(latitude * Math.PI / 180) / Math.pow(2, zoom);
+    const mapWidth = window.innerWidth;
+    const mapHeight = window.innerHeight;
+    
+    const deltaLng = (mapWidth / 2) * metersPerPixel / 111320;
+    const deltaLat = (mapHeight / 2) * metersPerPixel / 110540;
+    
+    return {
+      north: latitude + deltaLat,
+      south: latitude - deltaLat,
+      east: longitude + deltaLng,
+      west: longitude - deltaLng
+    };
+  }, [mapViewState]);
+
+  // Usar hook com bounds para filtrar bicicletários
+  const filteredBicicletarios = useBicicletarios(viewportBounds);
+
   const handleMapViewChange = (viewState: any) => {
     console.log('Mudou posição do mapa:', viewState);
     setMapViewState(viewState);
@@ -214,18 +240,40 @@ export function MapView({
             } : null;
           })()}
         layersConf={layersConf || []}
-        pointsData={contagemData ? contagemData.features.map((feature: any) => ({
-          key: `contagem-${feature.properties.type}`,
-          latitude: feature.geometry.coordinates[1],
-          longitude: feature.geometry.coordinates[0],
-          type: feature.properties.type,
-          popup: {
-            name: feature.properties.location,
-            total: feature.properties.count,
-            date: "Jan/2024"
-          },
-          customIcon: getContagemIcon(feature.properties.count)
-        })) : []}
+        pointsData={[
+          ...(contagemData ? contagemData.features.map((feature: any) => ({
+            key: `contagem-${feature.properties.type}`,
+            latitude: feature.geometry.coordinates[1],
+            longitude: feature.geometry.coordinates[0],
+            type: feature.properties.type,
+            popup: {
+              name: feature.properties.location,
+              total: feature.properties.count,
+              date: "Jan/2024"
+            },
+            customIcon: getContagemIcon(feature.properties.count)
+          })) : []),
+          ...(filteredBicicletarios?.features ? 
+            createClusters(filteredBicicletarios.features, mapViewState.zoom, mapViewState)
+              .map((item: any) => ({
+                key: `bicicletario-${item.id}`,
+                latitude: item.geometry.coordinates[1],
+                longitude: item.geometry.coordinates[0],
+                type: 'bicicletario',
+                popup: {
+                  name: item.isCluster ? `${item.properties.count} Bicicletários` : 'Bicicletário',
+                  total: item.isCluster ? 'Cluster' : 'Estacionamento'
+                },
+                customIcon: item.isCluster ? 
+                  <div className="bg-blue-600 text-white rounded-lg min-w-[20px] h-[20px] px-[3px] flex flex-col items-center justify-center shadow-lg border border-white">
+                    <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>∩</span>
+                    <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>{item.properties.count}</span>
+                  </div> :
+                  <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
+                    <span className="text-white font-black text-[10px]" style={{textShadow: '0 0 1px white'}}>∩</span>
+                  </div>
+              })) : [])
+        ]}
         showLayersPanel={false}
         width="100%" 
         height="100%" 

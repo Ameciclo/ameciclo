@@ -10,6 +10,8 @@ interface PerfilSectionProps {
   onSocioChange: (value: string) => void;
   selectedDias: string;
   onDiasChange: (value: string) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export function PerfilSection({
@@ -20,9 +22,27 @@ export function PerfilSection({
   selectedSocio,
   onSocioChange,
   selectedDias,
-  onDiasChange
+  onDiasChange,
+  isCollapsed = false,
+  onToggleCollapse
 }: PerfilSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isPerfilVisible, setIsPerfilVisible] = useState(true);
+  
+  // Use external collapse state if provided, otherwise use internal state
+  const actuallyExpanded = onToggleCollapse ? !isCollapsed : isExpanded;
+  const handleToggleExpanded = onToggleCollapse || (() => setIsExpanded(!isExpanded));
+  
+  const togglePerfilVisibility = () => {
+    setIsPerfilVisible(!isPerfilVisible);
+    // Reset all perfil selections when hiding
+    if (isPerfilVisible) {
+      onGeneroChange('Todas');
+      onRacaChange('Todas');
+      onSocioChange('Salários entre X');
+      onDiasChange('1 dia');
+    }
+  };
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
@@ -38,13 +58,18 @@ export function PerfilSection({
     <div className="bg-white rounded border">
       <div className="p-2">
         <div className="flex items-center justify-between mb-2">
-          <span className="font-medium">Perfil de ciclistas</span>
+          <div className="flex items-center gap-2">
+            <button onClick={togglePerfilVisibility} className="hover:bg-gray-50 rounded p-1 transition-colors">
+              {isPerfilVisible ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+            </button>
+            <span className="font-medium">Perfil de ciclistas</span>
+          </div>
           <button 
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={handleToggleExpanded}
             className="hover:bg-gray-50 rounded p-1 transition-colors"
           >
             <svg 
-              className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+              className={`w-4 h-4 transition-transform ${actuallyExpanded ? 'rotate-180' : ''}`} 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -54,7 +79,7 @@ export function PerfilSection({
           </button>
         </div>
       </div>
-      {isExpanded && (
+      {actuallyExpanded && (
         <div className="px-2 pb-2 space-y-3">
           {/* Gênero */}
           <div>

@@ -1,4 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { json, LoaderFunctionArgs } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  try {
+    const response = await fetch('http://192.168.10.102:3005/v1/bicycle-racks/geojson');
+    if (!response.ok) throw new Error('Failed to fetch bicycle racks');
+    const bicicletarios = await response.json();
+    return json({ bicicletarios });
+  } catch (error) {
+    console.error('Error fetching bicycle racks:', error);
+    return json({ bicicletarios: null });
+  }
+}
 import {
   CicloDadosHeader,
   LeftSidebar,
@@ -16,6 +30,8 @@ import {
 } from '~/components/CicloDados';
 
 export default function CicloDados() {
+  const { bicicletarios } = useLoaderData<typeof loader>();
+  
   const {
     infraOptions,
     contagemOptions,
@@ -62,6 +78,13 @@ export default function CicloDados() {
     sinistroOptions,
     estacionamentoOptions
   );
+  
+  // Map selection state
+  const [mapSelection, setMapSelection] = useState<{lat: number, lng: number, radius: number, street?: string} | null>(null);
+  
+  const handleMapSelection = (coords: {lat: number, lng: number, radius: number, street?: string}) => {
+    setMapSelection(coords);
+  };
 
   // Gerar dados do mapa
   const infraData = generateInfraData(selectedInfra);
@@ -80,6 +103,21 @@ export default function CicloDados() {
       return () => clearTimeout(timer);
     }
   }, [viewMode, setLeftSidebarOpen, setRightSidebarOpen]);
+  
+  // Demo event listener
+  useEffect(() => {
+    const handleDemoSelection = () => {
+      handleMapSelection({
+        lat: -8.0476,
+        lng: -34.8770,
+        radius: 1000,
+        street: "Av. Gov. Agamenon Magalhães"
+      });
+    };
+    
+    window.addEventListener('demo-map-selection', handleDemoSelection);
+    return () => window.removeEventListener('demo-map-selection', handleDemoSelection);
+  }, []);
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
@@ -148,6 +186,7 @@ export default function CicloDados() {
           isOpen={rightSidebarOpen}
           onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
           viewMode={viewMode}
+          mapSelection={mapSelection}
         />
       </div>
 

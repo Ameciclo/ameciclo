@@ -569,6 +569,13 @@ export const AmecicloMap = ({
                                 onViewStateChange(newViewport);
                             }
                         }}
+                        onViewStateChange={(evt) => {
+                            const newViewport = evt.viewState;
+                            setViewport(newViewport);
+                            if (onViewStateChange) {
+                                onViewStateChange(newViewport);
+                            }
+                        }}
                         mapStyle={MAPBOXSTYLE}
                         mapboxApiAccessToken={MAPBOXTOKEN}
                         getCursor={({ isDragging }) => {
