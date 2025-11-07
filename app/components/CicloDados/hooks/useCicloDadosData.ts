@@ -43,7 +43,6 @@ export function useCicloDadosData() {
   ];
 
   const estacionamentoOptions = [
-    "Paraciclos",
     "Bicicletários",
     "Estações de Bike PE"
   ];

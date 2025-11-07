@@ -166,6 +166,7 @@ export default function CicloDados() {
               selectedInfra={selectedInfra}
               selectedPdc={selectedPdc}
               selectedContagem={selectedContagem}
+              selectedEstacionamento={selectedEstacionamento}
               infraOptions={infraOptions}
               pdcOptions={pdcOptions}
               layersConf={layersConf}

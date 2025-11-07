@@ -5,12 +5,14 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { MapPin, Bike } from 'lucide-react';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
+import { useBikePE } from './hooks/useBikePE';
 import 'swiper/css';
 
 interface MapViewProps {
   selectedInfra: string[];
   selectedPdc: string[];
   selectedContagem: string[];
+  selectedEstacionamento: string[];
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   pdcOptions: Array<{ name: string; color: string; pattern: string }>;
   layersConf: any[];
@@ -25,6 +27,7 @@ export function MapView({
   selectedInfra,
   selectedPdc,
   selectedContagem,
+  selectedEstacionamento,
   layersConf,
   infraData,
   pdcData,
@@ -77,8 +80,26 @@ export function MapView({
     };
   }, [mapViewState]);
 
-  // Usar hook com bounds para filtrar bicicletários
-  const filteredBicicletarios = useBicicletarios(viewportBounds);
+  // Verificar se está no cliente
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Usar hooks com bounds para filtrar dados apenas no cliente
+  const filteredBicicletarios = useBicicletarios(isClient ? viewportBounds : undefined);
+  const filteredBikePE = useBikePE(isClient ? viewportBounds : undefined);
+  
+  // Debug logs
+  useEffect(() => {
+    console.log('selectedEstacionamento:', selectedEstacionamento);
+    console.log('filteredBikePE:', filteredBikePE);
+    console.log('isClient:', isClient);
+    if (filteredBikePE?.features) {
+      console.log('Bike PE features count:', filteredBikePE.features.length);
+    }
+  }, [selectedEstacionamento, filteredBikePE, isClient]);
 
   const handleMapViewChange = (viewState: any) => {
     console.log('Mudou posição do mapa:', viewState);
@@ -253,7 +274,7 @@ export function MapView({
             },
             customIcon: getContagemIcon(feature.properties.count)
           })) : []),
-          ...(filteredBicicletarios?.features ? 
+          ...(isClient && selectedEstacionamento.includes('Bicicletários') && filteredBicicletarios?.features && Array.isArray(filteredBicicletarios.features) ? 
             createClusters(filteredBicicletarios.features, mapViewState.zoom, mapViewState)
               .map((item: any) => ({
                 key: `bicicletario-${item.id}`,
@@ -271,6 +292,26 @@ export function MapView({
                   </div> :
                   <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
                     <span className="text-white font-black text-[10px]" style={{textShadow: '0 0 1px white'}}>∩</span>
+                  </div>
+              })) : []),
+          ...(isClient && selectedEstacionamento.includes('Estações de Bike PE') && filteredBikePE?.features && Array.isArray(filteredBikePE.features) ? 
+            createClusters(filteredBikePE.features, mapViewState.zoom, mapViewState)
+              .map((item: any) => ({
+                key: `bikepe-${item.id}`,
+                latitude: item.geometry.coordinates[1],
+                longitude: item.geometry.coordinates[0],
+                type: 'bikepe',
+                popup: {
+                  name: item.isCluster ? `${item.properties.count} Estações Bike PE` : 'Estação Bike PE',
+                  total: item.isCluster ? 'Cluster' : 'Bicicletas compartilhadas'
+                },
+                customIcon: item.isCluster ? 
+                  <div className="bg-orange-500 text-white rounded-lg min-w-[20px] h-[20px] px-[3px] flex flex-col items-center justify-center shadow-lg border border-white">
+                    <Bike size={8} className="text-white" />
+                    <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>{item.properties.count}</span>
+                  </div> :
+                  <div className="bg-orange-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
+                    <Bike size={10} className="text-white" />
                   </div>
               })) : [])
         ]}
