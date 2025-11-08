@@ -50,3 +50,19 @@ export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets
 export const VIAS_INSEGURAS_HISTORY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/history`
 export const VIAS_INSEGURAS_SEARCH = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/search`
 export const VIAS_INSEGURAS_LIST = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/list`
+
+// Endpoints para Bicicletários e Estações de Bike PE
+export const BICICLETARIOS_DATA = `http://192.168.10.114:3005/v1/bicycle-racks/geojson`
+export const BIKE_PE_STATIONS_DATA = `http://192.168.10.114:3015/v1/stations`
+export const INFRA_CICLOVIARIA_DATA = `http://192.168.10.114:3020/v1/infrastructure-geojson?limit=10000`
+export const PONTOS_CONTAGEM_DATA = `http://192.168.10.114:3002/v1/locations`
+export const EXECUCAO_CICLOVIARIA_DATA = `http://192.168.10.114:3020/v1/ways/all-ways`
+
+// Objeto SERVERS para compatibilidade
+export const SERVERS = {
+  BICICLETARIOS: BICICLETARIOS_DATA,
+  BIKE_PE_STATIONS: BIKE_PE_STATIONS_DATA,
+  INFRA_CICLOVIARIA: INFRA_CICLOVIARIA_DATA,
+  PONTOS_CONTAGEM: PONTOS_CONTAGEM_DATA,
+  EXECUCAO_CICLOVIARIA: EXECUCAO_CICLOVIARIA_DATA
+}

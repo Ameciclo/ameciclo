@@ -32,6 +32,8 @@ interface LeftSidebarProps {
   onSocioChange: (value: string) => void;
   selectedDias: string;
   onDiasChange: (value: string) => void;
+  onClearAll: () => void;
+  onSelectAll: () => void;
 }
 
 export function LeftSidebar({
@@ -62,7 +64,9 @@ export function LeftSidebar({
   selectedSocio,
   onSocioChange,
   selectedDias,
-  onDiasChange
+  onDiasChange,
+  onClearAll,
+  onSelectAll
 }: LeftSidebarProps) {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   
@@ -88,32 +92,20 @@ export function LeftSidebar({
   
   const allCollapsed = collapsedSections.size > 0;
   
-  // Check if all options are selected across all sections
-  const allOptionsSelected = 
-    selectedInfra.length === infraOptions.length &&
-    selectedContagem.length === contagemOptions.length &&
-    selectedPdc.length === pdcOptions.length &&
-    selectedInfracao.length === infracaoOptions.length &&
-    selectedSinistro.length === sinistroOptions.length &&
-    selectedEstacionamento.length === estacionamentoOptions.length;
+  // Check if any options are selected across all sections
+  const anyOptionsSelected = 
+    selectedInfra.length > 0 ||
+    selectedContagem.length > 0 ||
+    selectedPdc.length > 0 ||
+    selectedInfracao.length > 0 ||
+    selectedSinistro.length > 0 ||
+    selectedEstacionamento.length > 0;
   
   const toggleAllOptions = () => {
-    if (allOptionsSelected) {
-      // Deselect all
-      selectedInfra.forEach(opt => onInfraToggle(opt));
-      selectedContagem.forEach(opt => onContagemToggle(opt));
-      selectedPdc.forEach(opt => onPdcToggle(opt));
-      selectedInfracao.forEach(opt => onInfracaoToggle(opt));
-      selectedSinistro.forEach(opt => onSinistroToggle(opt));
-      selectedEstacionamento.forEach(opt => onEstacionamentoToggle(opt));
+    if (anyOptionsSelected) {
+      onClearAll();
     } else {
-      // Select all
-      infraOptions.forEach(opt => !selectedInfra.includes(opt.name) && onInfraToggle(opt.name));
-      contagemOptions.forEach(opt => !selectedContagem.includes(opt) && onContagemToggle(opt));
-      pdcOptions.forEach(opt => !selectedPdc.includes(opt.name) && onPdcToggle(opt.name));
-      infracaoOptions.forEach(opt => !selectedInfracao.includes(opt) && onInfracaoToggle(opt));
-      sinistroOptions.forEach(opt => !selectedSinistro.includes(opt) && onSinistroToggle(opt));
-      estacionamentoOptions.forEach(opt => !selectedEstacionamento.includes(opt) && onEstacionamentoToggle(opt));
+      onSelectAll();
     }
   };
   return (
@@ -145,9 +137,9 @@ export function LeftSidebar({
             <button
               onClick={toggleAllOptions}
               className="hover:bg-gray-200 rounded transition-colors p-1"
-              title={allOptionsSelected ? "Ocultar todas as camadas" : "Mostrar todas as camadas"}
+              title={anyOptionsSelected ? "Ocultar todas as camadas" : "Mostrar todas as camadas"}
             >
-              {allOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-teal-600" />}
+              {anyOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-teal-600" />}
             </button>
             <button
               onClick={allCollapsed ? expandAll : collapseAll}

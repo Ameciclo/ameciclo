@@ -86,8 +86,10 @@ export function FilterSection({
 
   const toggleAll = () => {
     if (isAllSelected) {
-      options.forEach(opt => onToggle(opt.name));
+      // Deselect all - call toggle for each selected option
+      selectedOptions.forEach(optName => onToggle(optName));
     } else {
+      // Select all - call toggle for each unselected option
       options.forEach(opt => {
         if (!selectedOptions.includes(opt.name)) {
           onToggle(opt.name);

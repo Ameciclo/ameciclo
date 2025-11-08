@@ -1,4 +1,5 @@
 import { useGenericClusters } from './useGenericClusters';
+import { BICICLETARIOS_DATA } from '~/servers';
 
 interface ViewportBounds {
   north: number;
@@ -8,5 +9,6 @@ interface ViewportBounds {
 }
 
 export function useBicicletarios(bounds?: ViewportBounds) {
-  return useGenericClusters('http://192.168.10.102:3005/v1/bicycle-racks/geojson', bounds);
+  const result = useGenericClusters(BICICLETARIOS_DATA, bounds);
+  return { data: result.data, error: result.error };
 }

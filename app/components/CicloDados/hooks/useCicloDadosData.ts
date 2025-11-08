@@ -1,11 +1,9 @@
 export function useCicloDadosData() {
   const infraOptions = [
-    { name: "Ciclovias", color: "#EF4444", pattern: "solid" },
-    { name: "Ciclofaixas", color: "#6B7280", pattern: "bordered" },
-    { name: "Ciclorrotas", color: "#9CA3AF", pattern: "arrows" },
-    { name: "Calçadas Compartilhadas", color: "#10B981", pattern: "solid" },
-    { name: "Zonas 30", color: "#F59E0B", pattern: "area" },
-    { name: "Zonas de Pedestre", color: "#3B82F6", pattern: "area" }
+    { name: "Ciclovia", color: "#EF4444", pattern: "solid" },
+    { name: "Ciclofaixa", color: "#6B7280", pattern: "bordered" },
+    { name: "Ciclorrota", color: "#9CA3AF", pattern: "arrows" },
+    { name: "Calçada compartilhada", color: "#10B981", pattern: "solid" }
   ];
 
   const contagemOptions = [

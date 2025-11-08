@@ -37,7 +37,7 @@ export function useCicloDadosState(
   };
 
   const [selectedInfra, setSelectedInfra] = useState<string[]>(() => 
-    getStoredValue('selectedInfra', infraOptions.map(opt => opt.name))
+    getStoredValue('selectedInfra', [])
   );
   const [selectedContagem, setSelectedContagem] = useState<string[]>(() => 
     getStoredValue('selectedContagem', contagemOptions)
@@ -186,6 +186,24 @@ export function useCicloDadosState(
     );
   };
 
+  const clearAllSelections = () => {
+    setSelectedInfra([]);
+    setSelectedContagem([]);
+    setSelectedPdc([]);
+    setSelectedInfracao([]);
+    setSelectedSinistro([]);
+    setSelectedEstacionamento([]);
+  };
+
+  const selectAllOptions = () => {
+    setSelectedInfra(infraOptions.map(opt => opt.name));
+    setSelectedContagem([...contagemOptions]);
+    setSelectedPdc(pdcOptions.map(opt => opt.name));
+    setSelectedInfracao([...infracaoOptions]);
+    setSelectedSinistro([...sinistroOptions]);
+    setSelectedEstacionamento([...estacionamentoOptions]);
+  };
+
   return {
     leftSidebarOpen,
     setLeftSidebarOpen,
@@ -214,6 +232,8 @@ export function useCicloDadosState(
     selectedDias,
     setSelectedDias,
     viewMode,
-    setViewMode
+    setViewMode,
+    clearAllSelections,
+    selectAllOptions
   };
 }

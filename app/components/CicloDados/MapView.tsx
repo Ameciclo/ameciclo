@@ -6,6 +6,9 @@ import { MapPin, Bike } from 'lucide-react';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
+import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
+import { usePontosContagem } from './hooks/usePontosContagem';
+import { DataErrorAlert } from './DataErrorAlert';
 import 'swiper/css';
 
 interface MapViewProps {
@@ -88,18 +91,19 @@ export function MapView({
   }, []);
   
   // Usar hooks com bounds para filtrar dados apenas no cliente
-  const filteredBicicletarios = useBicicletarios(isClient ? viewportBounds : undefined);
-  const filteredBikePE = useBikePE(isClient ? viewportBounds : undefined);
+  const { data: filteredBicicletarios, error: bicicletariosError } = useBicicletarios(isClient ? viewportBounds : undefined);
+  const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
+  const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
+  const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(isClient ? viewportBounds : undefined);
   
-  // Debug logs
-  useEffect(() => {
-    console.log('selectedEstacionamento:', selectedEstacionamento);
-    console.log('filteredBikePE:', filteredBikePE);
-    console.log('isClient:', isClient);
-    if (filteredBikePE?.features) {
-      console.log('Bike PE features count:', filteredBikePE.features.length);
-    }
-  }, [selectedEstacionamento, filteredBikePE, isClient]);
+  // Coletar erros para exibir avisos
+  const dataErrors = [];
+  if (bicicletariosError) dataErrors.push({ type: 'bicicletarios', message: bicicletariosError });
+  if (bikePEError) dataErrors.push({ type: 'bikepe', message: bikePEError });
+  if (infraError) dataErrors.push({ type: 'infraestrutura', message: infraError });
+  if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
+  
+
 
   const handleMapViewChange = (viewState: any) => {
     console.log('Mudou posição do mapa:', viewState);
@@ -221,7 +225,6 @@ export function MapView({
     setIsSelectionMode(newSelectionMode);
     
     if (!newSelectionMode) {
-      // Desativando seleção - limpar tudo
       setHoverPoint(null);
       setSelectedPoints([]);
     }
@@ -231,8 +234,8 @@ export function MapView({
 
   return (
     <div style={{height: 'calc(100vh - 64px)'}} className="relative flex flex-col">
-      {/* Botão de seleção no canto superior esquerdo */}
-      <div className="absolute top-4 left-4 z-[60]">
+      {/* Botão no canto superior esquerdo */}
+      <div className="absolute top-4 left-4 z-[60] flex gap-2">
         <button
           onClick={toggleSelectionMode}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg font-medium transition-all duration-200 ${
@@ -251,16 +254,114 @@ export function MapView({
       <div className="flex-1 md:h-full">
         <AmecicloMap
           layerData={(() => {
+            // Filtrar infraestrutura por tipos selecionados
+            const filteredInfraFeatures = infraCicloviaria?.features?.filter((feature: any) => 
+              selectedInfra.includes(feature.properties.infra_type)
+            ) || [];
+            
             const allFeatures = [
               ...(infraData?.features || []),
-              ...(pdcData?.features || [])
+              ...(pdcData?.features || []),
+              ...filteredInfraFeatures
             ];
             return allFeatures.length > 0 ? {
               type: "FeatureCollection",
               features: allFeatures
             } : null;
           })()}
-        layersConf={layersConf || []}
+        layersConf={[
+          ...(layersConf || []),
+          ...(infraCicloviaria?.features ? [
+            {
+              id: 'infra-ciclovia',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Ciclovia'],
+              paint: {
+                'line-color': '#EF4444',
+                'line-width': 4,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'infra-ciclofaixa',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Ciclofaixa'],
+              paint: {
+                'line-color': '#6B7280',
+                'line-width': 3,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'infra-ciclorrota',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              paint: {
+                'line-color': '#D1D5DB',
+                'line-width': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  10, 2,
+                  16, 6,
+                  20, 12
+                ],
+                'line-opacity': 0.5
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'infra-ciclorrota-stripes',
+              type: 'symbol',
+              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              paint: {
+                'text-color': '#9CA3AF',
+                'text-opacity': 0.4
+              },
+              layout: {
+                'symbol-placement': 'line',
+                'symbol-spacing': 6,
+                'text-field': '█►',
+                'text-size': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  10, 4,
+                  16, 8,
+                  20, 12
+                ],
+                'text-rotation-alignment': 'map',
+                'text-pitch-alignment': 'viewport',
+                'text-offset': [0, 0]
+              }
+            },
+            {
+              id: 'infra-calcada',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Calçada compartilhada'],
+              paint: {
+                'line-color': '#10B981',
+                'line-width': 3,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }
+          ] : [])
+        ]}
         pointsData={[
           ...(contagemData ? contagemData.features.map((feature: any) => ({
             key: `contagem-${feature.properties.type}`,
@@ -274,6 +375,20 @@ export function MapView({
             },
             customIcon: getContagemIcon(feature.properties.count)
           })) : []),
+          ...(isClient && selectedContagem.length > 0 && pontosContagem?.features ? 
+            pontosContagem.features.map((feature: any) => ({
+              key: `ponto-contagem-${feature.properties.id}`,
+              latitude: feature.geometry.coordinates[1],
+              longitude: feature.geometry.coordinates[0],
+              type: 'ponto-contagem',
+              popup: {
+                name: feature.properties.name,
+                total: 'Ponto de Contagem'
+              },
+              customIcon: <div className="bg-blue-600 rounded-full w-3 h-3 flex items-center justify-center shadow-md border border-white">
+                <span className="text-white font-bold text-[6px]">●</span>
+              </div>
+            })) : []),
           ...(isClient && selectedEstacionamento.includes('Bicicletários') && filteredBicicletarios?.features && Array.isArray(filteredBicicletarios.features) ? 
             createClusters(filteredBicicletarios.features, mapViewState.zoom, mapViewState)
               .map((item: any) => ({
@@ -376,6 +491,8 @@ export function MapView({
           </SwiperSlide>
         </Swiper>
       </div>
+      
+      <DataErrorAlert errors={dataErrors} />
     </div>
   );
 }

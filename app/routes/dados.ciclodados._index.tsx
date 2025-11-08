@@ -15,6 +15,7 @@ import {
   FloatingChat,
   useCicloDadosData,
   useCicloDadosState,
+  usePontosContagem,
   generateInfraData,
   generatePdcData,
   generateContagemData,
@@ -63,7 +64,9 @@ export default function CicloDados() {
     selectedDias,
     setSelectedDias,
     viewMode,
-    setViewMode
+    setViewMode,
+    clearAllSelections,
+    selectAllOptions
   } = useCicloDadosState(
     infraOptions,
     contagemOptions,
@@ -151,6 +154,8 @@ export default function CicloDados() {
             onSocioChange={setSelectedSocio}
             selectedDias={selectedDias}
             onDiasChange={setSelectedDias}
+            onClearAll={clearAllSelections}
+            onSelectAll={selectAllOptions}
           />
         )}
 
