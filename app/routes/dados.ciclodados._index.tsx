@@ -21,6 +21,7 @@ import {
   getContagemIcon,
   generateLayersConf
 } from '~/components/CicloDados';
+import type { StreetMatch } from '~/services/streets.service';
 
 export default function CicloDados() {
   // Dados carregados via hooks no cliente
@@ -80,6 +81,17 @@ export default function CicloDados() {
     setMapSelection(coords);
   };
 
+  const handleStreetSelect = (street: StreetMatch) => {
+    // Aqui você pode implementar a lógica para destacar a via no mapa
+    // Por exemplo, fazer zoom para a via ou destacar seus elementos
+    console.log('Via selecionada para destaque:', street);
+    
+    // Exemplo de como poderia funcionar:
+    // 1. Buscar coordenadas da via
+    // 2. Fazer zoom no mapa para essas coordenadas
+    // 3. Destacar elementos da via (infraestrutura, contagens, etc.)
+  };
+
   // Gerar dados do mapa
   const infraData = generateInfraData(selectedInfra);
   const pdcData = generatePdcData(selectedPdc);
@@ -117,7 +129,8 @@ export default function CicloDados() {
     <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
       <CicloDadosHeader 
         viewMode={viewMode} 
-        onViewModeChange={setViewMode} 
+        onViewModeChange={setViewMode}
+        onStreetSelect={handleStreetSelect}
       />
 
       <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>

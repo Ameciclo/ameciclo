@@ -66,6 +66,9 @@ export function useCicloDadosState(
   const [selectedDias, setSelectedDias] = useState<string>(() => 
     getStoredValue('selectedDias', "1 dia")
   );
+  const [selectedStreet, setSelectedStreet] = useState<string>(() => 
+    getStoredValue('selectedStreet', "")
+  );
   // Set viewMode from localStorage after hydration
   useEffect(() => {
     const storedViewMode = getStoredValue('viewMode', 'map');
@@ -131,6 +134,12 @@ export function useCicloDadosState(
       localStorage.setItem('ciclodados_selectedDias', JSON.stringify(selectedDias));
     }
   }, [selectedDias]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedStreet', JSON.stringify(selectedStreet));
+    }
+  }, [selectedStreet]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -213,6 +222,8 @@ export function useCicloDadosState(
     setSelectedSocio,
     selectedDias,
     setSelectedDias,
+    selectedStreet,
+    setSelectedStreet,
     viewMode,
     setViewMode
   };
