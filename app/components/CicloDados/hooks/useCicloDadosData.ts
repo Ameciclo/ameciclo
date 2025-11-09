@@ -17,10 +17,10 @@ export function useCicloDadosData() {
   ];
 
   const pdcOptions = [
-    { name: "Realizado dentro do PDF com infra designada", color: "#8B5CF6", pattern: "parallel" },
-    { name: "Realizado dentro do PDF com infra não designada", color: "#8B5CF6", pattern: "parallel-dashed" },
-    { name: "Realizado fora do PDC", color: "#F59E0B", pattern: "parallel-orange-dashed" },
-    { name: "PDC não realizado", color: "#EC4899", pattern: "striped" }
+    { name: "PDC Realizado Designado", color: "#8B5CF6", pattern: "parallel", apiKey: "pdc_realizado_designado" },
+    { name: "PDC Realizado Não Designado", color: "#8B5CF6", pattern: "parallel-dashed", apiKey: "pdc_realizado_nao_designado" },
+    { name: "Realizado Fora PDC", color: "#F59E0B", pattern: "parallel-orange-dashed", apiKey: "realizado_fora_pdc" },
+    { name: "PDC Não Realizado", color: "#EC4899", pattern: "striped", apiKey: "pdc_nao_realizado" }
   ];
 
   const infracaoOptions = [

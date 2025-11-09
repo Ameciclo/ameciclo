@@ -1,0 +1,53 @@
+import { useState, useEffect } from 'react';
+import { fetchExecucaoCicloviaria } from '~/services/execucaoCicloviaria.service';
+
+interface ViewportBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
+export function useExecucaoCicloviaria(bounds?: ViewportBounds) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log('useExecucaoCicloviaria: iniciando carregamento');
+    setError(null);
+    
+    fetchExecucaoCicloviaria()
+      .then(result => {
+        console.log('useExecucaoCicloviaria: dados recebidos:', result);
+        
+        // Extract data from byCity structure
+        const cityData = result?.byCity?.['2611606'];
+        
+        if (cityData?.type === 'FeatureCollection' && cityData?.features) {
+          const processedData = {
+            ...cityData,
+            features: cityData.features.map((feature: any) => ({
+              ...feature,
+              properties: {
+                ...feature.properties,
+                source: 'execucao',
+                status: feature.properties.status_type // Map status_type to status
+              }
+            }))
+          };
+          console.log('useExecucaoCicloviaria: dados processados:', processedData.features.length, 'features');
+          setData(processedData);
+        } else {
+          console.log('useExecucaoCicloviaria: estrutura inesperada:', result);
+          setData(null);
+        }
+      })
+      .catch(err => {
+        console.error('Erro no hook useExecucaoCicloviaria:', err);
+        setError(err.message || 'Erro ao carregar dados de execução cicloviária');
+        setData(null);
+      });
+  }, []);
+
+  return { data, error };
+}

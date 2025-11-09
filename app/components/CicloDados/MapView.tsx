@@ -8,7 +8,11 @@ import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
 import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
+import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
+import { useSinistros } from './hooks/useSinistros';
 import { DataErrorAlert } from './DataErrorAlert';
+import { ApiStatusIndicator } from './ApiStatusIndicator';
+
 import 'swiper/css';
 
 interface MapViewProps {
@@ -16,6 +20,7 @@ interface MapViewProps {
   selectedPdc: string[];
   selectedContagem: string[];
   selectedEstacionamento: string[];
+  selectedSinistro: string[];
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   pdcOptions: Array<{ name: string; color: string; pattern: string }>;
   layersConf: any[];
@@ -24,6 +29,7 @@ interface MapViewProps {
   contagemData: any;
   getContagemIcon: (count: number) => React.ReactNode;
   bicicletarios: any;
+  onPointClick?: (point: any) => void;
 }
 
 export function MapView({
@@ -31,16 +37,20 @@ export function MapView({
   selectedPdc,
   selectedContagem,
   selectedEstacionamento,
+  selectedSinistro,
   layersConf,
   infraData,
   pdcData,
   contagemData,
-  getContagemIcon
-}: Omit<MapViewProps, 'bicicletarios'>) {
+  getContagemIcon,
+  pdcOptions,
+  onPointClick
+}: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }> }) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
+  const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [mapViewState, setMapViewState] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('ciclodados-map-view');
@@ -95,6 +105,15 @@ export function MapView({
   const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
   const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(isClient ? viewportBounds : undefined);
+  const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
+  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
+  
+  // Debug logs
+  useEffect(() => {
+    console.log('selectedPdc:', selectedPdc);
+    console.log('execucaoCicloviaria:', execucaoCicloviaria);
+    console.log('execucaoError:', execucaoError);
+  }, [selectedPdc, execucaoCicloviaria, execucaoError]);
   
   // Coletar erros para exibir avisos
   const dataErrors = [];
@@ -102,6 +121,8 @@ export function MapView({
   if (bikePEError) dataErrors.push({ type: 'bikepe', message: bikePEError });
   if (infraError) dataErrors.push({ type: 'infraestrutura', message: infraError });
   if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
+  if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
+  if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
   
 
 
@@ -224,10 +245,23 @@ export function MapView({
     const newSelectionMode = !isSelectionMode;
     setIsSelectionMode(newSelectionMode);
     
-    if (!newSelectionMode) {
+    if (newSelectionMode) {
+      // Ao ativar seleção, desabilitar drag pan
+      setDragPanEnabled(false);
+    } else {
+      // Ao desativar seleção, reabilitar drag pan
+      setDragPanEnabled(true);
       setHoverPoint(null);
       setSelectedPoints([]);
     }
+  };
+  
+  const toggleDragPan = () => {
+    setDragPanEnabled(!dragPanEnabled);
+  };
+  
+  const handleReloadAllData = () => {
+    window.location.reload();
   };
 
 
@@ -253,17 +287,37 @@ export function MapView({
 
       <div className="flex-1 md:h-full">
         <AmecicloMap
+          onPointClick={onPointClick}
           layerData={(() => {
             // Filtrar infraestrutura por tipos selecionados
             const filteredInfraFeatures = infraCicloviaria?.features?.filter((feature: any) => 
               selectedInfra.includes(feature.properties.infra_type)
             ) || [];
             
+            // Filtrar execução cicloviária por status selecionados
+            const selectedPdcApiKeys = selectedPdc.map(name => {
+              const option = pdcOptions.find(opt => opt.name === name);
+              return option?.apiKey;
+            }).filter(Boolean);
+            
+            const filteredExecucaoFeatures = (!execucaoError && execucaoCicloviaria?.features) ? 
+              execucaoCicloviaria.features.filter((feature: any) => 
+                selectedPdcApiKeys.includes(feature.properties.status)
+              ) : [];
+            
+            // Filtrar sinistros por tipos selecionados
+            const filteredSinistrosFeatures = sinistrosData?.features?.filter((feature: any) => 
+              selectedSinistro.includes(feature.properties.type)
+            ) || [];
+            
             const allFeatures = [
               ...(infraData?.features || []),
               ...(pdcData?.features || []),
-              ...filteredInfraFeatures
+              ...filteredInfraFeatures,
+              ...filteredExecucaoFeatures,
+              ...filteredSinistrosFeatures
             ];
+            
             return allFeatures.length > 0 ? {
               type: "FeatureCollection",
               features: allFeatures
@@ -271,7 +325,189 @@ export function MapView({
           })()}
         layersConf={[
           ...(layersConf || []),
-          ...(infraCicloviaria?.features ? [
+          // PDC layers - double lines that embrace infrastructure (apenas se não houver erro)
+          ...(!execucaoError && execucaoCicloviaria?.features ? [
+            // PDC Realizado Designado - double purple lines
+            {
+              id: 'pdc-realizado-designado-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'pdc-realizado-designado-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            // PDC Realizado Não Designado - double dashed purple lines
+            {
+              id: 'pdc-realizado-nao-designado-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [4, 2],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'pdc-realizado-nao-designado-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [4, 2],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            // Realizado Fora PDC - double orange lines
+            {
+              id: 'realizado-fora-pdc-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
+              paint: {
+                'line-color': '#F59E0B',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [2, 2],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'realizado-fora-pdc-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
+              paint: {
+                'line-color': '#F59E0B',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [2, 2],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            // PDC Não Realizado - double pink lines
+            {
+              id: 'pdc-nao-realizado-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
+              paint: {
+                'line-color': '#EC4899',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [1, 3],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'pdc-nao-realizado-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
+              paint: {
+                'line-color': '#EC4899',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [1, 3],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }
+          ] : []),
+
+          ...(!infraError && infraCicloviaria?.features ? [
             {
               id: 'infra-ciclovia',
               type: 'line',
@@ -305,7 +541,7 @@ export function MapView({
               type: 'line',
               filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
               paint: {
-                'line-color': '#D1D5DB',
+                'line-color': '#9CA3AF',
                 'line-width': [
                   'interpolate',
                   ['linear'],
@@ -314,7 +550,7 @@ export function MapView({
                   16, 6,
                   20, 12
                 ],
-                'line-opacity': 0.5
+                'line-opacity': 0.8
               },
               layout: {
                 'line-join': 'round',
@@ -326,20 +562,20 @@ export function MapView({
               type: 'symbol',
               filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
               paint: {
-                'text-color': '#9CA3AF',
-                'text-opacity': 0.4
+                'text-color': '#EF4444',
+                'text-opacity': 0.8
               },
               layout: {
                 'symbol-placement': 'line',
-                'symbol-spacing': 6,
-                'text-field': '█►',
+                'symbol-spacing': 20,
+                'text-field': '█',
                 'text-size': [
                   'interpolate',
                   ['linear'],
                   ['zoom'],
-                  10, 4,
-                  16, 8,
-                  20, 12
+                  10, 2,
+                  16, 4,
+                  20, 8
                 ],
                 'text-rotation-alignment': 'map',
                 'text-pitch-alignment': 'viewport',
@@ -360,35 +596,93 @@ export function MapView({
                 'line-cap': 'round'
               }
             }
+          ] : []),
+
+          // Sinistros - Vias Perigosas (apenas se não houver erro)
+          ...(!sinistrosError && sinistrosData?.features ? [
+            {
+              id: 'vias-perigosas-high',
+              type: 'line',
+              filter: ['==', ['get', 'severity'], 'high'],
+              paint: {
+                'line-color': '#DC2626',
+                'line-width': 6,
+                'line-opacity': 0.9
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'vias-perigosas-medium',
+              type: 'line',
+              filter: ['==', ['get', 'severity'], 'medium'],
+              paint: {
+                'line-color': '#F59E0B',
+                'line-width': 5,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'vias-perigosas-low',
+              type: 'line',
+              filter: ['==', ['get', 'severity'], 'low'],
+              paint: {
+                'line-color': '#FBBF24',
+                'line-width': 4,
+                'line-opacity': 0.7
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }
           ] : [])
         ]}
         pointsData={[
-          ...(contagemData ? contagemData.features.map((feature: any) => ({
-            key: `contagem-${feature.properties.type}`,
-            latitude: feature.geometry.coordinates[1],
-            longitude: feature.geometry.coordinates[0],
-            type: feature.properties.type,
+          // Pontos fixos de contagem
+          {
+            key: 'contagem-palmares-trezedeaio',
+            latitude: -8.05263,
+            longitude: -34.88374,
+            type: 'Contagem',
             popup: {
-              name: feature.properties.location,
-              total: feature.properties.count,
-              date: "Jan/2024"
+              name: 'R. dos Palmares x R. Treze de Maio',
+              total: 1247,
+              date: 'Dez/2024',
+              city: 'Recife',
+              created_at: '2024-12-15',
+              latitude: -8.05263,
+              longitude: -34.88374
             },
-            customIcon: getContagemIcon(feature.properties.count)
-          })) : []),
-          ...(isClient && selectedContagem.length > 0 && pontosContagem?.features ? 
-            pontosContagem.features.map((feature: any) => ({
-              key: `ponto-contagem-${feature.properties.id}`,
-              latitude: feature.geometry.coordinates[1],
-              longitude: feature.geometry.coordinates[0],
-              type: 'ponto-contagem',
-              popup: {
-                name: feature.properties.name,
-                total: 'Ponto de Contagem'
-              },
-              customIcon: <div className="bg-blue-600 rounded-full w-3 h-3 flex items-center justify-center shadow-md border border-white">
-                <span className="text-white font-bold text-[6px]">●</span>
-              </div>
-            })) : []),
+            customIcon: <div className="bg-blue-600 rounded-full w-4 h-4 flex items-center justify-center shadow-md border-2 border-white">
+              <span className="text-white font-bold text-[6px]">●</span>
+            </div>
+          },
+          {
+            key: 'contagem-cruzcabuga-drjayme',
+            latitude: -8.02016,
+            longitude: -34.85586,
+            type: 'Contagem',
+            popup: {
+              name: 'Av. Cruz Cabugá x R. Dr. Jayme',
+              total: 892,
+              date: 'Dez/2024',
+              city: 'Recife',
+              created_at: '2024-12-15',
+              latitude: -8.02016,
+              longitude: -34.85586
+            },
+            customIcon: <div className="bg-blue-600 rounded-full w-4 h-4 flex items-center justify-center shadow-md border-2 border-white">
+              <span className="text-white font-bold text-[6px]">●</span>
+            </div>
+          },
+
           ...(isClient && selectedEstacionamento.includes('Bicicletários') && filteredBicicletarios?.features && Array.isArray(filteredBicicletarios.features) ? 
             createClusters(filteredBicicletarios.features, mapViewState.zoom, mapViewState)
               .map((item: any) => ({
@@ -433,9 +727,12 @@ export function MapView({
         showLayersPanel={false}
         width="100%" 
         height="100%" 
-        defaultDragPan={!isSelectionMode}
-        onMapClick={handleMapClick}
+        defaultDragPan={dragPanEnabled}
         isSelectionMode={isSelectionMode}
+        toggleSelectionMode={toggleSelectionMode}
+        toggleDragPan={toggleDragPan}
+        dragPanEnabled={dragPanEnabled}
+        onMapClick={handleMapClick}
         selectedPoints={selectedPoints.map(point => ({
           ...point,
           customIcon: <MapPin size={20} className="text-red-500" />
@@ -446,13 +743,14 @@ export function MapView({
         initialViewState={mapViewState}
         onViewStateChange={handleMapViewChange}
         showDefaultZoomButton={false}
-        controlsSize="small"
+        controlsSize="mini"
         />
       </div>
       
       {/* Bottom panel for mobile with chart data */}
       <div 
-        className="md:hidden bg-white border-t p-4 absolute bottom-0 left-0 right-0 z-[70]"
+        className="md:hidden bg-white border-t p-4 absolute left-0 right-0 z-[70]" 
+        style={{ bottom: '80px' }}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         onTouchEnd={(e) => e.stopPropagation()}
@@ -492,7 +790,8 @@ export function MapView({
         </Swiper>
       </div>
       
-      <DataErrorAlert errors={dataErrors} />
+
+      <ApiStatusIndicator errors={dataErrors} onReload={handleReloadAllData} />
     </div>
   );
 }

@@ -14,15 +14,35 @@ export function useGenericClusters(apiUrl: string, bounds?: ViewportBounds) {
 
   useEffect(() => {
     setError(null);
-    fetch(apiUrl)
+    console.log('Tentando carregar dados de:', apiUrl);
+    
+    fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
       .then(res => {
+        console.log('Resposta da API:', res.status, res.statusText);
         if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
         return res.json();
       })
       .then(data => {
+        console.log('Dados recebidos:', data?.type, data?.features?.length || 'sem features');
         // Verificar se é GeoJSON direto ou array que precisa ser convertido
         if (data.type === 'FeatureCollection') {
           // Já é GeoJSON, usar diretamente
+          // Para dados de execução cicloviária, adicionar propriedade source
+          if (apiUrl.includes('ways/all-ways')) {
+            data.features = data.features.map((feature: any) => ({
+              ...feature,
+              properties: {
+                ...feature.properties,
+                source: 'execucao'
+              }
+            }));
+          }
           setAllData(data);
         } else if (Array.isArray(data)) {
           // Array que precisa ser convertido para GeoJSON
@@ -73,7 +93,11 @@ export function useGenericClusters(apiUrl: string, bounds?: ViewportBounds) {
                   type: "Point",
                   coordinates: coords
                 },
-                properties: { ...item, id: item.id || index }
+                properties: { 
+                  ...item, 
+                  id: item.id || index,
+                  source: apiUrl.includes('ways/all-ways') ? 'execucao' : 'default'
+                }
               };
             })
           };
@@ -83,8 +107,8 @@ export function useGenericClusters(apiUrl: string, bounds?: ViewportBounds) {
         }
       })
       .catch(err => {
-        console.error('Erro ao carregar dados:', err);
-        setError(err.message || 'Erro ao carregar dados');
+        console.error('Erro ao carregar dados de', apiUrl, ':', err);
+        setError(`${err.message || 'Erro ao carregar dados'} (${apiUrl})`);
         setAllData(null);
       });
   }, [apiUrl]);

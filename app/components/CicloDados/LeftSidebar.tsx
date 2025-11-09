@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, RotateCcw } from 'lucide-react';
 import { FilterSection } from './FilterSection';
 import { PerfilSection } from './PerfilSection';
 
@@ -34,6 +34,14 @@ interface LeftSidebarProps {
   onDiasChange: (value: string) => void;
   onClearAll: () => void;
   onSelectAll: () => void;
+  onReloadMapData?: () => void;
+  onReloadGeneralData?: () => void;
+  loadingStates?: {
+    infra: boolean;
+    pdc: boolean;
+    sinistros: boolean;
+    estacionamento: boolean;
+  };
 }
 
 export function LeftSidebar({
@@ -66,9 +74,12 @@ export function LeftSidebar({
   selectedDias,
   onDiasChange,
   onClearAll,
-  onSelectAll
+  onSelectAll,
+  onReloadMapData,
+  onReloadGeneralData,
+  loadingStates = { infra: false, pdc: false, sinistros: false, estacionamento: false }
 }: LeftSidebarProps) {
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'rota', 'ideciclo']));
   
   const toggleSection = (sectionId: string) => {
     setCollapsedSections(prev => {
@@ -83,26 +94,26 @@ export function LeftSidebar({
   };
   
   const collapseAll = () => {
-    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil']));
+    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'rota', 'ideciclo']));
   };
   
   const expandAll = () => {
     setCollapsedSections(new Set());
   };
   
-  const allCollapsed = collapsedSections.size > 0;
+  const allCollapsed = collapsedSections.size > 2; // Don't count infracao and sinistro as they start collapsed
   
-  // Check if any options are selected across all sections
-  const anyOptionsSelected = 
-    selectedInfra.length > 0 ||
-    selectedContagem.length > 0 ||
-    selectedPdc.length > 0 ||
-    selectedInfracao.length > 0 ||
-    selectedSinistro.length > 0 ||
-    selectedEstacionamento.length > 0;
+  // Check if ALL options are selected across all sections
+  const allOptionsSelected = 
+    selectedInfra.length === infraOptions.length &&
+    selectedContagem.length === contagemOptions.length &&
+    selectedPdc.length === pdcOptions.length &&
+    selectedInfracao.length === infracaoOptions.length &&
+    selectedSinistro.length === sinistroOptions.length &&
+    selectedEstacionamento.length === estacionamentoOptions.length;
   
   const toggleAllOptions = () => {
-    if (anyOptionsSelected) {
+    if (allOptionsSelected) {
       onClearAll();
     } else {
       onSelectAll();
@@ -134,12 +145,21 @@ export function LeftSidebar({
         </div>
         {isOpen && (
           <div className="flex items-center gap-1">
+            {onReloadGeneralData && (
+              <button
+                onClick={onReloadGeneralData}
+                className="hover:bg-gray-200 rounded transition-colors p-1"
+                title="Recarregar informações gerais"
+              >
+                <RotateCcw className="w-4 h-4 text-green-600" />
+              </button>
+            )}
             <button
               onClick={toggleAllOptions}
               className="hover:bg-gray-200 rounded transition-colors p-1"
-              title={anyOptionsSelected ? "Ocultar todas as camadas" : "Mostrar todas as camadas"}
+              title={allOptionsSelected ? "Ocultar todas as camadas" : "Mostrar todas as camadas"}
             >
-              {anyOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-teal-600" />}
+              {allOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-teal-600" />}
             </button>
             <button
               onClick={allCollapsed ? expandAll : collapseAll}
@@ -176,6 +196,7 @@ export function LeftSidebar({
                 hasPattern={true}
                 isCollapsed={collapsedSections.has('infraestrutura')}
                 onToggleCollapse={() => toggleSection('infraestrutura')}
+                loadingOptions={loadingStates.infra ? infraOptions.map(opt => opt.name) : []}
               />
               
               <FilterSection
@@ -197,26 +218,7 @@ export function LeftSidebar({
                 isPdc={true}
                 isCollapsed={collapsedSections.has('pdc')}
                 onToggleCollapse={() => toggleSection('pdc')}
-              />
-              
-              <FilterSection
-                title="Infrações de Trânsito"
-                options={infracaoOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedInfracao}
-                onToggle={onInfracaoToggle}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('infracao')}
-                onToggleCollapse={() => toggleSection('infracao')}
-              />
-              
-              <FilterSection
-                title="Sinistro com vítima"
-                options={sinistroOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedSinistro}
-                onToggle={onSinistroToggle}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('sinistro')}
-                onToggleCollapse={() => toggleSection('sinistro')}
+                loadingOptions={loadingStates.pdc ? pdcOptions.map(opt => opt.name) : []}
               />
               
               <FilterSection
@@ -227,6 +229,7 @@ export function LeftSidebar({
                 hasPattern={false}
                 isCollapsed={collapsedSections.has('estacionamento')}
                 onToggleCollapse={() => toggleSection('estacionamento')}
+                loadingOptions={loadingStates.estacionamento ? estacionamentoOptions : []}
               />
               
               <PerfilSection
@@ -240,6 +243,50 @@ export function LeftSidebar({
                 onDiasChange={onDiasChange}
                 isCollapsed={collapsedSections.has('perfil')}
                 onToggleCollapse={() => toggleSection('perfil')}
+              />
+              
+              <FilterSection
+                title="Infrações de Trânsito"
+                options={infracaoOptions.map(opt => ({ name: opt }))}
+                selectedOptions={selectedInfracao}
+                onToggle={onInfracaoToggle}
+                hasPattern={false}
+                isCollapsed={collapsedSections.has('infracao')}
+                onToggleCollapse={() => toggleSection('infracao')}
+                comingSoon={true}
+              />
+              
+              <FilterSection
+                title="Sinistro com vítima"
+                options={sinistroOptions.map(opt => ({ name: opt }))}
+                selectedOptions={selectedSinistro}
+                onToggle={onSinistroToggle}
+                hasPattern={false}
+                isCollapsed={collapsedSections.has('sinistro')}
+                onToggleCollapse={() => toggleSection('sinistro')}
+                comingSoon={true}
+              />
+              
+              <FilterSection
+                title="Rota"
+                options={[{ name: "Em breve" }]}
+                selectedOptions={[]}
+                onToggle={() => {}}
+                hasPattern={false}
+                isCollapsed={collapsedSections.has('rota')}
+                onToggleCollapse={() => toggleSection('rota')}
+                comingSoon={true}
+              />
+              
+              <FilterSection
+                title="IDECiclo"
+                options={[{ name: "Em breve" }]}
+                selectedOptions={[]}
+                onToggle={() => {}}
+                hasPattern={false}
+                isCollapsed={collapsedSections.has('ideciclo')}
+                onToggleCollapse={() => toggleSection('ideciclo')}
+                comingSoon={true}
               />
             </div>
           </div>

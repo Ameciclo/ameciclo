@@ -13,36 +13,78 @@ function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
     const { popup } = selectedPoint;
     const total = popup.total || 0;
     const date = popup.date || "Data não disponível";
+    const icon = popup.icon || "📊";
+    const description = popup.description || "";
+    const status = popup.status || "";
+    const type = popup.type || "";
     
     return (
-        <div className="absolute top-0 left-0 max-w-sm bg-white shadow-md p-6 m-10 text-sm text-gray-600 uppercase">
-            <button
-                className="absolute top-0 right-0 hover:text-red-500"
-                onClick={(e) => setSelectedPoint(undefined)}
-            >
-                X
-            </button>
-            <div className="text-center">
-                <h2 className="font-bold">{popup.name || "Ponto de contagem"}</h2>
-                <p className="py-2">
-                    {total} ciclistas em {date}
-                </p>
+        <div className="absolute top-20 left-4 max-w-sm bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 text-white relative">
+                <button
+                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 flex items-center justify-center text-white transition-colors"
+                    onClick={(e) => setSelectedPoint(undefined)}
+                >
+                    ×
+                </button>
+                <div className="flex items-center gap-2">
+                    <span className="text-lg">{icon}</span>
+                    <h2 className="font-semibold text-sm">{popup.name || "Ponto de contagem"}</h2>
+                </div>
+            </div>
+            <div className="p-4">
+                {description && (
+                    <p className="text-gray-600 text-xs mb-3">{description}</p>
+                )}
+                <div className="space-y-2">
+                    <div className="space-y-2 text-xs">
+                        <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Ciclistas contados:</span>
+                            <span className="text-gray-700 font-medium">{typeof total === 'number' ? total : (popup.count || 0)}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Localização:</span>
+                            <span className="text-gray-700 font-medium text-right max-w-[180px] truncate">{popup.name || 'N/A'}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Distância:</span>
+                            <span className="text-gray-700 font-medium">{popup.distance_meters ? `${popup.distance_meters}m` : 'N/A'}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Data da contagem:</span>
+                            <span className="text-gray-700 font-medium">{popup.created_at ? new Date(popup.created_at).toLocaleDateString('pt-BR') : 'N/A'}</span>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-3 pt-2 border-t border-gray-100">
+                        <div className="text-[10px] text-gray-400 font-mono">
+                            {typeof popup.latitude === 'number' ? popup.latitude.toFixed(5) : 'N/A'}, {typeof popup.longitude === 'number' ? popup.longitude.toFixed(5) : 'N/A'}
+                        </div>
+                    </div>
+                </div>
                 {popup.obs && popup.obs !== "" && (
-                    <p className="py-2 text-sm text-gray-700">
-                        {popup.obs}
-                    </p>
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                        <p className="text-xs text-gray-600">{popup.obs}</p>
+                    </div>
                 )}
                 {popup.url && popup.url !== "" && (
-                    <Remix.Link to={popup.url}>
-                        <button className="bg-ameciclo text-white p-2">Ver mais</button>
-                    </Remix.Link>
+                    <div className="mt-4">
+                        <Remix.Link to={popup.url}>
+                            <button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium py-2 px-4 rounded-lg transition-colors">
+                                Ver detalhes
+                            </button>
+                        </Remix.Link>
+                    </div>
                 )}
             </div>
         </div>
     );
 }
 
-const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, radius, setRadius }: any) => {
+const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, radius, setRadius }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 
@@ -77,11 +119,15 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     const handleToggleDragPan = () => {
-        setsettings((prev: any) => ({ 
-            ...prev, 
-            dragPan: !prev.dragPan,
-            scrollZoom: !prev.scrollZoom 
-        }));
+        if (toggleDragPan) {
+            toggleDragPan();
+        } else {
+            setsettings((prev: any) => ({ 
+                ...prev, 
+                dragPan: !prev.dragPan,
+                scrollZoom: !prev.scrollZoom 
+            }));
+        }
     };
 
     const isAtDefaultPosition = () => {
@@ -157,23 +203,6 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            
-                            if (!isSelectionMode) {
-                                // Ativar seleção e desativar modo mover
-                                setsettings((prev: any) => ({ 
-                                    ...prev, 
-                                    dragPan: false,
-                                    scrollZoom: false 
-                                }));
-                            } else {
-                                // Desativar seleção e reativar modo mover
-                                setsettings((prev: any) => ({ 
-                                    ...prev, 
-                                    dragPan: true,
-                                    scrollZoom: true 
-                                }));
-                            }
-                            
                             toggleSelectionMode();
                         }}
                         className={`bg-white hover:bg-gray-100 rounded p-2 shadow-md transition-all ${
@@ -411,6 +440,8 @@ export const AmecicloMap = ({
     onMapClick,
     isSelectionMode,
     toggleSelectionMode,
+    toggleDragPan,
+    dragPanEnabled,
     radius,
     setRadius,
     selectedCircles = [],
@@ -419,6 +450,7 @@ export const AmecicloMap = ({
     onMouseMove,
     initialViewState,
     onViewStateChange,
+    onPointClick,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -434,6 +466,8 @@ export const AmecicloMap = ({
     onMapClick?: (event: any) => void;
     isSelectionMode?: boolean;
     toggleSelectionMode?: () => void;
+    toggleDragPan?: () => void;
+    dragPanEnabled?: boolean;
     radius?: number;
     setRadius?: (radius: number) => void;
     selectedCircles?: Array<{ lat: number; lng: number; radius: number; id: string }>;
@@ -442,6 +476,7 @@ export const AmecicloMap = ({
     onMouseMove?: (event: any) => void;
     initialViewState?: { latitude: number; longitude: number; zoom: number };
     onViewStateChange?: (viewState: any) => void;
+    onPointClick?: (point: any) => void;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -514,7 +549,27 @@ export const AmecicloMap = ({
             setHasSetInitialViewport(true);
         }
     }, [isClient, isMapReady, initialViewState, hasSetInitialViewport]);
-    const [settings, setsettings] = useState(getMapInitialState(defaultDragPan));
+    const [settings, setsettings] = useState(() => ({
+        dragPan: dragPanEnabled ?? defaultDragPan,
+        dragRotate: true,
+        scrollZoom: dragPanEnabled ?? defaultDragPan,
+        touchZoom: true,
+        touchRotate: true,
+        keyboard: true,
+        boxZoom: true,
+        doubleClickZoom: true,
+    }));
+    
+    // Atualizar settings quando dragPanEnabled mudar
+    useEffect(() => {
+        if (dragPanEnabled !== undefined) {
+            setsettings(prev => ({
+                ...prev,
+                dragPan: dragPanEnabled,
+                scrollZoom: dragPanEnabled
+            }));
+        }
+    }, [dragPanEnabled]);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const [layerVisibility, setLayerVisibility] = useState<Record<string, boolean>>({});
@@ -593,7 +648,7 @@ export const AmecicloMap = ({
                         onMouseMove={onMouseMove}
                     >
 
-                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} radius={radius} setRadius={setRadius} />
+                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} radius={radius} setRadius={setRadius} />
                         {layerData && (
                             <Source id="layersMap" type="geojson" data={layerData}>
                                 {layersConf?.map((layer: any, i: number) =>
@@ -612,7 +667,16 @@ export const AmecicloMap = ({
                                         key={key}
                                         latitude={latitude}
                                         longitude={longitude}
-                                        onClick={() => setSelectedMarker(point)}
+                                        onClick={() => {
+                                            console.log('🔴 Clique detectado no marcador:', point);
+                                            setSelectedMarker(point);
+                                            if (onPointClick) {
+                                                console.log('🔴 Chamando onPointClick');
+                                                onPointClick(point);
+                                            } else {
+                                                console.log('🔴 onPointClick não definido');
+                                            }
+                                        }}
                                     >
                                         {customIcon ? (
                                             <div style={{ cursor: "pointer", transform: "translate(-50%, -100%)" }}>

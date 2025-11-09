@@ -11,13 +11,15 @@ function OptionItem({
   isSelected, 
   hasPattern, 
   isPdc, 
-  onToggle 
+  onToggle,
+  isLoading = false
 }: { 
   option: { name: string; color?: string; pattern?: string };
   isSelected: boolean;
   hasPattern: boolean;
   isPdc: boolean;
   onToggle: (option: string) => void;
+  isLoading?: boolean;
 }) {
   const baseClassName = `${hasPattern ? 'block' : 'flex items-center space-x-2'} p-2 rounded cursor-pointer transition-all duration-200`;
   const defaultClassName = `${baseClassName} hover:bg-gray-50 border border-transparent`;
@@ -29,7 +31,13 @@ function OptionItem({
         <>
           <div className="flex items-center space-x-2 mb-1">
             <div className="flex-shrink-0">
-              {isSelected ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+              ) : isSelected ? (
+                <Eye className="w-4 h-4 text-teal-600" />
+              ) : (
+                <EyeOff className="w-4 h-4 text-gray-400" />
+              )}
             </div>
             <span className={`text-sm transition-colors ${isSelected ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>
               {option.name}
@@ -45,7 +53,13 @@ function OptionItem({
       ) : (
         <>
           <div className="flex-shrink-0">
-            {isSelected ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+            ) : isSelected ? (
+              <Eye className="w-4 h-4 text-teal-600" />
+            ) : (
+              <EyeOff className="w-4 h-4 text-gray-400" />
+            )}
           </div>
           <span className={`text-sm transition-colors ${isSelected ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>
             {option.name}
@@ -65,6 +79,8 @@ interface FilterSectionProps {
   isPdc?: boolean;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  comingSoon?: boolean;
+  loadingOptions?: string[];
 }
 
 export function FilterSection({ 
@@ -75,7 +91,9 @@ export function FilterSection({
   hasPattern,
   isPdc = false,
   isCollapsed = false,
-  onToggleCollapse
+  onToggleCollapse,
+  comingSoon = false,
+  loadingOptions = []
 }: FilterSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   
@@ -99,18 +117,46 @@ export function FilterSection({
   };
 
   return (
-    <div className="bg-white rounded border">
+    <div className="bg-white rounded border relative">
+      {comingSoon && (
+        <div className="absolute inset-0 bg-white z-10 flex items-center justify-center rounded" style={{
+          animation: 'comingSoonPulse 8s infinite',
+        }}>
+          <div className="text-center">
+            <div className="text-gray-500 font-medium text-sm">
+              EM BREVE
+            </div>
+          </div>
+          <style jsx>{`
+            @keyframes comingSoonPulse {
+              0% { opacity: 1; }
+              37.5% { opacity: 1; }
+              62.5% { opacity: 0; }
+              100% { opacity: 1; }
+            }
+          `}</style>
+        </div>
+      )}
       <div className="p-2">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <button onClick={toggleAll} className="hover:bg-gray-50 rounded p-1 transition-colors">
+            <button 
+              onClick={comingSoon ? undefined : toggleAll} 
+              className={`rounded p-1 transition-colors ${
+                comingSoon ? 'cursor-not-allowed' : 'hover:bg-gray-50'
+              }`}
+              disabled={comingSoon}
+            >
               {isAllSelected ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
             </button>
             <span className="font-medium">{title}</span>
           </div>
           <button 
-            onClick={handleToggleExpanded}
-            className="hover:bg-gray-50 rounded p-1 transition-colors"
+            onClick={comingSoon ? undefined : handleToggleExpanded}
+            className={`rounded p-1 transition-colors ${
+              comingSoon ? 'cursor-not-allowed' : 'hover:bg-gray-50'
+            }`}
+            disabled={comingSoon}
           >
             <svg 
               className={`w-4 h-4 transition-transform ${actuallyExpanded ? 'rotate-180' : ''}`} 
@@ -132,7 +178,8 @@ export function FilterSection({
               isSelected={selectedOptions.includes(option.name)}
               hasPattern={hasPattern}
               isPdc={isPdc}
-              onToggle={onToggle}
+              onToggle={comingSoon ? () => {} : onToggle}
+              isLoading={loadingOptions.includes(option.name)}
             />
           ))}
         </div>

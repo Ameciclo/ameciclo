@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart, MiniVelocidadeChart, MiniFluxoChart, MiniGeneroChart, MiniCaracteristicasChart, MiniInfraestruturaChart, MiniAcessibilidadeChart } from './utils/chartData';
 import { StreetSelectionModal } from './StreetSelectionModal';
+import { fetchContagemData } from '~/services/contagem.service';
 
 
 interface Street {
@@ -33,30 +34,62 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   const [dataAvailability, setDataAvailability] = useState<any>(null);
   const [cardData, setCardData] = useState<Record<string, any>>({});
   
-  // Simulate API call when mapSelection changes
+  // Fetch counting data when mapSelection changes
   useEffect(() => {
-    if (mapSelection?.street) {
+    if (mapSelection?.lat && mapSelection?.lng) {
       setLoading(true);
-      // Simulate API delay
-      setTimeout(() => {
-        setDataAvailability({
-          available: {
-            contagens: true,
-            sinistros: true,
-            infraestrutura: true,
-            sinistrosTotais: true,
-            velocidade: true,
-            fluxo: true,
-            genero: true,
-            participacaoFeminina: false,
-            caracteristicas: true,
-            infraestruturaInfo: true,
-            acessibilidade: true
-          },
-          street: mapSelection.street
+      setError(null);
+      
+      fetchContagemData(mapSelection.lat, mapSelection.lng)
+        .then(data => {
+          console.log('📊 RightSidebar: Dados de contagem recebidos:', data);
+          
+          // Processar dados da FeatureCollection
+          let totalCount = 0;
+          let details = data;
+          
+          if (data?.features && Array.isArray(data.features)) {
+            // Somar todos os counts dos features
+            totalCount = data.features.reduce((sum: number, feature: any) => {
+              return sum + (feature.properties?.count || 0);
+            }, 0);
+          } else if (data?.summary?.total_locations) {
+            totalCount = data.summary.total_locations;
+          }
+          
+          setCardData({
+            contagens: {
+              title: mapSelection.street || 'Ponto selecionado',
+              value: totalCount.toString(),
+              details: details,
+              coordinates: { lat: mapSelection.lat, lng: mapSelection.lng }
+            }
+          });
+          setDataAvailability({
+            available: {
+              contagens: true,
+              sinistros: true,
+              infraestrutura: true,
+              sinistrosTotais: true,
+              velocidade: true,
+              fluxo: true,
+              genero: true,
+              participacaoFeminina: false,
+              caracteristicas: true,
+              infraestruturaInfo: true,
+              acessibilidade: true
+            },
+            street: mapSelection.street || 'Ponto selecionado'
+          });
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('❌ RightSidebar: Erro ao buscar dados de contagem:', err);
+          setError('Erro ao carregar dados de contagem');
+          setLoading(false);
         });
-        setLoading(false);
-      }, 1000);
+    } else {
+      console.log('🔄 RightSidebar: Nenhuma seleção válida:', mapSelection);
     }
   }, [mapSelection]);
   
@@ -140,9 +173,34 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   const allCards: CardData[] = [
     {
       id: 'contagens',
-      title: getCardTitle('contagens', dataAvailability?.street || "Av. Gov. Agamenon Magalhães"),
+      title: getCardTitle('contagens', mapSelection?.street || dataAvailability?.street || "Ponto de Contagem"),
       value: getCardValue('contagens', "2.846"),
-      description: "contagens de ciclistas (Jan/2024)\nFonte: <a href='/dados/contagens' class='text-blue-600 underline'>página de contagens</a>",
+      description: (() => {
+        const contagemData = getCardData('contagens')?.details;
+        if (contagemData?.features && Array.isArray(contagemData.features)) {
+          const details = [];
+          
+          // Mostrar coordenadas do ponto selecionado
+          if (mapSelection?.lat && mapSelection?.lng) {
+            details.push(`Coordenadas: ${mapSelection.lat.toFixed(5)}, ${mapSelection.lng.toFixed(5)}`);
+          }
+          
+
+          
+          const totalFeatures = contagemData.features.length;
+          details.push(`${totalFeatures} ponto${totalFeatures > 1 ? 's' : ''} próximo${totalFeatures > 1 ? 's' : ''}`);
+          
+          return details.join(' • ') + '\nFonte: <a href="/dados/contagens" class="text-blue-600 underline">página de contagens</a>';
+        } else if (contagemData) {
+          const details = [];
+          if (contagemData.male_count) details.push(`Homens: ${contagemData.male_count}`);
+          if (contagemData.female_count) details.push(`Mulheres: ${contagemData.female_count}`);
+          if (contagemData.date) details.push(`Data: ${new Date(contagemData.date).toLocaleDateString('pt-BR')}`);
+          if (contagemData.summary?.total_locations) details.push(`Total: ${contagemData.summary.total_locations} locais`);
+          return details.join(' • ') + '\nFonte: <a href="/dados/contagens" class="text-blue-600 underline">página de contagens</a>';
+        }
+        return "contagens de ciclistas (Jan/2024)\nFonte: <a href='/dados/contagens' class='text-blue-600 underline'>página de contagens</a>";
+      })(),
       chart: contagensChart,
       hasData: availability.contagens
     },
@@ -288,12 +346,12 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
             return (
               <div key={item.id} className="border rounded-lg p-3 shadow-sm bg-gray-50">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-medium text-gray-800">{item.title}</h3>
+                  <h3 className="font-medium text-gray-800 text-sm leading-tight">{item.title}</h3>
                   <button
                     onClick={() => toggleCard(item.id)}
-                    className="text-gray-400 hover:text-gray-600 p-1"
+                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-200 rounded transition-colors"
                   >
-                    <svg className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-3 h-3 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>

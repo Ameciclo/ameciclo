@@ -5,6 +5,7 @@ export { RightSidebar } from './RightSidebar';
 export { MapView } from './MapView';
 export { MuralView } from './MuralView';
 export { DataErrorAlert } from './DataErrorAlert';
+export { ApiStatusIndicator } from './ApiStatusIndicator';
 export { FloatingChat } from './FloatingChat';
 export { FilterSection } from './FilterSection';
 export { PatternDisplay } from './PatternDisplay';
@@ -14,6 +15,8 @@ export { useCicloDadosData } from './hooks/useCicloDadosData';
 export { useCicloDadosState } from './hooks/useCicloDadosState';
 export { useMapSelection } from './hooks/useMapSelection';
 export { usePontosContagem } from './hooks/usePontosContagem';
+export { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
+export { useSinistros } from './hooks/useSinistros';
 
 export { generateInfraData, generatePdcData, generateContagemData, getContagemIcon } from './utils/mapDataUtils';
 export { generateLayersConf } from './utils/layerUtils';

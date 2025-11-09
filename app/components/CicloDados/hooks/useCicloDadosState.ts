@@ -46,10 +46,10 @@ export function useCicloDadosState(
     getStoredValue('selectedPdc', pdcOptions.map(opt => opt.name))
   );
   const [selectedInfracao, setSelectedInfracao] = useState<string[]>(() => 
-    getStoredValue('selectedInfracao', infracaoOptions)
+    getStoredValue('selectedInfracao', [])
   );
   const [selectedSinistro, setSelectedSinistro] = useState<string[]>(() => 
-    getStoredValue('selectedSinistro', sinistroOptions)
+    getStoredValue('selectedSinistro', [])
   );
   const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(() => 
     getStoredValue('selectedEstacionamento', estacionamentoOptions)
@@ -193,6 +193,16 @@ export function useCicloDadosState(
     setSelectedInfracao([]);
     setSelectedSinistro([]);
     setSelectedEstacionamento([]);
+    
+    // Force localStorage update immediately
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedInfra', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedContagem', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedPdc', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedInfracao', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedSinistro', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify([]));
+    }
   };
 
   const selectAllOptions = () => {

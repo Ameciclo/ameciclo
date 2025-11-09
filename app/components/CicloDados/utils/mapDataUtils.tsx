@@ -6,38 +6,26 @@ export function generatePdcData(selectedPdc: string[]) {
   return null;
 }
 
-export function generateContagemData(selectedContagem: string[]) {
+export function generateContagemData(selectedContagem: string[], apiData?: any) {
   if (selectedContagem.length === 0) return null;
 
-  const contagemCounts = {
-    "Somente Mulheres": 45,
-    "Crianças e Adolescentes": 23,
-    "Carona": 12,
-    "Serviço": 8,
-    "Cargueira": 15,
-    "Uso de Calçada": 31,
-    "Contramão": 7
-  };
+  if (apiData && apiData.features) {
+    return {
+      type: "FeatureCollection",
+      features: apiData.features.map((feature: any) => ({
+        type: "Feature",
+        properties: {
+          type: "Contagem",
+          count: feature.properties.count || 0,
+          location: feature.properties.name || feature.properties.address || 'Ponto de Contagem',
+          ...feature.properties
+        },
+        geometry: feature.geometry
+      }))
+    };
+  }
 
-  const totalCount = selectedContagem.reduce((sum, type) => 
-    sum + (contagemCounts[type as keyof typeof contagemCounts] || 0), 0
-  );
-
-  return {
-    type: "FeatureCollection",
-    features: [{
-      type: "Feature",
-      properties: { 
-        type: "Contagem Total", 
-        count: totalCount,
-        location: "Av. Conde da Boa Vista"
-      },
-      geometry: {
-        type: "Point",
-        coordinates: [-34.8800, -8.0580]
-      }
-    }]
-  };
+  return null;
 }
 
 export function getContagemIcon(count: number) {
@@ -46,7 +34,7 @@ export function getContagemIcon(count: number) {
       <div className="bg-white rounded-lg px-2 py-1 shadow-lg">
         <div className="flex items-center space-x-1">
           <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            <circle cx="10" cy="10" r="8"/>
           </svg>
           <span className="text-sm font-bold text-black">{count}</span>
         </div>
