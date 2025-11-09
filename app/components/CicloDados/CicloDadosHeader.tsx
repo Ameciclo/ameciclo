@@ -1,13 +1,13 @@
-import { Map, BarChart3, Search } from 'lucide-react';
+import { Map, BarChart3, Search, Users, Bike, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchStreets, getStreetDetails, type StreetMatch } from '~/services/streets.service';
+import { searchStreets, getStreetDetails, getStreetDataSummary, type StreetMatch, type StreetDataSummary } from '~/services/streets.service';
 import { useStreetSelection } from './hooks/useStreetSelection';
 
 interface CicloDadosHeaderProps {
   viewMode: 'map' | 'mural';
   onViewModeChange: (mode: 'map' | 'mural') => void;
   onStreetSelect?: (street: StreetMatch) => void;
-  onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any) => void;
+  onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string) => void;
 }
 
 
@@ -15,6 +15,8 @@ interface CicloDadosHeaderProps {
 export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, onZoomToStreet }: CicloDadosHeaderProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [streetSuggestions, setStreetSuggestions] = useState<StreetMatch[]>([]);
+  const [streetDataCache, setStreetDataCache] = useState<Record<string, StreetDataSummary>>({});
+  const [streetLengthCache, setStreetLengthCache] = useState<Record<string, number>>({});
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
@@ -36,6 +38,29 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
         const sortedResults = results.sort((a, b) => b.confidence - a.confidence);
         
         setStreetSuggestions(sortedResults);
+        
+        // Buscar dados e extensão das primeiras 3 sugestões
+        const topResults = sortedResults.slice(0, 3);
+        topResults.forEach(async (street) => {
+          if (!streetDataCache[street.id]) {
+            try {
+              const [data, details] = await Promise.all([
+                getStreetDataSummary(street.id),
+                getStreetDetails(street.id)
+              ]);
+              
+              if (data) {
+                setStreetDataCache(prev => ({ ...prev, [street.id]: data }));
+              }
+              
+              if (details?.properties?.totalLength) {
+                setStreetLengthCache(prev => ({ ...prev, [street.id]: details.properties.totalLength }));
+              }
+            } catch (error) {
+              console.error('Erro ao buscar dados da via:', error);
+            }
+          }
+        });
       } catch (error) {
         console.error('Erro na busca:', error);
         setStreetSuggestions([]);
@@ -75,6 +100,11 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
     try {
       const streetDetails = await getStreetDetails(street.id);
       if (streetDetails?.geometry?.features && streetDetails.geometry.features.length > 0) {
+        // Salvar extensão da via
+        if (streetDetails.properties?.totalLength) {
+          setStreetLengthCache(prev => ({ ...prev, [street.id]: streetDetails.properties.totalLength }));
+        }
+        
         const allCoords: number[][] = [];
         
         streetDetails.geometry.features.forEach((feature: any) => {
@@ -96,7 +126,7 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
             west: Math.min(...lngs)
           };
           
-          onZoomToStreet?.(bounds, streetDetails.geometry);
+          onZoomToStreet?.(bounds, streetDetails.geometry, street.id);
         }
       }
     } catch (error) {
@@ -167,9 +197,31 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
                     onClick={() => handleStreetSelect(street)}
                     className="w-full text-left px-3 py-2 hover:bg-gray-100 text-black text-xs border-b border-gray-100 last:border-b-0"
                   >
-                    <div className="font-medium">{street.name}</div>
-                    <div className="text-gray-500 text-xs">
-                      {street.municipality}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium">{street.name}</div>
+                        <div className="text-gray-500 text-xs">
+                          {street.municipality}
+                          {streetLengthCache[street.id] && (
+                            <span> • {(streetLengthCache[street.id] / 1000).toFixed(1)}km</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        {streetDataCache[street.id] && (
+                          <>
+                            {parseInt(streetDataCache[street.id].data_summary.cycling_counts) > 0 && (
+                              <Bike size={12} className="text-green-500" title="Contagens de ciclistas" />
+                            )}
+                            {streetDataCache[street.id].data_summary.cycling_profile > 0 && (
+                              <Users size={12} className="text-blue-500" title="Perfil de ciclistas" />
+                            )}
+                            {parseInt(streetDataCache[street.id].data_summary.emergency_calls) > 0 && (
+                              <AlertTriangle size={12} className="text-red-500" title="Chamadas de emergência" />
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </button>
                 ))

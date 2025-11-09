@@ -29,6 +29,16 @@ export interface StreetDetails {
   properties: Record<string, any>;
 }
 
+export interface StreetDataSummary {
+  street_id: string;
+  street_name: string;
+  data_summary: {
+    cycling_counts: string;
+    cycling_profile: number;
+    emergency_calls: string;
+  };
+}
+
 export async function searchStreets(query: string): Promise<StreetMatch[]> {
   if (!query.trim()) return [];
   
@@ -77,6 +87,31 @@ export async function getStreetDetails(streetId: string): Promise<StreetDetails 
     return data;
   } catch (error) {
     console.error('Erro ao buscar detalhes da via:', error);
+    return null;
+  }
+}
+
+export async function getStreetDataSummary(streetId: string): Promise<StreetDataSummary | null> {
+  try {
+    const response = await fetch(
+      `${API_CONFIG.STREETS_API_BASE_URL}/v1/streets/${streetId}/data-summary`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(API_CONFIG.FAST_TIMEOUT),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: StreetDataSummary = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Erro ao buscar resumo de dados da via:', error);
     return null;
   }
 }

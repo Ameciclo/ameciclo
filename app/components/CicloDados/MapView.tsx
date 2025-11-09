@@ -23,6 +23,7 @@ interface MapViewProps {
   bicicletarios: any;
   externalViewState?: {latitude: number, longitude: number, zoom: number};
   highlightedStreet?: any;
+  streetData?: any;
 }
 
 export function MapView({
@@ -36,7 +37,8 @@ export function MapView({
   contagemData,
   getContagemIcon,
   externalViewState,
-  highlightedStreet
+  highlightedStreet,
+  streetData
 }: Omit<MapViewProps, 'bicicletarios'>) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -59,6 +61,7 @@ export function MapView({
 
   const [forceRender, setForceRender] = useState(0);
 
+
   // Atualizar com estado externo quando fornecido
   useEffect(() => {
     if (externalViewState) {
@@ -68,6 +71,8 @@ export function MapView({
       setForceRender(Date.now()); // Força re-renderização
     }
   }, [externalViewState]);
+
+
   const lastLoggedCircle = useRef<string | null>(null);
   const lastClickTime = useRef<number>(0);
 
@@ -385,28 +390,37 @@ export function MapView({
         >
           <SwiperSlide className="!w-[280px]">
             <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Av. Gov. Agamenon Magalhães</h3>
-              <p className="text-xl font-bold text-black mb-2">2.846</p>
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">
+                {streetData?.street_name || 'Av. Gov. Agamenon Magalhães'}
+              </h3>
+              <p className="text-xl font-bold text-black mb-2">
+                {streetData?.data_summary?.cycling_counts || '2.846'}
+              </p>
               <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniContagensChart /></div>
-              <p className="text-xs text-gray-500">contagens de ciclistas (Jan/2024)</p>
+              <p className="text-xs text-gray-500">contagens de ciclistas</p>
             </div>
           </SwiperSlide>
           <SwiperSlide className="!w-[280px]">
             <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Vítimas fatais</h3>
-              <p className="text-xl font-bold text-black mb-2">78</p>
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">Perfil de ciclistas</h3>
+              <p className="text-xl font-bold text-black mb-2">
+                {streetData?.data_summary?.cycling_profile || '0'}
+              </p>
               <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniSinistrosChart /></div>
             </div>
           </SwiperSlide>
           <SwiperSlide className="!w-[280px]">
             <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Infra. cicloviária executada</h3>
-              <p className="text-xl font-bold text-black mb-2">18%</p>
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">Chamadas de emergência</h3>
+              <p className="text-xl font-bold text-black mb-2">
+                {streetData?.data_summary?.emergency_calls || '1158'}
+              </p>
               <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniInfraChart onPercentageChange={() => {}} /></div>
             </div>
           </SwiperSlide>
         </Swiper>
       </div>
+
     </div>
   );
 }

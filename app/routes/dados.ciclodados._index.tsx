@@ -21,8 +21,8 @@ import {
   getContagemIcon,
   generateLayersConf
 } from '~/components/CicloDados';
-import type { StreetMatch } from '~/services/streets.service';
-import { getStreetDetails } from '~/services/streets.service';
+import type { StreetMatch, StreetDataSummary } from '~/services/streets.service';
+import { getStreetDetails, getStreetDataSummary } from '~/services/streets.service';
 
 export default function CicloDados() {
   // Dados carregados via hooks no cliente
@@ -88,8 +88,9 @@ export default function CicloDados() {
     zoom: 11
   });
   const [selectedStreetGeometry, setSelectedStreetGeometry] = useState<any>(null);
+  const [selectedStreetData, setSelectedStreetData] = useState<StreetDataSummary | null>(null);
 
-  const handleZoomToStreet = (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any) => {
+  const handleZoomToStreet = async (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string) => {
     console.log('handleZoomToStreet chamado com bounds:', bounds);
     
     const centerLat = (bounds.north + bounds.south) / 2;
@@ -124,6 +125,16 @@ export default function CicloDados() {
           properties: { ...feature.properties, highlighted: true }
         }))
       });
+    }
+    
+    // Buscar dados da via
+    if (streetId) {
+      try {
+        const streetData = await getStreetDataSummary(streetId);
+        setSelectedStreetData(streetData);
+      } catch (error) {
+        console.error('Erro ao buscar dados da via:', error);
+      }
     }
     
 
@@ -220,6 +231,7 @@ export default function CicloDados() {
               getContagemIcon={getContagemIcon}
               externalViewState={mapViewState}
               highlightedStreet={selectedStreetGeometry}
+              streetData={selectedStreetData}
             />
           ) : (
             <MuralView 
