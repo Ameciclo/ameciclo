@@ -14,7 +14,7 @@ interface RightSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   viewMode: 'map' | 'mural';
-  mapSelection?: {lat: number, lng: number, radius: number, street?: string, streets?: Street[], clickPosition?: {x: number, y: number}};
+  mapSelection?: {lat: number, lng: number, radius: number, street?: string, streets?: Street[], clickPosition?: {x: number, y: number}, pointData?: any};
 }
 
 interface CardData {
@@ -37,6 +37,64 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   // Fetch counting data when mapSelection changes
   useEffect(() => {
     if (mapSelection?.lat && mapSelection?.lng) {
+      // Se temos dados do ponto clicado, usar diretamente
+      if (mapSelection.pointData?.totalCyclists !== undefined) {
+        console.log('📊 RightSidebar: Usando dados do ponto clicado:', mapSelection.pointData);
+        
+        // Calcular percentual de mulheres se disponível
+        let womenPercentage = '12%'; // fallback
+        if (mapSelection.pointData.counts && mapSelection.pointData.counts.length > 0) {
+          const latestCount = mapSelection.pointData.counts[0];
+          if (latestCount.characteristics?.women && latestCount.total_cyclists > 0) {
+            const percentage = Math.round((latestCount.characteristics.women / latestCount.total_cyclists) * 100);
+            womenPercentage = `${percentage}%`;
+          }
+        }
+        
+        // Calcular valor do card baseado no total de todos os anos
+        let cardValue = mapSelection.pointData.totalCyclists.toString();
+        if (mapSelection.pointData.counts && mapSelection.pointData.counts.length > 0) {
+          // Somar todos os ciclistas de todas as contagens
+          const totalAllYears = mapSelection.pointData.counts.reduce((sum: number, count: any) => {
+            return sum + (count.total_cyclists || 0);
+          }, 0);
+          cardValue = totalAllYears.toString();
+        }
+        
+        setCardData({
+          contagens: {
+            title: mapSelection.street || 'Ponto selecionado',
+            value: cardValue,
+            details: mapSelection.pointData,
+            coordinates: { lat: mapSelection.lat, lng: mapSelection.lng }
+          },
+          genero: {
+            title: 'Percentual de mulheres',
+            value: womenPercentage,
+            details: mapSelection.pointData
+          }
+        });
+        setDataAvailability({
+          available: {
+            contagens: true,
+            sinistros: true,
+            infraestrutura: true,
+            sinistrosTotais: true,
+            velocidade: true,
+            fluxo: true,
+            genero: true,
+            participacaoFeminina: false,
+            caracteristicas: true,
+            infraestruturaInfo: true,
+            acessibilidade: true
+          },
+          street: mapSelection.street || 'Ponto selecionado'
+        });
+        setLoading(false);
+        return;
+      }
+      
+      // Caso contrário, buscar dados da API
       setLoading(true);
       setError(null);
       
@@ -44,24 +102,11 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
         .then(data => {
           console.log('📊 RightSidebar: Dados de contagem recebidos:', data);
           
-          // Processar dados da FeatureCollection
-          let totalCount = 0;
-          let details = data;
-          
-          if (data?.features && Array.isArray(data.features)) {
-            // Somar todos os counts dos features
-            totalCount = data.features.reduce((sum: number, feature: any) => {
-              return sum + (feature.properties?.count || 0);
-            }, 0);
-          } else if (data?.summary?.total_locations) {
-            totalCount = data.summary.total_locations;
-          }
-          
           setCardData({
             contagens: {
               title: mapSelection.street || 'Ponto selecionado',
-              value: totalCount.toString(),
-              details: details,
+              value: '0',
+              details: data,
               coordinates: { lat: mapSelection.lat, lng: mapSelection.lng }
             }
           });
@@ -112,7 +157,91 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   
   const availability = dataAvailability?.available || mockDataAvailability;
   
-  const contagensChart = useMemo(() => <MiniContagensChart />, []);
+  const contagensChart = useMemo(() => {
+    const contagemData = getCardData('contagens')?.details;
+    console.log('📊 Chart data:', contagemData);
+    
+    // Verificar se temos dados do ponto clicado com counts
+    if (contagemData?.counts && Array.isArray(contagemData.counts) && contagemData.counts.length > 0) {
+      console.log('📊 Processing counts:', contagemData.counts);
+      
+      // Agrupar dados por ano e somar totais
+      const yearlyData = contagemData.counts.reduce((acc: any, count: any) => {
+        const year = count.date ? new Date(count.date).getFullYear() : new Date().getFullYear();
+        if (!acc[year]) {
+          acc[year] = { year, total: 0 };
+        }
+        acc[year].total += count.total_cyclists || 0;
+        return acc;
+      }, {});
+      
+      const chartData = Object.values(yearlyData)
+        .sort((a: any, b: any) => a.year - b.year);
+      
+      console.log('📊 Yearly chart data:', chartData);
+      
+      if (chartData.length > 0) {
+        return (
+          <div className="h-12 flex items-end justify-between gap-1">
+            {chartData.map((item: any, index: number) => {
+              const maxValue = Math.max(...chartData.map((d: any) => d.total));
+              const height = Math.max(4, (item.total / maxValue) * 36);
+              return (
+                <div key={index} className="flex flex-col items-center flex-1">
+                  <div 
+                    className="bg-blue-500 w-full rounded-t" 
+                    style={{ height: `${height}px` }}
+                    title={`${item.year}: ${item.total} ciclistas`}
+                  />
+                  <span className="text-[8px] text-gray-500 mt-1">{item.year}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+    }
+    
+    // Fallback para dados do mapSelection.pointData
+    if (mapSelection?.pointData?.counts && Array.isArray(mapSelection.pointData.counts)) {
+      console.log('📊 Using mapSelection pointData counts:', mapSelection.pointData.counts);
+      
+      const yearlyData = mapSelection.pointData.counts.reduce((acc: any, count: any) => {
+        const year = count.date ? new Date(count.date).getFullYear() : new Date().getFullYear();
+        if (!acc[year]) {
+          acc[year] = { year, total: 0 };
+        }
+        acc[year].total += count.total_cyclists || 0;
+        return acc;
+      }, {});
+      
+      const chartData = Object.values(yearlyData)
+        .sort((a: any, b: any) => a.year - b.year);
+      
+      if (chartData.length > 0) {
+        return (
+          <div className="h-12 flex items-end justify-between gap-1">
+            {chartData.map((item: any, index: number) => {
+              const maxValue = Math.max(...chartData.map((d: any) => d.total));
+              const height = Math.max(4, (item.total / maxValue) * 36);
+              return (
+                <div key={index} className="flex flex-col items-center flex-1">
+                  <div 
+                    className="bg-blue-500 w-full rounded-t" 
+                    style={{ height: `${height}px` }}
+                    title={`${item.year}: ${item.total} ciclistas`}
+                  />
+                  <span className="text-[8px] text-gray-500 mt-1">{item.year}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+    }
+    
+    return <MiniContagensChart />;
+  }, [cardData, mapSelection]);
   const sinistrosChart = useMemo(() => <MiniSinistrosChart />, []);
   const velocidadeChart = useMemo(() => <MiniVelocidadeChart />, []);
   const fluxoChart = useMemo(() => <MiniFluxoChart />, []);
@@ -177,29 +306,31 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
       value: getCardValue('contagens', "2.846"),
       description: (() => {
         const contagemData = getCardData('contagens')?.details;
-        if (contagemData?.features && Array.isArray(contagemData.features)) {
+        if (contagemData?.counts && Array.isArray(contagemData.counts)) {
           const details = [];
           
-          // Mostrar coordenadas do ponto selecionado
-          if (mapSelection?.lat && mapSelection?.lng) {
-            details.push(`Coordenadas: ${mapSelection.lat.toFixed(5)}, ${mapSelection.lng.toFixed(5)}`);
+          if (contagemData.counts.length > 1) {
+            const years = contagemData.counts.map((c: any) => new Date(c.date).getFullYear()).sort();
+            const firstYear = years[0];
+            const lastYear = years[years.length - 1];
+            details.push(`${contagemData.counts.length} contagens (${firstYear}-${lastYear})`);
+            
+            // Calcular tendência
+            const firstCount = contagemData.counts.find((c: any) => new Date(c.date).getFullYear() === firstYear);
+            const lastCount = contagemData.counts.find((c: any) => new Date(c.date).getFullYear() === lastYear);
+            if (firstCount && lastCount) {
+              const change = ((lastCount.total_cyclists - firstCount.total_cyclists) / firstCount.total_cyclists) * 100;
+              const trend = change > 0 ? 'aumento' : 'redução';
+              details.push(`${trend} de ${Math.abs(Math.round(change))}%`);
+            }
+          } else {
+            const count = contagemData.counts[0];
+            details.push(`Única contagem em ${new Date(count.date).getFullYear()}`);
           }
           
-
-          
-          const totalFeatures = contagemData.features.length;
-          details.push(`${totalFeatures} ponto${totalFeatures > 1 ? 's' : ''} próximo${totalFeatures > 1 ? 's' : ''}`);
-          
-          return details.join(' • ') + '\nFonte: <a href="/dados/contagens" class="text-blue-600 underline">página de contagens</a>';
-        } else if (contagemData) {
-          const details = [];
-          if (contagemData.male_count) details.push(`Homens: ${contagemData.male_count}`);
-          if (contagemData.female_count) details.push(`Mulheres: ${contagemData.female_count}`);
-          if (contagemData.date) details.push(`Data: ${new Date(contagemData.date).toLocaleDateString('pt-BR')}`);
-          if (contagemData.summary?.total_locations) details.push(`Total: ${contagemData.summary.total_locations} locais`);
           return details.join(' • ') + '\nFonte: <a href="/dados/contagens" class="text-blue-600 underline">página de contagens</a>';
         }
-        return "contagens de ciclistas (Jan/2024)\nFonte: <a href='/dados/contagens' class='text-blue-600 underline'>página de contagens</a>";
+        return "contagens de ciclistas\nFonte: <a href='/dados/contagens' class='text-blue-600 underline'>página de contagens</a>";
       })(),
       chart: contagensChart,
       hasData: availability.contagens
@@ -245,7 +376,18 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
       title: "Percentual de mulheres",
       value: getCardValue('genero', "12%"),
       chart: generoChart,
-      metrics: [{label: "Aumento 4%", value: "(2019)", trend: "up"}],
+      metrics: (() => {
+        const generoData = getCardData('genero');
+        if (generoData?.details?.counts?.[0]?.characteristics) {
+          const chars = generoData.details.counts[0].characteristics;
+          const total = generoData.details.counts[0].total_cyclists;
+          return [
+            {label: "Mulheres", value: `${chars.women || 0}`, trend: undefined},
+            {label: "Total", value: `${total}`, trend: undefined}
+          ];
+        }
+        return [{label: "Aumento 4%", value: "(2019)", trend: "up"}];
+      })(),
       description: "Fonte: <a href='/dados/perfil' class='text-blue-600 underline'>página de perfil</a>",
       hasData: availability.genero
     },

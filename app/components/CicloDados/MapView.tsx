@@ -645,43 +645,43 @@ export function MapView({
           ] : [])
         ]}
         pointsData={[
-          // Pontos fixos de contagem
-          {
-            key: 'contagem-palmares-trezedeaio',
-            latitude: -8.05263,
-            longitude: -34.88374,
-            type: 'Contagem',
-            popup: {
-              name: 'R. dos Palmares x R. Treze de Maio',
-              total: 1247,
-              date: 'Dez/2024',
-              city: 'Recife',
-              created_at: '2024-12-15',
-              latitude: -8.05263,
-              longitude: -34.88374
-            },
-            customIcon: <div className="bg-blue-600 rounded-full w-4 h-4 flex items-center justify-center shadow-md border-2 border-white">
-              <span className="text-white font-bold text-[6px]">●</span>
-            </div>
-          },
-          {
-            key: 'contagem-cruzcabuga-drjayme',
-            latitude: -8.02016,
-            longitude: -34.85586,
-            type: 'Contagem',
-            popup: {
-              name: 'Av. Cruz Cabugá x R. Dr. Jayme',
-              total: 892,
-              date: 'Dez/2024',
-              city: 'Recife',
-              created_at: '2024-12-15',
-              latitude: -8.02016,
-              longitude: -34.85586
-            },
-            customIcon: <div className="bg-blue-600 rounded-full w-4 h-4 flex items-center justify-center shadow-md border-2 border-white">
-              <span className="text-white font-bold text-[6px]">●</span>
-            </div>
-          },
+          // Pontos de contagem da API
+          ...(isClient && selectedContagem.length > 0 && pontosContagem?.features && Array.isArray(pontosContagem.features) ? 
+            pontosContagem.features.map((feature: any) => ({
+              key: `contagem-api-${feature.properties.id}`,
+              latitude: feature.properties.latitude,
+              longitude: feature.properties.longitude,
+              type: 'Contagem',
+              popup: {
+                name: feature.properties.name,
+                total: feature.properties.count,
+                date: feature.properties.last_count_date,
+                city: feature.properties.city,
+                created_at: feature.properties.last_count_date,
+                latitude: feature.properties.latitude,
+                longitude: feature.properties.longitude
+              },
+              customIcon: (
+                <div className="relative">
+                  <div className="bg-white text-black px-2 py-1 rounded-lg shadow-lg border-2 border-black flex items-center gap-1 min-w-[50px] justify-center">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path d="M3 3v18h18"/>
+                      <path d="M18 17V9"/>
+                      <path d="M13 17V5"/>
+                      <path d="M8 17v-3"/>
+                    </svg>
+                    <span className="text-xs font-bold">{feature.properties.total_cyclists || feature.properties.count}</span>
+                  </div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                    <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
+                      <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-black"></div>
+                    </div>
+                  </div>
+                </div>
+              ),
+              onClick: () => onPointClick && onPointClick(feature)
+            })) : []),
 
           ...(isClient && selectedEstacionamento.includes('Bicicletários') && filteredBicicletarios?.features && Array.isArray(filteredBicicletarios.features) ? 
             createClusters(filteredBicicletarios.features, mapViewState.zoom, mapViewState)

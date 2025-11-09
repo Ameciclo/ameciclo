@@ -9,80 +9,7 @@ import { pointData } from "../../../../typings";
 import * as Remix from "@remix-run/react";
 import { Move } from 'lucide-react';
 
-function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
-    const { popup } = selectedPoint;
-    const total = popup.total || 0;
-    const date = popup.date || "Data não disponível";
-    const icon = popup.icon || "📊";
-    const description = popup.description || "";
-    const status = popup.status || "";
-    const type = popup.type || "";
-    
-    return (
-        <div className="absolute top-20 left-4 max-w-sm bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 text-white relative">
-                <button
-                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 flex items-center justify-center text-white transition-colors"
-                    onClick={(e) => setSelectedPoint(undefined)}
-                >
-                    ×
-                </button>
-                <div className="flex items-center gap-2">
-                    <span className="text-lg">{icon}</span>
-                    <h2 className="font-semibold text-sm">{popup.name || "Ponto de contagem"}</h2>
-                </div>
-            </div>
-            <div className="p-4">
-                {description && (
-                    <p className="text-gray-600 text-xs mb-3">{description}</p>
-                )}
-                <div className="space-y-2">
-                    <div className="space-y-2 text-xs">
-                        <div className="flex items-center justify-between">
-                            <span className="text-gray-500">Ciclistas contados:</span>
-                            <span className="text-gray-700 font-medium">{typeof total === 'number' ? total : (popup.count || 0)}</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                            <span className="text-gray-500">Localização:</span>
-                            <span className="text-gray-700 font-medium text-right max-w-[180px] truncate">{popup.name || 'N/A'}</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                            <span className="text-gray-500">Distância:</span>
-                            <span className="text-gray-700 font-medium">{popup.distance_meters ? `${popup.distance_meters}m` : 'N/A'}</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                            <span className="text-gray-500">Data da contagem:</span>
-                            <span className="text-gray-700 font-medium">{popup.created_at ? new Date(popup.created_at).toLocaleDateString('pt-BR') : 'N/A'}</span>
-                        </div>
-                    </div>
-                    
-                    <div className="mt-3 pt-2 border-t border-gray-100">
-                        <div className="text-[10px] text-gray-400 font-mono">
-                            {typeof popup.latitude === 'number' ? popup.latitude.toFixed(5) : 'N/A'}, {typeof popup.longitude === 'number' ? popup.longitude.toFixed(5) : 'N/A'}
-                        </div>
-                    </div>
-                </div>
-                {popup.obs && popup.obs !== "" && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                        <p className="text-xs text-gray-600">{popup.obs}</p>
-                    </div>
-                )}
-                {popup.url && popup.url !== "" && (
-                    <div className="mt-4">
-                        <Remix.Link to={popup.url}>
-                            <button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium py-2 px-4 rounded-lg transition-colors">
-                                Ver detalhes
-                            </button>
-                        </Remix.Link>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
+
 
 const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, radius, setRadius }: any) => {
     const toggleFullscreen = () => {
@@ -512,9 +439,7 @@ export const AmecicloMap = ({
         return () => clearTimeout(timer);
     }, []);
 
-    const [selectedMarker, setSelectedMarker] = useState<pointData | undefined>(
-        undefined
-    );
+
 
     const [viewport, setViewport] = useState({
         latitude: -8.0584364,
@@ -668,13 +593,8 @@ export const AmecicloMap = ({
                                         latitude={latitude}
                                         longitude={longitude}
                                         onClick={() => {
-                                            console.log('🔴 Clique detectado no marcador:', point);
-                                            setSelectedMarker(point);
                                             if (onPointClick) {
-                                                console.log('🔴 Chamando onPointClick');
                                                 onPointClick(point);
-                                            } else {
-                                                console.log('🔴 onPointClick não definido');
                                             }
                                         }}
                                     >
@@ -763,12 +683,7 @@ export const AmecicloMap = ({
                             </Marker>
                         ))}
 
-                        {selectedMarker !== undefined && (
-                            <CountingPopUp
-                                selectedPoint={selectedMarker}
-                                setSelectedPoint={setSelectedMarker}
-                            />
-                        )}
+
                         {controlPanel.length > 0 && (
                             <MapControlPanel
                                 controlPanel={controlPanel}

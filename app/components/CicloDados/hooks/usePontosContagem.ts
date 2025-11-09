@@ -2,12 +2,19 @@ import { useState, useEffect } from 'react';
 import { PONTOS_CONTAGEM_DATA } from '~/servers';
 
 interface PontoContagem {
-  id: string;
+  id: number;
   name: string;
-  latitude: number;
-  longitude: number;
-  type: string;
-  status: string;
+  city: string;
+  state: string;
+  latitude: string;
+  longitude: string;
+  counts: Array<{
+    id: number;
+    date: string;
+    total_cyclists: number;
+    start_time: string;
+    end_time: string;
+  }>;
 }
 
 interface UsePontosContagemReturn {
@@ -26,19 +33,12 @@ interface UsePontosContagemReturn {
   error: string | null;
 }
 
-export function usePontosContagem(bounds?: {
-  north: number;
-  south: number;
-  east: number;
-  west: number;
-} | null): UsePontosContagemReturn {
+export function usePontosContagem(): UsePontosContagemReturn {
   const [data, setData] = useState<UsePontosContagemReturn['data']>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!bounds) return;
-
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -52,23 +52,17 @@ export function usePontosContagem(bounds?: {
         
         const pontosData: PontoContagem[] = await response.json();
         
-        const validPontos = pontosData.filter(ponto => {
-          const lat = parseFloat(String(ponto.latitude));
-          const lng = parseFloat(String(ponto.longitude));
-          
-          if (isNaN(lat) || isNaN(lng)) return false;
-          if (lat < -9 || lat > -7 || lng < -36 || lng > -33) return false;
-          
-          return lat >= bounds.south && lat <= bounds.north &&
-                 lng >= bounds.west && lng <= bounds.east;
-        });
-        
         // Converter para GeoJSON
         const geojson = {
           type: 'FeatureCollection' as const,
-          features: validPontos.map(ponto => {
-            const lat = parseFloat(String(ponto.latitude));
-            const lng = parseFloat(String(ponto.longitude));
+          features: pontosData.map(ponto => {
+            const lat = parseFloat(ponto.latitude);
+            const lng = parseFloat(ponto.longitude);
+            
+            // Pegar o total de ciclistas do último count
+            const totalCyclists = ponto.counts && ponto.counts.length > 0 
+              ? ponto.counts[0].total_cyclists 
+              : 0;
             
             return {
               type: 'Feature' as const,
@@ -77,9 +71,17 @@ export function usePontosContagem(bounds?: {
                 coordinates: [lng, lat] as [number, number]
               },
               properties: {
-                ...ponto,
+                id: ponto.id,
+                name: ponto.name,
+                city: ponto.city,
+                count: totalCyclists,
+                total_cyclists: totalCyclists,
+                total_counts: ponto.counts?.length || 0,
+                last_count_date: ponto.counts?.[0]?.date || null,
                 latitude: lat,
-                longitude: lng
+                longitude: lng,
+                type: 'Contagem',
+                status: 'active'
               }
             };
           })
@@ -95,7 +97,7 @@ export function usePontosContagem(bounds?: {
     };
 
     fetchData();
-  }, [bounds]);
+  }, []);
 
   return { data, loading, error };
 }

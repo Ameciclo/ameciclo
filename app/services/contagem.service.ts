@@ -1,5 +1,5 @@
 export async function fetchContagemData(lat: number, lon: number) {
-  const url = `http://192.168.10.114:3002/v1/locations/nearby?lat=${lat}&lon=${lon}`;
+  const url = `http://192.168.10.114:3002/v1/locations`;
   
   try {
     console.log('🚀 Carregando contagem de:', url);

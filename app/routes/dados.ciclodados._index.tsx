@@ -128,25 +128,37 @@ export default function CicloDados() {
   const handlePointClick = (point: any) => {
     console.log('🎯 Clique no ponto completo:', point);
     
-    // Extrair coordenadas do ponto clicado
-    let lat, lng, name;
+    // Extrair coordenadas e dados do ponto clicado
+    let lat, lng, name, totalCyclists;
     
     if (point.latitude && point.longitude) {
       lat = point.latitude;
       lng = point.longitude;
       name = point.popup?.name || point.popup?.location || 'Ponto de Contagem';
+      totalCyclists = point.popup?.total || point.popup?.count || 0;
     } else if (point.geometry?.coordinates) {
       lng = point.geometry.coordinates[0];
       lat = point.geometry.coordinates[1];
       name = point.properties?.name || point.properties?.location || 'Ponto de Contagem';
+      totalCyclists = point.properties?.count || point.properties?.total_cyclists || 0;
     } else {
       console.error('❌ Estrutura do ponto:', Object.keys(point));
       return;
     }
     
-    console.log('🎯 Coordenadas encontradas:', { lat, lng, name });
+    console.log('🎯 Coordenadas encontradas:', { lat, lng, name, totalCyclists });
     
-    const coords = { lat, lng, radius: 500, street: name };
+    const coords = { 
+      lat, 
+      lng, 
+      radius: 500, 
+      street: name,
+      pointData: {
+        name,
+        totalCyclists,
+        ...point
+      }
+    };
     console.log('🎯 Chamando handleMapSelection com:', coords);
     handleMapSelection(coords);
   };
