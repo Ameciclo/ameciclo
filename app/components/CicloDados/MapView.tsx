@@ -22,7 +22,7 @@ interface MapViewProps {
   selectedEstacionamento: string[];
   selectedSinistro: string[];
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
-  pdcOptions: Array<{ name: string; color: string; pattern: string }>;
+  pdcOptions: Array<{ name: string; color: string; pattern: string; apiKey?: string }>;
   layersConf: any[];
   infraData: any;
   pdcData: any;
@@ -30,6 +30,9 @@ interface MapViewProps {
   getContagemIcon: (count: number) => React.ReactNode;
   bicicletarios: any;
   onPointClick?: (point: any) => void;
+  externalViewState?: {latitude: number, longitude: number, zoom: number};
+  highlightedStreet?: any;
+  streetData?: any;
 }
 
 export function MapView({
@@ -44,8 +47,11 @@ export function MapView({
   contagemData,
   getContagemIcon,
   pdcOptions,
-  onPointClick
-}: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }> }) {
+  onPointClick,
+  externalViewState,
+  highlightedStreet,
+  streetData
+}: Omit<MapViewProps, 'bicicletarios'>) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
@@ -58,16 +64,27 @@ export function MapView({
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-  
           return parsed;
         } catch (e) {
           console.error('Erro ao parsear localStorage:', e);
         }
       }
     }
-
     return { latitude: -8.0476, longitude: -34.8770, zoom: 11 };
   });
+
+  const [forceRender, setForceRender] = useState(0);
+
+  // Atualizar com estado externo quando fornecido
+  useEffect(() => {
+    if (externalViewState) {
+      console.log('MapView recebeu externalViewState:', externalViewState);
+      console.log('MapView estado atual:', mapViewState);
+      setMapViewState(externalViewState);
+      setForceRender(Date.now()); // Força re-renderização
+    }
+  }, [externalViewState]);
+
   const lastLoggedCircle = useRef<string | null>(null);
   const lastClickTime = useRef<number>(0);
 
@@ -124,8 +141,6 @@ export function MapView({
   if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
   if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
-  
-
 
   const handleMapViewChange = (viewState: any) => {
     console.log('Mudou posição do mapa:', viewState);
@@ -148,8 +163,6 @@ export function MapView({
       }
     }, 500); // Salva 500ms após parar de mover
   };
-
-
 
   // Log das informações para o backend
   useEffect(() => {
@@ -240,8 +253,6 @@ export function MapView({
     setDragStartPos(null);
   };
 
-
-
   const toggleSelectionMode = () => {
     const newSelectionMode = !isSelectionMode;
     setIsSelectionMode(newSelectionMode);
@@ -264,8 +275,6 @@ export function MapView({
   const handleReloadAllData = () => {
     window.location.reload();
   };
-
-
 
   return (
     <div style={{height: 'calc(100vh - 64px)'}} className="relative flex flex-col">
@@ -316,7 +325,8 @@ export function MapView({
               ...(pdcData?.features || []),
               ...filteredInfraFeatures,
               ...filteredExecucaoFeatures,
-              ...filteredSinistrosFeatures
+              ...filteredSinistrosFeatures,
+              ...(highlightedStreet?.features || [])
             ];
             
             return allFeatures.length > 0 ? {
@@ -326,324 +336,18 @@ export function MapView({
           })()}
         layersConf={[
           ...(layersConf || []),
-          // PDC layers - double lines that embrace infrastructure (apenas se não houver erro)
-          ...(!execucaoError && execucaoCicloviaria?.features ? [
-            // PDC Realizado Designado - double purple lines
-            {
-              id: 'pdc-realizado-designado-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
-              paint: {
-                'line-color': '#8B5CF6',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'pdc-realizado-designado-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
-              paint: {
-                'line-color': '#8B5CF6',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            // PDC Realizado Não Designado - double dashed purple lines
-            {
-              id: 'pdc-realizado-nao-designado-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
-              paint: {
-                'line-color': '#8B5CF6',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [4, 2],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'pdc-realizado-nao-designado-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
-              paint: {
-                'line-color': '#8B5CF6',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [4, 2],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            // Realizado Fora PDC - double orange lines
-            {
-              id: 'realizado-fora-pdc-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
-              paint: {
-                'line-color': '#F59E0B',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [2, 2],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'realizado-fora-pdc-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
-              paint: {
-                'line-color': '#F59E0B',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [2, 2],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            // PDC Não Realizado - double pink lines
-            {
-              id: 'pdc-nao-realizado-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
-              paint: {
-                'line-color': '#EC4899',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [1, 3],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'pdc-nao-realizado-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
-              paint: {
-                'line-color': '#EC4899',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [1, 3],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
+          // Highlighted street from search
+          ...(highlightedStreet ? [{
+            id: 'highlighted-street',
+            type: 'line',
+            source: 'data',
+            filter: ['==', ['get', 'highlighted'], true],
+            paint: {
+              'line-color': '#ff0000',
+              'line-width': 8,
+              'line-opacity': 0.8
             }
-          ] : []),
-
-          ...(!infraError && infraCicloviaria?.features ? [
-            {
-              id: 'infra-ciclovia',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclovia'],
-              paint: {
-                'line-color': '#EF4444',
-                'line-width': 4,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'infra-ciclofaixa',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclofaixa'],
-              paint: {
-                'line-color': '#6B7280',
-                'line-width': 3,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'infra-ciclorrota',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
-              paint: {
-                'line-color': '#9CA3AF',
-                'line-width': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  10, 2,
-                  16, 6,
-                  20, 12
-                ],
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'infra-ciclorrota-stripes',
-              type: 'symbol',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
-              paint: {
-                'text-color': '#EF4444',
-                'text-opacity': 0.8
-              },
-              layout: {
-                'symbol-placement': 'line',
-                'symbol-spacing': 20,
-                'text-field': '█',
-                'text-size': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  10, 2,
-                  16, 4,
-                  20, 8
-                ],
-                'text-rotation-alignment': 'map',
-                'text-pitch-alignment': 'viewport',
-                'text-offset': [0, 0]
-              }
-            },
-            {
-              id: 'infra-calcada',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Calçada compartilhada'],
-              paint: {
-                'line-color': '#10B981',
-                'line-width': 3,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            }
-          ] : []),
-
-          // Sinistros - Vias Perigosas (apenas se não houver erro)
-          ...(!sinistrosError && sinistrosData?.features ? [
-            {
-              id: 'vias-perigosas-high',
-              type: 'line',
-              filter: ['==', ['get', 'severity'], 'high'],
-              paint: {
-                'line-color': '#DC2626',
-                'line-width': 6,
-                'line-opacity': 0.9
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'vias-perigosas-medium',
-              type: 'line',
-              filter: ['==', ['get', 'severity'], 'medium'],
-              paint: {
-                'line-color': '#F59E0B',
-                'line-width': 5,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'vias-perigosas-low',
-              type: 'line',
-              filter: ['==', ['get', 'severity'], 'low'],
-              paint: {
-                'line-color': '#FBBF24',
-                'line-width': 4,
-                'line-opacity': 0.7
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            }
-          ] : [])
+          }] : [])
         ]}
         pointsData={[
           // Pontos de contagem da API com clustering
@@ -771,10 +475,11 @@ export function MapView({
         hoverPoint={hoverPoint}
         onMouseMove={handleMapMouseMove}
         onMouseDown={handleMapMouseDown}
-        initialViewState={mapViewState}
+        initialViewState={externalViewState || mapViewState}
         onViewStateChange={handleMapViewChange}
         showDefaultZoomButton={false}
-        controlsSize="mini"
+        controlsSize="small"
+        key={`map-${forceRender}`}
         />
       </div>
       
@@ -798,30 +503,37 @@ export function MapView({
         >
           <SwiperSlide className="!w-[280px]">
             <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Av. Gov. Agamenon Magalhães</h3>
-              <p className="text-xl font-bold text-black mb-2">2.846</p>
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">
+                {streetData?.street_name || 'Av. Gov. Agamenon Magalhães'}
+              </h3>
+              <p className="text-xl font-bold text-black mb-2">
+                {streetData?.data_summary?.cycling_counts || '2.846'}
+              </p>
               <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniContagensChart /></div>
-              <p className="text-xs text-gray-500">contagens de ciclistas (Jan/2024)</p>
+              <p className="text-xs text-gray-500">contagens de ciclistas</p>
             </div>
           </SwiperSlide>
           <SwiperSlide className="!w-[280px]">
             <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Vítimas fatais</h3>
-              <p className="text-xl font-bold text-black mb-2">78</p>
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">Perfil de ciclistas</h3>
+              <p className="text-xl font-bold text-black mb-2">
+                {streetData?.data_summary?.cycling_profile || '0'}
+              </p>
               <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniSinistrosChart /></div>
             </div>
           </SwiperSlide>
           <SwiperSlide className="!w-[280px]">
             <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Infra. cicloviária executada</h3>
-              <p className="text-xl font-bold text-black mb-2">18%</p>
+              <h3 className="font-medium text-gray-800 mb-1 text-sm">Chamadas de emergência</h3>
+              <p className="text-xl font-bold text-black mb-2">
+                {streetData?.data_summary?.emergency_calls || '1158'}
+              </p>
               <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniInfraChart onPercentageChange={() => {}} /></div>
             </div>
           </SwiperSlide>
         </Swiper>
       </div>
       
-
       <ApiStatusIndicator errors={dataErrors} onReload={handleReloadAllData} />
       
       {/* Cluster Tooltip */}

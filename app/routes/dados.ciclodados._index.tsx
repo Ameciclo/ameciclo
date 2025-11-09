@@ -59,6 +59,8 @@ import {
   getContagemIcon,
   generateLayersConf
 } from '~/components/CicloDados';
+import type { StreetMatch, StreetDataSummary } from '~/services/streets.service';
+import { getStreetDetails, getStreetDataSummary } from '~/services/streets.service';
 
 export default function CicloDados() {
   const { contagemData, execucaoCicloviaria } = useLoaderData<typeof loader>();
@@ -163,6 +165,64 @@ export default function CicloDados() {
     handleMapSelection(coords);
   };
 
+  const [mapViewState, setMapViewState] = useState({
+    latitude: -8.0476,
+    longitude: -34.8770,
+    zoom: 11
+  });
+  const [selectedStreetGeometry, setSelectedStreetGeometry] = useState<any>(null);
+  const [selectedStreetData, setSelectedStreetData] = useState<StreetDataSummary | null>(null);
+
+  const handleZoomToStreet = async (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string) => {
+    console.log('handleZoomToStreet chamado com bounds:', bounds);
+    
+    const centerLat = (bounds.north + bounds.south) / 2;
+    const centerLng = (bounds.east + bounds.west) / 2;
+    
+    const latDiff = bounds.north - bounds.south;
+    const lngDiff = bounds.east - bounds.west;
+    const maxDiff = Math.max(latDiff, lngDiff);
+    
+    let zoom = 17;
+    if (maxDiff > 0.01) zoom = 14;
+    else if (maxDiff > 0.005) zoom = 15;
+    else if (maxDiff > 0.002) zoom = 16;
+    
+    const newViewState = {
+      latitude: centerLat,
+      longitude: centerLng,
+      zoom: zoom
+    };
+    
+    console.log('Novo viewState:', newViewState);
+    console.log('ViewState atual:', mapViewState);
+    
+    setMapViewState(newViewState);
+    
+    // Salvar geometria da via para destacar
+    if (streetGeometry) {
+      setSelectedStreetGeometry({
+        type: "FeatureCollection",
+        features: streetGeometry.features.map((feature: any) => ({
+          ...feature,
+          properties: { ...feature.properties, highlighted: true }
+        }))
+      });
+    }
+    
+    // Buscar dados da via
+    if (streetId) {
+      try {
+        const streetData = await getStreetDataSummary(streetId);
+        setSelectedStreetData(streetData);
+      } catch (error) {
+        console.error('Erro ao buscar dados da via:', error);
+      }
+    }
+    
+
+  };
+
   // Gerar dados do mapa
   const infraData = generateInfraData(selectedInfra);
   const pdcData = generatePdcData(selectedPdc, execucaoCicloviaria);
@@ -225,7 +285,8 @@ export default function CicloDados() {
     <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
       <CicloDadosHeader 
         viewMode={viewMode} 
-        onViewModeChange={setViewMode} 
+        onViewModeChange={setViewMode}
+        onZoomToStreet={handleZoomToStreet}
       />
 
       <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
@@ -282,6 +343,9 @@ export default function CicloDados() {
               contagemData={contagemMapData}
               getContagemIcon={getContagemIcon}
               onPointClick={handlePointClick}
+              externalViewState={mapViewState}
+              highlightedStreet={selectedStreetGeometry}
+              streetData={selectedStreetData}
             />
           ) : (
             <MuralView 
