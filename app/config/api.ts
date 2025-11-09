@@ -4,7 +4,7 @@ export const API_CONFIG = {
   CMS_BASE_URL: "https://cms.ameciclo.org",
   GARFO_API_BASE_URL: "https://api.garfo.ameciclo.org",
   IDECICLO_API_BASE_URL: "https://api.ideciclo.ameciclo.org",
-  STREETS_API_BASE_URL: "http://localhost:3050",
+  STREETS_API_BASE_URL: "https://api.garfo.ameciclo.org",
   
   // Timeouts
   DEFAULT_TIMEOUT: 10000,
