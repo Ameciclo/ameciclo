@@ -22,6 +22,7 @@ import {
   generateLayersConf
 } from '~/components/CicloDados';
 import type { StreetMatch } from '~/services/streets.service';
+import { getStreetDetails } from '~/services/streets.service';
 
 export default function CicloDados() {
   // Dados carregados via hooks no cliente
@@ -81,15 +82,51 @@ export default function CicloDados() {
     setMapSelection(coords);
   };
 
-  const handleStreetSelect = (street: StreetMatch) => {
-    // Aqui você pode implementar a lógica para destacar a via no mapa
-    // Por exemplo, fazer zoom para a via ou destacar seus elementos
-    console.log('Via selecionada para destaque:', street);
+  const [mapViewState, setMapViewState] = useState({
+    latitude: -8.0476,
+    longitude: -34.8770,
+    zoom: 11
+  });
+  const [selectedStreetGeometry, setSelectedStreetGeometry] = useState<any>(null);
+
+  const handleZoomToStreet = (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any) => {
+    console.log('handleZoomToStreet chamado com bounds:', bounds);
     
-    // Exemplo de como poderia funcionar:
-    // 1. Buscar coordenadas da via
-    // 2. Fazer zoom no mapa para essas coordenadas
-    // 3. Destacar elementos da via (infraestrutura, contagens, etc.)
+    const centerLat = (bounds.north + bounds.south) / 2;
+    const centerLng = (bounds.east + bounds.west) / 2;
+    
+    const latDiff = bounds.north - bounds.south;
+    const lngDiff = bounds.east - bounds.west;
+    const maxDiff = Math.max(latDiff, lngDiff);
+    
+    let zoom = 17;
+    if (maxDiff > 0.01) zoom = 14;
+    else if (maxDiff > 0.005) zoom = 15;
+    else if (maxDiff > 0.002) zoom = 16;
+    
+    const newViewState = {
+      latitude: centerLat,
+      longitude: centerLng,
+      zoom: zoom
+    };
+    
+    console.log('Novo viewState:', newViewState);
+    console.log('ViewState atual:', mapViewState);
+    
+    setMapViewState(newViewState);
+    
+    // Salvar geometria da via para destacar
+    if (streetGeometry) {
+      setSelectedStreetGeometry({
+        type: "FeatureCollection",
+        features: streetGeometry.features.map((feature: any) => ({
+          ...feature,
+          properties: { ...feature.properties, highlighted: true }
+        }))
+      });
+    }
+    
+
   };
 
   // Gerar dados do mapa
@@ -130,7 +167,7 @@ export default function CicloDados() {
       <CicloDadosHeader 
         viewMode={viewMode} 
         onViewModeChange={setViewMode}
-        onStreetSelect={handleStreetSelect}
+        onZoomToStreet={handleZoomToStreet}
       />
 
       <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
@@ -181,6 +218,8 @@ export default function CicloDados() {
               pdcData={pdcData}
               contagemData={contagemData}
               getContagemIcon={getContagemIcon}
+              externalViewState={mapViewState}
+              highlightedStreet={selectedStreetGeometry}
             />
           ) : (
             <MuralView 

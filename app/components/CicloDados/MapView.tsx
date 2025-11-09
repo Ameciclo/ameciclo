@@ -21,6 +21,8 @@ interface MapViewProps {
   contagemData: any;
   getContagemIcon: (count: number) => React.ReactNode;
   bicicletarios: any;
+  externalViewState?: {latitude: number, longitude: number, zoom: number};
+  highlightedStreet?: any;
 }
 
 export function MapView({
@@ -32,7 +34,9 @@ export function MapView({
   infraData,
   pdcData,
   contagemData,
-  getContagemIcon
+  getContagemIcon,
+  externalViewState,
+  highlightedStreet
 }: Omit<MapViewProps, 'bicicletarios'>) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -44,16 +48,26 @@ export function MapView({
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-  
           return parsed;
         } catch (e) {
           console.error('Erro ao parsear localStorage:', e);
         }
       }
     }
-
     return { latitude: -8.0476, longitude: -34.8770, zoom: 11 };
   });
+
+  const [forceRender, setForceRender] = useState(0);
+
+  // Atualizar com estado externo quando fornecido
+  useEffect(() => {
+    if (externalViewState) {
+      console.log('MapView recebeu externalViewState:', externalViewState);
+      console.log('MapView estado atual:', mapViewState);
+      setMapViewState(externalViewState);
+      setForceRender(Date.now()); // Força re-renderização
+    }
+  }, [externalViewState]);
   const lastLoggedCircle = useRef<string | null>(null);
   const lastClickTime = useRef<number>(0);
 
@@ -86,6 +100,8 @@ export function MapView({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+
   
   // Usar hooks com bounds para filtrar dados apenas no cliente
   const filteredBicicletarios = useBicicletarios(isClient ? viewportBounds : undefined);
@@ -253,14 +269,28 @@ export function MapView({
           layerData={(() => {
             const allFeatures = [
               ...(infraData?.features || []),
-              ...(pdcData?.features || [])
+              ...(pdcData?.features || []),
+              ...(highlightedStreet?.features || [])
             ];
             return allFeatures.length > 0 ? {
               type: "FeatureCollection",
               features: allFeatures
             } : null;
           })()}
-        layersConf={layersConf || []}
+        layersConf={[
+          ...(layersConf || []),
+          ...(highlightedStreet ? [{
+            id: 'highlighted-street',
+            type: 'line',
+            source: 'data',
+            filter: ['==', ['get', 'highlighted'], true],
+            paint: {
+              'line-color': '#ff0000',
+              'line-width': 8,
+              'line-opacity': 0.8
+            }
+          }] : [])
+        ]}
         pointsData={[
           ...(contagemData ? contagemData.features.map((feature: any) => ({
             key: `contagem-${feature.properties.type}`,
@@ -328,10 +358,11 @@ export function MapView({
         hoverPoint={hoverPoint}
         onMouseMove={handleMapMouseMove}
         onMouseDown={handleMapMouseDown}
-        initialViewState={mapViewState}
+        initialViewState={externalViewState || mapViewState}
         onViewStateChange={handleMapViewChange}
         showDefaultZoomButton={false}
         controlsSize="small"
+        key={`map-${forceRender}`}
         />
       </div>
       

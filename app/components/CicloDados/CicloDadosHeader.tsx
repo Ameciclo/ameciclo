@@ -1,21 +1,23 @@
 import { Map, BarChart3, Search } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchStreets, type StreetMatch } from '~/services/streets.service';
+import { searchStreets, getStreetDetails, type StreetMatch } from '~/services/streets.service';
 import { useStreetSelection } from './hooks/useStreetSelection';
 
 interface CicloDadosHeaderProps {
   viewMode: 'map' | 'mural';
   onViewModeChange: (mode: 'map' | 'mural') => void;
   onStreetSelect?: (street: StreetMatch) => void;
+  onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any) => void;
 }
 
 
 
-export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect }: CicloDadosHeaderProps) {
+export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, onZoomToStreet }: CicloDadosHeaderProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [streetSuggestions, setStreetSuggestions] = useState<StreetMatch[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+
   const { setSelectedStreet } = useStreetSelection();
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +31,11 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect }:
       setIsSearching(true);
       try {
         const results = await searchStreets(query);
-        setStreetSuggestions(results);
+        
+        // Ordenar apenas por confiabilidade
+        const sortedResults = results.sort((a, b) => b.confidence - a.confidence);
+        
+        setStreetSuggestions(sortedResults);
       } catch (error) {
         console.error('Erro na busca:', error);
         setStreetSuggestions([]);
@@ -59,12 +65,43 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect }:
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleStreetSelect = (street: StreetMatch) => {
+  const handleStreetSelect = async (street: StreetMatch) => {
     setSelectedStreet(street.name);
     setSearchTerm('');
     setShowSuggestions(false);
     onStreetSelect?.(street);
-    console.log('Via selecionada:', street);
+    
+    // Buscar detalhes e fazer zoom diretamente
+    try {
+      const streetDetails = await getStreetDetails(street.id);
+      if (streetDetails?.geometry?.features && streetDetails.geometry.features.length > 0) {
+        const allCoords: number[][] = [];
+        
+        streetDetails.geometry.features.forEach((feature: any) => {
+          if (feature.geometry.type === 'MultiLineString') {
+            feature.geometry.coordinates.forEach((lineString: number[][]) => {
+              allCoords.push(...lineString);
+            });
+          }
+        });
+        
+        if (allCoords.length > 0) {
+          const lats = allCoords.map(coord => coord[1]);
+          const lngs = allCoords.map(coord => coord[0]);
+          
+          const bounds = {
+            north: Math.max(...lats),
+            south: Math.min(...lats),
+            east: Math.max(...lngs),
+            west: Math.min(...lngs)
+          };
+          
+          onZoomToStreet?.(bounds, streetDetails.geometry);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao fazer zoom:', error);
+    }
   };
 
   return (
@@ -132,7 +169,7 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect }:
                   >
                     <div className="font-medium">{street.name}</div>
                     <div className="text-gray-500 text-xs">
-                      {street.municipality} • Confiança: {Math.round(street.confidence * 100)}%
+                      {street.municipality}
                     </div>
                   </button>
                 ))
@@ -145,6 +182,8 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect }:
 
         </div>
       </div>
+      
+
     </header>
   );
 }
