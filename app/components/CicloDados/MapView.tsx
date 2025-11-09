@@ -51,6 +51,7 @@ export function MapView({
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
+  const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
   const [mapViewState, setMapViewState] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('ciclodados-map-view');
@@ -645,43 +646,73 @@ export function MapView({
           ] : [])
         ]}
         pointsData={[
-          // Pontos de contagem da API
+          // Pontos de contagem da API com clustering
           ...(isClient && selectedContagem.length > 0 && pontosContagem?.features && Array.isArray(pontosContagem.features) ? 
-            pontosContagem.features.map((feature: any) => ({
-              key: `contagem-api-${feature.properties.id}`,
-              latitude: feature.properties.latitude,
-              longitude: feature.properties.longitude,
-              type: 'Contagem',
-              popup: {
-                name: feature.properties.name,
-                total: feature.properties.count,
-                date: feature.properties.last_count_date,
-                city: feature.properties.city,
-                created_at: feature.properties.last_count_date,
-                latitude: feature.properties.latitude,
-                longitude: feature.properties.longitude
-              },
-              customIcon: (
-                <div className="relative">
-                  <div className="bg-white text-black px-2 py-1 rounded-lg shadow-lg border-2 border-black flex items-center gap-1 min-w-[50px] justify-center">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                      <path d="M3 3v18h18"/>
-                      <path d="M18 17V9"/>
-                      <path d="M13 17V5"/>
-                      <path d="M8 17v-3"/>
-                    </svg>
-                    <span className="text-xs font-bold">{feature.properties.total_cyclists || feature.properties.count}</span>
-                  </div>
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-                    <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
-                      <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-black"></div>
+            createClusters(pontosContagem.features.map(f => ({
+              ...f,
+              geometry: { coordinates: [f.properties.longitude, f.properties.latitude] }
+            })), mapViewState.zoom, mapViewState)
+              .map((item: any) => {
+                const totalContagens = item.isCluster ? 
+                  item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_cyclists || f.properties.count || 0), 0) :
+                  (item.properties.items?.[0]?.properties?.total_cyclists || item.properties.items?.[0]?.properties?.count || 0);
+                
+                const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
+                
+                return {
+                  key: `contagem-${item.id}`,
+                  latitude: item.geometry.coordinates[1],
+                  longitude: item.geometry.coordinates[0],
+                  type: 'Contagem',
+                  popup: {
+                    name: item.isCluster ? `${item.properties.count} Pontos de Contagem` : 
+                          (item.properties.items?.[0]?.properties?.name || 'Ponto de Contagem'),
+                    total: totalContagens,
+                    date: item.properties.items?.[0]?.properties?.last_count_date,
+                    city: item.properties.items?.[0]?.properties?.city,
+                    created_at: item.properties.items?.[0]?.properties?.last_count_date,
+                    latitude: item.geometry.coordinates[1],
+                    longitude: item.geometry.coordinates[0]
+                  },
+                  customIcon: (
+                    <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                      <div className="bg-white text-black px-2 py-1 rounded-lg shadow-lg border-2 border-black flex items-center gap-1 min-w-[50px] justify-center">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <path d="M3 3v18h18"/>
+                          <path d="M18 17V9"/>
+                          <path d="M13 17V5"/>
+                          <path d="M8 17v-3"/>
+                        </svg>
+                        <span className="text-xs font-bold">{totalContagens}</span>
+                        {item.isCluster && item.properties.count > 1 && (
+                          <span 
+                            className="text-[8px] bg-white text-black border border-black rounded-full px-1 ml-1 cursor-help relative"
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setClusterTooltip({
+                                show: true,
+                                count: item.properties.count,
+                                x: rect.left + rect.width / 2,
+                                y: rect.top - 5
+                              });
+                            }}
+                            onMouseLeave={() => setClusterTooltip({ show: false, count: 0, x: 0, y: 0 })}
+                          >
+                            {item.properties.count}
+                          </span>
+                        )}
+                      </div>
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                        <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
+                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
+                          <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-black"></div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ),
-              onClick: () => onPointClick && onPointClick(feature)
-            })) : []),
+                  ),
+                  onClick: () => onPointClick && onPointClick(item.isCluster ? item : item.properties.items[0])
+                };
+              }) : []),
 
           ...(isClient && selectedEstacionamento.includes('Bicicletários') && filteredBicicletarios?.features && Array.isArray(filteredBicicletarios.features) ? 
             createClusters(filteredBicicletarios.features, mapViewState.zoom, mapViewState)
@@ -792,6 +823,23 @@ export function MapView({
       
 
       <ApiStatusIndicator errors={dataErrors} onReload={handleReloadAllData} />
+      
+      {/* Cluster Tooltip */}
+      {clusterTooltip.show && (
+        <div 
+          className="fixed z-[100] bg-black text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none"
+          style={{
+            left: clusterTooltip.x,
+            top: clusterTooltip.y,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          {clusterTooltip.count} pontos de contagem agrupados
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-black"></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
