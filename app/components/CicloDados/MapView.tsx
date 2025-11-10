@@ -51,7 +51,7 @@ export function MapView({
   externalViewState,
   highlightedStreet,
   streetData
-}: Omit<MapViewProps, 'bicicletarios'>) {
+}: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }> }) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
@@ -323,10 +323,10 @@ export function MapView({
             const allFeatures = [
               ...(infraData?.features || []),
               ...(pdcData?.features || []),
+              ...(highlightedStreet?.features || []),
               ...filteredInfraFeatures,
               ...filteredExecucaoFeatures,
-              ...filteredSinistrosFeatures,
-              ...(highlightedStreet?.features || [])
+              ...filteredSinistrosFeatures
             ];
             
             return allFeatures.length > 0 ? {
@@ -336,7 +336,6 @@ export function MapView({
           })()}
         layersConf={[
           ...(layersConf || []),
-          // Highlighted street from search
           ...(highlightedStreet ? [{
             id: 'highlighted-street',
             type: 'line',
@@ -347,7 +346,325 @@ export function MapView({
               'line-width': 8,
               'line-opacity': 0.8
             }
-          }] : [])
+          }] : []),
+          // PDC layers - double lines that embrace infrastructure (apenas se não houver erro)
+          ...(!execucaoError && execucaoCicloviaria?.features ? [
+            // PDC Realizado Designado - double purple lines
+            {
+              id: 'pdc-realizado-designado-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'pdc-realizado-designado-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            // PDC Realizado Não Designado - double dashed purple lines
+            {
+              id: 'pdc-realizado-nao-designado-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [4, 2],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'pdc-realizado-nao-designado-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
+              paint: {
+                'line-color': '#8B5CF6',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [4, 2],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            // Realizado Fora PDC - double orange lines
+            {
+              id: 'realizado-fora-pdc-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
+              paint: {
+                'line-color': '#F59E0B',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [2, 2],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'realizado-fora-pdc-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
+              paint: {
+                'line-color': '#F59E0B',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [2, 2],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            // PDC Não Realizado - double pink lines
+            {
+              id: 'pdc-nao-realizado-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
+              paint: {
+                'line-color': '#EC4899',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [1, 3],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'pdc-nao-realizado-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
+              paint: {
+                'line-color': '#EC4899',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [1, 3],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }
+          ] : []),
+
+          ...(!infraError && infraCicloviaria?.features ? [
+            {
+              id: 'infra-ciclovia',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Ciclovia'],
+              paint: {
+                'line-color': '#EF4444',
+                'line-width': 4,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'infra-ciclofaixa',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Ciclofaixa'],
+              paint: {
+                'line-color': '#6B7280',
+                'line-width': 3,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'infra-ciclorrota',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              paint: {
+                'line-color': '#9CA3AF',
+                'line-width': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  10, 2,
+                  16, 6,
+                  20, 12
+                ],
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'infra-ciclorrota-stripes',
+              type: 'symbol',
+              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              paint: {
+                'text-color': '#EF4444',
+                'text-opacity': 0.8
+              },
+              layout: {
+                'symbol-placement': 'line',
+                'symbol-spacing': 20,
+                'text-field': '█',
+                'text-size': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  10, 2,
+                  16, 4,
+                  20, 8
+                ],
+                'text-rotation-alignment': 'map',
+                'text-pitch-alignment': 'viewport',
+                'text-offset': [0, 0]
+              }
+            },
+            {
+              id: 'infra-calcada',
+              type: 'line',
+              filter: ['==', ['get', 'infra_type'], 'Calçada compartilhada'],
+              paint: {
+                'line-color': '#10B981',
+                'line-width': 3,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }
+          ] : []),
+
+          // Sinistros - Vias Perigosas (apenas se não houver erro)
+          ...(!sinistrosError && sinistrosData?.features ? [
+            {
+              id: 'vias-perigosas-high',
+              type: 'line',
+              filter: ['==', ['get', 'severity'], 'high'],
+              paint: {
+                'line-color': '#DC2626',
+                'line-width': 6,
+                'line-opacity': 0.9
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'vias-perigosas-medium',
+              type: 'line',
+              filter: ['==', ['get', 'severity'], 'medium'],
+              paint: {
+                'line-color': '#F59E0B',
+                'line-width': 5,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'vias-perigosas-low',
+              type: 'line',
+              filter: ['==', ['get', 'severity'], 'low'],
+              paint: {
+                'line-color': '#FBBF24',
+                'line-width': 4,
+                'line-opacity': 0.7
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }
+          ] : [])
         ]}
         pointsData={[
           // Pontos de contagem da API com clustering

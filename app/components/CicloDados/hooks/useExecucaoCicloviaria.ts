@@ -20,8 +20,13 @@ export function useExecucaoCicloviaria(bounds?: ViewportBounds) {
       .then(result => {
         console.log('useExecucaoCicloviaria: dados recebidos:', result);
         
-        // Extract data from byCity structure
-        const cityData = result?.byCity?.['2611606'];
+        // Handle direct FeatureCollection or byCity structure
+        let cityData = result;
+        
+        // If it's wrapped in byCity structure, extract it
+        if (result?.byCity?.['2611606']) {
+          cityData = result.byCity['2611606'];
+        }
         
         if (cityData?.type === 'FeatureCollection' && cityData?.features) {
           const processedData = {
@@ -31,7 +36,7 @@ export function useExecucaoCicloviaria(bounds?: ViewportBounds) {
               properties: {
                 ...feature.properties,
                 source: 'execucao',
-                status: feature.properties.status_type // Map status_type to status
+                status: feature.properties.status_type || feature.properties.status // Map status_type to status or use existing status
               }
             }))
           };

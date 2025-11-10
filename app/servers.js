@@ -52,13 +52,13 @@ export const VIAS_INSEGURAS_SEARCH = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/stre
 export const VIAS_INSEGURAS_LIST = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/list`
 
 // Endpoints para CicloDados - APIs da página de dados integrados
-export const BICICLETARIOS_DATA = `http://192.168.10.114:3005/v1/bicycle-racks/geojson`
-export const BIKE_PE_STATIONS_DATA = `http://192.168.10.114:3015/v1/stations`
-export const INFRA_CICLOVIARIA_DATA = `http://192.168.10.114:3020/v1/infrastructure-geojson?limit=10000`
-export const PONTOS_CONTAGEM_DATA = `http://192.168.10.114:3002/v1/locations`
-export const PONTOS_CONTAGEM_NEARBY_DATA = `http://192.168.10.114:3002/v1/locations/nearby`
-export const EXECUCAO_CICLOVIARIA_DATA = `http://192.168.10.114:3020/v1/ways/all-ways?precision=4&simplify=0.0001&city=2611606&minimal=true`
-export const SINISTROS_GEOJSON_CICLO_DATA = `http://192.168.10.114:3030/v1/dangerous-streets/geojson`
+export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
+export const BIKE_PE_STATIONS_DATA = `https://shared-bike.atlas.ameciclo.org/v1/stations`
+export const INFRA_CICLOVIARIA_DATA = `https://cycling-infra.atlas.ameciclo.org/v1/infrastructure-geojson?city=2611606&limit=10000`
+export const PONTOS_CONTAGEM_DATA = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`
+export const PONTOS_CONTAGEM_NEARBY_DATA = `https://cyclist-counts.atlas.ameciclo.org/v1/locations/nearby`
+export const EXECUCAO_CICLOVIARIA_DATA = `https://cycling-infra.atlas.ameciclo.org/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
+export const SINISTROS_GEOJSON_CICLO_DATA = `http://traffic-violations.atlas.ameciclo.org/v1/dangerous-streets/geojson`
 
 // Objeto SERVERS para compatibilidade
 export const SERVERS = {
