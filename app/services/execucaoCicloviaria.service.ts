@@ -1,7 +1,7 @@
-import { SERVERS } from '~/servers';
+import { EXECUCAO_CICLOVIARIA_DATA } from '~/servers';
 
 export async function fetchExecucaoCicloviaria() {
-  const url = 'http://192.168.10.114:3020/v1/ways/all-ways?precision=4&simplify=0.0001&city=2611606&minimal=true&only_all=true';
+  const url = EXECUCAO_CICLOVIARIA_DATA;
   
   try {
     console.log('🚀 Carregando de:', url);
