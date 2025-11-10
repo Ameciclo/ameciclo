@@ -10,10 +10,10 @@
 export async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},
-  timeout: number = 15000,
+  timeout: number = 5000,
   fallbackData: any = null,
   onApiDown?: () => void,
-  retries: number = 2
+  retries: number = 1
 ): Promise<any> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
@@ -25,6 +25,11 @@ export async function fetchWithTimeout(
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          ...options.headers
+        }
       });
       
       clearTimeout(timeoutId);
@@ -50,8 +55,8 @@ export async function fetchWithTimeout(
         return fallbackData;
       }
       
-      // Backoff exponencial: 1s, 2s, 4s...
-      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+      // Backoff reduzido: 500ms
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
   

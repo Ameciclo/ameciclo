@@ -1,4 +1,4 @@
-import { API_CONFIG } from '~/config/api';
+import { VIAS_INSEGURAS_SEARCH } from '~/servers';
 
 export interface StreetMatch {
   id: string;
@@ -44,13 +44,13 @@ export async function searchStreets(query: string): Promise<StreetMatch[]> {
   
   try {
     const response = await fetch(
-      `${API_CONFIG.STREETS_API_BASE_URL}/samu-calls/streets/search?q=${encodeURIComponent(query)}`,
+      `${VIAS_INSEGURAS_SEARCH}?q=${encodeURIComponent(query)}`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        signal: AbortSignal.timeout(API_CONFIG.FAST_TIMEOUT),
+        signal: AbortSignal.timeout(5000),
       }
     );
 
