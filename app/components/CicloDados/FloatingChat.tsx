@@ -33,7 +33,16 @@ export function FloatingChat({ isOpen, onToggle }: FloatingChatProps) {
             </div>
             <div className="p-4 space-y-3 max-h-64 overflow-y-auto">
               <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-3 rounded-xl text-sm">
-                Olá! Como posso ajudar você com os dados de mobilidade urbana?
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                  <span className="font-medium text-gray-800">Assistente IA em Desenvolvimento</span>
+                </div>
+                <p className="text-gray-700 leading-relaxed">
+                  Estamos trabalhando para trazer uma experiência inteligente de análise de dados de mobilidade urbana.
+                </p>
+                <div className="mt-3 pt-2 border-t border-pink-100">
+                  <span className="text-xs text-gray-600 font-medium">🚀 Novidades em breve!</span>
+                </div>
               </div>
             </div>
             <div className="p-4 border-t bg-gray-50">

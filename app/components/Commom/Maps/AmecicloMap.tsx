@@ -9,40 +9,9 @@ import { pointData } from "../../../../typings";
 import * as Remix from "@remix-run/react";
 import { Move } from 'lucide-react';
 
-function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
-    const { popup } = selectedPoint;
-    const total = popup.total || 0;
-    const date = popup.date || "Data não disponível";
-    
-    return (
-        <div className="absolute top-0 left-0 max-w-sm bg-white shadow-md p-6 m-10 text-sm text-gray-600 uppercase">
-            <button
-                className="absolute top-0 right-0 hover:text-red-500"
-                onClick={(e) => setSelectedPoint(undefined)}
-            >
-                X
-            </button>
-            <div className="text-center">
-                <h2 className="font-bold">{popup.name || "Ponto de contagem"}</h2>
-                <p className="py-2">
-                    {total} ciclistas em {date}
-                </p>
-                {popup.obs && popup.obs !== "" && (
-                    <p className="py-2 text-sm text-gray-700">
-                        {popup.obs}
-                    </p>
-                )}
-                {popup.url && popup.url !== "" && (
-                    <Remix.Link to={popup.url}>
-                        <button className="bg-ameciclo text-white p-2">Ver mais</button>
-                    </Remix.Link>
-                )}
-            </div>
-        </div>
-    );
-}
 
-const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, radius, setRadius }: any) => {
+
+const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, radius, setRadius }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 
@@ -65,15 +34,27 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     const handleRecenter = () => {
-        setViewport(initialViewport);
+        // Resetar para a posição inicial padrão do Recife
+        const defaultViewport = {
+            latitude: -8.0584364,
+            longitude: -34.945277,
+            zoom: 10,
+            bearing: 0,
+            pitch: 0
+        };
+        setViewport(defaultViewport);
     };
 
     const handleToggleDragPan = () => {
-        setsettings((prev: any) => ({ 
-            ...prev, 
-            dragPan: !prev.dragPan,
-            scrollZoom: !prev.scrollZoom 
-        }));
+        if (toggleDragPan) {
+            toggleDragPan();
+        } else {
+            setsettings((prev: any) => ({ 
+                ...prev, 
+                dragPan: !prev.dragPan,
+                scrollZoom: !prev.scrollZoom 
+            }));
+        }
     };
 
     const isAtDefaultPosition = () => {
@@ -149,23 +130,6 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            
-                            if (!isSelectionMode) {
-                                // Ativar seleção e desativar modo mover
-                                setsettings((prev: any) => ({ 
-                                    ...prev, 
-                                    dragPan: false,
-                                    scrollZoom: false 
-                                }));
-                            } else {
-                                // Desativar seleção e reativar modo mover
-                                setsettings((prev: any) => ({ 
-                                    ...prev, 
-                                    dragPan: true,
-                                    scrollZoom: true 
-                                }));
-                            }
-                            
                             toggleSelectionMode();
                         }}
                         className={`bg-white hover:bg-gray-100 rounded p-2 shadow-md transition-all ${
@@ -206,21 +170,19 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                 </>
             )}
             
-            {!isAtDefaultPosition() && (
-                <button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleRecenter();
-                    }}
-                    className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
-                    title="Recentralizar mapa"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </button>
-            )}
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleRecenter();
+                }}
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                title="Voltar para visão geral"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </button>
         </div>
     );
 };
@@ -405,6 +367,8 @@ export const AmecicloMap = ({
     onMapClick,
     isSelectionMode,
     toggleSelectionMode,
+    toggleDragPan,
+    dragPanEnabled,
     radius,
     setRadius,
     selectedCircles = [],
@@ -413,6 +377,7 @@ export const AmecicloMap = ({
     onMouseMove,
     initialViewState,
     onViewStateChange,
+    onPointClick,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -428,6 +393,8 @@ export const AmecicloMap = ({
     onMapClick?: (event: any) => void;
     isSelectionMode?: boolean;
     toggleSelectionMode?: () => void;
+    toggleDragPan?: () => void;
+    dragPanEnabled?: boolean;
     radius?: number;
     setRadius?: (radius: number) => void;
     selectedCircles?: Array<{ lat: number; lng: number; radius: number; id: string }>;
@@ -436,6 +403,7 @@ export const AmecicloMap = ({
     onMouseMove?: (event: any) => void;
     initialViewState?: { latitude: number; longitude: number; zoom: number };
     onViewStateChange?: (viewState: any) => void;
+    onPointClick?: (point: any) => void;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -471,9 +439,7 @@ export const AmecicloMap = ({
         return () => clearTimeout(timer);
     }, []);
 
-    const [selectedMarker, setSelectedMarker] = useState<pointData | undefined>(
-        undefined
-    );
+
 
     const [viewport, setViewport] = useState({
         latitude: -8.0584364,
@@ -508,7 +474,27 @@ export const AmecicloMap = ({
             setHasSetInitialViewport(true);
         }
     }, [isClient, isMapReady, initialViewState, hasSetInitialViewport]);
-    const [settings, setsettings] = useState(getMapInitialState(defaultDragPan));
+    const [settings, setsettings] = useState(() => ({
+        dragPan: dragPanEnabled ?? defaultDragPan,
+        dragRotate: true,
+        scrollZoom: dragPanEnabled ?? defaultDragPan,
+        touchZoom: true,
+        touchRotate: true,
+        keyboard: true,
+        boxZoom: true,
+        doubleClickZoom: true,
+    }));
+    
+    // Atualizar settings quando dragPanEnabled mudar
+    useEffect(() => {
+        if (dragPanEnabled !== undefined) {
+            setsettings(prev => ({
+                ...prev,
+                dragPan: dragPanEnabled,
+                scrollZoom: dragPanEnabled
+            }));
+        }
+    }, [dragPanEnabled]);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const [layerVisibility, setLayerVisibility] = useState<Record<string, boolean>>({});
@@ -587,7 +573,7 @@ export const AmecicloMap = ({
                         onMouseMove={onMouseMove}
                     >
 
-                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} radius={radius} setRadius={setRadius} />
+                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} radius={radius} setRadius={setRadius} />
                         {layerData && (
                             <Source id="layersMap" type="geojson" data={layerData}>
                                 {layersConf?.map((layer: any, i: number) =>
@@ -606,7 +592,11 @@ export const AmecicloMap = ({
                                         key={key}
                                         latitude={latitude}
                                         longitude={longitude}
-                                        onClick={() => setSelectedMarker(point)}
+                                        onClick={() => {
+                                            if (onPointClick) {
+                                                onPointClick(point);
+                                            }
+                                        }}
                                     >
                                         {customIcon ? (
                                             <div style={{ cursor: "pointer", transform: "translate(-50%, -100%)" }}>
@@ -693,12 +683,7 @@ export const AmecicloMap = ({
                             </Marker>
                         ))}
 
-                        {selectedMarker !== undefined && (
-                            <CountingPopUp
-                                selectedPoint={selectedMarker}
-                                setSelectedPoint={setSelectedMarker}
-                            />
-                        )}
+
                         {controlPanel.length > 0 && (
                             <MapControlPanel
                                 controlPanel={controlPanel}

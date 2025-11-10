@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart, MiniVelocidadeChart, MiniFluxoChart, MiniGeneroChart, MiniCaracteristicasChart, MiniInfraestruturaChart, MiniAcessibilidadeChart } from './utils/chartData';
 import { StreetSelectionModal } from './StreetSelectionModal';
+import { fetchContagemData } from '~/services/contagem.service';
 
 
 interface Street {
@@ -13,7 +14,7 @@ interface RightSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   viewMode: 'map' | 'mural';
-  mapSelection?: {lat: number, lng: number, radius: number, street?: string, streets?: Street[], clickPosition?: {x: number, y: number}};
+  mapSelection?: {lat: number, lng: number, radius: number, street?: string, streets?: Street[], clickPosition?: {x: number, y: number}, pointData?: any};
 }
 
 interface CardData {
@@ -33,12 +34,46 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   const [dataAvailability, setDataAvailability] = useState<any>(null);
   const [cardData, setCardData] = useState<Record<string, any>>({});
   
-  // Simulate API call when mapSelection changes
+  // Fetch counting data when mapSelection changes
   useEffect(() => {
-    if (mapSelection?.street) {
-      setLoading(true);
-      // Simulate API delay
-      setTimeout(() => {
+    if (mapSelection?.lat && mapSelection?.lng) {
+      // Se temos dados do ponto clicado, usar diretamente
+      if (mapSelection.pointData?.totalCyclists !== undefined) {
+        console.log('📊 RightSidebar: Usando dados do ponto clicado:', mapSelection.pointData);
+        
+        // Calcular percentual de mulheres se disponível
+        let womenPercentage = '12%'; // fallback
+        if (mapSelection.pointData.counts && mapSelection.pointData.counts.length > 0) {
+          const latestCount = mapSelection.pointData.counts[0];
+          if (latestCount.characteristics?.women && latestCount.total_cyclists > 0) {
+            const percentage = Math.round((latestCount.characteristics.women / latestCount.total_cyclists) * 100);
+            womenPercentage = `${percentage}%`;
+          }
+        }
+        
+        // Calcular valor do card baseado no total de todos os anos
+        let cardValue = mapSelection.pointData.totalCyclists.toString();
+        if (mapSelection.pointData.counts && mapSelection.pointData.counts.length > 0) {
+          // Somar todos os ciclistas de todas as contagens
+          const totalAllYears = mapSelection.pointData.counts.reduce((sum: number, count: any) => {
+            return sum + (count.total_cyclists || 0);
+          }, 0);
+          cardValue = totalAllYears.toString();
+        }
+        
+        setCardData({
+          contagens: {
+            title: mapSelection.street || 'Ponto selecionado',
+            value: cardValue,
+            details: mapSelection.pointData,
+            coordinates: { lat: mapSelection.lat, lng: mapSelection.lng }
+          },
+          genero: {
+            title: 'Percentual de mulheres',
+            value: womenPercentage,
+            details: mapSelection.pointData
+          }
+        });
         setDataAvailability({
           available: {
             contagens: true,
@@ -53,10 +88,53 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
             infraestruturaInfo: true,
             acessibilidade: true
           },
-          street: mapSelection.street
+          street: mapSelection.street || 'Ponto selecionado'
         });
         setLoading(false);
-      }, 1000);
+        return;
+      }
+      
+      // Caso contrário, buscar dados da API
+      setLoading(true);
+      setError(null);
+      
+      fetchContagemData(mapSelection.lat, mapSelection.lng)
+        .then(data => {
+          console.log('📊 RightSidebar: Dados de contagem recebidos:', data);
+          
+          setCardData({
+            contagens: {
+              title: mapSelection.street || 'Ponto selecionado',
+              value: '0',
+              details: data,
+              coordinates: { lat: mapSelection.lat, lng: mapSelection.lng }
+            }
+          });
+          setDataAvailability({
+            available: {
+              contagens: true,
+              sinistros: true,
+              infraestrutura: true,
+              sinistrosTotais: true,
+              velocidade: true,
+              fluxo: true,
+              genero: true,
+              participacaoFeminina: false,
+              caracteristicas: true,
+              infraestruturaInfo: true,
+              acessibilidade: true
+            },
+            street: mapSelection.street || 'Ponto selecionado'
+          });
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('❌ RightSidebar: Erro ao buscar dados de contagem:', err);
+          setError('Erro ao carregar dados de contagem');
+          setLoading(false);
+        });
+    } else {
+      console.log('🔄 RightSidebar: Nenhuma seleção válida:', mapSelection);
     }
   }, [mapSelection]);
   
@@ -79,7 +157,91 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   
   const availability = dataAvailability?.available || mockDataAvailability;
   
-  const contagensChart = useMemo(() => <MiniContagensChart />, []);
+  const contagensChart = useMemo(() => {
+    const contagemData = getCardData('contagens')?.details;
+    console.log('📊 Chart data:', contagemData);
+    
+    // Verificar se temos dados do ponto clicado com counts
+    if (contagemData?.counts && Array.isArray(contagemData.counts) && contagemData.counts.length > 0) {
+      console.log('📊 Processing counts:', contagemData.counts);
+      
+      // Agrupar dados por ano e somar totais
+      const yearlyData = contagemData.counts.reduce((acc: any, count: any) => {
+        const year = count.date ? new Date(count.date).getFullYear() : new Date().getFullYear();
+        if (!acc[year]) {
+          acc[year] = { year, total: 0 };
+        }
+        acc[year].total += count.total_cyclists || 0;
+        return acc;
+      }, {});
+      
+      const chartData = Object.values(yearlyData)
+        .sort((a: any, b: any) => a.year - b.year);
+      
+      console.log('📊 Yearly chart data:', chartData);
+      
+      if (chartData.length > 0) {
+        return (
+          <div className="h-12 flex items-end justify-between gap-1">
+            {chartData.map((item: any, index: number) => {
+              const maxValue = Math.max(...chartData.map((d: any) => d.total));
+              const height = Math.max(4, (item.total / maxValue) * 36);
+              return (
+                <div key={index} className="flex flex-col items-center flex-1">
+                  <div 
+                    className="bg-blue-500 w-full rounded-t" 
+                    style={{ height: `${height}px` }}
+                    title={`${item.year}: ${item.total} ciclistas`}
+                  />
+                  <span className="text-[8px] text-gray-500 mt-1">{item.year}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+    }
+    
+    // Fallback para dados do mapSelection.pointData
+    if (mapSelection?.pointData?.counts && Array.isArray(mapSelection.pointData.counts)) {
+      console.log('📊 Using mapSelection pointData counts:', mapSelection.pointData.counts);
+      
+      const yearlyData = mapSelection.pointData.counts.reduce((acc: any, count: any) => {
+        const year = count.date ? new Date(count.date).getFullYear() : new Date().getFullYear();
+        if (!acc[year]) {
+          acc[year] = { year, total: 0 };
+        }
+        acc[year].total += count.total_cyclists || 0;
+        return acc;
+      }, {});
+      
+      const chartData = Object.values(yearlyData)
+        .sort((a: any, b: any) => a.year - b.year);
+      
+      if (chartData.length > 0) {
+        return (
+          <div className="h-12 flex items-end justify-between gap-1">
+            {chartData.map((item: any, index: number) => {
+              const maxValue = Math.max(...chartData.map((d: any) => d.total));
+              const height = Math.max(4, (item.total / maxValue) * 36);
+              return (
+                <div key={index} className="flex flex-col items-center flex-1">
+                  <div 
+                    className="bg-blue-500 w-full rounded-t" 
+                    style={{ height: `${height}px` }}
+                    title={`${item.year}: ${item.total} ciclistas`}
+                  />
+                  <span className="text-[8px] text-gray-500 mt-1">{item.year}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+    }
+    
+    return <MiniContagensChart />;
+  }, [cardData, mapSelection]);
   const sinistrosChart = useMemo(() => <MiniSinistrosChart />, []);
   const velocidadeChart = useMemo(() => <MiniVelocidadeChart />, []);
   const fluxoChart = useMemo(() => <MiniFluxoChart />, []);
@@ -140,9 +302,36 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   const allCards: CardData[] = [
     {
       id: 'contagens',
-      title: getCardTitle('contagens', dataAvailability?.street || "Av. Gov. Agamenon Magalhães"),
+      title: getCardTitle('contagens', mapSelection?.street || dataAvailability?.street || "Ponto de Contagem"),
       value: getCardValue('contagens', "2.846"),
-      description: "contagens de ciclistas (Jan/2024)\nFonte: <a href='/dados/contagens' class='text-blue-600 underline'>página de contagens</a>",
+      description: (() => {
+        const contagemData = getCardData('contagens')?.details;
+        if (contagemData?.counts && Array.isArray(contagemData.counts)) {
+          const details = [];
+          
+          if (contagemData.counts.length > 1) {
+            const years = contagemData.counts.map((c: any) => new Date(c.date).getFullYear()).sort();
+            const firstYear = years[0];
+            const lastYear = years[years.length - 1];
+            details.push(`${contagemData.counts.length} contagens (${firstYear}-${lastYear})`);
+            
+            // Calcular tendência
+            const firstCount = contagemData.counts.find((c: any) => new Date(c.date).getFullYear() === firstYear);
+            const lastCount = contagemData.counts.find((c: any) => new Date(c.date).getFullYear() === lastYear);
+            if (firstCount && lastCount) {
+              const change = ((lastCount.total_cyclists - firstCount.total_cyclists) / firstCount.total_cyclists) * 100;
+              const trend = change > 0 ? 'aumento' : 'redução';
+              details.push(`${trend} de ${Math.abs(Math.round(change))}%`);
+            }
+          } else {
+            const count = contagemData.counts[0];
+            details.push(`Única contagem em ${new Date(count.date).getFullYear()}`);
+          }
+          
+          return details.join(' • ') + '\nFonte: <a href="/dados/contagens" class="text-blue-600 underline">página de contagens</a>';
+        }
+        return "contagens de ciclistas\nFonte: <a href='/dados/contagens' class='text-blue-600 underline'>página de contagens</a>";
+      })(),
       chart: contagensChart,
       hasData: availability.contagens
     },
@@ -187,7 +376,18 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
       title: "Percentual de mulheres",
       value: getCardValue('genero', "12%"),
       chart: generoChart,
-      metrics: [{label: "Aumento 4%", value: "(2019)", trend: "up"}],
+      metrics: (() => {
+        const generoData = getCardData('genero');
+        if (generoData?.details?.counts?.[0]?.characteristics) {
+          const chars = generoData.details.counts[0].characteristics;
+          const total = generoData.details.counts[0].total_cyclists;
+          return [
+            {label: "Mulheres", value: `${chars.women || 0}`, trend: undefined},
+            {label: "Total", value: `${total}`, trend: undefined}
+          ];
+        }
+        return [{label: "Aumento 4%", value: "(2019)", trend: "up"}];
+      })(),
       description: "Fonte: <a href='/dados/perfil' class='text-blue-600 underline'>página de perfil</a>",
       hasData: availability.genero
     },
@@ -288,12 +488,12 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
             return (
               <div key={item.id} className="border rounded-lg p-3 shadow-sm bg-gray-50">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-medium text-gray-800">{item.title}</h3>
+                  <h3 className="font-medium text-gray-800 text-sm leading-tight">{item.title}</h3>
                   <button
                     onClick={() => toggleCard(item.id)}
-                    className="text-gray-400 hover:text-gray-600 p-1"
+                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-200 rounded transition-colors"
                   >
-                    <svg className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-3 h-3 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>

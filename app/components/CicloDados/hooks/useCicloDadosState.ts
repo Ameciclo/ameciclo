@@ -37,7 +37,7 @@ export function useCicloDadosState(
   };
 
   const [selectedInfra, setSelectedInfra] = useState<string[]>(() => 
-    getStoredValue('selectedInfra', infraOptions.map(opt => opt.name))
+    getStoredValue('selectedInfra', [])
   );
   const [selectedContagem, setSelectedContagem] = useState<string[]>(() => 
     getStoredValue('selectedContagem', contagemOptions)
@@ -46,10 +46,10 @@ export function useCicloDadosState(
     getStoredValue('selectedPdc', pdcOptions.map(opt => opt.name))
   );
   const [selectedInfracao, setSelectedInfracao] = useState<string[]>(() => 
-    getStoredValue('selectedInfracao', infracaoOptions)
+    getStoredValue('selectedInfracao', [])
   );
   const [selectedSinistro, setSelectedSinistro] = useState<string[]>(() => 
-    getStoredValue('selectedSinistro', sinistroOptions)
+    getStoredValue('selectedSinistro', [])
   );
   const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(() => 
     getStoredValue('selectedEstacionamento', estacionamentoOptions)
@@ -195,6 +195,34 @@ export function useCicloDadosState(
     );
   };
 
+  const clearAllSelections = () => {
+    setSelectedInfra([]);
+    setSelectedContagem([]);
+    setSelectedPdc([]);
+    setSelectedInfracao([]);
+    setSelectedSinistro([]);
+    setSelectedEstacionamento([]);
+    
+    // Force localStorage update immediately
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ciclodados_selectedInfra', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedContagem', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedPdc', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedInfracao', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedSinistro', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify([]));
+    }
+  };
+
+  const selectAllOptions = () => {
+    setSelectedInfra(infraOptions.map(opt => opt.name));
+    setSelectedContagem([...contagemOptions]);
+    setSelectedPdc(pdcOptions.map(opt => opt.name));
+    setSelectedInfracao([...infracaoOptions]);
+    setSelectedSinistro([...sinistroOptions]);
+    setSelectedEstacionamento([...estacionamentoOptions]);
+  };
+
   return {
     leftSidebarOpen,
     setLeftSidebarOpen,
@@ -225,6 +253,8 @@ export function useCicloDadosState(
     selectedStreet,
     setSelectedStreet,
     viewMode,
-    setViewMode
+    setViewMode,
+    clearAllSelections,
+    selectAllOptions
   };
 }

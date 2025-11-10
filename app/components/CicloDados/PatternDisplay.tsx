@@ -24,11 +24,15 @@ function getInfraPatternSvg(pattern: string, color: string, name: string) {
     case "arrows":
       return (
         <svg className="w-full h-3" viewBox="0 0 100 12" preserveAspectRatio="none">
-          <rect width="100" height="12" fill={color} stroke="#EF4444" strokeWidth="1" />
-          <path d="M25,3 L30,6 L25,9" stroke="#EF4444" strokeWidth="2" fill="none" />
-          <path d="M40,3 L45,6 L40,9" stroke="#EF4444" strokeWidth="2" fill="none" />
-          <path d="M55,3 L60,6 L55,9" stroke="#EF4444" strokeWidth="2" fill="none" />
-          <path d="M70,3 L75,6 L70,9" stroke="#EF4444" strokeWidth="2" fill="none" />
+          <rect width="100" height="12" fill="#9CA3AF" />
+          <rect x="10" y="0" width="2" height="12" fill="#EF4444" />
+          <rect x="20" y="0" width="2" height="12" fill="#EF4444" />
+          <rect x="30" y="0" width="2" height="12" fill="#EF4444" />
+          <rect x="40" y="0" width="2" height="12" fill="#EF4444" />
+          <rect x="50" y="0" width="2" height="12" fill="#EF4444" />
+          <rect x="60" y="0" width="2" height="12" fill="#EF4444" />
+          <rect x="70" y="0" width="2" height="12" fill="#EF4444" />
+          <rect x="80" y="0" width="2" height="12" fill="#EF4444" />
         </svg>
       );
     case "area":

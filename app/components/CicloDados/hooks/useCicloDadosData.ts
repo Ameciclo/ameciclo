@@ -1,11 +1,9 @@
 export function useCicloDadosData() {
   const infraOptions = [
-    { name: "Ciclovias", color: "#EF4444", pattern: "solid" },
-    { name: "Ciclofaixas", color: "#6B7280", pattern: "bordered" },
-    { name: "Ciclorrotas", color: "#9CA3AF", pattern: "arrows" },
-    { name: "Calçadas Compartilhadas", color: "#10B981", pattern: "solid" },
-    { name: "Zonas 30", color: "#F59E0B", pattern: "area" },
-    { name: "Zonas de Pedestre", color: "#3B82F6", pattern: "area" }
+    { name: "Ciclovia", color: "#EF4444", pattern: "solid" },
+    { name: "Ciclofaixa", color: "#6B7280", pattern: "bordered" },
+    { name: "Ciclorrota", color: "#9CA3AF", pattern: "arrows" },
+    { name: "Calçada compartilhada", color: "#10B981", pattern: "solid" }
   ];
 
   const contagemOptions = [
@@ -19,10 +17,10 @@ export function useCicloDadosData() {
   ];
 
   const pdcOptions = [
-    { name: "Realizado dentro do PDF com infra designada", color: "#8B5CF6", pattern: "parallel" },
-    { name: "Realizado dentro do PDF com infra não designada", color: "#8B5CF6", pattern: "parallel-dashed" },
-    { name: "Realizado fora do PDC", color: "#F59E0B", pattern: "parallel-orange-dashed" },
-    { name: "PDC não realizado", color: "#EC4899", pattern: "striped" }
+    { name: "PDC Realizado Designado", color: "#8B5CF6", pattern: "parallel", apiKey: "pdc_realizado_designado" },
+    { name: "PDC Realizado Não Designado", color: "#8B5CF6", pattern: "parallel-dashed", apiKey: "pdc_realizado_nao_designado" },
+    { name: "Realizado Fora PDC", color: "#F59E0B", pattern: "parallel-orange-dashed", apiKey: "realizado_fora_pdc" },
+    { name: "PDC Não Realizado", color: "#EC4899", pattern: "striped", apiKey: "pdc_nao_realizado" }
   ];
 
   const infracaoOptions = [

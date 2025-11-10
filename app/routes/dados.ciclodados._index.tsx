@@ -1,10 +1,45 @@
 import { useEffect, useState } from 'react';
 import { json, LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { useLoaderData, useRevalidator, useNavigate } from '@remix-run/react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  // Remover fetch do servidor para evitar timeout
-  return json({ bicicletarios: null });
+  const url = new URL(request.url);
+  const lat = url.searchParams.get('lat') || '-8.0476';
+  const lon = url.searchParams.get('lon') || '-34.8770';
+  
+  console.log('🔄 Loader executado com coordenadas:', { lat, lon });
+  
+  let contagemData = null;
+  let execucaoCicloviaria = null;
+  
+  // Fetch contagem data with error handling
+  try {
+    const contagemResponse = await fetch(
+      `http://192.168.10.114:3002/v1/locations/nearby?lat=${lat}&lon=${lon}`,
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (contagemResponse.ok) {
+      contagemData = await contagemResponse.json();
+      console.log('📊 Dados de contagem carregados:', contagemData?.features?.length || 0, 'pontos');
+    }
+  } catch (error) {
+    console.warn('Contagem API unavailable:', error);
+  }
+  
+  // Fetch PDC data with error handling
+  try {
+    const pdcResponse = await fetch(
+      `http://192.168.10.114:3020/v1/ways/all-ways?precision=4&simplify=0.0001&city=2611606&minimal=true&only_all=true`,
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (pdcResponse.ok) {
+      execucaoCicloviaria = await pdcResponse.json();
+    }
+  } catch (error) {
+    console.warn('PDC API unavailable:', error);
+  }
+  
+  return json({ contagemData, execucaoCicloviaria });
 }
 import {
   CicloDadosHeader,
@@ -15,6 +50,9 @@ import {
   FloatingChat,
   useCicloDadosData,
   useCicloDadosState,
+  usePontosContagem,
+  useExecucaoCicloviaria,
+  useSinistros,
   generateInfraData,
   generatePdcData,
   generateContagemData,
@@ -25,8 +63,10 @@ import type { StreetMatch, StreetDataSummary } from '~/services/streets.service'
 import { getStreetDetails, getStreetDataSummary } from '~/services/streets.service';
 
 export default function CicloDados() {
-  // Dados carregados via hooks no cliente
-  const { bicicletarios } = { bicicletarios: null };
+  const { contagemData, execucaoCicloviaria } = useLoaderData<typeof loader>();
+  const revalidator = useRevalidator();
+  
+  console.log('Component execucaoCicloviaria:', execucaoCicloviaria ? 'loaded' : 'null', execucaoCicloviaria?.features?.length || 0);
   
   const {
     infraOptions,
@@ -65,7 +105,9 @@ export default function CicloDados() {
     selectedDias,
     setSelectedDias,
     viewMode,
-    setViewMode
+    setViewMode,
+    clearAllSelections,
+    selectAllOptions
   } = useCicloDadosState(
     infraOptions,
     contagemOptions,
@@ -79,7 +121,48 @@ export default function CicloDados() {
   const [mapSelection, setMapSelection] = useState<{lat: number, lng: number, radius: number, street?: string} | null>(null);
   
   const handleMapSelection = (coords: {lat: number, lng: number, radius: number, street?: string}) => {
+    console.log('🎯 Seleção do mapa:', coords);
+    console.log('🎯 Estado anterior mapSelection:', mapSelection);
     setMapSelection(coords);
+    console.log('🎯 Novo mapSelection definido');
+  };
+
+  const handlePointClick = (point: any) => {
+    console.log('🎯 Clique no ponto completo:', point);
+    
+    // Extrair coordenadas e dados do ponto clicado
+    let lat, lng, name, totalCyclists;
+    
+    if (point.latitude && point.longitude) {
+      lat = point.latitude;
+      lng = point.longitude;
+      name = point.popup?.name || point.popup?.location || 'Ponto de Contagem';
+      totalCyclists = point.popup?.total || point.popup?.count || 0;
+    } else if (point.geometry?.coordinates) {
+      lng = point.geometry.coordinates[0];
+      lat = point.geometry.coordinates[1];
+      name = point.properties?.name || point.properties?.location || 'Ponto de Contagem';
+      totalCyclists = point.properties?.count || point.properties?.total_cyclists || 0;
+    } else {
+      console.error('❌ Estrutura do ponto:', Object.keys(point));
+      return;
+    }
+    
+    console.log('🎯 Coordenadas encontradas:', { lat, lng, name, totalCyclists });
+    
+    const coords = { 
+      lat, 
+      lng, 
+      radius: 500, 
+      street: name,
+      pointData: {
+        name,
+        totalCyclists,
+        ...point
+      }
+    };
+    console.log('🎯 Chamando handleMapSelection com:', coords);
+    handleMapSelection(coords);
   };
 
   const [mapViewState, setMapViewState] = useState({
@@ -142,9 +225,11 @@ export default function CicloDados() {
 
   // Gerar dados do mapa
   const infraData = generateInfraData(selectedInfra);
-  const pdcData = generatePdcData(selectedPdc);
-  const contagemData = generateContagemData(selectedContagem);
+  const pdcData = generatePdcData(selectedPdc, execucaoCicloviaria);
+  const contagemMapData = generateContagemData(selectedContagem, contagemData);
   const layersConf = generateLayersConf(selectedInfra, selectedPdc, infraOptions, pdcOptions);
+  
+
 
   // Auto-abrir sidebars após 3 segundos quando em modo mapa
   useEffect(() => {
@@ -157,6 +242,29 @@ export default function CicloDados() {
       return () => clearTimeout(timer);
     }
   }, [viewMode, setLeftSidebarOpen, setRightSidebarOpen]);
+  
+  // Reload functions
+  const handleReloadMapData = () => {
+    // Revalidate loader data (contagem data)
+    revalidator.revalidate();
+    
+    // Clear current map selection to force refresh
+    setMapSelection(null);
+    
+    // Optionally show a toast or feedback
+    console.log('Recarregando dados do mapa...');
+  };
+  
+  const handleReloadGeneralData = () => {
+    // Reset to default selections instead of clearing all
+    selectAllOptions();
+    
+    // Revalidate loader data
+    revalidator.revalidate();
+    
+    // Optionally show a toast or feedback
+    console.log('Recarregando informações gerais...');
+  };
   
   // Demo event listener
   useEffect(() => {
@@ -212,6 +320,10 @@ export default function CicloDados() {
             onSocioChange={setSelectedSocio}
             selectedDias={selectedDias}
             onDiasChange={setSelectedDias}
+            onClearAll={clearAllSelections}
+            onSelectAll={selectAllOptions}
+            onReloadMapData={handleReloadMapData}
+            onReloadGeneralData={handleReloadGeneralData}
           />
         )}
 
@@ -222,16 +334,18 @@ export default function CicloDados() {
               selectedPdc={selectedPdc}
               selectedContagem={selectedContagem}
               selectedEstacionamento={selectedEstacionamento}
+              selectedSinistro={selectedSinistro}
               infraOptions={infraOptions}
               pdcOptions={pdcOptions}
               layersConf={layersConf}
               infraData={infraData}
               pdcData={pdcData}
-              contagemData={contagemData}
+              contagemData={contagemMapData}
               getContagemIcon={getContagemIcon}
               externalViewState={mapViewState}
               highlightedStreet={selectedStreetGeometry}
               streetData={selectedStreetData}
+              onPointClick={handlePointClick}
             />
           ) : (
             <MuralView 
@@ -247,6 +361,8 @@ export default function CicloDados() {
           viewMode={viewMode}
           mapSelection={mapSelection}
         />
+        
+
       </div>
 
       <FloatingChat

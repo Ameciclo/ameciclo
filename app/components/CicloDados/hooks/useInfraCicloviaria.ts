@@ -1,5 +1,5 @@
 import { useGenericClusters } from './useGenericClusters';
-import { BIKE_PE_STATIONS_DATA } from '~/servers';
+import { SERVERS } from '~/servers';
 
 interface ViewportBounds {
   north: number;
@@ -8,7 +8,7 @@ interface ViewportBounds {
   west: number;
 }
 
-export function useBikePE(bounds?: ViewportBounds) {
-  const result = useGenericClusters(BIKE_PE_STATIONS_DATA, bounds);
+export function useInfraCicloviaria(bounds?: ViewportBounds, selectedTypes?: string[]) {
+  const result = useGenericClusters(SERVERS.INFRA_CICLOVIARIA, bounds);
   return { data: result.data, error: result.error };
 }
