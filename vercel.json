@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "build/server/nodejs-*/index.js": {
-      "maxDuration": 25
-    }
-  },
   "buildCommand": "npm run build",
   "outputDirectory": "build/client",
   "rewrites": [
