@@ -34,7 +34,7 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[70%] md:max-w-4xl md:left-auto md:right-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-50">
+    <div className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[70%] md:max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 z-50">
       <div className="px-4 py-4 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-3 flex-1">
