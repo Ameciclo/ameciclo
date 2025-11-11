@@ -143,6 +143,7 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
       </div>
 
       <div className="flex-1 flex items-center justify-center gap-1 sm:gap-4 ml-2 sm:ml-0">
+        {/* TODO: Descomentar quando implementar visualização mural
         <button 
           onClick={() => onViewModeChange('map')}
           className={`px-1 sm:px-3 py-1 rounded transition-colors text-xs sm:text-sm flex-shrink-0 flex items-center gap-1 ${
@@ -167,6 +168,7 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
           <span className="hidden sm:inline">Visualizar no mural</span>
           <span className="sm:hidden">Mural</span>
         </button>
+        */}
         <div className="relative flex-1 max-w-[120px] sm:max-w-xs" ref={searchRef}>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />

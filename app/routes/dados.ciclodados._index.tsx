@@ -272,8 +272,8 @@ export default function CicloDados() {
           />
 
           <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
-            {viewMode === 'map' && (
-              <LeftSidebar
+            {/* TODO: Descomentar condição quando implementar mural: {viewMode === 'map' && ( */}
+            <LeftSidebar
                 isOpen={leftSidebarOpen}
                 onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
                 infraOptions={infraOptions}
@@ -313,34 +313,36 @@ export default function CicloDados() {
                 onReloadMapData={handleReloadMapData}
                 onReloadGeneralData={handleReloadGeneralData}
               />
-            )}
+            {/* TODO: Descomentar quando implementar mural: )} */}
 
             <main className="flex-1 relative">
-              {viewMode === 'map' ? (
-                <MapView
-                  selectedInfra={selectedInfra}
-                  selectedPdc={selectedPdc}
-                  selectedContagem={selectedContagem}
-                  selectedEstacionamento={selectedEstacionamento}
-                  selectedSinistro={selectedSinistro}
-                  infraOptions={infraOptions}
-                  pdcOptions={pdcOptions}
-                  layersConf={layersConf}
-                  infraData={infraData}
-                  pdcData={pdcData}
-                  contagemData={contagemMapData}
-                  getContagemIcon={getContagemIcon}
-                  onPointClick={handlePointClick}
-                  externalViewState={mapViewState}
-                  highlightedStreet={selectedStreetGeometry}
-                  streetData={selectedStreetData}
-                />
+              {/* TODO: Descomentar condição quando implementar mural: {viewMode === 'map' ? ( */}
+              <MapView
+                selectedInfra={selectedInfra}
+                selectedPdc={selectedPdc}
+                selectedContagem={selectedContagem}
+                selectedEstacionamento={selectedEstacionamento}
+                selectedSinistro={selectedSinistro}
+                infraOptions={infraOptions}
+                pdcOptions={pdcOptions}
+                layersConf={layersConf}
+                infraData={infraData}
+                pdcData={pdcData}
+                contagemData={contagemMapData}
+                getContagemIcon={getContagemIcon}
+                onPointClick={handlePointClick}
+                externalViewState={mapViewState}
+                highlightedStreet={selectedStreetGeometry}
+                streetData={selectedStreetData}
+              />
+              {/* TODO: Descomentar quando implementar mural:
               ) : (
                 <MuralView 
                   sidebarOpen={leftSidebarOpen}
                   onSidebarToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
                 />
               )}
+              */}
             </main>
 
             <RightSidebar

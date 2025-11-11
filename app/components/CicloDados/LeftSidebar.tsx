@@ -261,6 +261,7 @@ export function LeftSidebar({
                 onToggleCollapse={() => toggleSection('perfil')}
               />
               
+              {/* TODO: Descomentar quando implementar
               <FilterSection
                 title="Infrações de Trânsito"
                 options={infracaoOptions.map(opt => ({ name: opt }))}
@@ -304,6 +305,7 @@ export function LeftSidebar({
                 onToggleCollapse={() => toggleSection('ideciclo')}
                 comingSoon={true}
               />
+              */}
             </div>
           </div>
         </div>
