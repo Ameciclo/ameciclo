@@ -13,12 +13,16 @@ export function useCicloDadosState(
   sinistroOptions: string[],
   estacionamentoOptions: string[]
 ) {
+  const [isClient, setIsClient] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');
   
-
+  // Initialize client-side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   // Keep sidebar open when switching to mural mode
   useEffect(() => {
@@ -26,8 +30,9 @@ export function useCicloDadosState(
       setLeftSidebarOpen(true);
     }
   }, [viewMode]);
+  
   const getStoredValue = (key: string, defaultValue: any) => {
-    if (typeof window === 'undefined') return defaultValue;
+    if (!isClient) return defaultValue;
     try {
       const stored = localStorage.getItem(`ciclodados_${key}`);
       return stored ? JSON.parse(stored) : defaultValue;
@@ -36,116 +41,107 @@ export function useCicloDadosState(
     }
   };
 
-  const [selectedInfra, setSelectedInfra] = useState<string[]>(() => 
-    getStoredValue('selectedInfra', [])
-  );
-  const [selectedContagem, setSelectedContagem] = useState<string[]>(() => 
-    getStoredValue('selectedContagem', contagemOptions)
-  );
-  const [selectedPdc, setSelectedPdc] = useState<string[]>(() => 
-    getStoredValue('selectedPdc', pdcOptions.map(opt => opt.name))
-  );
-  const [selectedInfracao, setSelectedInfracao] = useState<string[]>(() => 
-    getStoredValue('selectedInfracao', [])
-  );
-  const [selectedSinistro, setSelectedSinistro] = useState<string[]>(() => 
-    getStoredValue('selectedSinistro', [])
-  );
-  const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(() => 
-    getStoredValue('selectedEstacionamento', estacionamentoOptions)
-  );
-  const [selectedGenero, setSelectedGenero] = useState<string>(() => 
-    getStoredValue('selectedGenero', "Todas")
-  );
-  const [selectedRaca, setSelectedRaca] = useState<string>(() => 
-    getStoredValue('selectedRaca', "Todas")
-  );
-  const [selectedSocio, setSelectedSocio] = useState<string>(() => 
-    getStoredValue('selectedSocio', "Salários entre X")
-  );
-  const [selectedDias, setSelectedDias] = useState<string>(() => 
-    getStoredValue('selectedDias', "1 dia")
-  );
-  const [selectedStreet, setSelectedStreet] = useState<string>(() => 
-    getStoredValue('selectedStreet', "")
-  );
-  // Set viewMode from localStorage after hydration
+  const [selectedInfra, setSelectedInfra] = useState<string[]>([]);
+  const [selectedContagem, setSelectedContagem] = useState<string[]>(contagemOptions);
+  const [selectedPdc, setSelectedPdc] = useState<string[]>(pdcOptions.map(opt => opt.name));
+  const [selectedInfracao, setSelectedInfracao] = useState<string[]>([]);
+  const [selectedSinistro, setSelectedSinistro] = useState<string[]>([]);
+  const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(estacionamentoOptions);
+  const [selectedGenero, setSelectedGenero] = useState<string>("Todas");
+  const [selectedRaca, setSelectedRaca] = useState<string>("Todas");
+  const [selectedSocio, setSelectedSocio] = useState<string>("Salários entre X");
+  const [selectedDias, setSelectedDias] = useState<string>("1 dia");
+  const [selectedStreet, setSelectedStreet] = useState<string>("");
+  
+  // Load from localStorage after hydration
   useEffect(() => {
-    const storedViewMode = getStoredValue('viewMode', 'map');
-    setViewMode(storedViewMode);
-  }, []);
+    if (isClient) {
+      setSelectedInfra(getStoredValue('selectedInfra', []));
+      setSelectedContagem(getStoredValue('selectedContagem', contagemOptions));
+      setSelectedPdc(getStoredValue('selectedPdc', pdcOptions.map(opt => opt.name)));
+      setSelectedInfracao(getStoredValue('selectedInfracao', []));
+      setSelectedSinistro(getStoredValue('selectedSinistro', []));
+      setSelectedEstacionamento(getStoredValue('selectedEstacionamento', estacionamentoOptions));
+      setSelectedGenero(getStoredValue('selectedGenero', "Todas"));
+      setSelectedRaca(getStoredValue('selectedRaca', "Todas"));
+      setSelectedSocio(getStoredValue('selectedSocio', "Salários entre X"));
+      setSelectedDias(getStoredValue('selectedDias', "1 dia"));
+      setSelectedStreet(getStoredValue('selectedStreet', ""));
+      setViewMode(getStoredValue('viewMode', 'map'));
+    }
+  }, [isClient, contagemOptions, pdcOptions, estacionamentoOptions]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedInfra', JSON.stringify(selectedInfra));
     }
-  }, [selectedInfra]);
+  }, [selectedInfra, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedContagem', JSON.stringify(selectedContagem));
     }
-  }, [selectedContagem]);
+  }, [selectedContagem, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedPdc', JSON.stringify(selectedPdc));
     }
-  }, [selectedPdc]);
+  }, [selectedPdc, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedInfracao', JSON.stringify(selectedInfracao));
     }
-  }, [selectedInfracao]);
+  }, [selectedInfracao, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedSinistro', JSON.stringify(selectedSinistro));
     }
-  }, [selectedSinistro]);
+  }, [selectedSinistro, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify(selectedEstacionamento));
     }
-  }, [selectedEstacionamento]);
+  }, [selectedEstacionamento, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedGenero', JSON.stringify(selectedGenero));
     }
-  }, [selectedGenero]);
+  }, [selectedGenero, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedRaca', JSON.stringify(selectedRaca));
     }
-  }, [selectedRaca]);
+  }, [selectedRaca, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedSocio', JSON.stringify(selectedSocio));
     }
-  }, [selectedSocio]);
+  }, [selectedSocio, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedDias', JSON.stringify(selectedDias));
     }
-  }, [selectedDias]);
+  }, [selectedDias, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedStreet', JSON.stringify(selectedStreet));
     }
-  }, [selectedStreet]);
+  }, [selectedStreet, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_viewMode', JSON.stringify(viewMode));
     }
-  }, [viewMode]);
+  }, [viewMode, isClient]);
 
   const toggleInfraOption = (optionName: string) => {
     setSelectedInfra(prev => 
@@ -204,7 +200,7 @@ export function useCicloDadosState(
     setSelectedEstacionamento([]);
     
     // Force localStorage update immediately
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('ciclodados_selectedInfra', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedContagem', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedPdc', JSON.stringify([]));

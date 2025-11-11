@@ -10,6 +10,8 @@ export { FloatingChat } from './FloatingChat';
 export { FilterSection } from './FilterSection';
 export { PatternDisplay } from './PatternDisplay';
 export { PerfilSection } from './PerfilSection';
+export { CicloDadosErrorBoundary } from './ErrorBoundary';
+export { ClientOnly, CicloDadosLoader } from './ClientOnly';
 
 export { useCicloDadosData } from './hooks/useCicloDadosData';
 export { useCicloDadosState } from './hooks/useCicloDadosState';

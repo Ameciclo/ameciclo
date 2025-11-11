@@ -410,31 +410,30 @@ export const AmecicloMap = ({
 
     useEffect(() => {
         setIsClient(true);
-        // Pequeno delay para garantir que tudo está hidratado
-        const timer = setTimeout(() => {
-            setIsMapReady(true);
-        }, 100);
         
         // Adicionar CSS para mapbox no head
-        if (typeof document !== 'undefined') {
-            const existingStyle = document.getElementById('mapbox-custom-styles');
-            if (!existingStyle) {
-                const style = document.createElement('style');
-                style.id = 'mapbox-custom-styles';
-                style.textContent = `
-                    .mapboxgl-ctrl-attrib {
-                        color: #d1d5db !important;
-                        font-size: 10px !important;
-                        opacity: 0.6 !important;
-                    }
-                    .mapboxgl-ctrl-attrib a {
-                        color: #d1d5db !important;
-                        font-size: 10px !important;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
+        const existingStyle = document.getElementById('mapbox-custom-styles');
+        if (!existingStyle) {
+            const style = document.createElement('style');
+            style.id = 'mapbox-custom-styles';
+            style.textContent = `
+                .mapboxgl-ctrl-attrib {
+                    color: #d1d5db !important;
+                    font-size: 10px !important;
+                    opacity: 0.6 !important;
+                }
+                .mapboxgl-ctrl-attrib a {
+                    color: #d1d5db !important;
+                    font-size: 10px !important;
+                }
+            `;
+            document.head.appendChild(style);
         }
+        
+        // Delay menor para evitar problemas de hidratação
+        const timer = setTimeout(() => {
+            setIsMapReady(true);
+        }, 50);
         
         return () => clearTimeout(timer);
     }, []);

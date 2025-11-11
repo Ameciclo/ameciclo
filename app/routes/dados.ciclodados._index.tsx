@@ -1,45 +1,19 @@
 import { useEffect, useState } from 'react';
 import { json, LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData, useRevalidator, useNavigate } from '@remix-run/react';
+import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
+import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const lat = url.searchParams.get('lat') || '-8.0476';
   const lon = url.searchParams.get('lon') || '-34.8770';
   
-  console.log('🔄 Loader executado com coordenadas:', { lat, lon });
-  
-  let contagemData = null;
-  let execucaoCicloviaria = null;
-  
-  // Fetch contagem data with error handling
-  try {
-    const contagemResponse = await fetch(
-      `http://192.168.10.114:3002/v1/locations/nearby?lat=${lat}&lon=${lon}`,
-      { signal: AbortSignal.timeout(10000) }
-    );
-    if (contagemResponse.ok) {
-      contagemData = await contagemResponse.json();
-      console.log('📊 Dados de contagem carregados:', contagemData?.features?.length || 0, 'pontos');
-    }
-  } catch (error) {
-    console.warn('Contagem API unavailable:', error);
-  }
-  
-  // Fetch PDC data with error handling
-  try {
-    const pdcResponse = await fetch(
-      `http://192.168.10.114:3020/v1/ways/all-ways?precision=4&simplify=0.0001&city=2611606&minimal=true&only_all=true`,
-      { signal: AbortSignal.timeout(10000) }
-    );
-    if (pdcResponse.ok) {
-      execucaoCicloviaria = await pdcResponse.json();
-    }
-  } catch (error) {
-    console.warn('PDC API unavailable:', error);
-  }
-  
-  return json({ contagemData, execucaoCicloviaria });
+  // Return mock data immediately to prevent timeout
+  return json({ 
+    contagemData: null, 
+    execucaoCicloviaria: null 
+  });
 }
 import {
   CicloDadosHeader,
@@ -282,93 +256,97 @@ export default function CicloDados() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
-      <CicloDadosHeader 
-        viewMode={viewMode} 
-        onViewModeChange={setViewMode}
-        onZoomToStreet={handleZoomToStreet}
-      />
-
-      <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
-        {viewMode === 'map' && (
-          <LeftSidebar
-            isOpen={leftSidebarOpen}
-            onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
-            infraOptions={infraOptions}
-            selectedInfra={selectedInfra}
-            onInfraToggle={toggleInfraOption}
-            contagemOptions={contagemOptions}
-            selectedContagem={selectedContagem}
-            onContagemToggle={toggleContagemOption}
-            pdcOptions={pdcOptions}
-            selectedPdc={selectedPdc}
-            onPdcToggle={togglePdcOption}
-            infracaoOptions={infracaoOptions}
-            selectedInfracao={selectedInfracao}
-            onInfracaoToggle={toggleInfracaoOption}
-            sinistroOptions={sinistroOptions}
-            selectedSinistro={selectedSinistro}
-            onSinistroToggle={toggleSinistroOption}
-            estacionamentoOptions={estacionamentoOptions}
-            selectedEstacionamento={selectedEstacionamento}
-            onEstacionamentoToggle={toggleEstacionamentoOption}
-            selectedGenero={selectedGenero}
-            onGeneroChange={setSelectedGenero}
-            selectedRaca={selectedRaca}
-            onRacaChange={setSelectedRaca}
-            selectedSocio={selectedSocio}
-            onSocioChange={setSelectedSocio}
-            selectedDias={selectedDias}
-            onDiasChange={setSelectedDias}
-            onClearAll={clearAllSelections}
-            onSelectAll={selectAllOptions}
-            onReloadMapData={handleReloadMapData}
-            onReloadGeneralData={handleReloadGeneralData}
+    <CicloDadosErrorBoundary>
+      <ClientOnly fallback={<CicloDadosLoader />}>
+        <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
+          <CicloDadosHeader 
+            viewMode={viewMode} 
+            onViewModeChange={setViewMode}
+            onZoomToStreet={handleZoomToStreet}
           />
-        )}
 
-        <main className="flex-1 relative">
-          {viewMode === 'map' ? (
-            <MapView
-              selectedInfra={selectedInfra}
-              selectedPdc={selectedPdc}
-              selectedContagem={selectedContagem}
-              selectedEstacionamento={selectedEstacionamento}
-              selectedSinistro={selectedSinistro}
-              infraOptions={infraOptions}
-              pdcOptions={pdcOptions}
-              layersConf={layersConf}
-              infraData={infraData}
-              pdcData={pdcData}
-              contagemData={contagemMapData}
-              getContagemIcon={getContagemIcon}
-              onPointClick={handlePointClick}
-              externalViewState={mapViewState}
-              highlightedStreet={selectedStreetGeometry}
-              streetData={selectedStreetData}
+          <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
+            {viewMode === 'map' && (
+              <LeftSidebar
+                isOpen={leftSidebarOpen}
+                onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+                infraOptions={infraOptions}
+                selectedInfra={selectedInfra}
+                onInfraToggle={toggleInfraOption}
+                contagemOptions={contagemOptions}
+                selectedContagem={selectedContagem}
+                onContagemToggle={toggleContagemOption}
+                pdcOptions={pdcOptions}
+                selectedPdc={selectedPdc}
+                onPdcToggle={togglePdcOption}
+                infracaoOptions={infracaoOptions}
+                selectedInfracao={selectedInfracao}
+                onInfracaoToggle={toggleInfracaoOption}
+                sinistroOptions={sinistroOptions}
+                selectedSinistro={selectedSinistro}
+                onSinistroToggle={toggleSinistroOption}
+                estacionamentoOptions={estacionamentoOptions}
+                selectedEstacionamento={selectedEstacionamento}
+                onEstacionamentoToggle={toggleEstacionamentoOption}
+                selectedGenero={selectedGenero}
+                onGeneroChange={setSelectedGenero}
+                selectedRaca={selectedRaca}
+                onRacaChange={setSelectedRaca}
+                selectedSocio={selectedSocio}
+                onSocioChange={setSelectedSocio}
+                selectedDias={selectedDias}
+                onDiasChange={setSelectedDias}
+                onClearAll={clearAllSelections}
+                onSelectAll={selectAllOptions}
+                onReloadMapData={handleReloadMapData}
+                onReloadGeneralData={handleReloadGeneralData}
+              />
+            )}
+
+            <main className="flex-1 relative">
+              {viewMode === 'map' ? (
+                <MapView
+                  selectedInfra={selectedInfra}
+                  selectedPdc={selectedPdc}
+                  selectedContagem={selectedContagem}
+                  selectedEstacionamento={selectedEstacionamento}
+                  selectedSinistro={selectedSinistro}
+                  infraOptions={infraOptions}
+                  pdcOptions={pdcOptions}
+                  layersConf={layersConf}
+                  infraData={infraData}
+                  pdcData={pdcData}
+                  contagemData={contagemMapData}
+                  getContagemIcon={getContagemIcon}
+                  onPointClick={handlePointClick}
+                  externalViewState={mapViewState}
+                  highlightedStreet={selectedStreetGeometry}
+                  streetData={selectedStreetData}
+                />
+              ) : (
+                <MuralView 
+                  sidebarOpen={leftSidebarOpen}
+                  onSidebarToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+                />
+              )}
+            </main>
+
+            <RightSidebar
+              isOpen={rightSidebarOpen}
+              onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
+              viewMode={viewMode}
+              mapSelection={mapSelection}
             />
-          ) : (
-            <MuralView 
-              sidebarOpen={leftSidebarOpen}
-              onSidebarToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
-            />
-          )}
-        </main>
+            
 
-        <RightSidebar
-          isOpen={rightSidebarOpen}
-          onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
-          viewMode={viewMode}
-          mapSelection={mapSelection}
-        />
-        
+          </div>
 
-      </div>
-
-      <FloatingChat
-        isOpen={chatOpen}
-        onToggle={() => setChatOpen(!chatOpen)}
-      />
-    </div>
+          <FloatingChat
+            isOpen={chatOpen}
+            onToggle={() => setChatOpen(!chatOpen)}
+          />
+        </div>
+      </ClientOnly>
+    </CicloDadosErrorBoundary>
   );
 }

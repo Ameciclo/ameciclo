@@ -58,20 +58,7 @@ export function MapView({
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
-  const [mapViewState, setMapViewState] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ciclodados-map-view');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          return parsed;
-        } catch (e) {
-          console.error('Erro ao parsear localStorage:', e);
-        }
-      }
-    }
-    return { latitude: -8.0476, longitude: -34.8770, zoom: 11 };
-  });
+  const [mapViewState, setMapViewState] = useState({ latitude: -8.0476, longitude: -34.8770, zoom: 11 });
 
   const [forceRender, setForceRender] = useState(0);
 
@@ -116,6 +103,17 @@ export function MapView({
   
   useEffect(() => {
     setIsClient(true);
+    
+    // Load saved map position after hydration
+    const saved = localStorage.getItem('ciclodados-map-view');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setMapViewState(parsed);
+      } catch (e) {
+        console.error('Erro ao parsear localStorage:', e);
+      }
+    }
   }, []);
   
   // Usar hooks com bounds para filtrar dados apenas no cliente
@@ -152,7 +150,7 @@ export function MapView({
     }
     
     saveTimeoutRef.current = setTimeout(() => {
-      if (typeof window !== 'undefined') {
+      if (isClient) {
         const dataToSave = {
           latitude: viewState.latitude,
           longitude: viewState.longitude,
