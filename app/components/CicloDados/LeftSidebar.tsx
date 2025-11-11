@@ -9,21 +9,27 @@ interface LeftSidebarProps {
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   selectedInfra: string[];
   onInfraToggle: (option: string) => void;
+  onInfraToggleAll?: (options: string[], selectAll: boolean) => void;
   contagemOptions: string[];
   selectedContagem: string[];
   onContagemToggle: (option: string) => void;
+  onContagemToggleAll?: (options: string[], selectAll: boolean) => void;
   pdcOptions: Array<{ name: string; color: string; pattern: string }>;
   selectedPdc: string[];
   onPdcToggle: (option: string) => void;
+  onPdcToggleAll?: (options: string[], selectAll: boolean) => void;
   infracaoOptions: string[];
   selectedInfracao: string[];
   onInfracaoToggle: (option: string) => void;
+  onInfracaoToggleAll?: (options: string[], selectAll: boolean) => void;
   sinistroOptions: string[];
   selectedSinistro: string[];
   onSinistroToggle: (option: string) => void;
+  onSinistroToggleAll?: (options: string[], selectAll: boolean) => void;
   estacionamentoOptions: string[];
   selectedEstacionamento: string[];
   onEstacionamentoToggle: (option: string) => void;
+  onEstacionamentoToggleAll?: (options: string[], selectAll: boolean) => void;
   selectedGenero: string;
   onGeneroChange: (value: string) => void;
   selectedRaca: string;
@@ -50,21 +56,27 @@ export function LeftSidebar({
   infraOptions,
   selectedInfra,
   onInfraToggle,
+  onInfraToggleAll,
   contagemOptions,
   selectedContagem,
   onContagemToggle,
+  onContagemToggleAll,
   pdcOptions,
   selectedPdc,
   onPdcToggle,
+  onPdcToggleAll,
   infracaoOptions,
   selectedInfracao,
   onInfracaoToggle,
+  onInfracaoToggleAll,
   sinistroOptions,
   selectedSinistro,
   onSinistroToggle,
+  onSinistroToggleAll,
   estacionamentoOptions,
   selectedEstacionamento,
   onEstacionamentoToggle,
+  onEstacionamentoToggleAll,
   selectedGenero,
   onGeneroChange,
   selectedRaca,
@@ -193,6 +205,7 @@ export function LeftSidebar({
                 options={infraOptions}
                 selectedOptions={selectedInfra}
                 onToggle={onInfraToggle}
+                onToggleAll={onInfraToggleAll}
                 hasPattern={true}
                 isCollapsed={collapsedSections.has('infraestrutura')}
                 onToggleCollapse={() => toggleSection('infraestrutura')}
@@ -204,6 +217,7 @@ export function LeftSidebar({
                 options={contagemOptions.map(opt => ({ name: opt }))}
                 selectedOptions={selectedContagem}
                 onToggle={onContagemToggle}
+                onToggleAll={onContagemToggleAll}
                 hasPattern={false}
                 isCollapsed={collapsedSections.has('contagem')}
                 onToggleCollapse={() => toggleSection('contagem')}
@@ -214,6 +228,7 @@ export function LeftSidebar({
                 options={pdcOptions}
                 selectedOptions={selectedPdc}
                 onToggle={onPdcToggle}
+                onToggleAll={onPdcToggleAll}
                 hasPattern={true}
                 isPdc={true}
                 isCollapsed={collapsedSections.has('pdc')}
@@ -226,6 +241,7 @@ export function LeftSidebar({
                 options={estacionamentoOptions.map(opt => ({ name: opt }))}
                 selectedOptions={selectedEstacionamento}
                 onToggle={onEstacionamentoToggle}
+                onToggleAll={onEstacionamentoToggleAll}
                 hasPattern={false}
                 isCollapsed={collapsedSections.has('estacionamento')}
                 onToggleCollapse={() => toggleSection('estacionamento')}

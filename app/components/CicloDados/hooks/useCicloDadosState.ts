@@ -53,7 +53,7 @@ export function useCicloDadosState(
   const [selectedDias, setSelectedDias] = useState<string>("1 dia");
   const [selectedStreet, setSelectedStreet] = useState<string>("");
   
-  // Load from localStorage after hydration
+  // Load from localStorage after hydration - ONLY ONCE
   useEffect(() => {
     if (isClient) {
       setSelectedInfra(getStoredValue('selectedInfra', []));
@@ -69,7 +69,7 @@ export function useCicloDadosState(
       setSelectedStreet(getStoredValue('selectedStreet', ""));
       setViewMode(getStoredValue('viewMode', 'map'));
     }
-  }, [isClient, contagemOptions, pdcOptions, estacionamentoOptions]);
+  }, [isClient]); // Remove dependencies that cause re-loading
 
   useEffect(() => {
     if (isClient) {
@@ -151,12 +151,20 @@ export function useCicloDadosState(
     );
   };
 
+  const toggleAllInfraOptions = (options: string[], selectAll: boolean) => {
+    setSelectedInfra(selectAll ? options : []);
+  };
+
   const toggleContagemOption = (optionName: string) => {
     setSelectedContagem(prev => 
       prev.includes(optionName) 
         ? prev.filter(item => item !== optionName)
         : [...prev, optionName]
     );
+  };
+
+  const toggleAllContagemOptions = (options: string[], selectAll: boolean) => {
+    setSelectedContagem(selectAll ? options : []);
   };
 
   const togglePdcOption = (optionName: string) => {
@@ -167,12 +175,20 @@ export function useCicloDadosState(
     );
   };
 
+  const toggleAllPdcOptions = (options: string[], selectAll: boolean) => {
+    setSelectedPdc(selectAll ? options : []);
+  };
+
   const toggleInfracaoOption = (optionName: string) => {
     setSelectedInfracao(prev => 
       prev.includes(optionName) 
         ? prev.filter(item => item !== optionName)
         : [...prev, optionName]
     );
+  };
+
+  const toggleAllInfracaoOptions = (options: string[], selectAll: boolean) => {
+    setSelectedInfracao(selectAll ? options : []);
   };
 
   const toggleSinistroOption = (optionName: string) => {
@@ -183,12 +199,20 @@ export function useCicloDadosState(
     );
   };
 
+  const toggleAllSinistroOptions = (options: string[], selectAll: boolean) => {
+    setSelectedSinistro(selectAll ? options : []);
+  };
+
   const toggleEstacionamentoOption = (optionName: string) => {
     setSelectedEstacionamento(prev => 
       prev.includes(optionName) 
         ? prev.filter(item => item !== optionName)
         : [...prev, optionName]
     );
+  };
+
+  const toggleAllEstacionamentoOptions = (options: string[], selectAll: boolean) => {
+    setSelectedEstacionamento(selectAll ? options : []);
   };
 
   const clearAllSelections = () => {
@@ -228,16 +252,22 @@ export function useCicloDadosState(
     setChatOpen,
     selectedInfra,
     toggleInfraOption,
+    toggleAllInfraOptions,
     selectedContagem,
     toggleContagemOption,
+    toggleAllContagemOptions,
     selectedPdc,
     togglePdcOption,
+    toggleAllPdcOptions,
     selectedInfracao,
     toggleInfracaoOption,
+    toggleAllInfracaoOptions,
     selectedSinistro,
     toggleSinistroOption,
+    toggleAllSinistroOptions,
     selectedEstacionamento,
     toggleEstacionamentoOption,
+    toggleAllEstacionamentoOptions,
     selectedGenero,
     setSelectedGenero,
     selectedRaca,

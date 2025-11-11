@@ -60,16 +60,22 @@ export default function CicloDados() {
     setChatOpen,
     selectedInfra,
     toggleInfraOption,
+    toggleAllInfraOptions,
     selectedContagem,
     toggleContagemOption,
+    toggleAllContagemOptions,
     selectedPdc,
     togglePdcOption,
+    toggleAllPdcOptions,
     selectedInfracao,
     toggleInfracaoOption,
+    toggleAllInfracaoOptions,
     selectedSinistro,
     toggleSinistroOption,
+    toggleAllSinistroOptions,
     selectedEstacionamento,
     toggleEstacionamentoOption,
+    toggleAllEstacionamentoOptions,
     selectedGenero,
     setSelectedGenero,
     selectedRaca,
@@ -273,21 +279,27 @@ export default function CicloDados() {
                 infraOptions={infraOptions}
                 selectedInfra={selectedInfra}
                 onInfraToggle={toggleInfraOption}
+                onInfraToggleAll={toggleAllInfraOptions}
                 contagemOptions={contagemOptions}
                 selectedContagem={selectedContagem}
                 onContagemToggle={toggleContagemOption}
+                onContagemToggleAll={toggleAllContagemOptions}
                 pdcOptions={pdcOptions}
                 selectedPdc={selectedPdc}
                 onPdcToggle={togglePdcOption}
+                onPdcToggleAll={toggleAllPdcOptions}
                 infracaoOptions={infracaoOptions}
                 selectedInfracao={selectedInfracao}
                 onInfracaoToggle={toggleInfracaoOption}
+                onInfracaoToggleAll={toggleAllInfracaoOptions}
                 sinistroOptions={sinistroOptions}
                 selectedSinistro={selectedSinistro}
                 onSinistroToggle={toggleSinistroOption}
+                onSinistroToggleAll={toggleAllSinistroOptions}
                 estacionamentoOptions={estacionamentoOptions}
                 selectedEstacionamento={selectedEstacionamento}
                 onEstacionamentoToggle={toggleEstacionamentoOption}
+                onEstacionamentoToggleAll={toggleAllEstacionamentoOptions}
                 selectedGenero={selectedGenero}
                 onGeneroChange={setSelectedGenero}
                 selectedRaca={selectedRaca}

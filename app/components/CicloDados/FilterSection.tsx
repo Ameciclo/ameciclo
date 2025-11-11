@@ -75,6 +75,7 @@ interface FilterSectionProps {
   options: Array<{ name: string; color?: string; pattern?: string }>;
   selectedOptions: string[];
   onToggle: (option: string) => void;
+  onToggleAll?: (options: string[], selectAll: boolean) => void;
   hasPattern: boolean;
   isPdc?: boolean;
   isCollapsed?: boolean;
@@ -88,6 +89,7 @@ export function FilterSection({
   options, 
   selectedOptions, 
   onToggle, 
+  onToggleAll,
   hasPattern,
   isPdc = false,
   isCollapsed = false,
@@ -96,6 +98,7 @@ export function FilterSection({
   loadingOptions = []
 }: FilterSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isToggling, setIsToggling] = useState(false);
   
   // Use external collapse state if provided, otherwise use internal state
   const actuallyExpanded = onToggleCollapse ? !isCollapsed : isExpanded;
@@ -103,16 +106,30 @@ export function FilterSection({
   const isAllSelected = selectedOptions.length === options.length;
 
   const toggleAll = () => {
-    if (isAllSelected) {
-      // Deselect all - call toggle for each selected option
-      selectedOptions.forEach(optName => onToggle(optName));
-    } else {
-      // Select all - call toggle for each unselected option
-      options.forEach(opt => {
-        if (!selectedOptions.includes(opt.name)) {
-          onToggle(opt.name);
+    if (isToggling) return; // Prevent multiple simultaneous calls
+    
+    setIsToggling(true);
+    
+    try {
+      if (onToggleAll) {
+        // Use batch operation if available
+        const allOptionNames = options.map(opt => opt.name);
+        onToggleAll(allOptionNames, !isAllSelected);
+      } else {
+        // Fallback to individual toggles
+        if (isAllSelected) {
+          selectedOptions.forEach(optName => onToggle(optName));
+        } else {
+          options.forEach(opt => {
+            if (!selectedOptions.includes(opt.name)) {
+              onToggle(opt.name);
+            }
+          });
         }
-      });
+      }
+    } finally {
+      // Reset toggle state after a short delay
+      setTimeout(() => setIsToggling(false), 100);
     }
   };
 
@@ -141,11 +158,15 @@ export function FilterSection({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <button 
-              onClick={comingSoon ? undefined : toggleAll} 
+              onClick={comingSoon ? undefined : (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleAll();
+              }} 
               className={`rounded p-1 transition-colors ${
-                comingSoon ? 'cursor-not-allowed' : 'hover:bg-gray-50'
+                comingSoon || isToggling ? 'cursor-not-allowed' : 'hover:bg-gray-50'
               }`}
-              disabled={comingSoon}
+              disabled={comingSoon || isToggling}
             >
               {isAllSelected ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
             </button>
