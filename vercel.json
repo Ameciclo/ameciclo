@@ -6,7 +6,6 @@
   },
   "buildCommand": "npm run build",
   "outputDirectory": "build/client",
-  "serverFiles": ["build/server/**"],
   "rewrites": [
     {
       "source": "/(.*)",
