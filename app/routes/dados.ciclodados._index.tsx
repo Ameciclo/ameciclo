@@ -410,12 +410,10 @@ export default function CicloDados() {
                 onReloadMapData={handleReloadMapData}
                 onReloadGeneralData={handleReloadGeneralData}
                 loadingStates={{
-                  infra: selectedInfra.length > 0,
-                  pdc: selectedPdc.length > 0 && (!execucaoCicloviaria || !execucaoCicloviaria.features),
-                  sinistros: selectedSinistro.length > 0,
-                  estacionamento: selectedEstacionamento.length > 0,
-                  contagem: selectedContagem.length > 0,
-                  perfil: selectedPerfil.length > 0
+                  infra: false,
+                  pdc: false,
+                  sinistros: false,
+                  estacionamento: false
                 }}
               />
             {/* TODO: Descomentar quando implementar mural: )} */}

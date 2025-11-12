@@ -76,6 +76,7 @@ export function MapView({
 
   const [forceRender, setForceRender] = useState(0);
   const [renderedLayers, setRenderedLayers] = useState<Set<string>>(new Set());
+  const [loadingLayers, setLoadingLayers] = useState<Set<string>>(new Set());
 
   // Atualizar com estado externo quando fornecido
   useEffect(() => {
@@ -145,6 +146,76 @@ export function MapView({
       dias: selectedDias
     }
   );
+
+  // Track loading state based on data availability
+  useEffect(() => {
+    const newLoadingLayers = new Set<string>();
+    const newRenderedLayers = new Set<string>();
+
+    // Infrastructure loading/rendered state
+    if (selectedInfra.length > 0) {
+      if (infraError) {
+        // If there's an error, consider it "rendered" (failed)
+        newRenderedLayers.add('infraestrutura');
+      } else if (infraCicloviaria?.features?.length > 0) {
+        // Data loaded successfully
+        newRenderedLayers.add('infraestrutura');
+      } else {
+        // Still loading
+        newLoadingLayers.add('infraestrutura');
+      }
+    }
+
+    // PDC loading/rendered state
+    if (selectedPdc.length > 0) {
+      if (execucaoError) {
+        // If there's an error, consider it "rendered" (failed)
+        newRenderedLayers.add('pdc');
+      } else if (execucaoCicloviaria?.features?.length > 0) {
+        // Data loaded successfully
+        newRenderedLayers.add('pdc');
+      } else {
+        // Still loading
+        newLoadingLayers.add('pdc');
+      }
+    }
+
+    // Estacionamento loading/rendered state
+    if (selectedEstacionamento.length > 0) {
+      const hasBicicletarios = filteredBicicletarios?.features?.length > 0;
+      const hasBikePE = filteredBikePE?.features?.length > 0;
+      const hasEstacionamentoError = bicicletariosError || bikePEError;
+      
+      if (hasEstacionamentoError) {
+        newRenderedLayers.add('estacionamento');
+      } else if (hasBicicletarios || hasBikePE) {
+        newRenderedLayers.add('estacionamento');
+      } else {
+        newLoadingLayers.add('estacionamento');
+      }
+    }
+
+    // Contagem loading/rendered state
+    if (selectedContagem.length > 0) {
+      const hasContagemData = (contagemData?.features?.length > 0) || (pontosContagem?.features?.length > 0);
+      const hasContagemError = pontosContagemError;
+      
+      if (hasContagemError) {
+        newRenderedLayers.add('contagem');
+      } else if (hasContagemData) {
+        newRenderedLayers.add('contagem');
+      } else {
+        newLoadingLayers.add('contagem');
+      }
+    }
+
+    setLoadingLayers(newLoadingLayers);
+    setRenderedLayers(newRenderedLayers);
+  }, [
+    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem,
+    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData,
+    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError
+  ]);
   
 
   
@@ -1105,21 +1176,7 @@ export function MapView({
         key={`map-${forceRender}`}
         />
         
-        {/* Marcar camadas como renderizadas após delay */}
-        {isClient && (() => {
-          setTimeout(() => {
-            const newRendered = new Set<string>();
-            if (selectedInfra.length > 0 && infraCicloviaria?.features?.length > 0) newRendered.add('infraestrutura');
-            if (selectedPdc.length > 0 && execucaoCicloviaria?.features?.length > 0) newRendered.add('pdc');
-            if (selectedEstacionamento.length > 0 && ((filteredBicicletarios?.features?.length > 0) || (filteredBikePE?.features?.length > 0))) newRendered.add('estacionamento');
-            if (selectedContagem.length > 0 && pontosContagem?.features?.length > 0) newRendered.add('contagem');
-            setRenderedLayers(prev => {
-              const hasChanges = newRendered.size !== prev.size || [...newRendered].some(layer => !prev.has(layer));
-              return hasChanges ? newRendered : prev;
-            });
-          }, 1500);
-          return null;
-        })()}
+
       </div>
       
 
@@ -1128,21 +1185,16 @@ export function MapView({
       
       {/* Loading discreto no canto inferior esquerdo */}
       {(() => {
-        const infraLoading = selectedInfra.length > 0 && !renderedLayers.has('infraestrutura');
-        const pdcLoading = selectedPdc.length > 0 && !renderedLayers.has('pdc');
-        const estacionamentoLoading = selectedEstacionamento.length > 0 && !renderedLayers.has('estacionamento');
-        const contagemLoading = selectedContagem.length > 0 && !renderedLayers.has('contagem');
+        const loadingLayerNames = [];
+        if (loadingLayers.has('infraestrutura')) loadingLayerNames.push('Infraestrutura');
+        if (loadingLayers.has('pdc')) loadingLayerNames.push('Plano Diretor');
+        if (loadingLayers.has('estacionamento')) loadingLayerNames.push('Estacionamentos');
+        if (loadingLayers.has('contagem')) loadingLayerNames.push('Contagem');
         
-        const loadingLayers = [];
-        if (infraLoading) loadingLayers.push('Infraestrutura');
-        if (pdcLoading) loadingLayers.push('Plano Diretor');
-        if (estacionamentoLoading) loadingLayers.push('Estacionamentos');
-        if (contagemLoading) loadingLayers.push('Contagem');
-        
-        return loadingLayers.length > 0 ? (
+        return loadingLayerNames.length > 0 ? (
           <div className="absolute bottom-4 left-4 z-[60] bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            <span>Carregando {loadingLayers.join(', ')}...</span>
+            <span>Carregando {loadingLayerNames.join(', ')}...</span>
           </div>
         ) : null;
       })()}
