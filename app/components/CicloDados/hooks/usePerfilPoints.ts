@@ -2,19 +2,58 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { usePontosContagem } from './usePontosContagem';
 
+function calculateFilteredTotal(profileData: any, filters?: PerfilFilters): number {
+  if (!filters) return profileData.total_profiles;
+  
+  let total = profileData.total_profiles;
+  
+  // Aplicar filtro de gênero
+  if (filters.genero !== 'Todas') {
+    const genderData = profileData.by_edition?.[0]?.gender_distribution;
+    if (genderData) {
+      const maleCount = genderData.Masculino || 0;
+      const femaleCount = genderData.Feminino || 0;
+      total = filters.genero === 'Masculino' ? maleCount : femaleCount;
+    }
+  }
+  
+  // Aplicar filtro de raça (simplificado - na prática seria mais complexo)
+  if (filters.raca !== 'Todas') {
+    const raceData = profileData.by_edition?.[0]?.race_distribution;
+    if (raceData) {
+      const raceCount = raceData[filters.raca] || 0;
+      total = Math.min(total, raceCount);
+    }
+  }
+  
+  return Math.max(0, total);
+}
+
 interface PerfilPoint {
   id: string;
   lat: number;
   lng: number;
   name: string;
   total_profiles: number;
+  filtered_total: number;
   editions: string[];
+  raw_data?: any;
   distance_from_count_point?: number;
 }
 
-export function usePerfilPoints(bounds?: { north: number; south: number; east: number; west: number }) {
+interface PerfilFilters {
+  genero: string;
+  raca: string;
+  socio: string;
+  dias: string;
+}
+
+export function usePerfilPoints(
+  bounds?: { north: number; south: number; east: number; west: number },
+  filters?: PerfilFilters
+) {
   const { data, isLoading: loading, error } = useQuery({
-    queryKey: ['perfil-points'],
+    queryKey: ['perfil-points', filters],
     queryFn: async () => {
       const knownProfileCoordinates = [
         { lat: -8.09803, lng: -34.91224, name: 'R. Arquiteto Luiz Nunes X R. Eng. Alves de Souza' },
@@ -41,13 +80,17 @@ export function usePerfilPoints(bounds?: { north: number; south: number; east: n
             const profileData = await response.json();
             
             if (profileData.cyclist_profile && profileData.cyclist_profile.total_profiles > 0) {
+              const filteredTotal = calculateFilteredTotal(profileData.cyclist_profile, filters);
+              
               perfilPoints.push({
                 id: `perfil-${coord.lat}-${coord.lng}`,
                 lat: coord.lat,
                 lng: coord.lng,
                 name: coord.name,
                 total_profiles: profileData.cyclist_profile.total_profiles,
-                editions: profileData.cyclist_profile.by_edition?.map((e: any) => e.edition) || []
+                filtered_total: filteredTotal,
+                editions: profileData.cyclist_profile.by_edition?.map((e: any) => e.edition) || [],
+                raw_data: profileData.cyclist_profile
               });
             }
           }

@@ -32,7 +32,8 @@ export function CicloDadosLoader() {
       </div>
       
       <div className="flex flex-1">
-        <div className="w-80 bg-white border-r p-4">
+        {/* Aba lateral esquerda - apenas no desktop */}
+        <div className="hidden md:block w-80 bg-white border-r p-4">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-300 rounded w-3/4"></div>
             <div className="space-y-2">
@@ -42,20 +43,16 @@ export function CicloDadosLoader() {
           </div>
         </div>
         
-        <div className="flex-1 bg-gray-100 flex items-center justify-center">
+        {/* Área do mapa */}
+        <div className="flex-1 bg-gray-100 flex items-center justify-center relative">
+          {/* Botão de maximizar aba - apenas no mobile */}
+          <div className="md:hidden absolute top-1/2 left-2 -translate-y-1/2 z-10">
+            <div className="w-12 h-12 bg-gray-400 rounded-full animate-pulse"></div>
+          </div>
+          
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Carregando CicloDados...</p>
-          </div>
-        </div>
-        
-        <div className="w-80 bg-white border-l p-4">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-300 rounded w-2/3"></div>
-            <div className="space-y-2">
-              <div className="h-20 bg-gray-300 rounded"></div>
-              <div className="h-20 bg-gray-300 rounded"></div>
-            </div>
           </div>
         </div>
       </div>

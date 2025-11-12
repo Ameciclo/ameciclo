@@ -314,17 +314,7 @@ export default function CicloDados() {
   
 
 
-  // Auto-abrir sidebars após 3 segundos quando em modo mapa
-  useEffect(() => {
-    if (viewMode === 'map') {
-      const timer = setTimeout(() => {
-        setLeftSidebarOpen(true);
-        setRightSidebarOpen(true);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [viewMode, setLeftSidebarOpen, setRightSidebarOpen]);
+
   
   // Reload functions
   const handleReloadMapData = () => {
@@ -439,6 +429,10 @@ export default function CicloDados() {
                 selectedEstacionamento={selectedEstacionamento}
                 selectedSinistro={selectedSinistro}
                 selectedPerfil={selectedPerfil}
+                selectedGenero={selectedGenero}
+                selectedRaca={selectedRaca}
+                selectedSocio={selectedSocio}
+                selectedDias={selectedDias}
                 infraOptions={infraOptions}
                 pdcOptions={pdcOptions}
                 layersConf={layersConf}

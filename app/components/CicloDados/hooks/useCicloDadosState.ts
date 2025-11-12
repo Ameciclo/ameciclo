@@ -16,6 +16,14 @@ export function useCicloDadosState(
 ) {
   const [isClient, setIsClient] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
+  
+  // Initialize sidebar state based on screen size
+  useEffect(() => {
+    if (isClient) {
+      const shouldOpenSidebar = !isMobile();
+      setLeftSidebarOpen(shouldOpenSidebar);
+    }
+  }, [isClient]);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');

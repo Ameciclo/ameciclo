@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
-import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart } from './utils/chartData';
-import { Swiper, SwiperSlide } from 'swiper/react';
+
 import { MapPin, Bike, UserCheck } from 'lucide-react';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
@@ -15,7 +14,7 @@ import { DataErrorAlert } from './DataErrorAlert';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
 
-import 'swiper/css';
+
 
 interface MapViewProps {
   selectedInfra: string[];
@@ -24,6 +23,10 @@ interface MapViewProps {
   selectedEstacionamento: string[];
   selectedSinistro: string[];
   selectedPerfil: string[];
+  selectedGenero: string;
+  selectedRaca: string;
+  selectedSocio: string;
+  selectedDias: string;
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   pdcOptions: Array<{ name: string; color: string; pattern: string; apiKey?: string }>;
   layersConf: any[];
@@ -46,6 +49,10 @@ export function MapView({
   selectedEstacionamento,
   selectedSinistro,
   selectedPerfil,
+  selectedGenero,
+  selectedRaca,
+  selectedSocio,
+  selectedDias,
   layersConf,
   infraData,
   pdcData,
@@ -129,7 +136,15 @@ export function MapView({
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
-  const { data: perfilPoints, error: perfilError } = usePerfilPoints(isClient ? viewportBounds : undefined);
+  const { data: perfilPoints, error: perfilError } = usePerfilPoints(
+    isClient ? viewportBounds : undefined,
+    {
+      genero: selectedGenero,
+      raca: selectedRaca, 
+      socio: selectedSocio,
+      dias: selectedDias
+    }
+  );
   
 
   
@@ -1033,7 +1048,7 @@ export function MapView({
                   <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                     <div className="bg-purple-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[50px] justify-center">
                       <UserCheck size={12} className="text-white" />
-                      <span className="text-xs font-bold">{point.total_profiles}</span>
+                      <span className="text-xs font-bold">{point.filtered_total}</span>
                     </div>
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2">
                       <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
@@ -1089,56 +1104,7 @@ export function MapView({
         })()}
       </div>
       
-      {/* Bottom panel for mobile with chart data */}
-      <div 
-        className="md:hidden bg-white border-t p-4 absolute left-0 right-0 z-[70]" 
-        style={{ bottom: '80px' }}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
-        onMouseMove={(e) => e.stopPropagation()}
-        onMouseUp={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h4 className="text-sm font-medium mb-3">Dados dos Gráficos</h4>
-        <Swiper
-          spaceBetween={16}
-          slidesPerView="auto"
-          className="w-full"
-        >
-          <SwiperSlide className="!w-[280px]">
-            <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">
-                {streetData?.street_name || 'Av. Gov. Agamenon Magalhães'}
-              </h3>
-              <p className="text-xl font-bold text-black mb-2">
-                {streetData?.data_summary?.cycling_counts || '2.846'}
-              </p>
-              <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniContagensChart /></div>
-              <p className="text-xs text-gray-500">contagens de ciclistas</p>
-            </div>
-          </SwiperSlide>
-          <SwiperSlide className="!w-[280px]">
-            <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Perfil de ciclistas</h3>
-              <p className="text-xl font-bold text-black mb-2">
-                {streetData?.data_summary?.cycling_profile || '0'}
-              </p>
-              <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniSinistrosChart /></div>
-            </div>
-          </SwiperSlide>
-          <SwiperSlide className="!w-[280px]">
-            <div className="w-[280px] h-[120px] border rounded-lg p-3 shadow-sm bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-1 text-sm">Chamadas de emergência</h3>
-              <p className="text-xl font-bold text-black mb-2">
-                {streetData?.data_summary?.emergency_calls || '1158'}
-              </p>
-              <div className="h-12 mb-2" style={{ pointerEvents: 'none' }}><MiniInfraChart onPercentageChange={() => {}} /></div>
-            </div>
-          </SwiperSlide>
-        </Swiper>
-      </div>
+
       
       <ApiStatusIndicator errors={dataErrors} onReload={handleReloadAllData} />
       

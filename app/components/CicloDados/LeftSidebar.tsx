@@ -425,14 +425,14 @@ export function LeftSidebar({
         </div>
       )}
       
-      {/* Floating toggle button when minimized */}
+      {/* Floating toggle button when minimized - mais visível no mobile */}
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="fixed top-1/2 -translate-y-1/2 left-4 z-[60] bg-white border rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+          className="fixed top-1/2 -translate-y-1/2 left-2 md:left-4 z-[60] bg-blue-500 md:bg-white border-2 border-blue-500 rounded-full p-3 md:p-2 shadow-xl hover:bg-blue-600 md:hover:bg-gray-100 transition-colors"
           title="Expandir filtros"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 md:w-4 md:h-4 text-white md:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>

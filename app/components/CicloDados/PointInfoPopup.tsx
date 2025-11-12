@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance } from 'lucide-react';
 import { POINT_CICLO_NEARBY } from '~/servers';
-import { translateProfileData, translateBehavioralKey } from '~/utils/translations';
+import { translateProfileData, translateBehavioralKey, calculatePercentage } from '~/utils/translations';
 
 interface PointInfoPopupProps {
   lat: number;
@@ -640,7 +640,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                 .map(([race, count]) => (
                                 <div key={race} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
                                   <span>{race}</span>
-                                  <span className="font-medium">{count}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{count}</span>
+                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -656,7 +659,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                 .map(([gender, count]) => (
                                 <div key={gender} className="flex justify-between text-sm p-2 bg-pink-50 rounded">
                                   <span>{gender}</span>
-                                  <span className="font-medium">{count}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{count}</span>
+                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -672,7 +678,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                 .map(([age, count]) => (
                                 <div key={age} className="flex justify-between text-sm p-2 bg-green-50 rounded">
                                   <span>{age}</span>
-                                  <span className="font-medium">{count}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{count}</span>
+                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -688,7 +697,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                 .map(([education, count]) => (
                                 <div key={education} className="flex justify-between text-sm p-2 bg-blue-50 rounded">
                                   <span className="text-xs">{education}</span>
-                                  <span className="font-medium">{count}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{count}</span>
+                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -704,7 +716,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                 .map(([income, count]) => (
                                 <div key={income} className="flex justify-between text-sm p-2 bg-yellow-50 rounded">
                                   <span className="text-xs">{income}</span>
-                                  <span className="font-medium">{count}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{count}</span>
+                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -725,8 +740,13 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                   translateBehavioralKey(count) : count;
                                 return (
                                   <div key={attr} className="p-2 bg-purple-50 rounded">
-                                    <span className="font-medium">{translatedAttr}: </span>
-                                    <span>{translatedCount}</span>
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-medium text-xs">{translatedAttr}:</span>
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-xs">{translatedCount}</span>
+                                        <span className="text-xs text-gray-500">({calculatePercentage(typeof count === 'number' ? count : 0, edition.total_profiles)})</span>
+                                      </div>
+                                    </div>
                                   </div>
                                 );
                               })}

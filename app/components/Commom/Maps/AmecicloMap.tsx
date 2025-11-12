@@ -94,7 +94,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleZoomIn();
                 }}
-                className="hidden md:block bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
                 title="Zoom in"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +108,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleZoomOut();
                 }}
-                className="hidden md:block bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
                 title="Zoom out"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
