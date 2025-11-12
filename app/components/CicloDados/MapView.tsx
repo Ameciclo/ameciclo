@@ -629,7 +629,7 @@ export function MapView({
                 'line-cap': 'round'
               }
             },
-            // PDC Não Realizado - double pink lines
+            // PDC Não Realizado - double pink dotted lines
             {
               id: 'pdc-nao-realizado-left',
               type: 'line',
@@ -644,7 +644,7 @@ export function MapView({
                   0, 0.3,
                   100, 1.0
                 ],
-                'line-dasharray': [1, 3],
+                'line-dasharray': [0.1, 3],
                 'line-offset': -4
               },
               layout: {
@@ -666,7 +666,7 @@ export function MapView({
                   0, 0.3,
                   100, 1.0
                 ],
-                'line-dasharray': [1, 3],
+                'line-dasharray': [0.1, 3],
                 'line-offset': 4
               },
               layout: {

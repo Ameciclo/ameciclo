@@ -205,108 +205,131 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
         <div className="p-4 overflow-y-auto max-h-[60vh]">
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {data.emergency_calls && (
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Ambulance size={20} className="text-red-500" />
-                      <h4 className="font-semibold text-red-700">Emergências</h4>
+              {(() => {
+                const hasData = data.emergency_calls || 
+                  (data.bike_racks && data.bike_racks.total > 0) ||
+                  (data.cyclist_counts && data.cyclist_counts.counts?.length > 0) ||
+                  (data.cyclist_profile && data.cyclist_profile.total_profiles > 0) ||
+                  (data.shared_bike && data.shared_bike.has_stations) ||
+                  (data.cycling_infra && (data.cycling_infra.existing?.length > 0 || data.cycling_infra.planned_pdc?.length > 0)) ||
+                  data.location;
+                
+                if (!hasData) {
+                  return (
+                    <div className="text-center py-8 text-gray-500">
+                      <MapPin size={48} className="mx-auto mb-4 text-gray-300" />
+                      <p>Nenhum dado disponível para este ponto</p>
                     </div>
-                    <p className="text-2xl font-bold text-red-600">
-                      {data.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
-                    </p>
-                    <p className="text-sm text-red-600">chamadas totais</p>
-                  </div>
-                )}
+                  );
+                }
+                
+                return (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {data.emergency_calls && (
+                        <div className="bg-red-50 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Ambulance size={20} className="text-red-500" />
+                            <h4 className="font-semibold text-red-700">Emergências</h4>
+                          </div>
+                          <p className="text-2xl font-bold text-red-600">
+                            {data.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
+                          </p>
+                          <p className="text-sm text-red-600">chamadas totais</p>
+                        </div>
+                      )}
 
-                {data.bike_racks && data.bike_racks.total > 0 && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Bike size={20} className="text-blue-500" />
-                      <h4 className="font-semibold text-blue-700">Bicicletários</h4>
+                      {data.bike_racks && data.bike_racks.total > 0 && (
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Bike size={20} className="text-blue-500" />
+                            <h4 className="font-semibold text-blue-700">Bicicletários</h4>
+                          </div>
+                          <p className="text-2xl font-bold text-blue-600">{data.bike_racks.total}</p>
+                          <p className="text-sm text-blue-600">{data.bike_racks.total_capacity} vagas</p>
+                        </div>
+                      )}
+
+                      {data.cyclist_counts && data.cyclist_counts.counts?.length > 0 && (
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <BarChart3 size={20} className="text-green-500" />
+                            <h4 className="font-semibold text-green-700">Contagens</h4>
+                          </div>
+                          <p className="text-2xl font-bold text-green-600">{data.cyclist_counts.counts.length}</p>
+                          <p className="text-sm text-green-600">pontos próximos</p>
+                        </div>
+                      )}
+
+                      {data.cyclist_profile && data.cyclist_profile.total_profiles > 0 && (
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Users size={20} className="text-purple-500" />
+                            <h4 className="font-semibold text-purple-700">Perfis</h4>
+                          </div>
+                          <p className="text-2xl font-bold text-purple-600">{data.cyclist_profile.total_profiles}</p>
+                          <p className="text-sm text-purple-600">ciclistas</p>
+                        </div>
+                      )}
+
+                      {data.shared_bike && data.shared_bike.has_stations && (
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Activity size={20} className="text-orange-500" />
+                            <h4 className="font-semibold text-orange-700">Bike PE</h4>
+                          </div>
+                          <p className="text-2xl font-bold text-orange-600">{data.shared_bike.stations?.length || 0}</p>
+                          <p className="text-sm text-orange-600">estações</p>
+                        </div>
+                      )}
+
+                      {data.cycling_infra && (data.cycling_infra.existing?.length > 0 || data.cycling_infra.planned_pdc?.length > 0) && (
+                        <div className="bg-teal-50 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Route size={20} className="text-teal-500" />
+                            <h4 className="font-semibold text-teal-700">Infraestrutura</h4>
+                          </div>
+                          <p className="text-2xl font-bold text-teal-600">
+                            {(data.cycling_infra.existing?.length || 0) + (data.cycling_infra.planned_pdc?.length || 0)}
+                          </p>
+                          <p className="text-sm text-teal-600">vias próximas</p>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-2xl font-bold text-blue-600">{data.bike_racks.total}</p>
-                    <p className="text-sm text-blue-600">{data.bike_racks.total_capacity} vagas</p>
-                  </div>
-                )}
 
-                {data.cyclist_counts && data.cyclist_counts.counts?.length > 0 && (
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <BarChart3 size={20} className="text-green-500" />
-                      <h4 className="font-semibold text-green-700">Contagens</h4>
-                    </div>
-                    <p className="text-2xl font-bold text-green-600">{data.cyclist_counts.counts.length}</p>
-                    <p className="text-sm text-green-600">pontos próximos</p>
-                  </div>
-                )}
-
-                {data.cyclist_profile && data.cyclist_profile.total_profiles > 0 && (
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users size={20} className="text-purple-500" />
-                      <h4 className="font-semibold text-purple-700">Perfis</h4>
-                    </div>
-                    <p className="text-2xl font-bold text-purple-600">{data.cyclist_profile.total_profiles}</p>
-                    <p className="text-sm text-purple-600">ciclistas</p>
-                  </div>
-                )}
-
-                {data.shared_bike && data.shared_bike.has_stations && (
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Activity size={20} className="text-orange-500" />
-                      <h4 className="font-semibold text-orange-700">Bike PE</h4>
-                    </div>
-                    <p className="text-2xl font-bold text-orange-600">{data.shared_bike.stations?.length || 0}</p>
-                    <p className="text-sm text-orange-600">estações</p>
-                  </div>
-                )}
-
-                {data.cycling_infra && (data.cycling_infra.existing?.length > 0 || data.cycling_infra.planned_pdc?.length > 0) && (
-                  <div className="bg-teal-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Route size={20} className="text-teal-500" />
-                      <h4 className="font-semibold text-teal-700">Infraestrutura</h4>
-                    </div>
-                    <p className="text-2xl font-bold text-teal-600">
-                      {(data.cycling_infra.existing?.length || 0) + (data.cycling_infra.planned_pdc?.length || 0)}
-                    </p>
-                    <p className="text-sm text-teal-600">vias próximas</p>
-                  </div>
-                )}
-              </div>
-
-              {data.location && (
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Navigation size={18} />
-                    Localização
-                  </h4>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="font-medium">{data.location.nearest_street?.official_name || data.location.nearest_street?.name}</p>
-                    <p className="text-sm text-gray-600">
-                      Coordenadas: {data.location.lat.toFixed(6)}, {data.location.lng.toFixed(6)}
-                    </p>
-                    {data.location.nearest_street?.total_length_meters && (
-                      <p className="text-sm text-gray-600">
-                        Extensão da via: {formatDistance(data.location.nearest_street.total_length_meters)}
-                      </p>
+                    {data.location && (
+                      <div>
+                        <h4 className="font-semibold mb-3 flex items-center gap-2">
+                          <Navigation size={18} />
+                          Localização
+                        </h4>
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <p className="font-medium">{data.location.nearest_street?.official_name || data.location.nearest_street?.name}</p>
+                          <p className="text-sm text-gray-600">
+                            Coordenadas: {data.location.lat.toFixed(6)}, {data.location.lng.toFixed(6)}
+                          </p>
+                          {data.location.nearest_street?.total_length_meters && (
+                            <p className="text-sm text-gray-600">
+                              Extensão da via: {formatDistance(data.location.nearest_street.total_length_meters)}
+                            </p>
+                          )}
+                          {data.location.nearest_street?.distance_to_point_meters !== undefined && (
+                            <p className="text-sm text-gray-600">
+                              Distância da via: {formatDistance(data.location.nearest_street.distance_to_point_meters)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     )}
-                    {data.location.nearest_street?.distance_to_point_meters !== undefined && (
-                      <p className="text-sm text-gray-600">
-                        Distância da via: {formatDistance(data.location.nearest_street.distance_to_point_meters)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
+                  </>
+                );
+              })()}
             </div>
           )}
 
           {activeTab === 'location' && (
             <div className="space-y-6">
-              {data.location && (
+              {data.location ? (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <MapPin size={18} />
@@ -336,6 +359,11 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                     )}
                   </div>
                 </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Navigation size={48} className="mx-auto mb-4 text-gray-300" />
+                  <p>Nenhuma informação de localização disponível para este ponto</p>
+                </div>
               )}
             </div>
           )}
@@ -349,14 +377,82 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                       <Clock size={18} />
                       Histórico Anual de Emergências
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {data.emergency_calls.annual_history?.slice(-8).map(year => (
-                        <div key={year.year} className="bg-red-50 p-3 rounded-lg text-center">
-                          <p className="font-bold text-red-600">{year.total_calls}</p>
-                          <p className="text-sm text-red-500">{year.year}</p>
+                    {data.emergency_calls.annual_history?.length > 1 ? (
+                      <div className="space-y-4">
+                        {/* Chart */}
+                        <div className="bg-white p-4 rounded-lg border">
+                          <div className="relative h-48">
+                            <svg className="w-full h-full" viewBox="0 0 400 200">
+                              {/* Grid lines */}
+                              <defs>
+                                <pattern id="grid" width="40" height="20" patternUnits="userSpaceOnUse">
+                                  <path d="M 40 0 L 0 0 0 20" fill="none" stroke="#f3f4f6" strokeWidth="1"/>
+                                </pattern>
+                              </defs>
+                              <rect width="100%" height="100%" fill="url(#grid)" />
+                              
+                              {/* Chart line */}
+                              {(() => {
+                                const maxCalls = Math.max(...data.emergency_calls.annual_history.map(y => y.total_calls));
+                                const minCalls = Math.min(...data.emergency_calls.annual_history.map(y => y.total_calls));
+                                const range = maxCalls - minCalls || 1;
+                                const years = data.emergency_calls.annual_history.slice(-8);
+                                const points = years.map((year, index) => {
+                                  const x = 50 + (index * (300 / (years.length - 1 || 1)));
+                                  const y = 170 - ((year.total_calls - minCalls) / range) * 120;
+                                  return `${x},${y}`;
+                                }).join(' ');
+                                
+                                return (
+                                  <>
+                                    <polyline
+                                      fill="none"
+                                      stroke="#dc2626"
+                                      strokeWidth="3"
+                                      points={points}
+                                    />
+                                    {years.map((year, index) => {
+                                      const x = 50 + (index * (300 / (years.length - 1 || 1)));
+                                      const y = 170 - ((year.total_calls - minCalls) / range) * 120;
+                                      return (
+                                        <g key={year.year}>
+                                          <circle cx={x} cy={y} r="4" fill="#dc2626" />
+                                          <text x={x} y={y - 10} textAnchor="middle" className="text-xs fill-gray-600">
+                                            {year.total_calls}
+                                          </text>
+                                          <text x={x} y={190} textAnchor="middle" className="text-xs fill-gray-500">
+                                            {year.year}
+                                          </text>
+                                        </g>
+                                      );
+                                    })}
+                                  </>
+                                );
+                              })()}
+                            </svg>
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                        
+                        {/* Summary cards */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {data.emergency_calls.annual_history?.slice(-8).map(year => (
+                            <div key={year.year} className="bg-red-50 p-3 rounded-lg text-center">
+                              <p className="font-bold text-red-600">{year.total_calls}</p>
+                              <p className="text-sm text-red-500">{year.year}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {data.emergency_calls.annual_history?.slice(-8).map(year => (
+                          <div key={year.year} className="bg-red-50 p-3 rounded-lg text-center">
+                            <p className="font-bold text-red-600">{year.total_calls}</p>
+                            <p className="text-sm text-red-500">{year.year}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {data.emergency_calls.last_month_data && (

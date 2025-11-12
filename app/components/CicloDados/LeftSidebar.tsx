@@ -114,7 +114,7 @@ export function LeftSidebar({
   };
   
   const collapseAll = () => {
-    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'rota', 'ideciclo']));
+    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'rota', 'ideciclo']));
   };
   
   const expandAll = () => {
@@ -166,15 +166,6 @@ export function LeftSidebar({
         </div>
         {isOpen && (
           <div className="flex items-center gap-1">
-            {onReloadGeneralData && (
-              <button
-                onClick={onReloadGeneralData}
-                className="hover:bg-gray-200 rounded transition-colors p-1"
-                title="Recarregar informações gerais"
-              >
-                <RotateCcw className="w-4 h-4 text-green-600" />
-              </button>
-            )}
             <button
               onClick={toggleAllOptions}
               className="hover:bg-gray-200 rounded transition-colors p-1"
@@ -189,13 +180,16 @@ export function LeftSidebar({
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {allCollapsed ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-                ) : (
+                  // Expand icon - chevrons pointing down
                   <>
-                    <rect x="3" y="3" width="7" height="7" strokeWidth={2} />
-                    <rect x="14" y="3" width="7" height="7" strokeWidth={2} />
-                    <rect x="3" y="14" width="7" height="7" strokeWidth={2} />
-                    <rect x="14" y="14" width="7" height="7" strokeWidth={2} />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 3l6 6 6-6" />
+                  </>
+                ) : (
+                  // Collapse icon - chevrons pointing up
+                  <>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 15l-6-6-6 6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 21l-6-6-6 6" />
                   </>
                 )}
               </svg>
@@ -358,7 +352,6 @@ export function LeftSidebar({
                 )}
               </div>
               
-              {/* TODO: Descomentar quando implementar
               <FilterSection
                 title="Infrações de Trânsito"
                 options={infracaoOptions.map(opt => ({ name: opt }))}
@@ -402,7 +395,6 @@ export function LeftSidebar({
                 onToggleCollapse={() => toggleSection('ideciclo')}
                 comingSoon={true}
               />
-              */}
             </div>
           </div>
         </div>

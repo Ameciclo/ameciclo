@@ -2,7 +2,7 @@ export function useCicloDadosData() {
   const infraOptions = [
     { name: "Ciclovia", color: "#EF4444", pattern: "solid" },
     { name: "Ciclofaixa", color: "#6B7280", pattern: "bordered" },
-    { name: "Ciclorrota", color: "#9CA3AF", pattern: "arrows" },
+    { name: "Ciclorrota", color: "#D1D5DB", pattern: "arrows" },
     { name: "Calçada compartilhada", color: "#10B981", pattern: "solid" }
   ];
 

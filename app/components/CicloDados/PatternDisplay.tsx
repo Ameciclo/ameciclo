@@ -75,13 +75,8 @@ function getPdcPatternSvg(pattern: string, color: string) {
     case "striped":
       return (
         <svg className="w-full h-3" viewBox="0 0 100 12" preserveAspectRatio="none">
-          <defs>
-            <pattern id="stripes" patternUnits="userSpaceOnUse" width="8" height="12">
-              <rect width="4" height="12" fill="#EC4899" />
-              <rect x="4" width="4" height="12" fill="#FED7AA" />
-            </pattern>
-          </defs>
-          <rect width="100" height="12" fill="url(#stripes)" />
+          <line x1="0" y1="3" x2="100" y2="3" stroke={color} strokeWidth="2" strokeDasharray="1,3" />
+          <line x1="0" y1="9" x2="100" y2="9" stroke={color} strokeWidth="2" strokeDasharray="1,3" />
         </svg>
       );
     default:
