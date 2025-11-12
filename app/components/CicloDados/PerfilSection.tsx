@@ -4,12 +4,12 @@ import { Eye, EyeOff } from 'lucide-react';
 interface PerfilSectionProps {
   selectedGenero: string;
   onGeneroChange: (value: string) => void;
-  selectedRaca: string;
-  onRacaChange: (value: string) => void;
-  selectedSocio: string;
-  onSocioChange: (value: string) => void;
-  selectedDias: string;
-  onDiasChange: (value: string) => void;
+  selectedAno: string;
+  onAnoChange: (value: string) => void;
+  selectedArea: string;
+  onAreaChange: (value: string) => void;
+  selectedIdade: string;
+  onIdadeChange: (value: string) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }
@@ -17,12 +17,12 @@ interface PerfilSectionProps {
 export function PerfilSection({
   selectedGenero,
   onGeneroChange,
-  selectedRaca,
-  onRacaChange,
-  selectedSocio,
-  onSocioChange,
-  selectedDias,
-  onDiasChange,
+  selectedAno,
+  onAnoChange,
+  selectedArea,
+  onAreaChange,
+  selectedIdade,
+  onIdadeChange,
   isCollapsed = false,
   onToggleCollapse
 }: PerfilSectionProps) {
@@ -40,10 +40,10 @@ export function PerfilSection({
     setIsPerfilVisible(!isPerfilVisible);
     // Reset all perfil selections when hiding
     if (isPerfilVisible) {
-      onGeneroChange('Todas');
-      onRacaChange('Todas');
-      onSocioChange('Salários entre X');
-      onDiasChange('1 dia');
+      onGeneroChange('Todos');
+      onAnoChange('Todos');
+      onAreaChange('Todas');
+      onIdadeChange('Todas');
     }
   };
   const [mounted, setMounted] = useState(false);
@@ -52,10 +52,10 @@ export function PerfilSection({
     setMounted(true);
   }, []);
 
-  const generoOptions = ["Todas", "Masculino", "Feminino"];
-  const racaOptions = ["Todas", "Branco", "Preto", "Pardo", "Amarelo", "Indígena"];
-  const socioOptions = ["Salários entre X"];
-  const diasOptions = ["1 dia", "2 dias", "3 dias", "4 dias", "5 dias", "6 dias", "7 dias"];
+  const generoOptions = ["Todos", "Masculino", "Feminino"];
+  const anoOptions = ["Todos", "2024", "2021", "2018", "2015"];
+  const areaOptions = ["Todas", "Área 1 - Área Central", "Área 2 - Área Intermediária", "Área 3 - Área Periférica"];
+  const idadeOptions = ["Todas", "18-25 anos", "26-35 anos", "36-45 anos", "46+ anos"];
 
   return (
     <div className="bg-white rounded border">
@@ -94,11 +94,11 @@ export function PerfilSection({
                   onClick={() => onGeneroChange(option)}
                   className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
                     mounted && selectedGenero === option
-                      ? 'bg-teal-600 text-white'
+                      ? 'bg-purple-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {option === 'Todas' && mounted && (
+                  {option === 'Todos' && mounted && (
                     selectedGenero === option ? <Eye size={12} /> : <EyeOff size={12} />
                   )}
                   {option}
@@ -107,22 +107,22 @@ export function PerfilSection({
             </div>
           </div>
           
-          {/* Raça/Cor */}
+          {/* Ano da Pesquisa */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Raça/Cor</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Ano da Pesquisa</h4>
             <div className="flex flex-wrap gap-1">
-              {racaOptions.map((option) => (
+              {anoOptions.map((option) => (
                 <button
                   key={option}
-                  onClick={() => onRacaChange(option)}
+                  onClick={() => onAnoChange(option)}
                   className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                    mounted && selectedRaca === option
-                      ? 'bg-teal-600 text-white'
+                    mounted && selectedAno === option
+                      ? 'bg-purple-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {option === 'Todas' && mounted && (
-                    selectedRaca === option ? <Eye size={12} /> : <EyeOff size={12} />
+                  {option === 'Todos' && mounted && (
+                    selectedAno === option ? <Eye size={12} /> : <EyeOff size={12} />
                   )}
                   {option}
                 </button>
@@ -130,17 +130,17 @@ export function PerfilSection({
             </div>
           </div>
           
-          {/* Socioeconômico */}
+          {/* Área da Cidade */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Socioeconômico</h4>
-            <div className="flex gap-1">
-              {socioOptions.map((option) => (
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Área da Cidade</h4>
+            <div className="flex flex-col gap-1">
+              {areaOptions.map((option) => (
                 <button
                   key={option}
-                  onClick={() => onSocioChange(option)}
-                  className={`px-2 py-1 text-xs rounded ${
-                    mounted && selectedSocio === option
-                      ? 'bg-teal-600 text-white'
+                  onClick={() => onAreaChange(option)}
+                  className={`px-2 py-1 text-xs rounded text-left ${
+                    mounted && selectedArea === option
+                      ? 'bg-purple-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
@@ -150,17 +150,17 @@ export function PerfilSection({
             </div>
           </div>
           
-          {/* Dias que pedala */}
+          {/* Faixa Etária */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Quantos dias pedala</h4>
-            <div className="grid grid-cols-4 gap-1">
-              {diasOptions.map((option) => (
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Faixa Etária</h4>
+            <div className="flex flex-wrap gap-1">
+              {idadeOptions.map((option) => (
                 <button
                   key={option}
-                  onClick={() => onDiasChange(option)}
+                  onClick={() => onIdadeChange(option)}
                   className={`px-2 py-1 text-xs rounded ${
-                    mounted && selectedDias === option
-                      ? 'bg-teal-600 text-white'
+                    mounted && selectedIdade === option
+                      ? 'bg-purple-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >

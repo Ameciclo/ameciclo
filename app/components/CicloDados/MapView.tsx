@@ -10,6 +10,7 @@ import { usePontosContagem } from './hooks/usePontosContagem';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
+import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
 import { DataErrorAlert } from './DataErrorAlert';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
@@ -40,6 +41,7 @@ interface MapViewProps {
   highlightedStreet?: any;
   streetData?: any;
   selectedStreetFilter?: string | null;
+  perfilCiclistasData?: any;
 }
 
 export function MapView({
@@ -63,8 +65,9 @@ export function MapView({
   externalViewState,
   highlightedStreet,
   streetData,
-  selectedStreetFilter
-}: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }> }) {
+  selectedStreetFilter,
+  perfilCiclistasData
+}: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
@@ -146,6 +149,17 @@ export function MapView({
       dias: selectedDias
     }
   );
+  // Use data from props instead of hook to avoid CORS
+  const perfilCiclistas = perfilCiclistasData;
+  const perfilCiclistasError = null;
+  const perfilCiclistasLoading = false;
+  
+  // Debug perfil ciclistas
+  useEffect(() => {
+    if (perfilCiclistas) {
+      console.log('🔍 Perfil Ciclistas carregado:', perfilCiclistas.features?.length, 'pontos');
+    }
+  }, [perfilCiclistas]);
 
   // Track loading state based on data availability
   useEffect(() => {
@@ -209,12 +223,23 @@ export function MapView({
       }
     }
 
+    // Perfil loading/rendered state
+    if (selectedPerfil.length > 0) {
+      if (perfilCiclistasError) {
+        newRenderedLayers.add('perfil');
+      } else if (perfilCiclistas?.features?.length > 0) {
+        newRenderedLayers.add('perfil');
+      } else if (perfilCiclistasLoading) {
+        newLoadingLayers.add('perfil');
+      }
+    }
+
     setLoadingLayers(newLoadingLayers);
     setRenderedLayers(newRenderedLayers);
   }, [
-    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem,
-    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData,
-    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError
+    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil,
+    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas,
+    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading
   ]);
   
 
@@ -228,6 +253,7 @@ export function MapView({
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
   if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
   if (perfilError) dataErrors.push({ type: 'perfil', message: perfilError });
+  if (perfilCiclistasError) dataErrors.push({ type: 'perfil-ciclistas', message: perfilCiclistasError });
 
   const handleMapViewChange = (viewState: any) => {
     setMapViewState(viewState);
@@ -386,9 +412,9 @@ export function MapView({
           <div>Zoom: {mapViewState.zoom.toFixed(2)}</div>
           <div>Lat: {mapViewState.latitude.toFixed(6)}</div>
           <div>Lng: {mapViewState.longitude.toFixed(6)}</div>
-          <div>Pontos: {(contagemData?.features?.length || 0) + (pontosContagem?.features?.length || 0) + (perfilPoints?.features?.length || 0)}</div>
-          {selectedPerfil.includes('Perfil de Ciclistas') && perfilPoints?.features && (
-            <div>Perfis: {perfilPoints.features.reduce((sum: number, p: any) => sum + p.filtered_total, 0)} (Filtros: G:{selectedGenero} R:{selectedRaca})</div>
+          <div>Pontos: {(contagemData?.features?.length || 0) + (pontosContagem?.features?.length || 0) + (perfilCiclistas?.features?.length || 0)}</div>
+          {selectedPerfil.includes('Perfil de Ciclistas') && perfilCiclistas?.features && (
+            <div>Perfis: {selectedGenero === 'Todas' ? perfilCiclistas.features.length : perfilCiclistas.features.filter((p: any) => p.properties.survey_year === selectedGenero).length} locais ({selectedGenero})</div>
           )}
         </div>
       </div>
@@ -1098,45 +1124,40 @@ export function MapView({
                 };
               }) : []),
 
-          // Pontos de Perfil de Ciclistas
-          ...(isClient && selectedPerfil.includes('Perfil de Ciclistas') && perfilPoints?.features && Array.isArray(perfilPoints.features) ? (() => {
-            console.log('🔍 Debug Perfil:', {
-              selectedPerfil,
-              perfilPointsCount: perfilPoints.features.length,
-              filters: { selectedGenero, selectedRaca, selectedSocio, selectedDias },
-              pointsWithData: perfilPoints.features.map(p => ({ 
-                name: p.name, 
-                total: p.total_profiles, 
-                filtered: p.filtered_total 
-              }))
-            });
-            return perfilPoints.features.map((point: any) => {
+          // Pontos de Perfil de Ciclistas (Nova API)
+          ...(isClient && selectedPerfil.includes('Perfil de Ciclistas') && perfilCiclistas?.features && Array.isArray(perfilCiclistas.features) ? (() => {
+            // Filtrar por edição (ano) selecionada
+            const filteredFeatures = selectedGenero === 'Todas' 
+              ? perfilCiclistas.features 
+              : perfilCiclistas.features.filter((point: any) => point.properties.survey_year === selectedGenero);
+            
+            console.log('🔍 Renderizando pontos de perfil:', filteredFeatures.length, 'de', perfilCiclistas.features.length, 'filtrados por:', selectedGenero);
+            return filteredFeatures.map((point: any) => {
               const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
               
-              // Só renderizar se filtered_total > 0
-              if (point.filtered_total <= 0) {
-                console.log('⚠️ Ponto filtrado (total = 0):', point.name, point.filtered_total);
-                return null;
-              }
-              
               return {
-                key: `perfil-${point.id}`,
-                latitude: point.lat,
-                longitude: point.lng,
+                key: `perfil-ciclistas-${point.properties.id}`,
+                latitude: point.geometry.coordinates[1],
+                longitude: point.geometry.coordinates[0],
                 type: 'perfil',
                 popup: {
-                  name: point.name,
-                  total: `${point.total_profiles} perfis`,
-                  filtered_total: point.filtered_total,
-                  editions: point.editions.join(', '),
-                  latitude: point.lat,
-                  longitude: point.lng
+                  name: point.properties.name,
+                  total: `${point.properties.total_responses} respostas`,
+                  survey_year: point.properties.survey_year,
+                  area: point.properties.area,
+                  avg_age: point.properties.avg_age,
+                  male_percentage: point.properties.male_percentage,
+                  female_percentage: point.properties.female_percentage,
+                  accidents_percentage: point.properties.accidents_percentage,
+                  top_motivation: point.properties.top_motivation,
+                  latitude: point.geometry.coordinates[1],
+                  longitude: point.geometry.coordinates[0]
                 },
                 customIcon: (
                   <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                     <div className="bg-purple-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[50px] justify-center">
                       <UserCheck size={12} className="text-white" />
-                      <span className="text-xs font-bold">{point.filtered_total}</span>
+                      <span className="text-xs font-bold">{point.properties.total_responses}</span>
                     </div>
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2">
                       <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
@@ -1147,11 +1168,17 @@ export function MapView({
                   </div>
                 ),
                 onClick: () => {
-                  setShowPointInfo({ lat: point.lat, lng: point.lng, initialTab: 'profile' });
+                  setShowPointInfo({ 
+                    lat: point.geometry.coordinates[1], 
+                    lng: point.geometry.coordinates[0], 
+                    initialTab: 'profile' 
+                  });
                 }
               };
-            }).filter(Boolean);
-          })() : [])
+            });
+          })() : []),
+          
+        
         ]}
         showLayersPanel={false}
         width="100%" 
@@ -1190,6 +1217,7 @@ export function MapView({
         if (loadingLayers.has('pdc')) loadingLayerNames.push('Plano Diretor');
         if (loadingLayers.has('estacionamento')) loadingLayerNames.push('Estacionamentos');
         if (loadingLayers.has('contagem')) loadingLayerNames.push('Contagem');
+        if (loadingLayers.has('perfil')) loadingLayerNames.push('Perfil de Ciclistas');
         
         return loadingLayerNames.length > 0 ? (
           <div className="absolute bottom-4 left-4 z-[60] bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm">

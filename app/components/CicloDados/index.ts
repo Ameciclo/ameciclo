@@ -21,6 +21,7 @@ export { usePontosContagem } from './hooks/usePontosContagem';
 export { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 export { useSinistros } from './hooks/useSinistros';
 export { usePerfilPoints } from './hooks/usePerfilPoints';
+export { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
 
 export { generateInfraData, generatePdcData, generateContagemData, getContagemIcon } from './utils/mapDataUtils';
 export { generateLayersConf } from './utils/layerUtils';

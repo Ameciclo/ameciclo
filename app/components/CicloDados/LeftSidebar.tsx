@@ -245,17 +245,63 @@ export function LeftSidebar({
                 loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
               />
               
-              <FilterSection
-                title="Estacionamento e compartilhamento"
-                options={estacionamentoOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedEstacionamento}
-                onToggle={onEstacionamentoToggle}
-                onToggleAll={onEstacionamentoToggleAll}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('estacionamento')}
-                onToggleCollapse={() => toggleSection('estacionamento')}
-                loadingOptions={loadingStates?.estacionamento ? estacionamentoOptions : []}
-              />
+              <div className="bg-white rounded border">
+                <div className="p-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => onEstacionamentoToggleAll?.(estacionamentoOptions, selectedEstacionamento.length === 0)}
+                        className="hover:bg-gray-50 rounded p-1 transition-colors"
+                      >
+                        {selectedEstacionamento.length > 0 ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      </button>
+                      <span className="font-medium">Estacionamento e compartilhamento</span>
+                    </div>
+                    <button 
+                      onClick={() => toggleSection('estacionamento')}
+                      className="hover:bg-gray-50 rounded p-1 transition-colors"
+                    >
+                      <svg 
+                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('estacionamento') ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {!collapsedSections.has('estacionamento') && (
+                  <div className="px-2 pb-2 space-y-2">
+                    {estacionamentoOptions.map((option) => (
+                      <div key={option} className="flex items-center gap-2">
+                        <button
+                          onClick={() => onEstacionamentoToggle(option)}
+                          className="hover:bg-gray-50 rounded p-1 transition-colors"
+                        >
+                          {selectedEstacionamento.includes(option) ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                        </button>
+                        <div className="flex items-center justify-between flex-1">
+                          <span className="text-sm">{option}</span>
+                          {option === 'Bicicletários' && (
+                            <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
+                              <span className="text-white font-black text-[10px]" style={{textShadow: '0 0 1px white'}}>∩</span>
+                            </div>
+                          )}
+                          {option === 'Estações de Bike PE' && (
+                            <div className="bg-orange-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
+                              <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M5 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm14 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm-7-8c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm5.5 2.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm-11 0c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               
               <div className="bg-white rounded border">
                 <div className="p-2">
@@ -286,108 +332,22 @@ export function LeftSidebar({
                 </div>
                 {!collapsedSections.has('perfil-pontos') && selectedPerfil.length > 0 && (
                   <div className="px-2 pb-2 space-y-3">
-                    {/* Gênero */}
+                    {/* Edições (Anos) */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Gênero</h4>
-                      <div className="flex gap-1">
-                        {["Todas", "Masculino", "Feminino"].map((option) => (
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Edições</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {["Todas", "2024", "2021", "2018", "2015"].map((option) => (
                           <button
                             key={option}
                             onClick={() => onGeneroChange(option)}
                             className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
                               selectedGenero === option
-                                ? 'bg-teal-600 text-white'
+                                ? 'bg-purple-600 text-white'
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                           >
                             {option === 'Todas' && (
                               selectedGenero === option ? <Eye size={12} /> : <EyeOff size={12} />
-                            )}
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Raça/Cor */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Raça/Cor</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {["Todas", "Branco", "Preto", "Pardo", "Amarelo", "Indígena"].map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => onRacaChange(option)}
-                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                              selectedRaca === option
-                                ? 'bg-teal-600 text-white'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                          >
-                            {option === 'Todas' && (
-                              selectedRaca === option ? <Eye size={12} /> : <EyeOff size={12} />
-                            )}
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Socioeconômico */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Renda</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {[
-                          "Todas",
-                          "até 1 salário mínimo", 
-                          "de 1 a 2 salários mínimos",
-                          "de 2 a 3 salários mínimos",
-                          "de 3 a 5 salários mínimos",
-                          "de 5 a 10 salários mínimos",
-                          "Não sabe/Não respondeu"
-                        ].map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => onSocioChange(option)}
-                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                              selectedSocio === option
-                                ? 'bg-teal-600 text-white'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                          >
-                            {option === 'Todas' && (
-                              selectedSocio === option ? <Eye size={12} /> : <EyeOff size={12} />
-                            )}
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Dias que pedala */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Quantos dias pedala</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {[
-                          "Todas",
-                          "1 dia", 
-                          "2 dias", 
-                          "3 dias", 
-                          "4 dias", 
-                          "5 dias", 
-                          "6 dias", 
-                          "7 dias"
-                        ].map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => onDiasChange(option)}
-                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                              selectedDias === option
-                                ? 'bg-teal-600 text-white'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                          >
-                            {option === 'Todas' && (
-                              selectedDias === option ? <Eye size={12} /> : <EyeOff size={12} />
                             )}
                             {option}
                           </button>

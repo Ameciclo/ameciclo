@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
-import { json, LoaderFunctionArgs } from '@remix-run/node';
+import { json, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useLoaderData, useRevalidator, useNavigate } from '@remix-run/react';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "CicloDados - Dados de Ciclismo Urbano" },
+    { name: "description", content: "Visualização de dados de ciclismo urbano, contagens, infraestrutura e perfil de ciclistas" },
+  ];
+};
 import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
 import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
 
@@ -10,16 +17,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const lon = url.searchParams.get('lon') || '-34.8770';
   
   try {
-    // Fetch Ameciclo data only (prefeitura data comes from static file via hook)
-    const amecicloResponse = await fetch('https://cyclist-counts.atlas.ameciclo.org/v1/locations');
+    // Fetch Ameciclo data and cyclist profile data
+    const [amecicloResponse, perfilResponse] = await Promise.all([
+      fetch('https://cyclist-counts.atlas.ameciclo.org/v1/locations'),
+      fetch('https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations')
+    ]);
+    
     const amecicloData = amecicloResponse.ok ? await amecicloResponse.json() : [];
+    const perfilData = perfilResponse.ok ? await perfilResponse.json() : null;
     
     return json({ 
       contagemData: {
         ameciclo: amecicloData,
         prefeitura: [] // Prefeitura data loaded via hook from static file
       }, 
-      execucaoCicloviaria: null 
+      execucaoCicloviaria: null,
+      perfilCiclistas: perfilData
     });
   } catch (error) {
     console.error('Error loading data:', error);
@@ -28,7 +41,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
         ameciclo: [],
         prefeitura: []
       }, 
-      execucaoCicloviaria: null 
+      execucaoCicloviaria: null,
+      perfilCiclistas: null
     });
   }
 }
@@ -54,7 +68,7 @@ import type { StreetMatch, StreetDataSummary } from '~/services/streets.service'
 import { getStreetDetails, getStreetDataSummary } from '~/services/streets.service';
 
 export default function CicloDados() {
-  const { contagemData, execucaoCicloviaria } = useLoaderData<typeof loader>();
+  const { contagemData, execucaoCicloviaria, perfilCiclistas } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   
   console.log('Component execucaoCicloviaria:', execucaoCicloviaria ? 'loaded' : 'null', execucaoCicloviaria?.features?.length || 0);
@@ -100,12 +114,12 @@ export default function CicloDados() {
     toggleAllPerfilOptions,
     selectedGenero,
     setSelectedGenero,
-    selectedRaca,
-    setSelectedRaca,
-    selectedSocio,
-    setSelectedSocio,
-    selectedDias,
-    setSelectedDias,
+    selectedAno,
+    setSelectedAno,
+    selectedArea,
+    setSelectedArea,
+    selectedIdade,
+    setSelectedIdade,
     viewMode,
     setViewMode,
     clearAllSelections,
@@ -231,6 +245,32 @@ export default function CicloDados() {
     }
   };
 
+  // Convert perfilCiclistas to GeoJSON format
+  const processedPerfilData = perfilCiclistas?.locations ? {
+    type: 'FeatureCollection',
+    features: perfilCiclistas.locations.map((location: any, index: number) => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [location.coordinates.lon, location.coordinates.lat]
+      },
+      properties: {
+        id: `profile_${index}`,
+        name: location.location_info.street,
+        neighborhood: location.location_info.neighborhood,
+        area: location.location_info.area,
+        survey_year: location.location_info.survey_year,
+        total_responses: parseInt(location.statistics.total_responses),
+        avg_age: location.statistics.avg_age,
+        male_percentage: location.statistics.gender_distribution.male_percentage,
+        female_percentage: location.statistics.gender_distribution.female_percentage,
+        accidents_percentage: location.statistics.accidents_percentage,
+        top_motivation: location.statistics.top_motivation,
+        type: 'perfil'
+      }
+    }))
+  } : null;
+
   // Convert contagemData to GeoJSON format
   const processedContagemData = contagemData ? {
     type: 'FeatureCollection',
@@ -306,9 +346,9 @@ export default function CicloDados() {
   const pdcData = generatePdcData(selectedPdc, execucaoCicloviaria);
   const contagemMapData = generateContagemData(selectedContagem, processedContagemData, {
     genero: selectedGenero,
-    raca: selectedRaca,
-    socio: selectedSocio,
-    dias: selectedDias
+    ano: selectedAno,
+    area: selectedArea,
+    idade: selectedIdade
   });
   const layersConf = generateLayersConf(selectedInfra, selectedPdc, infraOptions, pdcOptions);
   
@@ -399,12 +439,12 @@ export default function CicloDados() {
                 onPerfilToggleAll={toggleAllPerfilOptions}
                 selectedGenero={selectedGenero}
                 onGeneroChange={setSelectedGenero}
-                selectedRaca={selectedRaca}
-                onRacaChange={setSelectedRaca}
-                selectedSocio={selectedSocio}
-                onSocioChange={setSelectedSocio}
-                selectedDias={selectedDias}
-                onDiasChange={setSelectedDias}
+                selectedAno={selectedAno}
+                onAnoChange={setSelectedAno}
+                selectedArea={selectedArea}
+                onAreaChange={setSelectedArea}
+                selectedIdade={selectedIdade}
+                onIdadeChange={setSelectedIdade}
                 onClearAll={clearAllSelections}
                 onSelectAll={selectAllOptions}
                 onReloadMapData={handleReloadMapData}
@@ -428,9 +468,9 @@ export default function CicloDados() {
                 selectedSinistro={selectedSinistro}
                 selectedPerfil={selectedPerfil}
                 selectedGenero={selectedGenero}
-                selectedRaca={selectedRaca}
-                selectedSocio={selectedSocio}
-                selectedDias={selectedDias}
+                selectedAno={selectedAno}
+                selectedArea={selectedArea}
+                selectedIdade={selectedIdade}
                 infraOptions={infraOptions}
                 pdcOptions={pdcOptions}
                 layersConf={layersConf}
@@ -443,6 +483,7 @@ export default function CicloDados() {
                 highlightedStreet={selectedStreetGeometry}
                 streetData={selectedStreetData}
                 selectedStreetFilter={selectedStreetFilter}
+                perfilCiclistasData={processedPerfilData}
               />
               {/* TODO: Descomentar quando implementar mural:
               ) : (
