@@ -59,6 +59,8 @@ export const PONTOS_CONTAGEM_DATA = `https://cyclist-counts.atlas.ameciclo.org/v
 export const PONTOS_CONTAGEM_NEARBY_DATA = `https://cyclist-counts.atlas.ameciclo.org/v1/locations/nearby`
 export const EXECUCAO_CICLOVIARIA_DATA = `https://cycling-infra.atlas.ameciclo.org/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
 export const SINISTROS_GEOJSON_CICLO_DATA = `http://traffic-violations.atlas.ameciclo.org/v1/dangerous-streets/geojson`
+export const PERFIL_CICLO_DATA = `https://ciclodados.atlas.ameciclo.org/v1/cyclist-profile`
+export const POINT_CICLO_NEARBY = (lat, lng, radius = 200) => `https://ciclodados.atlas.ameciclo.org/v1/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
 
 // Objeto SERVERS para compatibilidade
 export const SERVERS = {
@@ -68,5 +70,6 @@ export const SERVERS = {
   PONTOS_CONTAGEM: PONTOS_CONTAGEM_DATA,
   PONTOS_CONTAGEM_NEARBY: PONTOS_CONTAGEM_NEARBY_DATA,
   EXECUCAO_CICLOVIARIA: EXECUCAO_CICLOVIARIA_DATA,
-  SINISTROS_GEOJSON_CICLO: SINISTROS_GEOJSON_CICLO_DATA
+  SINISTROS_GEOJSON_CICLO: SINISTROS_GEOJSON_CICLO_DATA,
+  PERFIL_CICLO: PERFIL_CICLO_DATA
 }

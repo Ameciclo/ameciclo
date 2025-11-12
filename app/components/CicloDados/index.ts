@@ -9,6 +9,7 @@ export { ApiStatusIndicator } from './ApiStatusIndicator';
 export { FloatingChat } from './FloatingChat';
 export { FilterSection } from './FilterSection';
 export { PatternDisplay } from './PatternDisplay';
+export { PointInfoPopup } from './PointInfoPopup';
 export { PerfilSection } from './PerfilSection';
 export { CicloDadosErrorBoundary } from './ErrorBoundary';
 export { ClientOnly, CicloDadosLoader } from './ClientOnly';

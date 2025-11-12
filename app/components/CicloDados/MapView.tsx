@@ -12,6 +12,7 @@ import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
 import { DataErrorAlert } from './DataErrorAlert';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
+import { PointInfoPopup } from './PointInfoPopup';
 
 import 'swiper/css';
 
@@ -58,6 +59,7 @@ export function MapView({
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
+  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
   const [mapViewState, setMapViewState] = useState({ latitude: -8.0476, longitude: -34.8770, zoom: 11 });
@@ -241,6 +243,7 @@ export function MapView({
     };
     
     setSelectedPoints([newPoint]);
+    setShowPointInfo({ lat, lng });
     setDragStartPos(null);
   };
 
@@ -256,6 +259,7 @@ export function MapView({
       setDragPanEnabled(true);
       setHoverPoint(null);
       setSelectedPoints([]);
+      setShowPointInfo(null);
     }
   };
   
@@ -1015,6 +1019,15 @@ export function MapView({
             <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-black"></div>
           </div>
         </div>
+      )}
+      
+      {/* Point Info Popup */}
+      {showPointInfo && (
+        <PointInfoPopup
+          lat={showPointInfo.lat}
+          lng={showPointInfo.lng}
+          onClose={() => setShowPointInfo(null)}
+        />
       )}
     </div>
   );

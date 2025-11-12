@@ -248,7 +248,6 @@ export function LeftSidebar({
                 loadingOptions={loadingStates.estacionamento ? estacionamentoOptions : []}
               />
               
-              {/* TODO: Implementar funcionalidade de perfil em breve
               <PerfilSection
                 selectedGenero={selectedGenero}
                 onGeneroChange={onGeneroChange}
@@ -261,7 +260,6 @@ export function LeftSidebar({
                 isCollapsed={collapsedSections.has('perfil')}
                 onToggleCollapse={() => toggleSection('perfil')}
               />
-              */}
               
               {/* TODO: Descomentar quando implementar
               <FilterSection
