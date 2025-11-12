@@ -43,37 +43,55 @@ export async function searchStreets(query: string): Promise<StreetMatch[]> {
   if (!query.trim()) return [];
   
   try {
-    const response = await fetch(
-      `${VIAS_INSEGURAS_SEARCH}?q=${encodeURIComponent(query)}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(5000),
-      }
-    );
+    const url = `${VIAS_INSEGURAS_SEARCH}?street=${encodeURIComponent(query)}`;
+    console.log('🔍 Buscando vias na URL:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(10000),
+    });
 
+    console.log('📡 Response status:', response.status);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('📊 Dados recebidos:', data);
     
-    // Adaptar resposta da API do SAMU para o formato esperado
-    if (Array.isArray(data)) {
-      return data.map((street: any) => ({
-        id: street.id || street.street_id || String(Math.random()),
-        name: street.name || street.street_name || '',
-        confidence: 0.8, // valor fixo já que a API não retorna confidence
-        municipality: street.city || 'Recife',
-        length: street.length
-      }));
+    // A API retorna sinistros, precisamos extrair ruas únicas
+    if (data.sinistros && Array.isArray(data.sinistros)) {
+      // Extrair ruas únicas dos sinistros
+      const streetsMap = new Map<string, StreetMatch>();
+      
+      data.sinistros.forEach((sinistro: any) => {
+        const streetName = sinistro.nome_oficial_logradouro;
+        const neighborhood = sinistro.nomeBairro;
+        
+        if (streetName && !streetsMap.has(streetName)) {
+          streetsMap.set(streetName, {
+            id: `street-${streetName.replace(/\s+/g, '-').toLowerCase()}`,
+            name: streetName,
+            confidence: 0.9,
+            municipality: neighborhood || 'Recife',
+            length: undefined
+          });
+        }
+      });
+      
+      const results = Array.from(streetsMap.values());
+      console.log('✅ Ruas únicas extraídas:', results);
+      return results;
     }
     
+    console.log('⚠️ Formato de dados não reconhecido:', data);
     return [];
   } catch (error) {
-    console.error('Erro ao buscar vias:', error);
+    console.error('❌ Erro ao buscar vias:', error);
     return [];
   }
 }

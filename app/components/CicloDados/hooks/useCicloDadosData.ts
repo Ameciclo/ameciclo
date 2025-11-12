@@ -7,13 +7,8 @@ export function useCicloDadosData() {
   ];
 
   const contagemOptions = [
-    "Somente Mulheres",
-    "Crianças e Adolescentes", 
-    "Carona",
-    "Serviço",
-    "Cargueira",
-    "Uso de Calçada",
-    "Contramão"
+    "Contagem da Ameciclo",
+    "Contagem da Prefeitura"
   ];
 
   const pdcOptions = [

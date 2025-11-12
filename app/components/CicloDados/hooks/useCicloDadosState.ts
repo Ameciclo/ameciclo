@@ -42,7 +42,7 @@ export function useCicloDadosState(
   };
 
   const [selectedInfra, setSelectedInfra] = useState<string[]>([]);
-  const [selectedContagem, setSelectedContagem] = useState<string[]>(contagemOptions);
+  const [selectedContagem, setSelectedContagem] = useState<string[]>(["Contagem da Ameciclo"]);
   const [selectedPdc, setSelectedPdc] = useState<string[]>(pdcOptions.map(opt => opt.name));
   const [selectedInfracao, setSelectedInfracao] = useState<string[]>([]);
   const [selectedSinistro, setSelectedSinistro] = useState<string[]>([]);
@@ -57,7 +57,7 @@ export function useCicloDadosState(
   useEffect(() => {
     if (isClient) {
       setSelectedInfra(getStoredValue('selectedInfra', []));
-      setSelectedContagem(getStoredValue('selectedContagem', contagemOptions));
+      setSelectedContagem(getStoredValue('selectedContagem', ["Contagem da Ameciclo"]));
       setSelectedPdc(getStoredValue('selectedPdc', pdcOptions.map(opt => opt.name)));
       setSelectedInfracao(getStoredValue('selectedInfracao', []));
       setSelectedSinistro(getStoredValue('selectedSinistro', []));

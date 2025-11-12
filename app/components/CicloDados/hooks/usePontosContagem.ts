@@ -1,68 +1,37 @@
 import { useState, useEffect } from 'react';
-import { PONTOS_CONTAGEM_DATA } from '~/servers';
 
-interface PontoContagem {
-  id: number;
-  name: string;
-  city: string;
-  state: string;
-  latitude: string;
-  longitude: string;
-  counts: Array<{
-    id: number;
-    date: string;
-    total_cyclists: number;
-    start_time: string;
-    end_time: string;
-  }>;
+interface ViewportBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
 }
 
-interface UsePontosContagemReturn {
-  data: {
-    type: 'FeatureCollection';
-    features: Array<{
-      type: 'Feature';
-      geometry: {
-        type: 'Point';
-        coordinates: [number, number];
-      };
-      properties: PontoContagem;
-    }>;
-  } | null;
-  loading: boolean;
-  error: string | null;
-}
-
-export function usePontosContagem(): UsePontosContagemReturn {
-  const [data, setData] = useState<UsePontosContagemReturn['data']>(null);
-  const [loading, setLoading] = useState(false);
+export function usePontosContagem(bounds?: ViewportBounds) {
+  const [allData, setAllData] = useState(null);
+  const [filteredData, setFilteredData] = useState(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const response = await fetch(PONTOS_CONTAGEM_DATA);
-        
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-        
-        const pontosData: PontoContagem[] = await response.json();
+    setError(null);
+    console.log('Carregando pontos de contagem da prefeitura do arquivo estático');
+    
+    fetch('/dbs/PCR_CONTAGENS.json')
+      .then(res => {
+        console.log('Resposta do arquivo estático:', res.status, res.statusText);
+        if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
+        return res.json();
+      })
+      .then((pontosData: any[]) => {
+        console.log('Dados da prefeitura recebidos:', pontosData?.length || 'sem dados');
         
         // Converter para GeoJSON
         const geojson = {
-          type: 'FeatureCollection' as const,
-          features: pontosData.map(ponto => {
-            const lat = parseFloat(ponto.latitude);
-            const lng = parseFloat(ponto.longitude);
-            
-            // Pegar o total de ciclistas do último count
-            const totalCyclists = ponto.counts && ponto.counts.length > 0 
-              ? ponto.counts[0].total_cyclists 
-              : 0;
+          type: "FeatureCollection" as const,
+          features: pontosData.map((ponto, index) => {
+            const lat = ponto.location.coordinates[0];
+            const lng = ponto.location.coordinates[1];
+            const totalCyclists = ponto.summary?.total || 0;
             
             return {
               type: 'Feature' as const,
@@ -71,33 +40,56 @@ export function usePontosContagem(): UsePontosContagemReturn {
                 coordinates: [lng, lat] as [number, number]
               },
               properties: {
-                id: ponto.id,
-                name: ponto.name,
-                city: ponto.city,
+                id: `prefeitura_${index}`,
+                name: ponto.name || `Posto ${index + 1}`,
+                city: 'Recife',
                 count: totalCyclists,
                 total_cyclists: totalCyclists,
-                total_counts: ponto.counts?.length || 0,
-                last_count_date: ponto.counts?.[0]?.date || null,
+                date: ponto.date,
+                last_count_date: ponto.date ? new Date(ponto.date).toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit' }) : 'Sem dado',
+                cargo_percent: ponto.summary?.cargo_percent ? Math.round(ponto.summary.cargo_percent * 100) : 0,
+                wrong_way_percent: ponto.summary?.wrong_way_percent ? Math.round(ponto.summary.wrong_way_percent * 100) : 0,
                 latitude: lat,
                 longitude: lng,
                 type: 'Contagem',
+                source: 'prefeitura',
                 status: 'active'
               }
             };
           })
         };
         
-        setData(geojson);
-      } catch (err) {
-        setError('Erro ao carregar pontos de contagem');
-        setData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+        setAllData(geojson);
+      })
+      .catch(err => {
+        console.error('Erro ao carregar pontos da prefeitura:', err);
+        setError(`Erro ao carregar pontos da prefeitura: ${err.message}`);
+        setAllData(null);
+      });
   }, []);
 
-  return { data, loading, error };
+  useEffect(() => {
+    if (!allData || !bounds) {
+      setFilteredData(allData);
+      return;
+    }
+
+    if (!allData.features || !Array.isArray(allData.features)) {
+      setFilteredData(allData);
+      return;
+    }
+
+    const filtered = {
+      ...allData,
+      features: allData.features.filter((feature: any) => {
+        const [lng, lat] = feature.geometry.coordinates;
+        return lat >= bounds.south && lat <= bounds.north && 
+               lng >= bounds.west && lng <= bounds.east;
+      })
+    };
+
+    setFilteredData(filtered);
+  }, [allData, bounds]);
+
+  return { data: filteredData, error };
 }

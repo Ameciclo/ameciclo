@@ -33,6 +33,7 @@ interface MapViewProps {
   externalViewState?: {latitude: number, longitude: number, zoom: number};
   highlightedStreet?: any;
   streetData?: any;
+  selectedStreetFilter?: string | null;
 }
 
 export function MapView({
@@ -50,7 +51,8 @@ export function MapView({
   onPointClick,
   externalViewState,
   highlightedStreet,
-  streetData
+  streetData,
+  selectedStreetFilter
 }: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }> }) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -65,10 +67,8 @@ export function MapView({
   // Atualizar com estado externo quando fornecido
   useEffect(() => {
     if (externalViewState) {
-      console.log('MapView recebeu externalViewState:', externalViewState);
-      console.log('MapView estado atual:', mapViewState);
       setMapViewState(externalViewState);
-      setForceRender(Date.now()); // Força re-renderização
+      setForceRender(Date.now());
     }
   }, [externalViewState]);
 
@@ -111,7 +111,7 @@ export function MapView({
         const parsed = JSON.parse(saved);
         setMapViewState(parsed);
       } catch (e) {
-        console.error('Erro ao parsear localStorage:', e);
+        // Erro silencioso
       }
     }
   }, []);
@@ -120,16 +120,11 @@ export function MapView({
   const { data: filteredBicicletarios, error: bicicletariosError } = useBicicletarios(isClient ? viewportBounds : undefined);
   const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
   const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
-  const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(isClient ? viewportBounds : undefined);
+  const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
   
-  // Debug logs
-  useEffect(() => {
-    console.log('selectedPdc:', selectedPdc);
-    console.log('execucaoCicloviaria:', execucaoCicloviaria);
-    console.log('execucaoError:', execucaoError);
-  }, [selectedPdc, execucaoCicloviaria, execucaoError]);
+
   
   // Coletar erros para exibir avisos
   const dataErrors = [];
@@ -141,7 +136,6 @@ export function MapView({
   if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
 
   const handleMapViewChange = (viewState: any) => {
-    console.log('Mudou posição do mapa:', viewState);
     setMapViewState(viewState);
     
     // Debounce para evitar muitas escritas no localStorage
@@ -157,9 +151,8 @@ export function MapView({
           zoom: viewState.zoom
         };
         localStorage.setItem('ciclodados-map-view', JSON.stringify(dataToSave));
-        console.log('Salvou no localStorage:', dataToSave);
       }
-    }, 500); // Salva 500ms após parar de mover
+    }, 500);
   };
 
   // Log das informações para o backend
@@ -277,7 +270,7 @@ export function MapView({
   return (
     <div style={{height: 'calc(100vh - 64px)'}} className="relative flex flex-col">
       {/* Botão no canto superior esquerdo */}
-      <div className="absolute top-4 left-4 z-[60] flex gap-2">
+      <div className="absolute top-4 left-4 z-[60] flex flex-col gap-2">
         <button
           onClick={toggleSelectionMode}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg font-medium transition-all duration-200 ${
@@ -291,36 +284,60 @@ export function MapView({
             {isSelectionMode ? 'Cancelar seleção' : 'Selecionar ponto'}
           </span>
         </button>
+        
+        {/* Debug viewport info */}
+        <div className="bg-transparent text-black text-xs p-2 rounded font-mono">
+          <div>Zoom: {mapViewState.zoom.toFixed(2)}</div>
+          <div>Lat: {mapViewState.latitude.toFixed(6)}</div>
+          <div>Lng: {mapViewState.longitude.toFixed(6)}</div>
+          <div>Pontos: {(contagemData?.features?.length || 0) + (pontosContagem?.features?.length || 0)}</div>
+        </div>
       </div>
 
       <div className="flex-1 md:h-full">
         <AmecicloMap
           onPointClick={onPointClick}
           layerData={(() => {
-            // Filtrar infraestrutura por tipos selecionados
-            const filteredInfraFeatures = infraCicloviaria?.features?.filter((feature: any) => 
+            // Quando há filtro de rua selecionada, mostrar todos os dados (não filtrar por área)
+            const filterByStreetArea = (features: any[]) => {
+              // Se não há filtro de rua ou não há features, retornar como está
+              if (!selectedStreetFilter || !features) return features;
+              
+              // Quando há filtro de rua, retornar todas as features para mostrar no mapa
+              return features;
+            };
+            
+            // Filtrar infraestrutura por tipos selecionados e área
+            let filteredInfraFeatures = infraCicloviaria?.features?.filter((feature: any) => 
               selectedInfra.includes(feature.properties.infra_type)
             ) || [];
+            filteredInfraFeatures = filterByStreetArea(filteredInfraFeatures);
             
-            // Filtrar execução cicloviária por status selecionados
+            // Filtrar execução cicloviária por status selecionados e área
             const selectedPdcApiKeys = selectedPdc.map(name => {
               const option = pdcOptions.find(opt => opt.name === name);
               return option?.apiKey;
             }).filter(Boolean);
             
-            const filteredExecucaoFeatures = (!execucaoError && execucaoCicloviaria?.features) ? 
+            let filteredExecucaoFeatures = (!execucaoError && execucaoCicloviaria?.features) ? 
               execucaoCicloviaria.features.filter((feature: any) => 
                 selectedPdcApiKeys.includes(feature.properties.status)
               ) : [];
+            filteredExecucaoFeatures = filterByStreetArea(filteredExecucaoFeatures);
             
-            // Filtrar sinistros por tipos selecionados
-            const filteredSinistrosFeatures = sinistrosData?.features?.filter((feature: any) => 
+            // Filtrar sinistros por tipos selecionados e área
+            let filteredSinistrosFeatures = sinistrosData?.features?.filter((feature: any) => 
               selectedSinistro.includes(feature.properties.type)
             ) || [];
+            filteredSinistrosFeatures = filterByStreetArea(filteredSinistrosFeatures);
+            
+            // Aplicar filtro de área aos dados gerados
+            let infraDataFiltered = filterByStreetArea(infraData?.features || []);
+            let pdcDataFiltered = filterByStreetArea(pdcData?.features || []);
             
             const allFeatures = [
-              ...(infraData?.features || []),
-              ...(pdcData?.features || []),
+              ...infraDataFiltered,
+              ...pdcDataFiltered,
               ...(highlightedStreet?.features || []),
               ...filteredInfraFeatures,
               ...filteredExecucaoFeatures,
@@ -334,19 +351,9 @@ export function MapView({
           })()}
         layersConf={[
           ...(layersConf || []),
-          ...(highlightedStreet ? [{
-            id: 'highlighted-street',
-            type: 'line',
-            source: 'data',
-            filter: ['==', ['get', 'highlighted'], true],
-            paint: {
-              'line-color': '#ff0000',
-              'line-width': 8,
-              'line-opacity': 0.8
-            }
-          }] : []),
           // PDC layers - double lines that embrace infrastructure (apenas se não houver erro)
-          ...(!execucaoError && execucaoCicloviaria?.features ? [
+          // Só mostrar se não há filtro de rua ou se há dados na área
+          ...(!execucaoError && execucaoCicloviaria?.features && selectedPdc.length > 0 ? [
             // PDC Realizado Designado - double purple lines
             {
               id: 'pdc-realizado-designado-left',
@@ -527,7 +534,7 @@ export function MapView({
             }
           ] : []),
 
-          ...(!infraError && infraCicloviaria?.features ? [
+          ...(!infraError && infraCicloviaria?.features && selectedInfra.length > 0 ? [
             {
               id: 'infra-ciclovia',
               type: 'line',
@@ -619,7 +626,7 @@ export function MapView({
           ] : []),
 
           // Sinistros - Vias Perigosas (apenas se não houver erro)
-          ...(!sinistrosError && sinistrosData?.features ? [
+          ...(!sinistrosError && sinistrosData?.features && selectedSinistro.length > 0 ? [
             {
               id: 'vias-perigosas-high',
               type: 'line',
@@ -665,12 +672,13 @@ export function MapView({
           ] : [])
         ]}
         pointsData={[
-          // Pontos de contagem da API com clustering
-          ...(isClient && selectedContagem.length > 0 && pontosContagem?.features && Array.isArray(pontosContagem.features) ? 
-            createClusters(pontosContagem.features.map(f => ({
-              ...f,
-              geometry: { coordinates: [f.properties.longitude, f.properties.latitude] }
-            })), mapViewState.zoom, mapViewState)
+          // Pontos de contagem da prefeitura via hook direto (renderizar primeiro, ficar embaixo)
+          ...(isClient && selectedContagem.includes('Contagem da Prefeitura') && pontosContagem?.features && Array.isArray(pontosContagem.features) ? 
+            createClusters(
+              pontosContagem.features, 
+              mapViewState.zoom, 
+              mapViewState
+            )
               .map((item: any) => {
                 const totalContagens = item.isCluster ? 
                   item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_cyclists || f.properties.count || 0), 0) :
@@ -679,13 +687,13 @@ export function MapView({
                 const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
                 
                 return {
-                  key: `contagem-${item.id}`,
+                  key: `prefeitura-contagem-${item.id}`,
                   latitude: item.geometry.coordinates[1],
                   longitude: item.geometry.coordinates[0],
                   type: 'Contagem',
                   popup: {
-                    name: item.isCluster ? `${item.properties.count} Pontos de Contagem` : 
-                          (item.properties.items?.[0]?.properties?.name || 'Ponto de Contagem'),
+                    name: item.isCluster ? `${item.properties.count} Pontos Prefeitura` : 
+                          (item.properties.items?.[0]?.properties?.name || 'Ponto Prefeitura'),
                     total: totalContagens,
                     date: item.properties.items?.[0]?.properties?.last_count_date,
                     city: item.properties.items?.[0]?.properties?.city,
@@ -693,6 +701,8 @@ export function MapView({
                     latitude: item.geometry.coordinates[1],
                     longitude: item.geometry.coordinates[0]
                   },
+                  cargo_percent: item.properties.items?.[0]?.properties?.cargo_percent,
+                  wrong_way_percent: item.properties.items?.[0]?.properties?.wrong_way_percent,
                   customIcon: (
                     <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                       <div className="bg-white text-black px-2 py-1 rounded-lg shadow-lg border-2 border-black flex items-center gap-1 min-w-[50px] justify-center">
@@ -729,12 +739,147 @@ export function MapView({
                       </div>
                     </div>
                   ),
-                  onClick: () => onPointClick && onPointClick(item.isCluster ? item : item.properties.items[0])
+                  onClick: () => {
+                    if (item.isCluster && item.properties.items.length > 1) {
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const bounds = {
+                        north: Math.max(...lats),
+                        south: Math.min(...lats),
+                        east: Math.max(...lngs),
+                        west: Math.min(...lngs)
+                      };
+                      
+                      const centerLat = (bounds.north + bounds.south) / 2;
+                      const centerLng = (bounds.east + bounds.west) / 2;
+                      const latDiff = bounds.north - bounds.south;
+                      const lngDiff = bounds.east - bounds.west;
+                      const maxDiff = Math.max(latDiff, lngDiff);
+                      
+                      let zoom = 16;
+                      if (maxDiff > 0.01) zoom = 13;
+                      else if (maxDiff > 0.005) zoom = 14;
+                      else if (maxDiff > 0.002) zoom = 15;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: zoom
+                      });
+                    } else {
+                      onPointClick && onPointClick(item.isCluster ? item : item.properties.items[0]);
+                    }
+                  }
                 };
               }) : []),
 
+          // Pontos de contagem via props (dados processados no loader) - renderizar por último, ficar em cima
+          ...(isClient && selectedContagem.length > 0 && contagemData?.features && Array.isArray(contagemData.features) ? 
+            createClusters(
+              contagemData.features, 
+              mapViewState.zoom, 
+              mapViewState
+            )
+              .map((item: any) => {
+                const totalContagens = item.isCluster ? 
+                  item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_cyclists || f.properties.count || 0), 0) :
+                  (item.properties.items?.[0]?.properties?.total_cyclists || item.properties.items?.[0]?.properties?.count || 0);
+                
+                const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
+                
+                return {
+                  key: `contagem-${item.id}`,
+                  latitude: item.geometry.coordinates[1],
+                  longitude: item.geometry.coordinates[0],
+                  type: 'Contagem',
+                  popup: {
+                    name: item.isCluster ? `${item.properties.count} Pontos de Contagem` : 
+                          (item.properties.items?.[0]?.properties?.name || 'Ponto de Contagem'),
+                    total: totalContagens,
+                    date: item.properties.items?.[0]?.properties?.last_count_date,
+                    city: item.properties.items?.[0]?.properties?.city,
+                    created_at: item.properties.items?.[0]?.properties?.last_count_date,
+                    latitude: item.geometry.coordinates[1],
+                    longitude: item.geometry.coordinates[0]
+                  },
+                  customIcon: (
+                    <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                      <div className="bg-green-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-green-700 flex items-center gap-1 min-w-[50px] justify-center">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <path d="M3 3v18h18"/>
+                          <path d="M18 17V9"/>
+                          <path d="M13 17V5"/>
+                          <path d="M8 17v-3"/>
+                        </svg>
+                        <span className="text-xs font-bold">{totalContagens}</span>
+                        {item.isCluster && item.properties.count > 1 && (
+                          <span 
+                            className="text-[8px] bg-green-500 text-white border border-green-700 rounded-full px-1 ml-1 cursor-help relative"
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setClusterTooltip({
+                                show: true,
+                                count: item.properties.count,
+                                x: rect.left + rect.width / 2,
+                                y: rect.top - 5
+                              });
+                            }}
+                            onMouseLeave={() => setClusterTooltip({ show: false, count: 0, x: 0, y: 0 })}
+                          >
+                            {item.properties.count}
+                          </span>
+                        )}
+                      </div>
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                        <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-green-500"></div>
+                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
+                          <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-green-700"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                  onClick: () => {
+                    if (item.isCluster && item.properties.items.length > 1) {
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const bounds = {
+                        north: Math.max(...lats),
+                        south: Math.min(...lats),
+                        east: Math.max(...lngs),
+                        west: Math.min(...lngs)
+                      };
+                      
+                      const centerLat = (bounds.north + bounds.south) / 2;
+                      const centerLng = (bounds.east + bounds.west) / 2;
+                      const latDiff = bounds.north - bounds.south;
+                      const lngDiff = bounds.east - bounds.west;
+                      const maxDiff = Math.max(latDiff, lngDiff);
+                      
+                      let zoom = 16;
+                      if (maxDiff > 0.01) zoom = 13;
+                      else if (maxDiff > 0.005) zoom = 14;
+                      else if (maxDiff > 0.002) zoom = 15;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: zoom
+                      });
+                    } else {
+                      onPointClick && onPointClick(item.isCluster ? item : item.properties.items[0]);
+                    }
+                  }
+                };
+              }) : []),
+
+
+
           ...(isClient && selectedEstacionamento.includes('Bicicletários') && filteredBicicletarios?.features && Array.isArray(filteredBicicletarios.features) ? 
-            createClusters(filteredBicicletarios.features, mapViewState.zoom, mapViewState)
+            createClusters(
+              filteredBicicletarios.features, 
+              mapViewState.zoom, 
+              mapViewState
+            )
               .map((item: any) => ({
                 key: `bicicletario-${item.id}`,
                 latitude: item.geometry.coordinates[1],
@@ -754,7 +899,11 @@ export function MapView({
                   </div>
               })) : []),
           ...(isClient && selectedEstacionamento.includes('Estações de Bike PE') && filteredBikePE?.features && Array.isArray(filteredBikePE.features) ? 
-            createClusters(filteredBikePE.features, mapViewState.zoom, mapViewState)
+            createClusters(
+              filteredBikePE.features, 
+              mapViewState.zoom, 
+              mapViewState
+            )
               .map((item: any) => ({
                 key: `bikepe-${item.id}`,
                 latitude: item.geometry.coordinates[1],

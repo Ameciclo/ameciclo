@@ -6,22 +6,47 @@ export function generatePdcData(selectedPdc: string[]) {
   return null;
 }
 
-export function generateContagemData(selectedContagem: string[], apiData?: any) {
+export function generateContagemData(selectedContagem: string[], apiData?: any, profileFilters?: {
+  genero?: string;
+  raca?: string;
+  socio?: string;
+  dias?: string;
+}) {
   if (selectedContagem.length === 0) return null;
 
   if (apiData && apiData.features) {
+    // Filter features based on selected sources
+    const filteredFeatures = apiData.features.filter((feature: any) => {
+      const source = feature.properties.source;
+      
+      if (selectedContagem.includes("Contagem da Ameciclo") && source === 'ameciclo') {
+        return true;
+      }
+      if (selectedContagem.includes("Contagem da Prefeitura") && source === 'prefeitura') {
+        return true;
+      }
+      
+      return false;
+    });
+
     return {
       type: "FeatureCollection",
-      features: apiData.features.map((feature: any) => ({
-        type: "Feature",
-        properties: {
-          type: "Contagem",
-          count: feature.properties.count || 0,
-          location: feature.properties.name || feature.properties.address || 'Ponto de Contagem',
-          ...feature.properties
-        },
-        geometry: feature.geometry
-      }))
+      features: filteredFeatures.map((feature: any) => {
+        const props = feature.properties;
+        
+        return {
+          type: "Feature",
+          properties: {
+            type: "Contagem",
+            count: props.total_cyclists || props.count || 0,
+            total_cyclists: props.total_cyclists || props.count || 0,
+            location: props.name || props.address || 'Ponto de Contagem',
+            source: props.source,
+            ...props
+          },
+          geometry: feature.geometry
+        };
+      })
     };
   }
 

@@ -9,11 +9,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const lat = url.searchParams.get('lat') || '-8.0476';
   const lon = url.searchParams.get('lon') || '-34.8770';
   
-  // Return mock data immediately to prevent timeout
-  return json({ 
-    contagemData: null, 
-    execucaoCicloviaria: null 
-  });
+  try {
+    // Fetch Ameciclo data only (prefeitura data comes from static file via hook)
+    const amecicloResponse = await fetch('https://cyclist-counts.atlas.ameciclo.org/v1/locations');
+    const amecicloData = amecicloResponse.ok ? await amecicloResponse.json() : [];
+    
+    return json({ 
+      contagemData: {
+        ameciclo: amecicloData,
+        prefeitura: [] // Prefeitura data loaded via hook from static file
+      }, 
+      execucaoCicloviaria: null 
+    });
+  } catch (error) {
+    console.error('Error loading data:', error);
+    return json({ 
+      contagemData: {
+        ameciclo: [],
+        prefeitura: []
+      }, 
+      execucaoCicloviaria: null 
+    });
+  }
 }
 import {
   CicloDadosHeader,
@@ -21,7 +38,7 @@ import {
   RightSidebar,
   MapView,
   MuralView,
-  FloatingChat,
+  // FloatingChat,
   useCicloDadosData,
   useCicloDadosState,
   usePontosContagem,
@@ -152,8 +169,9 @@ export default function CicloDados() {
   });
   const [selectedStreetGeometry, setSelectedStreetGeometry] = useState<any>(null);
   const [selectedStreetData, setSelectedStreetData] = useState<StreetDataSummary | null>(null);
+  const [selectedStreetFilter, setSelectedStreetFilter] = useState<string | null>(null);
 
-  const handleZoomToStreet = async (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string) => {
+  const handleZoomToStreet = async (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => {
     console.log('handleZoomToStreet chamado com bounds:', bounds);
     
     const centerLat = (bounds.north + bounds.south) / 2;
@@ -163,10 +181,10 @@ export default function CicloDados() {
     const lngDiff = bounds.east - bounds.west;
     const maxDiff = Math.max(latDiff, lngDiff);
     
-    let zoom = 17;
-    if (maxDiff > 0.01) zoom = 14;
-    else if (maxDiff > 0.005) zoom = 15;
-    else if (maxDiff > 0.002) zoom = 16;
+    let zoom = 15; // Zoom mais próximo para destacar a rua
+    if (maxDiff > 0.01) zoom = 13;
+    else if (maxDiff > 0.005) zoom = 14;
+    else if (maxDiff > 0.002) zoom = 15;
     
     const newViewState = {
       latitude: centerLat,
@@ -175,19 +193,25 @@ export default function CicloDados() {
     };
     
     console.log('Novo viewState:', newViewState);
-    console.log('ViewState atual:', mapViewState);
-    
     setMapViewState(newViewState);
     
-    // Salvar geometria da via para destacar
-    if (streetGeometry) {
-      setSelectedStreetGeometry({
-        type: "FeatureCollection",
-        features: streetGeometry.features.map((feature: any) => ({
-          ...feature,
-          properties: { ...feature.properties, highlighted: true }
-        }))
-      });
+    // Se streetName está vazio, limpar seleção
+    if (!streetName) {
+      setMapSelection(null);
+      setSelectedStreetGeometry(null);
+      setSelectedStreetFilter(null);
+    } else {
+      // Criar ponto de seleção no centro da rua
+      const streetPin = {
+        lat: centerLat,
+        lng: centerLng,
+        radius: 500,
+        street: streetName
+      };
+      
+      setMapSelection(streetPin);
+      setSelectedStreetGeometry(null);
+      setSelectedStreetFilter(streetName);
     }
     
     // Buscar dados da via
@@ -199,14 +223,87 @@ export default function CicloDados() {
         console.error('Erro ao buscar dados da via:', error);
       }
     }
-    
-
   };
+
+  // Convert contagemData to GeoJSON format
+  const processedContagemData = contagemData ? {
+    type: 'FeatureCollection',
+    features: [
+      // Ameciclo data
+      ...(contagemData.ameciclo || []).map((ponto: any) => {
+        const lat = parseFloat(ponto.latitude);
+        const lng = parseFloat(ponto.longitude);
+        const latestCount = ponto.counts?.[0];
+        const totalCyclists = latestCount?.total_cyclists || 0;
+        
+        return {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          properties: {
+            id: `ameciclo_${ponto.id}`,
+            name: ponto.name,
+            city: ponto.city,
+            count: totalCyclists,
+            total_cyclists: totalCyclists,
+            type: 'Contagem',
+            source: 'ameciclo',
+            last_count_date: (() => {
+              const date = latestCount?.date || latestCount?.created_at || ponto.created_at;
+              return date ? new Date(date).toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit' }) : 'Sem dado';
+            })(),
+            mulheres: latestCount?.women || latestCount?.mulheres || 0,
+            carona: latestCount?.passengers || latestCount?.carona || 0,
+            servico: latestCount?.service || latestCount?.servico || 0,
+            cargueira: latestCount?.cargo || latestCount?.cargueira || 0,
+            contramao: latestCount?.wrong_way || latestCount?.contramao || 0,
+            calcada: latestCount?.sidewalk || latestCount?.calcada || 0,
+            criancas: latestCount?.children || latestCount?.criancas || 0,
+            capacete: latestCount?.helmet || latestCount?.capacete || 0
+          }
+        };
+      }),
+      // Prefeitura data
+      ...(contagemData.prefeitura || []).map((ponto: any, index: number) => {
+        const lat = parseFloat(ponto.coordinates?.latitude || 0);
+        const lng = parseFloat(ponto.coordinates?.longitude || 0);
+        const totalCyclists = ponto.total_cyclists || 0;
+        
+        return {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          properties: {
+            id: `prefeitura_${index}`,
+            name: ponto.name || `Ponto ${index + 1}`,
+            city: 'Recife',
+            count: totalCyclists,
+            total_cyclists: totalCyclists,
+            type: 'Contagem',
+            source: 'prefeitura',
+            last_count_date: (() => {
+              const date = ponto.date || ponto.created_at;
+              return date ? new Date(date).toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit' }) : 'Sem dado';
+            })()
+          }
+        };
+      })
+    ]
+  } : null;
 
   // Gerar dados do mapa
   const infraData = generateInfraData(selectedInfra);
   const pdcData = generatePdcData(selectedPdc, execucaoCicloviaria);
-  const contagemMapData = generateContagemData(selectedContagem, contagemData);
+  const contagemMapData = generateContagemData(selectedContagem, processedContagemData, {
+    genero: selectedGenero,
+    raca: selectedRaca,
+    socio: selectedSocio,
+    dias: selectedDias
+  });
   const layersConf = generateLayersConf(selectedInfra, selectedPdc, infraOptions, pdcOptions);
   
 
@@ -334,6 +431,7 @@ export default function CicloDados() {
                 externalViewState={mapViewState}
                 highlightedStreet={selectedStreetGeometry}
                 streetData={selectedStreetData}
+                selectedStreetFilter={selectedStreetFilter}
               />
               {/* TODO: Descomentar quando implementar mural:
               ) : (
@@ -345,20 +443,20 @@ export default function CicloDados() {
               */}
             </main>
 
-            <RightSidebar
+            {/* <RightSidebar
               isOpen={rightSidebarOpen}
               onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
               viewMode={viewMode}
               mapSelection={mapSelection}
-            />
+            /> */}
             
 
           </div>
 
-          <FloatingChat
+          {/* <FloatingChat
             isOpen={chatOpen}
             onToggle={() => setChatOpen(!chatOpen)}
-          />
+          /> */}
         </div>
       </ClientOnly>
     </CicloDadosErrorBoundary>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Map, { Source, Layer, Marker, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl";
+import Map, { Source, Layer, Marker, Popup, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl";
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 
@@ -26,11 +26,19 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     const handleZoomIn = () => {
-        setViewport({ ...viewport, zoom: viewport.zoom + 1 });
+        const newViewport = { ...viewport, zoom: viewport.zoom + 1 };
+        setViewport(newViewport);
+        if (onViewStateChange) {
+            onViewStateChange(newViewport);
+        }
     };
 
     const handleZoomOut = () => {
-        setViewport({ ...viewport, zoom: viewport.zoom - 1 });
+        const newViewport = { ...viewport, zoom: viewport.zoom - 1 };
+        setViewport(newViewport);
+        if (onViewStateChange) {
+            onViewStateChange(newViewport);
+        }
     };
 
     const handleRecenter = () => {
@@ -124,51 +132,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
 
 
             
-            {toggleSelectionMode && (
-                <>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleSelectionMode();
-                        }}
-                        className={`bg-white hover:bg-gray-100 rounded p-2 shadow-md transition-all ${
-                            isSelectionMode ? 'bg-gray-200 border-[3px] border-gray-400' : 'border border-gray-300'
-                        }`}
-                        title="Selecionar área no mapa"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                        </svg>
-                    </button>
-                    
-                    {isSelectionMode && setRadius && (
-                        <div className="flex flex-col items-center gap-1">
-                            <input
-                                type="range"
-                                min="100"
-                                max="2000"
-                                step="100"
-                                value={radius}
-                                onChange={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setRadius(Number(e.target.value));
-                                }}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onMouseUp={(e) => e.stopPropagation()}
-                                onMouseMove={(e) => e.stopPropagation()}
-                                onClick={(e) => e.stopPropagation()}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onPointerUp={(e) => e.stopPropagation()}
-                                onPointerMove={(e) => e.stopPropagation()}
-                                className="w-12 h-1"
-                            />
-                            <div className="text-xs text-white bg-black bg-opacity-50 px-1 rounded">{radius}m</div>
-                        </div>
-                    )}
-                </>
-            )}
+
             
             <button
                 onClick={(e) => {
@@ -511,6 +475,7 @@ export const AmecicloMap = ({
     }, [layersConf, isClient]);
 
     const [markerVisibility, setMarkerVisibility] = useState<Record<string, boolean>>({});
+    const [selectedMarker, setSelectedMarker] = useState<pointData | null>(null);
 
     useEffect(() => {
         if (pointsData && isClient) {
@@ -541,6 +506,8 @@ export const AmecicloMap = ({
 
     return (
         <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
+
+            
             <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
                 {isClient && isMapReady && (
                     <Map
@@ -548,7 +515,8 @@ export const AmecicloMap = ({
                         {...settings}
                         width="100%"
                         height={isFullscreen ? "100vh" : height}
-                        onViewportChange={(newViewport) => {
+                        onMove={(evt) => {
+                            const newViewport = evt.viewState;
                             setViewport(newViewport);
                             if (onViewStateChange) {
                                 onViewStateChange(newViewport);
@@ -567,7 +535,10 @@ export const AmecicloMap = ({
                             if (isSelectionMode) return 'pointer';
                             return settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer';
                         }}
-                        onClick={onMapClick}
+                        onClick={(e) => {
+                            setSelectedMarker(null);
+                            if (onMapClick) onMapClick(e);
+                        }}
                         onMouseDown={onMapClick}
                         onMouseMove={onMouseMove}
                     >
@@ -584,6 +555,11 @@ export const AmecicloMap = ({
                         )}
                         {pointsData?.map((point) => {
                             const { key, latitude, longitude, size, color, customIcon } = point;
+                            
+                            const zoomAdjustedSize = viewport.zoom >= 16 
+                                ? Math.max((size || 15) * 0.8, 15)
+                                : size || 15;
+                            
                             return (
                                 markerVisibility &&
                                 markerVisibility[key] == true && (
@@ -591,7 +567,18 @@ export const AmecicloMap = ({
                                         key={key}
                                         latitude={latitude}
                                         longitude={longitude}
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            e?.originalEvent?.stopPropagation?.();
+                                            setSelectedMarker(point);
+                                            
+                                            // Aproximar para zoom 17 centralizado no ponto
+                                            setViewport({
+                                                ...viewport,
+                                                latitude: point.latitude,
+                                                longitude: point.longitude,
+                                                zoom: 17
+                                            });
+                                            
                                             if (onPointClick) {
                                                 onPointClick(point);
                                             }
@@ -603,13 +590,17 @@ export const AmecicloMap = ({
                                             </div>
                                         ) : (
                                             <svg
-                                                height={size ? size : 15}
+                                                height={zoomAdjustedSize}
+                                                width={zoomAdjustedSize}
                                                 viewBox="0 0 24 24"
                                                 style={{
                                                     cursor: "pointer",
                                                     fill: color ? color : "#008080",
-                                                    stroke: "none",
-                                                    transform: `translate(${- (size ? size : 15) / 2}px,${- (size ? size : 15)}px)`,
+                                                    stroke: "white",
+                                                    strokeWidth: viewport.zoom > 14 ? "1" : "0.5",
+                                                    transform: `translate(${-zoomAdjustedSize / 2}px, ${-zoomAdjustedSize}px)`,
+                                                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+                                                    transition: viewport.zoom > 16 ? "none" : "all 0.2s ease"
                                                 }}
                                             >
                                                 <path d={dropIcon} />
@@ -681,6 +672,41 @@ export const AmecicloMap = ({
                                 </div>
                             </Marker>
                         ))}
+
+                        {selectedMarker && (
+                            <Popup
+                                latitude={selectedMarker.latitude}
+                                longitude={selectedMarker.longitude}
+                                onClose={() => setSelectedMarker(null)}
+                                closeButton={true}
+                                closeOnClick={false}
+                                offsetTop={-10}
+                                anchor="bottom"
+                            >
+                                <div className="p-2 min-w-[200px]">
+                                    <h3 className="font-bold text-sm mb-1">{selectedMarker.popup?.name || 'Contagem'}</h3>
+                                    <p className="text-sm"><strong>Total:</strong> {selectedMarker.popup?.total || 0} ciclistas</p>
+                                    <p className="text-sm"><strong>Data:</strong> {selectedMarker.popup?.date || 'N/A'}</p>
+                                    {selectedMarker.cargo_percent !== undefined && (
+                                        <p className="text-sm"><strong>Carga:</strong> {selectedMarker.cargo_percent}%</p>
+                                    )}
+                                    {selectedMarker.wrong_way_percent !== undefined && (
+                                        <p className="text-sm"><strong>Contramão:</strong> {selectedMarker.wrong_way_percent}%</p>
+                                    )}
+                                    {selectedMarker.popup?.obs && (
+                                        <p className="text-xs text-gray-600 mt-1">{selectedMarker.popup.obs}</p>
+                                    )}
+                                    {selectedMarker.popup?.url && (
+                                        <a 
+                                            href={selectedMarker.popup.url} 
+                                            className="text-blue-600 text-xs hover:underline block mt-1"
+                                        >
+                                            Ver detalhes
+                                        </a>
+                                    )}
+                                </div>
+                            </Popup>
+                        )}
 
 
                         {controlPanel.length > 0 && (

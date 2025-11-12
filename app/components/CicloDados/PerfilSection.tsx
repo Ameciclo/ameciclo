@@ -29,6 +29,9 @@ export function PerfilSection({
   const [isExpanded, setIsExpanded] = useState(true);
   const [isPerfilVisible, setIsPerfilVisible] = useState(true);
   
+  // TODO: Implementar funcionalidade de perfil em breve
+  // Por enquanto, seção comentada para desenvolvimento futuro
+  
   // Use external collapse state if provided, otherwise use internal state
   const actuallyExpanded = onToggleCollapse ? !isCollapsed : isExpanded;
   const handleToggleExpanded = onToggleCollapse || (() => setIsExpanded(!isExpanded));
