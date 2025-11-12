@@ -59,8 +59,8 @@ export function useCicloDadosState(
   const [selectedPerfil, setSelectedPerfil] = useState<string[]>([]);
   const [selectedGenero, setSelectedGenero] = useState<string>("Todas");
   const [selectedRaca, setSelectedRaca] = useState<string>("Todas");
-  const [selectedSocio, setSelectedSocio] = useState<string>("Salários entre X");
-  const [selectedDias, setSelectedDias] = useState<string>("1 dia");
+  const [selectedSocio, setSelectedSocio] = useState<string>("Todas");
+  const [selectedDias, setSelectedDias] = useState<string>("Todas");
   const [selectedStreet, setSelectedStreet] = useState<string>("");
   
   // Load from localStorage after hydration - ONLY ONCE
@@ -75,8 +75,8 @@ export function useCicloDadosState(
       setSelectedPerfil(getStoredValue('selectedPerfil', []));
       setSelectedGenero(getStoredValue('selectedGenero', "Todas"));
       setSelectedRaca(getStoredValue('selectedRaca', "Todas"));
-      setSelectedSocio(getStoredValue('selectedSocio', "Salários entre X"));
-      setSelectedDias(getStoredValue('selectedDias', "1 dia"));
+      setSelectedSocio(getStoredValue('selectedSocio', "Todas"));
+      setSelectedDias(getStoredValue('selectedDias', "Todas"));
       setSelectedStreet(getStoredValue('selectedStreet', ""));
       setViewMode(getStoredValue('viewMode', 'map'));
     }
@@ -252,6 +252,11 @@ export function useCicloDadosState(
     setSelectedSinistro([]);
     setSelectedEstacionamento([]);
     setSelectedPerfil([]);
+    // Reseta filtros de perfil para "Todas"
+    setSelectedGenero("Todas");
+    setSelectedRaca("Todas");
+    setSelectedSocio("Todas");
+    setSelectedDias("Todas");
     
     // Force localStorage update immediately
     if (isClient) {
@@ -262,6 +267,10 @@ export function useCicloDadosState(
       localStorage.setItem('ciclodados_selectedSinistro', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedPerfil', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedGenero', JSON.stringify("Todas"));
+      localStorage.setItem('ciclodados_selectedRaca', JSON.stringify("Todas"));
+      localStorage.setItem('ciclodados_selectedSocio', JSON.stringify("Todas"));
+      localStorage.setItem('ciclodados_selectedDias', JSON.stringify("Todas"));
     }
   };
 
@@ -273,6 +282,11 @@ export function useCicloDadosState(
     setSelectedSinistro([...sinistroOptions]);
     setSelectedEstacionamento([...estacionamentoOptions]);
     setSelectedPerfil([...perfilOptions]);
+    // Reseta filtros de perfil para "Todas"
+    setSelectedGenero("Todas");
+    setSelectedRaca("Todas");
+    setSelectedSocio("Todas");
+    setSelectedDias("Todas");
   };
 
   return {
@@ -304,13 +318,45 @@ export function useCicloDadosState(
     togglePerfilOption,
     toggleAllPerfilOptions,
     selectedGenero,
-    setSelectedGenero,
+    setSelectedGenero: (value: string) => {
+      setSelectedGenero(value);
+      // Quando seleciona gênero específico, reseta outros filtros para "Todas"
+      if (value !== "Todas") {
+        setSelectedRaca("Todas");
+        setSelectedSocio("Todas");
+        setSelectedDias("Todas");
+      }
+    },
     selectedRaca,
-    setSelectedRaca,
+    setSelectedRaca: (value: string) => {
+      setSelectedRaca(value);
+      // Quando seleciona raça específica, reseta outros filtros para "Todas"
+      if (value !== "Todas") {
+        setSelectedGenero("Todas");
+        setSelectedSocio("Todas");
+        setSelectedDias("Todas");
+      }
+    },
     selectedSocio,
-    setSelectedSocio,
+    setSelectedSocio: (value: string) => {
+      setSelectedSocio(value);
+      // Quando seleciona renda específica, reseta outros filtros para "Todas"
+      if (value !== "Todas") {
+        setSelectedGenero("Todas");
+        setSelectedRaca("Todas");
+        setSelectedDias("Todas");
+      }
+    },
     selectedDias,
-    setSelectedDias,
+    setSelectedDias: (value: string) => {
+      setSelectedDias(value);
+      // Quando seleciona dias específicos, reseta outros filtros para "Todas"
+      if (value !== "Todas") {
+        setSelectedGenero("Todas");
+        setSelectedRaca("Todas");
+        setSelectedSocio("Todas");
+      }
+    },
     selectedStreet,
     setSelectedStreet,
     viewMode,

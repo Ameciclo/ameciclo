@@ -334,18 +334,29 @@ export function LeftSidebar({
                     
                     {/* Socioeconômico */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Socioeconômico</h4>
-                      <div className="flex gap-1">
-                        {["Salários entre X"].map((option) => (
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Renda</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {[
+                          "Todas",
+                          "até 1 salário mínimo", 
+                          "de 1 a 2 salários mínimos",
+                          "de 2 a 3 salários mínimos",
+                          "de 3 a 5 salários mínimos",
+                          "de 5 a 10 salários mínimos",
+                          "Não sabe/Não respondeu"
+                        ].map((option) => (
                           <button
                             key={option}
                             onClick={() => onSocioChange(option)}
-                            className={`px-2 py-1 text-xs rounded ${
+                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
                               selectedSocio === option
                                 ? 'bg-teal-600 text-white'
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                           >
+                            {option === 'Todas' && (
+                              selectedSocio === option ? <Eye size={12} /> : <EyeOff size={12} />
+                            )}
                             {option}
                           </button>
                         ))}
@@ -355,17 +366,29 @@ export function LeftSidebar({
                     {/* Dias que pedala */}
                     <div>
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Quantos dias pedala</h4>
-                      <div className="grid grid-cols-4 gap-1">
-                        {["1 dia", "2 dias", "3 dias", "4 dias", "5 dias", "6 dias", "7 dias"].map((option) => (
+                      <div className="flex flex-wrap gap-1">
+                        {[
+                          "Todas",
+                          "1 dia", 
+                          "2 dias", 
+                          "3 dias", 
+                          "4 dias", 
+                          "5 dias", 
+                          "6 dias", 
+                          "7 dias"
+                        ].map((option) => (
                           <button
                             key={option}
                             onClick={() => onDiasChange(option)}
-                            className={`px-2 py-1 text-xs rounded ${
+                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
                               selectedDias === option
                                 ? 'bg-teal-600 text-white'
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                           >
+                            {option === 'Todas' && (
+                              selectedDias === option ? <Eye size={12} /> : <EyeOff size={12} />
+                            )}
                             {option}
                           </button>
                         ))}

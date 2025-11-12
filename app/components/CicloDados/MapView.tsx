@@ -316,6 +316,9 @@ export function MapView({
           <div>Lat: {mapViewState.latitude.toFixed(6)}</div>
           <div>Lng: {mapViewState.longitude.toFixed(6)}</div>
           <div>Pontos: {(contagemData?.features?.length || 0) + (pontosContagem?.features?.length || 0) + (perfilPoints?.features?.length || 0)}</div>
+          {selectedPerfil.includes('Perfil de Ciclistas') && perfilPoints?.features && (
+            <div>Perfis: {perfilPoints.features.reduce((sum: number, p: any) => sum + p.filtered_total, 0)} (Filtros: G:{selectedGenero} R:{selectedRaca})</div>
+          )}
         </div>
       </div>
 
@@ -1025,12 +1028,25 @@ export function MapView({
               }) : []),
 
           // Pontos de Perfil de Ciclistas
-          ...(isClient && selectedPerfil.length > 0 && perfilPoints?.features && Array.isArray(perfilPoints.features) ? (() => {
-            console.log('🔍 Filtros de perfil:', selectedPerfil);
-            console.log('📊 Pontos de perfil disponíveis:', perfilPoints.features.length);
-            return perfilPoints.features;
-          })().map((point: any) => {
+          ...(isClient && selectedPerfil.includes('Perfil de Ciclistas') && perfilPoints?.features && Array.isArray(perfilPoints.features) ? (() => {
+            console.log('🔍 Debug Perfil:', {
+              selectedPerfil,
+              perfilPointsCount: perfilPoints.features.length,
+              filters: { selectedGenero, selectedRaca, selectedSocio, selectedDias },
+              pointsWithData: perfilPoints.features.map(p => ({ 
+                name: p.name, 
+                total: p.total_profiles, 
+                filtered: p.filtered_total 
+              }))
+            });
+            return perfilPoints.features.map((point: any) => {
               const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
+              
+              // Só renderizar se filtered_total > 0
+              if (point.filtered_total <= 0) {
+                console.log('⚠️ Ponto filtrado (total = 0):', point.name, point.filtered_total);
+                return null;
+              }
               
               return {
                 key: `perfil-${point.id}`,
@@ -1040,6 +1056,7 @@ export function MapView({
                 popup: {
                   name: point.name,
                   total: `${point.total_profiles} perfis`,
+                  filtered_total: point.filtered_total,
                   editions: point.editions.join(', '),
                   latitude: point.lat,
                   longitude: point.lng
@@ -1062,7 +1079,8 @@ export function MapView({
                   setShowPointInfo({ lat: point.lat, lng: point.lng, initialTab: 'profile' });
                 }
               };
-            }) : [])
+            }).filter(Boolean);
+          })() : [])
         ]}
         showLayersPanel={false}
         width="100%" 
