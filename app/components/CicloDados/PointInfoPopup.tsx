@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance } from 'lucide-react';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import { translateProfileData, translateBehavioralKey } from '~/utils/translations';
@@ -92,34 +93,21 @@ interface PointData {
 }
 
 export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: PointInfoPopupProps) {
-  const [data, setData] = useState<PointData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(initialTab);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch(POINT_CICLO_NEARBY(lat, lng, 200));
-        
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-        
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro desconhecido');
-      } finally {
-        setLoading(false);
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey: ['point-info', lat, lng],
+    queryFn: async () => {
+      const response = await fetch(POINT_CICLO_NEARBY(lat, lng, 200));
+      
+      if (!response.ok) {
+        throw new Error(`Erro ${response.status}: ${response.statusText}`);
       }
-    };
-
-    fetchData();
-  }, [lat, lng]);
+      
+      return response.json();
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutos
+  });
 
   if (loading) {
     return (
@@ -144,7 +132,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               <X size={20} />
             </button>
           </div>
-          <p className="text-gray-700">{error}</p>
+          <p className="text-gray-700">{error?.message || 'Erro desconhecido'}</p>
           <button 
             onClick={onClose}
             className="mt-4 w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"

@@ -14,6 +14,7 @@ import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
 import { ApiAlert } from "./components/Commom/ApiAlert";
 import { MainContent } from "./components/Commom/MainContent";
 import { ApiStatusProvider } from "./contexts/ApiStatusContext";
+import { QueryProvider } from "./providers/QueryProvider";
 import "./tailwind.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import PageNotFound from "./components/Commom/PageNotFound";
@@ -59,16 +60,18 @@ const metaConfig = {
           <Meta />
         </head>
         <body>
-          <ApiStatusProvider>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <ApiAlert />
-              <MainContent>
-                {error.status !== 404 ? <ErrorFallback error={error} /> : <PageNotFound />}
-              </MainContent>
-              <Footer />
-            </div>
-          </ApiStatusProvider>
+          <QueryProvider>
+            <ApiStatusProvider>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <ApiAlert />
+                <MainContent>
+                  {error.status !== 404 ? <ErrorFallback error={error} /> : <PageNotFound />}
+                </MainContent>
+                <Footer />
+              </div>
+            </ApiStatusProvider>
+          </QueryProvider>
           <Scripts />
           <GoogleAnalytics gaId="G-PQNS7S7FD3" />
         </body>
@@ -84,16 +87,18 @@ const metaConfig = {
           <Links />
         </head>
         <body>
-          <ApiStatusProvider>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <ApiAlert />
-              <MainContent>
-                <Outlet />
-              </MainContent>
-              <ConditionalFooter />
-            </div>
-          </ApiStatusProvider>
+          <QueryProvider>
+            <ApiStatusProvider>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <ApiAlert />
+                <MainContent>
+                  <Outlet />
+                </MainContent>
+                <ConditionalFooter />
+              </div>
+            </ApiStatusProvider>
+          </QueryProvider>
           <ScrollRestoration />
           <Scripts />
           <GoogleAnalytics gaId="G-PQNS7S7FD3" />

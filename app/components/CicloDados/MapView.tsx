@@ -1010,8 +1010,11 @@ export function MapView({
               }) : []),
 
           // Pontos de Perfil de Ciclistas
-          ...(isClient && selectedPerfil.includes('Perfil de Ciclistas') && perfilPoints?.features && Array.isArray(perfilPoints.features) ? 
-            perfilPoints.features.map((point: any) => {
+          ...(isClient && selectedPerfil.length > 0 && perfilPoints?.features && Array.isArray(perfilPoints.features) ? (() => {
+            console.log('🔍 Filtros de perfil:', selectedPerfil);
+            console.log('📊 Pontos de perfil disponíveis:', perfilPoints.features.length);
+            return perfilPoints.features;
+          })().map((point: any) => {
               const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
               
               return {
