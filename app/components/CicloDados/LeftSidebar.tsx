@@ -30,6 +30,10 @@ interface LeftSidebarProps {
   selectedEstacionamento: string[];
   onEstacionamentoToggle: (option: string) => void;
   onEstacionamentoToggleAll?: (options: string[], selectAll: boolean) => void;
+  perfilOptions: string[];
+  selectedPerfil: string[];
+  onPerfilToggle: (option: string) => void;
+  onPerfilToggleAll?: (options: string[], selectAll: boolean) => void;
   selectedGenero: string;
   onGeneroChange: (value: string) => void;
   selectedRaca: string;
@@ -77,6 +81,10 @@ export function LeftSidebar({
   selectedEstacionamento,
   onEstacionamentoToggle,
   onEstacionamentoToggleAll,
+  perfilOptions,
+  selectedPerfil,
+  onPerfilToggle,
+  onPerfilToggleAll,
   selectedGenero,
   onGeneroChange,
   selectedRaca,
@@ -91,7 +99,7 @@ export function LeftSidebar({
   onReloadGeneralData,
   loadingStates = { infra: false, pdc: false, sinistros: false, estacionamento: false }
 }: LeftSidebarProps) {
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'rota', 'ideciclo']));
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'rota', 'ideciclo']));
   
   const toggleSection = (sectionId: string) => {
     setCollapsedSections(prev => {
@@ -122,7 +130,8 @@ export function LeftSidebar({
     selectedPdc.length === pdcOptions.length &&
     selectedInfracao.length === infracaoOptions.length &&
     selectedSinistro.length === sinistroOptions.length &&
-    selectedEstacionamento.length === estacionamentoOptions.length;
+    selectedEstacionamento.length === estacionamentoOptions.length &&
+    selectedPerfil.length === perfilOptions.length;
   
   const toggleAllOptions = () => {
     if (allOptionsSelected) {
@@ -209,7 +218,7 @@ export function LeftSidebar({
                 hasPattern={true}
                 isCollapsed={collapsedSections.has('infraestrutura')}
                 onToggleCollapse={() => toggleSection('infraestrutura')}
-                loadingOptions={loadingStates.infra ? infraOptions.map(opt => opt.name) : []}
+                loadingOptions={loadingStates?.infra ? infraOptions.map(opt => opt.name) : []}
               />
               
               <FilterSection
@@ -233,7 +242,7 @@ export function LeftSidebar({
                 isPdc={true}
                 isCollapsed={collapsedSections.has('pdc')}
                 onToggleCollapse={() => toggleSection('pdc')}
-                loadingOptions={loadingStates.pdc ? pdcOptions.map(opt => opt.name) : []}
+                loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
               />
               
               <FilterSection
@@ -245,21 +254,126 @@ export function LeftSidebar({
                 hasPattern={false}
                 isCollapsed={collapsedSections.has('estacionamento')}
                 onToggleCollapse={() => toggleSection('estacionamento')}
-                loadingOptions={loadingStates.estacionamento ? estacionamentoOptions : []}
+                loadingOptions={loadingStates?.estacionamento ? estacionamentoOptions : []}
               />
               
-              <PerfilSection
-                selectedGenero={selectedGenero}
-                onGeneroChange={onGeneroChange}
-                selectedRaca={selectedRaca}
-                onRacaChange={onRacaChange}
-                selectedSocio={selectedSocio}
-                onSocioChange={onSocioChange}
-                selectedDias={selectedDias}
-                onDiasChange={onDiasChange}
-                isCollapsed={collapsedSections.has('perfil')}
-                onToggleCollapse={() => toggleSection('perfil')}
-              />
+              <div className="bg-white rounded border">
+                <div className="p-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => onPerfilToggle('Perfil de Ciclistas')}
+                        className="hover:bg-gray-50 rounded p-1 transition-colors"
+                      >
+                        {selectedPerfil.includes('Perfil de Ciclistas') ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                      </button>
+                      <span className="font-medium">Perfil de ciclistas</span>
+                    </div>
+                    <button 
+                      onClick={() => toggleSection('perfil-pontos')}
+                      className="hover:bg-gray-50 rounded p-1 transition-colors"
+                    >
+                      <svg 
+                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('perfil-pontos') ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {!collapsedSections.has('perfil-pontos') && selectedPerfil.length > 0 && (
+                  <div className="px-2 pb-2 space-y-3">
+                    {/* Gênero */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Gênero</h4>
+                      <div className="flex gap-1">
+                        {["Todas", "Masculino", "Feminino"].map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => onGeneroChange(option)}
+                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
+                              selectedGenero === option
+                                ? 'bg-teal-600 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            {option === 'Todas' && (
+                              selectedGenero === option ? <Eye size={12} /> : <EyeOff size={12} />
+                            )}
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Raça/Cor */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Raça/Cor</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {["Todas", "Branco", "Preto", "Pardo", "Amarelo", "Indígena"].map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => onRacaChange(option)}
+                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
+                              selectedRaca === option
+                                ? 'bg-teal-600 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            {option === 'Todas' && (
+                              selectedRaca === option ? <Eye size={12} /> : <EyeOff size={12} />
+                            )}
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Socioeconômico */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Socioeconômico</h4>
+                      <div className="flex gap-1">
+                        {["Salários entre X"].map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => onSocioChange(option)}
+                            className={`px-2 py-1 text-xs rounded ${
+                              selectedSocio === option
+                                ? 'bg-teal-600 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Dias que pedala */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Quantos dias pedala</h4>
+                      <div className="grid grid-cols-4 gap-1">
+                        {["1 dia", "2 dias", "3 dias", "4 dias", "5 dias", "6 dias", "7 dias"].map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => onDiasChange(option)}
+                            className={`px-2 py-1 text-xs rounded ${
+                              selectedDias === option
+                                ? 'bg-teal-600 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               
               {/* TODO: Descomentar quando implementar
               <FilterSection

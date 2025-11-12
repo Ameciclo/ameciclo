@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart } from './utils/chartData';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { MapPin, Bike } from 'lucide-react';
+import { MapPin, Bike, UserCheck } from 'lucide-react';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
@@ -10,6 +10,7 @@ import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
+import { usePerfilPoints } from './hooks/usePerfilPoints';
 import { DataErrorAlert } from './DataErrorAlert';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
@@ -22,6 +23,7 @@ interface MapViewProps {
   selectedContagem: string[];
   selectedEstacionamento: string[];
   selectedSinistro: string[];
+  selectedPerfil: string[];
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   pdcOptions: Array<{ name: string; color: string; pattern: string; apiKey?: string }>;
   layersConf: any[];
@@ -43,6 +45,7 @@ export function MapView({
   selectedContagem,
   selectedEstacionamento,
   selectedSinistro,
+  selectedPerfil,
   layersConf,
   infraData,
   pdcData,
@@ -59,12 +62,13 @@ export function MapView({
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
-  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number } | null>(null);
+  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
   const [mapViewState, setMapViewState] = useState({ latitude: -8.0476, longitude: -34.8770, zoom: 11 });
 
   const [forceRender, setForceRender] = useState(0);
+  const [renderedLayers, setRenderedLayers] = useState<Set<string>>(new Set());
 
   // Atualizar com estado externo quando fornecido
   useEffect(() => {
@@ -125,6 +129,7 @@ export function MapView({
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
+  const { data: perfilPoints, error: perfilError } = usePerfilPoints(isClient ? viewportBounds : undefined);
   
 
   
@@ -136,6 +141,7 @@ export function MapView({
   if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
   if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
+  if (perfilError) dataErrors.push({ type: 'perfil', message: perfilError });
 
   const handleMapViewChange = (viewState: any) => {
     setMapViewState(viewState);
@@ -294,13 +300,30 @@ export function MapView({
           <div>Zoom: {mapViewState.zoom.toFixed(2)}</div>
           <div>Lat: {mapViewState.latitude.toFixed(6)}</div>
           <div>Lng: {mapViewState.longitude.toFixed(6)}</div>
-          <div>Pontos: {(contagemData?.features?.length || 0) + (pontosContagem?.features?.length || 0)}</div>
+          <div>Pontos: {(contagemData?.features?.length || 0) + (pontosContagem?.features?.length || 0) + (perfilPoints?.features?.length || 0)}</div>
         </div>
       </div>
 
       <div className="flex-1 md:h-full">
         <AmecicloMap
-          onPointClick={onPointClick}
+          onPointClick={(point) => {
+          // Bicicletários e Bike PE mantêm popup antigo, outros usam popup completo
+          if (point.type === 'bicicletario' || point.type === 'bikepe') {
+            return; // Deixa o popup padrão do mapa funcionar
+          }
+          
+          // Determinar a aba baseada no tipo do ponto
+          let initialTab = 'overview';
+          if (point.type === 'perfil') initialTab = 'profile';
+          else if (point.type === 'Contagem') initialTab = 'counts';
+
+          
+          setShowPointInfo({ 
+            lat: point.latitude, 
+            lng: point.longitude, 
+            initialTab 
+          });
+        }}
           layerData={(() => {
             // Quando há filtro de rua selecionada, mostrar todos os dados (não filtrar por área)
             const filterByStreetArea = (features: any[]) => {
@@ -716,7 +739,12 @@ export function MapView({
                           <path d="M13 17V5"/>
                           <path d="M8 17v-3"/>
                         </svg>
-                        <span className="text-xs font-bold">{totalContagens}</span>
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs font-bold">{totalContagens}</span>
+                          <span className="text-[8px] text-gray-500">
+                            {item.properties.items?.[0]?.properties?.last_count_date?.split('/')[1] || new Date().getFullYear()}
+                          </span>
+                        </div>
                         {item.isCluster && item.properties.count > 1 && (
                           <span 
                             className="text-[8px] bg-white text-black border border-black rounded-full px-1 ml-1 cursor-help relative"
@@ -744,7 +772,7 @@ export function MapView({
                     </div>
                   ),
                   onClick: () => {
-                    if (item.isCluster && item.properties.items.length > 1) {
+                    if (item.isCluster) {
                       const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
                       const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
                       const bounds = {
@@ -756,22 +784,18 @@ export function MapView({
                       
                       const centerLat = (bounds.north + bounds.south) / 2;
                       const centerLng = (bounds.east + bounds.west) / 2;
-                      const latDiff = bounds.north - bounds.south;
-                      const lngDiff = bounds.east - bounds.west;
-                      const maxDiff = Math.max(latDiff, lngDiff);
-                      
-                      let zoom = 16;
-                      if (maxDiff > 0.01) zoom = 13;
-                      else if (maxDiff > 0.005) zoom = 14;
-                      else if (maxDiff > 0.002) zoom = 15;
                       
                       setMapViewState({
                         latitude: centerLat,
                         longitude: centerLng,
-                        zoom: zoom
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
                       });
                     } else {
-                      onPointClick && onPointClick(item.isCluster ? item : item.properties.items[0]);
+                      setShowPointInfo({ 
+                        lat: item.geometry.coordinates[1], 
+                        lng: item.geometry.coordinates[0], 
+                        initialTab: 'counts' 
+                      });
                     }
                   }
                 };
@@ -815,7 +839,12 @@ export function MapView({
                           <path d="M13 17V5"/>
                           <path d="M8 17v-3"/>
                         </svg>
-                        <span className="text-xs font-bold">{totalContagens}</span>
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs font-bold">{totalContagens}</span>
+                          <span className="text-[8px] text-white">
+                            {item.properties.items?.[0]?.properties?.last_count_date?.split('/')[1] || new Date().getFullYear()}
+                          </span>
+                        </div>
                         {item.isCluster && item.properties.count > 1 && (
                           <span 
                             className="text-[8px] bg-green-500 text-white border border-green-700 rounded-full px-1 ml-1 cursor-help relative"
@@ -843,7 +872,7 @@ export function MapView({
                     </div>
                   ),
                   onClick: () => {
-                    if (item.isCluster && item.properties.items.length > 1) {
+                    if (item.isCluster) {
                       const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
                       const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
                       const bounds = {
@@ -855,22 +884,18 @@ export function MapView({
                       
                       const centerLat = (bounds.north + bounds.south) / 2;
                       const centerLng = (bounds.east + bounds.west) / 2;
-                      const latDiff = bounds.north - bounds.south;
-                      const lngDiff = bounds.east - bounds.west;
-                      const maxDiff = Math.max(latDiff, lngDiff);
-                      
-                      let zoom = 16;
-                      if (maxDiff > 0.01) zoom = 13;
-                      else if (maxDiff > 0.005) zoom = 14;
-                      else if (maxDiff > 0.002) zoom = 15;
                       
                       setMapViewState({
                         latitude: centerLat,
                         longitude: centerLng,
-                        zoom: zoom
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
                       });
                     } else {
-                      onPointClick && onPointClick(item.isCluster ? item : item.properties.items[0]);
+                      setShowPointInfo({ 
+                        lat: item.geometry.coordinates[1], 
+                        lng: item.geometry.coordinates[0], 
+                        initialTab: 'counts' 
+                      });
                     }
                   }
                 };
@@ -884,48 +909,142 @@ export function MapView({
               mapViewState.zoom, 
               mapViewState
             )
-              .map((item: any) => ({
-                key: `bicicletario-${item.id}`,
-                latitude: item.geometry.coordinates[1],
-                longitude: item.geometry.coordinates[0],
-                type: 'bicicletario',
-                popup: {
-                  name: item.isCluster ? `${item.properties.count} Bicicletários` : 'Bicicletário',
-                  total: item.isCluster ? 'Cluster' : 'Estacionamento'
-                },
-                customIcon: item.isCluster ? 
-                  <div className="bg-blue-600 text-white rounded-lg min-w-[20px] h-[20px] px-[3px] flex flex-col items-center justify-center shadow-lg border border-white">
-                    <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>∩</span>
-                    <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>{item.properties.count}</span>
-                  </div> :
-                  <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
-                    <span className="text-white font-black text-[10px]" style={{textShadow: '0 0 1px white'}}>∩</span>
-                  </div>
-              })) : []),
+              .map((item: any) => {
+                const props = item.isCluster ? null : item.properties.items?.[0]?.properties;
+                return {
+                  key: `bicicletario-${item.id}`,
+                  latitude: item.geometry.coordinates[1],
+                  longitude: item.geometry.coordinates[0],
+                  type: 'bicicletario',
+                  popup: {
+                    name: item.isCluster ? `${item.properties.count} Bicicletários` : (props?.name || 'Bicicletário'),
+                    total: item.isCluster ? 'Cluster' : 'Estacionamento de bicicletas',
+                    capacity: props?.capacity || 'Não informada',
+                    covered: props?.covered === 'yes' ? 'Sim' : props?.covered === 'no' ? 'Não' : 'Não informado',
+                    access: props?.access === 'yes' ? 'Público' : props?.access === 'customers' ? 'Clientes' : props?.access === 'permissive' ? 'Permitido' : 'Não informado',
+                    operator: props?.operator || 'Não informado',
+                    parking_type: props?.bicycle_parking || 'Não informado'
+                  },
+                  customIcon: item.isCluster ? 
+                    <div className="bg-blue-600 text-white rounded-lg min-w-[20px] h-[20px] px-[3px] flex flex-col items-center justify-center shadow-lg border border-white">
+                      <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>∩</span>
+                      <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>{item.properties.count}</span>
+                    </div> :
+                    <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
+                      <span className="text-white font-black text-[10px]" style={{textShadow: '0 0 1px white'}}>∩</span>
+                    </div>,
+                  onClick: () => {
+                    if (item.isCluster) {
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const centerLat = (Math.max(...lats) + Math.min(...lats)) / 2;
+                      const centerLng = (Math.max(...lngs) + Math.min(...lngs)) / 2;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
+                      });
+                    } else {
+                      setShowPointInfo({ 
+                        lat: item.geometry.coordinates[1], 
+                        lng: item.geometry.coordinates[0], 
+                        initialTab: 'infrastructure' 
+                      });
+                    }
+                  }
+                };
+              }) : []),
           ...(isClient && selectedEstacionamento.includes('Estações de Bike PE') && filteredBikePE?.features && Array.isArray(filteredBikePE.features) ? 
             createClusters(
               filteredBikePE.features, 
               mapViewState.zoom, 
               mapViewState
             )
-              .map((item: any) => ({
-                key: `bikepe-${item.id}`,
-                latitude: item.geometry.coordinates[1],
-                longitude: item.geometry.coordinates[0],
-                type: 'bikepe',
+              .map((item: any) => {
+                const props = item.isCluster ? null : item.properties.items?.[0]?.properties;
+                return {
+                  key: `bikepe-${item.id}`,
+                  latitude: item.geometry.coordinates[1],
+                  longitude: item.geometry.coordinates[0],
+                  type: 'bikepe',
+                  popup: {
+                    name: item.isCluster ? `${item.properties.count} Estações Bike PE` : (props?.name || 'Estação Bike PE'),
+                    total: item.isCluster ? 'Cluster' : 'Bicicletas compartilhadas',
+                    ref: props?.ref || 'Não informada',
+                    capacity: props?.capacity || 'Não informada',
+                    network: props?.network || 'Não informada',
+                    operator: props?.operator || 'Não informado',
+                    payment_credit: props?.payment_credit_cards ? 'Aceita' : 'Não aceita',
+                    fee: props?.fee ? 'Sim' : 'Não'
+                  },
+                  customIcon: item.isCluster ? 
+                    <div className="bg-orange-500 text-white rounded-lg min-w-[20px] h-[20px] px-[3px] flex flex-col items-center justify-center shadow-lg border border-white">
+                      <Bike size={8} className="text-white" />
+                      <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>{item.properties.count}</span>
+                    </div> :
+                    <div className="bg-orange-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
+                      <Bike size={10} className="text-white" />
+                    </div>,
+                  onClick: () => {
+                    if (item.isCluster) {
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const centerLat = (Math.max(...lats) + Math.min(...lats)) / 2;
+                      const centerLng = (Math.max(...lngs) + Math.min(...lngs)) / 2;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
+                      });
+                    } else {
+                      setShowPointInfo({ 
+                        lat: item.geometry.coordinates[1], 
+                        lng: item.geometry.coordinates[0], 
+                        initialTab: 'infrastructure' 
+                      });
+                    }
+                  }
+                };
+              }) : []),
+
+          // Pontos de Perfil de Ciclistas
+          ...(isClient && selectedPerfil.includes('Perfil de Ciclistas') && perfilPoints?.features && Array.isArray(perfilPoints.features) ? 
+            perfilPoints.features.map((point: any) => {
+              const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
+              
+              return {
+                key: `perfil-${point.id}`,
+                latitude: point.lat,
+                longitude: point.lng,
+                type: 'perfil',
                 popup: {
-                  name: item.isCluster ? `${item.properties.count} Estações Bike PE` : 'Estação Bike PE',
-                  total: item.isCluster ? 'Cluster' : 'Bicicletas compartilhadas'
+                  name: point.name,
+                  total: `${point.total_profiles} perfis`,
+                  editions: point.editions.join(', '),
+                  latitude: point.lat,
+                  longitude: point.lng
                 },
-                customIcon: item.isCluster ? 
-                  <div className="bg-orange-500 text-white rounded-lg min-w-[20px] h-[20px] px-[3px] flex flex-col items-center justify-center shadow-lg border border-white">
-                    <Bike size={8} className="text-white" />
-                    <span className="text-[8px] font-black leading-none" style={{textShadow: '0 0 1px white'}}>{item.properties.count}</span>
-                  </div> :
-                  <div className="bg-orange-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
-                    <Bike size={10} className="text-white" />
+                customIcon: (
+                  <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                    <div className="bg-purple-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[50px] justify-center">
+                      <UserCheck size={12} className="text-white" />
+                      <span className="text-xs font-bold">{point.total_profiles}</span>
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                      <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
+                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
+                        <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-purple-700"></div>
+                      </div>
+                    </div>
                   </div>
-              })) : [])
+                ),
+                onClick: () => {
+                  setShowPointInfo({ lat: point.lat, lng: point.lng, initialTab: 'profile' });
+                }
+              };
+            }) : [])
         ]}
         showLayersPanel={false}
         width="100%" 
@@ -949,6 +1068,22 @@ export function MapView({
         controlsSize="small"
         key={`map-${forceRender}`}
         />
+        
+        {/* Marcar camadas como renderizadas após delay */}
+        {isClient && (() => {
+          setTimeout(() => {
+            const newRendered = new Set<string>();
+            if (selectedInfra.length > 0 && infraCicloviaria?.features?.length > 0) newRendered.add('infraestrutura');
+            if (selectedPdc.length > 0 && execucaoCicloviaria?.features?.length > 0) newRendered.add('pdc');
+            if (selectedEstacionamento.length > 0 && ((filteredBicicletarios?.features?.length > 0) || (filteredBikePE?.features?.length > 0))) newRendered.add('estacionamento');
+            if (selectedContagem.length > 0 && pontosContagem?.features?.length > 0) newRendered.add('contagem');
+            setRenderedLayers(prev => {
+              const hasChanges = newRendered.size !== prev.size || [...newRendered].some(layer => !prev.has(layer));
+              return hasChanges ? newRendered : prev;
+            });
+          }, 1500);
+          return null;
+        })()}
       </div>
       
       {/* Bottom panel for mobile with chart data */}
@@ -1004,6 +1139,27 @@ export function MapView({
       
       <ApiStatusIndicator errors={dataErrors} onReload={handleReloadAllData} />
       
+      {/* Loading discreto no canto inferior esquerdo */}
+      {(() => {
+        const infraLoading = selectedInfra.length > 0 && !renderedLayers.has('infraestrutura');
+        const pdcLoading = selectedPdc.length > 0 && !renderedLayers.has('pdc');
+        const estacionamentoLoading = selectedEstacionamento.length > 0 && !renderedLayers.has('estacionamento');
+        const contagemLoading = selectedContagem.length > 0 && !renderedLayers.has('contagem');
+        
+        const loadingLayers = [];
+        if (infraLoading) loadingLayers.push('Infraestrutura');
+        if (pdcLoading) loadingLayers.push('Plano Diretor');
+        if (estacionamentoLoading) loadingLayers.push('Estacionamentos');
+        if (contagemLoading) loadingLayers.push('Contagem');
+        
+        return loadingLayers.length > 0 ? (
+          <div className="absolute bottom-4 left-4 z-[60] bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Carregando {loadingLayers.join(', ')}...</span>
+          </div>
+        ) : null;
+      })()}
+      
       {/* Cluster Tooltip */}
       {clusterTooltip.show && (
         <div 
@@ -1026,6 +1182,7 @@ export function MapView({
         <PointInfoPopup
           lat={showPointInfo.lat}
           lng={showPointInfo.lng}
+          initialTab={showPointInfo.initialTab}
           onClose={() => setShowPointInfo(null)}
         />
       )}

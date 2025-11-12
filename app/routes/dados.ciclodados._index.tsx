@@ -67,6 +67,8 @@ export default function CicloDados() {
     sinistroOptions,
     estacionamentoOptions
   } = useCicloDadosData();
+  
+  const perfilOptions = ['Perfil de Ciclistas'];
 
   const {
     leftSidebarOpen,
@@ -93,6 +95,9 @@ export default function CicloDados() {
     selectedEstacionamento,
     toggleEstacionamentoOption,
     toggleAllEstacionamentoOptions,
+    selectedPerfil,
+    togglePerfilOption,
+    toggleAllPerfilOptions,
     selectedGenero,
     setSelectedGenero,
     selectedRaca,
@@ -111,7 +116,8 @@ export default function CicloDados() {
     pdcOptions,
     infracaoOptions,
     sinistroOptions,
-    estacionamentoOptions
+    estacionamentoOptions,
+    perfilOptions
   );
   
   // Map selection state
@@ -397,6 +403,10 @@ export default function CicloDados() {
                 selectedEstacionamento={selectedEstacionamento}
                 onEstacionamentoToggle={toggleEstacionamentoOption}
                 onEstacionamentoToggleAll={toggleAllEstacionamentoOptions}
+                perfilOptions={perfilOptions}
+                selectedPerfil={selectedPerfil}
+                onPerfilToggle={togglePerfilOption}
+                onPerfilToggleAll={toggleAllPerfilOptions}
                 selectedGenero={selectedGenero}
                 onGeneroChange={setSelectedGenero}
                 selectedRaca={selectedRaca}
@@ -409,6 +419,14 @@ export default function CicloDados() {
                 onSelectAll={selectAllOptions}
                 onReloadMapData={handleReloadMapData}
                 onReloadGeneralData={handleReloadGeneralData}
+                loadingStates={{
+                  infra: selectedInfra.length > 0,
+                  pdc: selectedPdc.length > 0 && (!execucaoCicloviaria || !execucaoCicloviaria.features),
+                  sinistros: selectedSinistro.length > 0,
+                  estacionamento: selectedEstacionamento.length > 0,
+                  contagem: selectedContagem.length > 0,
+                  perfil: selectedPerfil.length > 0
+                }}
               />
             {/* TODO: Descomentar quando implementar mural: )} */}
 
@@ -420,6 +438,7 @@ export default function CicloDados() {
                 selectedContagem={selectedContagem}
                 selectedEstacionamento={selectedEstacionamento}
                 selectedSinistro={selectedSinistro}
+                selectedPerfil={selectedPerfil}
                 infraOptions={infraOptions}
                 pdcOptions={pdcOptions}
                 layersConf={layersConf}

@@ -11,7 +11,8 @@ export function useCicloDadosState(
   pdcOptions: Array<{ name: string; color: string; pattern: string }>,
   infracaoOptions: string[],
   sinistroOptions: string[],
-  estacionamentoOptions: string[]
+  estacionamentoOptions: string[],
+  perfilOptions: string[]
 ) {
   const [isClient, setIsClient] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
@@ -47,6 +48,7 @@ export function useCicloDadosState(
   const [selectedInfracao, setSelectedInfracao] = useState<string[]>([]);
   const [selectedSinistro, setSelectedSinistro] = useState<string[]>([]);
   const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(estacionamentoOptions);
+  const [selectedPerfil, setSelectedPerfil] = useState<string[]>([]);
   const [selectedGenero, setSelectedGenero] = useState<string>("Todas");
   const [selectedRaca, setSelectedRaca] = useState<string>("Todas");
   const [selectedSocio, setSelectedSocio] = useState<string>("Salários entre X");
@@ -62,6 +64,7 @@ export function useCicloDadosState(
       setSelectedInfracao(getStoredValue('selectedInfracao', []));
       setSelectedSinistro(getStoredValue('selectedSinistro', []));
       setSelectedEstacionamento(getStoredValue('selectedEstacionamento', estacionamentoOptions));
+      setSelectedPerfil(getStoredValue('selectedPerfil', []));
       setSelectedGenero(getStoredValue('selectedGenero', "Todas"));
       setSelectedRaca(getStoredValue('selectedRaca', "Todas"));
       setSelectedSocio(getStoredValue('selectedSocio', "Salários entre X"));
@@ -106,6 +109,12 @@ export function useCicloDadosState(
       localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify(selectedEstacionamento));
     }
   }, [selectedEstacionamento, isClient]);
+
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem('ciclodados_selectedPerfil', JSON.stringify(selectedPerfil));
+    }
+  }, [selectedPerfil, isClient]);
 
   useEffect(() => {
     if (isClient) {
@@ -215,6 +224,18 @@ export function useCicloDadosState(
     setSelectedEstacionamento(selectAll ? options : []);
   };
 
+  const togglePerfilOption = (optionName: string) => {
+    setSelectedPerfil(prev => 
+      prev.includes(optionName) 
+        ? prev.filter(item => item !== optionName)
+        : [...prev, optionName]
+    );
+  };
+
+  const toggleAllPerfilOptions = (options: string[], selectAll: boolean) => {
+    setSelectedPerfil(selectAll ? options : []);
+  };
+
   const clearAllSelections = () => {
     setSelectedInfra([]);
     setSelectedContagem([]);
@@ -222,6 +243,7 @@ export function useCicloDadosState(
     setSelectedInfracao([]);
     setSelectedSinistro([]);
     setSelectedEstacionamento([]);
+    setSelectedPerfil([]);
     
     // Force localStorage update immediately
     if (isClient) {
@@ -231,6 +253,7 @@ export function useCicloDadosState(
       localStorage.setItem('ciclodados_selectedInfracao', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedSinistro', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify([]));
+      localStorage.setItem('ciclodados_selectedPerfil', JSON.stringify([]));
     }
   };
 
@@ -241,6 +264,7 @@ export function useCicloDadosState(
     setSelectedInfracao([...infracaoOptions]);
     setSelectedSinistro([...sinistroOptions]);
     setSelectedEstacionamento([...estacionamentoOptions]);
+    setSelectedPerfil([...perfilOptions]);
   };
 
   return {
@@ -268,6 +292,9 @@ export function useCicloDadosState(
     selectedEstacionamento,
     toggleEstacionamentoOption,
     toggleAllEstacionamentoOptions,
+    selectedPerfil,
+    togglePerfilOption,
+    toggleAllPerfilOptions,
     selectedGenero,
     setSelectedGenero,
     selectedRaca,

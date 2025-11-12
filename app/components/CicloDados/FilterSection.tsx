@@ -61,9 +61,33 @@ function OptionItem({
               <EyeOff className="w-4 h-4 text-gray-400" />
             )}
           </div>
-          <span className={`text-sm transition-colors ${isSelected ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>
-            {option.name}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`text-sm transition-colors ${isSelected ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>
+              {option.name}
+            </span>
+            {option.name === 'Contagem da Prefeitura' && (
+              <div className="bg-white text-black px-1 py-0.5 rounded border-2 border-black flex items-center gap-1 text-[8px]">
+                <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="M18 17V9"/>
+                  <path d="M13 17V5"/>
+                  <path d="M8 17v-3"/>
+                </svg>
+                <span className="font-bold">0</span>
+              </div>
+            )}
+            {option.name === 'Contagem da Ameciclo' && (
+              <div className="bg-green-500 text-white px-1 py-0.5 rounded border-2 border-green-700 flex items-center gap-1 text-[8px]">
+                <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="M18 17V9"/>
+                  <path d="M13 17V5"/>
+                  <path d="M8 17v-3"/>
+                </svg>
+                <span className="font-bold">0</span>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

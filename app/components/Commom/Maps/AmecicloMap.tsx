@@ -390,6 +390,21 @@ export const AmecicloMap = ({
                     color: #d1d5db !important;
                     font-size: 10px !important;
                 }
+                .mapboxgl-popup {
+                    max-width: none !important;
+                }
+                .mapboxgl-popup-content {
+                    padding: 0 !important;
+                    background: transparent !important;
+                    box-shadow: none !important;
+                    border: none !important;
+                }
+                .mapboxgl-popup-close-button {
+                    display: none !important;
+                }
+                .mapboxgl-popup-tip {
+                    border-top-color: white !important;
+                }
             `;
             document.head.appendChild(style);
         }
@@ -569,15 +584,10 @@ export const AmecicloMap = ({
                                         longitude={longitude}
                                         onClick={(e) => {
                                             e?.originalEvent?.stopPropagation?.();
-                                            setSelectedMarker(point);
                                             
-                                            // Aproximar para zoom 17 centralizado no ponto
-                                            setViewport({
-                                                ...viewport,
-                                                latitude: point.latitude,
-                                                longitude: point.longitude,
-                                                zoom: 17
-                                            });
+                                            if (point.type === 'bicicletario' || point.type === 'bikepe') {
+                                                setSelectedMarker(point);
+                                            }
                                             
                                             if (onPointClick) {
                                                 onPointClick(point);
@@ -683,31 +693,111 @@ export const AmecicloMap = ({
                                 offsetTop={-10}
                                 anchor="bottom"
                             >
-                                <div className="p-2 min-w-[200px]">
-                                    <h3 className="font-bold text-sm mb-1">{selectedMarker.popup?.name || 'Contagem'}</h3>
-                                    <p className="text-sm"><strong>Total:</strong> {selectedMarker.popup?.total || 0} ciclistas</p>
-                                    <p className="text-sm"><strong>Data:</strong> {selectedMarker.popup?.date || 'N/A'}</p>
-                                    {selectedMarker.cargo_percent !== undefined && (
-                                        <p className="text-sm"><strong>Carga:</strong> {selectedMarker.cargo_percent}%</p>
-                                    )}
-                                    {selectedMarker.wrong_way_percent !== undefined && (
-                                        <p className="text-sm"><strong>Contramão:</strong> {selectedMarker.wrong_way_percent}%</p>
-                                    )}
-                                    {selectedMarker.popup?.obs && (
-                                        <p className="text-xs text-gray-600 mt-1">{selectedMarker.popup.obs}</p>
-                                    )}
-                                    {selectedMarker.popup?.url && (
-                                        <a 
-                                            href={selectedMarker.popup.url} 
-                                            className="text-blue-600 text-xs hover:underline block mt-1"
-                                        >
-                                            Ver detalhes
-                                        </a>
-                                    )}
+                                <div className="bg-white rounded-lg shadow-xl border-0 overflow-hidden min-w-[280px] max-w-[320px]">
+                                    <div className={`px-4 py-3 text-white ${
+                                        selectedMarker.type === 'bikepe' ? 'bg-gradient-to-r from-orange-500 to-orange-600' :
+                                        'bg-gradient-to-r from-blue-500 to-blue-600'
+                                    }`}>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                {selectedMarker.type === 'bikepe' ? (
+                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M5 12c0-2.8 2.2-5 5-5s5 2.2 5 5-2.2 5-5 5-5-2.2-5-5zm14 0c0-2.8 2.2-5 5-5s5 2.2 5 5-2.2 5-5 5-5-2.2-5-5z"/>
+                                                        <path d="M10 12h4"/>
+                                                    </svg>
+                                                ) : (
+                                                    <span className="text-lg font-bold">∩</span>
+                                                )}
+                                                <h3 className="font-semibold text-base truncate">{selectedMarker.popup?.name || (selectedMarker.type === 'bikepe' ? 'Estação Bike PE' : 'Bicicletário')}</h3>
+                                            </div>
+                                            <button 
+                                                onClick={() => setSelectedMarker(null)}
+                                                className="text-white hover:bg-black hover:bg-opacity-20 rounded-full p-1 transition-colors"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="p-4">
+                                        {selectedMarker.type === 'bikepe' ? (
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                                    <span className="font-medium">{selectedMarker.popup?.total}</span>
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Referência</div>
+                                                        <div className="font-medium text-gray-900">#{selectedMarker.popup?.ref}</div>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Capacidade</div>
+                                                        <div className="font-medium text-gray-900">{selectedMarker.popup?.capacity} bikes</div>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Rede</div>
+                                                        <div className="font-medium text-gray-900">{selectedMarker.popup?.network}</div>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Operador</div>
+                                                        <div className="font-medium text-gray-900">{selectedMarker.popup?.operator}</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="border-t pt-3">
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <div className="flex items-center gap-2">
+                                                            <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                                            </svg>
+                                                            <span className="text-gray-600">Cartão: {selectedMarker.popup?.payment_credit}</span>
+                                                        </div>
+                                                        <div className="text-gray-600">Taxa: {selectedMarker.popup?.fee}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                                    <span className="font-medium">{selectedMarker.popup?.total}</span>
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Capacidade</div>
+                                                        <div className="font-medium text-gray-900">{selectedMarker.popup?.capacity}</div>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Coberto</div>
+                                                        <div className="font-medium text-gray-900">{selectedMarker.popup?.covered}</div>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Acesso</div>
+                                                        <div className="font-medium text-gray-900">{selectedMarker.popup?.access}</div>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-2 rounded">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide">Tipo</div>
+                                                        <div className="font-medium text-gray-900">{selectedMarker.popup?.parking_type}</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                {selectedMarker.popup?.operator !== 'Não informado' && (
+                                                    <div className="border-t pt-3">
+                                                        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Operador</div>
+                                                        <div className="text-sm font-medium text-gray-900">{selectedMarker.popup?.operator}</div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </Popup>
                         )}
-
 
                         {controlPanel.length > 0 && (
                             <MapControlPanel
