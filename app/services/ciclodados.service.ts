@@ -30,6 +30,7 @@ export interface DataAvailability {
     tempoTrajeto: boolean;
     infracoes: boolean;
     estacionamentos: boolean;
+
   };
   street?: string;
   hasStreetData: boolean;
@@ -64,7 +65,8 @@ export class CicloDadosService {
           participacaoFeminina: false,
           tempoTrajeto: true,
           infracoes: true,
-          estacionamentos: false
+          estacionamentos: false,
+
         },
         street: coords.street,
         hasStreetData: !!coords.street
@@ -139,6 +141,8 @@ export class CicloDadosService {
     const response = await fetch(`${this.baseUrl}/infracoes/resumo?${params}`);
     return response.json();
   }
+
+
 
   // Generic method to fetch any card data
   async getCardData(cardId: string, filters: CicloDadosFilters) {

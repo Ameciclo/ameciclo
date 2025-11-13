@@ -11,7 +11,7 @@ import { Move } from 'lucide-react';
 
 
 
-const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, radius, setRadius }: any) => {
+const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, dragPanEnabled, radius, setRadius }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 
@@ -123,7 +123,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     handleToggleDragPan();
                 }}
                 className={`hidden md:block bg-white hover:bg-gray-100 rounded p-2 shadow-md transition-all ${
-                    settings.dragPan ? 'bg-gray-200 border-[3px] border-gray-400' : 'border border-gray-300'
+                    (dragPanEnabled !== undefined ? dragPanEnabled : settings.dragPan) ? 'bg-gray-200 border-[3px] border-gray-400' : 'border border-gray-300'
                 }`}
                 title="Mover mapa"
             >
@@ -558,7 +558,7 @@ export const AmecicloMap = ({
                         onMouseMove={onMouseMove}
                     >
 
-                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} radius={radius} setRadius={setRadius} />
+                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} dragPanEnabled={dragPanEnabled} radius={radius} setRadius={setRadius} />
                         {layerData && (
                             <Source id="layersMap" type="geojson" data={layerData}>
                                 {layersConf?.map((layer: any, i: number) =>

@@ -382,7 +382,18 @@ export function MapView({
   };
   
   const toggleDragPan = () => {
-    setDragPanEnabled(!dragPanEnabled);
+    console.log('toggleDragPan called, current dragPanEnabled:', dragPanEnabled, 'current isSelectionMode:', isSelectionMode);
+    const newDragPanEnabled = !dragPanEnabled;
+    setDragPanEnabled(newDragPanEnabled);
+    
+    if (newDragPanEnabled) {
+      // Ao ativar drag pan, desabilitar modo de seleção
+      console.log('Disabling selection mode');
+      setIsSelectionMode(false);
+      setHoverPoint(null);
+      setSelectedPoints([]);
+      setShowPointInfo(null);
+    }
   };
   
   const handleReloadAllData = () => {
@@ -1177,6 +1188,8 @@ export function MapView({
               };
             });
           })() : []),
+
+
           
         
         ]}
