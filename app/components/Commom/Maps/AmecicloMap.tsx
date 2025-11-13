@@ -11,7 +11,7 @@ import { Move } from 'lucide-react';
 
 
 
-const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, dragPanEnabled, radius, setRadius }: any) => {
+const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, dragPanEnabled, radius, setRadius, onViewStateChange }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 
@@ -26,7 +26,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     const handleZoomIn = () => {
-        const newViewport = { ...viewport, zoom: viewport.zoom + 1 };
+        const newViewport = { ...viewport, zoom: Math.min(viewport.zoom + 1, 20) };
         setViewport(newViewport);
         if (onViewStateChange) {
             onViewStateChange(newViewport);
@@ -34,7 +34,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     const handleZoomOut = () => {
-        const newViewport = { ...viewport, zoom: viewport.zoom - 1 };
+        const newViewport = { ...viewport, zoom: Math.max(viewport.zoom - 1, 1) };
         setViewport(newViewport);
         if (onViewStateChange) {
             onViewStateChange(newViewport);
@@ -51,6 +51,9 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
             pitch: 0
         };
         setViewport(defaultViewport);
+        if (onViewStateChange) {
+            onViewStateChange(defaultViewport);
+        }
     };
 
     const handleToggleDragPan = () => {
@@ -558,7 +561,7 @@ export const AmecicloMap = ({
                         onMouseMove={onMouseMove}
                     >
 
-                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} dragPanEnabled={dragPanEnabled} radius={radius} setRadius={setRadius} />
+                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} dragPanEnabled={dragPanEnabled} radius={radius} setRadius={setRadius} onViewStateChange={onViewStateChange} />
                         {layerData && (
                             <Source id="layersMap" type="geojson" data={layerData}>
                                 {layersConf?.map((layer: any, i: number) =>

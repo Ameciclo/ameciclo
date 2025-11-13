@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { PatternDisplay } from './PatternDisplay';
 
@@ -95,7 +95,7 @@ function OptionItem({
 }
 
 interface FilterSectionProps {
-  title: string;
+  title: string | ReactNode;
   options: Array<{ name: string; color?: string; pattern?: string }>;
   selectedOptions: string[];
   onToggle: (option: string) => void;

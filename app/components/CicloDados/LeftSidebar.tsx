@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, RotateCcw } from 'lucide-react';
+import { Eye, EyeOff, RotateCcw, Route, Users, MapPin, AlertTriangle, User, Navigation, BarChart3 } from 'lucide-react';
 import { FilterSection } from './FilterSection';
 import { PerfilSection } from './PerfilSection';
 
@@ -204,7 +204,7 @@ export function LeftSidebar({
           <div className="px-3 py-3">
             <div className="space-y-2">
               <FilterSection
-                title="Infraestrutura cicloviária"
+                title={<div className="flex items-center gap-2"><Route className="w-4 h-4" />Infraestrutura cicloviária</div>}
                 options={infraOptions}
                 selectedOptions={selectedInfra}
                 onToggle={onInfraToggle}
@@ -216,7 +216,7 @@ export function LeftSidebar({
               />
               
               <FilterSection
-                title="Contagem de ciclistas"
+                title={<div className="flex items-center gap-2"><Users className="w-4 h-4" />Contagem de ciclistas</div>}
                 options={contagemOptions.map(opt => ({ name: opt }))}
                 selectedOptions={selectedContagem}
                 onToggle={onContagemToggle}
@@ -227,7 +227,7 @@ export function LeftSidebar({
               />
               
               <FilterSection
-                title="Plano Diretor Cicloviário"
+                title={<div className="flex items-center gap-2"><MapPin className="w-4 h-4" />Plano Diretor Cicloviário</div>}
                 options={pdcOptions}
                 selectedOptions={selectedPdc}
                 onToggle={onPdcToggle}
@@ -249,7 +249,7 @@ export function LeftSidebar({
                       >
                         {selectedEstacionamento.length > 0 ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                       </button>
-                      <span className="font-medium">Estacionamento e compartilhamento</span>
+                      <span className="font-medium">∩ Estacionamento e compartilhamento</span>
                     </div>
                     <button 
                       onClick={() => toggleSection('estacionamento')}
@@ -307,7 +307,10 @@ export function LeftSidebar({
                       >
                         {selectedPerfil.includes('Perfil de Ciclistas') ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                       </button>
-                      <span className="font-medium">Perfil de ciclistas</span>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span className="font-medium">Perfil de ciclistas</span>
+                      </div>
                     </div>
                     <button 
                       onClick={() => toggleSection('perfil-pontos')}
@@ -353,7 +356,7 @@ export function LeftSidebar({
               </div>
               
               <FilterSection
-                title="Infrações de Trânsito"
+                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Infrações de Trânsito</div>}
                 options={infracaoOptions.map(opt => ({ name: opt }))}
                 selectedOptions={selectedInfracao}
                 onToggle={onInfracaoToggle}
@@ -364,7 +367,7 @@ export function LeftSidebar({
               />
               
               <FilterSection
-                title="Sinistro com vítima"
+                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Sinistro com vítima</div>}
                 options={sinistroOptions.map(opt => ({ name: opt }))}
                 selectedOptions={selectedSinistro}
                 onToggle={onSinistroToggle}
@@ -375,7 +378,7 @@ export function LeftSidebar({
               />
               
               <FilterSection
-                title="Rota"
+                title={<div className="flex items-center gap-2"><Navigation className="w-4 h-4" />Rota</div>}
                 options={[{ name: "Em breve" }]}
                 selectedOptions={[]}
                 onToggle={() => {}}
@@ -386,7 +389,7 @@ export function LeftSidebar({
               />
               
               <FilterSection
-                title="IDECiclo"
+                title={<div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />IDECiclo</div>}
                 options={[{ name: "Em breve" }]}
                 selectedOptions={[]}
                 onToggle={() => {}}
