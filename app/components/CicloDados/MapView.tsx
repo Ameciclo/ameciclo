@@ -418,16 +418,7 @@ export function MapView({
           </span>
         </button>
         
-        {/* Debug viewport info */}
-        <div className="bg-transparent text-black text-xs p-2 rounded font-mono">
-          <div>Zoom: {mapViewState.zoom.toFixed(2)}</div>
-          <div>Lat: {mapViewState.latitude.toFixed(6)}</div>
-          <div>Lng: {mapViewState.longitude.toFixed(6)}</div>
-          <div>Pontos: {(contagemData?.features?.length || 0) + (pontosContagem?.features?.length || 0) + (perfilCiclistas?.features?.length || 0)}</div>
-          {selectedPerfil.includes('Perfil de Ciclistas') && perfilCiclistas?.features && (
-            <div>Perfis: {selectedGenero === 'Todas' ? perfilCiclistas.features.length : perfilCiclistas.features.filter((p: any) => p.properties.survey_year === selectedGenero).length} locais ({selectedGenero})</div>
-          )}
-        </div>
+
       </div>
 
       <div className="flex-1 md:h-full">
