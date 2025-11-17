@@ -50,13 +50,22 @@ export function useCicloDadosState(
     }
   };
 
-  const [selectedInfra, setSelectedInfra] = useState<string[]>([]);
-  const [selectedContagem, setSelectedContagem] = useState<string[]>(["Contagem da Ameciclo"]);
-  const [selectedPdc, setSelectedPdc] = useState<string[]>(pdcOptions.map(opt => opt.name));
-  const [selectedInfracao, setSelectedInfracao] = useState<string[]>([]);
-  const [selectedSinistro, setSelectedSinistro] = useState<string[]>([]);
-  const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(estacionamentoOptions);
-  const [selectedPerfil, setSelectedPerfil] = useState<string[]>([]);
+  // Valores padrão com todos os filtros ativos
+  const defaultInfra = infraOptions.map(opt => opt.name);
+  const defaultContagem = [...contagemOptions];
+  const defaultPdc = pdcOptions.map(opt => opt.name);
+  const defaultInfracao = [...infracaoOptions];
+  const defaultSinistro = [...sinistroOptions];
+  const defaultEstacionamento = [...estacionamentoOptions];
+  const defaultPerfil = [...perfilOptions];
+
+  const [selectedInfra, setSelectedInfra] = useState<string[]>(defaultInfra);
+  const [selectedContagem, setSelectedContagem] = useState<string[]>(defaultContagem);
+  const [selectedPdc, setSelectedPdc] = useState<string[]>(defaultPdc);
+  const [selectedInfracao, setSelectedInfracao] = useState<string[]>(defaultInfracao);
+  const [selectedSinistro, setSelectedSinistro] = useState<string[]>(defaultSinistro);
+  const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(defaultEstacionamento);
+  const [selectedPerfil, setSelectedPerfil] = useState<string[]>(defaultPerfil);
   const [selectedGenero, setSelectedGenero] = useState<string>("Todos");
   const [selectedAno, setSelectedAno] = useState<string>("Todos");
   const [selectedArea, setSelectedArea] = useState<string>("Todas");
@@ -66,13 +75,13 @@ export function useCicloDadosState(
   // Load from localStorage after hydration - ONLY ONCE
   useEffect(() => {
     if (isClient) {
-      setSelectedInfra(getStoredValue('selectedInfra', []));
-      setSelectedContagem(getStoredValue('selectedContagem', ["Contagem da Ameciclo"]));
-      setSelectedPdc(getStoredValue('selectedPdc', pdcOptions.map(opt => opt.name)));
-      setSelectedInfracao(getStoredValue('selectedInfracao', []));
-      setSelectedSinistro(getStoredValue('selectedSinistro', []));
-      setSelectedEstacionamento(getStoredValue('selectedEstacionamento', estacionamentoOptions));
-      setSelectedPerfil(getStoredValue('selectedPerfil', []));
+      setSelectedInfra(getStoredValue('selectedInfra', defaultInfra));
+      setSelectedContagem(getStoredValue('selectedContagem', defaultContagem));
+      setSelectedPdc(getStoredValue('selectedPdc', defaultPdc));
+      setSelectedInfracao(getStoredValue('selectedInfracao', defaultInfracao));
+      setSelectedSinistro(getStoredValue('selectedSinistro', defaultSinistro));
+      setSelectedEstacionamento(getStoredValue('selectedEstacionamento', defaultEstacionamento));
+      setSelectedPerfil(getStoredValue('selectedPerfil', defaultPerfil));
       setSelectedGenero(getStoredValue('selectedGenero', "Todos"));
       setSelectedAno(getStoredValue('selectedAno', "Todos"));
       setSelectedArea(getStoredValue('selectedArea', "Todas"));
@@ -254,9 +263,9 @@ export function useCicloDadosState(
     setSelectedPerfil([]);
     // Reseta filtros de perfil para "Todas"
     setSelectedGenero("Todas");
-    setSelectedRaca("Todas");
-    setSelectedSocio("Todas");
-    setSelectedDias("Todas");
+    setSelectedAno("Todos");
+    setSelectedArea("Todas");
+    setSelectedIdade("Todas");
     
     // Force localStorage update immediately
     if (isClient) {
@@ -268,25 +277,25 @@ export function useCicloDadosState(
       localStorage.setItem('ciclodados_selectedEstacionamento', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedPerfil', JSON.stringify([]));
       localStorage.setItem('ciclodados_selectedGenero', JSON.stringify("Todas"));
-      localStorage.setItem('ciclodados_selectedRaca', JSON.stringify("Todas"));
-      localStorage.setItem('ciclodados_selectedSocio', JSON.stringify("Todas"));
-      localStorage.setItem('ciclodados_selectedDias', JSON.stringify("Todas"));
+      localStorage.setItem('ciclodados_selectedAno', JSON.stringify("Todos"));
+      localStorage.setItem('ciclodados_selectedArea', JSON.stringify("Todas"));
+      localStorage.setItem('ciclodados_selectedIdade', JSON.stringify("Todas"));
     }
   };
 
   const selectAllOptions = () => {
-    setSelectedInfra(infraOptions.map(opt => opt.name));
-    setSelectedContagem([...contagemOptions]);
-    setSelectedPdc(pdcOptions.map(opt => opt.name));
-    setSelectedInfracao([...infracaoOptions]);
-    setSelectedSinistro([...sinistroOptions]);
-    setSelectedEstacionamento([...estacionamentoOptions]);
-    setSelectedPerfil([...perfilOptions]);
+    setSelectedInfra(defaultInfra);
+    setSelectedContagem(defaultContagem);
+    setSelectedPdc(defaultPdc);
+    setSelectedInfracao(defaultInfracao);
+    setSelectedSinistro(defaultSinistro);
+    setSelectedEstacionamento(defaultEstacionamento);
+    setSelectedPerfil(defaultPerfil);
     // Reseta filtros de perfil para "Todas"
     setSelectedGenero("Todas");
-    setSelectedRaca("Todas");
-    setSelectedSocio("Todas");
-    setSelectedDias("Todas");
+    setSelectedAno("Todos");
+    setSelectedArea("Todas");
+    setSelectedIdade("Todas");
   };
 
   return {
