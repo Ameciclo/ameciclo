@@ -36,7 +36,7 @@ export default function ViaSearch({ onSearch, onViaSelect, isLoading = false }: 
     setSearchLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:8080/samu-calls/streets/search?street=${encodeURIComponent(searchQuery)}&limit=10`
+        `https://api.garfo.ameciclo.org/samu-calls/streets/search?street=${encodeURIComponent(searchQuery)}&limit=10`
       );
       
       if (response.ok) {

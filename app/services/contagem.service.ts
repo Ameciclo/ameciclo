@@ -1,5 +1,5 @@
 export async function fetchContagemData(lat: number, lon: number) {
-  const url = `http://192.168.10.114:3002/v1/locations`;
+  const url = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`;
   
   try {
     console.log('🚀 Carregando contagem de:', url);
@@ -8,7 +8,8 @@ export async function fetchContagemData(lat: number, lon: number) {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
-      }
+      },
+      signal: AbortSignal.timeout(5000)
     });
 
     console.log('📊 Status contagem:', response.status, response.statusText);
@@ -23,6 +24,6 @@ export async function fetchContagemData(lat: number, lon: number) {
     return data;
   } catch (error) {
     console.error('❌ Erro contagem:', error);
-    throw error;
+    return null; // Return null instead of throwing to prevent timeout
   }
 }
