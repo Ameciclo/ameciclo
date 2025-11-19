@@ -96,5 +96,20 @@ export function createClusters(features: any[], zoom: number, viewport?: { latit
     clusters[key].properties.items.push(feature);
   });
   
-  return Object.values(clusters);
+  return Object.values(clusters).map(cluster => {
+    // Se o cluster tem apenas 1 item, retorna o ponto original
+    if (cluster.properties.count === 1) {
+      return {
+        ...cluster.properties.items[0],
+        isCluster: false,
+        id: cluster.id,
+        properties: {
+          ...cluster.properties.items[0].properties,
+          count: 1,
+          items: cluster.properties.items
+        }
+      };
+    }
+    return cluster;
+  });
 }
