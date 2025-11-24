@@ -42,6 +42,8 @@ interface MapViewProps {
   streetData?: any;
   selectedStreetFilter?: string | null;
   perfilCiclistasData?: any;
+  autoOpenPopup?: {lat: number, lng: number} | null;
+  onPopupOpened?: () => void;
 }
 
 export function MapView({
@@ -66,7 +68,9 @@ export function MapView({
   highlightedStreet,
   streetData,
   selectedStreetFilter,
-  perfilCiclistasData
+  perfilCiclistasData,
+  autoOpenPopup,
+  onPopupOpened
 }: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -88,6 +92,15 @@ export function MapView({
       setForceRender(Date.now());
     }
   }, [externalViewState]);
+
+  // Auto-open popup from URL
+  useEffect(() => {
+    if (autoOpenPopup && !showPointInfo) {
+      setShowPointInfo({ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng });
+      setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
+      onPopupOpened?.();
+    }
+  }, [autoOpenPopup, showPointInfo, onPopupOpened]);
 
   const lastLoggedCircle = useRef<string | null>(null);
   const lastClickTime = useRef<number>(0);
@@ -362,6 +375,14 @@ export function MapView({
     
     setSelectedPoints([newPoint]);
     setShowPointInfo({ lat, lng });
+    
+    // Update URL
+    const url = new URL(window.location.href);
+    url.searchParams.set('lat', lat.toFixed(6));
+    url.searchParams.set('lon', lng.toFixed(6));
+    url.searchParams.set('zoom', mapViewState.zoom.toString());
+    window.history.pushState({}, '', url.toString());
+    
     setDragStartPos(null);
   };
 
@@ -445,12 +466,18 @@ export function MapView({
           if (point.type === 'perfil') initialTab = 'profile';
           else if (point.type === 'Contagem') initialTab = 'counts';
 
-          
           setShowPointInfo({ 
             lat: point.latitude, 
             lng: point.longitude, 
             initialTab 
           });
+          
+          // Update URL
+          const url = new URL(window.location.href);
+          url.searchParams.set('lat', point.latitude.toFixed(6));
+          url.searchParams.set('lon', point.longitude.toFixed(6));
+          url.searchParams.set('zoom', mapViewState.zoom.toString());
+          window.history.pushState({}, '', url.toString());
         }}
           layerData={(() => {
             // Quando há filtro de rua selecionada, mostrar todos os dados (não filtrar por área)
@@ -1135,11 +1162,16 @@ export function MapView({
                   </div>
                 ),
                 onClick: () => {
-                  setShowPointInfo({ 
-                    lat: point.geometry.coordinates[1], 
-                    lng: point.geometry.coordinates[0], 
-                    initialTab: 'profile' 
-                  });
+                  const lat = point.geometry.coordinates[1];
+                  const lng = point.geometry.coordinates[0];
+                  setShowPointInfo({ lat, lng, initialTab: 'profile' });
+                  
+                  // Update URL
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('lat', lat.toFixed(6));
+                  url.searchParams.set('lon', lng.toFixed(6));
+                  url.searchParams.set('zoom', mapViewState.zoom.toString());
+                  window.history.pushState({}, '', url.toString());
                 }
               };
             });
@@ -1219,7 +1251,13 @@ export function MapView({
           lat={showPointInfo.lat}
           lng={showPointInfo.lng}
           initialTab={showPointInfo.initialTab}
-          onClose={() => setShowPointInfo(null)}
+          onClose={() => {
+            setShowPointInfo(null);
+            // Keep the point visible when closing popup from URL
+            if (autoOpenPopup) {
+              setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
+            }
+          }}
         />
       )}
     </div>

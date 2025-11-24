@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight, Share2 } from 'lucide-react';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import { translateProfileData, translateBehavioralKey, calculatePercentage } from '~/utils/translations';
 
@@ -94,6 +94,37 @@ interface PointData {
 
 export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: PointInfoPopupProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Ponto CicloDados - Ameciclo',
+      text: `Dados de ciclomobilidade para o ponto ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+      url: `${window.location.origin}/dados/ciclodados?lat=${lat}&lon=${lng}&zoom=16`
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareStatus('shared');
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        setShareStatus('copied');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(shareData.url);
+          setShareStatus('copied');
+        } catch {
+          // Silently fail if clipboard is not available
+        }
+      }
+    }
+
+    // Reset status após 2 segundos
+    setTimeout(() => setShareStatus('idle'), 2000);
+  };
 
   const { data, isLoading: loading, error } = useQuery({
     queryKey: ['point-info', lat, lng],
@@ -175,9 +206,27 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               {data.location.nearest_street.official_name} • {formatDistance(data.location.nearest_street.distance_to_point_meters)} da via
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-2">
+            {shareStatus !== 'idle' && (
+              <span className="text-sm text-green-600 font-medium">
+                {shareStatus === 'copied' ? '✓ Link copiado!' : '✓ Compartilhado!'}
+              </span>
+            )}
+            <button 
+              onClick={handleShare}
+              className={`transition-colors p-2 rounded-lg ${
+                shareStatus === 'idle' 
+                  ? 'text-gray-500 hover:text-blue-600 hover:bg-blue-50' 
+                  : 'text-green-600 bg-green-50'
+              }`}
+              title={shareStatus === 'copied' ? 'Link copiado!' : shareStatus === 'shared' ? 'Compartilhado!' : 'Compartilhar ponto'}
+            >
+              <Share2 size={20} />
+            </button>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -1034,6 +1083,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               <p className="text-xs text-gray-500 mt-1">
                 Coordenadas: {data.location?.lat.toFixed(6)}, {data.location?.lng.toFixed(6)}
               </p>
+
             </div>
             <button 
               onClick={onClose}

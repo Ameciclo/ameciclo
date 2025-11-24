@@ -15,6 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const lat = url.searchParams.get('lat') || '-8.0476';
   const lon = url.searchParams.get('lon') || '-34.8770';
+  const zoom = url.searchParams.get('zoom') || '11';
   
   try {
     // Fetch Ameciclo data and cyclist profile data
@@ -32,7 +33,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         prefeitura: [] // Prefeitura data loaded via hook from static file
       }, 
       execucaoCicloviaria: null,
-      perfilCiclistas: perfilData
+      perfilCiclistas: perfilData,
+      initialViewState: {
+        latitude: parseFloat(lat),
+        longitude: parseFloat(lon),
+        zoom: parseFloat(zoom)
+      }
     });
   } catch (error) {
     console.error('Error loading data:', error);
@@ -42,7 +48,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         prefeitura: []
       }, 
       execucaoCicloviaria: null,
-      perfilCiclistas: null
+      perfilCiclistas: null,
+      initialViewState: {
+        latitude: parseFloat(lat),
+        longitude: parseFloat(lon),
+        zoom: parseFloat(zoom)
+      }
     });
   }
 }
@@ -68,8 +79,9 @@ import type { StreetMatch, StreetDataSummary } from '~/services/streets.service'
 import { getStreetDetails, getStreetDataSummary } from '~/services/streets.service';
 
 export default function CicloDados() {
-  const { contagemData, execucaoCicloviaria, perfilCiclistas } = useLoaderData<typeof loader>();
+  const { contagemData, execucaoCicloviaria, perfilCiclistas, initialViewState } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
+  const navigate = useNavigate();
   
   console.log('Component execucaoCicloviaria:', execucaoCicloviaria ? 'loaded' : 'null', execucaoCicloviaria?.features?.length || 0);
   
@@ -182,11 +194,12 @@ export default function CicloDados() {
     handleMapSelection(coords);
   };
 
-  const [mapViewState, setMapViewState] = useState({
+  const [mapViewState, setMapViewState] = useState(initialViewState || {
     latitude: -8.0476,
     longitude: -34.8770,
     zoom: 11
   });
+  const [autoOpenPopup, setAutoOpenPopup] = useState<{lat: number, lng: number} | null>(null);
   const [selectedStreetGeometry, setSelectedStreetGeometry] = useState<any>(null);
   const [selectedStreetData, setSelectedStreetData] = useState<StreetDataSummary | null>(null);
   const [selectedStreetFilter, setSelectedStreetFilter] = useState<string | null>(null);
@@ -379,6 +392,17 @@ export default function CicloDados() {
     console.log('Recarregando informações gerais...');
   };
   
+  // Auto-open popup from URL params
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const lat = url.searchParams.get('lat');
+    const lon = url.searchParams.get('lon');
+    
+    if (lat && lon && initialViewState?.zoom >= 14) {
+      setAutoOpenPopup({ lat: parseFloat(lat), lng: parseFloat(lon) });
+    }
+  }, [initialViewState]);
+
   // Demo event listener
   useEffect(() => {
     const handleDemoSelection = () => {
@@ -484,6 +508,8 @@ export default function CicloDados() {
                 streetData={selectedStreetData}
                 selectedStreetFilter={selectedStreetFilter}
                 perfilCiclistasData={processedPerfilData}
+                autoOpenPopup={autoOpenPopup}
+                onPopupOpened={() => setAutoOpenPopup(null)}
               />
               {/* TODO: Descomentar quando implementar mural:
               ) : (
