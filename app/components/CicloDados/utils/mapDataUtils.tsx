@@ -2,8 +2,77 @@ export function generateInfraData(selectedInfra: string[]) {
   return null;
 }
 
-export function generatePdcData(selectedPdc: string[]) {
-  return null;
+export function generatePdcData(selectedPdc: string[], execucaoCicloviaria?: any) {
+  if (selectedPdc.length === 0) return null;
+  
+  // Mock data para demonstração dos filtros PDC
+  const mockPdcData = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {
+          name: "PDC Realizado Designado",
+          type: "pdc_realizado_designado",
+          color: "#8B5CF6",
+          pattern: "parallel"
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: [[-34.8770, -8.0476], [-34.8750, -8.0456]]
+        }
+      },
+      {
+        type: "Feature",
+        properties: {
+          name: "PDC Realizado Não Designado",
+          type: "pdc_realizado_nao_designado",
+          color: "#8B5CF6",
+          pattern: "parallel-dashed"
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: [[-34.8750, -8.0456], [-34.8730, -8.0436]]
+        }
+      },
+      {
+        type: "Feature",
+        properties: {
+          name: "Realizado Fora PDC",
+          type: "realizado_fora_pdc",
+          color: "#F59E0B",
+          pattern: "parallel-orange-dashed"
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: [[-34.8730, -8.0436], [-34.8710, -8.0416]]
+        }
+      },
+      {
+        type: "Feature",
+        properties: {
+          name: "PDC Não Realizado",
+          type: "pdc_nao_realizado",
+          color: "#EC4899",
+          pattern: "striped"
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: [[-34.8710, -8.0416], [-34.8690, -8.0396]]
+        }
+      }
+    ]
+  };
+  
+  // Filtrar features baseado na seleção
+  const filteredFeatures = mockPdcData.features.filter(feature => {
+    return selectedPdc.includes(feature.properties.name);
+  });
+  
+  return {
+    type: "FeatureCollection",
+    features: filteredFeatures
+  };
 }
 
 export function generateContagemData(selectedContagem: string[], apiData?: any, profileFilters?: {

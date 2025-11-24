@@ -25,8 +25,13 @@ function OptionItem({
   const defaultClassName = `${baseClassName} hover:bg-gray-50 border border-transparent`;
   const selectedClassName = `${baseClassName} bg-teal-50 border border-teal-200 shadow-sm`;
   
+  const handleClick = () => {
+    console.log('OptionItem clicked:', option.name, 'isPdc:', isPdc);
+    onToggle(option.name);
+  };
+  
   return (
-    <div onClick={() => onToggle(option.name)} className={isSelected ? selectedClassName : defaultClassName}>
+    <div onClick={handleClick} className={isSelected ? selectedClassName : defaultClassName}>
       {hasPattern ? (
         <>
           <div className="flex items-center space-x-2 mb-1">
@@ -223,7 +228,10 @@ export function FilterSection({
               isSelected={selectedOptions.includes(option.name)}
               hasPattern={hasPattern}
               isPdc={isPdc}
-              onToggle={comingSoon ? () => {} : onToggle}
+              onToggle={comingSoon ? () => {} : (optionName) => {
+                console.log('FilterSection onToggle called:', optionName, 'isPdc:', isPdc);
+                onToggle(optionName);
+              }}
               isLoading={loadingOptions.includes(option.name)}
             />
           ))}

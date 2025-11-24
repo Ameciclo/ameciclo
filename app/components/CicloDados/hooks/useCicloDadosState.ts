@@ -194,11 +194,17 @@ export function useCicloDadosState(
   };
 
   const togglePdcOption = (optionName: string) => {
-    setSelectedPdc(prev => 
-      prev.includes(optionName) 
+    console.log('Toggling PDC option:', optionName);
+    console.log('Current selectedPdc:', selectedPdc);
+    
+    setSelectedPdc(prev => {
+      const newSelection = prev.includes(optionName) 
         ? prev.filter(item => item !== optionName)
-        : [...prev, optionName]
-    );
+        : [...prev, optionName];
+      
+      console.log('New PDC selection:', newSelection);
+      return newSelection;
+    });
   };
 
   const toggleAllPdcOptions = (options: string[], selectAll: boolean) => {
