@@ -1,51 +1,40 @@
 import { json, type LoaderFunction } from "@remix-run/node";
-import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-
-const API_URL = "https://cms.ameciclo.org";
+import { staticFallbacks } from "~/services/staticFallbacks";
 
 export const projetosLoader: LoaderFunction = async () => {
-  try {
-    const [projectsRes, workgroupsRes] = await Promise.all([
-      fetchWithTimeout(`${API_URL}/projects`, { cache: "no-cache" }, 30000, []),
-      fetchWithTimeout(`${API_URL}/workgroups`, { cache: "no-cache" }, 30000, []),
-    ]);
-
-    const projects = Array.isArray(projectsRes) ? projectsRes : [];
-    const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
-    const error = projects.length === 0 && workgroups.length === 0 ? 'API_ERROR' : null;
-
-    return json({
-      projectsData: { projects, workgroups, error }
-    });
-  } catch (error) {
-    console.error("Critical Error in Projetos loader:", error);
-    return json({
-      projectsData: {
-        projects: [],
-        workgroups: [],
-        error: 'API_ERROR'
-      }
-    });
-  }
+  return json({
+    projectsData: { 
+      projects: staticFallbacks.projects.map(p => ({
+        ...p,
+        name: p.name,
+        slug: p.slug,
+        status: p.status,
+        isHighlighted: p.id <= 6,
+        media: { url: '/images/banners/projetos.webp' },
+        workgroup: { name: 'Ameciclo' }
+      })),
+      workgroups: [{ id: '1', name: 'Ameciclo' }],
+      error: null
+    }
+  });
 };
 
-// Loader para projetos._index.tsx
 export const loader = projetosLoader;
 
-// Loader para projetos.$projeto.tsx
 export const projetoLoader: LoaderFunction = async ({ params }) => {
   const { projeto } = params;
-
-  try {
-    const projects = await fetchWithTimeout(`${API_URL}/projects?slug=${projeto}`, {}, 15000, []);
-    if (!projects || projects.length === 0) {
-      throw new Response("Not Found", { status: 404 });
-    }
-    return json({
-      project: projects[0]
-    });
-  } catch (error) {
-    console.error(error);
+  const project = staticFallbacks.projects.find(p => p.slug === projeto);
+  
+  if (!project) {
     throw new Response("Not Found", { status: 404 });
   }
+  
+  return json({
+    project: {
+      ...project,
+      name: project.name,
+      description: 'Descrição do projeto em desenvolvimento.',
+      media: { url: '/images/banners/projetos.webp' }
+    }
+  });
 };
