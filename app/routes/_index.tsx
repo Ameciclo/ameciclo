@@ -39,7 +39,7 @@ export default function Index() {
       <SectionCarousel 
         featuredProjects={home.projects} 
         isLoading={false}
-        hasApiError={apiDown}
+        hasApiError={false}
       />
       <SectionData 
         projects={projects} 

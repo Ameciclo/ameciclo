@@ -87,7 +87,7 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
     };
   }, [loaded, isPaused, startAutoplay, stopAutoplay]);
 
-  if (isLoading || hasApiError || !featuredProjects || featuredProjects.length === 0) {
+  if (isLoading || !featuredProjects || featuredProjects.length === 0) {
     return <SectionCarouselLoading />;
   }
 
