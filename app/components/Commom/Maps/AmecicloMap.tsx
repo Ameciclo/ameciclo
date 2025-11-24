@@ -588,7 +588,8 @@ export const AmecicloMap = ({
                                         onClick={(e) => {
                                             e?.originalEvent?.stopPropagation?.();
                                             
-                                            if (point.type === 'bicicletario' || point.type === 'bikepe') {
+                                            // Don't show popup for clusters
+                                            if (!point.isCluster && (point.type === 'bicicletario' || point.type === 'bikepe')) {
                                                 setSelectedMarker(point);
                                             }
                                             

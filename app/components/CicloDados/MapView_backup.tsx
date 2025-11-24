@@ -400,17 +400,6 @@ export function MapView({
     window.location.reload();
   };
 
-  // Função para lidar com clique em cluster - zoom in na coordenada do cluster
-  const handleClusterClick = (item: any) => {
-    const newViewState = {
-      latitude: item.geometry.coordinates[1],
-      longitude: item.geometry.coordinates[0],
-      zoom: Math.min(mapViewState.zoom + 1, 20)
-    };
-    setMapViewState(newViewState);
-    handleMapViewChange(newViewState);
-  };
-
   return (
     <div style={{height: 'calc(100vh - 64px)'}} className="relative flex flex-col">
       {/* Botão no canto superior esquerdo */}
@@ -846,7 +835,6 @@ export function MapView({
                   latitude: item.geometry.coordinates[1],
                   longitude: item.geometry.coordinates[0],
                   type: 'Contagem',
-                  isCluster: item.isCluster,
                   popup: {
                     name: item.isCluster ? `${item.properties.count} Pontos Prefeitura` : 
                           (item.properties.items?.[0]?.properties?.name || 'Ponto Prefeitura'),
@@ -902,7 +890,23 @@ export function MapView({
                   ),
                   onClick: () => {
                     if (item.isCluster) {
-                      handleClusterClick(item);
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const bounds = {
+                        north: Math.max(...lats),
+                        south: Math.min(...lats),
+                        east: Math.max(...lngs),
+                        west: Math.min(...lngs)
+                      };
+                      
+                      const centerLat = (bounds.north + bounds.south) / 2;
+                      const centerLng = (bounds.east + bounds.west) / 2;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
+                      });
                     } else {
                       setShowPointInfo({ 
                         lat: item.geometry.coordinates[1], 
@@ -933,7 +937,6 @@ export function MapView({
                   latitude: item.geometry.coordinates[1],
                   longitude: item.geometry.coordinates[0],
                   type: 'Contagem',
-                  isCluster: item.isCluster,
                   popup: {
                     name: item.isCluster ? `${item.properties.count} Pontos de Contagem` : 
                           (item.properties.items?.[0]?.properties?.name || 'Ponto de Contagem'),
@@ -987,7 +990,23 @@ export function MapView({
                   ),
                   onClick: () => {
                     if (item.isCluster) {
-                      handleClusterClick(item);
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const bounds = {
+                        north: Math.max(...lats),
+                        south: Math.min(...lats),
+                        east: Math.max(...lngs),
+                        west: Math.min(...lngs)
+                      };
+                      
+                      const centerLat = (bounds.north + bounds.south) / 2;
+                      const centerLng = (bounds.east + bounds.west) / 2;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
+                      });
                     } else {
                       setShowPointInfo({ 
                         lat: item.geometry.coordinates[1], 
@@ -1014,7 +1033,6 @@ export function MapView({
                   latitude: item.geometry.coordinates[1],
                   longitude: item.geometry.coordinates[0],
                   type: 'bicicletario',
-                  isCluster: item.isCluster,
                   popup: {
                     name: item.isCluster ? `${item.properties.count} Bicicletários` : (props?.name || 'Bicicletário'),
                     total: item.isCluster ? 'Cluster' : 'Estacionamento de bicicletas',
@@ -1034,7 +1052,16 @@ export function MapView({
                     </div>,
                   onClick: () => {
                     if (item.isCluster) {
-                      handleClusterClick(item);
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const centerLat = (Math.max(...lats) + Math.min(...lats)) / 2;
+                      const centerLng = (Math.max(...lngs) + Math.min(...lngs)) / 2;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
+                      });
                     } else {
                       setShowPointInfo({ 
                         lat: item.geometry.coordinates[1], 
@@ -1058,7 +1085,6 @@ export function MapView({
                   latitude: item.geometry.coordinates[1],
                   longitude: item.geometry.coordinates[0],
                   type: 'bikepe',
-                  isCluster: item.isCluster,
                   popup: {
                     name: item.isCluster ? `${item.properties.count} Estações Bike PE` : (props?.name || 'Estação Bike PE'),
                     total: item.isCluster ? 'Cluster' : 'Bicicletas compartilhadas',
@@ -1079,7 +1105,16 @@ export function MapView({
                     </div>,
                   onClick: () => {
                     if (item.isCluster) {
-                      handleClusterClick(item);
+                      const lats = item.properties.items.map((f: any) => f.geometry.coordinates[1]);
+                      const lngs = item.properties.items.map((f: any) => f.geometry.coordinates[0]);
+                      const centerLat = (Math.max(...lats) + Math.min(...lats)) / 2;
+                      const centerLng = (Math.max(...lngs) + Math.min(...lngs)) / 2;
+                      
+                      setMapViewState({
+                        latitude: centerLat,
+                        longitude: centerLng,
+                        zoom: Math.min(mapViewState.zoom + 3, 18)
+                      });
                     } else {
                       setShowPointInfo({ 
                         lat: item.geometry.coordinates[1], 
