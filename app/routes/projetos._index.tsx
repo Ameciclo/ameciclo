@@ -1,9 +1,14 @@
 import { MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
+
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ProjectCard } from "~/components/Projetos/ProjectCard";
+import { FeaturedProjectsLoading } from "~/components/Projetos/FeaturedProjectLoading";
+import { ProjectCardLoading } from "~/components/Projetos/ProjectCardLoading";
+import { ApiAlert } from "~/components/Commom/ApiAlert";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
 import SearchProject from "~/components/Projetos/SearchProject";
 import { loader } from "~/loader/projetos";
 export { loader };
@@ -35,10 +40,18 @@ export const meta: MetaFunction = () => {
 
 
 function ProjectsContent({ projectsData }: { projectsData: any }) {
-  const { projects } = projectsData;
+  const { projects, error } = projectsData;
+  const { setApiDown } = useApiStatus();
+  const hasApiError = error === 'API_ERROR';
+  const showLoadingState = hasApiError || !projects || projects.length === 0;
+
   const [status, setStatus] = useState<string>("");
   const [group, setGroup] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>(""); // New state for search term
+
+  useEffect(() => {
+    setApiDown(hasApiError);
+  }, [hasApiError, setApiDown]);
 
   const groupedProjects: GroupedProject[] = useMemo(() => {
     const groups: Record<string, GroupedProject> = {};
@@ -126,21 +139,34 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
   return (
     <section className="container my-4 mx-auto">
       <div className="flex justify-between items-center mb-4">
-        {searchTerm.trim() ? (
-          <h2 className="text-2xl font-bold">Buscar</h2>
+        {showLoadingState ? (
+          <div className="h-8 bg-gray-300 rounded w-64 animate-pulse"></div>
         ) : (
-          <h2 className="text-2xl font-bold">Projetos em Destaque</h2>
+          searchTerm.trim() ? (
+            <h2 className="text-2xl font-bold">Buscar</h2>
+          ) : (
+            <h2 className="text-2xl font-bold">Projetos em Destaque</h2>
+          )
         )}
         <SearchProject searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </div>
 
-      {allProjectsCount === 0 && searchTerm ? (
-        <div className="text-center py-10">
-          <p className="text-xl text-gray-600">
-            Nenhum projeto encontrado com título "<span className="font-bold">{searchTerm}</span>"
-          </p>
-        </div>
+      {showLoadingState ? (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <ProjectCardLoading key={index} />
+            ))}
+          </div>
+        </>
       ) : (
+        allProjectsCount === 0 && searchTerm ? (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-600">
+              Nenhum projeto encontrado com título "<span className="font-bold">{searchTerm}</span>"
+            </p>
+          </div>
+        ) : (
           <>
             {filteredProjects.highlighted.length > 0 && (
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -201,7 +227,7 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
             )}
           </>
         )
-      }
+      )}
     </section>
   );
 }
@@ -211,7 +237,9 @@ export default function Projetos() {
 
   return (
     <>
+      <ApiAlert />
       <Banner image="projetos.webp" />
+      <div />
       <Breadcrumb label="Projetos" slug="/projetos" routes={["/"]} />
       <ProjectsContent projectsData={projectsData} />
     </>
