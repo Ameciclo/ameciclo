@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight } from 'lucide-react';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import { translateProfileData, translateBehavioralKey, calculatePercentage } from '~/utils/translations';
 
@@ -377,16 +377,19 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                       <Clock size={18} />
                       Histórico Anual de Emergências
                     </h4>
+                    <p className="text-xs text-gray-500 mb-3">
+                      * O último ano ({new Date().getFullYear()}) contém dados até abril
+                    </p>
                     {data.emergency_calls.annual_history?.length > 1 ? (
                       <div className="space-y-4">
                         {/* Chart */}
                         <div className="bg-white p-4 rounded-lg border">
-                          <div className="relative h-48">
-                            <svg className="w-full h-full" viewBox="0 0 400 200">
+                          <div className="relative h-48 w-full">
+                            <svg className="w-full h-full" viewBox="0 0 800 200">
                               {/* Grid lines */}
                               <defs>
-                                <pattern id="grid" width="40" height="20" patternUnits="userSpaceOnUse">
-                                  <path d="M 40 0 L 0 0 0 20" fill="none" stroke="#f3f4f6" strokeWidth="1"/>
+                                <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
+                                  <path d="M 80 0 L 0 0 0 20" fill="none" stroke="#f3f4f6" strokeWidth="1"/>
                                 </pattern>
                               </defs>
                               <rect width="100%" height="100%" fill="url(#grid)" />
@@ -396,9 +399,11 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                 const maxCalls = Math.max(...data.emergency_calls.annual_history.map(y => y.total_calls));
                                 const minCalls = Math.min(...data.emergency_calls.annual_history.map(y => y.total_calls));
                                 const range = maxCalls - minCalls || 1;
-                                const years = data.emergency_calls.annual_history.slice(-8);
+                                const years = data.emergency_calls.annual_history
+                                  .sort((a, b) => a.year - b.year)
+                                  .slice(-8);
                                 const points = years.map((year, index) => {
-                                  const x = 50 + (index * (300 / (years.length - 1 || 1)));
+                                  const x = 80 + (index * (640 / (years.length - 1 || 1)));
                                   const y = 170 - ((year.total_calls - minCalls) / range) * 120;
                                   return `${x},${y}`;
                                 }).join(' ');
@@ -412,7 +417,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                                       points={points}
                                     />
                                     {years.map((year, index) => {
-                                      const x = 50 + (index * (300 / (years.length - 1 || 1)));
+                                      const x = 80 + (index * (640 / (years.length - 1 || 1)));
                                       const y = 170 - ((year.total_calls - minCalls) / range) * 120;
                                       return (
                                         <g key={year.year}>
@@ -435,7 +440,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                         
                         {/* Summary cards */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {data.emergency_calls.annual_history?.slice(-8).map(year => (
+                          {data.emergency_calls.annual_history
+                            ?.sort((a, b) => a.year - b.year)
+                            .slice(-8)
+                            .map(year => (
                             <div key={year.year} className="bg-red-50 p-3 rounded-lg text-center">
                               <p className="font-bold text-red-600">{year.total_calls}</p>
                               <p className="text-sm text-red-500">{year.year}</p>
@@ -445,7 +453,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {data.emergency_calls.annual_history?.slice(-8).map(year => (
+                        {data.emergency_calls.annual_history
+                          ?.sort((a, b) => a.year - b.year)
+                          .slice(-8)
+                          .map(year => (
                           <div key={year.year} className="bg-red-50 p-3 rounded-lg text-center">
                             <p className="font-bold text-red-600">{year.total_calls}</p>
                             <p className="text-sm text-red-500">{year.year}</p>
@@ -968,16 +979,36 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                   </h5>
                   <div className="space-y-2">
                     {(() => {
-                      const recent = data.emergency_calls.annual_history.slice(-2);
+                      const currentYear = new Date().getFullYear();
+                      const filteredData = data.emergency_calls.annual_history
+                        .filter(year => year.year < currentYear)
+                        .sort((a, b) => a.year - b.year);
+                      const recent = filteredData.slice(-2);
                       const trend = recent.length === 2 ? 
                         (recent[1].total_calls > recent[0].total_calls ? 'Crescente' : 
                          recent[1].total_calls < recent[0].total_calls ? 'Decrescente' : 'Estável') : 'Insuficiente';
                       const color = trend === 'Crescente' ? 'text-red-600' : trend === 'Decrescente' ? 'text-green-600' : 'text-yellow-600';
                       
                       return (
-                        <div className={`text-center ${color}`}>
-                          <p className="text-xl font-bold">{trend}</p>
-                          <p className="text-sm">Tendência de Emergências</p>
+                        <div className={`md:flex md:items-center md:justify-between text-center md:text-left ${color}`}>
+                          <div>
+                            <p className="text-2xl font-bold">{trend}</p>
+                            <p className="text-base">Tendência de Emergências</p>
+                          </div>
+                          {recent.length === 2 && (
+                            <div className="text-sm mt-2 md:mt-0 text-gray-600 md:text-right">
+                              <p className="flex items-center justify-center md:justify-end gap-1">
+                                {recent[0].year}: {recent[0].total_calls} 
+                                <ArrowRight size={16} className="text-gray-400" /> 
+                                {recent[1].year}: {recent[1].total_calls}
+                              </p>
+                              {trend !== 'Estável' && (
+                                <p className="font-medium text-base">
+                                  {trend === 'Crescente' ? '+' : ''}{((recent[1].total_calls - recent[0].total_calls) / recent[0].total_calls * 100).toFixed(1)}%
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })()}

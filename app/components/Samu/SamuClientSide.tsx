@@ -88,7 +88,10 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         setSelectedYear(years[years.length - 1]);
       }
 
+      // Filtrar anos completos (excluir ano atual) e ordenar do mais antigo para o mais novo
+      const currentYear = new Date().getFullYear();
       const chartData = cityData.historico_anual
+        .filter((item: any) => item.ano < currentYear)
         .sort((a: any, b: any) => a.ano - b.ano)
         .map((item: any) => {
           const total = (item.validos?.atendimento_concluido || 0) + 
