@@ -9,6 +9,7 @@ interface PointInfoPopupProps {
   lng: number;
   onClose: () => void;
   initialTab?: string;
+  extraData?: any;
 }
 
 interface PointData {
@@ -92,7 +93,7 @@ interface PointData {
   };
 }
 
-export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: PointInfoPopupProps) {
+export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', extraData }: PointInfoPopupProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
 
@@ -126,7 +127,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
     setTimeout(() => setShareStatus('idle'), 2000);
   };
 
-  const { data, isLoading: loading, error } = useQuery({
+  const { data: rawData, isLoading: loading, error } = useQuery({
     queryKey: ['point-info', lat, lng],
     queryFn: async () => {
       const response = await fetch(POINT_CICLO_NEARBY(lat, lng, 200));
@@ -135,10 +136,87 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
       }
       
-      return response.json();
+      const apiData = await response.json();
+      
+      // Buscar pontos da prefeitura próximos
+      try {
+        const prefeituraResponse = await fetch('/dbs/PCR_CONTAGENS.json');
+        if (prefeituraResponse.ok) {
+          const prefeituraData = await prefeituraResponse.json();
+          
+          // Filtrar pontos da prefeitura num raio de 200m
+          const nearbyPrefeituraPoints = prefeituraData.filter((ponto: any) => {
+            const pointLat = ponto.location.coordinates[0];
+            const pointLng = ponto.location.coordinates[1];
+            const distance = Math.sqrt(
+              Math.pow((pointLat - lat) * 111320, 2) + 
+              Math.pow((pointLng - lng) * 111320 * Math.cos(lat * Math.PI / 180), 2)
+            );
+            return distance <= 200;
+          });
+          
+          // Adicionar pontos da prefeitura aos dados de contagem
+          if (nearbyPrefeituraPoints.length > 0) {
+            const prefeituraCountsData = nearbyPrefeituraPoints.map((ponto: any) => ({
+              id: `prefeitura_${ponto.name}_${ponto.date}`,
+              name: ponto.name,
+              date: new Date(ponto.date).toLocaleDateString('pt-BR'),
+              city: 'Recife',
+              total_cyclists: ponto.summary?.total || 0,
+              distance_meters: Math.round(Math.sqrt(
+                Math.pow((ponto.location.coordinates[0] - lat) * 111320, 2) + 
+                Math.pow((ponto.location.coordinates[1] - lng) * 111320 * Math.cos(lat * Math.PI / 180), 2)
+              )),
+              characteristics: {
+                cargo: Math.round((ponto.summary?.cargo_percent || 0) * (ponto.summary?.total || 0)),
+                wrong_way: Math.round((ponto.summary?.wrong_way_percent || 0) * (ponto.summary?.total || 0))
+              }
+            }));
+            
+            // Merge com dados existentes da API
+            if (apiData.cyclist_counts) {
+              apiData.cyclist_counts.counts = [
+                ...(apiData.cyclist_counts.counts || []),
+                ...prefeituraCountsData
+              ];
+            } else {
+              apiData.cyclist_counts = {
+                counts: prefeituraCountsData
+              };
+            }
+          }
+        }
+      } catch (prefeituraError) {
+        console.warn('Erro ao buscar dados da prefeitura:', prefeituraError);
+      }
+      
+      return apiData;
     },
     staleTime: 10 * 60 * 1000, // 10 minutos
   });
+
+  // Merge data with extraData if available (mantido para compatibilidade)
+  const data = rawData ? {
+    ...rawData,
+    cyclist_counts: {
+      ...rawData.cyclist_counts,
+      counts: [
+        ...(rawData.cyclist_counts?.counts || []),
+        ...(extraData?.prefeituraData ? extraData.prefeituraData.map((prefData: any, index: number) => ({
+          id: 'prefeitura_extra_' + Date.now() + '_' + index,
+          name: prefData.name,
+          date: new Date(prefData.date).toLocaleDateString('pt-BR'),
+          city: prefData.city,
+          total_cyclists: prefData.total_cyclists,
+          distance_meters: prefData.distance_meters,
+          characteristics: {
+            cargo: Math.round((prefData.cargo_percent || 0) * prefData.total_cyclists / 100),
+            wrong_way: Math.round((prefData.wrong_way_percent || 0) * prefData.total_cyclists / 100)
+          }
+        })) : [])
+      ]
+    }
+  } : rawData;
 
   if (loading) {
     return (
@@ -175,7 +253,26 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
     );
   }
 
-  if (!data) return null;
+  if (!data && !extraData) return null;
+  
+  // Se não há dados da API mas há dados extras, criar estrutura mínima
+  const finalData = data || {
+    location: { lat, lng, nearest_street: { name: 'Localização', official_name: 'Localização', distance_to_point_meters: 0 } },
+    cyclist_counts: {
+      counts: extraData?.prefeituraData ? extraData.prefeituraData.map((prefData: any, index: number) => ({
+        id: 'prefeitura_fallback_' + Date.now() + '_' + index,
+        name: prefData.name,
+        date: new Date(prefData.date).toLocaleDateString('pt-BR'),
+        city: prefData.city,
+        total_cyclists: prefData.total_cyclists,
+        distance_meters: prefData.distance_meters,
+        characteristics: {
+          cargo: Math.round((prefData.cargo_percent || 0) * prefData.total_cyclists / 100),
+          wrong_way: Math.round((prefData.wrong_way_percent || 0) * prefData.total_cyclists / 100)
+        }
+      })) : []
+    }
+  };
 
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: MapPin },
@@ -188,7 +285,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
   ];
 
   const formatDistance = (meters: number) => {
-    if (meters < 1000) return `${meters}m`;
+    if (meters < 1000) return `${Math.round(meters)}m`;
     return `${(meters / 1000).toFixed(1)}km`;
   };
 
@@ -203,7 +300,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               Informações do Ponto
             </h3>
             <p className="text-sm text-gray-600">
-              {data.location.nearest_street.official_name} • {formatDistance(data.location.nearest_street.distance_to_point_meters)} da via
+              {finalData.location.nearest_street.official_name} • {formatDistance(finalData.location.nearest_street.distance_to_point_meters)} da via
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -255,13 +352,13 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
           {activeTab === 'overview' && (
             <div className="space-y-6">
               {(() => {
-                const hasData = data.emergency_calls || 
-                  (data.bike_racks && data.bike_racks.total > 0) ||
-                  (data.cyclist_counts && data.cyclist_counts.counts?.length > 0) ||
-                  (data.cyclist_profile && data.cyclist_profile.total_profiles > 0) ||
-                  (data.shared_bike && data.shared_bike.has_stations) ||
-                  (data.cycling_infra && (data.cycling_infra.existing?.length > 0 || data.cycling_infra.planned_pdc?.length > 0)) ||
-                  data.location;
+                const hasData = finalData.emergency_calls || 
+                  (finalData.bike_racks && finalData.bike_racks.total > 0) ||
+                  (finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0) ||
+                  (finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0) ||
+                  (finalData.shared_bike && finalData.shared_bike.has_stations) ||
+                  (finalData.cycling_infra && (finalData.cycling_infra.existing?.length > 0 || finalData.cycling_infra.planned_pdc?.length > 0)) ||
+                  finalData.location;
                 
                 if (!hasData) {
                   return (
@@ -275,96 +372,96 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 return (
                   <>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {data.emergency_calls && (
+                      {finalData.emergency_calls && (
                         <div className="bg-red-50 p-4 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <Ambulance size={20} className="text-red-500" />
                             <h4 className="font-semibold text-red-700">Emergências</h4>
                           </div>
                           <p className="text-2xl font-bold text-red-600">
-                            {data.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
+                            {finalData.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
                           </p>
                           <p className="text-sm text-red-600">chamadas totais</p>
                         </div>
                       )}
 
-                      {data.bike_racks && data.bike_racks.total > 0 && (
+                      {finalData.bike_racks && finalData.bike_racks.total > 0 && (
                         <div className="bg-blue-50 p-4 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <Bike size={20} className="text-blue-500" />
                             <h4 className="font-semibold text-blue-700">Bicicletários</h4>
                           </div>
-                          <p className="text-2xl font-bold text-blue-600">{data.bike_racks.total}</p>
-                          <p className="text-sm text-blue-600">{data.bike_racks.total_capacity} vagas</p>
+                          <p className="text-2xl font-bold text-blue-600">{finalData.bike_racks.total}</p>
+                          <p className="text-sm text-blue-600">{finalData.bike_racks.total_capacity} vagas</p>
                         </div>
                       )}
 
-                      {data.cyclist_counts && data.cyclist_counts.counts?.length > 0 && (
+                      {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
                         <div className="bg-green-50 p-4 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <BarChart3 size={20} className="text-green-500" />
                             <h4 className="font-semibold text-green-700">Contagens</h4>
                           </div>
-                          <p className="text-2xl font-bold text-green-600">{data.cyclist_counts.counts.length}</p>
+                          <p className="text-2xl font-bold text-green-600">{finalData.cyclist_counts.counts.length}</p>
                           <p className="text-sm text-green-600">pontos próximos</p>
                         </div>
                       )}
 
-                      {data.cyclist_profile && data.cyclist_profile.total_profiles > 0 && (
+                      {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 && (
                         <div className="bg-purple-50 p-4 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <Users size={20} className="text-purple-500" />
                             <h4 className="font-semibold text-purple-700">Perfis</h4>
                           </div>
-                          <p className="text-2xl font-bold text-purple-600">{data.cyclist_profile.total_profiles}</p>
+                          <p className="text-2xl font-bold text-purple-600">{finalData.cyclist_profile.total_profiles}</p>
                           <p className="text-sm text-purple-600">ciclistas</p>
                         </div>
                       )}
 
-                      {data.shared_bike && data.shared_bike.has_stations && (
+                      {finalData.shared_bike && finalData.shared_bike.has_stations && (
                         <div className="bg-orange-50 p-4 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <Activity size={20} className="text-orange-500" />
                             <h4 className="font-semibold text-orange-700">Bike PE</h4>
                           </div>
-                          <p className="text-2xl font-bold text-orange-600">{data.shared_bike.stations?.length || 0}</p>
+                          <p className="text-2xl font-bold text-orange-600">{finalData.shared_bike.stations?.length || 0}</p>
                           <p className="text-sm text-orange-600">estações</p>
                         </div>
                       )}
 
-                      {data.cycling_infra && (data.cycling_infra.existing?.length > 0 || data.cycling_infra.planned_pdc?.length > 0) && (
+                      {finalData.cycling_infra && (finalData.cycling_infra.existing?.length > 0 || finalData.cycling_infra.planned_pdc?.length > 0) && (
                         <div className="bg-teal-50 p-4 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <Route size={20} className="text-teal-500" />
                             <h4 className="font-semibold text-teal-700">Infraestrutura</h4>
                           </div>
                           <p className="text-2xl font-bold text-teal-600">
-                            {(data.cycling_infra.existing?.length || 0) + (data.cycling_infra.planned_pdc?.length || 0)}
+                            {(finalData.cycling_infra.existing?.length || 0) + (finalData.cycling_infra.planned_pdc?.length || 0)}
                           </p>
                           <p className="text-sm text-teal-600">vias próximas</p>
                         </div>
                       )}
                     </div>
 
-                    {data.location && (
+                    {finalData.location && (
                       <div>
                         <h4 className="font-semibold mb-3 flex items-center gap-2">
                           <Navigation size={18} />
                           Localização
                         </h4>
                         <div className="bg-gray-50 p-3 rounded-lg">
-                          <p className="font-medium">{data.location.nearest_street?.official_name || data.location.nearest_street?.name}</p>
+                          <p className="font-medium">{finalData.location.nearest_street?.official_name || finalData.location.nearest_street?.name}</p>
                           <p className="text-sm text-gray-600">
-                            Coordenadas: {data.location.lat.toFixed(6)}, {data.location.lng.toFixed(6)}
+                            Coordenadas: {finalData.location.lat.toFixed(6)}, {finalData.location.lng.toFixed(6)}
                           </p>
-                          {data.location.nearest_street?.total_length_meters && (
+                          {finalData.location.nearest_street?.total_length_meters && (
                             <p className="text-sm text-gray-600">
-                              Extensão da via: {formatDistance(data.location.nearest_street.total_length_meters)}
+                              Extensão da via: {formatDistance(finalData.location.nearest_street.total_length_meters)}
                             </p>
                           )}
-                          {data.location.nearest_street?.distance_to_point_meters !== undefined && (
+                          {finalData.location.nearest_street?.distance_to_point_meters !== undefined && (
                             <p className="text-sm text-gray-600">
-                              Distância da via: {formatDistance(data.location.nearest_street.distance_to_point_meters)}
+                              Distância da via: {formatDistance(finalData.location.nearest_street.distance_to_point_meters)}
                             </p>
                           )}
                         </div>
@@ -378,7 +475,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
 
           {activeTab === 'location' && (
             <div className="space-y-6">
-              {data.location ? (
+              {finalData.location ? (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <MapPin size={18} />
@@ -387,22 +484,22 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                   <div className="space-y-3">
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <h5 className="font-medium mb-2">Coordenadas Exatas</h5>
-                      <p className="text-sm text-gray-600">Latitude: {data.location.lat.toFixed(8)}</p>
-                      <p className="text-sm text-gray-600">Longitude: {data.location.lng.toFixed(8)}</p>
+                      <p className="text-sm text-gray-600">Latitude: {finalData.location.lat.toFixed(8)}</p>
+                      <p className="text-sm text-gray-600">Longitude: {finalData.location.lng.toFixed(8)}</p>
                     </div>
                     
-                    {data.location.nearest_street && (
+                    {finalData.location.nearest_street && (
                       <div className="bg-green-50 p-4 rounded-lg">
                         <h5 className="font-medium mb-2">Via Mais Próxima</h5>
-                        <p className="font-medium">{data.location.nearest_street.official_name || data.location.nearest_street.name}</p>
-                        {data.location.nearest_street.name !== data.location.nearest_street.official_name && (
-                          <p className="text-sm text-gray-600">Nome popular: {data.location.nearest_street.name}</p>
+                        <p className="font-medium">{finalData.location.nearest_street.official_name || finalData.location.nearest_street.name}</p>
+                        {finalData.location.nearest_street.name !== finalData.location.nearest_street.official_name && (
+                          <p className="text-sm text-gray-600">Nome popular: {finalData.location.nearest_street.name}</p>
                         )}
-                        {data.location.nearest_street.distance_to_point_meters !== undefined && (
-                          <p className="text-sm text-gray-600">Distância: {formatDistance(data.location.nearest_street.distance_to_point_meters)}</p>
+                        {finalData.location.nearest_street.distance_to_point_meters !== undefined && (
+                          <p className="text-sm text-gray-600">Distância: {formatDistance(finalData.location.nearest_street.distance_to_point_meters)}</p>
                         )}
-                        {data.location.nearest_street.total_length_meters && (
-                          <p className="text-sm text-gray-600">Extensão total: {formatDistance(data.location.nearest_street.total_length_meters)}</p>
+                        {finalData.location.nearest_street.total_length_meters && (
+                          <p className="text-sm text-gray-600">Extensão total: {formatDistance(finalData.location.nearest_street.total_length_meters)}</p>
                         )}
                       </div>
                     )}
@@ -419,7 +516,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
 
           {activeTab === 'safety' && (
             <div className="space-y-6">
-              {data.emergency_calls && (
+              {finalData.emergency_calls && (
                 <>
                   <div>
                     <h4 className="font-semibold mb-3 flex items-center gap-2">
@@ -429,7 +526,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                     <p className="text-xs text-gray-500 mb-3">
                       * O último ano ({new Date().getFullYear()}) contém dados até abril
                     </p>
-                    {data.emergency_calls.annual_history?.length > 1 ? (
+                    {finalData.emergency_calls.annual_history?.length > 1 ? (
                       <div className="space-y-4">
                         {/* Chart */}
                         <div className="bg-white p-4 rounded-lg border">
@@ -445,10 +542,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                               
                               {/* Chart line */}
                               {(() => {
-                                const maxCalls = Math.max(...data.emergency_calls.annual_history.map(y => y.total_calls));
-                                const minCalls = Math.min(...data.emergency_calls.annual_history.map(y => y.total_calls));
+                                const maxCalls = Math.max(...finalData.emergency_calls.annual_history.map(y => y.total_calls));
+                                const minCalls = Math.min(...finalData.emergency_calls.annual_history.map(y => y.total_calls));
                                 const range = maxCalls - minCalls || 1;
-                                const years = data.emergency_calls.annual_history
+                                const years = finalData.emergency_calls.annual_history
                                   .sort((a, b) => a.year - b.year)
                                   .slice(-8);
                                 const points = years.map((year, index) => {
@@ -489,7 +586,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                         
                         {/* Summary cards */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {data.emergency_calls.annual_history
+                          {finalData.emergency_calls.annual_history
                             ?.sort((a, b) => a.year - b.year)
                             .slice(-8)
                             .map(year => (
@@ -502,7 +599,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {data.emergency_calls.annual_history
+                        {finalData.emergency_calls.annual_history
                           ?.sort((a, b) => a.year - b.year)
                           .slice(-8)
                           .map(year => (
@@ -515,25 +612,25 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                     )}
                   </div>
 
-                  {data.emergency_calls.last_month_data && (
+                  {finalData.emergency_calls.last_month_data && (
                     <div className="bg-yellow-50 p-4 rounded-lg">
                       <h4 className="font-semibold mb-2 flex items-center gap-2">
                         <Calendar size={18} />
-                        Último Mês ({data.emergency_calls.last_month_data.month})
+                        Último Mês ({finalData.emergency_calls.last_month_data.month})
                       </h4>
-                      <p className="text-2xl font-bold text-yellow-600">{data.emergency_calls.last_month_data.total_calls}</p>
+                      <p className="text-2xl font-bold text-yellow-600">{finalData.emergency_calls.last_month_data.total_calls}</p>
                       <p className="text-sm text-yellow-600">chamadas de emergência</p>
                     </div>
                   )}
 
-                  {data.emergency_calls.by_category?.length > 0 && (
+                  {finalData.emergency_calls.by_category?.length > 0 && (
                     <div>
                       <h4 className="font-semibold mb-3 flex items-center gap-2">
                         <Target size={18} />
                         Por Categoria de Acidente
                       </h4>
                       <div className="space-y-2">
-                        {data.emergency_calls.by_category.map(category => (
+                        {finalData.emergency_calls.by_category.map(category => (
                           <div key={category.category} className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                             <span className="text-sm font-medium">{category.category}</span>
                             <span className="font-bold text-red-600">{category.count}</span>
@@ -544,11 +641,11 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {data.emergency_calls.by_gender?.length > 0 && (
+                    {finalData.emergency_calls.by_gender?.length > 0 && (
                       <div>
                         <h4 className="font-semibold mb-3">Distribuição por Gênero</h4>
                         <div className="space-y-2">
-                          {data.emergency_calls.by_gender.map(gender => (
+                          {finalData.emergency_calls.by_gender.map(gender => (
                             <div key={gender.gender || 'Não informado'} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                               <span className="text-sm">{gender.gender || 'Não informado'}</span>
                               <span className="font-semibold">{gender.count}</span>
@@ -558,11 +655,11 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                       </div>
                     )}
 
-                    {data.emergency_calls.by_age_group?.length > 0 && (
+                    {finalData.emergency_calls.by_age_group?.length > 0 && (
                       <div>
                         <h4 className="font-semibold mb-3">Distribuição por Faixa Etária</h4>
                         <div className="space-y-2">
-                          {data.emergency_calls.by_age_group.map(age => (
+                          {finalData.emergency_calls.by_age_group.map(age => (
                             <div key={age.age_group} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                               <span className="text-sm">{age.age_group}</span>
                               <span className="font-semibold">{age.count}</span>
@@ -575,7 +672,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 </>
               )}
               
-              {!data.emergency_calls && (
+              {!finalData.emergency_calls && (
                 <div className="text-center py-8 text-gray-500">
                   <AlertTriangle size={48} className="mx-auto mb-4 text-gray-300" />
                   <p>Nenhum dado de emergência disponível para este ponto</p>
@@ -586,17 +683,17 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
 
           {activeTab === 'infrastructure' && (
             <div className="space-y-6">
-              {data.bike_racks && data.bike_racks.items?.length > 0 && (
+              {finalData.bike_racks && finalData.bike_racks.items?.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Building2 size={18} />
                     Bicicletários Próximos
                   </h4>
                   <div className="bg-blue-50 p-3 rounded-lg mb-3">
-                    <p className="text-sm text-blue-600">Total: {data.bike_racks.total} bicicletários com {data.bike_racks.total_capacity} vagas</p>
+                    <p className="text-sm text-blue-600">Total: {finalData.bike_racks.total} bicicletários com {finalData.bike_racks.total_capacity} vagas</p>
                   </div>
                   <div className="space-y-2">
-                    {data.bike_racks.items.map(rack => (
+                    {finalData.bike_racks.items.map(rack => (
                       <div key={rack.id} className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                         <div>
                           <p className="font-medium">{rack.name}</p>
@@ -611,14 +708,14 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 </div>
               )}
 
-              {data.shared_bike && data.shared_bike.has_stations && data.shared_bike.stations?.length > 0 && (
+              {finalData.shared_bike && finalData.shared_bike.has_stations && finalData.shared_bike.stations?.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Activity size={18} />
                     Estações Bike PE
                   </h4>
                   <div className="space-y-2">
-                    {data.shared_bike.stations.map(station => (
+                    {finalData.shared_bike.stations.map(station => (
                       <div key={station.id} className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
                         <div>
                           <p className="font-medium">{station.name}</p>
@@ -633,14 +730,14 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 </div>
               )}
 
-              {data.cycling_infra && data.cycling_infra.existing?.length > 0 && (
+              {finalData.cycling_infra && finalData.cycling_infra.existing?.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Route size={18} />
                     Infraestrutura Cicloviária Existente
                   </h4>
                   <div className="space-y-2">
-                    {data.cycling_infra.existing.map((infra, index) => (
+                    {finalData.cycling_infra.existing.map((infra, index) => (
                       <div key={index} className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
                         <div>
                           <p className="font-medium">{infra.name}</p>
@@ -655,14 +752,14 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 </div>
               )}
 
-              {data.cycling_infra && data.cycling_infra.planned_pdc?.length > 0 && (
+              {finalData.cycling_infra && finalData.cycling_infra.planned_pdc?.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Zap size={18} />
                     Infraestrutura Planejada (PDC)
                   </h4>
                   <div className="space-y-3">
-                    {data.cycling_infra.planned_pdc.map(pdc => (
+                    {finalData.cycling_infra.planned_pdc.map(pdc => (
                       <div key={pdc.id} className="p-3 bg-purple-50 rounded-lg">
                         <div className="flex justify-between items-start mb-2">
                           <div>
@@ -679,9 +776,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 </div>
               )}
               
-              {(!data.bike_racks || data.bike_racks.total === 0) && 
-               (!data.shared_bike || !data.shared_bike.has_stations) && 
-               (!data.cycling_infra || (data.cycling_infra.existing?.length === 0 && data.cycling_infra.planned_pdc?.length === 0)) && (
+              {(!finalData.bike_racks || finalData.bike_racks.total === 0) && 
+               (!finalData.shared_bike || !finalData.shared_bike.has_stations) && 
+               (!finalData.cycling_infra || (finalData.cycling_infra.existing?.length === 0 && finalData.cycling_infra.planned_pdc?.length === 0)) && (
                 <div className="text-center py-8 text-gray-500">
                   <Route size={48} className="mx-auto mb-4 text-gray-300" />
                   <p>Nenhuma infraestrutura cicloviária encontrada próxima a este ponto</p>
@@ -692,23 +789,34 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
 
           {activeTab === 'counts' && (
             <div className="space-y-6">
-              {data.cyclist_counts && data.cyclist_counts.counts?.length > 0 && (
+              {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <BarChart3 size={18} />
-                    Contagens de Ciclistas Próximas
+                    Contagens de Ciclistas Próximas ({finalData.cyclist_counts.counts.length})
                   </h4>
                   <div className="space-y-4">
-                    {data.cyclist_counts.counts.map(count => (
-                      <div key={count.id} className="p-4 bg-gray-50 rounded-lg">
+                    {finalData.cyclist_counts.counts.map(count => (
+                      <div key={count.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
                         <div className="flex justify-between items-start mb-3">
                           <div>
-                            <p className="font-medium">{count.name}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium">{count.name}</p>
+                              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                count.id?.toString().includes('prefeitura') 
+                                  ? 'bg-blue-100 text-blue-700' 
+                                  : 'bg-green-100 text-green-700'
+                              }`}>
+                                {count.id?.toString().includes('prefeitura') ? 'Prefeitura' : 'Ameciclo'}
+                              </span>
+                            </div>
                             <p className="text-sm text-gray-600">{count.date} • {count.city}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-lg">{count.total_cyclists}</p>
-                            <p className="text-sm text-gray-600">{formatDistance(count.distance_meters)}</p>
+                            <p className="text-sm text-gray-600">
+                              {count.distance_meters === 0 ? 'Ponto exato' : `${formatDistance(count.distance_meters)} do ponto clicado`}
+                            </p>
                           </div>
                         </div>
                         
@@ -755,7 +863,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 </div>
               )}
               
-              {(!data.cyclist_counts || data.cyclist_counts.counts?.length === 0) && (
+              {(!finalData.cyclist_counts || finalData.cyclist_counts.counts?.length === 0) && (
                 <div className="text-center py-8 text-gray-500">
                   <BarChart3 size={48} className="mx-auto mb-4 text-gray-300" />
                   <p>Nenhuma contagem de ciclistas encontrada próxima a este ponto</p>
@@ -768,18 +876,18 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
 
           {activeTab === 'profile' && (
             <div className="space-y-6">
-              {data.cyclist_profile && data.cyclist_profile.total_profiles > 0 ? (
+              {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 ? (
                 <>
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-semibold mb-2 flex items-center gap-2">
                       <Users size={18} />
                       Total de Perfis Coletados
                     </h4>
-                    <p className="text-3xl font-bold text-blue-600">{data.cyclist_profile.total_profiles}</p>
+                    <p className="text-3xl font-bold text-blue-600">{finalData.cyclist_profile.total_profiles}</p>
                     <p className="text-sm text-blue-600">ciclistas entrevistados na região</p>
                   </div>
 
-                  {data.cyclist_profile.by_edition?.map(edition => (
+                  {finalData.cyclist_profile.by_edition?.map(edition => (
                     <div key={edition.edition} className="border rounded-lg p-4">
                       <h4 className="font-semibold mb-3 flex items-center gap-2">
                         <Calendar size={16} />
@@ -929,7 +1037,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               </h4>
               
               {/* Índices de Segurança */}
-              {data.emergency_calls && (
+              {finalData.emergency_calls && (
                 <div className="bg-red-50 p-4 rounded-lg">
                   <h5 className="font-medium mb-3 flex items-center gap-2">
                     <Shield size={16} />
@@ -938,20 +1046,20 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-red-600">
-                        {data.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
+                        {finalData.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
                       </p>
                       <p className="text-sm text-red-600">Total de Emergências</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-red-600">
-                        {data.emergency_calls.annual_history?.length > 0 ? 
-                          Math.round((data.emergency_calls.annual_history.reduce((sum, year) => sum + year.total_calls, 0) / data.emergency_calls.annual_history.length)) : 0}
+                        {finalData.emergency_calls.annual_history?.length > 0 ? 
+                          Math.round((finalData.emergency_calls.annual_history.reduce((sum, year) => sum + year.total_calls, 0) / finalData.emergency_calls.annual_history.length)) : 0}
                       </p>
                       <p className="text-sm text-red-600">Média Anual</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-red-600">
-                        {data.emergency_calls.by_category?.[0]?.category?.includes('Moto') ? 'Alto' : 'Médio'}
+                        {finalData.emergency_calls.by_category?.[0]?.category?.includes('Moto') ? 'Alto' : 'Médio'}
                       </p>
                       <p className="text-sm text-red-600">Risco Relativo</p>
                     </div>
@@ -960,7 +1068,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               )}
 
               {/* Índices de Infraestrutura */}
-              {data.cycling_infra && (
+              {finalData.cycling_infra && (
                 <div className="bg-green-50 p-4 rounded-lg">
                   <h5 className="font-medium mb-3 flex items-center gap-2">
                     <Route size={16} />
@@ -969,19 +1077,19 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-green-600">
-                        {data.cycling_infra.existing?.length || 0}
+                        {finalData.cycling_infra.existing?.length || 0}
                       </p>
                       <p className="text-sm text-green-600">Vias Existentes</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-green-600">
-                        {data.cycling_infra.planned_pdc?.length || 0}
+                        {finalData.cycling_infra.planned_pdc?.length || 0}
                       </p>
                       <p className="text-sm text-green-600">Vias Planejadas</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-green-600">
-                        {data.cycling_infra.planned_pdc?.reduce((sum, pdc) => sum + pdc.pdc_km, 0)?.toFixed(1) || '0.0'}km
+                        {finalData.cycling_infra.planned_pdc?.reduce((sum, pdc) => sum + pdc.pdc_km, 0)?.toFixed(1) || '0.0'}km
                       </p>
                       <p className="text-sm text-green-600">Extensão Planejada</p>
                     </div>
@@ -990,7 +1098,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               )}
 
               {/* Índices de Uso */}
-              {data.cyclist_counts && data.cyclist_counts.counts?.length > 0 && (
+              {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h5 className="font-medium mb-3 flex items-center gap-2">
                     <Activity size={16} />
@@ -999,19 +1107,19 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">
-                        {data.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0)}
+                        {finalData.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0)}
                       </p>
                       <p className="text-sm text-blue-600">Total Contado</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">
-                        {Math.round(data.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0) / data.cyclist_counts.counts.length)}
+                        {Math.round(finalData.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0) / finalData.cyclist_counts.counts.length)}
                       </p>
                       <p className="text-sm text-blue-600">Média por Ponto</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">
-                        {data.cyclist_counts.counts.some(count => count.characteristics?.helmet > count.total_cyclists * 0.1) ? 'Alto' : 'Baixo'}
+                        {finalData.cyclist_counts.counts.some(count => count.characteristics?.helmet > count.total_cyclists * 0.1) ? 'Alto' : 'Baixo'}
                       </p>
                       <p className="text-sm text-blue-600">Uso de Capacete</p>
                     </div>
@@ -1020,7 +1128,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
               )}
 
               {/* Tendências Temporais */}
-              {data.emergency_calls?.annual_history?.length > 1 && (
+              {finalData.emergency_calls?.annual_history?.length > 1 && (
                 <div className="bg-yellow-50 p-4 rounded-lg">
                   <h5 className="font-medium mb-3 flex items-center gap-2">
                     <Clock size={16} />
@@ -1029,7 +1137,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                   <div className="space-y-2">
                     {(() => {
                       const currentYear = new Date().getFullYear();
-                      const filteredData = data.emergency_calls.annual_history
+                      const filteredData = finalData.emergency_calls.annual_history
                         .filter(year => year.year < currentYear)
                         .sort((a, b) => a.year - b.year);
                       const recent = filteredData.slice(-2);
@@ -1065,7 +1173,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
                 </div>
               )}
 
-              {!data.emergency_calls && !data.cycling_infra && (!data.cyclist_counts || data.cyclist_counts.counts?.length === 0) && (
+              {!finalData.emergency_calls && !finalData.cycling_infra && (!finalData.cyclist_counts || finalData.cyclist_counts.counts?.length === 0) && (
                 <div className="text-center py-8 text-gray-500">
                   <TrendingUp size={48} className="mx-auto mb-4 text-gray-300" />
                   <p>Dados insuficientes para análises neste ponto</p>
@@ -1081,7 +1189,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview' }: P
             <div>
               <span>Dados em raio de 200m do ponto selecionado</span>
               <p className="text-xs text-gray-500 mt-1">
-                Coordenadas: {data.location?.lat.toFixed(6)}, {data.location?.lng.toFixed(6)}
+                Coordenadas: {finalData.location?.lat.toFixed(6)}, {finalData.location?.lng.toFixed(6)}
               </p>
 
             </div>

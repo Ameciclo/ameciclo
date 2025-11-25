@@ -76,7 +76,7 @@ export function MapView({
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
-  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string } | null>(null);
+  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
   const [mapViewState, setMapViewState] = useState({ latitude: -8.0476, longitude: -34.8770, zoom: 11 });
@@ -471,10 +471,45 @@ export function MapView({
           if (point.type === 'perfil') initialTab = 'profile';
           else if (point.type === 'Contagem') initialTab = 'counts';
 
+          // Buscar dados da prefeitura próximos para qualquer ponto clicado
+          let extraData = null;
+          if (pontosContagem?.features) {
+            // Buscar pontos da prefeitura num raio de 200m
+            const nearbyPrefeituraPoints = pontosContagem.features.filter((feature: any) => {
+              const [lng, lat] = feature.geometry.coordinates;
+              const distance = Math.sqrt(
+                Math.pow((lat - point.latitude) * 111320, 2) + 
+                Math.pow((lng - point.longitude) * 111320 * Math.cos(point.latitude * Math.PI / 180), 2)
+              );
+              return distance <= 200; // 200m de raio
+            });
+            
+            if (nearbyPrefeituraPoints.length > 0) {
+              extraData = {
+                prefeituraData: nearbyPrefeituraPoints.map((feature: any) => ({
+                  name: feature.properties.name,
+                  total_cyclists: feature.properties.total_cyclists,
+                  date: feature.properties.date,
+                  city: feature.properties.city,
+                  cargo_percent: feature.properties.cargo_percent,
+                  wrong_way_percent: feature.properties.wrong_way_percent,
+                  latitude: feature.geometry.coordinates[1],
+                  longitude: feature.geometry.coordinates[0],
+                  source: 'prefeitura',
+                  distance_meters: Math.round(Math.sqrt(
+                    Math.pow((feature.geometry.coordinates[1] - point.latitude) * 111320, 2) + 
+                    Math.pow((feature.geometry.coordinates[0] - point.longitude) * 111320 * Math.cos(point.latitude * Math.PI / 180), 2)
+                  ))
+                }))
+              };
+            }
+          }
+
           setShowPointInfo({ 
             lat: point.latitude, 
             lng: point.longitude, 
-            initialTab 
+            initialTab,
+            extraData
           });
           
           // Update URL
@@ -936,10 +971,27 @@ export function MapView({
                     if (item.isCluster) {
                       handleClusterClick(item);
                     } else {
+                      // Para pontos da prefeitura, incluir dados extras
+                      const extraData = {
+                        prefeituraData: [{
+                          name: item.properties.items?.[0]?.properties?.name,
+                          total_cyclists: item.properties.items?.[0]?.properties?.total_cyclists,
+                          date: item.properties.items?.[0]?.properties?.date,
+                          city: item.properties.items?.[0]?.properties?.city,
+                          cargo_percent: item.properties.items?.[0]?.properties?.cargo_percent,
+                          wrong_way_percent: item.properties.items?.[0]?.properties?.wrong_way_percent,
+                          latitude: item.geometry.coordinates[1],
+                          longitude: item.geometry.coordinates[0],
+                          source: 'prefeitura',
+                          distance_meters: 0
+                        }]
+                      };
+                      
                       setShowPointInfo({ 
                         lat: item.geometry.coordinates[1], 
                         lng: item.geometry.coordinates[0], 
-                        initialTab: 'counts' 
+                        initialTab: 'counts',
+                        extraData
                       });
                     }
                   }
@@ -1256,6 +1308,7 @@ export function MapView({
           lat={showPointInfo.lat}
           lng={showPointInfo.lng}
           initialTab={showPointInfo.initialTab}
+          extraData={showPointInfo.extraData}
           onClose={() => {
             setShowPointInfo(null);
             // Keep the point visible when closing popup from URL
