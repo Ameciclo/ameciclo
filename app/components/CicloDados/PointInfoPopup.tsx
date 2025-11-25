@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight, Share2 } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp } from 'lucide-react';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import { translateProfileData, translateBehavioralKey, calculatePercentage } from '~/utils/translations';
 
@@ -96,6 +96,28 @@ interface PointData {
 export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', extraData }: PointInfoPopupProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
+  const [expandedEditions, setExpandedEditions] = useState<Set<string>>(new Set());
+  const [expandedCounts, setExpandedCounts] = useState<Set<string>>(new Set());
+
+  const toggleEdition = (edition: string) => {
+    const newExpanded = new Set(expandedEditions);
+    if (newExpanded.has(edition)) {
+      newExpanded.delete(edition);
+    } else {
+      newExpanded.add(edition);
+    }
+    setExpandedEditions(newExpanded);
+  };
+
+  const toggleCount = (countId: string) => {
+    const newExpanded = new Set(expandedCounts);
+    if (newExpanded.has(countId)) {
+      newExpanded.delete(countId);
+    } else {
+      newExpanded.add(countId);
+    }
+    setExpandedCounts(newExpanded);
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -796,69 +818,83 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     Contagens de Ciclistas Próximas ({finalData.cyclist_counts.counts.length})
                   </h4>
                   <div className="space-y-4">
-                    {finalData.cyclist_counts.counts.map(count => (
-                      <div key={count.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium">{count.name}</p>
-                              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                count.id?.toString().includes('prefeitura') 
-                                  ? 'bg-blue-100 text-blue-700' 
-                                  : 'bg-green-100 text-green-700'
-                              }`}>
-                                {count.id?.toString().includes('prefeitura') ? 'Prefeitura' : 'Ameciclo'}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-600">{count.date} • {count.city}</p>
+                    {finalData.cyclist_counts.counts
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .map(count => {
+                        const isExpanded = expandedCounts.has(count.id.toString());
+                        return (
+                          <div key={count.id} className="border rounded-lg">
+                            <button
+                              onClick={() => toggleCount(count.id.toString())}
+                              className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                            >
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{count.name} ({new Date(count.date).getFullYear()})</p>
+                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                  count.id?.toString().includes('prefeitura') 
+                                    ? 'bg-blue-100 text-blue-700' 
+                                    : 'bg-green-100 text-green-700'
+                                }`}>
+                                  {count.id?.toString().includes('prefeitura') ? 'Prefeitura' : 'Ameciclo'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <p className="font-bold text-lg">{count.total_cyclists} <span className="text-sm font-normal text-gray-600">ciclistas</span></p>
+                                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                              </div>
+                            </button>
+                            
+                            {isExpanded && (
+                              <div className="p-4 pt-0">
+                                <div className="mb-3">
+                                  <p className="text-sm text-gray-600">{count.date} • {count.city}</p>
+                                  <p className="text-sm text-gray-600">
+                                    {count.distance_meters === 0 ? 'Ponto exato' : `${formatDistance(count.distance_meters)} do ponto clicado`}
+                                  </p>
+                                </div>
+                                
+                                {count.characteristics && (
+                                  <div>
+                                    <h5 className="font-medium mb-2 text-sm">Características dos Ciclistas:</h5>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                                      {count.characteristics.helmet > 0 && (
+                                        <div className="bg-blue-100 p-2 rounded">Capacete: {count.characteristics.helmet} ({Math.round((count.characteristics.helmet / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.women > 0 && (
+                                        <div className="bg-pink-100 p-2 rounded">Mulheres: {count.characteristics.women} ({Math.round((count.characteristics.women / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.wrong_way > 0 && (
+                                        <div className="bg-red-100 p-2 rounded">Contramão: {count.characteristics.wrong_way} ({Math.round((count.characteristics.wrong_way / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.cargo > 0 && (
+                                        <div className="bg-yellow-100 p-2 rounded">Carga: {count.characteristics.cargo} ({Math.round((count.characteristics.cargo / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.juveniles > 0 && (
+                                        <div className="bg-green-100 p-2 rounded">Juvenis: {count.characteristics.juveniles} ({Math.round((count.characteristics.juveniles / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.sidewalk > 0 && (
+                                        <div className="bg-gray-100 p-2 rounded">Calçada: {count.characteristics.sidewalk} ({Math.round((count.characteristics.sidewalk / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.shared_bike > 0 && (
+                                        <div className="bg-orange-100 p-2 rounded">Bike Compartilhada: {count.characteristics.shared_bike} ({Math.round((count.characteristics.shared_bike / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.service > 0 && (
+                                        <div className="bg-purple-100 p-2 rounded">Serviços: {count.characteristics.service} ({Math.round((count.characteristics.service / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.motor > 0 && (
+                                        <div className="bg-red-100 p-2 rounded">Motorizada: {count.characteristics.motor} ({Math.round((count.characteristics.motor / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                      {count.characteristics.ride > 0 && (
+                                        <div className="bg-teal-100 p-2 rounded">Acompanhantes: {count.characteristics.ride} ({Math.round((count.characteristics.ride / count.total_cyclists) * 100)}%)</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                          <div className="text-right">
-                            <p className="font-bold text-lg">{count.total_cyclists}</p>
-                            <p className="text-sm text-gray-600">
-                              {count.distance_meters === 0 ? 'Ponto exato' : `${formatDistance(count.distance_meters)} do ponto clicado`}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {count.characteristics && (
-                          <div>
-                            <h5 className="font-medium mb-2 text-sm">Características dos Ciclistas:</h5>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                              {count.characteristics.helmet > 0 && (
-                                <div className="bg-blue-100 p-2 rounded">Capacete: {count.characteristics.helmet} ({Math.round((count.characteristics.helmet / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.women > 0 && (
-                                <div className="bg-pink-100 p-2 rounded">Mulheres: {count.characteristics.women} ({Math.round((count.characteristics.women / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.wrong_way > 0 && (
-                                <div className="bg-red-100 p-2 rounded">Contramão: {count.characteristics.wrong_way} ({Math.round((count.characteristics.wrong_way / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.cargo > 0 && (
-                                <div className="bg-yellow-100 p-2 rounded">Carga: {count.characteristics.cargo} ({Math.round((count.characteristics.cargo / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.juveniles > 0 && (
-                                <div className="bg-green-100 p-2 rounded">Juvenis: {count.characteristics.juveniles} ({Math.round((count.characteristics.juveniles / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.sidewalk > 0 && (
-                                <div className="bg-gray-100 p-2 rounded">Calçada: {count.characteristics.sidewalk} ({Math.round((count.characteristics.sidewalk / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.shared_bike > 0 && (
-                                <div className="bg-orange-100 p-2 rounded">Bike Compartilhada: {count.characteristics.shared_bike} ({Math.round((count.characteristics.shared_bike / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.service > 0 && (
-                                <div className="bg-purple-100 p-2 rounded">Serviços: {count.characteristics.service} ({Math.round((count.characteristics.service / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.motor > 0 && (
-                                <div className="bg-red-100 p-2 rounded">Motorizada: {count.characteristics.motor} ({Math.round((count.characteristics.motor / count.total_cyclists) * 100)}%)</div>
-                              )}
-                              {count.characteristics.ride > 0 && (
-                                <div className="bg-teal-100 p-2 rounded">Acompanhantes: {count.characteristics.ride} ({Math.round((count.characteristics.ride / count.total_cyclists) * 100)}%)</div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                        );
+                      })}
                   </div>
                 </div>
               )}
@@ -887,138 +923,153 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     <p className="text-sm text-blue-600">ciclistas entrevistados na região</p>
                   </div>
 
-                  {finalData.cyclist_profile.by_edition?.map(edition => (
-                    <div key={edition.edition} className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-3 flex items-center gap-2">
-                        <Calendar size={16} />
-                        Edição {edition.edition} ({edition.total_profiles} perfis)
-                      </h4>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {edition.race_distribution && Object.keys(edition.race_distribution).length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2">Distribuição Racial</h5>
-                            <div className="space-y-1">
-                              {Object.entries(edition.race_distribution)
-                                .sort(([,a], [,b]) => b - a)
-                                .map(([race, count]) => (
-                                <div key={race} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
-                                  <span>{race}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{count}</span>
-                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {edition.gender_distribution && Object.keys(edition.gender_distribution).length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2">Por Gênero</h5>
-                            <div className="space-y-1">
-                              {Object.entries(edition.gender_distribution)
-                                .sort(([,a], [,b]) => b - a)
-                                .map(([gender, count]) => (
-                                <div key={gender} className="flex justify-between text-sm p-2 bg-pink-50 rounded">
-                                  <span>{gender}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{count}</span>
-                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {edition.age_distribution && Object.keys(edition.age_distribution).length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2">Por Faixa Etária</h5>
-                            <div className="space-y-1">
-                              {Object.entries(edition.age_distribution)
-                                .sort(([,a], [,b]) => b - a)
-                                .map(([age, count]) => (
-                                <div key={age} className="flex justify-between text-sm p-2 bg-green-50 rounded">
-                                  <span>{age}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{count}</span>
-                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {edition.education_distribution && Object.keys(edition.education_distribution).length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2">Por Escolaridade</h5>
-                            <div className="space-y-1">
-                              {Object.entries(edition.education_distribution)
-                                .sort(([,a], [,b]) => b - a)
-                                .map(([education, count]) => (
-                                <div key={education} className="flex justify-between text-sm p-2 bg-blue-50 rounded">
-                                  <span className="text-xs">{education}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{count}</span>
-                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {edition.income_distribution && Object.keys(edition.income_distribution).length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2">Por Renda Familiar</h5>
-                            <div className="space-y-1">
-                              {Object.entries(edition.income_distribution)
-                                .sort(([,a], [,b]) => b - a)
-                                .map(([income, count]) => (
-                                <div key={income} className="flex justify-between text-sm p-2 bg-yellow-50 rounded">
-                                  <span className="text-xs">{income}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{count}</span>
-                                    <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {edition.other_attributes && Object.keys(edition.other_attributes).length > 0 && (
-                        <div className="mt-4">
-                          <h5 className="font-medium mb-2">Características Comportamentais</h5>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                            {Object.entries(edition.other_attributes)
-                              .filter(([key]) => key.includes('motivation') || key.includes('biggest_need') || key.includes('years_using'))
-                              .slice(0, 10)
-                              .map(([attr, count]) => {
-                                const translatedAttr = translateBehavioralKey(attr);
-                                const translatedCount = typeof count === 'string' ? 
-                                  translateBehavioralKey(count) : count;
-                                return (
-                                  <div key={attr} className="p-2 bg-purple-50 rounded">
-                                    <div className="flex justify-between items-center">
-                                      <span className="font-medium text-xs">{translatedAttr}:</span>
-                                      <div className="flex items-center gap-1">
-                                        <span className="text-xs">{translatedCount}</span>
-                                        <span className="text-xs text-gray-500">({calculatePercentage(typeof count === 'number' ? count : 0, edition.total_profiles)})</span>
-                                      </div>
+                  {finalData.cyclist_profile.by_edition
+                    ?.sort((a, b) => parseInt(b.edition) - parseInt(a.edition))
+                    .map(edition => {
+                      const isExpanded = expandedEditions.has(edition.edition);
+                      return (
+                        <div key={edition.edition} className="border rounded-lg">
+                          <button
+                            onClick={() => toggleEdition(edition.edition)}
+                            className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                          >
+                            <h4 className="font-semibold flex items-center gap-2">
+                              <Calendar size={16} />
+                              Edição {edition.edition} ({edition.total_profiles} perfis)
+                            </h4>
+                            {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                          </button>
+                          
+                          {isExpanded && (
+                            <div className="p-4 pt-0">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {edition.race_distribution && Object.keys(edition.race_distribution).length > 0 && (
+                                  <div>
+                                    <h5 className="font-medium mb-2">Distribuição Racial</h5>
+                                    <div className="space-y-1">
+                                      {Object.entries(edition.race_distribution)
+                                        .sort(([,a], [,b]) => b - a)
+                                        .map(([race, count]) => (
+                                        <div key={race} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
+                                          <span>{race}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{count}</span>
+                                            <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                          </div>
+                                        </div>
+                                      ))}
                                     </div>
                                   </div>
-                                );
-                              })}
-                          </div>
+                                )}
+
+                                {edition.gender_distribution && Object.keys(edition.gender_distribution).length > 0 && (
+                                  <div>
+                                    <h5 className="font-medium mb-2">Por Gênero</h5>
+                                    <div className="space-y-1">
+                                      {Object.entries(edition.gender_distribution)
+                                        .sort(([,a], [,b]) => b - a)
+                                        .map(([gender, count]) => (
+                                        <div key={gender} className="flex justify-between text-sm p-2 bg-pink-50 rounded">
+                                          <span>{gender}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{count}</span>
+                                            <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {edition.age_distribution && Object.keys(edition.age_distribution).length > 0 && (
+                                  <div>
+                                    <h5 className="font-medium mb-2">Por Faixa Etária</h5>
+                                    <div className="space-y-1">
+                                      {Object.entries(edition.age_distribution)
+                                        .sort(([,a], [,b]) => b - a)
+                                        .map(([age, count]) => (
+                                        <div key={age} className="flex justify-between text-sm p-2 bg-green-50 rounded">
+                                          <span>{age}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{count}</span>
+                                            <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {edition.education_distribution && Object.keys(edition.education_distribution).length > 0 && (
+                                  <div>
+                                    <h5 className="font-medium mb-2">Por Escolaridade</h5>
+                                    <div className="space-y-1">
+                                      {Object.entries(edition.education_distribution)
+                                        .sort(([,a], [,b]) => b - a)
+                                        .map(([education, count]) => (
+                                        <div key={education} className="flex justify-between text-sm p-2 bg-blue-50 rounded">
+                                          <span className="text-xs">{education}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{count}</span>
+                                            <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {edition.income_distribution && Object.keys(edition.income_distribution).length > 0 && (
+                                  <div>
+                                    <h5 className="font-medium mb-2">Por Renda Familiar</h5>
+                                    <div className="space-y-1">
+                                      {Object.entries(edition.income_distribution)
+                                        .sort(([,a], [,b]) => b - a)
+                                        .map(([income, count]) => (
+                                        <div key={income} className="flex justify-between text-sm p-2 bg-yellow-50 rounded">
+                                          <span className="text-xs">{income}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{count}</span>
+                                            <span className="text-xs text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {edition.other_attributes && Object.keys(edition.other_attributes).length > 0 && (
+                                <div className="mt-4">
+                                  <h5 className="font-medium mb-2">Características Comportamentais</h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                    {Object.entries(edition.other_attributes)
+                                      .filter(([key]) => key.includes('motivation') || key.includes('biggest_need') || key.includes('years_using'))
+                                      .slice(0, 10)
+                                      .map(([attr, count]) => {
+                                        const translatedAttr = translateBehavioralKey(attr);
+                                        const translatedCount = typeof count === 'string' ? 
+                                          translateBehavioralKey(count) : count;
+                                        return (
+                                          <div key={attr} className="p-2 bg-purple-50 rounded">
+                                            <div className="flex justify-between items-center">
+                                              <span className="font-medium text-xs">{translatedAttr}:</span>
+                                              <div className="flex items-center gap-1">
+                                                <span className="text-xs">{translatedCount}</span>
+                                                <span className="text-xs text-gray-500">({calculatePercentage(typeof count === 'number' ? count : 0, edition.total_profiles)})</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      );
+                    })}
                 </>
               ) : (
                 <div className="text-center py-8 text-gray-500">

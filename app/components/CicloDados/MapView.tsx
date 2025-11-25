@@ -1205,33 +1205,51 @@ export function MapView({
               ? perfilCiclistas.features 
               : perfilCiclistas.features.filter((point: any) => point.properties.survey_year === selectedGenero);
             
-            console.log('🔍 Renderizando pontos de perfil:', filteredFeatures.length, 'de', perfilCiclistas.features.length, 'filtrados por:', selectedGenero);
-            return filteredFeatures.map((point: any) => {
+            // Limitar pontos para melhor performance quando não for "Todas"
+            const MAX_PROFILE_POINTS = 20;
+            const limitedFeatures = selectedGenero === 'Todas' ? filteredFeatures : filteredFeatures.slice(0, MAX_PROFILE_POINTS);
+            
+            console.log('🔍 Renderizando pontos de perfil:', limitedFeatures.length, 'de', filteredFeatures.length, 'filtrados por:', selectedGenero);
+            return createClusters(
+              limitedFeatures, 
+              mapViewState.zoom, 
+              mapViewState
+            ).map((item: any) => {
               const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
+              const totalResponses = item.isCluster ? 
+                item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_responses || 0), 0) :
+                (item.properties.items?.[0]?.properties?.total_responses || 0);
               
               return {
-                key: `perfil-ciclistas-${point.properties.id}`,
-                latitude: point.geometry.coordinates[1],
-                longitude: point.geometry.coordinates[0],
+                key: `perfil-ciclistas-${item.id}`,
+                latitude: item.geometry.coordinates[1],
+                longitude: item.geometry.coordinates[0],
                 type: 'perfil',
+                isCluster: item.isCluster,
                 popup: {
-                  name: point.properties.name,
-                  total: `${point.properties.total_responses} respostas`,
-                  survey_year: point.properties.survey_year,
-                  area: point.properties.area,
-                  avg_age: point.properties.avg_age,
-                  male_percentage: point.properties.male_percentage,
-                  female_percentage: point.properties.female_percentage,
-                  accidents_percentage: point.properties.accidents_percentage,
-                  top_motivation: point.properties.top_motivation,
-                  latitude: point.geometry.coordinates[1],
-                  longitude: point.geometry.coordinates[0]
+                  name: item.isCluster ? `${item.properties.count} Pontos de Perfil` : 
+                        (item.properties.items?.[0]?.properties?.name || 'Ponto de Perfil'),
+                  total: `${totalResponses} respostas`,
+                  survey_year: item.properties.items?.[0]?.properties?.survey_year,
+                  area: item.properties.items?.[0]?.properties?.area,
+                  avg_age: item.properties.items?.[0]?.properties?.avg_age,
+                  male_percentage: item.properties.items?.[0]?.properties?.male_percentage,
+                  female_percentage: item.properties.items?.[0]?.properties?.female_percentage,
+                  accidents_percentage: item.properties.items?.[0]?.properties?.accidents_percentage,
+                  top_motivation: item.properties.items?.[0]?.properties?.top_motivation,
+                  latitude: item.geometry.coordinates[1],
+                  longitude: item.geometry.coordinates[0]
                 },
                 customIcon: (
                   <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                     <div className="bg-purple-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[50px] justify-center">
                       <UserCheck size={12} className="text-white" />
-                      <span className="text-xs font-bold">{point.properties.total_responses}</span>
+                      <span className="text-xs font-bold">{totalResponses}</span>
+                      {item.isCluster && item.properties.count > 1 && (
+                        <span className="text-[8px] bg-purple-500 text-white border border-purple-700 rounded-full px-1 ml-1">
+                          {item.properties.count}
+                        </span>
+                      )}
                     </div>
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2">
                       <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
@@ -1242,19 +1260,38 @@ export function MapView({
                   </div>
                 ),
                 onClick: () => {
-                  const lat = point.geometry.coordinates[1];
-                  const lng = point.geometry.coordinates[0];
-                  setShowPointInfo({ lat, lng, initialTab: 'profile' });
-                  
-                  // Add circle to show coverage area
-                  setSelectedCircles([{ lat, lng, radius: 50, id: `perfil-circle-${Date.now()}` }]);
-                  
-                  // Update URL
-                  const url = new URL(window.location.href);
-                  url.searchParams.set('lat', lat.toFixed(6));
-                  url.searchParams.set('lon', lng.toFixed(6));
-                  url.searchParams.set('zoom', mapViewState.zoom.toString());
-                  window.history.pushState({}, '', url.toString());
+                  if (item.isCluster) {
+                    handleClusterClick(item);
+                  } else {
+                    const lat = item.geometry.coordinates[1];
+                    const lng = item.geometry.coordinates[0];
+                    const point = item.properties.items?.[0]?.properties;
+                    
+                    const extraData = {
+                      selectedProfileId: item.properties.items?.[0]?.id,
+                      selectedProfileData: {
+                        name: point?.name,
+                        total_responses: point?.total_responses,
+                        survey_year: point?.survey_year,
+                        area: point?.area,
+                        avg_age: point?.avg_age,
+                        male_percentage: point?.male_percentage,
+                        female_percentage: point?.female_percentage,
+                        accidents_percentage: point?.accidents_percentage,
+                        top_motivation: point?.top_motivation
+                      }
+                    };
+                    
+                    setShowPointInfo({ lat, lng, initialTab: 'profile', extraData });
+                    
+                    setSelectedCircles([{ lat, lng, radius: 50, id: `perfil-circle-${Date.now()}` }]);
+                    
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('lat', lat.toFixed(6));
+                    url.searchParams.set('lon', lng.toFixed(6));
+                    url.searchParams.set('zoom', mapViewState.zoom.toString());
+                    window.history.pushState({}, '', url.toString());
+                  }
                 }
               };
             });
