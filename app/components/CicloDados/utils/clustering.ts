@@ -96,10 +96,10 @@ export function createClusters(features: any[], zoom: number, viewport?: { latit
     clusters[key].properties.items.push(feature);
   });
   
-  return Object.values(clusters).map(cluster => {
+  return Object.values(clusters).flatMap(cluster => {
     // Se o cluster tem apenas 1 item, retorna o ponto original
     if (cluster.properties.count === 1) {
-      return {
+      return [{
         ...cluster.properties.items[0],
         isCluster: false,
         id: cluster.id,
@@ -108,8 +108,30 @@ export function createClusters(features: any[], zoom: number, viewport?: { latit
           count: 1,
           items: cluster.properties.items
         }
-      };
+      }];
     }
-    return cluster;
+    
+    // Se o cluster tem mais de 10 itens, dividir em subclusters
+    if (cluster.properties.count > 10) {
+      const subClusters = [];
+      const items = cluster.properties.items;
+      
+      for (let i = 0; i < items.length; i += 10) {
+        const subItems = items.slice(i, i + 10);
+        const avgLng = subItems.reduce((sum, item) => sum + item.geometry.coordinates[0], 0) / subItems.length;
+        const avgLat = subItems.reduce((sum, item) => sum + item.geometry.coordinates[1], 0) / subItems.length;
+        
+        subClusters.push({
+          geometry: { coordinates: [avgLng, avgLat] },
+          properties: { count: subItems.length, items: subItems },
+          isCluster: subItems.length > 1,
+          id: `${cluster.id}-${i}`
+        });
+      }
+      
+      return subClusters;
+    }
+    
+    return [cluster];
   });
 }
