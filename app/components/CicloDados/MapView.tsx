@@ -461,6 +461,11 @@ export function MapView({
             return; // Deixa o popup padrão do mapa funcionar
           }
           
+          // Não processar cliques em clusters - eles têm seu próprio onClick
+          if (point.isCluster) {
+            return;
+          }
+          
           // Determinar a aba baseada no tipo do ponto
           let initialTab = 'overview';
           if (point.type === 'perfil') initialTab = 'profile';
