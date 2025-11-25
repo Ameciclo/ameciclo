@@ -75,6 +75,7 @@ export function MapView({
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
+  const [selectedCircles, setSelectedCircles] = useState<Array<{ lat: number; lng: number; radius: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
   const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
@@ -98,6 +99,7 @@ export function MapView({
     if (autoOpenPopup && !showPointInfo) {
       setShowPointInfo({ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng });
       setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
+      setSelectedCircles([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, radius: 50, id: 'url-circle' }]);
       onPopupOpened?.();
     }
   }, [autoOpenPopup, showPointInfo, onPopupOpened]);
@@ -374,6 +376,7 @@ export function MapView({
     };
     
     setSelectedPoints([newPoint]);
+    setSelectedCircles([{ lat, lng, radius: 200, id: `circle-${Date.now()}` }]);
     setShowPointInfo({ lat, lng });
     
     // Update URL
@@ -398,6 +401,7 @@ export function MapView({
       setDragPanEnabled(true);
       setHoverPoint(null);
       setSelectedPoints([]);
+      setSelectedCircles([]);
       setShowPointInfo(null);
     }
   };
@@ -413,6 +417,7 @@ export function MapView({
       setIsSelectionMode(false);
       setHoverPoint(null);
       setSelectedPoints([]);
+      setSelectedCircles([]);
       setShowPointInfo(null);
     }
   };
@@ -455,6 +460,9 @@ export function MapView({
 
       <div className="flex-1 md:h-full">
         <AmecicloMap
+          selectedCircles={selectedCircles}
+          hoverPoint={hoverPoint}
+          radius={400}
           onPointClick={(point) => {
           // Bicicletários e Bike PE mantêm popup antigo, outros usam popup completo
           if (point.type === 'bicicletario' || point.type === 'bikepe') {
@@ -511,6 +519,9 @@ export function MapView({
             initialTab,
             extraData
           });
+          
+          // Add circle to show coverage area
+          setSelectedCircles([{ lat: point.latitude, lng: point.longitude, radius: 200, id: `point-circle-${Date.now()}` }]);
           
           // Update URL
           const url = new URL(window.location.href);
@@ -993,6 +1004,9 @@ export function MapView({
                         initialTab: 'counts',
                         extraData
                       });
+                      
+                      // Add circle to show coverage area
+                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `prefeitura-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1078,6 +1092,9 @@ export function MapView({
                         lng: item.geometry.coordinates[0], 
                         initialTab: 'counts' 
                       });
+                      
+                      // Add circle to show coverage area
+                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `contagem-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1125,6 +1142,9 @@ export function MapView({
                         lng: item.geometry.coordinates[0], 
                         initialTab: 'infrastructure' 
                       });
+                      
+                      // Add circle to show coverage area
+                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `bicicletario-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1170,6 +1190,9 @@ export function MapView({
                         lng: item.geometry.coordinates[0], 
                         initialTab: 'infrastructure' 
                       });
+                      
+                      // Add circle to show coverage area
+                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `bikepe-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1222,6 +1245,9 @@ export function MapView({
                   const lat = point.geometry.coordinates[1];
                   const lng = point.geometry.coordinates[0];
                   setShowPointInfo({ lat, lng, initialTab: 'profile' });
+                  
+                  // Add circle to show coverage area
+                  setSelectedCircles([{ lat, lng, radius: 50, id: `perfil-circle-${Date.now()}` }]);
                   
                   // Update URL
                   const url = new URL(window.location.href);
@@ -1311,9 +1337,12 @@ export function MapView({
           extraData={showPointInfo.extraData}
           onClose={() => {
             setShowPointInfo(null);
-            // Keep the point visible when closing popup from URL
+            // Keep the point and circle visible when closing popup from URL
             if (autoOpenPopup) {
               setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
+              setSelectedCircles([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, radius: 200, id: 'url-circle' }]);
+            } else {
+              setSelectedCircles([]);
             }
           }}
         />

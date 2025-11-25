@@ -628,7 +628,7 @@ export const AmecicloMap = ({
                         {hoverPoint && radius && (() => {
                             const metersPerPixel = 156543.03392 * Math.cos(hoverPoint.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = radius / metersPerPixel;
-                            const circleSize = Math.max(10, Math.min(400, radiusInPixels * 2));
+                            const circleSize = radiusInPixels * 2;
                             
                             return (
                                 <Marker
@@ -640,8 +640,13 @@ export const AmecicloMap = ({
                                             width: `${circleSize}px`,
                                             height: `${circleSize}px`,
                                             borderRadius: '50%',
-                                            backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                                            border: '2px dashed #ef4444',
+                                            background: `repeating-linear-gradient(
+                                                45deg,
+                                                rgba(239, 68, 68, 0.1),
+                                                rgba(239, 68, 68, 0.1) 4px,
+                                                transparent 4px,
+                                                transparent 8px
+                                            )`,
                                             transform: 'translate(-50%, -50%)',
                                             pointerEvents: 'none'
                                         }}
@@ -652,7 +657,7 @@ export const AmecicloMap = ({
                         {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
                             const metersPerPixel = 156543.03392 * Math.cos(circle.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = circle.radius / metersPerPixel;
-                            const circleSize = Math.max(10, Math.min(400, radiusInPixels * 2));
+                            const circleSize = radiusInPixels * 2;
                             
                             return (
                                 <Marker
@@ -665,8 +670,13 @@ export const AmecicloMap = ({
                                             width: `${circleSize}px`,
                                             height: `${circleSize}px`,
                                             borderRadius: '50%',
-                                            backgroundColor: 'rgba(239, 68, 68, 0.3)',
-                                            border: '2px solid #ef4444',
+                                            background: `repeating-linear-gradient(
+                                                45deg,
+                                                rgba(239, 68, 68, 0.1),
+                                                rgba(239, 68, 68, 0.1) 4px,
+                                                transparent 4px,
+                                                transparent 8px
+                                            )`,
                                             transform: 'translate(-50%, -50%)',
                                             pointerEvents: 'none'
                                         }}
