@@ -41,9 +41,15 @@ function getTotalCityStates(input: any) {
 export default function IdecicloClientSide({ cidades, structures, ideciclo }: any) {
     const [filteredCity, setFilteredCity] = useState<any[]>([]);
     const [filteredCityData, setFilteredCityData] = useState<any[]>([]);
-    const [selectedCity, setCity] = useState<city>(
-        filterByName(cidades, "Recife")
-    );
+    const [selectedCity, setCity] = useState<city | null>(null);
+    
+    // Inicializar cidade quando dados chegarem
+    useEffect(() => {
+        if (!selectedCity && cidades && cidades.length > 0) {
+            const defaultCity = filterByName(cidades, "Recife") || cidades[0];
+            setCity(defaultCity);
+        }
+    }, [cidades, selectedCity]);
     const [cityState, setCityState] = useState<any>("PE");
     const [cityPop, setCityPop] = useState<any>("");
 
@@ -357,6 +363,11 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
         return { states: st_arr, count: count };
     }
 
+    // Não renderizar até ter dados básicos
+    if (!cidades || cidades.length === 0 || !selectedCity) {
+        return null;
+    }
+
     return (
         <>
             <NumberCardsIdeciclo
@@ -365,7 +376,7 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
                     title: CitiesRanking.title,
                     filters: CitiesRanking.filters,
                 }}
-                selected={selectedCity.id}
+                selected={selectedCity?.id || 0}
                 options={{
                     type: "3digits",
                     changeFunction: changeCity,
@@ -374,7 +385,7 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
             />
             {filteredCityData.length > 0 && (
                 <StatisticsBoxIdeciclo2
-                    title={selectedCity.name}
+                    title={selectedCity?.name || ''}
                     subtitle={"Estatísticas Gerais"}
                     boxes={cityStatistics(selectedCity)}
                 />
