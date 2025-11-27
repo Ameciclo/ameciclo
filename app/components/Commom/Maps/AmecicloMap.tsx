@@ -185,7 +185,7 @@ const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: 
     );
 };
 
-const MAPBOXTOKEN = process.env.MAPBOX_ACCESS_TOKEN || "pk.eyJ1IjoiaWFjYXB1Y2EiLCJhIjoiODViMTRmMmMwMWE1OGIwYjgxNjMyMGFkM2Q5OWJmNzUifQ.OFgXp9wbN5BJlpuJEcDm4A";
+const MAPBOXTOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
 
 const getInicialViewPort = (pointsData: any, layerData: any) => {

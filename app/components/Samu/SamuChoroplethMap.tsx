@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import ReactMapGL, { Source, Layer, NavigationControl, FullscreenControl } from "react-map-gl";
 
-const MAPBOXTOKEN = process.env.MAPBOX_ACCESS_TOKEN || "pk.eyJ1IjoiaWFjYXB1Y2EiLCJhIjoiODViMTRmMmMwMWE1OGIwYjgxNjMyMGFkM2Q5OWJmNzUifQ.OFgXp9wbN5BJlpuJEcDm4A";
+const MAPBOXTOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
 
 interface CityData {
