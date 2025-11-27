@@ -3,7 +3,7 @@ import Map, { Source, Layer } from "react-map-gl";
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 import bbox from "@turf/bbox";
 
-const MAPBOXTOKEN = process.env.MAPBOX_ACCESS_TOKEN;
+const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : "pk.eyJ1IjoiaWFjYXB1Y2EiLCJhIjoiODViMTRmMmMwMWE1OGIwYjgxNjMyMGFkM2Q5OWJmNzUifQ.OFgXp9wbN5BJlpuJEcDm4A";
 const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
 
 const MapCommands = ({ viewport, setViewport, settings, setsettings, initialViewport }: any) => {

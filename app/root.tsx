@@ -5,9 +5,12 @@ import {
   Scripts,
   ScrollRestoration,
   useRouteError,
-  useLocation
+  useLocation,
+  useLoaderData
 } from "@remix-run/react";
-import type { MetaFunction } from "@remix-run/node";
+import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { getMapboxToken } from "./utils/mapbox.server";
 import { Navbar } from "./components/Commom/Navbar";
 import { Footer } from "./components/Commom/Footer";
 import { GoogleAnalytics } from "./components/Commom/GoogleAnalytics";
@@ -79,12 +82,25 @@ const metaConfig = {
     );
   }
 
+  export async function loader({ request }: LoaderFunctionArgs) {
+    return json({
+      mapboxToken: getMapboxToken()
+    });
+  }
+
   export default function App() {
+    const { mapboxToken } = useLoaderData<typeof loader>();
+    
     return (
       <html lang="pt-BR">
         <head>
           <Meta />
           <Links />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.MAPBOX_TOKEN = ${JSON.stringify(mapboxToken)};`
+            }}
+          />
         </head>
         <body>
           <QueryProvider>
