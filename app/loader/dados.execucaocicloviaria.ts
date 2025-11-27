@@ -1,4 +1,4 @@
-import { defer, LoaderFunction } from "@remix-run/node";
+import { LoaderFunction } from "@remix-run/node";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
@@ -180,8 +180,14 @@ export const loader: LoaderFunction = async () => {
     ]
   }
 
-  return defer({
-    // Dados imediatos
+  // Aguardar todos os dados no servidor
+  const [allWaysData, statsData, citiesData] = await Promise.all([
+    allWaysPromise,
+    statsPromise,
+    citiesPromise
+  ]);
+
+  return {
     cover: page_data.cover_image_url,
     title1: page_data.ExplanationBoxData.title_1,
     title2: page_data.ExplanationBoxData.title_2,
@@ -189,9 +195,8 @@ export const loader: LoaderFunction = async () => {
     description2: page_data.ExplanationBoxData.text_2,
     documents,
     layersConf,
-    // Promises assíncronas
-    allWaysPromise,
-    statsPromise,
-    citiesPromise,
-  });
+    allWaysData,
+    statsData,
+    citiesData,
+  };
 };

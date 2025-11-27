@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, Suspense } from "react";
-import { useLoaderData, Await } from "@remix-run/react";
+import React, { useState, useEffect, useRef } from "react";
+import { useLoaderData } from "@remix-run/react";
 import { LayerProps } from "react-map-gl";
 import { filterById, filterByName, IntlNumber2Digit, IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import Banner from "~/components/Commom/Banner";
@@ -10,9 +10,7 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { CyclingInfrastructureByCity } from "~/components/ExecucaoCicloviaria/CyclingInfrastructureByCity";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
-import { StatisticsBoxLoading } from "~/components/ExecucaoCicloviaria/Loading/StatisticsBoxLoading";
-import { MapLoading } from "~/components/ExecucaoCicloviaria/Loading/MapLoading";
-import { CityStructureLoading } from "~/components/ExecucaoCicloviaria/Loading/CityStructureLoading";
+
 
 import { loader } from "~/loader/dados.execucaocicloviaria";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
@@ -26,10 +24,10 @@ export default function ExecucaoCicloviaria() {
         description1,
         description2,
         documents,
-        allWaysPromise,
+        allWaysData,
         layersConf,
-        statsPromise,
-        citiesPromise,
+        statsData,
+        citiesData,
     } = useLoaderData<typeof loader>();
 
     function sortCards(data: any, order: any) {
@@ -456,17 +454,11 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
         <>
             <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
             <Breadcrumb label="Execução Cicloviária" slug="/dados/execucaocicloviaria" routes={["/", "/dados"]} />
-            <Suspense fallback={<StatisticsBoxLoading />}>
-                <Await resolve={statsPromise}>
-                    {(boxes) => (
-                        <StatisticsBox
-                            title={"Execução Cicloviária"}
-                            subtitle={"da Região Metropolitana do Recife"}
-                            boxes={boxes}
-                        />
-                    )}
-                </Await>
-            </Suspense>
+            <StatisticsBox
+                title={"Execução Cicloviária"}
+                subtitle={"da Região Metropolitana do Recife"}
+                boxes={statsData}
+            />
             <ExplanationBoxes
                 boxes={[
                     {
@@ -479,39 +471,27 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
                     },
                 ]}
             />
-            <Suspense fallback={<MapLoading />}>
-                <Await resolve={allWaysPromise}>
-                    {(allCitiesLayer) => (
-                        <AmecicloMap 
-                            layerData={allCitiesLayer} 
-                            layersConf={layersConf as LayerProps[]}
-                        />
-                    )}
-                </Await>
-            </Suspense>
+            <AmecicloMap 
+                layerData={allWaysData} 
+                layersConf={layersConf as LayerProps[]}
+            />
             <div ref={sectionRef}>
-                <Suspense fallback={<CityStructureLoading />}>
-                    <Await resolve={citiesPromise}>
-                        {(citiesStats) => (
-                            <CityContent 
-                                citiesStats={citiesStats}
-                                filterRef={filterRef}
-                                sort_cities={sort_cities}
-                                city_sort={city_sort}
-                                optionsType={optionsType}
-                                changeCity={changeCity}
-                                selectedCity={selectedCity}
-                                setCity={setCity}
-                                sortCityAndType={sortCityAndType}
-                                showPercentage={showPercentage}
-                                setShowPercentage={setShowPercentage}
-                                showFilters={showFilters}
-                                setShowFilters={setShowFilters}
-                                columns={columns}
-                            />
-                        )}
-                    </Await>
-                </Suspense>
+                <CityContent 
+                    citiesStats={citiesData}
+                    filterRef={filterRef}
+                    sort_cities={sort_cities}
+                    city_sort={city_sort}
+                    optionsType={optionsType}
+                    changeCity={changeCity}
+                    selectedCity={selectedCity}
+                    setCity={setCity}
+                    sortCityAndType={sortCityAndType}
+                    showPercentage={showPercentage}
+                    setShowPercentage={setShowPercentage}
+                    showFilters={showFilters}
+                    setShowFilters={setShowFilters}
+                    columns={columns}
+                />
             </div>
 
 
