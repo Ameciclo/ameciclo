@@ -1,4 +1,4 @@
-import { defer, LoaderFunction } from "@remix-run/node";
+import { LoaderFunction } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader: LoaderFunction = async () => {
@@ -23,9 +23,15 @@ export const loader: LoaderFunction = async () => {
         { description: "", objective: "", methodology: "" }
     );
 
-    return defer({
-        ideciclo: idecicloPromise,
-        structures: structuresPromise,
-        pageData: pageDataPromise,
-    });
+    const [idecicloData, structuresData, pageDataData] = await Promise.all([
+        idecicloPromise,
+        structuresPromise,
+        pageDataPromise
+    ]);
+
+    return {
+        ideciclo: idecicloData,
+        structures: structuresData,
+        pageData: pageDataData,
+    };
 };

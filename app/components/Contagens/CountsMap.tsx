@@ -6,7 +6,7 @@ import * as turf from "@turf/helpers";
 import { Link } from "@remix-run/react";
 import { pointData } from "../../../typings";
 
-export const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : "pk.eyJ1IjoiaWFjYXB1Y2EiLCJhIjoiODViMTRmMmMwMWE1OGIwYjgxNjMyMGFkM2Q5OWJmNzUifQ.OFgXp9wbN5BJlpuJEcDm4A";
+export const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
 export const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
 
 const isValidCoordinate = (lng: number, lat: number) => {
