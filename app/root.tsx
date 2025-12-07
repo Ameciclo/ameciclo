@@ -65,9 +65,9 @@ const metaConfig = {
         <body>
           <QueryProvider>
             <ApiStatusProvider>
+              <ApiAlert />
               <div className="flex flex-col min-h-screen">
                 <Navbar />
-                <ApiAlert />
                 <MainContent>
                   {error.status !== 404 ? <ErrorFallback error={error} /> : <PageNotFound />}
                 </MainContent>
@@ -105,9 +105,9 @@ const metaConfig = {
         <body>
           <QueryProvider>
             <ApiStatusProvider>
+              <ApiAlert />
               <div className="flex flex-col min-h-screen">
                 <Navbar />
-                <ApiAlert />
                 <MainContent>
                   <Outlet />
                 </MainContent>

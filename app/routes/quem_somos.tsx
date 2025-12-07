@@ -1,7 +1,7 @@
 import { MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import AmeCiclistaModal from "~/components/QuemSomos/AmeCiclistaModal";
 
@@ -9,6 +9,8 @@ import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import QuemSomosLoading from "~/components/QuemSomos/QuemSomosLoading";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { loader } from "~/loader/quem_somos";
 export { loader };
 
@@ -163,7 +165,21 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
 
 
 export default function QuemSomos() {
-  const { pageData } = useLoaderData<typeof loader>();
+  const { pageData, isLoading, apiDown, apiErrors } = useLoaderData<typeof loader>();
+  const { setApiDown, addApiError } = useApiStatus();
+  const errorsProcessed = useRef(false);
+  
+  useEffect(() => {
+    if (!errorsProcessed.current) {
+      setApiDown(apiDown);
+      if (apiErrors && apiErrors.length > 0) {
+        apiErrors.forEach((error: {url: string, error: string}) => {
+          addApiError(error.url, error.error, '/quem_somos');
+        });
+      }
+      errorsProcessed.current = true;
+    }
+  }, [apiDown, apiErrors, setApiDown, addApiError]);
 
   return (
     <>
@@ -177,7 +193,8 @@ export default function QuemSomos() {
         />
       </div>
       <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/"]} />
-      <QuemSomosContent pageData={pageData} />
+      <ApiStatusHandler apiDown={apiDown} />
+      {isLoading ? <QuemSomosLoading /> : <QuemSomosContent pageData={pageData} />}
     </>
   );
 }

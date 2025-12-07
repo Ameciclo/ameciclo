@@ -1,9 +1,12 @@
+export const CMS_BASE_URL = "https://cms.ameciclo.org"
 export const PLATAFORM_HOME_PAGE = "https://cms.ameciclo.org/plataforma-de-dados"
 export const DOCUMENTS_PAGE = "https://cms.ameciclo.org/documentos"
 export const DOCUMENTS_DATA = "https://cms.ameciclo.org/documents"
 export const COUNTINGS_PAGE_DATA =`https://cms.ameciclo.org/contagens`
 export const IDECICLO_PAGE_DATA = `https://cms.ameciclo.org/ideciclo`
 export const PERFIL_PAGE_DATA = `https://cms.ameciclo.org/perfil`
+export const PROJECTS_DATA = "https://cms.ameciclo.org/projects"
+export const WORKGROUPS_DATA = "https://cms.ameciclo.org/workgroups"
 
 export const IDECICLO_DATA = `https://api.ideciclo.ameciclo.org/reviews`
 export const IDECICLO_STRUCTURES_DATA = `https://api.ideciclo.ameciclo.org/structures`

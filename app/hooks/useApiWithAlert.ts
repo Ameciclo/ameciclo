@@ -1,8 +1,10 @@
 import { useApiStatus } from '~/contexts/ApiStatusContext';
 import { fetchWithTimeout } from '~/services/fetchWithTimeout';
+import { useLocation } from '@remix-run/react';
 
 export function useApiWithAlert() {
-  const { setApiDown } = useApiStatus();
+  const { addApiError } = useApiStatus();
+  const location = useLocation();
 
   const fetchWithAlert = async (
     url: string,
@@ -15,7 +17,7 @@ export function useApiWithAlert() {
       options,
       timeout,
       fallbackData,
-      () => setApiDown(true)
+      (error: string) => addApiError(url, error, location.pathname)
     );
   };
 

@@ -58,10 +58,36 @@ export default function Contato() {
                   />
                 </div>
                 
+                <div className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    id="lgpd"
+                    className="mt-1 h-4 w-4 text-[#008080] focus:ring-[#008080] border-gray-300 rounded"
+                    required
+                  />
+                  <label htmlFor="lgpd" className="text-sm text-gray-600">
+                    Concordo com o tratamento dos meus dados pessoais de acordo com a{' '}
+                    <a 
+                      href="https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[#008080] underline hover:no-underline"
+                    >
+                      Lei Geral de Proteção de Dados (LGPD)
+                    </a>
+                    . Os dados fornecidos serão utilizados exclusivamente para responder ao seu contato.
+                  </label>
+                </div>
+                
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     type="button"
                     onClick={() => {
+                      const lgpdCheckbox = document.getElementById('lgpd') as HTMLInputElement;
+                      if (!lgpdCheckbox?.checked) {
+                        alert('Por favor, aceite os termos da LGPD para continuar.');
+                        return;
+                      }
                       const nome = (document.getElementById('nome') as HTMLInputElement)?.value || 'Pessoa interessada';
                       const mensagem = (document.getElementById('mensagem') as HTMLTextAreaElement)?.value || '';
                       const subject = `Contato via Site - ${nome}`;
@@ -76,6 +102,11 @@ export default function Contato() {
                   <button
                     type="button"
                     onClick={() => {
+                      const lgpdCheckbox = document.getElementById('lgpd') as HTMLInputElement;
+                      if (!lgpdCheckbox?.checked) {
+                        alert('Por favor, aceite os termos da LGPD para continuar.');
+                        return;
+                      }
                       const nome = (document.getElementById('nome') as HTMLInputElement)?.value || 'Pessoa interessada';
                       const mensagem = (document.getElementById('mensagem') as HTMLTextAreaElement)?.value || 'Gostaria de saber mais sobre a Ameciclo!';
                       const whatsappMsg = `Olá! Me chamo ${nome}!\n\n${mensagem}`;

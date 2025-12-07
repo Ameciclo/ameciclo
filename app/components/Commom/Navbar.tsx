@@ -2,6 +2,7 @@ import { Link, useLocation } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AmecicloLogo } from "./NavBar/AmecicloLogo";
+import { DataSubmenu } from "./NavBar/DataSubmenu";
 
 const dataSubPages = [
   { name: "Contagens", url: "/dados/contagens" },
@@ -71,7 +72,7 @@ export const Navbar = ({ pages }: any) => {
       <motion.nav
         animate={{ y: isMenuOpen ? -120 : 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={"flex fixed left-0 right-0 items-center h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
+        className={"flex fixed top-0 left-0 right-0 items-center h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
         role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
@@ -169,59 +170,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
               }`}></span>
             </div>
             <AnimatePresence>
-              {isDadosPage && isSubmenuVisible && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.15 }}
-                  className="submenu-container fixed top-14 left-0 right-0 z-[81] shadow-lg pointer-events-auto"
-                  style={{backgroundColor: '#008080'}}
-                >
-                <div className="w-full flex items-center justify-center px-8 py-1 m-0 lg:px-32 xl:px-32">
-                  <div className="hidden xl:flex items-center space-x-1 py-1">
-                    {dataSubPages.map((subPage, index) => {
-                      const isActive = location.pathname === subPage.url || 
-                        location.pathname.startsWith(subPage.url + '/');
-                      return (
-                        <Link
-                          key={subPage.name}
-                          to={subPage.url}
-                          className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 ${
-                            isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
-                          }`}
-                        >
-                          <span className="relative z-10">{subPage.name}</span>
-                          {isActive && (
-                            <motion.div
-                              layoutId="activeTab"
-                              className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
-                              initial={false}
-                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                            />
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                  
-                  <div className="xl:hidden flex items-center py-1">
-                    <select 
-                      className="bg-white bg-opacity-10 text-white text-sm font-medium px-3 py-2 rounded-md border border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-                      value={location.pathname}
-                      onChange={(e) => window.location.href = e.target.value}
-                    >
-                      <option value="/dados" className="text-gray-800">Selecione uma seção</option>
-                      {dataSubPages.map((subPage) => (
-                        <option key={subPage.name} value={subPage.url} className="text-gray-800">
-                          {subPage.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                </motion.div>
-              )}
+              {isDadosPage && isSubmenuVisible && <DataSubmenu />}
             </AnimatePresence>
           </li>
         );

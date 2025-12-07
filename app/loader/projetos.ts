@@ -1,51 +1,49 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-
-const API_URL = "https://cms.ameciclo.org";
+import { PROJECTS_DATA, WORKGROUPS_DATA, CMS_BASE_URL } from "~/servers";
 
 export const projetosLoader: LoaderFunction = async () => {
-  try {
-    const [projectsRes, workgroupsRes] = await Promise.all([
-      fetchWithTimeout(`${API_URL}/projects`, { cache: "no-cache" }, 30000, []),
-      fetchWithTimeout(`${API_URL}/workgroups`, { cache: "no-cache" }, 30000, []),
-    ]);
+  const errors: Array<{url: string, error: string}> = [];
+  
+  const onError = (url: string) => (error: string) => {
+    errors.push({ url, error });
+  };
 
-    const projects = Array.isArray(projectsRes) ? projectsRes : [];
-    const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
-    const error = projects.length === 0 && workgroups.length === 0 ? 'API_ERROR' : null;
+  const [projectsRes, workgroupsRes] = await Promise.all([
+    fetchWithTimeout(PROJECTS_DATA, { cache: "no-cache" }, 3000, [], onError(PROJECTS_DATA)),
+    fetchWithTimeout(WORKGROUPS_DATA, { cache: "no-cache" }, 3000, [], onError(WORKGROUPS_DATA)),
+  ]);
 
-    return json({
-      projectsData: { projects, workgroups, error }
-    });
-  } catch (error) {
-    console.error("Critical Error in Projetos loader:", error);
-    return json({
-      projectsData: {
-        projects: [],
-        workgroups: [],
-        error: 'API_ERROR'
-      }
-    });
-  }
+  const projects = Array.isArray(projectsRes) ? projectsRes : [];
+  const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
+
+  return json({
+    projectsData: { projects, workgroups },
+    apiDown: errors.length > 0,
+    apiErrors: errors
+  });
 };
 
 // Loader para projetos._index.tsx
 export const loader = projetosLoader;
 
-// Loader para projetos.$projeto.tsx
 export const projetoLoader: LoaderFunction = async ({ params }) => {
   const { projeto } = params;
+  const errors: Array<{url: string, error: string}> = [];
+  
+  const onError = (url: string) => (error: string) => {
+    errors.push({ url, error });
+  };
 
-  try {
-    const projects = await fetchWithTimeout(`${API_URL}/projects?slug=${projeto}`, {}, 15000, []);
-    if (!projects || projects.length === 0) {
-      throw new Response("Not Found", { status: 404 });
-    }
-    return json({
-      project: projects[0]
-    });
-  } catch (error) {
-    console.error(error);
+  const projects = await fetchWithTimeout(`${CMS_BASE_URL}/projects?slug=${projeto}`, {}, 3000, [], onError(`${CMS_BASE_URL}/projects?slug=${projeto}`));
+  
+  if (!projects || projects.length === 0) {
     throw new Response("Not Found", { status: 404 });
   }
+  
+  return json({
+    project: projects[0],
+    apiDown: errors.length > 0,
+    apiErrors: errors
+  });
 };

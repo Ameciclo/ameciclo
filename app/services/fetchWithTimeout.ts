@@ -12,7 +12,7 @@ export async function fetchWithTimeout(
   options: RequestInit = {},
   timeout: number = 5000,
   fallbackData: any = null,
-  onApiDown?: () => void,
+  onApiDown?: (error: string) => void,
   retries: number = 1
 ): Promise<any> {
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -50,8 +50,9 @@ export async function fetchWithTimeout(
       clearTimeout(timeoutId);
       
       if (attempt === retries) {
-        console.warn(`Falha final para ${url} após ${retries + 1} tentativas:`, error.message || error);
-        onApiDown?.();
+        const errorMessage = error.name === 'AbortError' ? 'Timeout' : (error.message || 'Erro desconhecido');
+        console.warn(`Falha final para ${url} após ${retries + 1} tentativas:`, errorMessage);
+        onApiDown?.(errorMessage);
         return fallbackData;
       }
       

@@ -1,6 +1,6 @@
 import { MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -40,10 +40,10 @@ export const meta: MetaFunction = () => {
 
 
 function ProjectsContent({ projectsData }: { projectsData: any }) {
-  const { projects, error } = projectsData;
+  const { projects, workgroups } = projectsData;
   const { setApiDown } = useApiStatus();
-  const hasApiError = error === 'API_ERROR';
-  const showLoadingState = hasApiError || !projects || projects.length === 0;
+  const hasApiError = !projects || projects.length === 0;
+  const showLoadingState = hasApiError;
 
   const [status, setStatus] = useState<string>("");
   const [group, setGroup] = useState<string>("");
@@ -233,7 +233,21 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
 }
 
 export default function Projetos() {
-  const { projectsData } = useLoaderData<typeof loader>();
+  const { projectsData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+  const { setApiDown, addApiError } = useApiStatus();
+  const errorsProcessed = useRef(false);
+  
+  useEffect(() => {
+    if (!errorsProcessed.current && apiDown) {
+      setApiDown(true);
+      if (apiErrors && apiErrors.length > 0) {
+        apiErrors.forEach((error: {url: string, error: string}) => {
+          addApiError(error.url, error.error, '/projetos');
+        });
+      }
+      errorsProcessed.current = true;
+    }
+  }, [apiDown, apiErrors, setApiDown, addApiError]);
 
   return (
     <>

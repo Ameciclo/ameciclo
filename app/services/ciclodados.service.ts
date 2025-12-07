@@ -1,5 +1,3 @@
-import { API_CONFIG } from '~/config/api';
-
 export interface CicloDadosFilters {
   lat: number;
   lng: number;
@@ -37,7 +35,7 @@ export interface DataAvailability {
 }
 
 export class CicloDadosService {
-  private baseUrl = `${API_CONFIG.GARFO_API_BASE_URL}/ciclodados`;
+  private baseUrl = `https://api.garfo.ameciclo.org/ciclodados`;
 
   async checkDataAvailability(coords: {lat: number, lng: number, radius: number, street?: string}): Promise<DataAvailability> {
     const params = new URLSearchParams({

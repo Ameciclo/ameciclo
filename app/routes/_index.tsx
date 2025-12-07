@@ -12,12 +12,17 @@ import { loader } from "../loader/home";
 export { loader };
 
 export default function Index() {
-  const { home, projects, apiDown } = useLoaderData<any>();
-  const { setApiDown } = useApiStatus();
+  const { home, projects, apiDown, apiErrors } = useLoaderData<any>();
+  const { setApiDown, addApiError } = useApiStatus();
   
   useEffect(() => {
     setApiDown(apiDown);
-  }, [apiDown, setApiDown]);
+    if (apiErrors && apiErrors.length > 0) {
+      apiErrors.forEach((error: {url: string, error: string}) => {
+        addApiError(error.url, error.error, '/');
+      });
+    }
+  }, [apiDown, apiErrors, setApiDown, addApiError]);
 
   const handleCacheAllow = () => {
     window.location.reload();
