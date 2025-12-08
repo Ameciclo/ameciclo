@@ -1039,32 +1039,79 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                 )}
                               </div>
 
-                              {edition.other_attributes && Object.keys(edition.other_attributes).length > 0 && (
-                                <div className="mt-4">
-                                  <h5 className="font-medium mb-2">Características Comportamentais</h5>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                                    {Object.entries(edition.other_attributes)
-                                      .filter(([key]) => key.includes('motivation') || key.includes('biggest_need') || key.includes('years_using'))
-                                      .slice(0, 10)
-                                      .map(([attr, count]) => {
-                                        const translatedAttr = translateBehavioralKey(attr);
-                                        const translatedCount = typeof count === 'string' ? 
-                                          translateBehavioralKey(count) : count;
-                                        return (
-                                          <div key={attr} className="p-2 bg-purple-50 rounded">
-                                            <div className="flex justify-between items-center">
-                                              <span className="font-medium text-xs">{translatedAttr}:</span>
-                                              <div className="flex items-center gap-1">
-                                                <span className="text-xs">{translatedCount}</span>
-                                                <span className="text-xs text-gray-500">({calculatePercentage(typeof count === 'number' ? count : 0, edition.total_profiles)})</span>
-                                              </div>
-                                            </div>
+                              {edition.other_attributes && Object.keys(edition.other_attributes).length > 0 && (() => {
+                                const translateKey = (key: string) => {
+                                  const translations: Record<string, string> = {
+                                    'Years Using': 'Tempo de uso',
+                                    'Biggest Need': 'Maior necessidade',
+                                    'Motivation To Start': 'Motivação para começar',
+                                    'Motivation To Continue': 'Motivação para continuar',
+                                    'years_using': 'Tempo de uso',
+                                    'biggest_need': 'Maior necessidade',
+                                    'motivation_to_start': 'Motivação para começar',
+                                    'motivation_to_continue': 'Motivação para continuar'
+                                  };
+                                  return translations[key] || key;
+                                };
+
+                                const translateValue = (value: string) => {
+                                  const translations: Record<string, string> = {
+                                    'Menos De 6 Meses': 'Menos de 6 meses',
+                                    'Entre 6 Meses E 1 Ano': 'Entre 6 meses e 1 ano',
+                                    'Entre 1 E 2 Anos': 'Entre 1 e 2 anos',
+                                    'Entre 2 E 5 Anos': 'Entre 2 e 5 anos',
+                                    'Mais De 5 Anos': 'Mais de 5 anos',
+                                    'É Mais Barato': 'É mais barato',
+                                    'É Mais SaudáVel': 'É mais saudável',
+                                    'É Mais SaudáVel': 'É mais saudável',
+                                    'É Mais RáPido E PráTico': 'É mais rápido e prático',
+                                    'É Mais RáPido E PráTico': 'É mais rápido e prático',
+                                    'É Ambientalmente Correto': 'É ambientalmente correto',
+                                    'Outros': 'Outros'
+                                  };
+                                  return translations[value] || value;
+                                };
+
+                                const grouped: Record<string, Record<string, number>> = {};
+                                
+                                Object.entries(edition.other_attributes)
+                                  .filter(([key]) => key.includes('motivation') || key.includes('biggest_need') || key.includes('years_using') || key.includes('Years Using') || key.includes('Biggest Need') || key.includes('Motivation'))
+                                  .forEach(([attr, count]) => {
+                                    const parts = attr.split(':').map(p => p.trim());
+                                    if (parts.length >= 2) {
+                                      const category = translateKey(parts[0]);
+                                      const value = translateValue(parts[1]);
+                                      if (!grouped[category]) grouped[category] = {};
+                                      grouped[category][value] = (grouped[category][value] || 0) + (typeof count === 'number' ? count : 0);
+                                    }
+                                  });
+
+                                return (
+                                  <div className="mt-6">
+                                    <h5 className="font-medium mb-3 text-sm">Características Comportamentais</h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      {Object.entries(grouped).map(([category, values]) => (
+                                        <div key={category} className="border border-purple-200 rounded-lg p-3 bg-purple-50">
+                                          <h6 className="text-sm font-semibold text-purple-900 mb-2 pb-2 border-b border-purple-200">{category}</h6>
+                                          <div className="space-y-1.5">
+                                            {Object.entries(values)
+                                              .sort(([,a], [,b]) => b - a)
+                                              .map(([value, count]) => (
+                                                <div key={`${category}-${value}`} className="flex justify-between items-center text-xs bg-white p-2 rounded">
+                                                  <span className="text-gray-700">{value}</span>
+                                                  <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-purple-700">{count}</span>
+                                                    <span className="text-gray-500">({calculatePercentage(count, edition.total_profiles)})</span>
+                                                  </div>
+                                                </div>
+                                              ))}
                                           </div>
-                                        );
-                                      })}
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                );
+                              })()}
                             </div>
                           )}
                         </div>

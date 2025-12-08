@@ -431,9 +431,13 @@ export function MapView({
     const newViewState = {
       latitude: item.geometry.coordinates[1],
       longitude: item.geometry.coordinates[0],
-      zoom: Math.min(mapViewState.zoom + 1, 20)
+      zoom: Math.min(mapViewState.zoom + 2, 20)
     };
     setMapViewState(newViewState);
+    // Chamar onViewStateChange diretamente para atualizar o mapa
+    if (onViewStateChange) {
+      onViewStateChange(newViewState);
+    }
     handleMapViewChange(newViewState);
   };
 
@@ -1317,11 +1321,10 @@ export function MapView({
         hoverPoint={hoverPoint}
         onMouseMove={handleMapMouseMove}
         onMouseDown={handleMapMouseDown}
-        initialViewState={externalViewState || mapViewState}
+        initialViewState={mapViewState}
         onViewStateChange={handleMapViewChange}
         showDefaultZoomButton={false}
         controlsSize="small"
-        key={`map-${forceRender}`}
         />
         
 

@@ -482,6 +482,17 @@ export const AmecicloMap = ({
             setHasSetInitialViewport(true);
         }
     }, [isClient, isMapReady, initialViewState, hasSetInitialViewport]);
+    
+    // Atualizar viewport quando initialViewState mudar (para zoom em clusters)
+    useEffect(() => {
+        if (initialViewState && hasSetInitialViewport) {
+            setViewport({
+                ...initialViewState,
+                bearing: 0,
+                pitch: 0
+            });
+        }
+    }, [initialViewState?.latitude, initialViewState?.longitude, initialViewState?.zoom, hasSetInitialViewport]);
     const [settings, setsettings] = useState(() => ({
         dragPan: dragPanEnabled ?? defaultDragPan,
         dragRotate: true,
@@ -614,6 +625,12 @@ export const AmecicloMap = ({
                                         longitude={longitude}
                                         onClick={(e) => {
                                             e?.originalEvent?.stopPropagation?.();
+                                            
+                                            // Se o ponto tem seu próprio onClick, usar ele
+                                            if (point.onClick) {
+                                                point.onClick();
+                                                return;
+                                            }
                                             
                                             // Don't show popup for clusters
                                             if (!point.isCluster && (point.type === 'bicicletario' || point.type === 'bikepe')) {
