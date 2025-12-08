@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp, PieChart, LineChart, User, ShieldCheck, UserPlus, Wrench, RotateCcw, Package, Baby, Footprints, Smartphone } from 'lucide-react';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import { translateProfileData, translateBehavioralKey, calculatePercentage } from '~/utils/translations';
 
@@ -313,15 +315,15 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b">
+        <div className="flex justify-between items-center p-5 border-b bg-gradient-to-r from-gray-50 to-white">
           <div>
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <MapPin size={20} className="text-blue-500" />
-              Informações do Ponto
+            <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
+              <MapPin size={22} className="text-blue-600" />
+              Análise do Ponto
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-500 mt-1">
               {finalData.location.nearest_street.official_name} • {formatDistance(finalData.location.nearest_street.distance_to_point_meters)} da via
             </p>
           </div>
@@ -349,17 +351,17 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b">
+        <div className="flex border-b bg-gray-50 overflow-x-auto flex-shrink-0">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 bg-blue-50'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 bg-white'
+                    : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-100'
                 }`}
               >
                 <Icon size={16} />
@@ -370,7 +372,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
         </div>
 
         {/* Content */}
-        <div className="p-4 overflow-y-auto max-h-[60vh]">
+        <div className="p-4 overflow-y-auto flex-1 min-h-0">
           {activeTab === 'overview' && (
             <div className="space-y-6">
               {(() => {
@@ -395,72 +397,72 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                   <>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {finalData.emergency_calls && (
-                        <div className="bg-red-50 p-4 rounded-lg">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
                           <div className="flex items-center gap-2 mb-2">
-                            <Ambulance size={20} className="text-red-500" />
-                            <h4 className="font-semibold text-red-700">Emergências</h4>
+                            <Ambulance size={20} className="text-gray-700" />
+                            <h4 className="font-semibold text-gray-800">Emergências</h4>
                           </div>
-                          <p className="text-2xl font-bold text-red-600">
+                          <p className="text-2xl font-bold text-gray-900">
                             {finalData.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
                           </p>
-                          <p className="text-sm text-red-600">chamadas totais</p>
+                          <p className="text-sm text-gray-600">chamadas totais</p>
                         </div>
                       )}
 
                       {finalData.bike_racks && finalData.bike_racks.total > 0 && (
-                        <div className="bg-blue-50 p-4 rounded-lg">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
                           <div className="flex items-center gap-2 mb-2">
-                            <Bike size={20} className="text-blue-500" />
-                            <h4 className="font-semibold text-blue-700">Bicicletários</h4>
+                            <Bike size={20} className="text-gray-700" />
+                            <h4 className="font-semibold text-gray-800">Bicicletários</h4>
                           </div>
-                          <p className="text-2xl font-bold text-blue-600">{finalData.bike_racks.total}</p>
-                          <p className="text-sm text-blue-600">{finalData.bike_racks.total_capacity} vagas</p>
+                          <p className="text-2xl font-bold text-gray-900">{finalData.bike_racks.total}</p>
+                          <p className="text-sm text-gray-600">{finalData.bike_racks.total_capacity} vagas</p>
                         </div>
                       )}
 
                       {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
-                        <div className="bg-green-50 p-4 rounded-lg">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
                           <div className="flex items-center gap-2 mb-2">
-                            <BarChart3 size={20} className="text-green-500" />
-                            <h4 className="font-semibold text-green-700">Contagens</h4>
+                            <BarChart3 size={20} className="text-gray-700" />
+                            <h4 className="font-semibold text-gray-800">Contagens</h4>
                           </div>
-                          <p className="text-2xl font-bold text-green-600">{finalData.cyclist_counts.counts.length}</p>
-                          <p className="text-sm text-green-600">pontos próximos</p>
+                          <p className="text-2xl font-bold text-gray-900">{finalData.cyclist_counts.counts.length}</p>
+                          <p className="text-sm text-gray-600">pontos próximos</p>
                         </div>
                       )}
 
                       {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 && (
-                        <div className="bg-purple-50 p-4 rounded-lg">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
                           <div className="flex items-center gap-2 mb-2">
-                            <Users size={20} className="text-purple-500" />
-                            <h4 className="font-semibold text-purple-700">Perfis</h4>
+                            <Users size={20} className="text-gray-700" />
+                            <h4 className="font-semibold text-gray-800">Perfis</h4>
                           </div>
-                          <p className="text-2xl font-bold text-purple-600">{finalData.cyclist_profile.total_profiles}</p>
-                          <p className="text-sm text-purple-600">ciclistas</p>
+                          <p className="text-2xl font-bold text-gray-900">{finalData.cyclist_profile.total_profiles}</p>
+                          <p className="text-sm text-gray-600">ciclistas</p>
                         </div>
                       )}
 
                       {finalData.shared_bike && finalData.shared_bike.has_stations && (
-                        <div className="bg-orange-50 p-4 rounded-lg">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
                           <div className="flex items-center gap-2 mb-2">
-                            <Activity size={20} className="text-orange-500" />
-                            <h4 className="font-semibold text-orange-700">Bike PE</h4>
+                            <Activity size={20} className="text-gray-700" />
+                            <h4 className="font-semibold text-gray-800">Bike PE</h4>
                           </div>
-                          <p className="text-2xl font-bold text-orange-600">{finalData.shared_bike.stations?.length || 0}</p>
-                          <p className="text-sm text-orange-600">estações</p>
+                          <p className="text-2xl font-bold text-gray-900">{finalData.shared_bike.stations?.length || 0}</p>
+                          <p className="text-sm text-gray-600">estações</p>
                         </div>
                       )}
 
                       {finalData.cycling_infra && (finalData.cycling_infra.existing?.length > 0 || finalData.cycling_infra.planned_pdc?.length > 0) && (
-                        <div className="bg-teal-50 p-4 rounded-lg">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
                           <div className="flex items-center gap-2 mb-2">
-                            <Route size={20} className="text-teal-500" />
-                            <h4 className="font-semibold text-teal-700">Infraestrutura</h4>
+                            <Route size={20} className="text-gray-700" />
+                            <h4 className="font-semibold text-gray-800">Infraestrutura</h4>
                           </div>
-                          <p className="text-2xl font-bold text-teal-600">
+                          <p className="text-2xl font-bold text-gray-900">
                             {(finalData.cycling_infra.existing?.length || 0) + (finalData.cycling_infra.planned_pdc?.length || 0)}
                           </p>
-                          <p className="text-sm text-teal-600">vias próximas</p>
+                          <p className="text-sm text-gray-600">vias próximas</p>
                         </div>
                       )}
                     </div>
@@ -538,6 +540,18 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
           {activeTab === 'safety' && (
             <div className="space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-gray-800">Dados de Segurança</h4>
+                <a 
+                  href="/dados/sinistros" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                >
+                  Ver mais detalhes
+                  <ArrowRight size={14} />
+                </a>
+              </div>
               {finalData.emergency_calls && (
                 <>
                   <div>
@@ -853,43 +867,52 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                   </p>
                                 </div>
                                 
-                                {count.characteristics && (
-                                  <div>
-                                    <h5 className="font-medium mb-2 text-sm">Características dos Ciclistas:</h5>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                                      {count.characteristics.helmet > 0 && (
-                                        <div className="bg-blue-100 p-2 rounded">Capacete: {count.characteristics.helmet} ({Math.round((count.characteristics.helmet / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.women > 0 && (
-                                        <div className="bg-pink-100 p-2 rounded">Mulheres: {count.characteristics.women} ({Math.round((count.characteristics.women / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.wrong_way > 0 && (
-                                        <div className="bg-red-100 p-2 rounded">Contramão: {count.characteristics.wrong_way} ({Math.round((count.characteristics.wrong_way / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.cargo > 0 && (
-                                        <div className="bg-yellow-100 p-2 rounded">Carga: {count.characteristics.cargo} ({Math.round((count.characteristics.cargo / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.juveniles > 0 && (
-                                        <div className="bg-green-100 p-2 rounded">Juvenis: {count.characteristics.juveniles} ({Math.round((count.characteristics.juveniles / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.sidewalk > 0 && (
-                                        <div className="bg-gray-100 p-2 rounded">Calçada: {count.characteristics.sidewalk} ({Math.round((count.characteristics.sidewalk / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.shared_bike > 0 && (
-                                        <div className="bg-orange-100 p-2 rounded">Bike Compartilhada: {count.characteristics.shared_bike} ({Math.round((count.characteristics.shared_bike / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.service > 0 && (
-                                        <div className="bg-purple-100 p-2 rounded">Serviços: {count.characteristics.service} ({Math.round((count.characteristics.service / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.motor > 0 && (
-                                        <div className="bg-red-100 p-2 rounded">Motorizada: {count.characteristics.motor} ({Math.round((count.characteristics.motor / count.total_cyclists) * 100)}%)</div>
-                                      )}
-                                      {count.characteristics.ride > 0 && (
-                                        <div className="bg-teal-100 p-2 rounded">Acompanhantes: {count.characteristics.ride} ({Math.round((count.characteristics.ride / count.total_cyclists) * 100)}%)</div>
-                                      )}
+                                {count.characteristics && (() => {
+                                  const characteristics = [
+                                    { key: 'helmet', label: 'Capacete', icon: ShieldCheck, value: count.characteristics.helmet },
+                                    { key: 'women', label: 'Mulheres', icon: User, value: count.characteristics.women },
+                                    { key: 'wrong_way', label: 'Contramão', icon: RotateCcw, value: count.characteristics.wrong_way },
+                                    { key: 'cargo', label: 'Carga', icon: Package, value: count.characteristics.cargo },
+                                    { key: 'juveniles', label: 'Juvenis', icon: Baby, value: count.characteristics.juveniles },
+                                    { key: 'sidewalk', label: 'Calçada', icon: Footprints, value: count.characteristics.sidewalk },
+                                    { key: 'shared_bike', label: 'Bike Compartilhada', icon: Bike, value: count.characteristics.shared_bike },
+                                    { key: 'service', label: 'Serviços', icon: Wrench, value: count.characteristics.service },
+                                    { key: 'motor', label: 'Motorizada', icon: Zap, value: count.characteristics.motor },
+                                    { key: 'ride', label: 'Acompanhantes', icon: UserPlus, value: count.characteristics.ride }
+                                  ].filter(char => char.value > 0);
+                                  
+                                  if (characteristics.length === 0) return null;
+                                  
+                                  return (
+                                    <div>
+                                      <h5 className="font-semibold mb-3 text-sm text-gray-800">Características dos Ciclistas</h5>
+                                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        {characteristics.map(char => {
+                                          const Icon = char.icon;
+                                          const percentage = Math.round((char.value / count.total_cyclists) * 100);
+                                          return (
+                                            <div key={char.key} className="border rounded-lg p-3 bg-white hover:shadow-md transition-shadow">
+                                              <div className="flex items-center gap-2 mb-2">
+                                                <Icon size={16} className="text-gray-600" />
+                                                <span className="text-xs font-medium text-gray-700">{char.label}</span>
+                                              </div>
+                                              <div className="flex items-baseline gap-2">
+                                                <span className="text-xl font-bold text-gray-900">{char.value}</span>
+                                                <span className="text-xs text-gray-500">({percentage}%)</span>
+                                              </div>
+                                              <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                                                <div 
+                                                  className="bg-blue-600 h-1.5 rounded-full transition-all" 
+                                                  style={{ width: `${percentage}%` }}
+                                                />
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  );
+                                })()}
                               </div>
                             )}
                           </div>
@@ -1129,147 +1152,374 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
           {activeTab === 'analysis' && (
             <div className="space-y-6">
-              <h4 className="font-semibold mb-4 flex items-center gap-2">
-                <TrendingUp size={18} />
-                Análises e Índices
+              <h4 className="font-semibold mb-4 flex items-center gap-2 text-gray-800">
+                <TrendingUp size={18} className="text-blue-600" />
+                Análises Detalhadas e Indicadores
               </h4>
               
-              {/* Índices de Segurança */}
-              {finalData.emergency_calls && (
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h5 className="font-medium mb-3 flex items-center gap-2">
-                    <Shield size={16} />
-                    Índices de Segurança
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-red-600">
+              {/* Gráfico de Emergências ao Longo do Tempo */}
+              {finalData.emergency_calls?.annual_history?.length > 1 && (() => {
+                const currentYear = new Date().getFullYear();
+                const chartData = finalData.emergency_calls.annual_history
+                  .filter(y => y.year < currentYear)
+                  .sort((a, b) => a.year - b.year);
+                
+                const chartOptions = {
+                  chart: { type: 'line', height: 280, backgroundColor: 'transparent' },
+                  title: { text: null },
+                  credits: { enabled: false },
+                  xAxis: { categories: chartData.map(d => d.year.toString()), title: { text: 'Ano' } },
+                  yAxis: { title: { text: 'Chamadas' }, min: 0 },
+                  series: [{
+                    name: 'Emergências',
+                    data: chartData.map(d => d.total_calls),
+                    color: '#dc2626',
+                    marker: { radius: 4 }
+                  }],
+                  tooltip: {
+                    formatter: function(this: any) {
+                      return `<b>${this.x}</b><br/>${this.series.name}: <b>${this.y}</b> chamadas`;
+                    }
+                  },
+                  plotOptions: {
+                    line: {
+                      dataLabels: { enabled: true, format: '{y}' }
+                    }
+                  }
+                };
+                
+                return (
+                  <div className="bg-white border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="text-sm font-semibold text-gray-800">Evolução de Emergências</h5>
+                      <a 
+                        href="/dados/sinistros-fatais" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                      >
+                        Ver detalhes
+                        <ArrowRight size={12} />
+                      </a>
+                    </div>
+                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div className="grid grid-cols-3 gap-3 mt-4">
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {finalData.emergency_calls.annual_history.reduce((sum, year) => sum + year.total_calls, 0)}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Total Histórico</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {Math.round(finalData.emergency_calls.annual_history.reduce((sum, year) => sum + year.total_calls, 0) / chartData.length)}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Média Anual</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {chartData[chartData.length - 1]?.total_calls || 0}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Último Ano</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+              
+              {/* Gráfico de Categorias de Emergência */}
+              {finalData.emergency_calls?.by_category?.length > 0 && (() => {
+                const chartOptions = {
+                  chart: { type: 'pie', height: 280, backgroundColor: 'transparent' },
+                  title: { text: null },
+                  credits: { enabled: false },
+                  plotOptions: {
+                    pie: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                      dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f}%'
+                      },
+                      showInLegend: true
+                    }
+                  },
+                  series: [{
+                    name: 'Chamadas',
+                    colorByPoint: true,
+                    data: finalData.emergency_calls.by_category.map(cat => ({
+                      name: cat.category,
+                      y: cat.count
+                    }))
+                  }]
+                };
+                
+                return (
+                  <div className="bg-white border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="text-sm font-semibold text-gray-800">Emergências por Categoria</h5>
+                      <a 
+                        href="/dados/sinistros-fatais" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                      >
+                        Ver detalhes
+                        <ArrowRight size={12} />
+                      </a>
+                    </div>
+                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                  </div>
+                );
+              })()}
+
+              {/* Gráfico de Infraestrutura */}
+              {finalData.cycling_infra && (finalData.cycling_infra.existing?.length > 0 || finalData.cycling_infra.planned_pdc?.length > 0) && (() => {
+                const infraTypes: Record<string, number> = {};
+                finalData.cycling_infra.existing?.forEach(infra => {
+                  infraTypes[infra.type] = (infraTypes[infra.type] || 0) + 1;
+                });
+                
+                const chartOptions = {
+                  chart: { type: 'column', height: 280, backgroundColor: 'transparent' },
+                  title: { text: null },
+                  credits: { enabled: false },
+                  xAxis: { categories: Object.keys(infraTypes), title: { text: 'Tipo' } },
+                  yAxis: { title: { text: 'Quantidade' }, min: 0, allowDecimals: false },
+                  series: [{
+                    name: 'Vias',
+                    data: Object.values(infraTypes),
+                    color: '#10b981'
+                  }],
+                  plotOptions: {
+                    column: {
+                      dataLabels: { enabled: true }
+                    }
+                  }
+                };
+                
+                return (
+                  <div className="bg-white border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="text-sm font-semibold text-gray-800">Infraestrutura Cicloviária Próxima</h5>
+                      <a 
+                        href="/dados/execucaocicloviaria" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                      >
+                        Ver detalhes
+                        <ArrowRight size={12} />
+                      </a>
+                    </div>
+                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div className="grid grid-cols-3 gap-3 mt-4">
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {finalData.cycling_infra.existing?.length || 0}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Vias Existentes</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {finalData.cycling_infra.planned_pdc?.length || 0}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Vias Planejadas</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {finalData.cycling_infra.planned_pdc?.reduce((sum, pdc) => sum + pdc.pdc_km, 0)?.toFixed(1) || '0.0'}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">km Planejados</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Gráfico de Contagens */}
+              {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (() => {
+                const countsByYear: Record<string, number> = {};
+                finalData.cyclist_counts.counts.forEach(count => {
+                  const year = new Date(count.date).getFullYear().toString();
+                  countsByYear[year] = (countsByYear[year] || 0) + count.total_cyclists;
+                });
+                
+                const years = Object.keys(countsByYear).sort();
+                
+                const chartOptions = {
+                  chart: { type: 'column', height: 280, backgroundColor: 'transparent' },
+                  title: { text: null },
+                  credits: { enabled: false },
+                  xAxis: { categories: years, title: { text: 'Ano' } },
+                  yAxis: { title: { text: 'Ciclistas' }, min: 0 },
+                  series: [{
+                    name: 'Ciclistas',
+                    data: years.map(year => countsByYear[year]),
+                    color: '#3b82f6'
+                  }],
+                  plotOptions: {
+                    column: {
+                      dataLabels: { enabled: true, format: '{y}' }
+                    }
+                  }
+                };
+                
+                // Calcular características agregadas
+                const totalCyclists = finalData.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0);
+                const totalHelmet = finalData.cyclist_counts.counts.reduce((sum, count) => sum + (count.characteristics?.helmet || 0), 0);
+                const totalWomen = finalData.cyclist_counts.counts.reduce((sum, count) => sum + (count.characteristics?.women || 0), 0);
+                const totalWrongWay = finalData.cyclist_counts.counts.reduce((sum, count) => sum + (count.characteristics?.wrong_way || 0), 0);
+                
+                return (
+                  <div className="bg-white border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="text-sm font-semibold text-gray-800">Ciclistas Contados por Ano</h5>
+                      <a 
+                        href="/dados/contagens" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                      >
+                        Ver detalhes
+                        <ArrowRight size={12} />
+                      </a>
+                    </div>
+                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">{totalCyclists}</p>
+                        <p className="text-xs text-gray-600 mt-1">Total Contado</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {totalHelmet > 0 ? `${Math.round((totalHelmet / totalCyclists) * 100)}%` : '0%'}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Com Capacete</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {totalWomen > 0 ? `${Math.round((totalWomen / totalCyclists) * 100)}%` : '0%'}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Mulheres</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded">
+                        <p className="text-2xl font-bold text-gray-800">
+                          {totalWrongWay > 0 ? `${Math.round((totalWrongWay / totalCyclists) * 100)}%` : '0%'}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">Contramão</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Gráfico de Perfil de Ciclistas */}
+              {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 && finalData.cyclist_profile.by_edition?.length > 0 && (() => {
+                const latestEdition = finalData.cyclist_profile.by_edition
+                  .sort((a, b) => parseInt(b.edition) - parseInt(a.edition))[0];
+                
+                if (!latestEdition.gender_distribution) return null;
+                
+                const chartOptions = {
+                  chart: { type: 'pie', height: 280, backgroundColor: 'transparent' },
+                  title: { text: null },
+                  credits: { enabled: false },
+                  plotOptions: {
+                    pie: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                      dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f}%'
+                      }
+                    }
+                  },
+                  series: [{
+                    name: 'Ciclistas',
+                    colorByPoint: true,
+                    data: Object.entries(latestEdition.gender_distribution).map(([gender, count]) => ({
+                      name: gender,
+                      y: count as number
+                    }))
+                  }]
+                };
+                
+                return (
+                  <div className="bg-white border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="text-sm font-semibold text-gray-800">Perfil de Gênero (Edição {latestEdition.edition})</h5>
+                      <a 
+                        href="/dados/perfil" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                      >
+                        Ver detalhes
+                        <ArrowRight size={12} />
+                      </a>
+                    </div>
+                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div className="text-center p-3 bg-gray-50 rounded mt-4">
+                      <p className="text-2xl font-bold text-gray-800">{finalData.cyclist_profile.total_profiles}</p>
+                      <p className="text-xs text-gray-600 mt-1">Total de Perfis Coletados</p>
+                    </div>
+                  </div>
+                );
+              })()}
+              
+              {/* Resumo de Indicadores */}
+              <div className="bg-white border rounded-lg p-4">
+                <h5 className="font-semibold mb-4 text-gray-800">Resumo de Indicadores</h5>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {finalData.emergency_calls && (
+                    <div className="p-3 border rounded text-center">
+                      <Shield size={20} className="mx-auto mb-2 text-red-500" />
+                      <p className="text-lg font-bold text-gray-800">
                         {finalData.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
                       </p>
-                      <p className="text-sm text-red-600">Total de Emergências</p>
+                      <p className="text-xs text-gray-600">Emergências</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-red-600">
-                        {finalData.emergency_calls.annual_history?.length > 0 ? 
-                          Math.round((finalData.emergency_calls.annual_history.reduce((sum, year) => sum + year.total_calls, 0) / finalData.emergency_calls.annual_history.length)) : 0}
-                      </p>
-                      <p className="text-sm text-red-600">Média Anual</p>
+                  )}
+                  {finalData.bike_racks && finalData.bike_racks.total > 0 && (
+                    <div className="p-3 border rounded text-center">
+                      <div className="text-2xl mx-auto mb-2 text-blue-500">∩</div>
+                      <p className="text-lg font-bold text-gray-800">{finalData.bike_racks.total}</p>
+                      <p className="text-xs text-gray-600">Bicicletários</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-red-600">
-                        {finalData.emergency_calls.by_category?.[0]?.category?.includes('Moto') ? 'Alto' : 'Médio'}
-                      </p>
-                      <p className="text-sm text-red-600">Risco Relativo</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Índices de Infraestrutura */}
-              {finalData.cycling_infra && (
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h5 className="font-medium mb-3 flex items-center gap-2">
-                    <Route size={16} />
-                    Índices de Infraestrutura
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600">
-                        {finalData.cycling_infra.existing?.length || 0}
-                      </p>
-                      <p className="text-sm text-green-600">Vias Existentes</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600">
-                        {finalData.cycling_infra.planned_pdc?.length || 0}
-                      </p>
-                      <p className="text-sm text-green-600">Vias Planejadas</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600">
-                        {finalData.cycling_infra.planned_pdc?.reduce((sum, pdc) => sum + pdc.pdc_km, 0)?.toFixed(1) || '0.0'}km
-                      </p>
-                      <p className="text-sm text-green-600">Extensão Planejada</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Índices de Uso */}
-              {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h5 className="font-medium mb-3 flex items-center gap-2">
-                    <Activity size={16} />
-                    Índices de Uso
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">
+                  )}
+                  {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
+                    <div className="p-3 border rounded text-center">
+                      <BarChart3 size={20} className="mx-auto mb-2 text-green-500" />
+                      <p className="text-lg font-bold text-gray-800">
                         {finalData.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0)}
                       </p>
-                      <p className="text-sm text-blue-600">Total Contado</p>
+                      <p className="text-xs text-gray-600">Ciclistas Contados</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">
-                        {Math.round(finalData.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0) / finalData.cyclist_counts.counts.length)}
-                      </p>
-                      <p className="text-sm text-blue-600">Média por Ponto</p>
+                  )}
+                  {finalData.cycling_infra && finalData.cycling_infra.existing?.length > 0 && (
+                    <div className="p-3 border rounded text-center">
+                      <Route size={20} className="mx-auto mb-2 text-teal-500" />
+                      <p className="text-lg font-bold text-gray-800">{finalData.cycling_infra.existing.length}</p>
+                      <p className="text-xs text-gray-600">Vias Cicloviárias</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">
-                        {finalData.cyclist_counts.counts.some(count => count.characteristics?.helmet > count.total_cyclists * 0.1) ? 'Alto' : 'Baixo'}
-                      </p>
-                      <p className="text-sm text-blue-600">Uso de Capacete</p>
+                  )}
+                  {finalData.shared_bike && finalData.shared_bike.has_stations && (
+                    <div className="p-3 border rounded text-center">
+                      <Activity size={20} className="mx-auto mb-2 text-orange-500" />
+                      <p className="text-lg font-bold text-gray-800">{finalData.shared_bike.stations?.length || 0}</p>
+                      <p className="text-xs text-gray-600">Estações Bike PE</p>
                     </div>
-                  </div>
+                  )}
+                  {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 && (
+                    <div className="p-3 border rounded text-center">
+                      <Users size={20} className="mx-auto mb-2 text-purple-500" />
+                      <p className="text-lg font-bold text-gray-800">{finalData.cyclist_profile.total_profiles}</p>
+                      <p className="text-xs text-gray-600">Perfis Coletados</p>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              {/* Tendências Temporais */}
-              {finalData.emergency_calls?.annual_history?.length > 1 && (
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <h5 className="font-medium mb-3 flex items-center gap-2">
-                    <Clock size={16} />
-                    Tendências Temporais
-                  </h5>
-                  <div className="space-y-2">
-                    {(() => {
-                      const currentYear = new Date().getFullYear();
-                      const filteredData = finalData.emergency_calls.annual_history
-                        .filter(year => year.year < currentYear)
-                        .sort((a, b) => a.year - b.year);
-                      const recent = filteredData.slice(-2);
-                      const trend = recent.length === 2 ? 
-                        (recent[1].total_calls > recent[0].total_calls ? 'Crescente' : 
-                         recent[1].total_calls < recent[0].total_calls ? 'Decrescente' : 'Estável') : 'Insuficiente';
-                      const color = trend === 'Crescente' ? 'text-red-600' : trend === 'Decrescente' ? 'text-green-600' : 'text-yellow-600';
-                      
-                      return (
-                        <div className={`md:flex md:items-center md:justify-between text-center md:text-left ${color}`}>
-                          <div>
-                            <p className="text-2xl font-bold">{trend}</p>
-                            <p className="text-base">Tendência de Emergências</p>
-                          </div>
-                          {recent.length === 2 && (
-                            <div className="text-sm mt-2 md:mt-0 text-gray-600 md:text-right">
-                              <p className="flex items-center justify-center md:justify-end gap-1">
-                                {recent[0].year}: {recent[0].total_calls} 
-                                <ArrowRight size={16} className="text-gray-400" /> 
-                                {recent[1].year}: {recent[1].total_calls}
-                              </p>
-                              {trend !== 'Estável' && (
-                                <p className="font-medium text-base">
-                                  {trend === 'Crescente' ? '+' : ''}{((recent[1].total_calls - recent[0].total_calls) / recent[0].total_calls * 100).toFixed(1)}%
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-              )}
+              </div>
 
               {!finalData.emergency_calls && !finalData.cycling_infra && (!finalData.cyclist_counts || finalData.cyclist_counts.counts?.length === 0) && (
                 <div className="text-center py-8 text-gray-500">
@@ -1282,18 +1532,17 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
         </div>
 
         {/* Footer */}
-        <div className="border-t p-4 bg-gray-50">
-          <div className="flex justify-between items-center text-sm text-gray-600">
-            <div>
-              <span>Dados em raio de 200m do ponto selecionado</span>
+        <div className="border-t p-4 bg-gray-50 flex-shrink-0">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-sm text-gray-600">
+            <div className="flex-1">
+              <p className="font-medium text-gray-700">Dados em raio de 200m do ponto selecionado</p>
               <p className="text-xs text-gray-500 mt-1">
                 Coordenadas: {finalData.location?.lat.toFixed(6)}, {finalData.location?.lng.toFixed(6)}
               </p>
-
             </div>
             <button 
               onClick={onClose}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap"
             >
               Fechar
             </button>
