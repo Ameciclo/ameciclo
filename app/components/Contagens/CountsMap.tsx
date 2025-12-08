@@ -127,6 +127,7 @@ export const CountsMap = ({
     const inicialViewPort = getInicialViewPort(pointsData, layerData);
 
     const [selectedPoint, setSelectedPoint] = useState<pointData | undefined>(undefined);
+    const [hoveredPoint, setHoveredPoint] = useState<pointData | undefined>(undefined);
     const [viewport, setViewport] = useState(inicialViewPort);
     const [settings, setsettings] = useState({ ...mapInicialState });
 
@@ -173,11 +174,16 @@ export const CountsMap = ({
                                 latitude={point.latitude}
                                 onClick={() => setSelectedPoint(point)}
                             >
-                                <MapMarker
-                                    icon={dropIcon}
-                                    size={point.size ? point.size : 15}
-                                    color={point.color ? point.color : "#008080"}
-                                />
+                                <div
+                                    onMouseEnter={() => setHoveredPoint(point)}
+                                    onMouseLeave={() => setHoveredPoint(undefined)}
+                                >
+                                    <MapMarker
+                                        icon={dropIcon}
+                                        size={point.size ? point.size : 15}
+                                        color={point.color ? point.color : "#008080"}
+                                    />
+                                </div>
                             </Marker>
                         ) : null
                     )}
@@ -187,6 +193,15 @@ export const CountsMap = ({
                             selectedPoint={selectedPoint}
                             setSelectedPoint={setSelectedPoint}
                         />
+                    )}
+
+                    {hoveredPoint !== undefined && (
+                        <Marker
+                            longitude={hoveredPoint.longitude}
+                            latitude={hoveredPoint.latitude}
+                        >
+                            <HoverTooltip point={hoveredPoint} />
+                        </Marker>
                     )}
 
                     {controlPanel.length > 0 && (
@@ -215,6 +230,7 @@ const MapMarker = ({ size = 20, icon, color = "#008888" }: any) => (
             transform: `translate(${-size / 2}px, ${-size}px)`,
             cursor: "pointer",
         }}
+        className="transition-transform hover:scale-110"
     >
         <svg
             width={size}
@@ -295,6 +311,23 @@ function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
                         <button className="bg-ameciclo text-white p-2">Ver mais</button>
                     </Link>
                 )}
+            </div>
+        </div>
+    );
+}
+
+function HoverTooltip({ point }: { point: pointData }) {
+    return (
+        <div 
+            className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap"
+            style={{
+                transform: 'translate(-50%, -100%)',
+                marginTop: '-25px'
+            }}
+        >
+            <div className="text-center">
+                <div className="font-semibold">{point.popup?.name}</div>
+                <div>{point.popup?.total} ciclistas</div>
             </div>
         </div>
     );

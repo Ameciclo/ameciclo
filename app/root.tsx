@@ -107,7 +107,7 @@ const metaConfig = {
             <ApiStatusProvider>
               <ApiAlert />
               <div className="flex flex-col min-h-screen">
-                <Navbar />
+                <ConditionalNavbar />
                 <MainContent>
                   <Outlet />
                 </MainContent>
@@ -121,6 +121,17 @@ const metaConfig = {
         </body>
       </html>
     );
+  }
+
+  function ConditionalNavbar() {
+    const location = useLocation();
+    const isCicloDadosPage = location.pathname === '/dados/ciclodados';
+    
+    if (isCicloDadosPage) {
+      return null;
+    }
+    
+    return <Navbar />;
   }
 
   function ConditionalFooter() {

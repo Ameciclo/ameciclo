@@ -225,20 +225,37 @@ function getCountingCards(data: CountEditionSummary) {
 function getPointsData(d: CountEdition) {
     const { name, coordinates, summary, date, slug, sessions } = d;
     
+    console.log('Full data:', d);
+    console.log('Coordinates:', coordinates);
+    
     if (!coordinates || coordinates.length === 0) {
         console.warn('No coordinates found for:', name);
         return [];
     }
     
     const [centralPoint] = coordinates;
+    console.log('Central point:', centralPoint);
     
-    // Verificar se as coordenadas existem e são válidas
-    const lat = centralPoint.point.latitude || centralPoint.point.y;
-    const lng = centralPoint.point.longitude || centralPoint.point.x;
+    // Try different coordinate formats
+    let lat, lng;
+    if (centralPoint?.point) {
+        lat = centralPoint.point.y || centralPoint.point.latitude;
+        lng = centralPoint.point.x || centralPoint.point.longitude;
+    } else if (Array.isArray(centralPoint)) {
+        lng = centralPoint[0];
+        lat = centralPoint[1];
+    } else {
+        lat = centralPoint?.latitude || centralPoint?.y;
+        lng = centralPoint?.longitude || centralPoint?.x;
+    }
+    
+    console.log('Extracted coordinates:', { lat, lng });
     
     if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
-        console.warn('Invalid coordinates for:', name, { lat, lng });
-        return [];
+        console.warn('Invalid coordinates for:', name, 'using fallback coordinates');
+        // Use Recife center as fallback
+        lat = -8.0584364;
+        lng = -34.945277;
     }
 
     // Calcular fluxos por direção
@@ -337,7 +354,7 @@ function getPointsData(d: CountEdition) {
 const CountingStatistic = (data: CountEdition) => {
     const { id, date, summary } = { ...data };
     const { total_cyclists, max_hour } = { ...summary };
-    const JSON_URL = `${COUNTINGS_DATA}/${id}`;
+    const JSON_URL = `http://api.garfo.ameciclo.org/cyclist-counts/edition/${id}`;
     return [
         { title: "Total de ciclistas", value: IntlNumber(total_cyclists) },
         {
@@ -373,7 +390,17 @@ const Contagem = () => {
                 </Await>
             </Suspense>
             
-            <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
+            <Suspense fallback={<Breadcrumb label="Contagens" slug="/dados/contagens" routes={["/", "/dados"]} />}>
+                <Await resolve={dataPromise}>
+                    {(data) => (
+                        <Breadcrumb 
+                            label={["Contagens", data?.name || ""]} 
+                            slug={["/dados/contagens", ""]} 
+                            routes={["/", "/dados"]} 
+                        />
+                    )}
+                </Await>
+            </Suspense>
             
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-32" />}>
                 <Await resolve={dataPromise}>

@@ -71,7 +71,7 @@ export const loader: LoaderFunction = async () => {
   };
 
   try {
-    const [data, summaryResult, pcrCounts] = await Promise.all([
+    const [data, summaryResult, pcrCounts, amecicloData] = await Promise.all([
       fetchWithTimeout(
         "https://cms.ameciclo.org/contagens", 
         { cache: "no-cache" },
@@ -93,7 +93,13 @@ export const loader: LoaderFunction = async () => {
           console.error("Error reading PCR_CONTAGENS.json:", error);
           return [];
         }
-      })()
+      })(),
+      fetchWithTimeout(
+        'https://cyclist-counts.atlas.ameciclo.org/v1/locations',
+        { cache: "no-cache" },
+        5000,
+        []
+      )
     ]);
 
     const summaryData = summaryResult?.summary || {};
@@ -104,12 +110,14 @@ export const loader: LoaderFunction = async () => {
       data,
       summaryData: { summaryData, countsData, cards },
       pcrCounts,
+      amecicloData,
     });
   } catch (error) {
     return json({
       data: { cover: null, description: "Dados de contagens", objective: "Monitorar fluxo de ciclistas", archives: [], counts: [] },
       summaryData: { summaryData: {}, countsData: [], cards: [] },
       pcrCounts: [],
+      amecicloData: [],
     });
   }
 };

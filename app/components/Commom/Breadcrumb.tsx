@@ -7,8 +7,8 @@ interface BreadcrumbItemProps {
 }
 
 interface BreadcrumbProps {
-  label: string;
-  slug: string;
+  label: string | string[];
+  slug: string | string[];
   routes: string[];
 }
 
@@ -36,6 +36,9 @@ const BreadcrumbItem = ({ slug, label, lastItem }: BreadcrumbItemProps) => {
 };
 
 const Breadcrumb = ({ label, slug, routes }: BreadcrumbProps) => {
+  const labels = Array.isArray(label) ? label : [label];
+  const slugs = Array.isArray(slug) ? slug : [slug];
+  
   return (
     <div className="bg-ameciclo text-white py-2 px-4 uppercase flex items-center text-sm md:text-base">
       <div className="container mx-auto">
@@ -49,7 +52,14 @@ const Breadcrumb = ({ label, slug, routes }: BreadcrumbProps) => {
                 lastItem={false}
               />
             ))}
-            <BreadcrumbItem slug={slug} label={label?.split("_").join(" ")} lastItem={true} />
+            {labels.map((lbl, i) => (
+              <BreadcrumbItem 
+                key={`label-${i}`}
+                slug={slugs[i] || ""} 
+                label={lbl?.split("_").join(" ")} 
+                lastItem={i === labels.length - 1} 
+              />
+            ))}
           </ol>
         </nav>
       </div>

@@ -287,37 +287,56 @@ const MapControlPanel = ({
     handleMarkerToggle,
 }: MapControlPanelProps) => {
     return (
-        <div className="absolute bottom-0 right-0 bg-white border rounded p-4 mb-2 shadow">
-            <h3 className="font-bold mb-2">Legenda</h3>
-            {controlPanel.map((control: any) => {
-                const filteredPoints = pointsData.filter(
-                    (marker: any) => marker.type === control.type
-                );
-                const checked =
-                    filteredPoints.length > 0 &&
-                    filteredPoints.every(
-                        (point: any) => markerVisibility[point.key] === true
+        <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[200px]">
+            <div className="flex items-center gap-2 mb-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <h3 className="font-semibold text-gray-800">Filtros do Mapa</h3>
+            </div>
+            <div className="space-y-3">
+                {controlPanel.map((control: any) => {
+                    const filteredPoints = pointsData.filter(
+                        (marker: any) => marker.type === control.type
                     );
-                return (
-                    <div className="flex items-center mb-1 uppercase font-bold" key={control.type}>
-                        <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => {
-                                filteredPoints.forEach((point: any) =>
-                                    handleMarkerToggle(point.key)
-                                );
-                            }}
-                        />
-                        <span
-                            className="ml-2 text-sm font-medium"
-                            style={{ color: control.color }}
-                        >
-                            {control.type}
-                        </span>
-                    </div>
-                );
-            })}
+                    const checked =
+                        filteredPoints.length > 0 &&
+                        filteredPoints.every(
+                            (point: any) => markerVisibility[point.key] === true
+                        );
+                    const pointCount = filteredPoints.length;
+                    return (
+                        <div className="flex items-center justify-between" key={control.type}>
+                            <div className="flex items-center gap-3">
+                                <div className="relative">
+                                    <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => {
+                                            filteredPoints.forEach((point: any) =>
+                                                handleMarkerToggle(point.key)
+                                            );
+                                        }}
+                                        className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div 
+                                        className="w-3 h-3 rounded-full"
+                                        style={{ backgroundColor: control.color }}
+                                    ></div>
+                                    <span className="text-sm font-medium text-gray-700 capitalize">
+                                        {control.type === 'prefeitura' ? 'PCR' : control.type}
+                                    </span>
+                                </div>
+                            </div>
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {pointCount}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 };
@@ -494,6 +513,7 @@ export const AmecicloMap = ({
 
     const [markerVisibility, setMarkerVisibility] = useState<Record<string, boolean>>({});
     const [selectedMarker, setSelectedMarker] = useState<pointData | null>(null);
+    const [hoveredMarker, setHoveredMarker] = useState<pointData | null>(null);
 
     useEffect(() => {
         if (pointsData && isClient) {
@@ -574,9 +594,8 @@ export const AmecicloMap = ({
                         {pointsData?.map((point) => {
                             const { key, latitude, longitude, size, color, customIcon } = point;
                             
-                            const zoomAdjustedSize = viewport.zoom >= 16 
-                                ? Math.max((size || 15) * 0.8, 15)
-                                : size || 15;
+                            console.log(`Rendering point ${key} with size:`, size);
+                            const zoomAdjustedSize = size;
                             
                             return (
                                 markerVisibility &&
@@ -603,22 +622,26 @@ export const AmecicloMap = ({
                                                 {customIcon}
                                             </div>
                                         ) : (
-                                            <svg
-                                                height={zoomAdjustedSize}
-                                                width={zoomAdjustedSize}
-                                                viewBox="0 0 24 24"
-                                                style={{
-                                                    cursor: "pointer",
-                                                    fill: color ? color : "#008080",
-                                                    stroke: "white",
-                                                    strokeWidth: viewport.zoom > 14 ? "1" : "0.5",
-                                                    transform: `translate(${-zoomAdjustedSize / 2}px, ${-zoomAdjustedSize}px)`,
-                                                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
-                                                    transition: viewport.zoom > 16 ? "none" : "all 0.2s ease"
-                                                }}
+                                            <div
+                                                onMouseEnter={() => setHoveredMarker(point)}
+                                                onMouseLeave={() => setHoveredMarker(null)}
                                             >
-                                                <path d={dropIcon} />
-                                            </svg>
+                                                <svg
+                                                    height={zoomAdjustedSize}
+                                                    width={zoomAdjustedSize}
+                                                    viewBox="0 0 24 24"
+                                                    style={{
+                                                        cursor: "pointer",
+                                                        fill: color ? color : "#008080",
+                                                        stroke: "white",
+                                                        strokeWidth: "0.5",
+                                                        transform: `translate(${-zoomAdjustedSize / 2}px, ${-zoomAdjustedSize}px)`,
+                                                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
+                                                    }}
+                                                >
+                                                    <path d={dropIcon} />
+                                                </svg>
+                                            </div>
                                         )}
                                     </Marker>
                                 )
@@ -696,6 +719,26 @@ export const AmecicloMap = ({
                                 </div>
                             </Marker>
                         ))}
+
+                        {hoveredMarker && hoveredMarker.popup && (
+                            <Marker
+                                latitude={hoveredMarker.latitude}
+                                longitude={hoveredMarker.longitude}
+                            >
+                                <div 
+                                    className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap"
+                                    style={{
+                                        transform: 'translate(-50%, -100%)',
+                                        marginTop: '-25px'
+                                    }}
+                                >
+                                    <div className="text-center">
+                                        <div className="font-semibold">{hoveredMarker.popup.name}</div>
+                                        <div>{hoveredMarker.popup.total} ciclistas</div>
+                                    </div>
+                                </div>
+                            </Marker>
+                        )}
 
                         {selectedMarker && (
                             <Popup

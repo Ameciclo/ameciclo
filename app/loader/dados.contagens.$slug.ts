@@ -6,7 +6,15 @@ const COUNTINGS_PAGE_DATA = "https://cms.ameciclo.org/contagens";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
     const fetchUniqueData = async (slug: string) => {
-        const id = slug.split("-")[0];
+        // Extract ID from slug - if slug starts with number, use that, otherwise try to find ID
+        let id = slug;
+        if (slug.includes('-')) {
+            const firstPart = slug.split('-')[0];
+            if (!isNaN(Number(firstPart))) {
+                id = firstPart;
+            }
+        }
+        
         const URL = COUNTINGS_DATA + "/" + id;
         try {
             const res = await fetch(URL, {

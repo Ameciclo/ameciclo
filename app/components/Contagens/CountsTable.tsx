@@ -49,14 +49,18 @@ export function CountsTable({ data }: ContagensTableProps) {
       {
         Header: "Nome",
         accessor: "name",
-        Cell: ({ row }: any) => (
-          <Link
-            className="text-ameciclo hover:underline"
-            to={`/dados/contagens/${row.original.slug}`}
-          >
-            {row.original.name}
-          </Link>
-        ),
+        Cell: ({ row }: any) => {
+          // Generate slug from ID and name if slug doesn't exist
+          const slug = row.original.slug || `${row.original.id}-${row.original.name?.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`;
+          return (
+            <Link
+              className="text-ameciclo hover:underline"
+              to={`/dados/contagens/${slug}`}
+            >
+              {row.original.name}
+            </Link>
+          );
+        },
         Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" />,
       },
       {
