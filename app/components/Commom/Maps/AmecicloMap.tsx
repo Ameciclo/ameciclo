@@ -157,30 +157,42 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
 const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: any) => {
 
     return (
-        <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md max-w-xs">
-            <h3 className="font-bold mb-2">Filtros do Mapa</h3>
-            {layersConf.map((control: any) => {
-                const color = control.paint?.["line-color"];
-                const isVisible = control.id ? layerVisibility[control.id] !== false : true;
-                return (
-                    <div
-                        className="flex items-center justify-between mb-1 uppercase font-bold"
-                        key={control.id}
-                    >
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={isVisible}
-                                onChange={() => control.id && toggleLayerVisibility(control.id)}
-                                className="mr-2"
-                            />
-                            <span className="text-xs font-bold" style={{ color: color }}>
-                                {control.id}
-                            </span>
+        <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[200px]">
+            <div className="flex items-center gap-2 mb-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <h3 className="font-semibold text-gray-800">Legenda do Mapa</h3>
+            </div>
+            <div className="space-y-3">
+                {layersConf.map((control: any) => {
+                    const color = control.paint?.["line-color"];
+                    const isVisible = control.id ? layerVisibility[control.id] !== false : true;
+                    return (
+                        <div className="flex items-center" key={control.id}>
+                            <div className="flex items-center gap-3">
+                                <div className="relative">
+                                    <input
+                                        type="checkbox"
+                                        checked={isVisible}
+                                        onChange={() => control.id && toggleLayerVisibility(control.id)}
+                                        className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div 
+                                        className="w-8 h-1"
+                                        style={{ backgroundColor: color }}
+                                    ></div>
+                                    <span className="text-sm font-medium text-gray-700">
+                                        {control.id}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
         </div>
     );
 };
@@ -292,7 +304,7 @@ const MapControlPanel = ({
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
-                <h3 className="font-semibold text-gray-800">Filtros do Mapa</h3>
+                <h3 className="font-semibold text-gray-800">Legenda do Mapa</h3>
             </div>
             <div className="space-y-3">
                 {controlPanel.map((control: any) => {
@@ -304,9 +316,8 @@ const MapControlPanel = ({
                         filteredPoints.every(
                             (point: any) => markerVisibility[point.key] === true
                         );
-                    const pointCount = filteredPoints.length;
                     return (
-                        <div className="flex items-center justify-between" key={control.type}>
+                        <div className="flex items-center" key={control.type}>
                             <div className="flex items-center gap-3">
                                 <div className="relative">
                                     <input
@@ -330,9 +341,6 @@ const MapControlPanel = ({
                                     </span>
                                 </div>
                             </div>
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {pointCount}
-                            </span>
                         </div>
                     );
                 })}

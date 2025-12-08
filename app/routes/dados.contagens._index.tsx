@@ -224,7 +224,7 @@ export default function Contagens() {
                                     </div>
                                 )}
                                 
-                                {selectedPoint.popup?.url && (
+                                {/* {selectedPoint.popup?.url && (
                                     <div className="border-t pt-4">
                                         <a 
                                             href={selectedPoint.popup.url}
@@ -236,7 +236,7 @@ export default function Contagens() {
                                             </svg>
                                         </a>
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         </div>
                     </div>
