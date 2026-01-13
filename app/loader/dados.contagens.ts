@@ -4,6 +4,7 @@ import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { CountEditionSummary } from "typings";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { COUNTINGS_PAGE_DATA, COUNTINGS_SUMMARY_DATA } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
   const CardsData = (summaryData: CountEditionSummary) => {
@@ -73,13 +74,13 @@ export const loader: LoaderFunction = async () => {
   try {
     const [data, summaryResult, pcrCounts, amecicloData] = await Promise.all([
       fetchWithTimeout(
-        "https://cms.ameciclo.org/contagens", 
+        COUNTINGS_PAGE_DATA, 
         { cache: "no-cache" },
         5000,
         { cover: null, description: "Dados de contagens", objective: "Monitorar fluxo de ciclistas", archives: [], counts: [] }
       ),
       fetchWithTimeout(
-        "http://api.garfo.ameciclo.org/cyclist-counts",
+        COUNTINGS_SUMMARY_DATA,
         { cache: "no-cache" },
         5000,
         { summary: { total_cyclists: 0, total_women: 0, total_juveniles: 0, total_cargo: 0, total_helmet: 0, total_ride: 0, total_service: 0, total_shared_bike: 0, total_sidewalk: 0, total_wrong_way: 0, total_motor: 0 }, counts: [] }

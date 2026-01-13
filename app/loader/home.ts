@@ -1,6 +1,7 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 import { staticFallbacks } from "~/services/staticFallbacks";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { CMS_BASE_URL, PROJECTS_DATA } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
   const errors: Array<{url: string, error: string}> = [];
@@ -9,21 +10,23 @@ export const loader: LoaderFunction = async () => {
     errors.push({ url, error });
   };
 
+  const HOME_URL = `${CMS_BASE_URL}/home`;
+
   // Tentar buscar dados reais
   const [homeData, projectsData] = await Promise.all([
     fetchWithTimeout(
-      'https://cms.ameciclo.org/home',
+      HOME_URL,
       {},
       3000,
       staticFallbacks.home,
-      onError('https://cms.ameciclo.org/home')
+      onError(HOME_URL)
     ),
     fetchWithTimeout(
-      'https://cms.ameciclo.org/projects',
+      PROJECTS_DATA,
       {},
       3000,
       staticFallbacks.projects,
-      onError('https://cms.ameciclo.org/projects')
+      onError(PROJECTS_DATA)
     )
   ]);
 

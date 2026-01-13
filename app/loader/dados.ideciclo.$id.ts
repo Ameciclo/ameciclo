@@ -1,8 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-
-const IDECICLO_FORMS_DATA = "https://api.ideciclo.ameciclo.org/forms";
-const IDECICLO_PAGE_DATA = "https://cms.ameciclo.org/ideciclo";
-const IDECICLO_STRUCTURES_DATA = "https://api.ideciclo.ameciclo.org/structures";
+import { IDECICLO_FORMS_DATA, IDECICLO_PAGE_DATA, IDECICLO_STRUCTURES_DATA } from "~/servers";
 
 async function getStructureMap(structure: any, request: Request) {
   const geoJsonMap = {

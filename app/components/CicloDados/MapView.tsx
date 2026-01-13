@@ -1318,7 +1318,6 @@ export function MapView({
           ...point,
           customIcon: <MapPin size={20} className="text-red-500" />
         }))}
-        hoverPoint={hoverPoint}
         onMouseMove={handleMapMouseMove}
         onMouseDown={handleMapMouseDown}
         initialViewState={mapViewState}

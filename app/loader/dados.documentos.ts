@@ -1,11 +1,12 @@
 import { json, LoaderFunction } from "@remix-run/node";
+import { DOCUMENTS_DATA, DOCUMENTS_PAGE } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
-    const resDataPage1 = await fetch("https://cms.ameciclo.org/documents", {
+    const resDataPage1 = await fetch(DOCUMENTS_DATA, {
         cache: "no-cache",
     });
 
-    const resDataPage2 = await fetch("https://cms.ameciclo.org/documentos", {
+    const resDataPage2 = await fetch(DOCUMENTS_PAGE, {
         cache: "no-cache",
     });
 

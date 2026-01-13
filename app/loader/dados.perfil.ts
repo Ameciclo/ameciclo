@@ -1,8 +1,9 @@
 import { json, LoaderFunction } from "@remix-run/node";
+import { PERFIL_PAGE_DATA } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
     try {
-        const res = await fetch("https://cms.ameciclo.org/perfil", {
+        const res = await fetch(PERFIL_PAGE_DATA, {
             cache: "no-cache",
         });
 

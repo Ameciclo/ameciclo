@@ -1,6 +1,7 @@
 import { LoaderFunction } from "@remix-run/node";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { OBSERVATORY_DATA_ALL_WAYS, OBSERVATORY_DATA_WAYS_SUMMARY, CITIES_DATA, OBSERVATORY_DATA } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
   const page_data = {
@@ -113,23 +114,23 @@ export const loader: LoaderFunction = async () => {
 
   // Promises assíncronas com timeout
   const allWaysPromise = fetchWithTimeout(
-    "http://api.garfo.ameciclo.org/cyclist-infra/ways/all-ways", 
+    OBSERVATORY_DATA_ALL_WAYS, 
     { cache: "no-cache" }, 
     15000, 
     mockAllWaysData
   ).then(data => data.all);
 
   const statsPromise = fetchWithTimeout(
-    "http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", 
+    OBSERVATORY_DATA_WAYS_SUMMARY, 
     { cache: "no-cache" }, 
     15000, 
     { all: { pdc_feito: 187.3, out_pdc: 58.5, pdc_total: 654.2, percent: 28.6 } }
   ).then(data => cycleStructureExecutionStatistics(data.all));
 
   const citiesPromise = Promise.all([
-    fetchWithTimeout("http://api.garfo.ameciclo.org/cyclist-infra/ways/summary", { cache: "no-cache" }, 15000, { byCity: {} }),
-    fetchWithTimeout("http://api.garfo.ameciclo.org/cities", {}, 15000, []),
-    fetchWithTimeout("http://api.garfo.ameciclo.org/cyclist-infra/relationsByCity", {}, 15000, {})
+    fetchWithTimeout(OBSERVATORY_DATA_WAYS_SUMMARY, { cache: "no-cache" }, 15000, { byCity: {} }),
+    fetchWithTimeout(CITIES_DATA, {}, 15000, []),
+    fetchWithTimeout(OBSERVATORY_DATA, {}, 15000, {})
   ]).then(([summaryData, cities, relations]) => 
     cityCycleStructureExecutionStatisticsByCity(summaryData.byCity, cities, relations)
   );

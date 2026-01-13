@@ -1,10 +1,11 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { fetchWithServerAlert } from "~/services/apiWithAlert.server";
+import { PLATAFORM_HOME_PAGE } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
     try {
         const { data, apiDown } = await fetchWithServerAlert(
-            "https://cms.ameciclo.org/plataforma-de-dados",
+            PLATAFORM_HOME_PAGE,
             { cache: "no-cache" },
             10000,
             { cover: null, description: null, partners: [] } // fallback data

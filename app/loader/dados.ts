@@ -1,12 +1,13 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { PLATAFORM_HOME_PAGE } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
     let apiDown = false;
     
     try {
         const data = await fetchWithTimeout(
-            "https://cms.ameciclo.org/plataforma-de-dados",
+            PLATAFORM_HOME_PAGE,
             { cache: "no-cache" },
             5000,
             { cover: null, description: null, partners: [] }

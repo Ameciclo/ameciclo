@@ -1,8 +1,6 @@
 import { json } from "@remix-run/node";
 import type { ContagemData, SummaryData } from "~/services/contagens.service";
-
-const COUNTINGS_SUMMARY_DATA = "https://api.garfo.ameciclo.org/cyclist-counts";
-const COUNTINGS_PAGE_DATA = "https://cms.ameciclo.org/contagens";
+import { COUNTINGS_SUMMARY_DATA, COUNTINGS_PAGE_DATA } from "~/servers";
 
 export async function contagensLoader() {
   try {

@@ -1,6 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-
-const COUNTINGS_DATA = "http://api.garfo.ameciclo.org/cyclist-counts/edition";
+import { COUNTINGS_DATA } from "~/servers";
 
 interface CountEditionSummary {
   max_hour: number;

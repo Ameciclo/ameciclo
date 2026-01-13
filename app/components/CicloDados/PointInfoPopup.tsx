@@ -1086,8 +1086,6 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                     'Mais De 5 Anos': 'Mais de 5 anos',
                                     'É Mais Barato': 'É mais barato',
                                     'É Mais SaudáVel': 'É mais saudável',
-                                    'É Mais SaudáVel': 'É mais saudável',
-                                    'É Mais RáPido E PráTico': 'É mais rápido e prático',
                                     'É Mais RáPido E PráTico': 'É mais rápido e prático',
                                     'É Ambientalmente Correto': 'É ambientalmente correto',
                                     'Outros': 'Outros'

@@ -1,7 +1,8 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { fetchJsonFromCMS } from "../services/cmsApi";
+import { CMS_BASE_URL } from "~/servers";
 
-const server = "https://cms.ameciclo.org";
+const server = CMS_BASE_URL;
 
 interface FAQ {
   id: number;

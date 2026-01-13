@@ -1,8 +1,5 @@
 import { defer, LoaderFunctionArgs } from "@remix-run/node";
-
-const COUNTINGS_SUMMARY_DATA = "http://api.garfo.ameciclo.org/cyclist-counts";
-const COUNTINGS_DATA = "http://api.garfo.ameciclo.org/cyclist-counts/edition";
-const COUNTINGS_PAGE_DATA = "https://cms.ameciclo.org/contagens";
+import { COUNTINGS_SUMMARY_DATA, COUNTINGS_DATA, COUNTINGS_PAGE_DATA } from "~/servers";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
     const fetchUniqueData = async (slug: string) => {
