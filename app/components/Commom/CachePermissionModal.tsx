@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFocusTrap } from '~/hooks/useFocusTrap';
+import { X } from 'lucide-react';
 
 interface CachePermissionBarProps {
   onAllow: () => void;
@@ -22,6 +23,10 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
     }
   }, []);
 
+  const handleClose = () => {
+    setIsVisible(false);
+  };
+
   const handleAllow = () => {
     localStorage.setItem('cache-permission', 'allowed');
     setIsVisible(false);
@@ -39,13 +44,20 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
   return (
     <div 
       ref={modalRef}
-      className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[70%] md:max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 z-50"
+      className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[70%] md:max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999]"
       role="dialog"
       aria-labelledby="cache-modal-title"
       aria-describedby="cache-modal-description"
     >
+      <button
+        onClick={handleClose}
+        className="absolute top-2 right-2 p-0.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors"
+        aria-label="Fechar tela de cache"
+      >
+        <X size={14} />
+      </button>
       <div className="px-4 py-4 md:px-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-3 flex-1">
             <div className="flex-shrink-0 mt-1">
               <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
