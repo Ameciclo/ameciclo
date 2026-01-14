@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFocusTrap } from '~/hooks/useFocusTrap';
 
 type AmeCiclistaModalProps = {
   isOpen: boolean;
@@ -15,6 +16,8 @@ export default function AmeCiclistaModal({
   onClose,
   ameciclista,
 }: AmeCiclistaModalProps) {
+  const modalRef = useFocusTrap(isOpen);
+  
   if (!isOpen || !ameciclista) return null;
 
   return (
@@ -26,6 +29,7 @@ export default function AmeCiclistaModal({
       aria-modal="true"
     >
       <div
+        ref={modalRef}
         className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useFocusTrap } from '~/hooks/useFocusTrap';
 
 interface CachePermissionBarProps {
   onAllow: () => void;
@@ -7,6 +8,7 @@ interface CachePermissionBarProps {
 
 export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionBarProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const modalRef = useFocusTrap(isVisible);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -35,6 +37,7 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
 
   return (
     <div 
+      ref={modalRef}
       className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[70%] md:max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 z-50"
       role="dialog"
       aria-labelledby="cache-modal-title"

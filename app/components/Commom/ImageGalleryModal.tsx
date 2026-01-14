@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useFocusTrap } from '~/hooks/useFocusTrap';
 
 interface Image {
   id?: string | number;
@@ -20,6 +21,7 @@ export default function ImageGalleryModal({
   initialIndex = 0 
 }: ImageGalleryModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const modalRef = useFocusTrap(isOpen);
 
   useEffect(() => {
     setCurrentIndex(initialIndex);
@@ -52,10 +54,11 @@ export default function ImageGalleryModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
-      <div className="relative max-w-7xl max-h-full p-4">
+      <div ref={modalRef} className="relative max-w-7xl max-h-full p-4">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 text-3xl"
+          aria-label="Fechar galeria"
         >
           ×
         </button>
@@ -73,12 +76,14 @@ export default function ImageGalleryModal({
             <button
               onClick={() => setCurrentIndex(prev => prev > 0 ? prev - 1 : images.length - 1)}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 text-4xl"
+              aria-label="Imagem anterior"
             >
               ‹
             </button>
             <button
               onClick={() => setCurrentIndex(prev => prev < images.length - 1 ? prev + 1 : 0)}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 text-4xl"
+              aria-label="Próxima imagem"
             >
               ›
             </button>
