@@ -10,7 +10,7 @@ export const ExplanationBoxes = ({ boxes }: { boxes: box[] }) => {
         {boxes.map((box : box, index) => {
           return (
             <div key={index} className="text-gray-800 p-6 sm:w-2/3 lg:w-5/6 sm:max-w-2xl mx-auto">
-              <h1 className="text-4xl font-bold mb-2">{box.title}</h1>
+              <h2 className="text-4xl font-bold mb-2">{box.title}</h2>
               <p className="text-left">{box.description}</p>
             </div>
           );

@@ -4,7 +4,7 @@ export function ImagesGrid({ title, images }: any) {
   return (
     <section className="bg-white">
       <div className="flex-1 container mx-auto p-10 text-center">
-        <h3 className="font-bold text-3xl text-ameciclo py-8">{title}</h3>
+        <h2 className="font-bold text-3xl text-ameciclo py-8">{title}</h2>
         <div
           className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           style={{ justifyItems: "center" }}
