@@ -67,7 +67,7 @@ const Card = ({
           <h2 className="text-2xl font-bold uppercase tracking-wider my-2">
             {title}
           </h2>
-          <p className="text-base font-medium">{description}</p>
+          <p className="text-base font-medium text-gray-700">{description}</p>
         </div>
       </div>
     </Link>
