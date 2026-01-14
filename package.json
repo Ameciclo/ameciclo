@@ -1,5 +1,14 @@
 {
   "name": "ameciclo.org",
+  "version": "1.0.0",
+  "description": "Website da Ameciclo - Associação Metropolitana de Ciclistas do Grande Recife",
+  "license": "AGPL-3.0",
+  "author": "Ameciclo <contato@ameciclo.org>",
+  "homepage": "https://ameciclo.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ameciclo/ameciclo.git"
+  },
   "private": true,
   "sideEffects": false,
   "type": "module",
