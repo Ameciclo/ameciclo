@@ -57,7 +57,8 @@ const Card = ({
               <img
                 className="h-40 object-contain mx-auto mb-4"
                 src={src}
-                alt={title}
+                alt=""
+                aria-hidden="true"
                 height={160}
                 width={160}
               />

@@ -244,7 +244,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                         {...column.getSortByToggleProps({ title: "Ordenar" })}
                                         className="flex items-center cursor-pointer"
                                     >
-                                        <span className="inline-block">
+                                        <span className="inline-block" aria-hidden="true">
                                             {column.isSorted
                                                 ? column.isSortedDesc
                                                     ? "🔻 "
