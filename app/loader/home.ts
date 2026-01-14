@@ -12,21 +12,23 @@ export const loader: LoaderFunction = async () => {
 
   const HOME_URL = `${CMS_BASE_URL}/home`;
 
-  // Tentar buscar dados reais
+  // Tentar buscar dados reais com timeout reduzido
   const [homeData, projectsData] = await Promise.all([
     fetchWithTimeout(
       HOME_URL,
-      {},
-      3000,
+      { cache: "force-cache" },
+      2000,
       staticFallbacks.home,
-      onError(HOME_URL)
+      onError(HOME_URL),
+      0
     ),
     fetchWithTimeout(
       PROJECTS_DATA,
-      {},
-      3000,
+      { cache: "force-cache" },
+      2000,
       staticFallbacks.projects,
-      onError(PROJECTS_DATA)
+      onError(PROJECTS_DATA),
+      0
     )
   ]);
 

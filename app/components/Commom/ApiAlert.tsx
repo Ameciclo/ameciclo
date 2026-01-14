@@ -15,8 +15,8 @@ export function ApiAlert() {
     return encodeURIComponent(errorDetails);
   };
   
-  // Não mostrar o alerta nas páginas de dados
-  if (location.pathname.startsWith('/dados')) {
+  // Não mostrar o alerta na página inicial e nas páginas de dados
+  if (location.pathname === '/' || location.pathname.startsWith('/dados')) {
     return null;
   }
 

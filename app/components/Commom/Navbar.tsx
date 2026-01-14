@@ -76,7 +76,7 @@ export const Navbar = ({ pages }: any) => {
         role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
-          <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)} className="relative z-[85] pointer-events-auto">
+          <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)} className="relative z-[85] pointer-events-auto" prefetch="intent">
             <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
           </Link>
 
@@ -149,7 +149,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
             <div className={`uppercase h-14 flex items-center relative ${
               isActive ? 'font-semibold' : 'text-white'
             } ${isDadosPage ? 'dados-button' : ''}`}>
-              <Link to={page.url} className="flex items-center">
+              <Link to={page.url} className="flex items-center" prefetch="intent">
                 <span>{page.name}</span>
               </Link>
               {isDadosPage && (
@@ -272,6 +272,7 @@ function SmallMenu({ pages, closeMenu }: any) {
                                       : 'hover:bg-white hover:bg-opacity-10'
                                   }`}
                                   onClick={handleLinkClick}
+                                  prefetch="intent"
                                 >
                                   {subPage.name}
                                 </Link>
@@ -291,6 +292,7 @@ function SmallMenu({ pages, closeMenu }: any) {
                         : 'hover:bg-white hover:bg-opacity-10'
                     }`}
                     onClick={handleLinkClick}
+                    prefetch="intent"
                   >
                     {page.name}
                   </Link>

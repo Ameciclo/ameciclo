@@ -17,10 +17,10 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
             <h3 className="text-xl font-semibold text-green-400 mb-4">Processo de Contribuição</h3>
             <div className="space-y-4">
               <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
-                <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>1. Fork e Clone</h4>
+                <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>1. Clone o Repositório</h4>
                 <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mt-2`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
-                    git clone https://github.com/SEU-USUARIO/ameciclo.git<br />
+                    git clone https://github.com/Ameciclo/ameciclo.git<br />
                     cd ameciclo
                   </code>
                 </div>

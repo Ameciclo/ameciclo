@@ -32,13 +32,14 @@ export default function VisaoGeral({ searchTerm, setSearchTerm, searchResults, s
       </div>
       <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 lg:p-6 border`}>
         <p className="text-lg mb-4" style={{ fontSize: fontSize + 2 }}>
-          O projeto <strong className={darkMode ? 'text-green-400' : 'text-green-700'}>Ameciclo</strong> é uma plataforma web desenvolvida com <strong>Remix</strong> e <strong>TypeScript</strong>
-          que tem como objetivo fornecer dados sobre mobilidade ativa na região metropolitana do Recife.
+          O projeto <strong className={darkMode ? 'text-green-400' : 'text-green-700'}>Ameciclo</strong> é uma plataforma web full-stack desenvolvida com <strong>Remix</strong>, <strong>TypeScript</strong> e <strong>React</strong>
+          que fornece dados abertos sobre mobilidade ativa na região metropolitana do Recife.
         </p>
         <p className="mb-4" style={{ fontSize: fontSize }}>
-          A plataforma oferece visualização de dados de contagens de ciclistas, documentos relacionados à mobilidade urbana,
-          observatórios especializados em diferentes aspectos da mobilidade ativa, e ferramentas de monitoramento para
-          garantir a disponibilidade e performance de todos os serviços.
+          A plataforma integra múltiplas fontes de dados (APIs externas, CMS Strapi, dados estáticos) e oferece:
+          visualizações interativas com mapas (Mapbox), gráficos (Highcharts), calendários (FullCalendar),
+          observatórios especializados (Ideciclo, Sinistros Fatais, Vias Inseguras, SAMU, CicloDados),
+          sistema de contagens de ciclistas, documentos públicos, projetos da organização e ferramentas de acessibilidade.
         </p>
         <div className={`${darkMode ? 'bg-blue-900/30 border-blue-500/30' : 'bg-blue-50 border-blue-200'} border rounded-lg p-4 mb-6`}>
           <div className="flex items-center gap-2 mb-2">
@@ -56,14 +57,18 @@ export default function VisaoGeral({ searchTerm, setSearchTerm, searchResults, s
           </a>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 mt-6">
+        <div className="grid md:grid-cols-3 gap-4 mt-6">
           <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
-            <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Objetivo</h4>
-            <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Promover a mobilidade ativa através de dados e informações acessíveis</p>
+            <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Arquitetura</h4>
+            <p className="text-sm" style={{ fontSize: fontSize - 2 }}>SSR com Remix, 27 rotas, 182+ componentes, deploy Vercel</p>
           </div>
           <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
-            <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Tecnologias</h4>
-            <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Remix, TypeScript, React, Tailwind CSS</p>
+            <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Stack Principal</h4>
+            <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Remix 2.16, React 18, TypeScript 5, Vite 5, Tailwind CSS 3</p>
+          </div>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+            <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Recursos</h4>
+            <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Mapas, gráficos, calendários, busca, acessibilidade WCAG</p>
           </div>
         </div>
       </div>

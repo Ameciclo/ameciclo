@@ -12,6 +12,7 @@ import {
   TroubleshootIcon,
   DeployIcon,
   ContributeIcon,
+  CheckIcon,
 } from "~/components/Commom/Icones/DocumentationIcons";
 
 
@@ -84,6 +85,7 @@ import Contribuicao from "~/components/Documentacao/Contribuicao";
 import Testes from "~/components/Documentacao/Testes";
 import Configuracao from "~/components/Documentacao/Configuracao";
 import Solucoes from "~/components/Documentacao/Solucoes";
+import BoasPraticas from "~/components/Documentacao/BoasPraticas";
 import AccessibilityControls from "~/components/Commom/AccessibilityControls";
 import ChangeThemeButton from "~/components/Commom/ChangeThemeButton";
 
@@ -165,7 +167,8 @@ export default function Docs() {
     { id: 'configuracao', title: 'Configuração', icon: ConfigIcon },
     { id: 'solucoes', title: 'Soluções', icon: TroubleshootIcon },
     { id: 'deploy', title: 'Deploy', icon: DeployIcon },
-    { id: 'contribuicao', title: 'Contribuição', icon: ContributeIcon }
+    { id: 'contribuicao', title: 'Contribuição', icon: ContributeIcon },
+    { id: 'boas-praticas', title: 'Boas Práticas', icon: CheckIcon }
   ], []);
 
   const searchData = useMemo(() => [
@@ -179,7 +182,8 @@ export default function Docs() {
     { id: "configuracao", title: "Configuração", content: "environment variables config .env tailwind analytics google" },
     { id: "solucoes", title: "Soluções", content: "problemas erros soluções troubleshooting debug port timeout module not found" },
     { id: "deploy", title: "Deploy", content: "produção build deployment npm start servidor dependências framework" },
-    { id: "contribuicao", title: "Contribuição", content: "git github pull request fork clone commit push issues contribuir" }
+    { id: "contribuicao", title: "Contribuição", content: "git github pull request fork clone commit push issues contribuir" },
+    { id: "boas-praticas", title: "Boas Práticas", content: "loaders servers cores padrão cards bordas fontes estrutura pastas arquivos componentes" }
   ], []);
 
   useEffect(() => {
@@ -330,6 +334,7 @@ export default function Docs() {
           <Solucoes darkMode={darkMode} fontSize={fontSize} />
           <Deploy darkMode={darkMode} fontSize={fontSize} />
           <Contribuicao darkMode={darkMode} fontSize={fontSize} />
+          <BoasPraticas darkMode={darkMode} fontSize={fontSize} />
         </div>
       </div>
       <AccessibilityControls

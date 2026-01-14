@@ -13,42 +13,74 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
           <pre className={`text-sm ${darkMode ? 'text-green-300' : 'text-green-700'} overflow-x-auto`} style={{ fontSize: fontSize - 2 }}>
 {`ameciclo/
 ├── app/
-│   ├── components/          # Componentes React organizados por funcionalidade
-│   │   ├── Commom/         # Componentes reutilizáveis (Navbar, Footer, Banner, etc.)
-│   │   │   ├── Navbar.tsx  # Barra de navegação principal
-│   │   │   ├── Footer.tsx  # Rodapé do site
-│   │   │   ├── Banner.tsx  # Banner de páginas
-│   │   │   ├── Breadcrumb.tsx # Navegação estrutural
-│   │   │   └── Icones/     # Ícones SVG personalizados
-│   │   ├── Agenda/         # Componentes específicos da agenda
-│   │   ├── Contagens/      # Componentes para visualização de contagens
-│   │   ├── Dados/          # Componentes da seção de dados
-│   │   ├── Documentacao/   # Componentes da documentação
-│   │   ├── Projetos/       # Componentes da seção de projetos
-│   │   └── QuemSomos/      # Componentes da página "Quem Somos"
-│   ├── routes/             # Rotas da aplicação (file-based routing)
-│   │   ├── _index.tsx      # Página inicial (/)
-│   │   ├── agenda.tsx      # Página da agenda (/agenda)
-│   │   ├── dados._index.tsx # Página principal de dados (/dados)
-│   │   ├── dados.contagens.tsx # Página de contagens (/dados/contagens)
-│   │   ├── contagens.$slug.tsx # Página individual de contagem
-│   │   ├── projetos._index.tsx # Página de projetos
-│   │   ├── projetos.$projeto.tsx # Página individual de projeto
-│   │   ├── documentacao._index.tsx # Esta documentação
-│   │   └── *.tsx           # Outras rotas
-│   ├── loader/             # Funções de carregamento de dados
-│   │   ├── agenda.ts       # Loader para dados da agenda
-│   │   ├── dados.contagens.ts # Loader para contagens
-│   │   ├── projetos.ts     # Loader para projetos
-│   │   └── *.ts            # Outros loaders
-│   ├── services/           # Serviços e utilitários
-│   │   └── utils.ts        # Funções utilitárias
-│   └── types/              # Definições de tipos TypeScript
-├── public/                 # Arquivos estáticos
-│   ├── icons/              # Ícones e imagens
-│   └── *.webp              # Imagens otimizadas
-├── documentation/          # Documentação adicional
-└── package.json           # Dependências e scripts`}
+│   ├── components/          # 182+ componentes React organizados por funcionalidade
+│   │   ├── Commom/         # Componentes globais reutilizáveis
+│   │   │   ├── Navbar.tsx, Footer.tsx, Banner.tsx, Breadcrumb.tsx
+│   │   │   ├── AccessibilityControls.tsx, ChangeThemeButton.tsx
+│   │   │   ├── ErrorBoundary.tsx, ApiStatusHandler.tsx
+│   │   │   ├── Charts/, Maps/, Table/, Icones/
+│   │   │   └── GoogleAnalytics.tsx, SEO.tsx
+│   │   ├── Agenda/         # FullCalendar com Google Calendar API
+│   │   ├── Biciclopedia/   # FAQ com busca e accordion
+│   │   ├── CicloDados/     # Plataforma de dados colaborativos
+│   │   ├── Contagens/      # Visualização de contagens de ciclistas
+│   │   ├── Dados/          # Hub central de dados
+│   │   ├── Documentacao/   # Esta documentação (11 componentes)
+│   │   ├── ExecucaoCicloviaria/ # Execução de infraestrutura
+│   │   ├── Ideciclo/       # Índice de ciclabilidade
+│   │   ├── PaginaInicial/  # Componentes da home
+│   │   ├── Projetos/       # Projetos da organização
+│   │   ├── QuemSomos/      # Sobre a Ameciclo
+│   │   ├── Samu/           # Dados de chamados do SAMU
+│   │   ├── SinistrosFatais/ # Análise de sinistros fatais
+│   │   └── ViasInseguras/  # Ranking de vias perigosas
+│   ├── routes/             # 27 rotas (file-based routing do Remix)
+│   │   ├── _index.tsx      # Home com seções dinâmicas
+│   │   ├── agenda.tsx, biciclopedia.tsx, contato.tsx
+│   │   ├── dados._index.tsx, dados.ciclodados._index.tsx
+│   │   ├── dados.contagens.$slug.tsx, dados.via.$slug.tsx
+│   │   ├── dados.ideciclo.$id.tsx, dados.sinistros-fatais.tsx
+│   │   ├── dados.vias-inseguras.tsx, dados.samu.tsx
+│   │   ├── projetos.$projeto.tsx, quem_somos.tsx
+│   │   └── documentacao._index.tsx # Esta página
+│   ├── loader/             # Loaders para SSR e data fetching
+│   │   ├── home.ts, agenda.ts, projetos.ts, quem_somos.ts
+│   │   ├── dados.contagens.ts, dados.ideciclo.ts
+│   │   ├── dados.sinistros-fatais.ts, dados.samu.ts
+│   │   └── compareContagensLoader.ts
+│   ├── services/           # Serviços e APIs
+│   │   ├── fetchWithTimeout.ts  # Fetch com timeout e fallback
+│   │   ├── cmsApi.ts            # Integração com Strapi CMS
+│   │   ├── contagens.service.ts # Serviço de contagens
+│   │   ├── ciclodados.service.ts, streets.service.ts
+│   │   ├── cache.ts, staticFallbacks.ts
+│   │   └── SinistrosFatais/
+│   ├── contexts/           # React Context API
+│   │   └── ApiStatusContext.tsx # Status global de APIs
+│   ├── providers/          # Providers globais
+│   │   └── QueryProvider.tsx    # TanStack Query
+│   ├── hooks/              # Custom hooks
+│   │   ├── useApiWithAlert.ts, useFocusTrap.ts
+│   ├── utils/              # Utilitários
+│   │   ├── mapbox.server.ts, slugify.ts, translations.ts
+│   │   └── contagens/
+│   ├── types/              # TypeScript types
+│   ├── root.tsx            # Root component com layout global
+│   ├── entry.client.tsx    # Entry point do cliente
+│   ├── entry.server.tsx    # Entry point do servidor
+│   └── globals.css         # Estilos globais
+├── public/                 # Assets estáticos
+│   ├── icons/              # Ícones SVG organizados por seção
+│   ├── ideciclo/, images/, pages_covers/
+│   ├── data/               # GeoJSON e dados estáticos
+│   └── dbs/                # Databases JSON locais
+├── docs/                   # Documentação de APIs
+├── .env                    # Variáveis de ambiente
+├── vite.config.ts          # Configuração Vite + Remix
+├── tailwind.config.ts      # Configuração Tailwind CSS
+├── tsconfig.json           # Configuração TypeScript
+├── vercel.json             # Deploy Vercel
+└── package.json            # Dependências e scripts`}
           </pre>
         </div>
         
@@ -61,12 +93,18 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
             </h4>
             <p className="text-sm mb-3" style={{ fontSize: fontSize - 2 }}>Pasta de <strong>componentes reutilizáveis</strong> usados em toda a aplicação:</p>
             <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
-              <li>• <strong>Navbar.tsx</strong> - Barra de navegação com logo responsiva</li>
-              <li>• <strong>Footer.tsx</strong> - Rodapé com links e informações</li>
-              <li>• <strong>Banner.tsx</strong> - Banner de cabeçalho das páginas</li>
-              <li>• <strong>Breadcrumb.tsx</strong> - Navegação estrutural</li>
-              <li>• <strong>GoogleAnalytics.tsx</strong> - Integração com GA</li>
-              <li>• <strong>Icones/</strong> - Ícones SVG personalizados</li>
+              <li>• <strong>Navbar.tsx</strong> - Navegação responsiva com menu mobile</li>
+              <li>• <strong>Footer.tsx</strong> - Rodapé com links e redes sociais</li>
+              <li>• <strong>Banner.tsx</strong> - Banners de páginas com imagens otimizadas</li>
+              <li>• <strong>Breadcrumb.tsx</strong> - Navegação estrutural (SEO)</li>
+              <li>• <strong>AccessibilityControls.tsx</strong> - Controles WCAG (fonte, contraste)</li>
+              <li>• <strong>ChangeThemeButton.tsx</strong> - Toggle dark/light mode</li>
+              <li>• <strong>ErrorBoundary.tsx</strong> - Tratamento de erros React</li>
+              <li>• <strong>ApiStatusHandler.tsx</strong> - Monitoramento de APIs</li>
+              <li>• <strong>Charts/</strong> - Componentes Highcharts reutilizáveis</li>
+              <li>• <strong>Maps/</strong> - Componentes Mapbox GL reutilizáveis</li>
+              <li>• <strong>Table/</strong> - Tabelas com filtros e ordenação</li>
+              <li>• <strong>GoogleAnalytics.tsx</strong> - GA4 tracking</li>
             </ul>
           </div>
           
@@ -77,11 +115,18 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
             </h4>
             <p className="text-sm mb-3" style={{ fontSize: fontSize - 2 }}>Sistema de roteamento baseado em arquivos do Remix:</p>
             <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
-              <li>• <strong>_index.tsx</strong> - Página inicial com seções dinâmicas</li>
-              <li>• <strong>dados._index.tsx</strong> - Hub central de dados</li>
-              <li>• <strong>contagens.$slug.tsx</strong> - Páginas dinâmicas de contagens</li>
-              <li>• <strong>projetos.$projeto.tsx</strong> - Páginas dinâmicas de projetos</li>
-              <li>• <strong>documentacao._index.tsx</strong> - Esta documentação</li>
+              <li>• <strong>_index.tsx</strong> - Home (banner, carrossel, dados, CTA)</li>
+              <li>• <strong>dados._index.tsx</strong> - Hub de dados com cards</li>
+              <li>• <strong>dados.ciclodados._index.tsx</strong> - Plataforma colaborativa</li>
+              <li>• <strong>dados.contagens.$slug.tsx</strong> - Contagem individual com gráficos</li>
+              <li>• <strong>dados.contagens.$slug.$compareSlug.tsx</strong> - Comparação</li>
+              <li>• <strong>dados.ideciclo.$id.tsx</strong> - Detalhes do Ideciclo</li>
+              <li>• <strong>dados.sinistros-fatais.tsx</strong> - Análise de sinistros</li>
+              <li>• <strong>dados.vias-inseguras.tsx</strong> - Ranking de vias</li>
+              <li>• <strong>dados.via.$slug.tsx</strong> - Detalhes de via individual</li>
+              <li>• <strong>dados.samu.tsx</strong> - Chamados SAMU com mapa coroplético</li>
+              <li>• <strong>projetos.$projeto.tsx</strong> - Projeto individual do CMS</li>
+              <li>• <strong>biciclopedia.$question.tsx</strong> - FAQ individual</li>
             </ul>
           </div>
           
@@ -92,9 +137,16 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
             </h4>
             <p className="text-sm mb-3" style={{ fontSize: fontSize - 2 }}>Funções para carregamento de dados do servidor:</p>
             <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
-              <li>• <strong>dados.contagens.ts</strong> - Carrega dados de contagens de ciclistas</li>
-              <li>• <strong>projetos.ts</strong> - Carrega informações dos projetos</li>
-              <li>• <strong>agenda.ts</strong> - Integração com Google Calendar</li>
+              <li>• <strong>home.ts</strong> - Dados da home (projetos, contagens)</li>
+              <li>• <strong>dados.contagens.ts</strong> - Lista de contagens da API</li>
+              <li>• <strong>compareContagensLoader.ts</strong> - Comparação de contagens</li>
+              <li>• <strong>dados.ideciclo.ts</strong> - Dados do índice de ciclabilidade</li>
+              <li>• <strong>dados.sinistros-fatais.ts</strong> - Dados de sinistros</li>
+              <li>• <strong>dados.vias-inseguras.ts</strong> - Ranking de vias</li>
+              <li>• <strong>dados.samu.ts</strong> - Chamados do SAMU</li>
+              <li>• <strong>projetos.ts</strong> - Projetos do CMS Strapi</li>
+              <li>• <strong>agenda.ts</strong> - Google Calendar API</li>
+              <li>• <strong>quem_somos.ts</strong> - Dados da página institucional</li>
             </ul>
           </div>
         </div>
