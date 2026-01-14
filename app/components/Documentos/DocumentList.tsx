@@ -5,6 +5,7 @@ export type document = {
   type: string;
   release_date: string;
   cover: any;
+  coverAlt?: string;
 };
 import { Link } from "@remix-run/react";
 
@@ -75,7 +76,7 @@ const DocumentCard = ({ document, indicator, searchTerm }: any) => {
         <div className="">
           <ImageWithLink
             url={document.url}
-            alt={""}
+            alt={document.coverAlt || document.title}
             src={document.cover}
             aspectRatio={0.75}
           />

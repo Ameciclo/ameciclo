@@ -28,12 +28,14 @@ export const loader: LoaderFunction = async () => {
         type: string;
         release_date: string;
         cover: any;
+        coverAlt?: string;
     };
 
     const documents: document[] = data1?.map((doc: any) => {
         return {
             ...doc,
             cover: doc.cover.url,
+            coverAlt: doc.cover.alternativeText || doc.cover.alt,
         };
     });
     
