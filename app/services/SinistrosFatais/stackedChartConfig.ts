@@ -1,14 +1,38 @@
+interface TransportModeData {
+  [year: string]: number;
+}
+
+interface City {
+  id: string;
+  transportModes?: {
+    [mode: string]: TransportModeData;
+  };
+}
+
+interface CitiesByYearData {
+  years: number[];
+  cities: City[];
+  transportModes?: string[];
+}
+
+interface SeriesData {
+  name: string;
+  type: string;
+  data: number[];
+  color: string;
+}
+
+interface StackedChartResult {
+  categories: string[];
+  series: SeriesData[];
+}
+
 // Função para gerar dados para o gráfico empilhado por modo de transporte
-export function getStackedTransportModeData(citiesByYearData, selectedCity, tipoLocal = "ocorrencia") {
-  console.log("getStackedTransportModeData - Entrada:", {
-    hasCitiesByYearData: !!citiesByYearData,
-    hasAnos: !!citiesByYearData?.years,
-    anos: citiesByYearData?.years,
-    selectedCity,
-    tipoLocal,
-    transportModes: citiesByYearData?.transportModes
-  });
-  
+export function getStackedTransportModeData(
+  citiesByYearData: CitiesByYearData | null,
+  selectedCity: string | null,
+  tipoLocal: string = "ocorrencia"
+): StackedChartResult {
   // Se não temos dados, retornar estrutura vazia
   if (!citiesByYearData?.years) {
     return {
@@ -116,8 +140,6 @@ export function getStackedTransportModeData(citiesByYearData, selectedCity, tipo
     
     return (ordem[a.name] || 999) - (ordem[b.name] || 999);
   });
-  
-  console.log("Séries geradas:", series);
   
   return {
     categories: anosDisponiveis.map(ano => ano.toString()),

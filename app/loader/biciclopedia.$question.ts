@@ -35,7 +35,6 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
     return json({ question });
   } catch (error) {
-    console.error('Error loading question:', error);
     throw new Response("Error loading question", { status: 500 });
   }
 };

@@ -4,7 +4,7 @@ import {
   VIAS_INSEGURAS_TOP,
   VIAS_INSEGURAS_MAP,
   VIAS_INSEGURAS_HISTORY
-} from "../servers.js";
+} from "../servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export async function loader() {
