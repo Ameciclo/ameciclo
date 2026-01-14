@@ -16,20 +16,22 @@ export default function Index() {
   const { setApiDown, addApiError } = useApiStatus();
   
   useEffect(() => {
-    setApiDown(apiDown);
+    if (apiDown !== undefined) {
+      setApiDown(apiDown);
+    }
     if (apiErrors && apiErrors.length > 0) {
       apiErrors.forEach((error: {url: string, error: string}) => {
         addApiError(error.url, error.error, '/');
       });
     }
-  }, [apiDown, apiErrors, setApiDown, addApiError]);
+  }, [apiDown, apiErrors]);
 
   const handleCacheAllow = () => {
     window.location.reload();
   };
 
   const handleCacheDeny = () => {
-    // Remove apenas a barra
+    // Modal fechado
   };
   
   return (

@@ -76,7 +76,7 @@ export const Navbar = ({ pages }: any) => {
         role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
-          <Link to="/" aria-label="Ir para o site da Ameciclo" onClick={() => window.scrollTo(0, 0)} className="relative z-[85] pointer-events-auto" prefetch="intent">
+          <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-[85] pointer-events-auto" prefetch="intent">
             <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
           </Link>
 
@@ -196,7 +196,6 @@ function SmallMenu({ pages, closeMenu }: any) {
 
   const handleLinkClick = () => {
     closeMenu();
-    setTimeout(() => window.scrollTo(0, 0), 100);
   };
 
   return (

@@ -47,13 +47,13 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
     if (loaded && instanceRef.current && !autoplayIntervalRef.current) {
       setProgress(0);
 
-      // Atualizar progresso a cada 100ms (reduzido de 50ms)
+      // Atualizar progresso a cada 200ms para melhor performance
       progressIntervalRef.current = setInterval(() => {
         setProgress(prev => {
-          const newProgress = prev + (100 / AUTOPLAY_DURATION) * 100;
+          const newProgress = prev + (200 / AUTOPLAY_DURATION) * 100;
           return newProgress >= 100 ? 100 : newProgress;
         });
-      }, 100);
+      }, 200);
 
       autoplayIntervalRef.current = setInterval(() => {
         instanceRef.current?.next();
@@ -221,14 +221,7 @@ const ProjectSlide = memo(({ project, onMouseEnter, onMouseLeave }: any) => {
   const slug = project.slug || "";
   const imageUrl = project.media.url || "";
 
-  useEffect(() => {
-    console.log({
-      name: project.name,
-      description: project.description,
-      slug: project.slug,
-      imageUrl: project.media.url,
-    })
-  }, [])
+
 
   return (
     <div className="flex relative w-full h-full">

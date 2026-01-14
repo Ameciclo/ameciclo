@@ -14,9 +14,10 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
     if (typeof window !== 'undefined') {
       const cachePermission = localStorage.getItem('cache-permission');
       if (!cachePermission) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           setIsVisible(true);
-        }, 3000);
+        }, 1000);
+        return () => clearTimeout(timer);
       }
     }
   }, []);
