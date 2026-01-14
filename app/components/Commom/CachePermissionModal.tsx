@@ -34,7 +34,12 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[70%] md:max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 z-50">
+    <div 
+      className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[70%] md:max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 z-50"
+      role="dialog"
+      aria-labelledby="cache-modal-title"
+      aria-describedby="cache-modal-description"
+    >
       <div className="px-4 py-4 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-3 flex-1">
@@ -44,10 +49,10 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
               </svg>
             </div>
             <div className="flex-1">
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">
+              <h4 className="text-sm font-semibold text-gray-900 mb-1" id="cache-modal-title">
                 Melhorar sua experiência
               </h4>
-              <p className="text-sm text-gray-600 leading-relaxed">
+              <p className="text-sm text-gray-600 leading-relaxed" id="cache-modal-description">
                 Utilizamos cache local para acelerar o carregamento das páginas e melhorar sua navegação. 
                 Os dados são armazenados temporariamente apenas no seu navegador.
               </p>
@@ -57,12 +62,14 @@ export default function CachePermissionBar({ onAllow, onDeny }: CachePermissionB
             <button
               onClick={handleDeny}
               className="w-full md:w-auto px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              aria-label="Não permitir cache"
             >
               Não permitir
             </button>
             <button
               onClick={handleAllow}
               className="w-full md:w-auto px-4 py-2 text-sm font-medium text-white bg-ameciclo hover:bg-green-600 rounded-md transition-colors shadow-sm"
+              aria-label="Permitir cache"
             >
               Permitir cache
             </button>

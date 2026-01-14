@@ -159,8 +159,12 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
                     setIsSubmenuVisible(!isSubmenuVisible);
                   }}
                   className="ml-1 p-1 hover:bg-white hover:bg-opacity-10 rounded transition-colors"
+                  aria-label={isSubmenuVisible ? "Fechar submenu de dados" : "Abrir submenu de dados"}
+                  aria-expanded={isSubmenuVisible}
+                  aria-controls="dados-submenu"
+                  aria-haspopup="true"
                 >
-                  <svg className={`w-3 h-3 transition-transform duration-200 ${isSubmenuVisible ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-3 h-3 transition-transform duration-200 ${isSubmenuVisible ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -232,9 +236,12 @@ function SmallMenu({ pages, closeMenu }: any) {
                           ? 'bg-white bg-opacity-20 font-bold' 
                           : 'hover:bg-white hover:bg-opacity-10'
                       }`}
+                      aria-label={`${page.name} - ${isDataSubmenuOpen ? 'Fechar submenu' : 'Abrir submenu'}`}
+                      aria-expanded={isDataSubmenuOpen}
+                      aria-controls="dados-submenu-mobile"
                     >
                       <span>{page.name}</span>
-                      <svg className={`w-4 h-4 transition-transform duration-200 ${isDataSubmenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className={`w-4 h-4 transition-transform duration-200 ${isDataSubmenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
@@ -247,6 +254,9 @@ function SmallMenu({ pages, closeMenu }: any) {
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
+                          id="dados-submenu-mobile"
+                          role="region"
+                          aria-label="Submenu de dados"
                         >
                           <div className="pl-4 pt-2 space-y-1">
                             {dataSubPages.map((subPage) => {

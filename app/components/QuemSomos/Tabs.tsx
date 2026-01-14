@@ -33,7 +33,7 @@ interface TabsNavProps {
 const TabsNav = ({ children }: TabsNavProps) => {
     return (
         <div className="bg-white shadow-xl">
-            <nav className="flex flex-row items-center justify-around">{children}</nav>
+            <nav className="flex flex-row items-center justify-around" role="tablist" aria-label="Navegação por abas">{children}</nav>
         </div>
     );
 };
@@ -62,6 +62,10 @@ const Tab = ({ name, onClick = () => { }, children, disabled = false }: TabProps
         ${tabContext.activeTab === name ? " text-ameciclo border-ameciclo border-b-2" : ""}`}
             disabled={disabled}
             onClick={handleClick}
+            role="tab"
+            aria-selected={tabContext.activeTab === name}
+            aria-controls={`tabpanel-${name}`}
+            aria-label={`Aba ${name}`}
         >
             {children}
         </button>
@@ -77,7 +81,13 @@ const TabPanel = ({ name, children }: TabPanelProps) => {
     const tabContext = useContext(TabContext);
 
     return tabContext.activeTab === name ? (
-        <section className="container my-12 mx-auto" style={{ minHeight: "482px" }}>
+        <section 
+            className="container my-12 mx-auto" 
+            style={{ minHeight: "482px" }}
+            id={`tabpanel-${name}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${name}`}
+        >
             <div className="flex flex-wrap mx-3 overflow-hidden justify-center">{children}</div>
         </section>
     ) : null;

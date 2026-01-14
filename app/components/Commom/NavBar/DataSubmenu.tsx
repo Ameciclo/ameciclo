@@ -26,6 +26,9 @@ export function DataSubmenu() {
       transition={{ duration: 0.15 }}
       className="submenu-container fixed top-14 left-0 right-0 z-[150] shadow-lg pointer-events-auto"
       style={{backgroundColor: '#008080'}}
+      id="dados-submenu"
+      role="navigation"
+      aria-label="Submenu de dados"
     >
       <div className="w-full flex items-center justify-center px-8 py-1 m-0 lg:px-32 xl:px-32">
         <div className="hidden xl:flex items-center space-x-1 py-1">

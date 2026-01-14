@@ -85,16 +85,19 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
             <button 
               onClick={() => toggleFilter('baseType')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"
+              aria-label="Filtro de base de dados"
+              aria-expanded={isOpen === 'baseType'}
+              aria-controls="filter-baseType"
             >
               <span className="text-gray-500 mr-2">Base:</span>
               <span>{getBaseTypeLabel()}</span>
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             
             {isOpen === 'baseType' && (
-              <div className="absolute bottom-full left-0 mb-2 w-full bg-white shadow-lg rounded-lg border border-gray-100 p-2">
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-white shadow-lg rounded-lg border border-gray-100 p-2" id="filter-baseType" role="menu" aria-label="Opções de base de dados">
                 <button 
                   className={`w-full text-left px-4 py-2 rounded-lg mb-1 ${baseType === 'ocorrencia' ? 'bg-[#008888] text-white' : 'hover:bg-gray-100'}`}
                   onClick={() => {
@@ -122,16 +125,19 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
             <button 
               onClick={() => toggleFilter('deathLocation')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"
+              aria-label="Filtro de local de óbito"
+              aria-expanded={isOpen === 'deathLocation'}
+              aria-controls="filter-deathLocation"
             >
               <span className="text-gray-500 mr-2">Local:</span>
               <span>{getDeathLocationLabel()}</span>
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             
             {isOpen === 'deathLocation' && (
-              <div className="absolute bottom-full left-0 mb-2 w-full bg-white shadow-lg rounded-lg border border-gray-100 p-2">
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-white shadow-lg rounded-lg border border-gray-100 p-2" id="filter-deathLocation" role="menu" aria-label="Opções de local de óbito">
                 <button 
                   className={`w-full text-left px-4 py-2 rounded-lg mb-1 ${deathLocation === 'all' ? 'bg-[#008888] text-white' : 'hover:bg-gray-100'}`}
                   onClick={() => {
@@ -177,16 +183,19 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
             <button 
               onClick={() => toggleFilter('year')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"
+              aria-label="Filtro de ano"
+              aria-expanded={isOpen === 'year'}
+              aria-controls="filter-year"
             >
               <span className="text-gray-500 mr-2">Ano:</span>
               <span>{getYearLabel()}</span>
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             
             {isOpen === 'year' && (
-              <div className="absolute bottom-full left-0 mb-2 w-full max-w-xs sm:max-w-md bg-white shadow-lg rounded-lg border border-gray-200 p-2">
+              <div className="absolute bottom-full left-0 mb-2 w-full max-w-xs sm:max-w-md bg-white shadow-lg rounded-lg border border-gray-200 p-2" id="filter-year" role="menu" aria-label="Seleção de ano">
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
                   {availableYears.map(year => (
                     <button 
@@ -231,16 +240,19 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
             <button 
               onClick={() => toggleFilter('city')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"
+              aria-label="Filtro de cidade"
+              aria-expanded={isOpen === 'city'}
+              aria-controls="filter-city"
             >
               <span className="text-gray-500 mr-2">Cidade:</span>
               <span>{selectedCityName}</span>
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             
             {isOpen === 'city' && (
-              <div className="absolute bottom-full left-0 mb-2 w-full max-h-60 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-200 p-2">
+              <div className="absolute bottom-full left-0 mb-2 w-full max-h-60 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-200 p-2" id="filter-city" role="menu" aria-label="Seleção de cidade">
                 {citiesList.length > 0 ? (
                   <div className="grid grid-cols-1 gap-1">
                     {citiesList.map(city => (

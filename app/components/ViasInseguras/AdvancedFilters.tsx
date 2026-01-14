@@ -72,6 +72,9 @@ export default function AdvancedFilters({ onFiltersChange, isLoading = false }: 
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          aria-label={isExpanded ? 'Ocultar filtros avançados' : 'Mostrar filtros avançados'}
+          aria-expanded={isExpanded}
+          aria-controls="advanced-filters-content"
         >
           <span>{isExpanded ? 'Ocultar' : 'Mostrar'} Filtros</span>
           <svg 
@@ -79,6 +82,7 @@ export default function AdvancedFilters({ onFiltersChange, isLoading = false }: 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
@@ -97,7 +101,7 @@ export default function AdvancedFilters({ onFiltersChange, isLoading = false }: 
       </div>
 
       {isExpanded && (
-        <div className="space-y-6">
+        <div className="space-y-6" id="advanced-filters-content" role="region" aria-label="Filtros avançados">
           {/* Período */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">

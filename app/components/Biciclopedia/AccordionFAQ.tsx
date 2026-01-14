@@ -41,11 +41,17 @@ export const AccordionItem = ({ categories }: AccordionItemProps) => {
         onClick={() => {
           toggleIsOpen(!isOpen);
         }}
-        onKeyDown={() => {
-          toggleIsOpen(!isOpen);
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleIsOpen(!isOpen);
+          }
         }}
         role="button"
         tabIndex={0}
+        aria-expanded={isOpen}
+        aria-controls={`accordion-content-${categories.id}`}
+        aria-label={`${categories.title} - ${isOpen ? 'Recolher' : 'Expandir'} categoria`}
       >
         <motion.span
           className="text-ameciclo"
@@ -77,6 +83,9 @@ export const AccordionItem = ({ categories }: AccordionItemProps) => {
               collapsed: { opacity: 0, height: 0 },
             }}
             transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
+            id={`accordion-content-${categories.id}`}
+            role="region"
+            aria-label={`Perguntas sobre ${categories.title}`}
           >
             <ul>
               {faqs_titles.map((faq) => {

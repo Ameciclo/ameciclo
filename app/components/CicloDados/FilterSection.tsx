@@ -196,6 +196,8 @@ export function FilterSection({
                 comingSoon || isToggling ? 'cursor-not-allowed' : 'hover:bg-gray-50'
               }`}
               disabled={comingSoon || isToggling}
+              aria-label={isAllSelected ? 'Ocultar todos os itens' : 'Mostrar todos os itens'}
+              aria-pressed={isAllSelected}
             >
               {isAllSelected ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
             </button>
@@ -207,12 +209,16 @@ export function FilterSection({
               comingSoon ? 'cursor-not-allowed' : 'hover:bg-gray-50'
             }`}
             disabled={comingSoon}
+            aria-label={actuallyExpanded ? 'Recolher seção' : 'Expandir seção'}
+            aria-expanded={actuallyExpanded}
+            aria-controls={`filter-section-${typeof title === 'string' ? title.toLowerCase().replace(/\s+/g, '-') : 'content'}`}
           >
             <svg 
               className={`w-4 h-4 transition-transform ${actuallyExpanded ? 'rotate-180' : ''}`} 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
@@ -220,7 +226,12 @@ export function FilterSection({
         </div>
       </div>
       {actuallyExpanded && (
-        <div className="px-2 pb-2 space-y-1">
+        <div 
+          className="px-2 pb-2 space-y-1"
+          id={`filter-section-${typeof title === 'string' ? title.toLowerCase().replace(/\s+/g, '-') : 'content'}`}
+          role="region"
+          aria-label={typeof title === 'string' ? `Filtros de ${title}` : 'Filtros'}
+        >
           {options.map((option) => (
             <OptionItem 
               key={option.name}

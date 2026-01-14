@@ -20,15 +20,19 @@ export default function AmeCiclistaModal({
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-      onClick={onClose} // Close when clicking outside the modal content
+      onClick={onClose}
+      role="dialog"
+      aria-labelledby="ameciclista-modal-title"
+      aria-modal="true"
     >
       <div
         className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal content
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold"
           onClick={onClose}
+          aria-label="Fechar modal"
         >
           &times;
         </button>
@@ -40,7 +44,7 @@ export default function AmeCiclistaModal({
               className="w-64 h-64 object-cover rounded-full mb-4"
             />
           )}
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2" id="ameciclista-modal-title">
             {ameciclista.name}
           </h2>
           {ameciclista.bio && (
