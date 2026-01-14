@@ -569,7 +569,12 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         {/* Chart */}
                         <div className="bg-white p-4 rounded-lg border">
                           <div className="relative h-48 w-full">
-                            <svg className="w-full h-full" viewBox="0 0 800 200">
+                            <svg 
+                              className="w-full h-full" 
+                              viewBox="0 0 800 200"
+                              role="img"
+                              aria-label={`Gráfico de linha mostrando histórico anual de emergências: ${finalData.emergency_calls.annual_history.sort((a, b) => a.year - b.year).slice(-8).map(y => `${y.year}: ${y.total_calls} chamadas`).join(', ')}`}
+                            >
                               {/* Grid lines */}
                               <defs>
                                 <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
