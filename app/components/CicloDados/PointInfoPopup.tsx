@@ -5,6 +5,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import { translateProfileData, translateBehavioralKey, calculatePercentage } from '~/utils/translations';
+import { useFocusTrap } from '~/hooks/useFocusTrap';
 
 interface PointInfoPopupProps {
   lat: number;
@@ -100,6 +101,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
   const [expandedEditions, setExpandedEditions] = useState<Set<string>>(new Set());
   const [expandedCounts, setExpandedCounts] = useState<Set<string>>(new Set());
+  const modalRef = useFocusTrap(true);
 
   const toggleEdition = (edition: string) => {
     const newExpanded = new Set(expandedEditions);
@@ -315,7 +317,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+      <div ref={modalRef} className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="point-info-title">
         {/* Header */}
         <div className="flex justify-between items-center p-5 border-b bg-gradient-to-r from-gray-50 to-white">
           <div>
