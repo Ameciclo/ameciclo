@@ -1202,7 +1202,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div role="img" aria-label={`Gráfico de evolução de emergências: ${chartData.map(d => `${d.year}: ${d.total_calls} chamadas`).join(', ')}`}>
+                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    </div>
                     <div className="grid grid-cols-3 gap-3 mt-4">
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">
@@ -1268,7 +1270,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div role="img" aria-label={`Gráfico de emergências por categoria: ${finalData.emergency_calls.by_category.map(cat => `${cat.category}: ${cat.count} chamadas`).join(', ')}`}>
+                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    </div>
                   </div>
                 );
               })()}
@@ -1312,7 +1316,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div role="img" aria-label={`Gráfico de infraestrutura cicloviária por tipo: ${Object.entries(infraTypes).map(([type, count]) => `${type}: ${count} vias`).join(', ')}`}>
+                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    </div>
                     <div className="grid grid-cols-3 gap-3 mt-4">
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">
@@ -1385,7 +1391,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div role="img" aria-label={`Gráfico de ciclistas contados por ano: ${years.map(year => `${year}: ${countsByYear[year]} ciclistas`).join(', ')}`}>
+                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">{totalCyclists}</p>
@@ -1459,7 +1467,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div role="img" aria-label={`Gráfico de perfil de gênero: ${Object.entries(latestEdition.gender_distribution).map(([gender, count]) => `${gender}: ${count} ciclistas`).join(', ')}`}>
+                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    </div>
                     <div className="text-center p-3 bg-gray-50 rounded mt-4">
                       <p className="text-2xl font-bold text-gray-800">{finalData.cyclist_profile.total_profiles}</p>
                       <p className="text-xs text-gray-600 mt-1">Total de Perfis Coletados</p>

@@ -442,7 +442,19 @@ export function MapView({
   };
 
   return (
-    <div style={{height: 'calc(100vh - 64px)'}} className="relative flex flex-col">
+    <div 
+      style={{height: 'calc(100vh - 64px)'}} 
+      className="relative flex flex-col"
+      role="application"
+      aria-label="Mapa interativo de dados de ciclomobilidade do Recife"
+      aria-describedby="map-description"
+    >
+      <div id="map-description" className="sr-only">
+        Mapa interativo mostrando infraestrutura cicloviária, contagens de ciclistas,
+        bicicletários, estações Bike PE e dados de segurança viária. 
+        Use os filtros na lateral para visualizar diferentes camadas de dados.
+        Clique em pontos do mapa para ver informações detalhadas.
+      </div>
       {/* Botão no canto superior esquerdo */}
       <div className="absolute top-4 left-4 z-[60] flex flex-col gap-2">
         <button
