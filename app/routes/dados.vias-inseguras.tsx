@@ -40,7 +40,7 @@ export default function ViasInsegurasPage() {
         addApiError(error.url, error.error, '/dados/observatorio/vias-inseguras');
       });
     }
-  }, [apiDown, apiErrors]);
+  }, [apiDown, apiErrors, setApiDown, addApiError]);
 
   return (
     <>

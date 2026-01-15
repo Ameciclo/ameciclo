@@ -175,7 +175,7 @@ export default function QuemSomos() {
         addApiError(error.url, error.error, '/quem_somos');
       });
     }
-  }, []);
+  }, [apiDown, apiErrors, setApiDown, addApiError]);
 
   return (
     <>

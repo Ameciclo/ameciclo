@@ -30,7 +30,7 @@ export default function Contagens() {
                 addApiError(error.url, error.error, '/dados/contagens');
             });
         }
-    }, []);
+    }, [apiDown, apiErrors, setApiDown, addApiError]);
     
     const hasAmecicloData = amecicloData && amecicloData.length > 0;
     const hasPcrData = pcrCounts && pcrCounts.length > 0;

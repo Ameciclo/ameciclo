@@ -21,7 +21,7 @@ export default function perfil() {
                 addApiError(error.url, error.error, '/dados/perfil');
             });
         }
-    }, [apiDown, apiErrors]);
+    }, [apiDown, apiErrors, setApiDown, addApiError]);
 
     return (
         <>

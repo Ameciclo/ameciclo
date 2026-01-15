@@ -21,7 +21,7 @@ export default function Documentos() {
                 addApiError(error.url, error.error, '/dados/documentos');
             });
         }
-    }, []);
+    }, [apiDown, apiErrors, setApiDown, addApiError]);
 
     return (
         <>
