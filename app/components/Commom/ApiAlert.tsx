@@ -56,6 +56,14 @@ export function ApiAlert() {
     return encodeURIComponent(errorDetails);
   };
 
+  // Na página inicial, apenas loga no console sem exibir aviso visual
+  if (location.pathname === '/') {
+    if (isApiDown && apiErrors.length > 0) {
+      console.warn('⚠️ APIs com falha na página inicial:', apiErrors);
+    }
+    return null;
+  }
+
   if (!isApiDown || dismissed) return null;
 
   return (
