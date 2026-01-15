@@ -2,12 +2,15 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { PLATAFORM_HOME_PAGE } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
+    const errors: Array<{url: string, error: string}> = [];
+    
     try {
         const res = await fetch(PLATAFORM_HOME_PAGE, {
             cache: "no-cache",
         });
 
         if (!res.ok) {
+            errors.push({ url: PLATAFORM_HOME_PAGE, error: `HTTP ${res.status}` });
             throw new Response("Erro ao buscar os dados", { status: res.status });
         }
 
@@ -126,9 +129,12 @@ export const loader: LoaderFunction = async () => {
             chartData,
             sustainableTotal: 35175000,
             unsustainableTotal: 148715000,
-            carbonValue: 3045.957
+            carbonValue: 3045.957,
+            apiDown: errors.length > 0,
+            apiErrors: errors
         });
-    } catch (error) {
+    } catch (error: any) {
+        errors.push({ url: PLATAFORM_HOME_PAGE, error: error.message || 'Erro desconhecido' });
         console.error("Error loading data:", error);
         return json({
             cover: null,
@@ -142,7 +148,9 @@ export const loader: LoaderFunction = async () => {
             },
             sustainableTotal: 0,
             unsustainableTotal: 0,
-            carbonValue: 0
+            carbonValue: 0,
+            apiDown: true,
+            apiErrors: errors
         });
     }
 };

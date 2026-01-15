@@ -157,6 +157,8 @@ export const StatisticsBoxIdeciclo2 = ({ title, boxes, subtitle = "" }: any) => 
 
 // texto dentro das box de "estatísticas gerais"
 function NumberBox({ title, value, unit = undefined, tooltip }: any) {
+  const isLoading = value === 0 || value === "0";
+  
   return (
     <div className="flex flex-col justify-center w-full p-6 text-center uppercase tracking-widest relative group">
       <h3 className="flex items-center justify-center gap-1">
@@ -170,8 +172,16 @@ function NumberBox({ title, value, unit = undefined, tooltip }: any) {
           </>
         )}
       </h3>
-      <h3 className="text-3xl sm:text-5xl font-bold mt-2">{value}</h3>
-      {unit && <p>{unit}</p>}
+      {isLoading ? (
+        <div className="flex justify-center mt-2">
+          <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <h3 className="text-3xl sm:text-5xl font-bold mt-2">{value}</h3>
+          {unit && <p>{unit}</p>}
+        </>
+      )}
     </div>
   );
 }

@@ -1,15 +1,30 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useLoaderData, Await } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import SinistrosFataisClientSide from "~/components/SinistrosFatais/SinistrosFataisClientSide";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { loader } from "~/loader/dados.sinistros-fatais";
 export { loader };
 
 
 
 export default function SinistrosFataisPage() {
-  const { summary, citiesByYear, pageData } = useLoaderData<typeof loader>();
+  const { summary, citiesByYear, pageData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+  
+  const { setApiDown, addApiError } = useApiStatus();
+  
+  useEffect(() => {
+    if (apiDown) {
+      setApiDown(true);
+    }
+    if (apiErrors && apiErrors.length > 0) {
+      apiErrors.forEach((error: {url: string, error: string}) => {
+        addApiError(error.url, error.error, '/dados/sinistros-fatais');
+      });
+    }
+  }, [apiDown, apiErrors]);
   
   return (
     <>
@@ -28,6 +43,7 @@ export default function SinistrosFataisPage() {
                 slug="/dados/sinistros-fatais"
                 routes={["/", "/dados"]}
               />
+              <ApiStatusHandler apiDown={apiDown} />
             </>
           )}
         </Await>

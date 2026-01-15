@@ -13,10 +13,9 @@ export { loader };
 
 export default function Index() {
   const { home, projects, apiDown, apiErrors } = useLoaderData<any>();
-  const { setApiDown, addApiError, clearErrors } = useApiStatus();
+  const { setApiDown, addApiError } = useApiStatus();
   
   useEffect(() => {
-    clearErrors();
     setApiDown(apiDown);
     if (apiErrors && apiErrors.length > 0) {
       apiErrors.forEach((error: {url: string, error: string}) => {

@@ -9,6 +9,8 @@ export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [svgCount, setSvgCount] = useState(0);
   const svgWidth = 68;
+  
+  const isLoading = !boxes[currentIndex]?.description || boxes[currentIndex]?.description === "";
 
   useEffect(() => {
     const updateSvgCount = () => {
@@ -66,7 +68,16 @@ export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
           </div>
         </div>
         <div className="relative z-[-2] top-[-50px] text-gray-800 p-12 py-24 mx-auto bg-gray-100 shadow-2xl">
-          <p className="text-justify">{boxes[currentIndex].description}</p>
+          {isLoading ? (
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-300 rounded animate-pulse w-5/6"></div>
+              <div className="h-4 bg-gray-300 rounded animate-pulse w-4/6"></div>
+              <div className="h-4 bg-gray-300 rounded animate-pulse w-3/4"></div>
+            </div>
+          ) : (
+            <p className="text-justify">{boxes[currentIndex].description}</p>
+          )}
         </div>
       </section>
       <div className="absolute bottom-0 md:top-0 left-0 w-full z-0 ">

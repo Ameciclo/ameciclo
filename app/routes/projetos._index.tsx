@@ -1,6 +1,6 @@
 import { MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -235,19 +235,15 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
 export default function Projetos() {
   const { projectsData, apiDown, apiErrors } = useLoaderData<typeof loader>();
   const { setApiDown, addApiError } = useApiStatus();
-  const errorsProcessed = useRef(false);
   
   useEffect(() => {
-    if (!errorsProcessed.current && apiDown) {
-      setApiDown(true);
-      if (apiErrors && apiErrors.length > 0) {
-        apiErrors.forEach((error: {url: string, error: string}) => {
-          addApiError(error.url, error.error, '/projetos');
-        });
-      }
-      errorsProcessed.current = true;
+    setApiDown(apiDown);
+    if (apiErrors && apiErrors.length > 0) {
+      apiErrors.forEach((error: {url: string, error: string}) => {
+        addApiError(error.url, error.error, '/projetos');
+      });
     }
-  }, [apiDown, apiErrors, setApiDown, addApiError]);
+  }, []);
 
   return (
     <>

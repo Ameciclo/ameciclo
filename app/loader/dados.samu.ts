@@ -4,18 +4,40 @@ import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import samuMockData from "~/data/samu-mock-data.json";
 
 export async function loader() {
+  const errors: Array<{url: string, error: string}> = [];
+  
+  const onError = (url: string) => (error: string) => {
+    errors.push({ url, error });
+  };
   
   try {
-    // Validar se as URLs estão definidas
     if (!SAMU_SUMMARY_DATA || !SAMU_CITIES_DATA) {
       console.error('❌ URLs do SAMU não configuradas:', { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA });
       throw new Error("URLs do SAMU não estão configuradas corretamente");
     }
     
-
-    // Retornar dados mockados diretamente para garantir funcionamento
-    const summaryDataPromise = Promise.resolve(samuMockData.summaryData);
-    const citiesDataPromise = Promise.resolve(samuMockData.citiesData);
+    // Aguardar todas as chamadas para capturar erros
+    const [summaryData, citiesData] = await Promise.all([
+      fetchWithTimeout(
+        SAMU_SUMMARY_DATA,
+        { cache: "force-cache" },
+        5000,
+        samuMockData.summaryData,
+        onError(SAMU_SUMMARY_DATA),
+        0
+      ),
+      fetchWithTimeout(
+        SAMU_CITIES_DATA,
+        { cache: "force-cache" },
+        5000,
+        samuMockData.citiesData,
+        onError(SAMU_CITIES_DATA),
+        0
+      )
+    ]);
+    
+    const summaryDataPromise = Promise.resolve(summaryData || samuMockData.summaryData);
+    const citiesDataPromise = Promise.resolve(citiesData || samuMockData.citiesData);
     
 
     // Dados estáticos baseados nos dados reais para carregamento imediato
@@ -74,6 +96,8 @@ export async function loader() {
       citiesData: citiesDataPromise,
       usingMockData: true,
       mockDataDate: "16 de setembro de 2025",
+      apiDown: errors.length > 0,
+      apiErrors: errors,
     });
   } catch (error) {
     console.error("❌ Erro crítico no SAMU Loader:", error);

@@ -1,6 +1,24 @@
 import { json } from "@remix-run/node";
+import { LOA_PAGE_DATA } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
+  const errors: Array<{url: string, error: string}> = [];
+  
+  // Buscar descrição do CMS (não bloquear se falhar)
+  let loaDescription = "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas.";
+  
+  try {
+    const response = await fetch(LOA_PAGE_DATA, { cache: "force-cache", signal: AbortSignal.timeout(3000) });
+    if (response.ok) {
+      const cmsData = await response.json();
+      if (cmsData?.description) {
+        loaDescription = cmsData.description;
+      }
+    }
+  } catch (error: any) {
+    // Silenciosamente usar fallback
+  }
+  
   const goodActionsTags = ["0398", "3308", "3378", "3382", "3389", "3786", "3891", "3906", "4122", "4123", "4165", "4167", "4185", "4294", "4313", "4482", "4648", "3198", "3340", "4202", "4642", "4646", "4176", "4483", "4166", "4074", "4055", "3721", "3725", "2755", "2796", "2286", "0569", "3877", "4131", "4235", "4679", "4682", "1313", "2967", "2730", "2733", "4650", "4669", "1537", "3178", "3187", "4116", "4440", "1896"];
 
   const getActionCode = (action: any) => {
@@ -23,7 +41,7 @@ export const loader: LoaderFunction = async () => {
       clearTimeout(timeoutId);
       
       if (!response.ok) {
-        console.error(`Error fetching data from ${url}:`, response.statusText);
+        errors.push({ url, error: `HTTP ${response.status}` });
         return { budgeted: 0, executed: 0, totalBudgeted: 0 };
       }
       
@@ -52,9 +70,9 @@ export const loader: LoaderFunction = async () => {
       return { budgeted, executed, totalBudgeted };
     } catch (error) {
       if (error.name === 'AbortError') {
-        console.error(`Request timeout for ${url}`);
+        errors.push({ url, error: 'Timeout' });
       } else {
-        console.error(`Error processing data from ${url}:`, error);
+        errors.push({ url, error: error.message || 'Erro desconhecido' });
       }
       return { budgeted: 0, executed: 0, totalBudgeted: 0 };
     }
@@ -104,9 +122,11 @@ export const loader: LoaderFunction = async () => {
         if (response.ok) {
           const data = await response.json();
           actions2025 = data.campos || [];
+        } else {
+          errors.push({ url: "https://dados.pe.gov.br/dataset/.../acoes_e_programas_json_2025_20250716.json", error: `HTTP ${response.status}` });
         }
       } catch (error) {
-        console.error("Error fetching table data:", error);
+        errors.push({ url: "https://dados.pe.gov.br/dataset/.../acoes_e_programas_json_2025_20250716.json", error: error.message || 'Erro ao carregar tabela' });
       }
 
       return {
@@ -159,8 +179,10 @@ export const loader: LoaderFunction = async () => {
   const data = await fetchAllData();
   return json({
     cover: { url: "" },
-    description: "",
+    description: loaDescription,
     totalValueEmissions: 0,
-    ...data
+    ...data,
+    apiDown: errors.length > 0,
+    apiErrors: errors
   });
 };

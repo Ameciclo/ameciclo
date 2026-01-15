@@ -99,9 +99,10 @@ async function fetchWithFilters(filters: any) {
   return data;
 }
 
-function PerfilClientSide() {
+function PerfilClientSide({ apiDown }: { apiDown?: boolean }) {
   const [filters, setFilters] = useState(getInicialFilters());
   const [chartsLoaded, setChartsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [dayData, setDayData] = useState([]);
   const [yearData, setYearData] = useState([]);
@@ -138,7 +139,7 @@ function PerfilClientSide() {
           setChartsLoaded(true);
         } catch (error) {
           console.error('Erro ao carregar Highcharts:', error);
-          setChartsLoaded(true); // Still set to true to show fallback
+          setChartsLoaded(true);
         }
       }
     };
@@ -147,11 +148,37 @@ function PerfilClientSide() {
   }, []);
 
   useEffect(() => {
+    if (apiDown) {
+      setIsLoading(false);
+      return;
+    }
+
     const fetchInitialData = async () => {
-      return await fetchWithFilters(getInicialFilters());
+      try {
+        const data = await fetchWithFilters(getInicialFilters());
+        setDayData(data.dayAggregate);
+        setYearData(data.yearAggregate);
+        setNeedData(data.needAggregate);
+        setStartData(data.startAggregate);
+        setContinueData(data.continueAggregate);
+        setIssueData(data.issueAggregate);
+        setCollisionData(data.collisionAggregate);
+        setDistanceOptions(() => getHistogramData(data.distances));
+      } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    applyFilters()
-    fetchInitialData().then((data) => {
+    
+    fetchInitialData();
+  }, [apiDown]);
+
+  const applyFilters = async () => {
+    if (apiDown) return;
+    
+    try {
+      const data: any = await fetchWithFilters(filters);
       setDayData(data.dayAggregate);
       setYearData(data.yearAggregate);
       setNeedData(data.needAggregate);
@@ -159,19 +186,9 @@ function PerfilClientSide() {
       setContinueData(data.continueAggregate);
       setIssueData(data.issueAggregate);
       setCollisionData(data.collisionAggregate);
-      setDistanceOptions(() => getHistogramData(data.distances));
-    });
-  }, []);
-
-  const applyFilters = async () => {
-    const data: any = await fetchWithFilters(filters);
-    setDayData(data.dayAggregate);
-    setYearData(data.yearAggregate);
-    setNeedData(data.needAggregate);
-    setStartData(data.startAggregate);
-    setContinueData(data.continueAggregate);
-    setIssueData(data.issueAggregate);
-    setCollisionData(data.collisionAggregate);
+    } catch (error) {
+      console.error('Erro ao aplicar filtros:', error);
+    }
   };
 
   const clearFilters = () => {
@@ -191,6 +208,17 @@ function PerfilClientSide() {
       });
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto my-12">
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="w-16 h-16 border-4 border-gray-300 border-t-[#6DBFAC] rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600 text-lg">Carregando dados do perfil...</p>
+        </div>
+      </div>
+    );
+  }
 
   const options = [
     {
@@ -246,6 +274,7 @@ function PerfilClientSide() {
                         value={f.value}
                         checked={f.checked}
                         onChange={() => toggleFilter(f, i)}
+                        disabled={apiDown}
                       />
                     ))}
                 </div>
@@ -256,13 +285,15 @@ function PerfilClientSide() {
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6 border-t border-gray-200">
             <button
               onClick={() => applyFilters()}
-              className="w-full sm:w-auto bg-ameciclo text-white hover:bg-opacity-90 font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ameciclo focus:ring-opacity-50"
+              disabled={apiDown}
+              className="w-full sm:w-auto bg-ameciclo text-white hover:bg-opacity-90 font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ameciclo focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Aplicar Filtros
             </button>
             <button
               onClick={() => clearFilters()}
-              className="w-full sm:w-auto border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50"
+              disabled={apiDown}
+              className="w-full sm:w-auto border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Limpar Filtros
             </button>
@@ -272,14 +303,36 @@ function PerfilClientSide() {
 
       <section className="container mx-auto grid grid-cols-1 sm:grid-cols-2 auto-rows-auto gap-10 my-10">
         {options.map((option, index) => (
-          <HorizontalBarChart key={index} {...option} />
+          option.series.length > 0 ? (
+            <HorizontalBarChart key={index} {...option} />
+          ) : (
+            <div key={index} className="shadow-2xl rounded p-10">
+              <h3 className="text-lg font-semibold mb-4">{option.title}</h3>
+              <div className="h-64 flex flex-col items-center justify-center">
+                <div className="w-12 h-12 border-4 border-gray-300 border-t-[#6DBFAC] rounded-full animate-spin mb-4"></div>
+                <p className="text-gray-500 text-sm">Carregando dados...</p>
+              </div>
+            </div>
+          )
         ))}
         <div className="shadow-2xl rounded p-10 text-center">
-          {chartsLoaded && Highcharts && HighchartsReact ? (
+          {chartsLoaded && Highcharts && HighchartsReact && distanceOptions.series[1].data.length > 0 ? (
             <HighchartsReact highcharts={Highcharts} options={distanceOptions} />
           ) : (
-            <div className="h-96 flex items-center justify-center">
-              {chartsLoaded ? 'Erro ao carregar gráfico' : 'Carregando gráfico...'}
+            <div className="h-96 flex flex-col items-center justify-center">
+              {!chartsLoaded ? (
+                <>
+                  <div className="w-12 h-12 border-4 border-gray-300 border-t-[#6DBFAC] rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-500 text-sm">Carregando gráfico...</p>
+                </>
+              ) : distanceOptions.series[1].data.length === 0 ? (
+                <>
+                  <div className="w-12 h-12 border-4 border-gray-300 border-t-[#6DBFAC] rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-500 text-sm">Carregando dados...</p>
+                </>
+              ) : (
+                <p className="text-gray-500">Erro ao carregar gráfico</p>
+              )}
             </div>
           )}
         </div>
@@ -290,14 +343,15 @@ function PerfilClientSide() {
 
 export default PerfilClientSide;
 
-function ToogleButton({ value, onChange, checked }: any) {
+function ToogleButton({ value, onChange, checked, disabled }: any) {
   return (
-    <label className="cursor-pointer">
+    <label className={`cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
       <input
         className="sr-only"
         type="checkbox"
         onChange={onChange}
         checked={checked}
+        disabled={disabled}
       />
       <div
         className={`px-4 py-2 rounded-lg text-sm font-medium text-center transition-all duration-200 border ${

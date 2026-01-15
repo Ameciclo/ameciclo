@@ -15,6 +15,7 @@ export const PERFIL_DATA = `https://api.perfil.ameciclo.org/v1/cyclist-profile/s
 
 export const COUNTINGS_SUMMARY_DATA =`https://api.garfo.ameciclo.org/cyclist-counts`     
 export const COUNTINGS_DATA =`https://api.garfo.ameciclo.org/cyclist-counts/edition`
+export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`
 
 export const OBSERVATORY_DATA =`https://api.garfo.ameciclo.org/cyclist-infra/relationsByCity`
 export const OBSERVATORY_DATA_WAYS =`https://api.garfo.ameciclo.org/cyclist-infra/ways`
@@ -53,6 +54,9 @@ export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets
 export const VIAS_INSEGURAS_HISTORY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/history`
 export const VIAS_INSEGURAS_SEARCH = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/search`
 export const VIAS_INSEGURAS_LIST = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/list`
+
+// Endpoint para LOA Clima
+export const LOA_PAGE_DATA = `https://cms.ameciclo.org/loa`
 
 // Endpoints para CicloDados - APIs da página de dados integrados
 export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`

@@ -4,6 +4,9 @@ import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { OBSERVATORY_DATA_ALL_WAYS, OBSERVATORY_DATA_WAYS_SUMMARY, CITIES_DATA, OBSERVATORY_DATA } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
+  let apiDown = false;
+  const apiErrors: Array<{url: string, error: string}> = [];
+
   const page_data = {
     title: 'Observatório Cicloviário',
     cover_image_url: '/execucaocicloviaria.png',
@@ -112,25 +115,49 @@ export const loader: LoaderFunction = async () => {
   ];
   const mockCitiesData = {};
 
-  // Promises assíncronas com timeout
+  // Promises assíncronas com timeout e tratamento de erro
+  // Promises assíncronas com timeout e tratamento de erro
+  let hasAllWaysError = false;
+  let hasStatsError = false;
+  let hasCitiesError = false;
+
   const allWaysPromise = fetchWithTimeout(
     OBSERVATORY_DATA_ALL_WAYS, 
     { cache: "no-cache" }, 
     15000, 
-    mockAllWaysData
+    mockAllWaysData,
+    (error) => {
+      hasAllWaysError = true;
+      apiErrors.push({ url: OBSERVATORY_DATA_ALL_WAYS, error });
+    },
+    2
   ).then(data => data.all);
 
   const statsPromise = fetchWithTimeout(
     OBSERVATORY_DATA_WAYS_SUMMARY, 
     { cache: "no-cache" }, 
     15000, 
-    { all: { pdc_feito: 187.3, out_pdc: 58.5, pdc_total: 654.2, percent: 28.6 } }
+    { all: { pdc_feito: 187.3, out_pdc: 58.5, pdc_total: 654.2, percent: 28.6 } },
+    (error) => {
+      hasStatsError = true;
+      apiErrors.push({ url: OBSERVATORY_DATA_WAYS_SUMMARY, error });
+    },
+    2
   ).then(data => cycleStructureExecutionStatistics(data.all));
 
   const citiesPromise = Promise.all([
-    fetchWithTimeout(OBSERVATORY_DATA_WAYS_SUMMARY, { cache: "no-cache" }, 15000, { byCity: {} }),
-    fetchWithTimeout(CITIES_DATA, {}, 15000, []),
-    fetchWithTimeout(OBSERVATORY_DATA, {}, 15000, {})
+    fetchWithTimeout(OBSERVATORY_DATA_WAYS_SUMMARY, { cache: "no-cache" }, 15000, { byCity: {} }, (error) => {
+      hasCitiesError = true;
+      apiErrors.push({ url: OBSERVATORY_DATA_WAYS_SUMMARY, error });
+    }, 2),
+    fetchWithTimeout(CITIES_DATA, {}, 15000, [], (error) => {
+      hasCitiesError = true;
+      apiErrors.push({ url: CITIES_DATA, error });
+    }, 2),
+    fetchWithTimeout(OBSERVATORY_DATA, {}, 15000, {}, (error) => {
+      hasCitiesError = true;
+      apiErrors.push({ url: OBSERVATORY_DATA, error });
+    }, 2)
   ]).then(([summaryData, cities, relations]) => 
     cityCycleStructureExecutionStatisticsByCity(summaryData.byCity, cities, relations)
   );
@@ -188,6 +215,10 @@ export const loader: LoaderFunction = async () => {
     citiesPromise
   ]);
 
+  if (apiErrors.length > 0) {
+    apiDown = true;
+  }
+
   return {
     cover: page_data.cover_image_url,
     title1: page_data.ExplanationBoxData.title_1,
@@ -199,5 +230,7 @@ export const loader: LoaderFunction = async () => {
     allWaysData,
     statsData,
     citiesData,
+    apiDown,
+    apiErrors
   };
 };

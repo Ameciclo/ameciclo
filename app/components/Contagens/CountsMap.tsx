@@ -257,16 +257,27 @@ const MapControlPanel = ({ controlPanel, markerVisibility, pointsData, handleMar
 
             return (
                 <div className="flex items-center mb-1 uppercase font-bold" key={control.type}>
-                    <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => {
-                            filteredPoints.forEach((point: any) => handleMarkerToggle(point.key));
-                        }}
-                    />
-                    <span className="ml-2 text-sm font-medium" style={{ color: control.color }}>
-                        {control.type}
-                    </span>
+                    {control.loading ? (
+                        <>
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                            <span className="ml-2 text-sm font-medium text-gray-400">
+                                {control.type}
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => {
+                                    filteredPoints.forEach((point: any) => handleMarkerToggle(point.key));
+                                }}
+                            />
+                            <span className="ml-2 text-sm font-medium" style={{ color: control.color }}>
+                                {control.type}
+                            </span>
+                        </>
+                    )}
                 </div>
             );
         })}

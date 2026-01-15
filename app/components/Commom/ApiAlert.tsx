@@ -55,11 +55,6 @@ export function ApiAlert() {
     const errorDetails = `RELATÓRIO DE ERRO AUTOMÁTICO\n\nPágina: ${location.pathname}\nHorário: ${new Date().toLocaleString('pt-BR')}\n\nAPIs com falha:\n${apiErrors.map(error => `- ${error.url}\n  Erro: ${error.error}\n  Página: ${error.page}\n  Horário: ${error.timestamp}`).join('\n\n')}\n\nEmail (obrigatório):\n\nTelefone (opcional):\n\nInformações adicionais (opcional):`;
     return encodeURIComponent(errorDetails);
   };
-  
-  // Não mostrar o alerta nas páginas de dados
-  if (location.pathname.startsWith('/dados')) {
-    return null;
-  }
 
   if (!isApiDown || dismissed) return null;
 

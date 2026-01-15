@@ -124,10 +124,47 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
     
     if (safeData.length === 0) {
         return (
-            <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
-                <div className="text-center">
-                    <h2 className="text-gray-600 text-2xl mb-4">{title}</h2>
-                    <p className="text-gray-500 mb-4">Nenhum dado disponível no momento.</p>
+            <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
+                <div className="mb-4">
+                    <h2 className="text-gray-600 text-3xl mb-2">{title}</h2>
+                </div>
+                <div className="shadow overflow-hidden bg-white border-b border-gray-200 sm:rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                    <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                    <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                    <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                    <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {[...Array(5)].map((_, i) => (
+                                <tr key={i}>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-300 rounded w-full animate-pulse"></div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-300 rounded w-12 animate-pulse"></div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </section>
         );

@@ -1,15 +1,27 @@
 import { useLoaderData } from "@remix-run/react";
+import { useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
-import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import { ApiAlert } from "~/components/Commom/ApiAlert";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
 
 import { loader } from "~/loader/dados";
 export { loader };
 export default function Dados() {
-    const { data } = useLoaderData<typeof loader>();
+    const { data, apiDown, apiErrors } = useLoaderData<typeof loader>();
+    const { setApiDown, addApiError } = useApiStatus();
+    
+    useEffect(() => {
+        setApiDown(apiDown);
+        if (apiErrors && apiErrors.length > 0) {
+            apiErrors.forEach((error: {url: string, error: string}) => {
+                addApiError(error.url, error.error, '/dados');
+            });
+        }
+    }, []);
     const FEATURED_PAGES = [
         {
             title: "Contagens",
@@ -116,7 +128,7 @@ export default function Dados() {
     ];
     return (
         <>
-            <ApiStatusHandler apiDown={data.apiDown} />
+            <ApiAlert />
             <Banner image={data.cover?.url} alt="Capa da plataforma de dados" />
             <Breadcrumb label="Dados" slug="/dados" routes={["/"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: data.description }]} />

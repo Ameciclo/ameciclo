@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import { useLocation } from '@remix-run/react';
 
 interface ApiError {
   url: string;
@@ -26,10 +27,20 @@ export function ApiStatusProvider({
 }) {
   const [isApiDown, setIsApiDown] = useState(false);
   const [apiErrors, setApiErrors] = useState<ApiError[]>([]);
+  const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
   
   useEffect(() => {
     setIsApiDown(initialApiDown);
   }, [initialApiDown]);
+
+  useEffect(() => {
+    if (prevPathRef.current !== location.pathname) {
+      setApiErrors([]);
+      setIsApiDown(false);
+      prevPathRef.current = location.pathname;
+    }
+  }, [location.pathname]);
 
   const setApiDown = (status: boolean) => {
     setIsApiDown(status);

@@ -169,11 +169,7 @@ export function MapView({
   const perfilCiclistasError = null;
   const perfilCiclistasLoading = false;
   
-  // Debug perfil ciclistas
-  useEffect(() => {
-    if (perfilCiclistas) {
-    }
-  }, [perfilCiclistas]);
+
 
   // Track loading state based on data availability
   useEffect(() => {
@@ -289,19 +285,13 @@ export function MapView({
     }, 500);
   };
 
-  // Log das informações para o backend
+  // Track selected points for URL updates
   useEffect(() => {
     if (selectedPoints.length > 0) {
       const point = selectedPoints[0];
       const pointKey = `${point.lat}-${point.lng}`;
       
       if (lastLoggedCircle.current !== pointKey) {
-        // Informações para o backend (comentado para produção)
-        // console.log('Informações para o backend:', {
-        //   lat: point.lat,
-        //   lng: point.lng,
-        //   radius: 50
-        // });
         lastLoggedCircle.current = pointKey;
       }
     }

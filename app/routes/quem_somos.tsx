@@ -166,10 +166,9 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
 
 export default function QuemSomos() {
   const { pageData, isLoading, apiDown, apiErrors } = useLoaderData<typeof loader>();
-  const { setApiDown, addApiError, clearErrors } = useApiStatus();
+  const { setApiDown, addApiError } = useApiStatus();
   
   useEffect(() => {
-    clearErrors();
     setApiDown(apiDown);
     if (apiErrors && apiErrors.length > 0) {
       apiErrors.forEach((error: {url: string, error: string}) => {

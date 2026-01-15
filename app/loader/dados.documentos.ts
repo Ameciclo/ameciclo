@@ -1,48 +1,66 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { DOCUMENTS_DATA, DOCUMENTS_PAGE } from "~/servers";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader: LoaderFunction = async () => {
-    const resDataPage1 = await fetch(DOCUMENTS_DATA, {
-        cache: "no-cache",
-    });
-
-    const resDataPage2 = await fetch(DOCUMENTS_PAGE, {
-        cache: "no-cache",
-    });
-
-    if (!resDataPage1.ok) {
-        throw new Response("Erro ao buscar os dados", { status: resDataPage1.status });
-    }
-
-    if (!resDataPage2.ok) {
-        throw new Response("Erro ao buscar os dados", { status: resDataPage2.status });
-    }
-
-    const data1 = await resDataPage1.json();
-    const data2 = await resDataPage2.json();
-
-    type document = {
-        title: string;
-        description: string;
-        url: string;
-        type: string;
-        release_date: string;
-        cover: any;
-        coverAlt?: string;
+    const errors: Array<{url: string, error: string}> = [];
+    
+    const onError = (url: string) => (error: string) => {
+        errors.push({ url, error });
     };
 
-    const documents: document[] = data1?.map((doc: any) => {
-        return {
-            ...doc,
-            cover: doc.cover.url,
-            coverAlt: doc.cover.alternativeText || doc.cover.alt,
+    try {
+        const [data1, data2] = await Promise.all([
+            fetchWithTimeout(
+                DOCUMENTS_DATA,
+                { cache: "no-cache" },
+                5000,
+                [],
+                onError(DOCUMENTS_DATA)
+            ),
+            fetchWithTimeout(
+                DOCUMENTS_PAGE,
+                { cache: "no-cache" },
+                5000,
+                { cover: null, description: null, objectives: null },
+                onError(DOCUMENTS_PAGE)
+            )
+        ]);
+
+        type document = {
+            title: string;
+            description: string;
+            url: string;
+            type: string;
+            release_date: string;
+            cover: any;
+            coverAlt?: string;
         };
-    });
-    
-    return json({
-        cover: data2.cover,
-        description: data2.description,
-        objectives: data2.objectives,
-        documents: documents,
-    });
+
+        const documents: document[] = data1?.map((doc: any) => {
+            return {
+                ...doc,
+                cover: doc.cover.url,
+                coverAlt: doc.cover.alternativeText || doc.cover.alt,
+            };
+        }) || [];
+        
+        return json({
+            cover: data2?.cover || null,
+            description: data2?.description || null,
+            objectives: data2?.objectives || null,
+            documents: documents,
+            apiDown: errors.length > 0,
+            apiErrors: errors
+        });
+    } catch (error) {
+        return json({
+            cover: null,
+            description: null,
+            objectives: null,
+            documents: [],
+            apiDown: true,
+            apiErrors: [{ url: 'DOCUMENTS_API', error: error.message || 'Erro desconhecido' }]
+        });
+    }
 };

@@ -51,7 +51,7 @@ export function ApiStatusIndicator({ errors, onReload }: ApiStatusIndicatorProps
             <CheckCircle className="w-5 h-5 text-green-500" />
           )}
           <span className="text-sm font-medium text-gray-900">
-            Status das APIs
+            Status dos Dados
           </span>
           {hasErrors && (
             <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">

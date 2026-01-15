@@ -318,29 +318,38 @@ const MapControlPanel = ({
                         );
                     return (
                         <div className="flex items-center" key={control.type}>
-                            <div className="flex items-center gap-3">
-                                <div className="relative">
-                                    <input
-                                        type="checkbox"
-                                        checked={checked}
-                                        onChange={() => {
-                                            filteredPoints.forEach((point: any) =>
-                                                handleMarkerToggle(point.key)
-                                            );
-                                        }}
-                                        className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div 
-                                        className="w-3 h-3 rounded-full"
-                                        style={{ backgroundColor: control.color }}
-                                    ></div>
-                                    <span className="text-sm font-medium text-gray-700 capitalize">
+                            {control.loading ? (
+                                <div className="flex items-center gap-3">
+                                    <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                                    <span className="text-sm font-medium text-gray-400 capitalize">
                                         {control.type === 'prefeitura' ? 'PCR' : control.type}
                                     </span>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="flex items-center gap-3">
+                                    <div className="relative">
+                                        <input
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() => {
+                                                filteredPoints.forEach((point: any) =>
+                                                    handleMarkerToggle(point.key)
+                                                );
+                                            }}
+                                            className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div 
+                                            className="w-3 h-3 rounded-full"
+                                            style={{ backgroundColor: control.color }}
+                                        ></div>
+                                        <span className="text-sm font-medium text-gray-700 capitalize">
+                                            {control.type === 'prefeitura' ? 'PCR' : control.type} ({filteredPoints.length})
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     );
                 })}

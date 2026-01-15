@@ -23,10 +23,18 @@ export const GeneralCountStatistics = ({ title, boxes, subtitle = "" }: any) => 
 };
 
 function NumberBox({ title, value, unit = undefined }: any) {
+  const isLoading = value === "0" || value === 0 || !value;
+  
   return (
     <div className="flex flex-col justify-center w-full p-6 text-center uppercase tracking-widest">
       <h3>{title}</h3>
-      <h3 className="text-3xl sm:text-5xl font-bold mt-2">{value}</h3>
+      {isLoading ? (
+        <div className="mt-2 space-y-2 animate-pulse">
+          <div className="h-10 bg-gray-300 rounded w-3/4 mx-auto"></div>
+        </div>
+      ) : (
+        <h3 className="text-3xl sm:text-5xl font-bold mt-2">{value}</h3>
+      )}
       {unit && <p>{unit}</p>}
     </div>
   );

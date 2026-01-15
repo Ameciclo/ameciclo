@@ -1,5 +1,7 @@
 import { useLoaderData } from "@remix-run/react";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import { useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -69,20 +71,26 @@ function allCitiesStatistics(cities: any, structures: any) {
 }
 
 export default function Ideciclo() {
-    const { ideciclo, structures, pageData } = useLoaderData<typeof loader>();
-    const { setApiDown } = useApiStatus();
+    const { ideciclo, structures, pageData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+    const { setApiDown, addApiError } = useApiStatus();
+    
+    useEffect(() => {
+        setApiDown(apiDown);
+        if (apiErrors && apiErrors.length > 0) {
+            apiErrors.forEach((error: {url: string, error: string}) => {
+                addApiError(error.url, error.error, '/dados/ideciclo');
+            });
+        }
+    }, []);
 
     return (
         <>
             <Banner title="" image="/pages_covers/ideciclo-cover.png" />
             <Breadcrumb label="Ideciclo" slug="/dados/ideciclo" routes={["/", "/dados"]} />
+            <ApiStatusHandler apiDown={apiDown} />
             
             {(() => {
                 const { ideciclo: idecicloData, structures: structuresData, pageData: pageDataData } = { ideciclo, structures, pageData };
-                
-                if (idecicloData?.apiError || structuresData?.apiError || pageDataData?.apiError) {
-                    setApiDown(true);
-                }
                 
                 const cidades = (idecicloData || []).filter((c: any) => c.reviews?.length > 0);
                 

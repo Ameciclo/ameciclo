@@ -8,8 +8,13 @@ import {
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export async function loader() {
+  const errors: Array<{url: string, error: string}> = [];
+  
+  const onError = (url: string) => (error: string) => {
+    errors.push({ url, error });
+  };
+  
   try {
-    // Dados mock para fallback
     const mockSummaryData = {
       totalSinistros: 15420,
       totalVias: 2341,
@@ -23,11 +28,13 @@ export async function loader() {
     const mockMapData = { vias: [] };
     const mockHistoryData = { evolucao: [] };
 
-    // Buscar dados de forma assíncrona
-    const summaryDataPromise = fetchWithTimeout(VIAS_INSEGURAS_SUMMARY, {}, 15000, mockSummaryData);
-    const topViasDataPromise = fetchWithTimeout(`${VIAS_INSEGURAS_TOP}?limite=50`, {}, 15000, mockTopViasData);
-    const mapDataPromise = fetchWithTimeout(`${VIAS_INSEGURAS_MAP}?limite=50`, {}, 15000, mockMapData);
-    const historyDataPromise = fetchWithTimeout(VIAS_INSEGURAS_HISTORY, {}, 15000, mockHistoryData);
+    // Aguardar todas as chamadas para capturar erros
+    const [summaryData, topViasData, mapData, historyData] = await Promise.all([
+      fetchWithTimeout(VIAS_INSEGURAS_SUMMARY, {}, 5000, mockSummaryData, onError(VIAS_INSEGURAS_SUMMARY)),
+      fetchWithTimeout(`${VIAS_INSEGURAS_TOP}?limite=50`, {}, 5000, mockTopViasData, onError(VIAS_INSEGURAS_TOP)),
+      fetchWithTimeout(`${VIAS_INSEGURAS_MAP}?limite=50`, {}, 5000, mockMapData, onError(VIAS_INSEGURAS_MAP)),
+      fetchWithTimeout(VIAS_INSEGURAS_HISTORY, {}, 5000, mockHistoryData, onError(VIAS_INSEGURAS_HISTORY))
+    ]);
 
     // Estatísticas estáticas para carregamento imediato
     const statisticsBoxes = [
@@ -85,24 +92,17 @@ export async function loader() {
       description2: "Processamos dados georreferenciados dos atendimentos do SAMU para identificar padrões de sinistralidade por via, considerando frequência, gravidade, extensão das vias e densidade de sinistros por quilômetro.",
       documents,
       statisticsBoxes,
-      summaryData: summaryDataPromise,
-      topViasData: topViasDataPromise,
-      mapData: mapDataPromise,
-      historyData: historyDataPromise,
+      summaryData: Promise.resolve(summaryData),
+      topViasData: Promise.resolve(topViasData),
+      mapData: Promise.resolve(mapData),
+      historyData: Promise.resolve(historyData),
+      apiDown: errors.length > 0,
+      apiErrors: errors,
     });
   } catch (error) {
     console.error("Erro ao buscar dados das vias inseguras:", error);
     
-    // Fallback com dados mock em caso de erro
-    const mockData = {
-      totalSinistros: 15420,
-      totalVias: 2341,
-      periodoInicio: "2016",
-      periodoFim: "2024",
-      anoMaisPerigoso: { ano: "2023", total: 1850 },
-      viaMaisPerigosa: { nome: "Avenida Norte Miguel Arraes de Alencar", total: 245, percentual: 1.59 }
-    };
-
+    
     return defer({
       cover: "/pages_covers/vias-inseguras.png",
       title1: "O que são vias inseguras?",
@@ -139,6 +139,8 @@ export async function loader() {
       topViasData: Promise.resolve({ dados: [], parametros: {} }),
       mapData: Promise.resolve({ vias: [] }),
       historyData: Promise.resolve({ evolucao: [] }),
+      apiDown: true,
+      apiErrors: [{ url: 'vias-inseguras', error: String(error) }],
     });
   }
 }

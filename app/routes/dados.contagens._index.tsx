@@ -12,16 +12,39 @@ import { loader } from "~/loader/dados.contagens";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import { CountsTable } from "~/components/Contagens/CountsTable";
 import { useState, useEffect } from "react";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
 
 export { loader };
 
 export default function Contagens() {
-    const { data, summaryData, pcrCounts, amecicloData } = useLoaderData<typeof loader>();
+    const { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+    const { setApiDown, addApiError } = useApiStatus();
     const [showFilters, setShowFilters] = useState(false);
     const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
+    
+    useEffect(() => {
+        setApiDown(apiDown);
+        if (apiErrors && apiErrors.length > 0) {
+            apiErrors.forEach((error: {url: string, error: string}) => {
+                addApiError(error.url, error.error, '/dados/contagens');
+            });
+        }
+    }, []);
+    
+    const hasAmecicloData = amecicloData && amecicloData.length > 0;
+    const hasPcrData = pcrCounts && pcrCounts.length > 0;
 
-    const allCountsStatistics = (summaryData: CountEditionSummary) => {
-        const { total_cyclists = 0, number_counts = 0, where_max_count = { total_cyclists: 0 }, different_counts_points = 0 } = summaryData || {};
+    const allCountsStatistics = (summaryData: CountEditionSummary | null) => {
+        if (!summaryData) {
+            return [
+                { title: "Total de ciclistas", value: "0" },
+                { title: "Contagens Realizadas", value: "0" },
+                { title: "Pontos Monitorados", value: "0" },
+                { title: "Máximo em um ponto", value: "0" },
+            ];
+        }
+        const { total_cyclists = 0, number_counts = 0, where_max_count = { total_cyclists: 0 }, different_counts_points = 0 } = summaryData;
         return [
             {
                 title: "Total de ciclistas",
@@ -39,13 +62,18 @@ export default function Contagens() {
         ];
     };
 
-    const controlPanel = [{
-        type: 'ameciclo',
-        color: '#008888'
-    }, {
-        type: 'prefeitura',
-        color: "#ef4444"
-    }];
+    const controlPanel = [
+        {
+            type: 'ameciclo',
+            color: '#008888',
+            loading: !hasAmecicloData
+        }, 
+        {
+            type: 'prefeitura',
+            color: "#ef4444",
+            loading: !hasPcrData
+        }
+    ];
 
     const calculateMarkerSize = (totalCyclists: number) => {
         if (totalCyclists === 0) return 8;
@@ -56,28 +84,8 @@ export default function Contagens() {
         return Math.min(baseSize + (totalCyclists * scaleFactor), maxSize);
     };
 
-    // Generate slugs for Atlas points and save to localStorage
-    useEffect(() => {
-        if (amecicloData && amecicloData.length > 0) {
-            const atlasWithSlugs = amecicloData.map((ponto: any) => ({
-                ...ponto,
-                slug: ponto.slug || `atlas-${ponto.id}-${ponto.name?.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`
-            }));
-            localStorage.setItem('atlasAmecicloWithSlugs', JSON.stringify(atlasWithSlugs));
-        }
-    }, [amecicloData]);
-
-    // Get Atlas data with slugs from localStorage
-    const getAtlasDataWithSlugs = () => {
-        if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem('atlasAmecicloWithSlugs');
-            return stored ? JSON.parse(stored) : amecicloData;
-        }
-        return amecicloData;
-    };
-
-    // Atlas Ameciclo data points
-    const atlasAmecicloPoints: pointData[] = (getAtlasDataWithSlugs() || []).map((ponto: any) => {
+    // Atlas Ameciclo data points (única fonte)
+    const atlasAmecicloPoints: pointData[] = hasAmecicloData ? (amecicloData || []).map((ponto: any) => {
         const lat = parseFloat(ponto.latitude);
         const lng = parseFloat(ponto.longitude);
         const latestCount = ponto.counts?.[0];
@@ -93,7 +101,7 @@ export default function Contagens() {
                 name: ponto.name || 'Contagem Ameciclo',
                 total: totalCyclists,
                 date: latestCount?.date ? IntlDateStr(latestCount.date) : 'Sem data',
-                url: `/dados/contagens/${ponto.slug}`,
+                url: `/dados/contagens/${ponto.slug || `atlas-${ponto.id}`}`,
                 obs: `As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.`
             },
             size: calculatedSize,
@@ -102,32 +110,7 @@ export default function Contagens() {
     }).filter((point: pointData) =>
         point.latitude >= -90 && point.latitude <= 90 &&
         point.longitude >= -180 && point.longitude <= 180
-    );
-
-    // Legacy Garfo API data points
-    let pointsData: pointData[] = summaryData.countsData.map((d: CountEdition) => {
-        const totalCyclists = d.summary?.total_cyclists || d.total_cyclists || 0;
-        
-        return {
-            key: String(d.id),
-            type: 'ameciclo',
-            latitude: d.coordinates?.[0]?.point?.y || d.coordinates?.latitude || -8.0584364,
-            longitude: d.coordinates?.[0]?.point?.x || d.coordinates?.longitude || -34.945277,
-            popup: {
-                name: d.name || 'Contagem Ameciclo',
-                total: totalCyclists,
-                date: IntlDateStr(d.date),
-                url: `/dados/contagens/${d.slug}`,
-                obs: `As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.`
-            },
-            size: calculateMarkerSize(totalCyclists),
-            color: "#008888"
-        };
-    }).filter((point: pointData) =>
-        point.latitude >= -90 && point.latitude <= 90 &&
-        point.longitude >= -180 && point.longitude <= 180 &&
-        point.latitude !== -8.0584364 && point.longitude !== -34.945277
-    );
+    ) : [];
 
     const pcrPointsData: pointData[] = pcrCounts.map((d: PcrCounting, index: number) => ({
         key: "pcr_" + index,
@@ -149,7 +132,7 @@ export default function Contagens() {
     );
 
     // Combine all data points - PCR first, then Ameciclo on top
-    pointsData = [...pcrPointsData, ...pointsData, ...atlasAmecicloPoints];
+    const pointsData = [...pcrPointsData, ...atlasAmecicloPoints];
     
 
 
@@ -166,8 +149,9 @@ export default function Contagens() {
         <>
             <Banner image={data?.cover?.url} alt="Capa da página de contagens" />
             <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
+            <ApiStatusHandler apiDown={apiDown} />
             <GeneralCountStatistics title={"Estatísticas Gerais"} boxes={allCountsStatistics(summaryData.summaryData)} />
-            <ExplanationBoxes boxes={[{ title: "O que é?", description: data?.description || "Dados de contagens", }, { title: "E o que mais?", description: data?.objective || "Monitorar fluxo de ciclistas" }]} />
+            <ExplanationBoxes boxes={[{ title: "O que é?", description: data?.description }, { title: "E o que mais?", description: data?.objective }]} />
             <InfoCards cards={summaryData.cards} />
             <AmecicloMap
                 pointsData={pointsData} 

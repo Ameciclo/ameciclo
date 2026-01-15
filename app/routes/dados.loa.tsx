@@ -1,5 +1,5 @@
 import { useLoaderData } from "@remix-run/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -7,12 +7,27 @@ import { loader } from "~/loader/dados.loa";
 import Chart from "react-google-charts";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { formatLargeValue } from "~/utils/formatCurrency";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
+import { CardLoading, ChartLoading } from "~/components/Dom/LoaDataLoading";
 export { loader };
 
 export default function Loa() {
     const data = useLoaderData<any>();
     const [showFilters, setShowFilters] = useState(false);
     const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
+    const { setApiDown, addApiError } = useApiStatus();
+
+    useEffect(() => {
+        if (data?.apiDown) {
+            setApiDown(true);
+        }
+        if (data?.apiErrors?.length > 0) {
+            data.apiErrors.forEach((error: {url: string, error: string}) => {
+                addApiError(error.url, error.error, '/dados/loa');
+            });
+        }
+    }, []);
 
     const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
@@ -38,6 +53,7 @@ export default function Loa() {
     };
 
     const actions2025 = data?.actions2025 || [];
+    const hasData = actions2025.length > 0 && !data?.apiDown;
     const climateActions = actions2025.filter((action: any) => {
         try {
             const actionCode = getActionCode(action);
@@ -139,7 +155,8 @@ export default function Loa() {
         <>
             <Banner image="/images/banners/faq.png" alt="Capa da página do Loaclima" />
             <Breadcrumb label="LOA" slug="/dados/loa" routes={["/", "/dados"]} />
-            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas." }]} />
+            <ApiStatusHandler apiDown={data?.apiDown} />
+            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: data?.description || "Carregando..." }]} />
 
 
             <div className="container mx-auto px-4 py-6">
@@ -147,6 +164,13 @@ export default function Loa() {
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Investimentos e Emissões</h2>
                     <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações climáticas, orçamento total e custo por emissão de carbono.</p>
 
+                    {!hasData ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                            <CardLoading />
+                            <CardLoading />
+                            <CardLoading />
+                        </div>
+                    ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                         <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Investimento em ações climáticas">
                             <div className="mb-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Ações climáticas</div>
@@ -173,12 +197,19 @@ export default function Loa() {
                             <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
                         </div>
                     </div>
+                    )}
                 </section>
 
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçado vs. Executado em Ações Climáticas</h2>
                     <p className="text-gray-600 mb-4">Comparação entre o valor planejado no orçamento e o valor efetivamente executado em ações para o clima.</p>
 
+                    {!hasData ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                            <CardLoading />
+                            <CardLoading />
+                        </div>
+                    ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo">
                             <div className="mb-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Valor Orçado 2025</div>
@@ -198,9 +229,17 @@ export default function Loa() {
                             <p className="text-base mb-1">Recursos efetivamente pagos em programas climáticos em 2025</p>
                         </div>
                     </div>
+                    )}
                 </section>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                    {!hasData ? (
+                        <>
+                            <ChartLoading />
+                            <ChartLoading />
+                        </>
+                    ) : (
+                    <>
                     <section className="h-auto">
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Evolução Orçamentária Climática</h2>
                         <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados e executados em ações para o clima ao longo dos anos entre 2020 e 2025.</p>
@@ -308,6 +347,7 @@ export default function Loa() {
                             </div>
                         </div>
                     </section>
+                    </>)}
                 </div>
                 <section>
                     {(() => {

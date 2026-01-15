@@ -699,28 +699,40 @@ export default function SinistrosFataisClientSide({
         </h3>
 
         {/* Cards de cidades */}
-        <NumberCards
-          cards={getCityCardsByYear(
-            citiesByYearData,
-            selectedYear,
-            tipoLocal,
-            selectedEndYear
-          )}
-          data={{
-            title: "",
-            filters: [],
-          }}
-          selected={selectedCardCity}
-          options={{
-            type: "default",
-            changeFunction: (cityId: any) => {
-              setSelectedCardCity(cityId);
-              setSelectedCity(cityId);
-              setShowAllCities(false);
-            },
-            onClickFnc: () => {},
-          }}
-        />
+        {!citiesByYearData || !citiesByYearData.cities || citiesByYearData.cities.length === 0 ? (
+          <div className="container mx-auto gap-8 my-5 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex flex-col rounded shadow-2xl h-full mx-3 p-3 bg-white h-42">
+                <div className="h-16 bg-gray-200 animate-pulse rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 animate-pulse rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 animate-pulse rounded w-3/4"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <NumberCards
+            cards={getCityCardsByYear(
+              citiesByYearData,
+              selectedYear,
+              tipoLocal,
+              selectedEndYear
+            )}
+            data={{
+              title: "",
+              filters: [],
+            }}
+            selected={selectedCardCity}
+            options={{
+              type: "default",
+              changeFunction: (cityId: any) => {
+                setSelectedCardCity(cityId);
+                setSelectedCity(cityId);
+                setShowAllCities(false);
+              },
+              onClickFnc: () => {},
+            }}
+          />
+        )}
       </div>
 
       {/* Gráfico empilhado por modo de transporte */}
@@ -734,6 +746,15 @@ export default function SinistrosFataisClientSide({
         
         {(() => {
           const stackedData = getStackedTransportModeData(citiesByYearData, selectedCardCity, tipoLocal);
+          
+          if (!citiesByYearData || !citiesByYearData.cities) {
+            return (
+              <div className="shadow-2xl rounded p-6 pt-4">
+                <h3 className="text-lg font-semibold mb-4">Distribuição de Mortes por Modo de Transporte ao Longo dos Anos</h3>
+                <div className="h-96 bg-gray-200 animate-pulse rounded"></div>
+              </div>
+            );
+          }
           
           if (!stackedData.categories.length || !stackedData.series.length) {
             return (

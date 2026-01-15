@@ -58,22 +58,31 @@ export const NumberCard = ({
 };
 
 export const CyclingInfrastructureByCity = ({ cards, data, selected, options }: any) => {
+  const hasData = cards && cards.length > 0;
+  
   return (
     <section className="mx-auto container">
       <div className="mx-auto text-center my-12 md:my-24">
         <MultipleSelectionFilters {...data} />
-        <section className="container mx-auto gap-8 my-5 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {cards.map((city: any) => (
-            <NumberCard
-              key={city.id}
-              city={city}
-              selected={city.id === selected}
-              changeFunction={options.changeFunction}
-              onClickFnc={() => {}}
-              options={options}
-            />
-          ))}
-        </section>
+        {hasData ? (
+          <section className="container mx-auto gap-8 my-5 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {cards.map((city: any) => (
+              <NumberCard
+                key={city.id}
+                city={city}
+                selected={city.id === selected}
+                changeFunction={options.changeFunction}
+                onClickFnc={() => {}}
+                options={options}
+              />
+            ))}
+          </section>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 border-4 border-gray-300 border-t-[#6DBFAC] rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-600 text-lg">Carregando dados das cidades...</p>
+          </div>
+        )}
       </div>
     </section>
   );

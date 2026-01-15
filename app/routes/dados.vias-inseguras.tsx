@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { useLoaderData, Await } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -6,6 +6,8 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import ViasInsegurasClientSide from "~/components/ViasInseguras/ViasInsegurasClientSide";
+import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
+import { useApiStatus } from "~/contexts/ApiStatusContext";
 
 import { loader } from "~/loader/dados.vias-inseguras";
 export { loader };
@@ -23,7 +25,22 @@ export default function ViasInsegurasPage() {
     topViasData,
     mapData,
     historyData,
+    apiDown,
+    apiErrors,
   } = useLoaderData<typeof loader>();
+  
+  const { setApiDown, addApiError } = useApiStatus();
+  
+  useEffect(() => {
+    if (apiDown) {
+      setApiDown(true);
+    }
+    if (apiErrors && apiErrors.length > 0) {
+      apiErrors.forEach((error: {url: string, error: string}) => {
+        addApiError(error.url, error.error, '/dados/observatorio/vias-inseguras');
+      });
+    }
+  }, [apiDown, apiErrors]);
 
   return (
     <>
@@ -36,6 +53,7 @@ export default function ViasInsegurasPage() {
         slug="/dados/observatorio/vias-inseguras"
         routes={["/", "/dados"]}
       />
+      <ApiStatusHandler apiDown={apiDown} />
       <StatisticsBox
         title="Observatório de Vias Inseguras"
         subtitle="Estatísticas gerais dos sinistros por via no Recife"

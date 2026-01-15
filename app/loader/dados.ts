@@ -3,18 +3,30 @@ import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { PLATAFORM_HOME_PAGE } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
-    let apiDown = false;
+    const errors: Array<{url: string, error: string}> = [];
     
-    try {
-        const data = await fetchWithTimeout(
-            PLATAFORM_HOME_PAGE,
-            { cache: "no-cache" },
-            5000,
-            { cover: null, description: null, partners: [] }
-        );
-        const { cover, description, partners } = data || {};
-        return json({ data: { cover, description, partners, apiDown } });
-    } catch (error) {
-        return json({ data: { cover: null, description: null, partners: [], apiDown: true } });
-    }
+    const onError = (url: string) => (error: string) => {
+        errors.push({ url, error });
+    };
+    
+    const data = await fetchWithTimeout(
+        PLATAFORM_HOME_PAGE,
+        { cache: "no-cache" },
+        5000,
+        { cover: null, description: null, partners: [] },
+        onError(PLATAFORM_HOME_PAGE)
+    );
+    
+    const { cover, description, partners } = data || {};
+    
+    return json({ 
+        data: { 
+            cover, 
+            description, 
+            partners, 
+            apiDown: errors.length > 0 
+        },
+        apiDown: errors.length > 0,
+        apiErrors: errors
+    });
 };

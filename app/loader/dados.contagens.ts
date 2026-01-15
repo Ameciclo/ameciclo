@@ -4,9 +4,15 @@ import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { CountEditionSummary } from "typings";
 import * as fs from "fs/promises";
 import * as path from "path";
-import { COUNTINGS_PAGE_DATA, COUNTINGS_SUMMARY_DATA } from "~/servers";
+import { COUNTINGS_PAGE_DATA, COUNTINGS_SUMMARY_DATA, COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
+  const errors: Array<{url: string, error: string}> = [];
+  
+  const onError = (url: string) => (error: string) => {
+    errors.push({ url, error });
+  };
+
   const CardsData = (summaryData: CountEditionSummary) => {
     const {
       total_cyclists,
@@ -77,13 +83,15 @@ export const loader: LoaderFunction = async () => {
         COUNTINGS_PAGE_DATA, 
         { cache: "no-cache" },
         5000,
-        { cover: null, description: "Dados de contagens", objective: "Monitorar fluxo de ciclistas", archives: [], counts: [] }
+        null,
+        onError(COUNTINGS_PAGE_DATA)
       ),
       fetchWithTimeout(
         COUNTINGS_SUMMARY_DATA,
         { cache: "no-cache" },
         5000,
-        { summary: { total_cyclists: 0, total_women: 0, total_juveniles: 0, total_cargo: 0, total_helmet: 0, total_ride: 0, total_service: 0, total_shared_bike: 0, total_sidewalk: 0, total_wrong_way: 0, total_motor: 0 }, counts: [] }
+        null,
+        onError(COUNTINGS_SUMMARY_DATA)
       ),
       (async () => {
         try {
@@ -96,29 +104,34 @@ export const loader: LoaderFunction = async () => {
         }
       })(),
       fetchWithTimeout(
-        'https://cyclist-counts.atlas.ameciclo.org/v1/locations',
+        COUNTINGS_ATLAS_LOCATIONS,
         { cache: "no-cache" },
         5000,
-        []
+        [],
+        onError(COUNTINGS_ATLAS_LOCATIONS)
       )
     ]);
 
-    const summaryData = summaryResult?.summary || {};
+    const summaryData = summaryResult?.summary || null;
     const countsData = summaryResult?.counts || [];
-    const cards = CardsData(summaryData);
+    const cards = summaryData ? CardsData(summaryData) : null;
 
     return json({
-      data,
+      data: data || { cover: null, description: null, objective: null, archives: [], counts: [] },
       summaryData: { summaryData, countsData, cards },
       pcrCounts,
       amecicloData,
+      apiDown: errors.length > 0,
+      apiErrors: errors
     });
   } catch (error) {
     return json({
-      data: { cover: null, description: "Dados de contagens", objective: "Monitorar fluxo de ciclistas", archives: [], counts: [] },
-      summaryData: { summaryData: {}, countsData: [], cards: [] },
+      data: { cover: null, description: null, objective: null, archives: [], counts: [] },
+      summaryData: { summaryData: null, countsData: [], cards: null },
       pcrCounts: [],
       amecicloData: [],
+      apiDown: true,
+      apiErrors: [{ url: 'COUNTINGS_API', error: error.message || 'Erro desconhecido' }]
     });
   }
 };

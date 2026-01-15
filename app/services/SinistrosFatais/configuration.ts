@@ -59,7 +59,16 @@ type MatrixData = {
 };
 
 // Função para formatar os dados de estatísticas gerais
-export function getGeneralStatistics(summaryData: SummaryData, tipoLocal = "ocorrencia") {
+export function getGeneralStatistics(summaryData: SummaryData | null, tipoLocal = "ocorrencia") {
+  if (!summaryData) {
+    return [
+      { title: "Carregando...", value: "-", unit: "" },
+      { title: "Carregando...", value: "-", unit: "" },
+      { title: "Carregando...", value: "-", unit: "" },
+      { title: "Carregando...", value: "-", unit: "" }
+    ];
+  }
+  
   const data = tipoLocal === "ocorrencia" 
     ? summaryData.porLocalOcorrencia 
     : summaryData.porLocalResidencia;

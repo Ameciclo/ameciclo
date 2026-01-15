@@ -363,9 +363,16 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
         return { states: st_arr, count: count };
     }
 
-    // Não renderizar até ter dados básicos
+    // Loading state quando não há dados
     if (!cidades || cidades.length === 0 || !selectedCity) {
-        return null;
+        return (
+            <div className="container mx-auto my-12">
+                <div className="flex flex-col items-center justify-center py-20">
+                    <div className="w-16 h-16 border-4 border-gray-300 border-t-[#6DBFAC] rounded-full animate-spin mb-4"></div>
+                    <p className="text-gray-600 text-lg">Carregando dados do Ideciclo...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
