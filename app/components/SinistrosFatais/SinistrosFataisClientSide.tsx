@@ -100,14 +100,6 @@ export default function SinistrosFataisClientSide({
 
         const response = await fetch(url);
         const data = await response.json();
-        console.log("Dados de cidades por ano:", {
-          url,
-          deathLocation,
-          data,
-          anos: data?.anos,
-          anosLength: data?.anos?.length,
-          cidades: data?.cidades?.length
-        });
         
         // Verificar se os dados estão completos
         if (!data.anos || data.anos.length === 0) {
@@ -120,7 +112,6 @@ export default function SinistrosFataisClientSide({
             if (deathLocation === "health") {
               // Usar valores separados por vírgula
               const fallbackUrl = `${legacyUrl}&localOcorrenciaObito=1,2`;
-              console.log("Tentando com parâmetros legados:", fallbackUrl);
               const fallbackResponse = await fetch(fallbackUrl);
               const fallbackData = await fallbackResponse.json();
               if (fallbackData.anos && fallbackData.anos.length > 0) {
@@ -130,7 +121,6 @@ export default function SinistrosFataisClientSide({
             } else if (deathLocation === "other") {
               // Usar valores separados por vírgula
               const fallbackUrl = `${legacyUrl}&localOcorrenciaObito=3,5,9`;
-              console.log("Tentando com parâmetros legados:", fallbackUrl);
               const fallbackResponse = await fetch(fallbackUrl);
               const fallbackData = await fallbackResponse.json();
               if (fallbackData.anos && fallbackData.anos.length > 0) {
@@ -140,7 +130,6 @@ export default function SinistrosFataisClientSide({
             } else {
               // Para "public" (código 4), fazer uma única chamada
               const fallbackUrl = `${legacyUrl}&localOcorrenciaObito=4`;
-              console.log("Tentando com parâmetros legados:", fallbackUrl);
               const fallbackResponse = await fetch(fallbackUrl);
               const fallbackData = await fallbackResponse.json();
               if (fallbackData.anos && fallbackData.anos.length > 0) {
@@ -150,7 +139,6 @@ export default function SinistrosFataisClientSide({
             }
           } else {
             // Tentar sem filtro de local
-            console.log("Tentando com parâmetros legados sem filtro de local:", legacyUrl);
             const fallbackResponse = await fetch(legacyUrl);
             const fallbackData = await fallbackResponse.json();
             if (fallbackData.anos && fallbackData.anos.length > 0) {
@@ -202,16 +190,6 @@ export default function SinistrosFataisClientSide({
         const response = await fetch(url);
         const data = await response.json();
 
-        // Verificar se os dados são válidos
-        console.log("Dados de modo de transporte:", {
-          url,
-          deathLocation,
-          hasResumo: !!data?.resumo,
-          hasPorModoTransporte: !!data?.resumo?.porModoTransporte,
-          porModoTransporte: data?.resumo?.porModoTransporte,
-          data
-        });
-        
         if (
           data &&
           data.resumo &&
@@ -230,7 +208,6 @@ export default function SinistrosFataisClientSide({
           if (deathLocation !== "all") {
             if (deathLocation === "health") {
               const fallbackUrl = `${legacyUrl}&localOcorrenciaObito=1,2`;
-              console.log("Tentando com parâmetros legados:", fallbackUrl);
               const fallbackResponse = await fetch(fallbackUrl);
               const fallbackData = await fallbackResponse.json();
               
@@ -250,7 +227,6 @@ export default function SinistrosFataisClientSide({
               }
             } else if (deathLocation === "other") {
               const fallbackUrl = `${legacyUrl}&localOcorrenciaObito=3,5,9`;
-              console.log("Tentando com parâmetros legados:", fallbackUrl);
               const fallbackResponse = await fetch(fallbackUrl);
               const fallbackData = await fallbackResponse.json();
               
@@ -270,7 +246,6 @@ export default function SinistrosFataisClientSide({
               }
             } else {
               const fallbackUrl = `${legacyUrl}&localOcorrenciaObito=4`;
-              console.log("Tentando com parâmetros legados:", fallbackUrl);
               const fallbackResponse = await fetch(fallbackUrl);
               const fallbackData = await fallbackResponse.json();
               
@@ -290,7 +265,6 @@ export default function SinistrosFataisClientSide({
               }
             }
           } else {
-            console.log("Tentando com parâmetros legados sem filtro de local:", legacyUrl);
             const fallbackResponse = await fetch(legacyUrl);
             const fallbackData = await fallbackResponse.json();
             
@@ -376,12 +350,6 @@ export default function SinistrosFataisClientSide({
         // Fazer a chamada à API
         const response = await fetch(url);
         const data = await response.json();
-        console.log("Dados de causas secundárias:", {
-          url,
-          deathLocation,
-          hasCausasSecundarias: !!data?.causasSecundarias,
-          data
-        });
         
         if (data && data.causasSecundarias) {
           setCausasSecundariasData(data);
@@ -407,7 +375,6 @@ export default function SinistrosFataisClientSide({
             }
           }
           
-          console.log("Tentando com parâmetros legados:", legacyUrl);
           const fallbackResponse = await fetch(legacyUrl);
           const fallbackData = await fallbackResponse.json();
           
@@ -494,13 +461,7 @@ export default function SinistrosFataisClientSide({
         const response = await fetch(baseUrl);
         const data = await response.json();
 
-        // Verificar se os dados são válidos
-        console.log("Dados da matriz de colisão:", {
-          url: baseUrl,
-          deathLocation,
-          hasMatrix: !!data?.matrix,
-          data
-        });
+        
         
         if (data && data.matrix) {
           setCollisionMatrixData(data);
@@ -522,7 +483,6 @@ export default function SinistrosFataisClientSide({
             }
           }
           
-          console.log("Tentando com parâmetros legados:", legacyUrl);
           const fallbackResponse = await fetch(legacyUrl);
           const fallbackData = await fallbackResponse.json();
           
@@ -662,11 +622,6 @@ export default function SinistrosFataisClientSide({
     return `${selectedCityName} - ${baseType} - ${deathLocText}`;
   };
     
-  // Verificar se o filtro de local de ocorrência do óbito está sendo aplicado corretamente na API
-  useEffect(() => {
-    console.log(`Filtro aplicado: Base=${tipoLocal}, Local=${deathLocation}, Ano=${selectedYear}-${selectedEndYear || selectedYear}, Cidade=${selectedCityName}`);
-  }, [tipoLocal, deathLocation, selectedYear, selectedEndYear, selectedCityName]);
-
   return (
     <>
       {/* Estatísticas gerais */}

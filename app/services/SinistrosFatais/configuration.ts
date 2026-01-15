@@ -101,16 +101,6 @@ export function getGeneralStatistics(summaryData: SummaryData | null, tipoLocal 
 
 // Função para formatar os dados de cidades por ano
 export function getCityCardsByYear(citiesByYearData: any, selectedYear: number, tipoLocal = "ocorrencia", selectedEndYear: number | null = null) {
-  console.log("getCityCardsByYear - Entrada:", {
-    citiesByYearData,
-    selectedYear,
-    tipoLocal,
-    selectedEndYear,
-    hasCidades: !!citiesByYearData?.cities,
-    hasAnos: !!citiesByYearData?.years,
-    cidadesLength: citiesByYearData?.cities?.length,
-    anosLength: citiesByYearData?.years?.length
-  });
   if (!citiesByYearData || !selectedYear) return [];
   if (!citiesByYearData.cities || citiesByYearData.cities.length === 0) {
     console.warn("Array de cidades vazio em getCityCardsByYear");
@@ -149,14 +139,6 @@ export function getCityCardsByYear(citiesByYearData: any, selectedYear: number, 
 
 // Função para formatar os dados do gráfico de evolução anual
 export function getYearlyChartData(citiesByYearData: CitiesByYearData, selectedCity: number | null = null, showAllCities = false) {
-  console.log("getYearlyChartData - Entrada:", {
-    citiesByYearData,
-    selectedCity,
-    showAllCities,
-    hasCidades: !!citiesByYearData?.cidades,
-    hasAnos: !!citiesByYearData?.anos,
-    anos: citiesByYearData?.anos
-  });
   if (!citiesByYearData || !citiesByYearData.anos || citiesByYearData.anos.length === 0) {
     console.warn("Dados incompletos ou array de anos vazio em getYearlyChartData");
     return [{
@@ -239,7 +221,6 @@ export const modoTransporteIcons: Record<string, string> = {
 // Função para formatar os dados de mortes por modo de transporte
 export function getModoTransporteCards(filtrosData: FiltrosData) {
   if (!filtrosData || !filtrosData.resumo) {
-    console.log("Dados de modo de transporte inválidos:", filtrosData);
     return { cards: [], infoNaoIdentificados: { texto: "" } };
   }
   
@@ -248,7 +229,6 @@ export function getModoTransporteCards(filtrosData: FiltrosData) {
     Object.keys(filtrosData.resumo.porModoTransporte).length > 0;
   
   if (!temDadosModoTransporte) {
-    console.log("Nenhum dado de modo de transporte encontrado");
     return { cards: [], infoNaoIdentificados: { texto: "" } };
   }
   
@@ -377,8 +357,6 @@ export const coresPerfil = {
 
 // Função para formatar os dados da matriz de colisão
 export function formatCollisionMatrix(matrixData: MatrixData) {
-  console.log("Dados brutos da matriz:", JSON.stringify(matrixData, null, 2));
-  
   if (!matrixData || !matrixData.matrix) {
     return null;
   }
@@ -457,8 +435,6 @@ export function formatCollisionMatrix(matrixData: MatrixData) {
   
   tableData.push(totalRow);
 
-  console.log("Dados formatados:", { tableData, modes });
-  
   return {
     tableData,
     columnLabels: modes,
@@ -571,17 +547,6 @@ export function getPerfilSocioeconomico(filtrosData: FiltrosData, modoTransporte
     dadosBrutos.racaCor = ajustarContagens(contagens.racaCor, totalMortesModo);
     dadosBrutos.faixaEtaria = ajustarContagens(contagens.faixaEtaria, totalMortesModo);
   }
-
-  // Log para depuração
-  console.log("Dados brutos para perfil:", {
-    modoTransporte,
-    sexo: dadosBrutos.sexo,
-    racaCor: dadosBrutos.racaCor,
-    faixaEtaria: dadosBrutos.faixaEtaria,
-    totalSexo: Object.values(dadosBrutos.sexo).reduce((sum, val) => sum + val, 0),
-    totalRacaCor: Object.values(dadosBrutos.racaCor).reduce((sum, val) => sum + val, 0),
-    totalFaixaEtaria: Object.values(dadosBrutos.faixaEtaria).reduce((sum, val) => sum + val, 0)
-  });
 
   // Processar e formatar os dados
   const sexoProcessado = formatarParaGrafico(dadosBrutos.sexo);

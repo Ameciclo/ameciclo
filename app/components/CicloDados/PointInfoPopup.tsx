@@ -323,10 +323,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
           <div>
             <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
               <MapPin size={22} className="text-blue-600" />
-              Análise do Ponto
+              {finalData.location.nearest_street.official_name}
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              {finalData.location.nearest_street.official_name} • {formatDistance(finalData.location.nearest_street.distance_to_point_meters)} da via
+              Exibe dados em um raio de 200m do ponto clicado
             </p>
           </div>
           <div className="flex items-center gap-2">

@@ -5,7 +5,6 @@ import { PatternDisplay } from './PatternDisplay';
 
 
 
-
 function OptionItem({ 
   option, 
   isSelected, 
@@ -128,23 +127,20 @@ export function FilterSection({
   const [isExpanded, setIsExpanded] = useState(true);
   const [isToggling, setIsToggling] = useState(false);
   
-  // Use external collapse state if provided, otherwise use internal state
   const actuallyExpanded = onToggleCollapse ? !isCollapsed : isExpanded;
   const handleToggleExpanded = onToggleCollapse || (() => setIsExpanded(!isExpanded));
   const isAllSelected = selectedOptions.length === options.length;
 
   const toggleAll = () => {
-    if (isToggling) return; // Prevent multiple simultaneous calls
+    if (isToggling) return;
     
     setIsToggling(true);
     
     try {
       if (onToggleAll) {
-        // Use batch operation if available
         const allOptionNames = options.map(opt => opt.name);
         onToggleAll(allOptionNames, !isAllSelected);
       } else {
-        // Fallback to individual toggles
         if (isAllSelected) {
           selectedOptions.forEach(optName => onToggle(optName));
         } else {
@@ -156,7 +152,6 @@ export function FilterSection({
         }
       }
     } finally {
-      // Reset toggle state after a short delay
       setTimeout(() => setIsToggling(false), 100);
     }
   };
@@ -164,22 +159,12 @@ export function FilterSection({
   return (
     <div className="bg-white rounded border relative">
       {comingSoon && (
-        <div className="absolute inset-0 bg-white z-10 flex items-center justify-center rounded" style={{
-          animation: 'comingSoonPulse 8s infinite',
-        }}>
+        <div className="absolute inset-0 bg-white z-10 flex items-center justify-center rounded comingSoonOverlay">
           <div className="text-center">
             <div className="text-gray-500 font-medium text-sm">
               EM BREVE
             </div>
           </div>
-          <style jsx>{`
-            @keyframes comingSoonPulse {
-              0% { opacity: 1; }
-              37.5% { opacity: 1; }
-              62.5% { opacity: 0; }
-              100% { opacity: 1; }
-            }
-          `}</style>
         </div>
       )}
       <div className="p-2">

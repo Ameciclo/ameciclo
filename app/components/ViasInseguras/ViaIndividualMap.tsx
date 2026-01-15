@@ -185,12 +185,6 @@ export default function ViaIndividualMap({ viaName, totalSinistros, mapData }: V
         ],
     };
     
-    console.log('🗺️ ViaIndividualMap received data:', {
-        hasMapData: !!mapData,
-        hasFeatures: mapData?.features?.length > 0,
-        usingFallback: !mapData
-    });
-
     const [viewport, setViewport] = useState({
         latitude: -8.0584364,
         longitude: -34.945277,

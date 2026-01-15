@@ -448,12 +448,8 @@ export const AmecicloMap = ({
             document.head.appendChild(style);
         }
         
-        // Delay menor para evitar problemas de hidratação
-        const timer = setTimeout(() => {
-            setIsMapReady(true);
-        }, 50);
-        
-        return () => clearTimeout(timer);
+        // Set map ready immediately for client-side rendering
+        setIsMapReady(true);
     }, []);
 
 
