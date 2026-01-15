@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, RotateCcw, Route, Users, MapPin, AlertTriangle, User, Navigation, BarChart3 } from 'lucide-react';
+import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, Navigation, BarChart3 } from 'lucide-react';
 import { FilterSection } from './FilterSection';
 import { PerfilSection } from './PerfilSection';
 

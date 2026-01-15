@@ -14,16 +14,13 @@ export function usePontosContagem(bounds?: ViewportBounds) {
 
   useEffect(() => {
     setError(null);
-    console.log('Carregando pontos de contagem da prefeitura do arquivo estático');
     
     fetch('/dbs/PCR_CONTAGENS.json')
       .then(res => {
-        console.log('Resposta do arquivo estático:', res.status, res.statusText);
         if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
         return res.json();
       })
       .then((pontosData: any[]) => {
-        console.log('Dados da prefeitura recebidos:', pontosData?.length || 'sem dados');
         
         // Converter para GeoJSON
         const geojson = {

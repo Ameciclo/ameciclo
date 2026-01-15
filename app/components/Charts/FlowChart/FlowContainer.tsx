@@ -1,4 +1,3 @@
-import React from "react";
 import FlowStreetBackground from "./FlowStreetBackground";
 import FlowTotalCount from "./FlowTotalCount";
 interface CountEditionSummary {

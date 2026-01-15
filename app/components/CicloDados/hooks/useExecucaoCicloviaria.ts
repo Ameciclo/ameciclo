@@ -13,12 +13,10 @@ export function useExecucaoCicloviaria(bounds?: ViewportBounds) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('useExecucaoCicloviaria: iniciando carregamento');
     setError(null);
     
     fetchExecucaoCicloviaria()
       .then(result => {
-        console.log('useExecucaoCicloviaria: dados recebidos:', result);
         
         // Handle direct FeatureCollection or byCity structure
         let cityData = result;
@@ -40,10 +38,8 @@ export function useExecucaoCicloviaria(bounds?: ViewportBounds) {
               }
             }))
           };
-          console.log('useExecucaoCicloviaria: dados processados:', processedData.features.length, 'features');
           setData(processedData);
         } else {
-          console.log('useExecucaoCicloviaria: estrutura inesperada:', result);
           setData(null);
         }
       })

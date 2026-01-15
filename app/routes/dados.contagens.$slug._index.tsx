@@ -5,7 +5,7 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { colors } from "~/components/Charts/FlowChart/FlowContainer";
-import { Link, useLoaderData, Await } from "@remix-run/react";
+import { useLoaderData, Await } from "@remix-run/react";
 import { loader } from "~/loader/dados.contagens.$slug";
 export { loader };
 import { Suspense } from "react";
@@ -225,8 +225,6 @@ function getCountingCards(data: CountEditionSummary) {
 function getPointsData(d: CountEdition) {
     const { name, coordinates, summary, date, slug, sessions } = d;
     
-    console.log('Full data:', d);
-    console.log('Coordinates:', coordinates);
     
     if (!coordinates || coordinates.length === 0) {
         console.warn('No coordinates found for:', name);
@@ -234,7 +232,6 @@ function getPointsData(d: CountEdition) {
     }
     
     const [centralPoint] = coordinates;
-    console.log('Central point:', centralPoint);
     
     // Try different coordinate formats
     let lat, lng;
@@ -249,7 +246,6 @@ function getPointsData(d: CountEdition) {
         lng = centralPoint?.longitude || centralPoint?.x;
     }
     
-    console.log('Extracted coordinates:', { lat, lng });
     
     if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
         console.warn('Invalid coordinates for:', name, 'using fallback coordinates');

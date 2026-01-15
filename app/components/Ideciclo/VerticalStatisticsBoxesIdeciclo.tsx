@@ -1,4 +1,3 @@
-import React from "react";
 
 export function VerticalStatisticsBoxesIdeciclo({ title, boxes }: any) {
     return (

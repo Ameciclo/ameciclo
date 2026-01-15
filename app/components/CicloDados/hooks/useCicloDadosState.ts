@@ -194,15 +194,12 @@ export function useCicloDadosState(
   };
 
   const togglePdcOption = (optionName: string) => {
-    console.log('Toggling PDC option:', optionName);
-    console.log('Current selectedPdc:', selectedPdc);
     
     setSelectedPdc(prev => {
       const newSelection = prev.includes(optionName) 
         ? prev.filter(item => item !== optionName)
         : [...prev, optionName];
       
-      console.log('New PDC selection:', newSelection);
       return newSelection;
     });
   };

@@ -1,4 +1,3 @@
-import React from "react";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 
 export function VerticalStatisticsBoxes({ title, boxes }: { title: string; boxes: any[] }) {

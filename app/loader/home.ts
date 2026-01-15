@@ -1,4 +1,4 @@
-import { json, type LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { staticFallbacks } from "~/services/staticFallbacks";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { CMS_BASE_URL, PROJECTS_DATA } from "~/servers";

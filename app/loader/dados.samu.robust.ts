@@ -233,14 +233,12 @@ const realCitiesData = {
 };
 
 export async function loader() {
-  console.log('🚑 SAMU Robust Loader iniciado');
   
   // Função que sempre resolve com dados mock
   const createSafePromise = (data: any) => {
     return new Promise((resolve) => {
       // Simula um pequeno delay para mostrar loading
       setTimeout(() => {
-        console.log('✅ Resolvendo promise com dados mock');
         resolve(data);
       }, 100);
     });
@@ -287,7 +285,6 @@ export async function loader() {
     ],
   };
 
-  console.log('✅ SAMU Robust Loader retornando defer');
   
   return defer({
     cover: "/pages_covers/chamadosdosamu.png",

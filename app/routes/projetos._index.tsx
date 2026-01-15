@@ -5,7 +5,7 @@ import Banner from "~/components/Commom/Banner";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ProjectCard } from "~/components/Projetos/ProjectCard";
-import { FeaturedProjectsLoading } from "~/components/Projetos/FeaturedProjectLoading";
+
 import { ProjectCardLoading } from "~/components/Projetos/ProjectCardLoading";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";

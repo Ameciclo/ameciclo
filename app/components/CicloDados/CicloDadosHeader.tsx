@@ -1,6 +1,6 @@
-import { Map, BarChart3, Search, Users, Bike, AlertTriangle } from 'lucide-react';
+import { Search, Users, Bike, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchStreets, getStreetDetails, getStreetDataSummary, type StreetMatch, type StreetDataSummary } from '~/services/streets.service';
+import { searchStreets, getStreetDetails, getStreetDataSummary, type StreetMatch } from '~/services/streets.service';
 
 interface CicloDadosHeaderProps {
   viewMode: 'map' | 'mural';
@@ -90,7 +90,6 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
   }, []);
 
   const handleStreetSelect = async (street: StreetMatch) => {
-    console.log('🎯 Rua selecionada:', street);
     setSelectedStreet(street.name);
     setSearchTerm('');
     setShowSuggestions(false);
@@ -126,7 +125,6 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
         };
       }
       
-      console.log('🗺️ Fazendo zoom para bounds:', bounds);
       onZoomToStreet?.(bounds, null, street.id, street.name);
       
     } catch (error) {

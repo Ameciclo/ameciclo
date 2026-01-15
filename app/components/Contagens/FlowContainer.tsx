@@ -1,4 +1,3 @@
-import React from "react";
 
 export const FlowContainer = ({ data }: { data: any }) => {
     const { directions, summary } = data;

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Clock, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
 interface ApiStatusIndicatorProps {
   errors: Array<{ type: string; message: string }>;

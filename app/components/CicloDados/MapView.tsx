@@ -172,7 +172,6 @@ export function MapView({
   // Debug perfil ciclistas
   useEffect(() => {
     if (perfilCiclistas) {
-      console.log('🔍 Perfil Ciclistas carregado:', perfilCiclistas.features?.length, 'pontos');
     }
   }, [perfilCiclistas]);
 
@@ -297,11 +296,12 @@ export function MapView({
       const pointKey = `${point.lat}-${point.lng}`;
       
       if (lastLoggedCircle.current !== pointKey) {
-        console.log('Informações para o backend:', {
-          lat: point.lat,
-          lng: point.lng,
-          radius: 50 // raio fixo de 50m
-        });
+        // Informações para o backend (comentado para produção)
+        // console.log('Informações para o backend:', {
+        //   lat: point.lat,
+        //   lng: point.lng,
+        //   radius: 50
+        // });
         lastLoggedCircle.current = pointKey;
       }
     }
@@ -407,13 +407,11 @@ export function MapView({
   };
   
   const toggleDragPan = () => {
-    console.log('toggleDragPan called, current dragPanEnabled:', dragPanEnabled, 'current isSelectionMode:', isSelectionMode);
     const newDragPanEnabled = !dragPanEnabled;
     setDragPanEnabled(newDragPanEnabled);
     
     if (newDragPanEnabled) {
       // Ao ativar drag pan, desabilitar modo de seleção
-      console.log('Disabling selection mode');
       setIsSelectionMode(false);
       setHoverPoint(null);
       setSelectedPoints([]);
@@ -1225,7 +1223,6 @@ export function MapView({
             const MAX_PROFILE_POINTS = 20;
             const limitedFeatures = selectedGenero === 'Todas' ? filteredFeatures : filteredFeatures.slice(0, MAX_PROFILE_POINTS);
             
-            console.log('🔍 Renderizando pontos de perfil:', limitedFeatures.length, 'de', filteredFeatures.length, 'filtrados por:', selectedGenero);
             return createClusters(
               limitedFeatures, 
               mapViewState.zoom, 

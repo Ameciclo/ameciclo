@@ -404,7 +404,6 @@ export default function ViaInsegura() {
                 }
               }
               
-              console.log('🗺️ GeoJSON data for map:', geoJsonData ? 'HAS_DATA' : 'NO_DATA');
 
               return (
                 <section className="mb-12">

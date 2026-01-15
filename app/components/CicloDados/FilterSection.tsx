@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { PatternDisplay } from './PatternDisplay';
 
@@ -26,7 +26,6 @@ function OptionItem({
   const selectedClassName = `${baseClassName} bg-teal-50 border border-teal-200 shadow-sm`;
   
   const handleClick = () => {
-    console.log('OptionItem clicked:', option.name, 'isPdc:', isPdc);
     onToggle(option.name);
   };
   
@@ -240,7 +239,6 @@ export function FilterSection({
               hasPattern={hasPattern}
               isPdc={isPdc}
               onToggle={comingSoon ? () => {} : (optionName) => {
-                console.log('FilterSection onToggle called:', optionName, 'isPdc:', isPdc);
                 onToggle(optionName);
               }}
               isLoading={loadingOptions.includes(option.name)}

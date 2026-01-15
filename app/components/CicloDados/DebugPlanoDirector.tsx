@@ -7,24 +7,17 @@ export function DebugPlanoDirector({ selectedPdc }: { selectedPdc: string[] }) {
   useEffect(() => {
     const debug = async () => {
       const startTime = performance.now();
-      console.log('🔍 DEBUG PLANO DIRETOR - Iniciando investigação...');
       
       // 1. Verificar URL da API
-      console.log('1. URL da API:', SERVERS.EXECUCAO_CICLOVIARIA);
       
       // 2. Verificar filtros selecionados
-      console.log('2. Filtros PDC selecionados:', selectedPdc);
-      console.log('3. Inclui Plano Diretor?', selectedPdc.includes('Plano Diretor Cicloviário'));
       
       // 3. Testar API diretamente
       try {
-        console.log('4. Testando API...');
         const fetchStart = performance.now();
         const response = await fetch(SERVERS.EXECUCAO_CICLOVIARIA);
         const fetchEnd = performance.now();
         const fetchTime = Math.round(fetchEnd - fetchStart);
-        console.log('5. Status da resposta:', response.status, response.statusText);
-        console.log('6. Tempo de resposta:', fetchTime + 'ms');
         
         if (response.ok) {
           const parseStart = performance.now();
@@ -35,10 +28,6 @@ export function DebugPlanoDirector({ selectedPdc }: { selectedPdc: string[] }) {
           const cityData = data?.byCity?.['2611606'];
           const totalTime = Math.round(performance.now() - startTime);
           
-          console.log('7. Tempo de parse JSON:', parseTime + 'ms');
-          console.log('8. Tempo total:', totalTime + 'ms');
-          console.log('9. Dados da cidade:', cityData);
-          console.log('10. Número de features:', cityData?.features?.length || 0);
           
           setDebugInfo({
             apiUrl: SERVERS.EXECUCAO_CICLOVIARIA,

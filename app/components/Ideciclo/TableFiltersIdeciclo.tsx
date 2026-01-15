@@ -1,5 +1,5 @@
 import React from "react";
-import { useAsyncDebounce } from "react-table";
+
 
 export const ColumnFilter = ({ column }: any) => {
     const { filterValue, setFilter } = column;

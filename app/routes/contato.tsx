@@ -13,11 +13,61 @@ export const meta: MetaFunction = () => {
   return [{ title: "Contato" }];
 };
 
+interface FormData {
+  nome: string;
+  email: string;
+  telefone: string;
+  mensagem: string;
+  lgpdChecked: boolean;
+  ddi: string;
+}
+
 export default function Contato() {
   const [searchParams] = useSearchParams();
   const initialMessage = searchParams.get("message") || "";
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [success, setSuccess] = useState<{[key: string]: boolean}>({});
+
+  const getFormData = (): FormData => ({
+    nome: (document.getElementById('nome') as HTMLInputElement)?.value || '',
+    email: (document.getElementById('email') as HTMLInputElement)?.value || '',
+    telefone: (document.getElementById('telefone') as HTMLInputElement)?.value || '',
+    mensagem: (document.getElementById('mensagem') as HTMLTextAreaElement)?.value || '',
+    lgpdChecked: (document.getElementById('lgpd') as HTMLInputElement)?.checked || false,
+    ddi: (document.getElementById('ddi') as HTMLSelectElement)?.value || '+55'
+  });
+
+  const validateForm = (data: FormData): {[key: string]: string} => {
+    const newErrors: {[key: string]: string} = {};
+    
+    if (!data.nome) newErrors.nome = 'Nome é obrigatório';
+    if (!data.email) {
+      newErrors.email = 'Email é obrigatório';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      newErrors.email = 'Email inválido';
+    }
+    if (data.telefone && !/^\d{10,11}$/.test(data.telefone.replace(/\D/g, ''))) {
+      newErrors.telefone = 'Telefone inválido';
+    }
+    if (!data.mensagem) newErrors.mensagem = 'Mensagem é obrigatória';
+    if (!data.lgpdChecked) newErrors.lgpd = 'Você precisa aceitar os termos da LGPD';
+    
+    return newErrors;
+  };
+
+  const handleFormSubmit = (callback: (data: FormData) => void) => {
+    const data = getFormData();
+    const validationErrors = validateForm(data);
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      document.getElementById(Object.keys(validationErrors)[0])?.focus();
+      return;
+    }
+    
+    setErrors({});
+    callback(data);
+  };
 
   return (
     <>
@@ -243,41 +293,13 @@ export default function Contato() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      const newErrors: {[key: string]: string} = {};
-                      const lgpdCheckbox = document.getElementById('lgpd') as HTMLInputElement;
-                      const email = (document.getElementById('email') as HTMLInputElement)?.value;
-                      const nome = (document.getElementById('nome') as HTMLInputElement)?.value;
-                      const mensagem = (document.getElementById('mensagem') as HTMLTextAreaElement)?.value;
-                      const telefone = (document.getElementById('telefone') as HTMLInputElement)?.value;
-                      
-                      if (!nome) newErrors.nome = 'Nome é obrigatório';
-                      if (!email) {
-                        newErrors.email = 'Email é obrigatório';
-                      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                        newErrors.email = 'Email inválido';
-                      }
-                      if (telefone && !/^\d{10,11}$/.test(telefone.replace(/\D/g, ''))) {
-                        newErrors.telefone = 'Telefone inválido';
-                      }
-                      if (!mensagem) newErrors.mensagem = 'Mensagem é obrigatória';
-                      if (!lgpdCheckbox?.checked) newErrors.lgpd = 'Você precisa aceitar os termos da LGPD';
-                      
-                      if (Object.keys(newErrors).length > 0) {
-                        setErrors(newErrors);
-                        document.getElementById(Object.keys(newErrors)[0])?.focus();
-                        return;
-                      }
-                      
-                      setErrors({});
-                      const ddi = (document.getElementById('ddi') as HTMLSelectElement)?.value || '+55';
-                      const telefoneFormatted = telefone ? `${ddi}${telefone}` : 'Não informado';
-                      const urlParams = new URLSearchParams(window.location.search);
-                      const customSubject = urlParams.get('subject');
-                      const subject = customSubject || `Contato via página de contato - ${nome}`;
-                      const body = `Email: ${email}\nTelefone: ${telefoneFormatted}\n\n${mensagem}`;
+                    onClick={() => handleFormSubmit((data) => {
+                      const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
+                      const customSubject = searchParams.get('subject');
+                      const subject = customSubject || `Contato via página de contato - ${data.nome}`;
+                      const body = `Email: ${data.email}\nTelefone: ${telefoneFormatted}\n\n${data.mensagem}`;
                       window.location.href = `mailto:contato@ameciclo.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                    }}
+                    })}
                     className="flex-1 bg-[#008080] text-white px-4 py-2 rounded-md hover:bg-[#006666] transition-colors font-medium flex items-center justify-center gap-2"
                   >
                     <Mail size={18} /> Enviar E-mail
@@ -285,38 +307,11 @@ export default function Contato() {
                   
                   <button
                     type="button"
-                    onClick={() => {
-                      const newErrors: {[key: string]: string} = {};
-                      const lgpdCheckbox = document.getElementById('lgpd') as HTMLInputElement;
-                      const email = (document.getElementById('email') as HTMLInputElement)?.value;
-                      const nome = (document.getElementById('nome') as HTMLInputElement)?.value;
-                      const mensagem = (document.getElementById('mensagem') as HTMLTextAreaElement)?.value;
-                      const telefone = (document.getElementById('telefone') as HTMLInputElement)?.value;
-                      
-                      if (!nome) newErrors.nome = 'Nome é obrigatório';
-                      if (!email) {
-                        newErrors.email = 'Email é obrigatório';
-                      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                        newErrors.email = 'Email inválido';
-                      }
-                      if (telefone && !/^\d{10,11}$/.test(telefone.replace(/\D/g, ''))) {
-                        newErrors.telefone = 'Telefone inválido';
-                      }
-                      if (!mensagem) newErrors.mensagem = 'Mensagem é obrigatória';
-                      if (!lgpdCheckbox?.checked) newErrors.lgpd = 'Você precisa aceitar os termos da LGPD';
-                      
-                      if (Object.keys(newErrors).length > 0) {
-                        setErrors(newErrors);
-                        document.getElementById(Object.keys(newErrors)[0])?.focus();
-                        return;
-                      }
-                      
-                      setErrors({});
-                      const ddi = (document.getElementById('ddi') as HTMLSelectElement)?.value || '+55';
-                      const telefoneFormatted = telefone ? `${ddi}${telefone}` : 'Não informado';
-                      const whatsappMsg = `Olá! Me chamo ${nome}!\n\nEmail: ${email}\nTelefone: ${telefoneFormatted}\n\n${mensagem}`;
+                    onClick={() => handleFormSubmit((data) => {
+                      const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
+                      const whatsappMsg = `Olá! Me chamo ${data.nome}!\n\nEmail: ${data.email}\nTelefone: ${telefoneFormatted}\n\n${data.mensagem}`;
                       window.open(`https://wa.me/5581994586830?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
-                    }}
+                    })}
                     className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
                   >
                     <MessageCircle size={18} /> WhatsApp

@@ -1,7 +1,7 @@
 import { MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import ReactMarkdown from "react-markdown";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 import AmeCiclistaModal from "~/components/QuemSomos/AmeCiclistaModal";
 

@@ -39,7 +39,6 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
     if (mapSelection?.lat && mapSelection?.lng) {
       // Se temos dados do ponto clicado, usar diretamente
       if (mapSelection.pointData?.totalCyclists !== undefined) {
-        console.log('📊 RightSidebar: Usando dados do ponto clicado:', mapSelection.pointData);
         
         // Calcular percentual de mulheres se disponível
         let womenPercentage = '12%'; // fallback
@@ -100,7 +99,6 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
       
       fetchContagemData(mapSelection.lat, mapSelection.lng)
         .then(data => {
-          console.log('📊 RightSidebar: Dados de contagem recebidos:', data);
           
           setCardData({
             contagens: {
@@ -134,7 +132,6 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
           setLoading(false);
         });
     } else {
-      console.log('🔄 RightSidebar: Nenhuma seleção válida:', mapSelection);
     }
   }, [mapSelection]);
   
@@ -159,11 +156,9 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   
   const contagensChart = useMemo(() => {
     const contagemData = getCardData('contagens')?.details;
-    console.log('📊 Chart data:', contagemData);
     
     // Verificar se temos dados do ponto clicado com counts
     if (contagemData?.counts && Array.isArray(contagemData.counts) && contagemData.counts.length > 0) {
-      console.log('📊 Processing counts:', contagemData.counts);
       
       // Agrupar dados por ano e somar totais
       const yearlyData = contagemData.counts.reduce((acc: any, count: any) => {
@@ -178,7 +173,6 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
       const chartData = Object.values(yearlyData)
         .sort((a: any, b: any) => a.year - b.year);
       
-      console.log('📊 Yearly chart data:', chartData);
       
       if (chartData.length > 0) {
         return (
@@ -204,7 +198,6 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
     
     // Fallback para dados do mapSelection.pointData
     if (mapSelection?.pointData?.counts && Array.isArray(mapSelection.pointData.counts)) {
-      console.log('📊 Using mapSelection pointData counts:', mapSelection.pointData.counts);
       
       const yearlyData = mapSelection.pointData.counts.reduce((acc: any, count: any) => {
         const year = count.date ? new Date(count.date).getFullYear() : new Date().getFullYear();

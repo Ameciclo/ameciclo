@@ -1,4 +1,4 @@
-import { json, type LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 
 export interface Action {
   cod: number;

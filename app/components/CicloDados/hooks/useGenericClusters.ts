@@ -14,7 +14,6 @@ export function useGenericClusters(apiUrl: string, bounds?: ViewportBounds) {
 
   useEffect(() => {
     setError(null);
-    console.log('Tentando carregar dados de:', apiUrl);
     
     fetch(apiUrl, {
       method: 'GET',
@@ -24,12 +23,10 @@ export function useGenericClusters(apiUrl: string, bounds?: ViewportBounds) {
       }
     })
       .then(res => {
-        console.log('Resposta da API:', res.status, res.statusText);
         if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
         return res.json();
       })
       .then(data => {
-        console.log('Dados recebidos:', data?.type, data?.features?.length || 'sem features');
         // Verificar se é GeoJSON direto ou array que precisa ser convertido
         if (data.type === 'FeatureCollection') {
           // Já é GeoJSON, usar diretamente

@@ -1,4 +1,4 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { fetchJsonFromCMS } from "../services/cmsApi";
 import { CMS_BASE_URL } from "~/servers";
 

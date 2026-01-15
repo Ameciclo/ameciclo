@@ -4,7 +4,6 @@ import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import samuMockData from "~/data/samu-mock-data.json";
 
 export async function loader() {
-  console.log('🚑 SAMU Loader iniciado');
   
   try {
     // Validar se as URLs estão definidas
@@ -13,13 +12,11 @@ export async function loader() {
       throw new Error("URLs do SAMU não estão configuradas corretamente");
     }
     
-    console.log('✅ URLs do SAMU configuradas:', { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA });
 
     // Retornar dados mockados diretamente para garantir funcionamento
     const summaryDataPromise = Promise.resolve(samuMockData.summaryData);
     const citiesDataPromise = Promise.resolve(samuMockData.citiesData);
     
-    console.log('✅ SAMU Loader usando dados mockados para garantir funcionamento');
 
     // Dados estáticos baseados nos dados reais para carregamento imediato
     const statisticsBoxes = [
@@ -64,7 +61,6 @@ export async function loader() {
       ],
     };
 
-    console.log('✅ SAMU Loader retornando defer com promises');
     
     return defer({
       cover: "/pages_covers/chamadosdosamu.png",

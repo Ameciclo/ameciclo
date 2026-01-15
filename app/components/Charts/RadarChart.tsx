@@ -6,18 +6,15 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
   const [chartProps, setChartProps] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
 
-  console.log("RadarChart: Renderizando. isClient (inicial):", isClient);
 
   useEffect(() => {
     // Este useEffect roda apenas uma vez no cliente, após a hidratação.
     setIsClient(true);
-    console.log("RadarChart: useEffect []. isClient definido como TRUE.");
   }, []);
 
   useEffect(() => {
     // Este useEffect roda quando isClient se torna true e quando as props mudam.
     if (isClient) {
-      console.log("RadarChart: useEffect [isClient, ...props] acionado. Iniciando carregamento do Highcharts.");
       const initChart = async () => {
         try {
           const Highcharts = (await import("highcharts")).default;
@@ -85,7 +82,6 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
             Component: HighchartsReactComponent,
             options: options,
           });
-          console.log("RadarChart: chartProps definido com sucesso.");
         } catch (error) {
           console.error("RadarChart: Erro durante a inicialização do gráfico:", error);
         }

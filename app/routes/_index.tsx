@@ -1,13 +1,13 @@
 import SectionCallToAction from "~/components/PaginaInicial/SectionCallToAction";
 import SectionCarousel from "~/components/PaginaInicial/SectionCarousel";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import SectionData from "~/components/PaginaInicial/SectionData";
 import bannerImage from "/backgroundImage.webp";
 import HomeBanner from "~/components/PaginaInicial/HomeBanner";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import CachePermissionBar from "~/components/Commom/CachePermissionModal";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { loader } from "../loader/home";
 export { loader };
 

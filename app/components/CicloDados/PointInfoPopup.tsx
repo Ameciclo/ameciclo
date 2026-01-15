@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Car, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp, PieChart, LineChart, User, ShieldCheck, UserPlus, Wrench, RotateCcw, Package, Baby, Footprints, Smartphone } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp, User, ShieldCheck, UserPlus, Wrench, RotateCcw, Package, Baby, Footprints } from 'lucide-react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { POINT_CICLO_NEARBY } from '~/servers';
-import { translateProfileData, translateBehavioralKey, calculatePercentage } from '~/utils/translations';
+import { calculatePercentage } from '~/utils/translations';
 import { useFocusTrap } from '~/hooks/useFocusTrap';
 
 interface PointInfoPopupProps {

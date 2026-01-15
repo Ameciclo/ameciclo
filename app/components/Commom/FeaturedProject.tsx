@@ -1,5 +1,4 @@
 import { Link } from "@remix-run/react";
-import React from "react";
 
 export const FeaturedProject = ({ project }: { project: Project }) => {
   return (

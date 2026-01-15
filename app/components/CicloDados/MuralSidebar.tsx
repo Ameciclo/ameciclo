@@ -1,4 +1,4 @@
-import { Eye, EyeOff, AlertTriangle, Gauge, Users, User, BarChart3, PieChart, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Gauge, Users, User, BarChart3, PieChart, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CardToggle {
   id: string;

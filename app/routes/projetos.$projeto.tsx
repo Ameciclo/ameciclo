@@ -1,7 +1,7 @@
 import { useLoaderData } from "@remix-run/react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
-import { projetoLoader as loader } from "~/loader/projetos";
+import { projetoLoader } from "~/loader/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 

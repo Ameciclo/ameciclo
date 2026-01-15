@@ -76,14 +76,13 @@ import {
   generateLayersConf
 } from '~/components/CicloDados';
 import type { StreetMatch, StreetDataSummary } from '~/services/streets.service';
-import { getStreetDetails, getStreetDataSummary } from '~/services/streets.service';
+import { getStreetDataSummary } from '~/services/streets.service';
 
 export default function CicloDados() {
   const { contagemData, execucaoCicloviaria, perfilCiclistas, initialViewState } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const navigate = useNavigate();
   
-  console.log('Component execucaoCicloviaria:', execucaoCicloviaria ? 'loaded' : 'null', execucaoCicloviaria?.features?.length || 0);
   
   const {
     infraOptions,
@@ -150,14 +149,10 @@ export default function CicloDados() {
   const [mapSelection, setMapSelection] = useState<{lat: number, lng: number, radius: number, street?: string} | null>(null);
   
   const handleMapSelection = (coords: {lat: number, lng: number, radius: number, street?: string}) => {
-    console.log('🎯 Seleção do mapa:', coords);
-    console.log('🎯 Estado anterior mapSelection:', mapSelection);
     setMapSelection(coords);
-    console.log('🎯 Novo mapSelection definido');
   };
 
   const handlePointClick = (point: any) => {
-    console.log('🎯 Clique no ponto completo:', point);
     
     // Extrair coordenadas e dados do ponto clicado
     let lat, lng, name, totalCyclists;
@@ -177,7 +172,6 @@ export default function CicloDados() {
       return;
     }
     
-    console.log('🎯 Coordenadas encontradas:', { lat, lng, name, totalCyclists });
     
     const coords = { 
       lat, 
@@ -190,7 +184,6 @@ export default function CicloDados() {
         ...point
       }
     };
-    console.log('🎯 Chamando handleMapSelection com:', coords);
     handleMapSelection(coords);
   };
 
@@ -205,7 +198,6 @@ export default function CicloDados() {
   const [selectedStreetFilter, setSelectedStreetFilter] = useState<string | null>(null);
 
   const handleZoomToStreet = async (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => {
-    console.log('handleZoomToStreet chamado com bounds:', bounds);
     
     const centerLat = (bounds.north + bounds.south) / 2;
     const centerLng = (bounds.east + bounds.west) / 2;
@@ -225,7 +217,6 @@ export default function CicloDados() {
       zoom: zoom
     };
     
-    console.log('Novo viewState:', newViewState);
     setMapViewState(newViewState);
     
     // Se streetName está vazio, limpar seleção
@@ -378,7 +369,6 @@ export default function CicloDados() {
     setMapSelection(null);
     
     // Optionally show a toast or feedback
-    console.log('Recarregando dados do mapa...');
   };
   
   const handleReloadGeneralData = () => {
@@ -389,7 +379,6 @@ export default function CicloDados() {
     revalidator.revalidate();
     
     // Optionally show a toast or feedback
-    console.log('Recarregando informações gerais...');
   };
   
   // Auto-open popup from URL params

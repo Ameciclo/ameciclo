@@ -111,18 +111,18 @@ export function usePerfilPoints(
                 else filteredTotal = Math.floor(total * 0.1); // outros
               }
               
-              // Debug: log dos dados para verificar estrutura
-              if (coord.lat === -8.09803) {
-                console.log('🔍 Dados de perfil para debug:', {
-                  total_profiles: profileData.cyclist_profile.total_profiles,
-                  filters,
-                  filtered_total: filteredTotal,
-                  gender_data: profileData.cyclist_profile.by_edition?.[0]?.gender_distribution,
-                  race_data: profileData.cyclist_profile.by_edition?.[0]?.race_distribution,
-                  income_data: profileData.cyclist_profile.by_edition?.[0]?.income_distribution,
-                  days_data: profileData.cyclist_profile.by_edition?.[0]?.cycling_days_distribution
-                });
-              }
+              // Debug: log dos dados para verificar estrutura (comentado para produção)
+              // if (coord.lat === -8.09803) {
+              //   console.log('🔍 Dados de perfil para debug:', {
+              //     total_profiles: profileData.cyclist_profile.total_profiles,
+              //     filters,
+              //     filtered_total: filteredTotal,
+              //     gender_data: profileData.cyclist_profile.by_edition?.[0]?.gender_distribution,
+              //     race_data: profileData.cyclist_profile.by_edition?.[0]?.race_distribution,
+              //     income_data: profileData.cyclist_profile.by_edition?.[0]?.income_distribution,
+              //     days_data: profileData.cyclist_profile.by_edition?.[0]?.cycling_days_distribution
+              //   });
+              // }
               
               // Garantir que filtered_total seja pelo menos 1 se há dados
               const finalFilteredTotal = Math.max(1, filteredTotal);

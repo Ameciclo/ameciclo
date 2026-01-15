@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { cicloDadosService, type CicloDadosFilters, type DataAvailability } from '~/services/ciclodados.service';
+import { cicloDadosService } from '~/services/ciclodados.service';
 
 interface MapSelection {
   lat: number;

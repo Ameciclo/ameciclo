@@ -1,4 +1,4 @@
-import { type MetaFunction } from "@remix-run/node";
+
 import { useLoaderData } from "@remix-run/react";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { SearchComponent } from "../components/Biciclopedia/SearchComponent";

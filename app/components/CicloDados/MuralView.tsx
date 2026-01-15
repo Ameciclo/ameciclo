@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { User, Shield, RotateCcw, Users, Package, Wrench, Bike, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { User, Shield, RotateCcw, Users, Package, Wrench, Bike, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { MuralSidebar } from './MuralSidebar';

@@ -613,7 +613,6 @@ export const AmecicloMap = ({
                         {pointsData?.map((point) => {
                             const { key, latitude, longitude, size, color, customIcon } = point;
                             
-                            console.log(`Rendering point ${key} with size:`, size);
                             const zoomAdjustedSize = size;
                             
                             return (

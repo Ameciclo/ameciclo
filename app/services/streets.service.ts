@@ -44,7 +44,6 @@ export async function searchStreets(query: string): Promise<StreetMatch[]> {
   
   try {
     const url = `${VIAS_INSEGURAS_SEARCH}?street=${encodeURIComponent(query)}`;
-    console.log('🔍 Buscando vias na URL:', url);
     
     const response = await fetch(url, {
       method: 'GET',
@@ -54,14 +53,12 @@ export async function searchStreets(query: string): Promise<StreetMatch[]> {
       signal: AbortSignal.timeout(10000),
     });
 
-    console.log('📡 Response status:', response.status);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('📊 Dados recebidos:', data);
     
     // A API retorna sinistros, precisamos extrair ruas únicas
     if (data.sinistros && Array.isArray(data.sinistros)) {
@@ -84,11 +81,9 @@ export async function searchStreets(query: string): Promise<StreetMatch[]> {
       });
       
       const results = Array.from(streetsMap.values());
-      console.log('✅ Ruas únicas extraídas:', results);
       return results;
     }
     
-    console.log('⚠️ Formato de dados não reconhecido:', data);
     return [];
   } catch (error) {
     console.error('❌ Erro ao buscar vias:', error);
