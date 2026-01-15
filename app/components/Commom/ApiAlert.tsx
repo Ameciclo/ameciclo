@@ -1,6 +1,6 @@
 import { useLocation } from '@remix-run/react';
 import { useApiStatus } from '~/contexts/ApiStatusContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function ApiAlert() {
   const { isApiDown, apiErrors, clearErrors } = useApiStatus();
@@ -8,15 +8,20 @@ export function ApiAlert() {
   const [showDetails, setShowDetails] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   
+  useEffect(() => {
+    // Limpar erros ao trocar de página
+    setDismissed(false);
+  }, [location.pathname]);
+  
 
   
   const generateErrorReport = () => {
-    const errorDetails = `RELATÓRIO DE ERRO AUTOMÁTICO\n\nPágina: ${location.pathname}\nHorário: ${new Date().toLocaleString('pt-BR')}\n\nAPIs com falha:\n${apiErrors.map(error => `- ${error.url}\n  Erro: ${error.error}\n  Página: ${error.page}\n  Horário: ${error.timestamp}`).join('\n\n')}\n\nDescreva o que você estava fazendo quando o erro ocorreu:`;
+    const errorDetails = `RELATÓRIO DE ERRO AUTOMÁTICO\n\nPágina: ${location.pathname}\nHorário: ${new Date().toLocaleString('pt-BR')}\n\nAPIs com falha:\n${apiErrors.map(error => `- ${error.url}\n  Erro: ${error.error}\n  Página: ${error.page}\n  Horário: ${error.timestamp}`).join('\n\n')}\n\nEmail (obrigatório):\n\nTelefone (opcional):\n\nInformações adicionais (opcional):`;
     return encodeURIComponent(errorDetails);
   };
   
-  // Não mostrar o alerta na página inicial e nas páginas de dados
-  if (location.pathname === '/' || location.pathname.startsWith('/dados')) {
+  // Não mostrar o alerta nas páginas de dados
+  if (location.pathname.startsWith('/dados')) {
     return null;
   }
 

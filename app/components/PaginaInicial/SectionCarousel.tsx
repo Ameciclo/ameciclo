@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { Link } from "@remix-run/react";
@@ -17,14 +17,6 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const ProjectSlideWithPause = useCallback(({ project }) => (
-    <ProjectSlide 
-      project={project} 
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    />
-  ), []);
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -98,7 +90,11 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
           <div className="navigation-wrapper">
             <div className="keen-slider" style={{ height: '400px' }}>
               <div className="keen-slider__slide">
-                <ProjectSlideWithPause project={featuredProjects[0]} />
+                <ProjectSlide 
+                  project={featuredProjects[0]}
+                  onMouseEnter={() => setIsPaused(true)}
+                  onMouseLeave={() => setIsPaused(false)}
+                />
               </div>
             </div>
           </div>
@@ -215,13 +211,11 @@ export default function SectionCarousel({ featuredProjects = [], isLoading = fal
   );
 }
 
-const ProjectSlide = memo(({ project, onMouseEnter, onMouseLeave }: any) => {
+const ProjectSlide = memo(({ project, onMouseEnter, onMouseLeave }) => {
   const title = project.name || project.title || "";
   const description = project.description || "";
   const slug = project.slug || "";
   const imageUrl = project.media.url || "";
-
-
 
   return (
     <div className="flex relative w-full h-full">

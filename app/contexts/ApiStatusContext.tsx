@@ -42,7 +42,11 @@ export function ApiStatusProvider({
       timestamp: new Date().toLocaleString('pt-BR'),
       page
     };
-    setApiErrors(prev => [newError, ...prev.slice(0, 9)]); // Keep last 10 errors
+    setApiErrors(prev => {
+      // Remove erros duplicados da mesma URL e página
+      const filtered = prev.filter(e => !(e.url === url && e.page === page));
+      return [newError, ...filtered.slice(0, 9)];
+    });
     setIsApiDown(true);
   };
 

@@ -28,30 +28,43 @@ export default function Contato() {
               
               <form className="space-y-4">
                 <div>
-                  <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                  <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">Nome <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     id="nome"
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
                     placeholder="Seu nome"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="cidade" className="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
                   <input
-                    type="text"
-                    id="cidade"
+                    type="email"
+                    id="email"
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
-                    placeholder="Sua cidade"
+                    placeholder="seu@email.com"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="mensagem" className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+                  <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                  <input
+                    type="tel"
+                    id="telefone"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+                    placeholder="(00) 00000-0000"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="mensagem" className="block text-sm font-medium text-gray-700 mb-1">Mensagem <span className="text-red-500">*</span></label>
                   <textarea
                     id="mensagem"
                     rows={4}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
                     placeholder="Sua mensagem..."
                     defaultValue={initialMessage}
@@ -66,16 +79,16 @@ export default function Contato() {
                     required
                   />
                   <label htmlFor="lgpd" className="text-sm text-gray-600">
-                    Concordo com o tratamento dos meus dados pessoais de acordo com a{' '}
+                    Concordo com a{' '}
                     <a 
                       href="https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-[#008080] underline hover:no-underline"
                     >
-                      Lei Geral de Proteção de Dados (LGPD)
+                      LGPD
                     </a>
-                    . Os dados fornecidos serão utilizados exclusivamente para responder ao seu contato.
+                    .
                   </label>
                 </div>
                 
@@ -88,10 +101,18 @@ export default function Contato() {
                         alert('Por favor, aceite os termos da LGPD para continuar.');
                         return;
                       }
-                      const nome = (document.getElementById('nome') as HTMLInputElement)?.value || 'Pessoa interessada';
-                      const mensagem = (document.getElementById('mensagem') as HTMLTextAreaElement)?.value || '';
+                      const email = (document.getElementById('email') as HTMLInputElement)?.value;
+                      const nome = (document.getElementById('nome') as HTMLInputElement)?.value;
+                      const mensagem = (document.getElementById('mensagem') as HTMLTextAreaElement)?.value;
+                      
+                      if (!email || !nome || !mensagem) {
+                        alert('Por favor, preencha todos os campos obrigatórios.');
+                        return;
+                      }
+                      
+                      const telefone = (document.getElementById('telefone') as HTMLInputElement)?.value || 'Não informado';
                       const subject = `Contato via Site - ${nome}`;
-                      const body = mensagem;
+                      const body = `Email: ${email}\nTelefone: ${telefone}\n\n${mensagem}`;
                       window.location.href = `mailto:contato@ameciclo.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                     }}
                     className="flex-1 bg-[#008080] text-white px-4 py-2 rounded-md hover:bg-[#006666] transition-colors font-medium"
