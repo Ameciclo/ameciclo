@@ -27,7 +27,7 @@ export function AmecicloLogo({ isScrolled }: { isScrolled: boolean }) {
           transition={{ duration: 0.2 }}
           className="mt-20 sm:mt-32 flex items-center flex-shrink-0 border-white border-4"
         >
-          <div className="w-16 h-16 sm:w-16 sm:h-16 md:w-32 md:h-32">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-32 md:h-32">
             <MainLogo />
           </div>
         </motion.div>
