@@ -125,13 +125,14 @@ export const loader: LoaderFunction = async () => {
       apiErrors: errors
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return json({
       data: { cover: null, description: null, objective: null, archives: [], counts: [] },
       summaryData: { summaryData: null, countsData: [], cards: null },
       pcrCounts: [],
       amecicloData: [],
       apiDown: true,
-      apiErrors: [{ url: 'COUNTINGS_API', error: error.message || 'Erro desconhecido' }]
+      apiErrors: [{ url: 'COUNTINGS_API', error: errorMessage || 'Erro desconhecido' }]
     });
   }
 };

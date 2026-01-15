@@ -50,7 +50,18 @@ export async function fetchWithTimeout(
       clearTimeout(timeoutId);
       
       if (attempt === retries) {
-        const errorMessage = error.name === 'AbortError' ? 'Timeout' : (error.message || 'Erro desconhecido');
+        let errorMessage = 'Erro desconhecido';
+        
+        if (error.name === 'AbortError') {
+          errorMessage = 'Timeout';
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+        } else if (error && typeof error === 'object') {
+          errorMessage = JSON.stringify(error);
+        }
+        
         console.warn(`Falha final para ${url} após ${retries + 1} tentativas:`, errorMessage);
         onApiDown?.(errorMessage);
         return fallbackData;

@@ -69,10 +69,11 @@ export const loader: LoaderFunction = async () => {
       
       return { budgeted, executed, totalBudgeted };
     } catch (error) {
+      const errorMessage = error instanceof Error ? (error.name === 'AbortError' ? 'Timeout' : error.message) : String(error);
       if (error.name === 'AbortError') {
         errors.push({ url, error: 'Timeout' });
       } else {
-        errors.push({ url, error: error.message || 'Erro desconhecido' });
+        errors.push({ url, error: errorMessage || 'Erro desconhecido' });
       }
       return { budgeted: 0, executed: 0, totalBudgeted: 0 };
     }
@@ -126,7 +127,8 @@ export const loader: LoaderFunction = async () => {
           errors.push({ url: "https://dados.pe.gov.br/dataset/.../acoes_e_programas_json_2025_20250716.json", error: `HTTP ${response.status}` });
         }
       } catch (error) {
-        errors.push({ url: "https://dados.pe.gov.br/dataset/.../acoes_e_programas_json_2025_20250716.json", error: error.message || 'Erro ao carregar tabela' });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push({ url: "https://dados.pe.gov.br/dataset/.../acoes_e_programas_json_2025_20250716.json", error: errorMessage || 'Erro ao carregar tabela' });
       }
 
       return {

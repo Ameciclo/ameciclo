@@ -54,13 +54,14 @@ export const loader: LoaderFunction = async () => {
             apiErrors: errors
         });
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         return json({
             cover: null,
             description: null,
             objectives: null,
             documents: [],
             apiDown: true,
-            apiErrors: [{ url: 'DOCUMENTS_API', error: error.message || 'Erro desconhecido' }]
+            apiErrors: [{ url: 'DOCUMENTS_API', error: errorMessage || 'Erro desconhecido' }]
         });
     }
 };

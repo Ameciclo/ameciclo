@@ -51,11 +51,12 @@ export const loader = async () => {
     });
   } catch (error) {
     console.error("Error fetching or processing data for Quem Somos:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return json({
       pageData: null,
       isLoading: true,
       apiDown: true,
-      apiErrors: [{ url: server, error: error.message || 'Erro desconhecido' }]
+      apiErrors: [{ url: server, error: errorMessage || 'Erro desconhecido' }]
     });
   }
 };

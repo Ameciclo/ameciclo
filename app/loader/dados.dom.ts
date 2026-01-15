@@ -134,7 +134,8 @@ export const loader: LoaderFunction = async () => {
             apiErrors: errors
         });
     } catch (error: any) {
-        errors.push({ url: PLATAFORM_HOME_PAGE, error: error.message || 'Erro desconhecido' });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push({ url: PLATAFORM_HOME_PAGE, error: errorMessage || 'Erro desconhecido' });
         console.error("Error loading data:", error);
         return json({
             cover: null,
