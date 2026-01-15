@@ -166,20 +166,17 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
 
 export default function QuemSomos() {
   const { pageData, isLoading, apiDown, apiErrors } = useLoaderData<typeof loader>();
-  const { setApiDown, addApiError } = useApiStatus();
-  const errorsProcessed = useRef(false);
+  const { setApiDown, addApiError, clearErrors } = useApiStatus();
   
   useEffect(() => {
-    if (!errorsProcessed.current) {
-      setApiDown(apiDown);
-      if (apiErrors && apiErrors.length > 0) {
-        apiErrors.forEach((error: {url: string, error: string}) => {
-          addApiError(error.url, error.error, '/quem_somos');
-        });
-      }
-      errorsProcessed.current = true;
+    clearErrors();
+    setApiDown(apiDown);
+    if (apiErrors && apiErrors.length > 0) {
+      apiErrors.forEach((error: {url: string, error: string}) => {
+        addApiError(error.url, error.error, '/quem_somos');
+      });
     }
-  }, [apiDown, apiErrors, setApiDown, addApiError]);
+  }, []);
 
   return (
     <>

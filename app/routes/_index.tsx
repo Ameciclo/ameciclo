@@ -13,18 +13,17 @@ export { loader };
 
 export default function Index() {
   const { home, projects, apiDown, apiErrors } = useLoaderData<any>();
-  const { setApiDown, addApiError } = useApiStatus();
+  const { setApiDown, addApiError, clearErrors } = useApiStatus();
   
   useEffect(() => {
-    if (apiDown !== undefined) {
-      setApiDown(apiDown);
-    }
+    clearErrors();
+    setApiDown(apiDown);
     if (apiErrors && apiErrors.length > 0) {
       apiErrors.forEach((error: {url: string, error: string}) => {
         addApiError(error.url, error.error, '/');
       });
     }
-  }, [apiDown, apiErrors]);
+  }, []);
 
   const handleCacheAllow = () => {
     window.location.reload();
