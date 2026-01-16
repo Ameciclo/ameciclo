@@ -3,8 +3,8 @@ export const HOME_DATA = `${CMS_BASE_URL}/api/home`
 export const AMECICLISTAS_DATA = `${CMS_BASE_URL}/api/ameciclistas?populate=media&pagination[pageSize]=100`
 export const QUEM_SOMOS_DATA = `${CMS_BASE_URL}/api/quem-somo?populate=links`
 export const PLATAFORM_HOME_PAGE = `${CMS_BASE_URL}/api/plataforma-de-dado?populate[partners][populate]=image&populate=cover`
-export const DOCUMENTS_PAGE = `${CMS_BASE_URL}/api/documentos`
-export const DOCUMENTS_DATA = `${CMS_BASE_URL}/api/documents`
+export const DOCUMENTS_PAGE = `${CMS_BASE_URL}/api/documento?populate=*`
+export const DOCUMENTS_DATA = `${CMS_BASE_URL}/api/documents?populate=*&pagination[pageSize]=100`
 export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagem?populate=*`
 export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo?populate=*`
 export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil`

@@ -10,19 +10,19 @@ export const loader: LoaderFunction = async () => {
     };
 
     try {
-        const [data1, data2] = await Promise.all([
+        const [documentsResponse, pageResponse] = await Promise.all([
             fetchWithTimeout(
                 DOCUMENTS_DATA,
                 { cache: "no-cache" },
                 5000,
-                [],
+                null,
                 onError(DOCUMENTS_DATA)
             ),
             fetchWithTimeout(
                 DOCUMENTS_PAGE,
                 { cache: "no-cache" },
                 5000,
-                { cover: null, description: null, objectives: null },
+                null,
                 onError(DOCUMENTS_PAGE)
             )
         ]);
@@ -37,18 +37,21 @@ export const loader: LoaderFunction = async () => {
             coverAlt?: string;
         };
 
-        const documents: document[] = data1?.map((doc: any) => {
+        const documentsData = documentsResponse?.data || [];
+        const pageData = pageResponse?.data || { cover: null, description: null, objectives: null };
+
+        const documents: document[] = documentsData.map((doc: any) => {
             return {
                 ...doc,
-                cover: doc.cover.url,
-                coverAlt: doc.cover.alternativeText || doc.cover.alt,
+                cover: doc.cover?.url || null,
+                coverAlt: doc.cover?.alternativeText || doc.cover?.alt || null,
             };
-        }) || [];
+        });
         
         return json({
-            cover: data2?.cover || null,
-            description: data2?.description || null,
-            objectives: data2?.objectives || null,
+            cover: pageData.cover || null,
+            description: pageData.description || null,
+            objectives: pageData.objectives || null,
             documents: documents,
             apiDown: errors.length > 0,
             apiErrors: errors
