@@ -41,10 +41,10 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   │   ├── dados.contagens.$slug.tsx, dados.via.$slug.tsx
 │   │   ├── dados.ideciclo.$id.tsx, dados.sinistros-fatais.tsx
 │   │   ├── dados.vias-inseguras.tsx, dados.samu.tsx
-│   │   ├── projetos.$projeto.tsx, quem_somos.tsx
+│   │   ├── projetos.$projeto.tsx, quemsomos.tsx
 │   │   └── documentacao._index.tsx # Esta página
 │   ├── loader/             # Loaders para SSR e data fetching
-│   │   ├── home.ts, agenda.ts, projetos.ts, quem_somos.ts
+│   │   ├── home.ts, agenda.ts, projetos.ts, quemsomos.ts
 │   │   ├── dados.contagens.ts, dados.ideciclo.ts
 │   │   ├── dados.sinistros-fatais.ts, dados.samu.ts
 │   │   └── compareContagensLoader.ts
@@ -146,7 +146,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
               <li>• <strong>dados.samu.ts</strong> - Chamados do SAMU</li>
               <li>• <strong>projetos.ts</strong> - Projetos do CMS Strapi</li>
               <li>• <strong>agenda.ts</strong> - Google Calendar API</li>
-              <li>• <strong>quem_somos.ts</strong> - Dados da página institucional</li>
+              <li>• <strong>quemsomos.ts</strong> - Dados da página institucional</li>
             </ul>
           </div>
         </div>

@@ -21,7 +21,7 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
               <br />/biciclopedia_.$question.tsx        → /biciclopedia/:question
               <br />/contato.tsx                        → /contato
               <br />/participe.tsx                      → /participe
-              <br />/quem_somos.tsx                     → /quem_somos
+              <br />/quemsomos.tsx                     → /quemsomos
               <br />/documentacao._index.tsx            → /documentacao
             </code>
           </div>

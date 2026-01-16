@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { SearchIcon } from '~/components/Commom/Icones/DocumentationIcons';
 
 interface SearchResult {
@@ -15,6 +15,7 @@ interface DocumentationSearchBarProps {
   placeholder?: string;
   width?: string;
   darkMode?: boolean;
+  enableShortcut?: boolean;
 }
 
 function DocumentationSearchBar({
@@ -24,8 +25,24 @@ function DocumentationSearchBar({
   onResultClick,
   placeholder = "Buscar...",
   width = "w-64",
-  darkMode = true
+  darkMode = true,
+  enableShortcut = true
 }: DocumentationSearchBarProps) {
+  useEffect(() => {
+    if (!enableShortcut) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === '/') {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+        if (searchInput) searchInput.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [enableShortcut]);
+
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

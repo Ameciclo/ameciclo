@@ -143,7 +143,7 @@ NODE_ENV=development
 
 ## 📖 Documentação
 
-Acesse a documentação completa em: **[/documentacao](http://localhost:5173/documentacao)**
+Acesse a documentação completa em: **[ameciclo.org/documentacao](https://ameciclo.org/documentacao)**
 
 A documentação inclui:
 - Visão geral da arquitetura
