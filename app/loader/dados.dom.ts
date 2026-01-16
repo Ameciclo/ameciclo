@@ -1,9 +1,40 @@
 import { json, LoaderFunction } from "@remix-run/node";
-import { PLATAFORM_HOME_PAGE } from "~/servers";
+import { DOM_PAGE_DATA, LOA_RMR_ATLAS_API } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
     const errors: Array<{url: string, error: string}> = [];
     
+    // TODO: Integração Strapi v5 - Descomentar quando API estiver disponível
+    // const onError = (url: string) => (error: string) => {
+    //   errors.push({ url, error });
+    // };
+    // const pageData = await fetchWithTimeout(
+    //   DOM_PAGE_DATA,
+    //   { cache: "no-cache" },
+    //   5000,
+    //   null,
+    //   onError(DOM_PAGE_DATA)
+    // );
+    // const cover = pageData?.data?.cover || null;
+    // const description = pageData?.data?.description || "";
+
+    // TODO: Integração API Atlas LOA-RMR - Descomentar quando API estiver disponível
+    // const atlasData = await fetchWithTimeout(
+    //   LOA_RMR_ATLAS_API,
+    //   { cache: "no-cache" },
+    //   15000,
+    //   null,
+    //   onError(LOA_RMR_ATLAS_API)
+    // );
+    // Estrutura esperada (armazenar dados exatamente como vêm da API):
+    // {
+    //   goodActions: [...],
+    //   badActions: [...],
+    //   chartData: { yearlyComparison, goodActionsYearly, totalSpendingYearly },
+    //   totals: { sustainable, unsustainable, carbon }
+    // }
+    // Substituir dados estáticos por processamento do atlasData
+
     try {
         const res = await fetch(PLATAFORM_HOME_PAGE, {
             cache: "no-cache",

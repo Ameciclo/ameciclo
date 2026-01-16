@@ -14,7 +14,13 @@ export const PROJECT_DETAIL_DATA = (slug: string) => `${PROJECTS_DATA}?filters[s
 export const WORKGROUPS_DATA = `${CMS_BASE_URL}/api/workgroups`
 export const WORKGROUPS_LIST_DATA = `${WORKGROUPS_DATA}?pagination[pageSize]=100`
 export const PLATAFORMAS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas-de-dados?populate=*`
-export const LOA_PAGE_DATA = `${CMS_BASE_URL}/api/loa`
+export const LOA_PAGE_DATA = `${CMS_BASE_URL}/api/loa?populate=*`
+export const DOM_PAGE_DATA = `${CMS_BASE_URL}/api/dom?populate=*`
+
+// APIs Atlas para LOA e DOM - Dados Abertos PE
+// TODO: Substituir URLs quando APIs estiverem disponíveis
+export const LOA_PE_ATLAS_API = `https://loa-pe.atlas.ameciclo.org/`
+export const LOA_RMR_ATLAS_API = `https://loa-rmr.atlas.ameciclo.org/`
 
 export const IDECICLO_DATA = `https://api.ideciclo.ameciclo.org/reviews`
 export const IDECICLO_STRUCTURES_DATA = `https://api.ideciclo.ameciclo.org/structures`

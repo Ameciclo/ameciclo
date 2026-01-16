@@ -1,9 +1,42 @@
 import { json } from "@remix-run/node";
-import { LOA_PAGE_DATA } from "~/servers";
+import { LOA_PAGE_DATA, LOA_PE_ATLAS_API } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
   const errors: Array<{url: string, error: string}> = [];
   
+  // TODO: Integração Strapi v5 - Descomentar quando API estiver disponível
+  // const onError = (url: string) => (error: string) => {
+  //   errors.push({ url, error });
+  // };
+  // const pageData = await fetchWithTimeout(
+  //   LOA_PAGE_DATA,
+  //   { cache: "no-cache" },
+  //   5000,
+  //   null,
+  //   onError(LOA_PAGE_DATA)
+  // );
+  // const loaDescription = pageData?.data?.description || fallbackDescription;
+  // const cover = pageData?.data?.cover || { url: "" };
+
+  // TODO: Integração API Atlas LOA-PE - Descomentar quando API estiver disponível
+  // const atlasData = await fetchWithTimeout(
+  //   LOA_PE_ATLAS_API,
+  //   { cache: "no-cache" },
+  //   15000,
+  //   null,
+  //   onError(LOA_PE_ATLAS_API)
+  // );
+  // Estrutura esperada (armazenar dados exatamente como vêm da API):
+  // {
+  //   years: {
+  //     2020: { budgeted, executed, totalBudgeted },
+  //     2021: { budgeted, executed, totalBudgeted },
+  //     ...
+  //   },
+  //   actions: [...]
+  // }
+  // Substituir fetchAllData() por processamento do atlasData
+
   // Buscar descrição do CMS (não bloquear se falhar)
   let loaDescription = "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas.";
   
