@@ -1,65 +1,55 @@
 import { defer, LoaderFunctionArgs } from "@remix-run/node";
-import { COUNTINGS_SUMMARY_DATA, COUNTINGS_DATA, COUNTINGS_PAGE_DATA } from "~/servers";
+import { COUNTINGS_ATLAS_LOCATION, COUNTINGS_ATLAS_LOCATIONS, COUNTINGS_PAGE_DATA } from "~/servers";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-    const fetchUniqueData = async (slug: string) => {
-        // Extract ID from slug - if slug starts with number, use that, otherwise try to find ID
-        let id = slug;
-        if (slug.includes('-')) {
-            const firstPart = slug.split('-')[0];
-            if (!isNaN(Number(firstPart))) {
-                id = firstPart;
-            }
-        }
-        
-        const URL = COUNTINGS_DATA + "/" + id;
+    const fetchLocationData = async (locationId: string, countId?: string) => {
+        const URL = COUNTINGS_ATLAS_LOCATION(locationId);
         try {
-            const res = await fetch(URL, {
-                cache: "no-cache",
-            });
-            if (!res.ok) {
-                return null;
+            const data = await fetchWithTimeout(URL, { cache: "no-cache" }, 5000, null);
+            if (!data) return null;
+            
+            // Se countId foi especificado, buscar essa contagem específica
+            if (countId && data.counts) {
+                const specificCount = data.counts.find((c: any) => c.id.toString() === countId);
+                if (specificCount) {
+                    return { ...data, selectedCount: specificCount };
+                }
             }
-            const responseJson = await res.json();
-            return responseJson;
+            
+            // Caso contrário, usar a contagem mais recente (primeira do array)
+            if (data.counts && data.counts.length > 0) {
+                return { ...data, selectedCount: data.counts[0] };
+            }
+            
+            return data;
         } catch (error) {
+            console.error('Error fetching location data:', error);
             return null;
         }
     };
 
-    const fetchData = async () => {
-        let otherCounts = [];
-        let pageCover = null;
-
+    const fetchPageData = async () => {
         try {
-            const dataRes = await fetch(COUNTINGS_SUMMARY_DATA, {
-                cache: "no-cache",
-            });
-            if (!dataRes.ok) {
-                console.error(`Error fetching summary data: ${dataRes.status} ${dataRes.statusText}`);
-            } else {
-                const dataJson = await dataRes.json();
-                otherCounts = dataJson.counts || [];
-            }
+            const [pageDataRes, locationsRes] = await Promise.all([
+                fetchWithTimeout(COUNTINGS_PAGE_DATA, { cache: "no-cache" }, 5000, null),
+                fetchWithTimeout(COUNTINGS_ATLAS_LOCATIONS, { cache: "no-cache" }, 5000, [])
+            ]);
+            
+            return {
+                pageCover: pageDataRes?.data || null,
+                otherCounts: locationsRes || []
+            };
         } catch (error) {
-            console.error("Error in fetchData (summary data):", error);
+            console.error('Error fetching page data:', error);
+            return { pageCover: null, otherCounts: [] };
         }
-
-        try {
-            const pageDataRes = await fetch(COUNTINGS_PAGE_DATA, { cache: "no-cache" });
-            if (!pageDataRes.ok) {
-                console.error(`Error fetching page data: ${pageDataRes.status} ${pageDataRes.statusText}`);
-            } else {
-                pageCover = await pageDataRes.json();
-            }
-        } catch (error) {
-            console.error("Error in fetchData (page data):", error);
-        }
-        return { pageCover, otherCounts };
     };
 
-    const dataPromise = fetchUniqueData(params.slug as string);
-    const pageDataPromise = fetchData();
+    // params.slug agora é o locationId
+    const locationId = params.slug as string;
+    const dataPromise = fetchLocationData(locationId);
+    const pageDataPromise = fetchPageData();
 
     return defer({ dataPromise, pageDataPromise });
 };

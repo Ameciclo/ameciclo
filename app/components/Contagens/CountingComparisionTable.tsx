@@ -58,7 +58,7 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
         Cell: ({ row }: { row: any }) => (
           <Link
             className="text-ameciclo"
-            to={`/dados/contagens/${row.original.slug}`}
+            to={`/dados/contagens/${row.original.id}`}
             key={row.original.id}
           >
             {row.original.name}
@@ -69,9 +69,14 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
       {
         Header: "Data",
         accessor: "date",
-        Cell: ({ value }: { value: string }) => (
-          <span>{IntlDateStr(value)}</span>
-        ),
+        Cell: ({ value }: { value: string }) => {
+          if (!value) return <span>-</span>;
+          try {
+            return <span>{IntlDateStr(value)}</span>;
+          } catch {
+            return <span>{value}</span>;
+          }
+        },
         Filter: ColumnFilter,
       },
       {
@@ -86,7 +91,7 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
         Cell: ({ row }: { row: any }) => (
           <Link
             className="text-ameciclo hover:underline font-medium"
-            to={`/dados/contagens/${firstSlug}/${row.original.slug}`}
+            to={`/dados/contagens/${firstSlug}/compare/${row.original.id}`}
           >
             COMPARE
           </Link>

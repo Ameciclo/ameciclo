@@ -1,77 +1,65 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { COUNTINGS_DATA } from "~/servers";
+import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
+import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
-interface CountEditionSummary {
-  max_hour: number;
-  total_cyclists: number;
-  total_cargo: number;
-  total_helmet: number;
-  total_juveniles: number;
-  total_motor: number;
-  total_ride: number;
-  total_service: number;
-  total_shared_bike: number;
-  total_sidewalk: number;
-  total_women: number;
-  total_wrong_way: number;
-}
-
-interface CountEdition {
-  id: number;
-  slug: string;
-  name: string;
-  date: string;
-  summary: CountEditionSummary;
-}
-
-function getBoxesForCountingComparision(data: CountEdition[]) {
-  const boxes = data.map((d) => {
-    const { name, date, summary } = d;
-    const totalCyclists = summary.total_cyclists; // Capture total_cyclists here
+function getBoxesForCountingComparision(data: any[]) {
+  const boxes = data.map((location) => {
+    const count = location.selectedCount || location.counts?.[0] || {};
+    const chars = count.characteristics || {};
+    const totalCyclists = count.total_cyclists || 0;
+    
     const parameters = [
       { titulo: "Total", media: totalCyclists, mediaType: "number", total: totalCyclists },
-      { titulo: "Cargueira", media: summary.total_cargo, mediaType: "number", total: totalCyclists },
-      { titulo: "Capacete", media: summary.total_helmet, mediaType: "number", total: totalCyclists },
-      { titulo: "Juvenis", media: summary.total_juveniles, mediaType: "number", total: totalCyclists },
-      { titulo: "Motor", media: summary.total_motor, mediaType: "number", total: totalCyclists },
-      { titulo: "Carona", media: summary.total_ride, mediaType: "number", total: totalCyclists },
-      { titulo: "Serviço", media: summary.total_service, mediaType: "number", total: totalCyclists },
-      { titulo: "Bike Compartilhada", media: summary.total_shared_bike, mediaType: "number", total: totalCyclists },
-      { titulo: "Calçada", media: summary.total_sidewalk, mediaType: "number", total: totalCyclists },
-      { titulo: "Mulheres", media: summary.total_women, mediaType: "number", total: totalCyclists },
-      { titulo: "Contramão", media: summary.total_wrong_way, mediaType: "number", total: totalCyclists },
+      { titulo: "Cargueira", media: chars.cargo || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Capacete", media: chars.helmet || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Juvenis", media: chars.juveniles || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Motor", media: chars.motor || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Carona", media: chars.ride || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Serviço", media: chars.service || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Bike Compartilhada", media: chars.shared_bike || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Calçada", media: chars.sidewalk || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Mulheres", media: chars.women || 0, mediaType: "number", total: totalCyclists },
+      { titulo: "Contramão", media: chars.wrong_way || 0, mediaType: "number", total: totalCyclists },
     ];
+    
     return {
-      titulo: name,
+      titulo: location.name,
       value: totalCyclists,
-      date: date,
+      date: count.date,
       parametros: parameters,
     };
   });
   return boxes;
 }
 
-const fetchUniqueData = async (slug: string) => {
-  const id = slug.split("-")[0];
-  const URL = COUNTINGS_DATA + "/" + id;
-  const res = await fetch(URL, { cache: "no-cache" });
-  const responseJson = await res.json();
-  return responseJson;
+const fetchLocationData = async (locationId: string) => {
+  try {
+    const data = await fetchWithTimeout(COUNTINGS_ATLAS_LOCATION(locationId), { cache: "no-cache" }, 5000, null);
+    if (!data) return null;
+    
+    if (data.counts && data.counts.length > 0) {
+      return { ...data, selectedCount: data.counts[0] };
+    }
+    return data;
+  } catch (error) {
+    console.error('Error fetching location data:', error);
+    return null;
+  }
 };
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const slugParam = params.slug || "";
   const compareSlugParam = params.compareSlug || "";
-  const toCompare = [slugParam].concat(compareSlugParam.split("_COMPARE_")).filter(Boolean);
+  const toCompare = [slugParam, compareSlugParam].filter(Boolean);
 
   const data = await Promise.all(
-    toCompare.map(async (d) => {
-      const result = await fetchUniqueData(d);
+    toCompare.map(async (locationId) => {
+      const result = await fetchLocationData(locationId);
       return result;
     })
   );
 
-  const boxes = getBoxesForCountingComparision(data);
+  const boxes = getBoxesForCountingComparision(data.filter(Boolean));
 
   return json({ boxes });
 };

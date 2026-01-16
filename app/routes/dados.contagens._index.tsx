@@ -101,7 +101,7 @@ export default function Contagens() {
                 name: ponto.name || 'Contagem Ameciclo',
                 total: totalCyclists,
                 date: latestCount?.date ? IntlDateStr(latestCount.date) : 'Sem data',
-                url: `/dados/contagens/${ponto.slug || `atlas-${ponto.id}`}`,
+                url: `/dados/contagens/${ponto.id}`,
                 obs: `As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.`
             },
             size: calculatedSize,

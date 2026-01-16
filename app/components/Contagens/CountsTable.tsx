@@ -51,7 +51,7 @@ export function CountsTable({ data }: ContagensTableProps) {
         accessor: "name",
         Cell: ({ row }: any) => {
           // Generate slug from ID and name if slug doesn't exist
-          const slug = row.original.slug || `${row.original.id}-${row.original.name?.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`;
+          const slug = row.original.id || `${row.original.id}`;
           return (
             <Link
               className="text-ameciclo hover:underline"
@@ -87,16 +87,19 @@ export function CountsTable({ data }: ContagensTableProps) {
       {
         Header: "Dados",
         accessor: "id",
-        Cell: ({ value }: any) => (
-          <a
-            className="text-ameciclo hover:underline"
-            href={`https://api.garfo.ameciclo.org/cyclist-counts/edition/${value}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            JSON
-          </a>
-        ),
+        Cell: ({ row }: any) => {
+          const locationId = row.original.slug?.split('-')[0] || row.original.id;
+          return (
+            <a
+              className="text-ameciclo hover:underline"
+              href={`https://cyclist-counts.atlas.ameciclo.org/v1/locations/${locationId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              JSON
+            </a>
+          );
+        },
         disableFilters: true,
         disableSortBy: true,
       },

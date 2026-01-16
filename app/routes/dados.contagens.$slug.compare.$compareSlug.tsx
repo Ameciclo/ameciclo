@@ -1,7 +1,7 @@
 import Banner from "~/components/Commom/Banner";
 import { useLoaderData, Link, Await } from "@remix-run/react";
 import { Suspense } from "react";
-import { loader } from "~/loader/dados.contagens.$slug.$compareSlug";
+import { loader } from "~/loader/dados.contagens.$slug.compare.$compareSlug";
 export { loader };
 import React from "react";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
@@ -101,68 +101,47 @@ const characteristicsMap = new Map([
   ["total_wrong_way", { name: "Contramão" }],
 ]);
 
-function getChartData(data: CountEdition[]) {
-    const series: Series[] = [];
-    const hours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
-
-    data.forEach((countData, index) => {
-        const countSessions = Object.values(countData.sessions);
-        const hourlyData = new Array(hours.length).fill(0);
-        
-        countSessions.forEach((session) => {
-            const hour = parseInt(session.start_time.split('T')[1].split(':')[0]);
-            const hourIndex = hours.indexOf(hour);
-            if (hourIndex !== -1) {
-                hourlyData[hourIndex] += session.total_cyclists;
-            }
-        });
-
-        series.push({
-            name: countData.name,
-            data: hourlyData,
-            visible: true,
-        });
-    });
-
-    return { series, hours };
+function getChartData(data: any[]) {
+    // API Atlas não tem dados por hora, retornar vazio
+    return { series: [], hours: [] };
 }
 
-function getBoxesForCountingComparision(data: CountEdition[]) {
-  const boxes = data.map((d) => {
-    const { name, summary } = d;
+function getBoxesForCountingComparision(data: any[]) {
+  const boxes = data.map((location) => {
+    const count = location.selectedCount || {};
     return {
-      title: name,
-      value: summary.total_cyclists,
+      title: location.name,
+      value: count.total_cyclists || 0,
     };
   });
   return boxes;
 }
 
-function getPointsDataForComparingCounting(data: CountEdition[]) {
-  const pointColors = ["#FF0000", "#0000FF"]; // Vermelho e Azul
-  const points = data.map((d, index) => {
-    const { name, coordinates, summary, date, slug } = d;
-    const [centralPoint] = coordinates;
-    // Ensure coordinates are valid numbers before returning the point
-    if (typeof centralPoint.point.longitude === 'number' && typeof centralPoint.point.latitude === 'number' && !isNaN(centralPoint.point.longitude) && !isNaN(centralPoint.point.latitude)) {
-      return {
-        key: name,
-        latitude: centralPoint.point.latitude,
-        longitude: centralPoint.point.longitude,
-        color: pointColors[index % pointColors.length], // Assign color based on index
-        popup: {
-          name: name,
-          total: summary.total_cyclists,
-          date: new Intl.DateTimeFormat("pt-BR").format(new Date(date)),
-          url: `/dados/contagens/${slug}`,
-          obs: ""
-        },
-        size: Math.round((summary.total_cyclists || 0) / 250) + 15,
-        type: "Contagem",
-      };
-    }
-    return null; // Return null for invalid points
-  }).filter(Boolean); // Filter out null values
+function getPointsDataForComparingCounting(data: any[]) {
+  const pointColors = ["#008888", "#10b981"];
+  const points = data.map((location, index) => {
+    const count = location.selectedCount || {};
+    const lat = parseFloat(location.latitude);
+    const lng = parseFloat(location.longitude);
+    
+    if (isNaN(lat) || isNaN(lng)) return null;
+    
+    return {
+      key: location.name,
+      latitude: lat,
+      longitude: lng,
+      color: pointColors[index % pointColors.length],
+      popup: {
+        name: location.name,
+        total: count.total_cyclists || 0,
+        date: new Intl.DateTimeFormat("pt-BR").format(new Date(count.date)),
+        url: `/dados/contagens/${location.id}`,
+        obs: ""
+      },
+      size: Math.round((count.total_cyclists || 0) / 250) + 15,
+      type: "Contagem",
+    };
+  }).filter(Boolean);
   return points;
 }
 
@@ -203,7 +182,7 @@ export default function Compare() {
   const { dataPromise, pageDataPromise, boxesPromise, toCompare } = useLoaderData<typeof loader>();
 
   return (
-    <main className="flex-auto">
+    <main className="flex-auto overflow-x-hidden">
       <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
         <Await resolve={pageDataPromise}>
           {(pageData) => (
@@ -270,10 +249,10 @@ export default function Compare() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   {boxes.map((box: any, index: number) => {
             const colors = {
-              bg: index === 0 ? 'bg-red-50' : 'bg-blue-50',
-              border: index === 0 ? 'border-red-200' : 'border-blue-200',
-              text: index === 0 ? 'text-red-700' : 'text-blue-700',
-              accent: index === 0 ? 'bg-red-500' : 'bg-blue-500'
+              bg: index === 0 ? 'bg-teal-50' : 'bg-emerald-50',
+              border: index === 0 ? 'border-teal-200' : 'border-emerald-200',
+              text: index === 0 ? 'text-teal-700' : 'text-emerald-700',
+              accent: index === 0 ? 'bg-teal-500' : 'bg-emerald-500'
             };
             
                     return (
@@ -300,103 +279,103 @@ export default function Compare() {
                             </Tooltip>
                           </div>
                           
-                          {data[index] && (
+                          {data[index] && data[index].selectedCount && (
                             <>
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Quantidade de mulheres ciclistas">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Mulheres <span className="text-sm text-gray-500">({((data[index].summary.total_women / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Mulheres <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.women || 0) / ((data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1))) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_women.toLocaleString('pt-BR')} mulheres ciclistas`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.women || 0).toLocaleString('pt-BR')} mulheres ciclistas`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_women.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.women || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Ciclistas usando capacete de segurança">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Com Capacete <span className="text-sm text-gray-500">({((data[index].summary.total_helmet / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Com Capacete <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.helmet || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_helmet.toLocaleString('pt-BR')} ciclistas com capacete`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.helmet || 0).toLocaleString('pt-BR')} ciclistas com capacete`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_helmet.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.helmet || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Ciclistas levando carona (uma pessoa leva outra na bicicleta)">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Carona <span className="text-sm text-gray-500">({((data[index].summary.total_ride / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Carona <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.ride || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_ride.toLocaleString('pt-BR')} ciclistas dando carona`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.ride || 0).toLocaleString('pt-BR')} ciclistas dando carona`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_ride.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.ride || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas a serviço: cargueiras com água, frutas, mercadorias ou entregadores de app">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Serviço <span className="text-sm text-gray-500">({((data[index].summary.total_service / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Serviço <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.service || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_service.toLocaleString('pt-BR')} bicicletas a serviço`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.service || 0).toLocaleString('pt-BR')} bicicletas a serviço`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_service.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.service || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas de carga transportando mercadorias">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Bicicletas de Carga <span className="text-sm text-gray-500">({((data[index].summary.total_cargo / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Bicicletas de Carga <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.cargo || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_cargo.toLocaleString('pt-BR')} bicicletas de carga`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.cargo || 0).toLocaleString('pt-BR')} bicicletas de carga`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_cargo.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.cargo || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas compartilhadas como Bike Itaú, Bike Tem">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Compartilhada <span className="text-sm text-gray-500">({((data[index].summary.total_shared_bike / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Compartilhada <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.shared_bike || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_shared_bike.toLocaleString('pt-BR')} bicicletas compartilhadas`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.shared_bike || 0).toLocaleString('pt-BR')} bicicletas compartilhadas`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_shared_bike.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.shared_bike || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas pedalando pela calçada (não inclui quem está andando)">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Calçada <span className="text-sm text-gray-500">({((data[index].summary.total_sidewalk / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Calçada <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.sidewalk || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_sidewalk.toLocaleString('pt-BR')} ciclistas na calçada`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.sidewalk || 0).toLocaleString('pt-BR')} ciclistas na calçada`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_sidewalk.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.sidewalk || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas que vieram na contramão do trânsito">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Contramão <span className="text-sm text-gray-500">({((data[index].summary.total_wrong_way / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Contramão <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.wrong_way || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.total_wrong_way.toLocaleString('pt-BR')} ciclistas na contramão`}>
+                                <Tooltip text={`${(data[index].selectedCount.characteristics?.wrong_way || 0).toLocaleString('pt-BR')} ciclistas na contramão`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.total_wrong_way.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.characteristics?.wrong_way || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
                               
                               <div className="flex justify-between items-center py-2">
                                 <Tooltip text="Maior quantidade de ciclistas registrada em uma única hora">
-                                  <span className="text-base font-medium text-gray-700 cursor-help">Pico em 1h <span className="text-sm text-gray-500">({((data[index].summary.max_hour / data[index].summary.total_cyclists) * 100).toFixed(1)}%)</span></span>
+                                  <span className="text-base font-medium text-gray-700 cursor-help">Pico em 1h <span className="text-sm text-gray-500">({(((data[index].selectedCount.max_hour_cyclists || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
                                 </Tooltip>
-                                <Tooltip text={`${data[index].summary.max_hour.toLocaleString('pt-BR')} ciclistas no pico de uma hora`}>
+                                <Tooltip text={`${(data[index].selectedCount.max_hour_cyclists || 0).toLocaleString('pt-BR')} ciclistas no pico de uma hora`}>
                                   <span className={`text-xl font-semibold ${colors.text} cursor-help`}>
-                                    {data[index].summary.max_hour.toLocaleString('pt-BR')}
+                                    {(data[index].selectedCount.max_hour_cyclists || 0).toLocaleString('pt-BR')}
                                   </span>
                                 </Tooltip>
                               </div>
@@ -438,6 +417,17 @@ export default function Compare() {
           <Await resolve={dataPromise}>
             {(data) => {
               const { series, hours } = getChartData(data);
+              if (series.length === 0 || hours.length === 0) {
+                return (
+                  <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+                    <h2 className="text-gray-800 text-2xl font-bold mb-6">Quantidade de Ciclistas por Hora</h2>
+                    <div className="text-center text-gray-500 py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>
+                      <p className="text-sm">Estamos resolvendo um problema nessa sessão</p>
+                    </div>
+                  </section>
+                );
+              }
               return (
                 <HourlyCyclistsChart series={series as Series[]} hours={hours} />
               );
@@ -446,14 +436,14 @@ export default function Compare() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
-          <Await resolve={Promise.all([dataPromise, pageDataPromise])}>
-            {([data, pageData]) => {
-              const excludeIds = data.map((d: CountEdition) => d.id);
+          <Await resolve={Promise.all([dataPromise, pageDataPromise, Promise.resolve(toCompare)])}>
+            {([data, pageData, compareIds]) => {
+              const excludeIds = data.map((d: any) => d?.id).filter(Boolean);
               const filteredData = pageData.otherCounts.filter((d: any) => !excludeIds.includes(d.id));
               return (
                 <CountingComparisionTable
                   data={filteredData}
-                  firstSlug={data[0]?.slug}
+                  firstSlug={compareIds[0]}
                 />
               );
             }}

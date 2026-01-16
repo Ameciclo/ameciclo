@@ -5,7 +5,7 @@ export const QUEM_SOMOS_DATA = `${CMS_BASE_URL}/api/quem-somo?populate=links`
 export const PLATAFORM_HOME_PAGE = `${CMS_BASE_URL}/api/plataforma-de-dado?populate[partners][populate]=image&populate=cover`
 export const DOCUMENTS_PAGE = `${CMS_BASE_URL}/api/documentos`
 export const DOCUMENTS_DATA = `${CMS_BASE_URL}/api/documents`
-export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagens`
+export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagem?populate=*`
 export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo`
 export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil`
 export const PROJECTS_DATA = `${CMS_BASE_URL}/api/projects`
@@ -21,9 +21,8 @@ export const IDECICLO_STRUCTURES_DATA = `https://api.ideciclo.ameciclo.org/struc
 export const IDECICLO_FORMS_DATA = `https://api.ideciclo.ameciclo.org/forms`
 export const PERFIL_DATA = `https://api.perfil.ameciclo.org/v1/cyclist-profile/summary/`
 
-export const COUNTINGS_SUMMARY_DATA =`https://api.garfo.ameciclo.org/cyclist-counts`     
-export const COUNTINGS_DATA =`https://api.garfo.ameciclo.org/cyclist-counts/edition`
 export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`
+export const COUNTINGS_ATLAS_LOCATION = (id: string) => `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${id}`
 
 export const OBSERVATORY_DATA =`https://api.garfo.ameciclo.org/cyclist-infra/relationsByCity`
 export const OBSERVATORY_DATA_WAYS =`https://api.garfo.ameciclo.org/cyclist-infra/ways`
