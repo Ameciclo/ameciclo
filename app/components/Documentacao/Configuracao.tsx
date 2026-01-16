@@ -19,7 +19,7 @@ export default function Configuracao({ darkMode = true, fontSize = 16 }: Documen
               <code className={`${darkMode ? "text-green-300" : "text-green-700"}`} style={{ fontSize: fontSize - 2 }}>
                 # APIs Externas<br />
                 API_GARFO_URL=http://api.garfo.ameciclo.org<br />
-                CMS_BASE_URL=http://cms.ameciclo.org<br /><br />
+                CMS_BASE_URL=http://do.strapi.ameciclo.org<br /><br />
                 # Mapbox<br />
                 MAPBOX_ACCESS_TOKEN=pk.seu_token_aqui<br /><br />
                 # Google Calendar<br />

@@ -42,13 +42,13 @@ export default function Index() {
       
       <SectionCallToAction home={home} />
       <SectionCarousel 
-        featuredProjects={home.projects} 
-        isLoading={false}
-        hasApiError={false}
+        featuredProjects={home?.projects || []} 
+        isLoading={!home}
+        hasApiError={apiDown}
       />
       <SectionData 
-        projects={projects} 
-        apiDown={!projects || projects.length === 0} 
+        projects={projects || []} 
+        apiDown={!projects} 
       />
       
       <CachePermissionBar 

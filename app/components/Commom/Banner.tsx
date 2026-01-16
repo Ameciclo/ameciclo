@@ -9,13 +9,21 @@ export default function Banner({
   alt = "Imagem de Banner da página",
   title
 }: BannerProps) {
+  const bannerImage = image?.startsWith('http') || image?.startsWith('/') ? image : `/${image}`;
+  
   return (
     <div className="relative py-24 w-full h-[52vh]">
       <img
-        src={image}
+        src={bannerImage}
         alt={alt}
         className="absolute inset-0 object-cover w-full h-full"
         loading="lazy"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          if (target.src !== '/projetos.webp') {
+            target.src = '/projetos.webp';
+          }
+        }}
       />
       
       {

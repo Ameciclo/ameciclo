@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 type SearchProjectProps = {
   searchTerm: string;
@@ -14,14 +14,12 @@ export default function SearchProject({
   const [initialOffsetTop, setInitialOffsetTop] = useState(0);
   const [isClient, setIsClient] = useState(false);
 
-  // Set isClient to true after component mounts on the client
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Use useLayoutEffect to ensure DOM is ready before measuring, only on client
-  useLayoutEffect(() => {
-    if (!isClient) return; // Only run on client
+  useEffect(() => {
+    if (!isClient || !searchRef.current) return;
 
     const calculateOffset = () => {
       if (searchRef.current) {
@@ -29,17 +27,13 @@ export default function SearchProject({
       }
     };
 
-    calculateOffset(); // Calculate on mount
-
-    // Recalculate on window resize
+    calculateOffset();
     window.addEventListener('resize', calculateOffset);
-    return () => {
-      window.removeEventListener('resize', calculateOffset);
-    };
-  }, [isClient]); // Dependency on isClient
+    return () => window.removeEventListener('resize', calculateOffset);
+  }, [isClient]);
 
   useEffect(() => {
-    if (!isClient) return; // Only run on client
+    if (!isClient) return;
 
     const handleScroll = () => {
       if (searchRef.current) {
@@ -52,10 +46,8 @@ export default function SearchProject({
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [initialOffsetTop, isSticky, isClient]); // Dependencies are correct here
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [initialOffsetTop, isSticky, isClient]);
 
   return (
     <div

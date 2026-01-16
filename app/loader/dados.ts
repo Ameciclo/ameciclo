@@ -9,21 +9,22 @@ export const loader: LoaderFunction = async () => {
         errors.push({ url, error });
     };
     
-    const data = await fetchWithTimeout(
+    const response = await fetchWithTimeout(
         PLATAFORM_HOME_PAGE,
-        { cache: "no-cache" },
+        {},
         5000,
-        { cover: null, description: null, partners: [] },
+        null,
         onError(PLATAFORM_HOME_PAGE)
     );
     
-    const { cover, description, partners } = data || {};
+    const data = response?.data || {};
+    const { cover, description, partners } = data;
     
     return json({ 
         data: { 
-            cover, 
-            description, 
-            partners, 
+            cover: cover || null, 
+            description: description || '', 
+            partners: partners || [], 
             apiDown: errors.length > 0 
         },
         apiDown: errors.length > 0,

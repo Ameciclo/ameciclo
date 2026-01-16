@@ -13,6 +13,10 @@ export type footerColumn = {
   title: string;
   content: footerColumnContent[];
   align: string;
+  button?: {
+    label: string;
+    url: string;
+  };
 };
 
 export type crumb = {

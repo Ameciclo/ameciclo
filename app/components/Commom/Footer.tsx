@@ -24,11 +24,23 @@ export const Footer = () => {
           url: "mailto:contato@ameciclo.org",
         },
       ],
+      button: {
+        label: "Entre em Contato",
+        url: "/contato",
+      },
     },
     {
       title: "Links",
       align: "center",
       content: [
+        {
+          label: "Dados",
+          url: "/dados",
+        },
+        {
+          label: "Projetos",
+          url: "/projetos",
+        },
         {
           label: "Documentação",
           url: "/documentacao",
@@ -57,7 +69,7 @@ export const Footer = () => {
         },
         {
           label: "Telegram",
-          url: "https://t.me/s/ameciclo",
+          url: "https://t.me/ameciclo",
         },
         {
           label: "Youtube",
@@ -77,6 +89,14 @@ export const Footer = () => {
               className={`w-full md:w-1/3 text-center md:text-${column.align || "center"}`}
             >
               <FooterColumn column={column} />
+              {column.button && (
+                <Link
+                  to={column.button.url}
+                  className="inline-block mt-4 px-4 py-2 text-sm border border-[#008080] text-[#008080] rounded hover:bg-[#008080] hover:text-white transition-colors"
+                >
+                  {column.button.label}
+                </Link>
+              )}
             </div>
           ))}
         </div>

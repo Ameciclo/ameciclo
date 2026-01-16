@@ -215,7 +215,7 @@ const ProjectSlide = memo(({ project, onMouseEnter, onMouseLeave }) => {
   const title = project.name || project.title || "";
   const description = project.description || "";
   const slug = project.slug || "";
-  const imageUrl = project.media.url || "";
+  const imageUrl = project.media?.url || "";
 
   return (
     <div className="flex relative w-full h-full">

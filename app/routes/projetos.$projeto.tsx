@@ -5,7 +5,7 @@ import { projetoLoader } from "~/loader/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 
-export { loader };
+export const loader = projetoLoader;
 
 const ProjectDate = ({ project }: any) => {
   const dateOption: Intl.DateTimeFormatOptions = {
@@ -136,8 +136,70 @@ export default function Projeto() {
         setGalleryOpen(true);
     };
 
-    const flagLinks = project?.Links?.filter((link: any) => /^(?:\uD83C[\uDDE6-\uDDFF]){2}$/.test(link.title)) || [];
-    const otherLinks = project?.Links?.filter((link: any) => !/^(?:\uD83C[\uDDE6-\uDDFF]){2}$/.test(link.title)) || [];
+    const otherLinks = project?.Links || [];
+    
+    // Lógica de tradução: detectar idioma atual e criar links para outros idiomas
+    const currentSlug = project?.slug || '';
+    let baseSlug = currentSlug;
+    let currentLang = 'pt';
+    
+    if (currentSlug.endsWith('_en')) {
+        baseSlug = currentSlug.replace('_en', '');
+        currentLang = 'en';
+    } else if (currentSlug.endsWith('_es')) {
+        baseSlug = currentSlug.replace('_es', '');
+        currentLang = 'es';
+    }
+    
+    const translations = [
+        { lang: 'pt', flag: '🇧🇷', label: 'Português', slug: baseSlug },
+        { lang: 'en', flag: '🇬🇧', label: 'English', slug: `${baseSlug}_en` },
+        { lang: 'es', flag: '🇪🇸', label: 'Español', slug: `${baseSlug}_es` },
+    ].filter(t => t.lang !== currentLang);
+    
+    // Converter rich text blocks para Markdown
+    const getLongDescription = () => {
+        if (!project?.long_description) return null;
+        if (typeof project.long_description === 'string') return project.long_description;
+        if (Array.isArray(project.long_description)) {
+            return project.long_description.map((block: any) => {
+                if (block.type === 'heading') {
+                    const text = block.children?.map((child: any) => {
+                        let t = child.text || '';
+                        if (child.bold) t = `**${t}**`;
+                        if (child.italic) t = `*${t}*`;
+                        return t;
+                    }).join('') || '';
+                    const level = '#'.repeat(block.level || 2);
+                    return `${level} ${text}`;
+                }
+                if (block.type === 'paragraph') {
+                    const text = block.children?.map((child: any) => {
+                        if (child.type === 'link') {
+                            return `[${child.children?.[0]?.text || ''}](${child.url || ''})`;
+                        }
+                        let t = child.text || '';
+                        if (child.bold) t = `**${t}**`;
+                        if (child.italic) t = `*${t}*`;
+                        return t;
+                    }).join('') || '';
+                    return text;
+                }
+                if (block.type === 'list') {
+                    return block.children?.map((item: any, i: number) => {
+                        const text = item.children?.map((child: any) => child.text || '').join('') || '';
+                        return block.format === 'ordered' ? `${i + 1}. ${text}` : `- ${text}`;
+                    }).join('\n') || '';
+                }
+                return '';
+            }).filter(Boolean).join('\n\n');
+        }
+        return null;
+    };
+    
+    const longDescription = getLongDescription();
+    
+    const bannerImage = project?.cover?.url || project?.media?.url || '/projetos.webp';
 
     return (
                     <>
@@ -206,7 +268,7 @@ export default function Projeto() {
                                 backgroundSize: "cover",
                                 backgroundPosition: "center",
                                 backgroundRepeat: "no-repeat",
-                                backgroundImage: `url(${project?.cover?.url || project?.media?.url || '/projetos.webp'})`,
+                                backgroundImage: `url(${bannerImage})`,
                             }}
                         >
                             
@@ -223,43 +285,21 @@ export default function Projeto() {
                         <section>
                             <div className="container mx-auto mt-8 mb-8">
                                 <div className="flex flex-wrap items-center justify-center p-16 mx-auto my-auto text-white rounded bg-ameciclo lg:mx-0 relative">
-                                    <div className="absolute top-4 left-4 flex flex-wrap justify-start p-2">
-                                        {flagLinks.map((link: any) => {
-                                            const languageMap: { [key: string]: string } = {
-                                                '🇪🇸': 'Traduccion',
-                                                '🇬🇧': 'Translate',
-                                                '🇧🇷': 'Português',
-                                            };
-                                            const buttonText = languageMap[link.title] || 'Language';
-                                            const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-                                            let baseProjectSlug = project?.slug;
-                                            if (baseProjectSlug?.endsWith('_en')) {
-                                                baseProjectSlug = baseProjectSlug.replace('_en', '');
-                                            } else if (baseProjectSlug?.endsWith('_es')) {
-                                                baseProjectSlug = baseProjectSlug.replace('_es', '');
-                                            }
-                                            let newLink = `${currentOrigin}/projetos/${baseProjectSlug}`;
-
-                                            if (link.title === '🇪🇸') {
-                                                newLink += '_es';
-                                            } else if (link.title === '🇬🇧') {
-                                                newLink += '_en';
-                                            }
-
-                                            return (
-                                                <a href={newLink} key={link.id} className="m-1">
+                                    {translations.length > 0 && (
+                                        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                                            {translations.map((t) => (
+                                                <a href={`/projetos/${t.slug}`} key={t.lang}>
                                                     <button
-                                                        className="px-3 py-1 bg-black bg-opacity-20 rounded-md shadow-lg hover:bg-opacity-40 focus:outline-none text-white flex items-center"
+                                                        className="px-3 py-1 bg-black bg-opacity-20 rounded-md shadow-lg hover:bg-opacity-40 focus:outline-none text-white flex items-center gap-2"
                                                         type="button"
-                                                        style={{ transition: "all .15s ease" }}
                                                     >
-                                                        <span>{buttonText}</span>
-                                                        <span className="ml-2 text-base">{link.title}</span>
+                                                        <span>{t.label}</span>
+                                                        <span className="text-base">{t.flag}</span>
                                                     </button>
                                                 </a>
-                                            );
-                                        })}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    )}
                                     <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
                                         <p
                                             className="text-lg lg:text-3xl"
@@ -330,8 +370,8 @@ export default function Projeto() {
                                     <div className="flex flex-wrap justify-center">
                                         <div className="w-full px-4 mb-4 text-lg leading-relaxed text-justify text-gray-800 lg:w-7/12">
                                             <div className="markdown-content">
-                                                {project?.long_description ? (
-                                                    <ReactMarkdown>{project.long_description}</ReactMarkdown>
+                                                {longDescription ? (
+                                                    <ReactMarkdown>{longDescription}</ReactMarkdown>
                                                 ) : (
                                                     <p>{project?.description}</p>
                                                 )}

@@ -26,9 +26,9 @@ export default function API({ darkMode = true, fontSize = 16 }: DocumentationCom
               
               <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
                 <div className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>CMS Strapi - Conteúdo</div>
-                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block mb-2`} style={{ fontSize: fontSize - 2 }}>GET http://cms.ameciclo.org/api/projetos</code>
+                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block mb-2`} style={{ fontSize: fontSize - 2 }}>GET http://do.strapi.ameciclo.org/api/projetos</code>
                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`} style={{ fontSize: fontSize - 2 }}>Lista de projetos da organização</p>
-                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block`} style={{ fontSize: fontSize - 2 }}>GET http://cms.ameciclo.org/api/projetos/:slug</code>
+                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block`} style={{ fontSize: fontSize - 2 }}>GET http://do.strapi.ameciclo.org/api/projetos/:slug</code>
                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontSize: fontSize - 2 }}>Detalhes de um projeto</p>
               </div>
 

@@ -124,7 +124,7 @@ Crie um arquivo `.env` na raiz do projeto:
 ```env
 # APIs Externas
 API_GARFO_URL=http://api.garfo.ameciclo.org
-CMS_BASE_URL=http://cms.ameciclo.org
+CMS_BASE_URL=http://do.strapi.ameciclo.org
 
 # Mapbox (obtenha em https://mapbox.com)
 MAPBOX_ACCESS_TOKEN=pk.seu_token_aqui

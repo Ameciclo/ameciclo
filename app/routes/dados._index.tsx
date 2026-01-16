@@ -138,8 +138,8 @@ export default function Dados() {
             />
             <ImagesGrid 
                 title="Outras plataformas de dados de parceiras" 
-                images={data.partners.map((p: any) => ({
-                    src: p.image.url,
+                images={(data.partners || []).filter((p: any) => p?.image?.[0]?.url).map((p: any) => ({
+                    src: p.image[0].url,
                     alt: p.title,
                     url: p.link,
                 }))}

@@ -17,7 +17,7 @@ interface Project {
   id: string;
   name: string;
   slug: string;
-  status: string;
+  project_status: string;
   isHighlighted?: boolean;
   media?: { url: string };
   workgroup?: { name: string };
@@ -95,11 +95,11 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
         if (project) {
           if (group !== "" && status !== "") {
             return (
-              project.status === status && project.workgroup?.name === group
+              project.project_status === status && project.workgroup?.name === group
             );
           } else {
             return (
-              project.status === status || project.workgroup?.name === group
+              project.project_status === status || project.workgroup?.name === group
             );
           }
         }
@@ -118,9 +118,9 @@ function ProjectsContent({ projectsData }: { projectsData: any }) {
       if (project) {
         if (project.isHighlighted) {
           highlighted.push(groupedProject);
-        } else if (project.status === "ongoing") {
+        } else if (project.project_status === "ongoing") {
           ongoing.push(groupedProject);
-        } else if (project.status === "paused") {
+        } else if (project.project_status === "paused") {
           paused.push(groupedProject);
         } else {
           others.push(groupedProject);

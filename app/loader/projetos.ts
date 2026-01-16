@@ -1,6 +1,6 @@
 import { json } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-import { PROJECTS_DATA, WORKGROUPS_DATA, CMS_BASE_URL } from "~/servers";
+import { PROJECTS_LIST_DATA, WORKGROUPS_LIST_DATA, PROJECT_DETAIL_DATA } from "~/servers";
 
 export const projetosLoader: LoaderFunction = async () => {
   const errors: Array<{url: string, error: string}> = [];
@@ -10,12 +10,12 @@ export const projetosLoader: LoaderFunction = async () => {
   };
 
   const [projectsRes, workgroupsRes] = await Promise.all([
-    fetchWithTimeout(PROJECTS_DATA, { cache: "no-cache" }, 3000, [], onError(PROJECTS_DATA)),
-    fetchWithTimeout(WORKGROUPS_DATA, { cache: "no-cache" }, 3000, [], onError(WORKGROUPS_DATA)),
+    fetchWithTimeout(PROJECTS_LIST_DATA, { cache: "no-cache" }, 3000, null, onError(PROJECTS_LIST_DATA)),
+    fetchWithTimeout(WORKGROUPS_LIST_DATA, { cache: "no-cache" }, 3000, null, onError(WORKGROUPS_LIST_DATA)),
   ]);
 
-  const projects = Array.isArray(projectsRes) ? projectsRes : [];
-  const workgroups = Array.isArray(workgroupsRes) ? workgroupsRes : [];
+  const projects = projectsRes?.data || [];
+  const workgroups = workgroupsRes?.data || [];
 
   return json({
     projectsData: { projects, workgroups },
@@ -35,14 +35,15 @@ export const projetoLoader: LoaderFunction = async ({ params }) => {
     errors.push({ url, error });
   };
 
-  const projects = await fetchWithTimeout(`${CMS_BASE_URL}/projects?slug=${projeto}`, {}, 3000, [], onError(`${CMS_BASE_URL}/projects?slug=${projeto}`));
+  const projectUrl = PROJECT_DETAIL_DATA(projeto);
+  const projects = await fetchWithTimeout(projectUrl, {}, 3000, null, onError(projectUrl));
   
-  if (!projects || projects.length === 0) {
+  if (!projects?.data || projects.data.length === 0) {
     throw new Response("Not Found", { status: 404 });
   }
   
   return json({
-    project: projects[0],
+    project: projects.data[0],
     apiDown: errors.length > 0,
     apiErrors: errors
   });

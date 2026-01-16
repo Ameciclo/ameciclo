@@ -3,11 +3,11 @@ import { Link } from "@remix-run/react";
 
 export default function SectionData({ projects, apiDown }: any) {
     const validProjects = Array.isArray(projects) ? projects.filter(
-        (project: any) => !project.slug.endsWith("_es") && !project.slug.endsWith("_en")
+        (project: any) => !project.slug?.endsWith("_es") && !project.slug?.endsWith("_en")
     ) : [];
 
     const ongoingProjects = validProjects.filter(
-        (project: any) => project.status === "ongoing"
+        (project: any) => project.project_status === "ongoing"
     ).length;
 
     const totalProjects = validProjects.length;

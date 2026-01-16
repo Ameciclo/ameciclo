@@ -58,9 +58,9 @@ export const ProjectCard = ({ project, translations }: any) => {
     return (
         <div className="bg-white rounded-lg shadow relative" style={{ minHeight: "450px" }}>
             <div className="absolute top-0 left-0">
-                <StatusIndicator status={project.status} />
+                <StatusIndicator status={project.project_status} />
             </div>
-            {project.media ? (
+            {project.media?.url ? (
                 <Link to={`/projetos/${project.slug}`}>
                     <div
                         style={{
