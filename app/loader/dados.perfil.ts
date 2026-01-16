@@ -1,7 +1,5 @@
 import { json, LoaderFunction } from "@remix-run/node";
-import { PERFIL_PAGE_DATA } from "~/servers";
-
-const PERFIL_API_URL = "https://api.perfil.ameciclo.org/v1/cyclist-profile/summary/";
+import { PERFIL_PAGE_DATA, PERFIL_API_URL } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
     let apiDown = false;
@@ -9,6 +7,7 @@ export const loader: LoaderFunction = async () => {
     let cover = null;
     let description = "";
     let objective = "";
+    let profileData = null;
 
     // Tenta buscar dados do Strapi
     try {
@@ -18,10 +17,11 @@ export const loader: LoaderFunction = async () => {
         });
 
         if (res.ok) {
-            const data = await res.json();
-            cover = data.cover;
-            description = data.description;
-            objective = data.objective;
+            const response = await res.json();
+            const data = response?.data || {};
+            cover = data.cover || null;
+            description = data.description || "";
+            objective = data.objective || "";
         } else {
             apiErrors.push({
                 url: PERFIL_PAGE_DATA,
@@ -36,16 +36,16 @@ export const loader: LoaderFunction = async () => {
         });
     }
     
-    // Testa se a API de perfil está funcionando
+    // Busca dados de perfil da API
     try {
         const apiTest = await fetch(PERFIL_API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify([]),
-            signal: AbortSignal.timeout(5000)
+            method: "GET",
+            signal: AbortSignal.timeout(10000)
         });
         
-        if (!apiTest.ok) {
+        if (apiTest.ok) {
+            profileData = await apiTest.json();
+        } else {
             apiDown = true;
             apiErrors.push({
                 url: PERFIL_API_URL,
@@ -64,6 +64,7 @@ export const loader: LoaderFunction = async () => {
         cover,
         description,
         objective,
+        profileData,
         apiDown,
         apiErrors
     });

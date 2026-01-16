@@ -11,7 +11,7 @@ import { loader } from "~/loader/dados.perfil";
 export { loader };
 
 export default function perfil() {
-    const { cover, description, objective, apiDown, apiErrors } = useLoaderData<typeof loader>();
+    const { cover, description, objective, profileData, apiDown, apiErrors } = useLoaderData<typeof loader>();
     const { setApiDown, addApiError } = useApiStatus();
 
     useEffect(() => {
@@ -40,7 +40,7 @@ export default function perfil() {
                     },
                 ]}
             />
-            <PerfilDashboard apiDown={apiDown} />
+            <PerfilDashboard apiDown={apiDown} profileData={profileData} />
         </>
     );
 }

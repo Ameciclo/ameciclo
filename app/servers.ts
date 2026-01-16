@@ -7,7 +7,7 @@ export const DOCUMENTS_PAGE = `${CMS_BASE_URL}/api/documento?populate=*`
 export const DOCUMENTS_DATA = `${CMS_BASE_URL}/api/documents?populate=*&pagination[pageSize]=100`
 export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagem?populate=*`
 export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo?populate=*`
-export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil`
+export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil?populate=*`
 export const PROJECTS_DATA = `${CMS_BASE_URL}/api/projects`
 export const PROJECTS_LIST_DATA = `${PROJECTS_DATA}?pagination[pageSize]=100&populate=media`
 export const PROJECT_DETAIL_DATA = (slug: string) => `${PROJECTS_DATA}?filters[slug][$eq]=${slug}&populate=*`
@@ -19,7 +19,8 @@ export const LOA_PAGE_DATA = `${CMS_BASE_URL}/api/loa`
 export const IDECICLO_DATA = `https://api.ideciclo.ameciclo.org/reviews`
 export const IDECICLO_STRUCTURES_DATA = `https://api.ideciclo.ameciclo.org/structures`
 export const IDECICLO_FORMS_DATA = `https://api.ideciclo.ameciclo.org/forms`
-export const PERFIL_DATA = `https://api.perfil.ameciclo.org/v1/cyclist-profile/summary/`
+export const PERFIL_DATA = `https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/nearby?lat=-8.05&lon=-34.9&radius=100000&limit=1000`
+export const PERFIL_API_URL = `https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/nearby?lat=-8.05&lon=-34.9&radius=100000&limit=1000`
 
 export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`
 export const COUNTINGS_ATLAS_LOCATION = (id: string) => `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${id}`
