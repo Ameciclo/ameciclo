@@ -67,6 +67,14 @@ export const INFRA_CICLOVIARIA_DATA = `https://cycling-infra.atlas.ameciclo.org/
 export const PONTOS_CONTAGEM_DATA = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`
 export const PONTOS_CONTAGEM_NEARBY_DATA = `https://cyclist-counts.atlas.ameciclo.org/v1/locations/nearby`
 export const EXECUCAO_CICLOVIARIA_DATA = `https://cycling-infra.atlas.ameciclo.org/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
+export const EXECUCAO_CICLOVIARIA_SUMMARY = `https://cycling-infra.atlas.ameciclo.org/v1/ways/summary`
+export const EXECUCAO_CICLOVIARIA_RELATIONS = `https://cycling-infra.atlas.ameciclo.org/relations/by-city`
+export const PDC_VOL1_URL = `https://drive.google.com/file/d/0BxR5Ri6g5X_ZaldIY2tZS1pYRUU/view?usp=share_link&resourcekey=0-qVT9rlnlNOAdE-cs1-fn9A`
+export const PDC_VOL2_URL = `https://drive.google.com/file/d/0BxR5Ri6g5X_ZaVlpckJQVS1CTlU/view?usp=share_link&resourcekey=0-PjUIH1c2ObtbdTUGuLn28g`
+export const PDC_PASTA_URL = `https://pdc.ameciclo.org`
+export const CICLOMAPA_URL = `https://ciclomapa.org.br/`
+export const PDC_PODCAST_URL = `https://www.youtube.com/watch?v=LEQlGK-FWnI`
+export const PDC_WIKI_URL = `https://wiki.openstreetmap.org/w/index.php?title=Plano_Diretor_Ciclovi%C3%A1rio_da_Regi%C3%A3o_Metropolitana_do_Recife`
 export const SINISTROS_GEOJSON_CICLO_DATA = `https://traffic-violations.atlas.ameciclo.org/v1/dangerous-streets/geojson`
 export const PERFIL_CICLO_DATA = `https://ciclodados.atlas.ameciclo.org/v1/cyclist-profile`
 export const POINT_CICLO_NEARBY = (lat, lng, radius = 200) => `https://ciclodados.atlas.ameciclo.org/v1/nearby?lat=${lat}&lng=${lng}&radius=${radius}`

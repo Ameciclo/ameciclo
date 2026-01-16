@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { matchSorter } from "match-sorter";
-
+import * as Remix from "@remix-run/react";
 import { useTable, usePagination, useFilters, useSortBy, useExpanded } from "react-table";
+import { ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 
 const SMALL_SCREEN_WIDTH = 768;
 
@@ -73,6 +74,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const firstFilterRef = React.useRef<HTMLInputElement>(null);
     
     const safeData = React.useMemo(() => {
         try {
@@ -87,6 +89,14 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             return [];
         }
     }, [data]);
+    
+    useEffect(() => {
+        if (showFilters && firstFilterRef.current) {
+            setTimeout(() => {
+                firstFilterRef.current?.focus();
+            }, 100);
+        }
+    }, [showFilters]);
     
     const safeColumns = React.useMemo(() => {
         try {
@@ -277,19 +287,23 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     {...(({ key, ...props }) => props)(column.getHeaderProps())}
                                     className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
                                 >
-                                    <div
-                                        {...column.getSortByToggleProps({ title: "Ordenar" })}
-                                        className="flex items-center cursor-pointer"
+                                    <button
+                                        {...column.getSortByToggleProps()}
+                                        className="flex items-center gap-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#008080] focus:ring-offset-2 rounded px-1 -mx-1"
+                                        aria-label={`Ordenar por ${typeof column.Header === 'string' ? column.Header : 'coluna'}${column.isSorted ? (column.isSortedDesc ? ' em ordem decrescente' : ' em ordem crescente') : ''}`}
+                                        aria-sort={column.isSorted ? (column.isSortedDesc ? 'descending' : 'ascending') : 'none'}
                                     >
-                                        <span className="inline-block" aria-hidden="true">
-                                            {column.isSorted
-                                                ? column.isSortedDesc
-                                                    ? "🔻 "
-                                                    : "🔺 "
-                                                : "♦️ "}
-                                        </span>
+                                        {column.isSorted ? (
+                                            column.isSortedDesc ? (
+                                                <ChevronDown size={16} className="text-gray-600" aria-hidden="true" />
+                                            ) : (
+                                                <ChevronUp size={16} className="text-gray-600" aria-hidden="true" />
+                                            )
+                                        ) : (
+                                            <ChevronsUpDown size={16} className="text-gray-400" aria-hidden="true" />
+                                        )}
                                         {column.Header === 'Ação' ? `Ação (${new Set(rows.map((row: any) => row.original.cd_nm_acao)).size})` : column.Header === 'Sub-ação' ? `Sub-ação (${rows.length})` : column.Header === 'Total Empenhado' ? `Total Empenhado (${(() => { const total = rows.reduce((sum: number, row: any) => sum + row.original.vlrdotatualizada, 0); return total >= 1000000 ? (total >= 1000000000 ? `R$ ${(total / 1000000000).toFixed(1).replace('.0', '')} Bi` : `R$ ${(total / 1000000).toFixed(1).replace('.0', '')} Mi`) : `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`; })()})` : column.Header === 'Total Pago' ? `Total Pago (${(() => { const total = rows.reduce((sum: number, row: any) => sum + row.original.vlrtotalpago, 0); return total >= 1000000 ? (total >= 1000000000 ? `R$ ${(total / 1000000000).toFixed(1).replace('.0', '')} Bi` : `R$ ${(total / 1000000).toFixed(1).replace('.0', '')} Mi`) : `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`; })()})` : column.render("Header")}
-                                    </div>
+                                    </button>
                                 </th>
                             )
                         )}
@@ -475,11 +489,18 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
         };
         return (
             <div className="bg-white px-6 py-3 border-t border-gray-200">
-                <div className="flex items-center justify-center sm:justify-end">
+                <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                        {rows.length} resultados • Página {pageIndex + 1} de {pageOptions?.length || 1}
+                    </div>
+
                     <div className="flex items-center space-x-4">
-                        <div className="text-xs text-gray-500">
-                            {rows.length} resultados • Página {pageIndex + 1} de {pageOptions?.length || 1}
-                        </div>
+                        <Remix.Link 
+                            to="/contato?message=Encontrei%20um%20erro%20na%20tabela%20de%20Estruturas%20do%20PDC%3A%0A%0ADescreva%20o%20erro%20encontrado%3A%0A"
+                            className="text-xs text-gray-500 hover:text-[#008080] hover:underline transition-colors"
+                        >
+                            Reportar erro
+                        </Remix.Link>
 
                         <div className="flex items-center space-x-1">
                             <button
@@ -580,6 +601,12 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         style={{
                             animation: shouldBlink ? 'blinkAmeciclo 2s ease-in-out 2' : 'none'
                         }}
+                        aria-label={showFilters 
+                            ? "Ocultar campos de filtro abaixo das colunas" 
+                            : "Mostrar campos de filtro abaixo das colunas da tabela"}
+                        title={showFilters 
+                            ? "Ocultar filtros" 
+                            : "Clique para exibir campos de filtro abaixo de cada coluna"}
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -664,20 +691,24 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     {isInitialized && <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} showFilters={showFilters} setShowFilters={setShowFilters} rows={rows} />}
                     {showFilters && (
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200">
-                                <td colSpan={headerGroups[0]?.headers?.length || 5} className="px-0 py-0">
-                                    <div className={`transition-all duration-500 ease-out overflow-hidden ${showFilters ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
-                                        }`}>
-                                        <div className="flex flex-wrap px-6 py-3 gap-4">
-                                            {headerGroups[0]?.headers?.map((column: any, index: number) => (
-                                                <div key={column.id || index} className="w-full sm:flex-1">
-                                                    {column.canFilter && (!isSmallScreen || index === 0) && column.render('Filter')}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                            {headerGroups.map((headerGroup: any, groupIndex: number) => (
+                                <tr key={`filter-${groupIndex}`} className="bg-gray-50">
+                                    {headerGroup.headers.map((column: any, index: number) =>
+                                        isSmallScreen && index !== 0 ? null : (
+                                            <th
+                                                key={`filter-${column.id || index}`}
+                                                className="px-6 py-3 border-t border-gray-200"
+                                            >
+                                                {column.canFilter ? (
+                                                    <div ref={index === 0 ? firstFilterRef : null}>
+                                                        {column.render('Filter')}
+                                                    </div>
+                                                ) : null}
+                                            </th>
+                                        )
+                                    )}
+                                </tr>
+                            ))}
                         </thead>
                     )}
 

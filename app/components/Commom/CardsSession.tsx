@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import { FileText, Map, FolderOpen, Bike, Mic, BookOpen, ExternalLink } from 'lucide-react';
 import DevelopingComponent from "./DevelopingComponent";
 
 export const CardsSession = ({
@@ -36,14 +37,52 @@ export const CardsSession = ({
 const Card = ({
   title,
   description,
+  text,
   src = "",
   url = "#",
   target = "_blank",
   isNew = false,
-}: any) => {  
+  icon,
+  type
+}: any) => {
+  const displayText = text || description;
+  
+  const iconMap: Record<string, any> = {
+    FileText,
+    Map,
+    FolderOpen,
+    Bike,
+    Mic,
+    BookOpen
+  };
+  
+  const IconComponent = icon && iconMap[icon] ? iconMap[icon] : FileText;
+  
+  const getTypeColor = () => {
+    switch(type) {
+      case 'document': return 'from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200';
+      case 'folder': return 'from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200';
+      case 'external': return 'from-green-50 to-green-100 hover:from-green-100 hover:to-green-200';
+      case 'media': return 'from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200';
+      case 'wiki': return 'from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200';
+      default: return 'from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200';
+    }
+  };
+  
+  const getIconColor = () => {
+    switch(type) {
+      case 'document': return 'text-blue-600';
+      case 'folder': return 'text-purple-600';
+      case 'external': return 'text-green-600';
+      case 'media': return 'text-orange-600';
+      case 'wiki': return 'text-yellow-600';
+      default: return 'text-gray-600';
+    }
+  };
+  
   return (
     <Link to={url} target={target}>
-      <div className="bg-gray-100 text-ameciclo hover:text-red-500 hover:fill-red-500 w-full rounded-lg flex items-center justify-center p-10 relative">
+      <div className={`bg-gradient-to-br ${getTypeColor()} rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 h-full flex flex-col relative group border border-gray-200`}>
         {isNew && (
           <div className="absolute top-3 right-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -51,23 +90,33 @@ const Card = ({
             </svg>
           </div>
         )}
-        <div className="flex flex-col text-center">
-          <div className="mx-auto">
-            {src != "" && (
-              <img
-                className="h-40 object-contain mx-auto mb-4"
-                src={src}
-                alt=""
-                aria-hidden="true"
-                height={160}
-                width={160}
-              />
-            )}
+        
+        <div className="flex items-start gap-4 mb-4">
+          <div className={`${getIconColor()} flex-shrink-0`}>
+            <IconComponent size={40} strokeWidth={1.5} />
           </div>
-          <h2 className="text-2xl font-bold uppercase tracking-wider my-2">
-            {title}
-          </h2>
-          <p className="text-base font-medium text-gray-700">{description}</p>
+          {src && src !== "" && (
+            <img
+              className="h-16 w-16 object-contain flex-shrink-0"
+              src={src}
+              alt=""
+              aria-hidden="true"
+            />
+          )}
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#008080] transition-colors mb-2">
+              {title}
+            </h3>
+          </div>
+        </div>
+        
+        <p className="text-sm text-gray-600 leading-relaxed flex-1">
+          {displayText}
+        </p>
+        
+        <div className="mt-4 flex items-center text-[#008080] font-medium text-sm group-hover:translate-x-1 transition-transform">
+          <span>Acessar</span>
+          <ExternalLink size={16} className="ml-1" />
         </div>
       </div>
     </Link>

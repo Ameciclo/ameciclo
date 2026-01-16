@@ -214,13 +214,14 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             </div>
             
             {showFloatingFilter && (
-                <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-[#008080] text-white py-2 px-4 rounded-lg shadow-lg z-[9999] max-w-[90vw]">
-                    <div className="flex items-center text-sm">
-                        <span className="font-medium mr-2 whitespace-nowrap text-sm">Dados:</span>
+                <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-200 py-3 px-4 rounded-lg shadow-lg z-[9999] max-w-[90vw]">
+                    <div className="flex items-center gap-3 text-sm">
+                        <span className="font-semibold text-gray-700 whitespace-nowrap">Dados:</span>
                         <select
                             value={city_sort}
                             onChange={(e) => sortCityAndType(e.target.value)}
-                            className="text-sm border-0 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-white relative z-[10000] max-w-[200px] truncate"
+                            className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent max-w-[200px]"
+                            tabIndex={-1}
                         >
                             {sort_cities[0].items.map((item: any) => (
                                 <option key={item.value} value={item.value}>
@@ -233,13 +234,14 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             )}
             
             {showFixedBar && (
-                <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-[#008080] text-white py-2 px-6 rounded-lg shadow-lg z-50">
-                    <div className="flex items-center">
-                        <span className="text-sm font-medium mr-3">Cidade:</span>
+                <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-200 py-3 px-6 rounded-lg shadow-lg z-50">
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm font-semibold text-gray-700">Cidade:</span>
                         <select
                             value={localSelectedCity?.id || ''}
                             onChange={(e) => handleChangeCity(parseInt(e.target.value))}
-                            className="text-sm border-0 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
+                            className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+                            tabIndex={-1}
                         >
                             {citiesStatsArray.map((city: any) => (
                                 <option key={city.id} value={city.id}>
@@ -266,8 +268,8 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
                     title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
                     data={localSelectedCity?.relations || []}
                     columns={columns}
-                    showFilters={showFilters}
-                    setShowFilters={setShowFilters}
+                    showFilters={true}
+                    setShowFilters={null}
                 />
             </div>
         </div>
@@ -368,20 +370,26 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             Cell: ({ value }: any) => {
                 if (!value) return <span>-</span>;
                 
-                // Remove quebras de linha e espaços extras
                 const cleanValue = value.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-                
-                // Verifica se tem código no início: (CODIGO) Nome
                 const match = cleanValue.match(/^\(([^)]+)\)\s*(.+)$/);
+                
+                let displayText;
                 if (match) {
                     const cod = match[1];
-                    let nome = match[2].trim();
-                    // Adiciona espaço antes das barras para melhor formatação
-                    nome = nome.replace(/\//g, ' / ');
-                    return <span>{nome} ({cod})</span>;
+                    let nome = match[2].trim().replace(/\//g, ' / ');
+                    displayText = `${nome} (${cod})`;
+                } else {
+                    displayText = cleanValue;
                 }
                 
-                return <span>{cleanValue}</span>;
+                return (
+                    <div className="group relative">
+                        <span className="line-clamp-2">{displayText}</span>
+                        <div className="hidden group-hover:block absolute left-0 top-0 bg-white border border-gray-300 shadow-lg p-2 rounded z-50 max-w-md whitespace-normal">
+                            {displayText}
+                        </div>
+                    </div>
+                );
             },
             sortType: (rowA: any, rowB: any) => {
                 const extractName = (value: string) => {
@@ -404,21 +412,6 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
             Filter: (props: any) => <SelectColumnFilter {...props} />,
         },
         {
-            Header: "Extensão prevista",
-            accessor: "length",
-            Cell: ({ value }: any) => <ExtensionCell value={value} />,
-            Filter: (props: any) => <ApproximateValueFilter {...props} placeholder="valor aproximado (km)" />,
-            filter: (rows: any, id: any, filterValue: any) => {
-                if (!filterValue) return rows;
-                return rows.filter((row: any) => {
-                    const rowValue = parseFloat(row.values[id]) || 0;
-                    const searchValue = parseFloat(filterValue);
-                    const tolerance = searchValue * 0.2; // 20% de tolerância
-                    return Math.abs(rowValue - searchValue) <= tolerance;
-                });
-            },
-        },
-        {
             Header: "Tipologia executada",
             accessor: "typologies_str",
             Cell: ExecutedTypologyCell,
@@ -431,6 +424,21 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
                         return !cellValue || cellValue === 'none';
                     }
                     return cellValue.toLowerCase().includes(filterValue.toLowerCase());
+                });
+            },
+        },
+        {
+            Header: "Extensão prevista",
+            accessor: "length",
+            Cell: ({ value }: any) => <ExtensionCell value={value} />,
+            Filter: (props: any) => <ApproximateValueFilter {...props} placeholder="valor aproximado (km)" />,
+            filter: (rows: any, id: any, filterValue: any) => {
+                if (!filterValue) return rows;
+                return rows.filter((row: any) => {
+                    const rowValue = parseFloat(row.values[id]) || 0;
+                    const searchValue = parseFloat(filterValue);
+                    const tolerance = searchValue * 0.2; // 20% de tolerância
+                    return Math.abs(rowValue - searchValue) <= tolerance;
                 });
             },
         },

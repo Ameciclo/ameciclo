@@ -1,11 +1,14 @@
 import { LoaderFunction } from "@remix-run/node";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-import { OBSERVATORY_DATA_ALL_WAYS, OBSERVATORY_DATA_WAYS_SUMMARY, CITIES_DATA, OBSERVATORY_DATA } from "~/servers";
+import { EXECUCAO_CICLOVIARIA_DATA, EXECUCAO_CICLOVIARIA_SUMMARY, EXECUCAO_CICLOVIARIA_RELATIONS, PDC_VOL1_URL, PDC_VOL2_URL, PDC_PASTA_URL, CICLOMAPA_URL, PDC_PODCAST_URL, PDC_WIKI_URL } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
-  let apiDown = false;
   const apiErrors: Array<{url: string, error: string}> = [];
+  
+  const onError = (url: string) => (error: string) => {
+    apiErrors.push({ url, error });
+  };
 
   const page_data = {
     title: 'Observatório Cicloviário',
@@ -19,7 +22,7 @@ export const loader: LoaderFunction = async () => {
             O Plano integra os diversos municípios da RMR com uma ampla rede cicloviária, priorizando as principais avenidas e pontos de conexão das cidades. Sua construção teve participação não só dos entes públicos, mas também da sociedade civil, como nós, da Ameciclo. 
             Com metas estipuladas em fases,  o PDC precisa ser concluído em 2024.`
     }
-  }
+  };
 
   const cycleStructureExecutionStatistics = (data: any) => {
     const { pdc_feito, out_pdc, pdc_total, percent } = { ...data };
@@ -56,7 +59,7 @@ export const loader: LoaderFunction = async () => {
       "line-opacity": 0.5,
       "line-width": 2,
     },
-    filter: ["==", "STATUS", "Projeto"],
+    filter: ["==", "status_type", "pdc_nao_realizado"],
   };
 
   const PDCDoneLayer = {
@@ -66,7 +69,7 @@ export const loader: LoaderFunction = async () => {
       "line-color": "#008080",
       "line-width": 3,
     },
-    filter: ["==", "STATUS", "Realizada"],
+    filter: ["in", "status_type", "pdc_realizado_designado", "pdc_realizado_nao_designado"],
   };
 
   const NotPDC = {
@@ -77,7 +80,7 @@ export const loader: LoaderFunction = async () => {
       "line-width": 1.5,
       "line-opacity": 0.8,
     },
-    filter: ["==", "STATUS", "NotPDC"],
+    filter: ["==", "status_type", "realizado_fora_pdc"],
   };
 
   const layersConf = [PDCLayer, PDCDoneLayer, NotPDC];
@@ -105,119 +108,143 @@ export const loader: LoaderFunction = async () => {
     return cityStats;
   }
 
-  // Dados mock para fallback
-  const mockAllWaysData = { all: { type: "FeatureCollection", features: [] } };
-  const mockStatsData = [
-    { title: "estrutura cicloviárias existentes", unit: "km", value: "245.8" },
-    { title: "projetada no plano cicloviário", unit: "km", value: "654.2" },
-    { title: "implantados no plano cicloviário", unit: "km", value: "187.3" },
-    { title: "cobertos do plano cicloviário", unit: "%", value: "28.6" }
-  ];
-  const mockCitiesData = {};
+  const fallbackData = {
+    type: "FeatureCollection",
+    features: []
+  };
 
-  // Promises assíncronas com timeout e tratamento de erro
-  // Promises assíncronas com timeout e tratamento de erro
-  let hasAllWaysError = false;
-  let hasStatsError = false;
-  let hasCitiesError = false;
+  const fallbackStats = {
+    pdc_feito: 0,
+    out_pdc: 0,
+    pdc_total: 0,
+    percent: 0
+  };
 
-  const allWaysPromise = fetchWithTimeout(
-    OBSERVATORY_DATA_ALL_WAYS, 
-    { cache: "no-cache" }, 
-    15000, 
-    mockAllWaysData,
-    (error) => {
-      hasAllWaysError = true;
-      apiErrors.push({ url: OBSERVATORY_DATA_ALL_WAYS, error });
-    },
-    2
-  ).then(data => data.all);
+  // Mapeamento de IDs de cidades para nomes (IBGE oficial)
+  // Validado com servicodados.ibge.gov.br/api/v1/localidades/municipios/{id}
+  const cityNamesMap: Record<string, string> = {
+    '2600054': 'Abreu e Lima',
+    '2601052': 'Araçoiaba',
+    '2602902': 'Cabo de Santo Agostinho',
+    '2603454': 'Camaragibe',
+    '2606804': 'Igarassu',
+    '2607208': 'Ipojuca',
+    '2607604': 'Ilha de Itamaracá',
+    '2607752': 'Itapissuma',
+    '2607901': 'Jaboatão dos Guararapes',
+    '2609402': 'Moreno',
+    '2609600': 'Olinda',
+    '2610707': 'Paulista',
+    '2611606': 'Recife',
+    '2613701': 'São Lourenço da Mata'
+  };
 
-  const statsPromise = fetchWithTimeout(
-    OBSERVATORY_DATA_WAYS_SUMMARY, 
-    { cache: "no-cache" }, 
-    15000, 
-    { all: { pdc_feito: 187.3, out_pdc: 58.5, pdc_total: 654.2, percent: 28.6 } },
-    (error) => {
-      hasStatsError = true;
-      apiErrors.push({ url: OBSERVATORY_DATA_WAYS_SUMMARY, error });
-    },
-    2
-  ).then(data => cycleStructureExecutionStatistics(data.all));
+  // IDs de cidades da RMR (Região Metropolitana do Recife)
+  const rmrCityIds = new Set(Object.keys(cityNamesMap));
 
-  const citiesPromise = Promise.all([
-    fetchWithTimeout(OBSERVATORY_DATA_WAYS_SUMMARY, { cache: "no-cache" }, 15000, { byCity: {} }, (error) => {
-      hasCitiesError = true;
-      apiErrors.push({ url: OBSERVATORY_DATA_WAYS_SUMMARY, error });
-    }, 2),
-    fetchWithTimeout(CITIES_DATA, {}, 15000, [], (error) => {
-      hasCitiesError = true;
-      apiErrors.push({ url: CITIES_DATA, error });
-    }, 2),
-    fetchWithTimeout(OBSERVATORY_DATA, {}, 15000, {}, (error) => {
-      hasCitiesError = true;
-      apiErrors.push({ url: OBSERVATORY_DATA, error });
-    }, 2)
-  ]).then(([summaryData, cities, relations]) => 
-    cityCycleStructureExecutionStatisticsByCity(summaryData.byCity, cities, relations)
-  );
+  const [apiData, summaryData, relationsData] = await Promise.all([
+    fetchWithTimeout(
+      EXECUCAO_CICLOVIARIA_DATA,
+      { cache: "no-cache" },
+      15000,
+      fallbackData,
+      onError(EXECUCAO_CICLOVIARIA_DATA),
+      2
+    ),
+    fetchWithTimeout(
+      EXECUCAO_CICLOVIARIA_SUMMARY,
+      { cache: "no-cache" },
+      15000,
+      { all: fallbackStats, byCity: {} },
+      onError(EXECUCAO_CICLOVIARIA_SUMMARY),
+      2
+    ),
+    fetchWithTimeout(
+      EXECUCAO_CICLOVIARIA_RELATIONS,
+      { cache: "no-cache" },
+      15000,
+      {},
+      onError(EXECUCAO_CICLOVIARIA_RELATIONS),
+      2
+    )
+  ]);
+
+  const allWaysData = apiData || fallbackData;
+  const statsData = cycleStructureExecutionStatistics(summaryData?.all || fallbackStats);
+  
+  const citiesData: any = {};
+  if (summaryData?.byCity) {
+    Object.entries(summaryData.byCity).forEach(([cityId, cityData]: [string, any]) => {
+      // Filtrar apenas cidades da RMR
+      if (rmrCityIds.has(cityId)) {
+        const cityRelations = relationsData?.[cityId]?.relations || [];
+        citiesData[cityId] = {
+          id: parseInt(cityId),
+          name: cityNamesMap[cityId],
+          pdc_feito: cityData.pdc_feito || 0,
+          out_pdc: cityData.out_pdc || 0,
+          pdc_total: cityData.pdc_total || 0,
+          percent: cityData.percent || 0,
+          total: (cityData.pdc_feito || 0) + (cityData.out_pdc || 0),
+          relations: cityRelations
+        };
+      }
+    });
+  }
 
   const documents = {
-    title: 'Documentos e links importantes para o PDC.',
+    title: 'Documentos e Recursos do PDC',
     cards: [
       {
-        title: 'Plano Diretor Cicloviário da RMR - vol 1',
+        title: 'Plano Diretor Cicloviário - Volume 1',
         src: '',
-        url:
-          'https://drive.google.com/file/d/0BxR5Ri6g5X_ZaldIY2tZS1pYRUU/view?usp=share_link&resourcekey=0-qVT9rlnlNOAdE-cs1-fn9A',
-        text: 'Documento lançado em 2014, parte principal que contém o estudo.'
+        url: PDC_VOL1_URL,
+        text: 'Documento oficial com estudo completo, diagnóstico e diretrizes do plano cicloviário da RMR.',
+        icon: 'FileText',
+        type: 'document'
       },
       {
-        title: 'Plano Diretor Cicloviário da RMR - vol 2',
+        title: 'Plano Diretor Cicloviário - Volume 2',
         src: '',
-        url:
-          'https://drive.google.com/file/d/0BxR5Ri6g5X_ZaVlpckJQVS1CTlU/view?usp=share_link&resourcekey=0-PjUIH1c2ObtbdTUGuLn28g',
-        text: 'Parte 2 do documento, apenas com os mapas.'
+        url: PDC_VOL2_URL,
+        text: 'Mapas detalhados e plantas das rotas cicloviárias projetadas para a região metropolitana.',
+        icon: 'Map',
+        type: 'document'
       },
       {
-        title: 'Pasta do PDC',
+        title: 'Pasta Completa do PDC',
         src: '',
-        url: 'https://pdc.ameciclo.org',
-        text:
-          'Pasta em nosso drive com o plano, o processo de construção e a nossa ação civil-pública para a implantação.'
+        url: PDC_PASTA_URL,
+        text: 'Acervo completo com documentos, processo de construção e ação civil pública para implantação.',
+        icon: 'FolderOpen',
+        type: 'folder'
       },
       {
         title: 'Ciclomapa',
         src: '',
-        url: 'https://ciclomapa.org.br/',
-        text:
-          'Mapa colaborativo que monitora as ciclovias de diversas cidades, inclusive a nossa.'
+        url: CICLOMAPA_URL,
+        text: 'Plataforma colaborativa de monitoramento das ciclovias existentes em diversas cidades brasileiras.',
+        icon: 'Bike',
+        type: 'external'
       },
       {
-        title: 'O que é o PDC?',
+        title: 'Podcast: O que é o PDC?',
         src: '',
-        url: 'https://www.youtube.com/watch?v=LEQlGK-FWnI',
-        text: 'Episódio de nosso podcast sobre o Plano Diretor Cicloviário.'
+        url: PDC_PODCAST_URL,
+        text: 'Episódio explicativo sobre o Plano Diretor Cicloviário, sua importância e implementação.',
+        icon: 'Mic',
+        type: 'media'
       },
       {
-        title: 'Wiki do PDC',
+        title: 'Wiki OpenStreetMap',
         src: '',
-        url: 'https://wiki.openstreetmap.org/w/index.php?title=Plano_Diretor_Ciclovi%C3%A1rio_da_Regi%C3%A3o_Metropolitana_do_Recife',
-        text: 'A wiki com a listagem de todas as infras no OpenStreetMaps.'
+        url: PDC_WIKI_URL,
+        text: 'Documentação técnica com listagem completa das infraestruturas cicloviárias no OpenStreetMap.',
+        icon: 'BookOpen',
+        type: 'wiki'
       }
     ]
-  }
-
-  // Aguardar todos os dados no servidor
-  const [allWaysData, statsData, citiesData] = await Promise.all([
-    allWaysPromise,
-    statsPromise,
-    citiesPromise
-  ]);
-
-  if (apiErrors.length > 0) {
-    apiDown = true;
-  }
+  };
 
   return {
     cover: page_data.cover_image_url,
@@ -230,7 +257,7 @@ export const loader: LoaderFunction = async () => {
     allWaysData,
     statsData,
     citiesData,
-    apiDown,
+    apiDown: apiErrors.length > 0,
     apiErrors
   };
 };
