@@ -4,12 +4,12 @@ import ReactMarkdown from "react-markdown";
 import { useState, useEffect } from "react";
 
 import AmeCiclistaModal from "~/components/QuemSomos/AmeCiclistaModal";
+import InfoSectionLoading from "~/components/QuemSomos/InfoSectionLoading";
+import AmeciclistasLoading from "~/components/QuemSomos/AmeciclistasLoading";
 
 import SEO from "~/components/Commom/SEO";
 import { Tab, TabPanel, Tabs, TabsNav } from "~/components/QuemSomos/Tabs";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import QuemSomosLoading from "~/components/QuemSomos/QuemSomosLoading";
-import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { loader } from "~/loader/quemsomos";
 export { loader };
@@ -35,14 +35,14 @@ export const meta: MetaFunction = () => {
 };
 
 function QuemSomosContent({ pageData }: { pageData: any }) {
-  if (!pageData) return null;
-  
-  const { ameciclistas = [], custom = {} } = pageData;
+  const { ameciclistas = [], custom = {}, ameciclistasLoading = false, customLoading = false } = pageData || {};
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAmeciclista, setSelectedAmeciclista] = useState(null);
+  const [lastFocusedElement, setLastFocusedElement] = useState<HTMLElement | null>(null);
 
-  const handleCardClick = (ameciclista: any) => {
+  const handleCardClick = (ameciclista: any, event: React.MouseEvent<HTMLButtonElement>) => {
+    setLastFocusedElement(event.currentTarget);
     setSelectedAmeciclista(ameciclista);
     setIsModalOpen(true);
   };
@@ -50,37 +50,44 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedAmeciclista(null);
+    if (lastFocusedElement) {
+      setTimeout(() => lastFocusedElement.focus(), 0);
+    }
   };
 
   const coordinators = ameciclistas.filter((a: any) => a.role === "coordenacao");
-  const counselors = ameciclistas.filter((a: any) => a.role === "conselhofiscal");
+  const counselors = ameciclistas.filter((a: any) => a.role === "conselhofiscal" || a.role === "concelhofiscal");
 
   return (
     <div className="container mx-auto mt-8 mb-8">
-        <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">
-          <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
-            <div className="text-lg lg:text-3xl">
-              <ReactMarkdown>{custom?.definition}</ReactMarkdown>
+        {customLoading ? (
+          <InfoSectionLoading />
+        ) : (
+          <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">
+            <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
+              <div className="text-lg lg:text-3xl">
+                <ReactMarkdown>{custom?.definition}</ReactMarkdown>
+              </div>
+            </div>
+            <div className="w-full mb-4 lg:w-1/2 lg:mb-0">
+              <p className="mb-2 text-xs tracking-wide text-white lg:text-base">
+                {custom?.objective}
+              </p>
+              <div className="flex flex-wrap items-start justify-start max-w-5xl mx-auto mt-8 lg:mt-0">
+                {custom?.links?.map((l: any) => (
+                  <a
+                    key={l.id}
+                    href={l.link}
+                    className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow hover:bg-white hover:text-ameciclo focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-ameciclo sm:mr-2"
+                    style={{ transition: "all .15s ease" }}
+                  >
+                    {l.title}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="w-full mb-4 lg:w-1/2 lg:mb-0">
-            <p className="mb-2 text-xs tracking-wide text-white lg:text-base">
-              {custom?.objective}
-            </p>
-            <div className="flex flex-wrap items-start justify-start max-w-5xl mx-auto mt-8 lg:mt-0">
-              {custom?.links?.map((l: any) => (
-                <a
-                  key={l.id}
-                  href={l.link}
-                  className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
-                  style={{ transition: "all .15s ease" }}
-                >
-                  {l.title}
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
 
         <Tabs initialValue="tab-ameciclista">
           <TabsNav>
@@ -90,10 +97,16 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
           </TabsNav>
 
           <TabPanel name="tab-coord">
-            <div className="flex flex-wrap -m-4 justify-center">
-              {coordinators.map((c: any) => (
-                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4 cursor-pointer" key={c.id} onClick={() => handleCardClick(c)}>
-                  <div className="bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+            {ameciclistasLoading ? <AmeciclistasLoading /> : (
+              coordinators.map((c: any) => (
+                <div 
+                  className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" 
+                  key={c.id}
+                >
+                  <button
+                    className="w-full text-left bg-white rounded-lg shadow-lg flex flex-col overflow-hidden cursor-pointer focus:ring-2 focus:ring-ameciclo focus:ring-offset-2"
+                    onClick={(e) => handleCardClick(c, e)}
+                  >
                     <div className="relative w-full h-64 overflow-hidden">
                       {c.media ? (
                         <img src={c.media.url} alt={c.name} className="absolute w-full h-full object-cover" />
@@ -103,19 +116,28 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
                     </div>
                     <div className="p-6 flex-1">
                       <h2 className="text-xl font-semibold text-gray-900">{c.name}</h2>
-                      <p className="text-sm text-gray-600 mt-2">{c.bio}</p>
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-4">{c.bio}</p>
+                      {c.bio && c.bio.length > 150 && (
+                        <span className="text-xs text-gray-500 mt-1 block">... ver mais</span>
+                      )}
                     </div>
-                  </div>
+                  </button>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
           </TabPanel>
 
           <TabPanel name="tab-conselho">
-            <div className="flex flex-wrap -m-4 justify-center">
-              {counselors.map((c: any) => (
-                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4 cursor-pointer" key={c.id} onClick={() => handleCardClick(c)}>
-                  <div className="bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+            {ameciclistasLoading ? <AmeciclistasLoading /> : (
+              counselors.map((c: any) => (
+                <div 
+                  className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" 
+                  key={c.id}
+                >
+                  <button
+                    className="w-full text-left bg-white rounded-lg shadow-lg flex flex-col overflow-hidden cursor-pointer focus:ring-2 focus:ring-ameciclo focus:ring-offset-2"
+                    onClick={(e) => handleCardClick(c, e)}
+                  >
                     <div className="relative w-full h-64 overflow-hidden">
                       {c.media ? (
                         <img src={c.media.url} alt={c.name} className="absolute w-full h-full object-cover" />
@@ -125,19 +147,28 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
                     </div>
                     <div className="p-6 flex-1">
                       <h2 className="text-xl font-semibold text-gray-900">{c.name}</h2>
-                      <p className="text-sm text-gray-600 mt-2">{c.bio}</p>
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-4">{c.bio}</p>
+                      {c.bio && c.bio.length > 150 && (
+                        <span className="text-xs text-gray-500 mt-1 block">... ver mais</span>
+                      )}
                     </div>
-                  </div>
+                  </button>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
           </TabPanel>
 
           <TabPanel name="tab-ameciclista">
-            <div className="flex flex-wrap -m-4 justify-center">
-              {ameciclistas.map((c: any) => (
-                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4 cursor-pointer" key={c.id} onClick={() => handleCardClick(c)}>
-                  <div className="bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+            {ameciclistasLoading ? <AmeciclistasLoading /> : (
+              ameciclistas.map((c: any) => (
+                <div 
+                  className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4" 
+                  key={c.id}
+                >
+                  <button
+                    className="w-full text-left bg-white rounded-lg shadow-lg flex flex-col overflow-hidden cursor-pointer focus:ring-2 focus:ring-ameciclo focus:ring-offset-2"
+                    onClick={(e) => handleCardClick(c, e)}
+                  >
                     <div className="relative w-full h-64 overflow-hidden">
                       {c.media ? (
                         <img src={c.media.url} alt={c.name} className="absolute w-full h-full object-cover" />
@@ -148,10 +179,10 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
                     <div className="p-6 flex-1">
                       <h2 className="text-xl font-semibold text-gray-900">{c.name}</h2>
                     </div>
-                  </div>
+                  </button>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
           </TabPanel>
         </Tabs>
 
@@ -167,17 +198,16 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
 
 
 export default function QuemSomos() {
-  const { pageData, isLoading, apiDown, apiErrors } = useLoaderData<typeof loader>();
-  const { setApiDown, addApiError } = useApiStatus();
+  const { pageData, apiErrors } = useLoaderData<typeof loader>();
+  const { addApiError } = useApiStatus();
   
   useEffect(() => {
-    setApiDown(apiDown);
     if (apiErrors && apiErrors.length > 0) {
       apiErrors.forEach((error: {url: string, error: string}) => {
-        addApiError(error.url, error.error, '/quem_somos');
+        addApiError(error.url, error.error, '/quemsomos');
       });
     }
-  }, [apiDown, apiErrors]);
+  }, [apiErrors, addApiError]);
 
   return (
     <>
@@ -191,8 +221,7 @@ export default function QuemSomos() {
         />
       </div>
       <Breadcrumb label="Quem Somos" slug="/quem_somos" routes={["/"]} />
-      <ApiStatusHandler apiDown={apiDown} />
-      {isLoading ? <QuemSomosLoading /> : <QuemSomosContent pageData={pageData} />}
+      <QuemSomosContent pageData={pageData} />
     </>
   );
 }

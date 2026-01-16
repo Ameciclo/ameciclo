@@ -1,4 +1,5 @@
 import { useFocusTrap } from '~/hooks/useFocusTrap';
+import { useEffect } from 'react';
 
 type AmeCiclistaModalProps = {
   isOpen: boolean;
@@ -17,6 +18,16 @@ export default function AmeCiclistaModal({
 }: AmeCiclistaModalProps) {
   const modalRef = useFocusTrap(isOpen);
   
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, onClose]);
+  
   if (!isOpen || !ameciclista) return null;
 
   return (
@@ -29,11 +40,12 @@ export default function AmeCiclistaModal({
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative"
+        className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative outline-none"
         onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
       >
         <button
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold"
+          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-ameciclo focus-visible:ring-offset-2"
           onClick={onClose}
           aria-label="Fechar modal"
         >

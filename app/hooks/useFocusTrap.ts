@@ -30,7 +30,7 @@ export function useFocusTrap(isActive: boolean) {
       }
     };
 
-    firstElement?.focus();
+    container.focus();
     document.addEventListener('keydown', handleTabKey);
 
     return () => {
