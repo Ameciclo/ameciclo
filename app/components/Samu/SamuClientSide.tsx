@@ -38,7 +38,7 @@ interface SamuClientSideProps {
 }
 
 export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
-  const [selectedCity, setSelectedCity] = useState("Recife");
+  const [selectedCity, setSelectedCity] = useState("RECIFE");
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedEndYear, setSelectedEndYear] = useState<number | null>(null);
   const [availableYears, setAvailableYears] = useState<number[]>([]);
@@ -72,220 +72,99 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   }, [cityStats, citiesData?.cidades]);
 
   const getEvolutionDataForCity = () => {
-    if (!citiesData?.cidades) return;
+    if (!citiesData?.cidades || !selectedCity) return;
+
+    console.log('🔍 Buscando evolução para:', selectedCity);
+    console.log('🔍 Cidades disponíveis:', citiesData.cidades.map((c: any) => c.municipio));
 
     const cityData = citiesData.cidades.find(
-      (city) =>
-        city.name === selectedCity || city.municipio_samu === selectedCity
+      (city: any) => city.municipio === selectedCity
     );
 
-    if (cityData?.historico_anual && Array.isArray(cityData.historico_anual)) {
-      const years = cityData.historico_anual
-        .map((item: any) => item.ano)
-        .sort((a: number, b: number) => a - b);
-      setAvailableYears(years);
-      if (!selectedYear && years.length > 0) {
-        setSelectedYear(years[years.length - 1]);
-      }
+    console.log('🔍 Cidade encontrada:', cityData);
+    console.log('🔍 Histórico anual:', cityData?.historico_anual);
 
-      // Filtrar anos completos (excluir ano atual) e ordenar do mais antigo para o mais novo
-      const currentYear = new Date().getFullYear();
-      const chartData = cityData.historico_anual
-        .filter((item: any) => item.ano < currentYear)
-        .sort((a: any, b: any) => a.ano - b.ano)
-        .map((item: any) => {
-          const total = (item.validos?.atendimento_concluido || 0) + 
-                       (item.validos?.removido_particulares || 0) + 
-                       (item.validos?.removido_bombeiros || 0) + 
-                       (item.validos?.obito_local || 0);
-          return {
-            label: item.ano.toString(),
-            total: total,
-            atendimento_concluido: item.validos?.atendimento_concluido || 0,
-            removido_particulares: item.validos?.removido_particulares || 0,
-            removido_bombeiros: item.validos?.removido_bombeiros || 0,
-            obito_local: item.validos?.obito_local || 0,
-          };
-        });
+    if (!cityData?.historico_anual) {
+      console.warn('⚠️ Sem histórico anual para', selectedCity);
+      return;
+    }
 
-      setFilteredEvolutionData({
-        data: chartData,
-        title: `Evolução das Chamadas SAMU - ${selectedCity}`,
-        xAxisTitle: "Ano",
-        yAxisTitle: "Número de Chamadas",
-      });
+    const chartData = cityData.historico_anual.map((item: any) => ({
+      label: item.ano.toString(),
+      total: item.total,
+      atendimento_concluido: item.atendimento_concluido || 0,
+      removido_particulares: item.removido_particulares || 0,
+      removido_bombeiros: item.removido_bombeiros || 0,
+      obito_local: item.obito_local || 0,
+    }));
+
+    console.log('✅ Chart data gerado:', chartData);
+
+    setFilteredEvolutionData({
+      data: chartData,
+      title: `Evolução das Chamadas SAMU - ${selectedCity}`,
+      xAxisTitle: "Ano",
+      yAxisTitle: "Número de Chamadas",
+    });
+
+    const years = chartData.map((d: any) => parseInt(d.label));
+    setAvailableYears(years);
+    if (!selectedYear && years.length > 0) {
+      setSelectedYear(years[years.length - 1]);
     }
   };
 
   const getProfileDataFromHistory = () => {
-    if (!citiesData?.cidades || !selectedYear) return;
+    if (!citiesData?.cidades || !selectedYear || !selectedCity) return;
 
     const cityData = citiesData.cidades.find(
-      (city) =>
-        city.name === selectedCity || city.municipio_samu === selectedCity
+      (city: any) => city.municipio === selectedCity
     );
 
-    if (cityData?.historico_anual && Array.isArray(cityData.historico_anual)) {
-      let yearsToProcess = [selectedYear];
-      if (selectedEndYear) {
-        yearsToProcess = [];
-        const startYear = Math.min(selectedYear, selectedEndYear);
-        const endYear = Math.max(selectedYear, selectedEndYear);
-        // Debug: anos selecionados
-        for (let year = startYear; year <= endYear; year++) {
-          yearsToProcess.push(year);
-        }
-      }
+    if (!cityData?.historico_anual) return;
 
-      const aggregatedData = {
-        por_sexo: { masculino: 0, feminino: 0, nao_informado: 0 },
-        por_faixa_etaria: {} as Record<string, number>,
-        por_categoria: {} as Record<string, number>,
-      };
+    const yearData = cityData.historico_anual.find(
+      (item: any) => item.ano === selectedYear
+    );
 
-      yearsToProcess.forEach((year) => {
-        const yearData = cityData.historico_anual?.find(
-          (item) => item.ano === year
-        );
+    if (!yearData) return;
 
-        if (yearData) {
-          // Agregar dados de sexo
-          aggregatedData.por_sexo.masculino +=
-            yearData.por_sexo?.masculino || 0;
-          aggregatedData.por_sexo.feminino += yearData.por_sexo?.feminino || 0;
-          aggregatedData.por_sexo.nao_informado +=
-            yearData.por_sexo?.nao_informado || 0;
-
-          // Agregar dados de idade
-          Object.entries(yearData.por_faixa_etaria || {}).forEach(
-            ([key, value]) => {
-              const numValue = typeof value === "number" ? value : 0;
-              aggregatedData.por_faixa_etaria[key] =
-                (aggregatedData.por_faixa_etaria[key] || 0) + numValue;
-            }
-          );
-
-          // Agregar dados de categoria
-          Object.entries(yearData.por_categoria || {}).forEach(
-            ([key, value]) => {
-              const numValue = typeof value === "number" ? value : 0;
-              if (key === "atropelamento_bicicleta") {
-                aggregatedData.por_categoria["sinistro_bicicleta"] =
-                  (aggregatedData.por_categoria["sinistro_bicicleta"] || 0) +
-                  numValue;
-              } else if (
-                [
-                  "atropelamento_carro",
-                  "atropelamento_moto",
-                  "atropelamento_onibus_caminhao",
-                ].includes(key)
-              ) {
-                aggregatedData.por_categoria["atropelamento_motorizado"] =
-                  (aggregatedData.por_categoria["atropelamento_motorizado"] ||
-                    0) + numValue;
-              } else {
-                aggregatedData.por_categoria[key] =
-                  (aggregatedData.por_categoria[key] || 0) + numValue;
-              }
-            }
-          );
-        }
-      });
-
-      // Processar dados de sexo
-      const genderTotal =
-        aggregatedData.por_sexo.masculino +
-        aggregatedData.por_sexo.feminino +
-        aggregatedData.por_sexo.nao_informado;
-      if (genderTotal > 0) {
-        setGenderData([
-          {
-            label: "Masculino",
-            value: (
-              (aggregatedData.por_sexo.masculino / genderTotal) *
-              100
-            ).toFixed(1),
-            total: aggregatedData.por_sexo.masculino,
-            color: "#3b82f6",
-          },
-          {
-            label: "Feminino",
-            value: (
-              (aggregatedData.por_sexo.feminino / genderTotal) *
-              100
-            ).toFixed(1),
-            total: aggregatedData.por_sexo.feminino,
-            color: "#ec4899",
-          },
-          {
-            label: "Não Informado",
-            value: (
-              (aggregatedData.por_sexo.nao_informado / genderTotal) *
-              100
-            ).toFixed(1),
-            total: aggregatedData.por_sexo.nao_informado,
-            color: "#6b7280",
-          },
-        ]);
-      }
-
-      // Processar dados de idade
-      const ageTotal = Object.values(aggregatedData.por_faixa_etaria).reduce(
-        (sum, val) => sum + val,
-        0
+    if (yearData.por_sexo) {
+      const genderTotal = Object.values(yearData.por_sexo).reduce((sum: number, val: any) => sum + val, 0);
+      setGenderData(
+        Object.entries(yearData.por_sexo).map(([key, value]: [string, any]) => ({
+          label: key === "masculino" ? "Masculino" : key === "feminino" ? "Feminino" : "Não Informado",
+          value: ((value / genderTotal) * 100).toFixed(1),
+          total: value,
+          color: key === "masculino" ? "#3b82f6" : key === "feminino" ? "#ec4899" : "#6b7280",
+        }))
       );
-      if (ageTotal > 0) {
-        const ageEntries = Object.entries(aggregatedData.por_faixa_etaria);
-        setAgeData(
-          ageEntries.map(([key, value], index) => ({
-            label: key.replace(/_/g, " "),
-            value: ((value / ageTotal) * 100).toFixed(1),
-            total: value,
-            color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626"][
-              index % 5
-            ],
-          }))
-        );
-      }
+    }
 
-      // Processar dados de categoria
-      const categoryLabels = {
-        sinistro_moto: "Sinistro de Moto",
-        sinistro_carro: "Sinistro de Carro",
-        atropelamento_motorizado: "Atropelamento por Motorizado",
-        sinistro_bicicleta: "Sinistro de Bicicleta",
-        sinistro_onibus_caminhao: "Sinistro Ônibus/Caminhão",
-        outro: "Outro",
-        nao_informado: "Não Informado",
-      };
-
-      const categoryTotal = Object.values(aggregatedData.por_categoria).reduce(
-        (sum, val) => sum + val,
-        0
+    if (yearData.por_faixa_etaria) {
+      const ageTotal = Object.values(yearData.por_faixa_etaria).reduce((sum: number, val: any) => sum + val, 0);
+      setAgeData(
+        Object.entries(yearData.por_faixa_etaria).map(([key, value]: [string, any], index) => ({
+          label: key.replace(/_/g, " "),
+          value: ((value / ageTotal) * 100).toFixed(1),
+          total: value,
+          color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626"][index % 5],
+        }))
       );
-      if (categoryTotal > 0) {
-        const categoryEntries = Object.entries(
-          aggregatedData.por_categoria
-        ).sort(([, a], [, b]) => b - a);
-        setTransportData(
-          categoryEntries.map(([key, value], index) => ({
-            label: categoryLabels[key as keyof typeof categoryLabels] || key,
-            value: ((value / categoryTotal) * 100).toFixed(1),
+    }
+
+    if (yearData.por_categoria) {
+      const typeTotal = Object.values(yearData.por_categoria).reduce((sum: number, val: any) => sum + val, 0);
+      setTransportData(
+        Object.entries(yearData.por_categoria)
+          .sort(([, a]: any, [, b]: any) => b - a)
+          .map(([key, value]: [string, any], index) => ({
+            label: key,
+            value: ((value / typeTotal) * 100).toFixed(1),
             total: value,
-            color: [
-              "#f59e0b",
-              "#10b981",
-              "#3b82f6",
-              "#8b5cf6",
-              "#dc2626",
-              "#06b6d4",
-              "#84cc16",
-              "#f97316",
-              "#6366f1",
-            ][index % 9],
+            color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4"][index % 6],
           }))
-        );
-      }
+      );
     }
   };
 
@@ -356,7 +235,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                 options={{
                   type: "default",
                   changeFunction: (cityLabel: string) => {
-                    setSelectedCity(cityLabel);
+                    setSelectedCity(cityLabel.toUpperCase());
                   },
                   onClickFnc: () => {},
                 }}

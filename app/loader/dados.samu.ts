@@ -1,6 +1,7 @@
-import { defer } from "@remix-run/node";
-import { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA } from "~/servers";
+import { json } from "@remix-run/node";
+import { SAMU_SUMMARY_API, SAMU_CITIES_API } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { fetchCityDataServer } from "~/services/samu.server";
 import samuMockData from "~/data/samu-mock-data.json";
 
 export async function loader() {
@@ -11,60 +12,101 @@ export async function loader() {
   };
   
   try {
-    if (!SAMU_SUMMARY_DATA || !SAMU_CITIES_DATA) {
-      console.error('❌ URLs do SAMU não configuradas:', { SAMU_SUMMARY_DATA, SAMU_CITIES_DATA });
-      throw new Error("URLs do SAMU não estão configuradas corretamente");
-    }
-    
-    // Aguardar todas as chamadas para capturar erros
-    const [summaryData, citiesData] = await Promise.all([
-      fetchWithTimeout(
-        SAMU_SUMMARY_DATA,
-        { cache: "force-cache" },
-        5000,
-        samuMockData.summaryData,
-        onError(SAMU_SUMMARY_DATA),
-        0
-      ),
-      fetchWithTimeout(
-        SAMU_CITIES_DATA,
-        { cache: "force-cache" },
-        5000,
-        samuMockData.citiesData,
-        onError(SAMU_CITIES_DATA),
-        0
-      )
-    ]);
-    
-    const summaryDataPromise = Promise.resolve(summaryData || samuMockData.summaryData);
-    const citiesDataPromise = Promise.resolve(citiesData || samuMockData.citiesData);
-    
+    const cover = "/pages_covers/chamadosdosamu.png";
+    const title1 = "O que são chamadas de sinistro?";
+    const description1 = "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.";
+    const title2 = "Como utilizamos os dados?";
+    const description2 = "Processamos dados reais de chamadas do SAMU para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.";
 
-    // Dados estáticos baseados nos dados reais para carregamento imediato
+    const [summaryData, citiesData] = await Promise.all([
+      fetchWithTimeout(SAMU_SUMMARY_API, { cache: "force-cache" }, 10000, null, onError(SAMU_SUMMARY_API), 1),
+      fetchWithTimeout(SAMU_CITIES_API, { cache: "force-cache" }, 10000, null, onError(SAMU_CITIES_API), 1)
+    ]);
+
+    let usingMockData = false;
+    let processedData;
+
+    if (summaryData && citiesData) {
+      console.log('🔍 Dados de cidades da API:', citiesData.cidades?.[0]);
+      
+      const totalChamadas = summaryData.totalChamadas || 0;
+      const evolucaoAnual = summaryData.evolucaoAnual || [];
+      const anoMaisViolento = evolucaoAnual.length > 0 
+        ? evolucaoAnual.reduce((max: any, curr: any) => curr.count > max.count ? curr : max)
+        : { ano: 0, count: 0 };
+      
+      const cidadeMaisViolenta = summaryData.cidadeMaisViolenta || {};
+      const totalCidades = citiesData.cidades?.length || 0;
+      
+      // Buscar dados detalhados das principais cidades da RMR
+      const rmrCities = ["RECIFE", "OLINDA", "PAULISTA"];
+      const citiesDetails = await Promise.all(
+        rmrCities.map(city => fetchCityDataServer(city))
+      );
+      
+      const citiesWithDetails = citiesData.cidades.map((city: any, index: number) => {
+        // Adicionar campo municipio que está faltando
+        const cityWithMunicipio = {
+          ...city,
+          municipio: city.municipio || city.nome || `CIDADE_${index}`
+        };
+        
+        const rmrIndex = rmrCities.indexOf(cityWithMunicipio.municipio);
+        if (rmrIndex !== -1 && citiesDetails[rmrIndex]) {
+          return { ...cityWithMunicipio, ...citiesDetails[rmrIndex] };
+        }
+        return cityWithMunicipio;
+      });
+      
+      processedData = {
+        totalChamadas,
+        anoMaisViolento: { 
+          ano: anoMaisViolento.ano || 0, 
+          total: anoMaisViolento.count || 0 
+        },
+        cidadeMaisViolenta: {
+          municipio: cidadeMaisViolenta.municipio || "N/A",
+          total: cidadeMaisViolenta.totalValidas || 0,
+          percentual: totalChamadas > 0 ? ((cidadeMaisViolenta.totalValidas || 0) / totalChamadas) * 100 : 0
+        },
+        totalMunicipios: totalCidades,
+        citiesData: { ...citiesData, cidades: citiesWithDetails }
+      };
+    } else {
+      console.warn("⚠️ Usando dados estáticos do SAMU");
+      usingMockData = true;
+      processedData = {
+        totalChamadas: 73667,
+        anoMaisViolento: { ano: 2024, total: 20785 },
+        cidadeMaisViolenta: { municipio: "Recife", total: 26904, percentual: 36.5 },
+        totalMunicipios: 72,
+        citiesData: samuMockData.citiesData
+      };
+    }
+
     const statisticsBoxes = [
       {
         title: "Total de chamadas",
-        value: "73.667",
-        unit: "2020 - 2025",
+        value: processedData.totalChamadas.toLocaleString(),
+        unit: "2016 - 2024",
       },
       {
         title: "Ano mais violento",
-        value: "2024",
-        unit: "20.785 chamadas",
+        value: processedData.anoMaisViolento.ano.toString(),
+        unit: `${processedData.anoMaisViolento.total.toLocaleString()} chamadas`,
       },
       {
         title: "Área de cobertura (PE)",
-        value: "72",
+        value: processedData.totalMunicipios.toString(),
         unit: "municípios",
       },
       {
         title: "Cidade mais violenta",
-        value: "Recife",
-        unit: "36.5% das chamadas",
+        value: processedData.cidadeMaisViolenta.municipio,
+        unit: `${processedData.cidadeMaisViolenta.percentual.toFixed(1)}% das chamadas`,
       },
     ];
 
-    // Documentos relacionados
     const documents = {
       title: "Documentos relacionados",
       cards: [
@@ -77,25 +119,22 @@ export async function loader() {
         {
           title: "Dados abertos",
           description: "Acesse os dados brutos das chamadas do SAMU",
-          url: "#dados",
-          target: "_self",
+          url: "https://emergency-calls.atlas.ameciclo.org",
+          target: "_blank",
         },
       ],
     };
 
-    
-    return defer({
-      cover: "/pages_covers/chamadosdosamu.png",
-      title1: "O que são chamadas de sinistro?",
-      description1: "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.",
-      title2: "Como utilizamos os dados?",
-      description2: "Processamos dados reais de chamadas do SAMU para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.",
+    return json({
+      cover,
+      title1,
+      description1,
+      title2,
+      description2,
       documents,
       statisticsBoxes,
-      summaryData: summaryDataPromise,
-      citiesData: citiesDataPromise,
-      usingMockData: true,
-      mockDataDate: "16 de setembro de 2025",
+      citiesData: processedData.citiesData,
+      usingMockData,
       apiDown: errors.length > 0,
       apiErrors: errors,
     });

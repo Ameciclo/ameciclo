@@ -56,8 +56,26 @@ export const OBSERVATORIO_SINISTROS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas
 export const VIAS_INSEGURAS_BASE_URL = "https://api.garfo.ameciclo.org"
 
 // Endpoints para o Observatório de Chamadas do SAMU
-export const SAMU_SUMMARY_DATA = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/summary`
-export const SAMU_CITIES_DATA = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/cities`
+export const SAMU_ATLAS_BASE = `https://emergency-calls.atlas.ameciclo.org/v1`
+export const SAMU_CALLS_API = `${SAMU_ATLAS_BASE}/calls`
+export const SAMU_CALL_BY_ID = (id: string) => `${SAMU_ATLAS_BASE}/calls/${id}`
+export const SAMU_SUMMARY_API = `${SAMU_ATLAS_BASE}/summary`
+export const SAMU_CITIES_API = `${SAMU_ATLAS_BASE}/cities`
+export const SAMU_CITY_STATS = (city: string) => `${SAMU_ATLAS_BASE}/calls/cities/${city}/stats`
+export const SAMU_OUTCOMES_API = `${SAMU_ATLAS_BASE}/calls/outcomes`
+export const SAMU_PROFILES_API = `${SAMU_ATLAS_BASE}/calls/profiles`
+export const SAMU_FILTERS_API = `${SAMU_ATLAS_BASE}/filters`
+export const SAMU_STREETS_SUMMARY = `${SAMU_ATLAS_BASE}/streets/summary`
+export const SAMU_STREETS_TOP = `${SAMU_ATLAS_BASE}/streets/top`
+export const SAMU_STREETS_SEARCH = `${SAMU_ATLAS_BASE}/streets/search`
+export const SAMU_STREETS_HISTORY = `${SAMU_ATLAS_BASE}/streets/history`
+export const SAMU_CITIES_LIST = `${SAMU_ATLAS_BASE}/cities`
+export const SAMU_ANALYTICS_MUNICIPALITIES = `${SAMU_ATLAS_BASE}/analytics/municipalities`
+export const SAMU_ANALYTICS_ACCIDENT_TYPES = `${SAMU_ATLAS_BASE}/analytics/accident-types`
+export const SAMU_ANALYTICS_GENDER = `${SAMU_ATLAS_BASE}/analytics/gender-distribution`
+export const SAMU_ANALYTICS_DANGEROUS_STREETS = `${SAMU_ATLAS_BASE}/analytics/dangerous-streets`
+// TODO: Integração Strapi - Descomentar quando API estiver disponível
+// export const SAMU_PAGE_DATA = `${CMS_BASE_URL}/api/samu?populate=*`
 
 export const VIAS_INSEGURAS_SUMMARY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/summary`
 export const VIAS_INSEGURAS_TOP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/top?limite=2111&intervalor=1`
