@@ -1,5 +1,5 @@
 import { json, LoaderFunction } from "@remix-run/node";
-import { DOM_PAGE_DATA, LOA_RMR_ATLAS_API } from "~/servers";
+import { LOA_RMR_ATLAS_API } from "~/servers";
 
 export const loader: LoaderFunction = async () => {
     const errors: Array<{url: string, error: string}> = [];
@@ -35,18 +35,8 @@ export const loader: LoaderFunction = async () => {
     // }
     // Substituir dados estáticos por processamento do atlasData
 
-    try {
-        const res = await fetch(PLATAFORM_HOME_PAGE, {
-            cache: "no-cache",
-        });
-
-        if (!res.ok) {
-            errors.push({ url: PLATAFORM_HOME_PAGE, error: `HTTP ${res.status}` });
-            throw new Response("Erro ao buscar os dados", { status: res.status });
-        }
-
-        const data = await res.json();
-        const { cover, description } = data;
+    const cover = { url: "/pages_covers/dom-cover.jpg" };
+    const description = "O Diagnóstico Orçamentário Municipal é uma iniciativa que visa integrar práticas de mobilidade sustentável nas políticas públicas por meio da análise do orçamento público. Com foco na promoção de sistemas de transporte eficientes e ecológicos, o plano busca incorporar diretrizes que fomentar a utilização de bicicletas e outros meios de transporte sustentável nas cidades. Além de estudar a alocação de recursos, o projeto propõe estratégias que envolvam a participação da sociedade civil e do poder público para a melhoria da mobilidade sustentável. Assim, o plano não apenas mapeia as necessidades atuais, mas também projeta um futuro mais sustentável e acessível, contribuindo para a melhoria da qualidade da vida urbana.";
 
         const totalGoodActions = [
             {
@@ -164,25 +154,4 @@ export const loader: LoaderFunction = async () => {
             apiDown: errors.length > 0,
             apiErrors: errors
         });
-    } catch (error: any) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        errors.push({ url: PLATAFORM_HOME_PAGE, error: errorMessage || 'Erro desconhecido' });
-        console.error("Error loading data:", error);
-        return json({
-            cover: null,
-            description: "",
-            totalGoodActions: [],
-            totalBadActions: [],
-            chartData: {
-                yearlyComparison: [["Ano", "Sustentável (R$)", 'Não sustentável (R$)']],
-                goodActionsYearly: [["Ano", "Orçado em boas ações"]],
-                totalSpendingYearly: [["Ano", "Total Boas/Más"]]
-            },
-            sustainableTotal: 0,
-            unsustainableTotal: 0,
-            carbonValue: 0,
-            apiDown: true,
-            apiErrors: errors
-        });
-    }
 };
