@@ -55,25 +55,51 @@ export const OBSERVATORIO_SINISTROS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas
 // Endpoints para Vias Inseguras
 export const VIAS_INSEGURAS_BASE_URL = "https://api.garfo.ameciclo.org"
 
-// Endpoints para o Observatório de Chamadas do SAMU
-export const SAMU_ATLAS_BASE = `https://emergency-calls.atlas.ameciclo.org/v1`
-export const SAMU_CALLS_API = `${SAMU_ATLAS_BASE}/calls`
-export const SAMU_CALL_BY_ID = (id: string) => `${SAMU_ATLAS_BASE}/calls/${id}`
-export const SAMU_SUMMARY_API = `${SAMU_ATLAS_BASE}/summary`
-export const SAMU_CITIES_API = `${SAMU_ATLAS_BASE}/cities`
-export const SAMU_CITY_STATS = (city: string) => `${SAMU_ATLAS_BASE}/calls/cities/${city}/stats`
-export const SAMU_OUTCOMES_API = `${SAMU_ATLAS_BASE}/calls/outcomes`
-export const SAMU_PROFILES_API = `${SAMU_ATLAS_BASE}/calls/profiles`
-export const SAMU_FILTERS_API = `${SAMU_ATLAS_BASE}/filters`
-export const SAMU_STREETS_SUMMARY = `${SAMU_ATLAS_BASE}/streets/summary`
-export const SAMU_STREETS_TOP = `${SAMU_ATLAS_BASE}/streets/top`
-export const SAMU_STREETS_SEARCH = `${SAMU_ATLAS_BASE}/streets/search`
-export const SAMU_STREETS_HISTORY = `${SAMU_ATLAS_BASE}/streets/history`
-export const SAMU_CITIES_LIST = `${SAMU_ATLAS_BASE}/cities`
-export const SAMU_ANALYTICS_MUNICIPALITIES = `${SAMU_ATLAS_BASE}/analytics/municipalities`
-export const SAMU_ANALYTICS_ACCIDENT_TYPES = `${SAMU_ATLAS_BASE}/analytics/accident-types`
-export const SAMU_ANALYTICS_GENDER = `${SAMU_ATLAS_BASE}/analytics/gender-distribution`
-export const SAMU_ANALYTICS_DANGEROUS_STREETS = `${SAMU_ATLAS_BASE}/analytics/dangerous-streets`
+// Endpoints para o Observatório de Chamadas do SAMU (Emergency Calls API)
+export const SAMU_ATLAS_BASE = `https://emergency-calls.atlas.ameciclo.org`
+
+// Emergency Calls - Core endpoints
+export const SAMU_CALLS_API = `${SAMU_ATLAS_BASE}/v1/calls`
+export const SAMU_CALL_BY_ID = (id: string | number) => `${SAMU_ATLAS_BASE}/v1/calls/${id}`
+export const SAMU_CALLS_SUMMARY = `${SAMU_ATLAS_BASE}/v1/calls/summary`
+export const SAMU_CALLS_CITIES = `${SAMU_ATLAS_BASE}/v1/calls/cities`
+export const SAMU_CALLS_CITY_STATS = (city: string) => `${SAMU_ATLAS_BASE}/v1/calls/cities/${city}/stats`
+export const SAMU_CALLS_OUTCOMES = `${SAMU_ATLAS_BASE}/v1/calls/outcomes`
+export const SAMU_CALLS_PROFILES = `${SAMU_ATLAS_BASE}/v1/calls/profiles`
+
+// Emergency Calls - Summary & Filters
+export const SAMU_SUMMARY_API = `${SAMU_ATLAS_BASE}/v1/summary`
+export const SAMU_FILTERS_API = `${SAMU_ATLAS_BASE}/v1/filters`
+
+// Emergency Calls - Streets Analysis (v1)
+export const SAMU_STREETS_SUMMARY = `${SAMU_ATLAS_BASE}/v1/streets/summary`
+export const SAMU_STREETS_TOP = `${SAMU_ATLAS_BASE}/v1/streets/top`
+export const SAMU_STREETS_SEARCH = `${SAMU_ATLAS_BASE}/v1/streets/search`
+export const SAMU_STREETS_HISTORY = `${SAMU_ATLAS_BASE}/v1/streets/history`
+
+// Emergency Calls - Cities
+export const SAMU_CITIES_API = `${SAMU_ATLAS_BASE}/v1/cities`
+export const SAMU_CITIES_LIST = `${SAMU_ATLAS_BASE}/v1/cities`
+
+// Emergency Calls - Analytics
+export const SAMU_ANALYTICS_MUNICIPALITIES = `${SAMU_ATLAS_BASE}/v1/analytics/municipalities`
+export const SAMU_ANALYTICS_ACCIDENT_TYPES = `${SAMU_ATLAS_BASE}/v1/analytics/accident-types`
+export const SAMU_ANALYTICS_GENDER = `${SAMU_ATLAS_BASE}/v1/analytics/gender-distribution`
+export const SAMU_ANALYTICS_DANGEROUS_STREETS = `${SAMU_ATLAS_BASE}/v1/analytics/dangerous-streets`
+
+// Emergency Calls - Unsafe Streets (v2)
+export const SAMU_UNSAFE_STREETS_CITY_SUMMARY = (city: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/${city}/summary`
+export const SAMU_UNSAFE_STREETS_CITY_CONCENTRATION = (city: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/${city}/concentration`
+export const SAMU_UNSAFE_STREETS_CITY_GEOJSON = (city: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/${city}/geojson`
+export const SAMU_UNSAFE_STREETS_STREET_SUMMARY = (streetName: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets/${encodeURIComponent(streetName)}/summary`
+export const SAMU_UNSAFE_STREETS_STREET_PROFILES = (streetName: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets/${encodeURIComponent(streetName)}/profiles`
+export const SAMU_UNSAFE_STREETS_STREET_GEOJSON = (streetName: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets/${encodeURIComponent(streetName)}/geojson`
+export const SAMU_UNSAFE_STREETS_STREET_EVOLUTION = (streetName: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets/${encodeURIComponent(streetName)}/evolution`
+export const SAMU_UNSAFE_STREETS_STREET_RECORDS = (streetName: string) => `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets/${encodeURIComponent(streetName)}/records`
+
+// System Health
+export const SAMU_HEALTH = `${SAMU_ATLAS_BASE}/health`
+
 // TODO: Integração Strapi - Descomentar quando API estiver disponível
 // export const SAMU_PAGE_DATA = `${CMS_BASE_URL}/api/samu?populate=*`
 

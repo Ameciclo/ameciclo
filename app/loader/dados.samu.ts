@@ -1,7 +1,6 @@
 import { json } from "@remix-run/node";
-import { SAMU_SUMMARY_API, SAMU_CITIES_API } from "~/servers";
+import { SAMU_SUMMARY_API, SAMU_CITIES_LIST, SAMU_CALLS_OUTCOMES, SAMU_CALLS_PROFILES } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-import { fetchCityDataServer } from "~/services/samu.server";
 import samuMockData from "~/data/samu-mock-data.json";
 
 export async function loader() {
@@ -20,7 +19,7 @@ export async function loader() {
 
     const [summaryData, citiesData] = await Promise.all([
       fetchWithTimeout(SAMU_SUMMARY_API, { cache: "force-cache" }, 10000, null, onError(SAMU_SUMMARY_API), 1),
-      fetchWithTimeout(SAMU_CITIES_API, { cache: "force-cache" }, 10000, null, onError(SAMU_CITIES_API), 1)
+      fetchWithTimeout(SAMU_CITIES_LIST, { cache: "force-cache" }, 10000, null, onError(SAMU_CITIES_LIST), 1)
     ]);
 
     let usingMockData = false;
@@ -38,24 +37,15 @@ export async function loader() {
       const cidadeMaisViolenta = summaryData.cidadeMaisViolenta || {};
       const totalCidades = citiesData.cidades?.length || 0;
       
-      // Buscar dados detalhados das principais cidades da RMR
-      const rmrCities = ["RECIFE", "OLINDA", "PAULISTA"];
-      const citiesDetails = await Promise.all(
-        rmrCities.map(city => fetchCityDataServer(city))
-      );
-      
+      // Mapear cidades com estrutura padronizada
       const citiesWithDetails = citiesData.cidades.map((city: any, index: number) => {
-        // Adicionar campo municipio que está faltando
-        const cityWithMunicipio = {
+        const municipio = city.municipio_samu || city.name || city.municipio || `CIDADE_${index}`;
+        return {
           ...city,
-          municipio: city.municipio || city.nome || `CIDADE_${index}`
+          municipio: municipio,
+          name: city.name || municipio,
+          municipio_samu: city.municipio_samu || municipio
         };
-        
-        const rmrIndex = rmrCities.indexOf(cityWithMunicipio.municipio);
-        if (rmrIndex !== -1 && citiesDetails[rmrIndex]) {
-          return { ...cityWithMunicipio, ...citiesDetails[rmrIndex] };
-        }
-        return cityWithMunicipio;
       });
       
       processedData = {

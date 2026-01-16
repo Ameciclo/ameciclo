@@ -3,6 +3,7 @@ import Table from "../Commom/Table/Table";
 import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
+import { SAMU_CALLS_OUTCOMES, SAMU_CALLS_PROFILES } from "~/servers";
 
 interface CityData {
   id?: string | number;
@@ -91,11 +92,11 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
 
     const chartData = cityData.historico_anual.map((item: any) => ({
       label: item.ano.toString(),
-      total: item.total,
-      atendimento_concluido: item.atendimento_concluido || 0,
-      removido_particulares: item.removido_particulares || 0,
-      removido_bombeiros: item.removido_bombeiros || 0,
-      obito_local: item.obito_local || 0,
+      total: item.total_chamados || item.total || 0,
+      atendimento_concluido: item.validos?.atendimento_concluido || 0,
+      removido_particulares: item.validos?.removido_particulares || 0,
+      removido_bombeiros: item.validos?.removido_bombeiros || 0,
+      obito_local: item.validos?.obito_local || 0,
     }));
 
     console.log('✅ Chart data gerado:', chartData);
@@ -110,61 +111,130 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     const years = chartData.map((d: any) => parseInt(d.label));
     setAvailableYears(years);
     if (!selectedYear && years.length > 0) {
-      setSelectedYear(years[years.length - 1]);
+      setSelectedYear(Math.max(...years)); // Seleciona o ano mais recente
     }
   };
 
-  const getProfileDataFromHistory = () => {
-    if (!citiesData?.cidades || !selectedYear || !selectedCity) return;
+  const getProfileDataFromHistory = async () => {
+    if (!selectedYear || !selectedCity) return;
 
-    const cityData = citiesData.cidades.find(
+    // Primeiro tentar usar dados do histórico local
+    const cityData = citiesData?.cidades?.find(
       (city: any) => city.municipio === selectedCity
     );
 
-    if (!cityData?.historico_anual) return;
-
-    const yearData = cityData.historico_anual.find(
-      (item: any) => item.ano === selectedYear
-    );
-
-    if (!yearData) return;
-
-    if (yearData.por_sexo) {
-      const genderTotal = Object.values(yearData.por_sexo).reduce((sum: number, val: any) => sum + val, 0);
-      setGenderData(
-        Object.entries(yearData.por_sexo).map(([key, value]: [string, any]) => ({
-          label: key === "masculino" ? "Masculino" : key === "feminino" ? "Feminino" : "Não Informado",
-          value: ((value / genderTotal) * 100).toFixed(1),
-          total: value,
-          color: key === "masculino" ? "#3b82f6" : key === "feminino" ? "#ec4899" : "#6b7280",
-        }))
+    if (cityData?.historico_anual) {
+      const yearData = cityData.historico_anual.find(
+        (item: any) => item.ano === selectedYear
       );
+
+      if (yearData) {
+        if (yearData.por_sexo) {
+          const genderTotal = Object.values(yearData.por_sexo).reduce((sum: number, val: any) => sum + val, 0);
+          setGenderData(
+            Object.entries(yearData.por_sexo).map(([key, value]: [string, any]) => ({
+              label: key === "masculino" ? "Masculino" : key === "feminino" ? "Feminino" : "Não Informado",
+              value: ((value / genderTotal) * 100).toFixed(1),
+              total: value,
+              color: key === "masculino" ? "#3b82f6" : key === "feminino" ? "#ec4899" : "#6b7280",
+            }))
+          );
+        }
+
+        if (yearData.por_faixa_etaria) {
+          const ageTotal = Object.values(yearData.por_faixa_etaria).reduce((sum: number, val: any) => sum + val, 0);
+          setAgeData(
+            Object.entries(yearData.por_faixa_etaria)
+              .sort(([a], [b]) => {
+                const order = ["0_17_anos", "18_29_anos", "30_49_anos", "50_64_anos", "65_mais_anos", "nao_informado"];
+                return order.indexOf(a) - order.indexOf(b);
+              })
+              .map(([key, value]: [string, any], index) => ({
+                label: key.replace(/_/g, " ").replace("nao informado", "Não Informado"),
+                value: ((value / ageTotal) * 100).toFixed(1),
+                total: value,
+                color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626", "#6b7280"][index],
+              }))
+          );
+        }
+
+        if (yearData.por_categoria) {
+          const typeTotal = Object.values(yearData.por_categoria).reduce((sum: number, val: any) => sum + val, 0);
+          const categoryLabels: Record<string, string> = {
+            sinistro_moto: "Sinistro de Moto",
+            sinistro_carro: "Sinistro de Carro",
+            sinistro_bicicleta: "Sinistro de Bicicleta",
+            sinistro_onibus_caminhao: "Sinistro Ônibus/Caminhão",
+            atropelamento_carro: "Atropelamento por Carro",
+            atropelamento_moto: "Atropelamento por Moto",
+            atropelamento_onibus_caminhao: "Atropelamento por Ônibus/Caminhão",
+            atropelamento_bicicleta: "Atropelamento por Bicicleta",
+            outro: "Outro"
+          };
+          setTransportData(
+            Object.entries(yearData.por_categoria)
+              .sort(([, a]: any, [, b]: any) => b - a)
+              .map(([key, value]: [string, any], index) => ({
+                label: categoryLabels[key] || key,
+                value: ((value / typeTotal) * 100).toFixed(1),
+                total: value,
+                color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4", "#ec4899", "#14b8a6", "#6b7280"][index],
+              }))
+          );
+        }
+        return;
+      }
     }
 
-    if (yearData.por_faixa_etaria) {
-      const ageTotal = Object.values(yearData.por_faixa_etaria).reduce((sum: number, val: any) => sum + val, 0);
-      setAgeData(
-        Object.entries(yearData.por_faixa_etaria).map(([key, value]: [string, any], index) => ({
-          label: key.replace(/_/g, " "),
-          value: ((value / ageTotal) * 100).toFixed(1),
-          total: value,
-          color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626"][index % 5],
-        }))
-      );
-    }
-
-    if (yearData.por_categoria) {
-      const typeTotal = Object.values(yearData.por_categoria).reduce((sum: number, val: any) => sum + val, 0);
-      setTransportData(
-        Object.entries(yearData.por_categoria)
-          .sort(([, a]: any, [, b]: any) => b - a)
-          .map(([key, value]: [string, any], index) => ({
-            label: key,
-            value: ((value / typeTotal) * 100).toFixed(1),
+    // Se não tiver dados locais, buscar da API
+    try {
+      const endYear = selectedEndYear || selectedYear;
+      const profilesUrl = `${SAMU_CALLS_PROFILES}?city=${encodeURIComponent(selectedCity)}&start_year=${selectedYear}&end_year=${endYear}`;
+      const response = await fetch(profilesUrl);
+      
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      
+      if (data.by_gender) {
+        const genderTotal = Object.values(data.by_gender).reduce((sum: number, val: any) => sum + val, 0);
+        setGenderData(
+          Object.entries(data.by_gender).map(([key, value]: [string, any]) => ({
+            label: key === "M" ? "Masculino" : key === "F" ? "Feminino" : "Não Informado",
+            value: ((value as number / genderTotal) * 100).toFixed(1),
             total: value,
-            color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4"][index % 6],
+            color: key === "M" ? "#3b82f6" : key === "F" ? "#ec4899" : "#6b7280",
           }))
-      );
+        );
+      }
+
+      if (data.by_age_group) {
+        const ageTotal = Object.values(data.by_age_group).reduce((sum: number, val: any) => sum + val, 0);
+        setAgeData(
+          Object.entries(data.by_age_group).map(([key, value]: [string, any], index) => ({
+            label: key.replace(/_/g, " "),
+            value: ((value as number / ageTotal) * 100).toFixed(1),
+            total: value,
+            color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626"][index % 5],
+          }))
+        );
+      }
+
+      if (data.by_type) {
+        const typeTotal = Object.values(data.by_type).reduce((sum: number, val: any) => sum + val, 0);
+        setTransportData(
+          Object.entries(data.by_type)
+            .sort(([, a]: any, [, b]: any) => (b as number) - (a as number))
+            .map(([key, value]: [string, any], index) => ({
+              label: key,
+              value: ((value as number / typeTotal) * 100).toFixed(1),
+              total: value,
+              color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4"][index % 6],
+            }))
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfis:', error);
     }
   };
 
