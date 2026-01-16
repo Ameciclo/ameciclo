@@ -1,14 +1,20 @@
 export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
+export const HOME_DATA = `${CMS_BASE_URL}/api/home`
 export const AMECICLISTAS_DATA = `${CMS_BASE_URL}/api/ameciclistas?populate=media&pagination[pageSize]=100`
 export const QUEM_SOMOS_DATA = `${CMS_BASE_URL}/api/quem-somo?populate=links`
-export const PLATAFORM_HOME_PAGE = "https://cms.ameciclo.org/plataforma-de-dados"
-export const DOCUMENTS_PAGE = "https://cms.ameciclo.org/documentos"
-export const DOCUMENTS_DATA = "https://cms.ameciclo.org/documents"
-export const COUNTINGS_PAGE_DATA =`https://cms.ameciclo.org/contagens`
-export const IDECICLO_PAGE_DATA = `https://cms.ameciclo.org/ideciclo`
-export const PERFIL_PAGE_DATA = `https://cms.ameciclo.org/perfil`
-export const PROJECTS_DATA = "https://cms.ameciclo.org/projects"
-export const WORKGROUPS_DATA = "https://cms.ameciclo.org/workgroups"
+export const PLATAFORM_HOME_PAGE = `${CMS_BASE_URL}/api/plataforma-de-dado?populate[partners][populate]=image&populate=cover`
+export const DOCUMENTS_PAGE = `${CMS_BASE_URL}/api/documentos`
+export const DOCUMENTS_DATA = `${CMS_BASE_URL}/api/documents`
+export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagens`
+export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo`
+export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil`
+export const PROJECTS_DATA = `${CMS_BASE_URL}/api/projects`
+export const PROJECTS_LIST_DATA = `${PROJECTS_DATA}?pagination[pageSize]=100&populate=media`
+export const PROJECT_DETAIL_DATA = (slug: string) => `${PROJECTS_DATA}?filters[slug][$eq]=${slug}&populate=*`
+export const WORKGROUPS_DATA = `${CMS_BASE_URL}/api/workgroups`
+export const WORKGROUPS_LIST_DATA = `${WORKGROUPS_DATA}?pagination[pageSize]=100`
+export const PLATAFORMAS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas-de-dados?populate=*`
+export const LOA_PAGE_DATA = `${CMS_BASE_URL}/api/loa`
 
 export const IDECICLO_DATA = `https://api.ideciclo.ameciclo.org/reviews`
 export const IDECICLO_STRUCTURES_DATA = `https://api.ideciclo.ameciclo.org/structures`
@@ -38,13 +44,10 @@ export const DATASUS_MATRIX_DATA =`https://api.garfo.ameciclo.org/datasus-deaths
 export const DATASUS_CAUSAS_SECUNDARIAS_DATA =`https://api.garfo.ameciclo.org/datasus-deaths/causas-secundarias`
 
 // Endpoint do Strapi específico para o Observatório de Sinistros Fatais
-export const OBSERVATORIO_SINISTROS_PAGE_DATA = `https://do.strapi.ameciclo.org/api/plataformas-de-dados?filters[title][$eq]=Observatório de Sinistros Fatais&populate[0]=supportfiles&populate[1]=supportfiles.file&populate[2]=supportfiles.cover&populate[3]=cover&populate[4]=explanationbox`
-
-// Endpoint do Strapi para dados das plataformas (mantido para compatibilidade)
-export const PLATAFORMAS_PAGE_DATA = `https://do.strapi.ameciclo.org/api/plataformas-de-dados?populate=*`
+export const OBSERVATORIO_SINISTROS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas-de-dados?filters[title][$eq]=Observatório de Sinistros Fatais&populate[0]=supportfiles&populate[1]=supportfiles.file&populate[2]=supportfiles.cover&populate[3]=cover&populate[4]=explanationbox`
 
 // Endpoints para Vias Inseguras
-export const VIAS_INSEGURAS_BASE_URL = `https://api.garfo.ameciclo.org`
+export const VIAS_INSEGURAS_BASE_URL = "https://api.garfo.ameciclo.org"
 
 // Endpoints para o Observatório de Chamadas do SAMU
 export const SAMU_SUMMARY_DATA = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/summary`
@@ -56,9 +59,6 @@ export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets
 export const VIAS_INSEGURAS_HISTORY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/history`
 export const VIAS_INSEGURAS_SEARCH = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/search`
 export const VIAS_INSEGURAS_LIST = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/list`
-
-// Endpoint para LOA Clima
-export const LOA_PAGE_DATA = `https://cms.ameciclo.org/loa`
 
 // Endpoints para CicloDados - APIs da página de dados integrados
 export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
