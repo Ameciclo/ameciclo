@@ -21,7 +21,7 @@ const dataSubPages = [
 export const Navbar = ({ pages }: any) => {
   const pagesDefault = [
     { name: "Inicial", url: "/" },
-    { name: "Quem Somos", url: "/quem_somos" },
+    { name: "Quem Somos", url: "/quemsomos" },
     { name: "Agenda", url: "/agenda" },
     { name: "Projetos", url: "/projetos" },
     { name: "Dados", url: "/dados" },

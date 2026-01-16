@@ -1,9 +1,8 @@
 import { json } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-import { CMS_BASE_URL } from "~/servers";
+import { AMECICLISTAS_DATA, QUEM_SOMOS_DATA } from "~/servers";
 
 export const loader = async () => {
-  const server = CMS_BASE_URL;
   const errors: Array<{url: string, error: string}> = [];
   
   const onError = (url: string) => (error: string) => {
@@ -12,13 +11,13 @@ export const loader = async () => {
 
   try {
     const [ameciclistas, custom] = await Promise.all([
-      fetchWithTimeout(`${server}/ameciclistas`, { cache: "no-cache" }, 15000, [], onError(`${server}/ameciclistas`)),
+      fetchWithTimeout(AMECICLISTAS_DATA, { cache: "no-cache" }, 15000, [], onError(AMECICLISTAS_DATA)),
       fetchWithTimeout(
-        `${server}/quem-somos`,
+        QUEM_SOMOS_DATA,
         { cache: "no-cache" },
         15000,
         { definition: "Associação Metropolitana de Ciclistas do Recife", objective: "Promover a mobilidade ativa", links: [] },
-        onError(`${server}/quem-somos`)
+        onError(QUEM_SOMOS_DATA)
       )
     ]);
 
@@ -35,16 +34,19 @@ export const loader = async () => {
     }
 
     // Defensive check to ensure ameciclistas is an array before sorting
-    let processedAmeciclistas = ameciclistas;
+    let processedAmeciclistas = ameciclistas["data"];
     if (Array.isArray(processedAmeciclistas)) {
       processedAmeciclistas.sort((a, b) => a.name.localeCompare(b.name));
     } else {
       console.error("Data received for /ameciclistas is not an array:", processedAmeciclistas);
       processedAmeciclistas = [];
     }
+
+    // Extract custom data from the response
+    const processedCustom = custom["data"] || custom;
     
     return json({
-      pageData: { ameciclistas: processedAmeciclistas, custom },
+      pageData: { ameciclistas: processedAmeciclistas, custom: processedCustom },
       isLoading: false,
       apiDown: false,
       apiErrors: []
@@ -56,7 +58,7 @@ export const loader = async () => {
       pageData: null,
       isLoading: true,
       apiDown: true,
-      apiErrors: [{ url: server, error: errorMessage || 'Erro desconhecido' }]
+      apiErrors: [{ url: AMECICLISTAS_DATA, error: errorMessage || 'Erro desconhecido' }]
     });
   }
 };

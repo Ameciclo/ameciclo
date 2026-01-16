@@ -11,7 +11,7 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import QuemSomosLoading from "~/components/QuemSomos/QuemSomosLoading";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
-import { loader } from "~/loader/quem_somos";
+import { loader } from "~/loader/quemsomos";
 export { loader };
 
 type Ameciclista = {
@@ -35,7 +35,9 @@ export const meta: MetaFunction = () => {
 };
 
 function QuemSomosContent({ pageData }: { pageData: any }) {
-  const { ameciclistas, custom } = pageData;
+  if (!pageData) return null;
+  
+  const { ameciclistas = [], custom = {} } = pageData;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAmeciclista, setSelectedAmeciclista] = useState(null);
@@ -66,7 +68,7 @@ function QuemSomosContent({ pageData }: { pageData: any }) {
               {custom?.objective}
             </p>
             <div className="flex flex-wrap items-start justify-start max-w-5xl mx-auto mt-8 lg:mt-0">
-              {custom?.links.map((l: any) => (
+              {custom?.links?.map((l: any) => (
                 <a
                   key={l.id}
                   href={l.link}
@@ -175,7 +177,7 @@ export default function QuemSomos() {
         addApiError(error.url, error.error, '/quem_somos');
       });
     }
-  }, [apiDown, apiErrors, setApiDown, addApiError]);
+  }, [apiDown, apiErrors]);
 
   return (
     <>

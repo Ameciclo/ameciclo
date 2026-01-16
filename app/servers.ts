@@ -1,4 +1,6 @@
-export const CMS_BASE_URL = "https://cms.ameciclo.org"
+export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
+export const AMECICLISTAS_DATA = `${CMS_BASE_URL}/api/ameciclistas?populate=media`
+export const QUEM_SOMOS_DATA = `${CMS_BASE_URL}/api/quem-somo?populate=links`
 export const PLATAFORM_HOME_PAGE = "https://cms.ameciclo.org/plataforma-de-dados"
 export const DOCUMENTS_PAGE = "https://cms.ameciclo.org/documentos"
 export const DOCUMENTS_DATA = "https://cms.ameciclo.org/documents"
