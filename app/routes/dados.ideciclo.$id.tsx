@@ -277,10 +277,11 @@ export default function Ideciclo() {
 
   const info = getRatesSummary(structure, forms);
   const GeneralStatistics = structureStatistics(structure, info);
+  const coverImage = pageData?.cover?.url || "/pages_covers/ideciclo-navcover.png";
 
   return (
     <>
-      <Banner title={structure.street} image={"/pages_covers/ideciclo-navcover.png"} />
+      <Banner title={structure.street} image={coverImage} />
       <Breadcrumb
         label={structure.street}
         slug={structure.id.toString()}

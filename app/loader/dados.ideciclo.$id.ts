@@ -51,7 +51,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const forms = await formRes.json();
 
   const pageDataRes = await fetch(IDECICLO_PAGE_DATA);
-  const pageData = await pageDataRes.json();
+  const pageDataResponse = await pageDataRes.json();
+  const pageData = pageDataResponse?.data || { description: "", objective: "", methodology: "", cover: null };
 
   const mapData = await getStructureMap(structure, request);
 

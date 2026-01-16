@@ -9,7 +9,7 @@ export const loader: LoaderFunction = async () => {
         errors.push({ url, error });
     };
 
-    const [idecicloData, structuresData, pageDataData] = await Promise.all([
+    const [idecicloData, structuresData, pageDataResponse] = await Promise.all([
         fetchWithTimeout(
             IDECICLO_DATA, 
             { cache: "no-cache" },
@@ -28,15 +28,17 @@ export const loader: LoaderFunction = async () => {
             IDECICLO_PAGE_DATA, 
             { cache: "no-cache" },
             30000,
-            { description: "", objective: "", methodology: "" },
+            null,
             onError(IDECICLO_PAGE_DATA)
         )
     ]);
 
+    const pageData = pageDataResponse?.data || { description: "", objective: "", methodology: "", cover: null };
+
     return json({
         ideciclo: idecicloData,
         structures: structuresData,
-        pageData: pageDataData,
+        pageData,
         apiDown: errors.length > 0,
         apiErrors: errors
     });

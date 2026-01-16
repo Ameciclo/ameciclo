@@ -6,7 +6,7 @@ export const PLATAFORM_HOME_PAGE = `${CMS_BASE_URL}/api/plataforma-de-dado?popul
 export const DOCUMENTS_PAGE = `${CMS_BASE_URL}/api/documentos`
 export const DOCUMENTS_DATA = `${CMS_BASE_URL}/api/documents`
 export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagem?populate=*`
-export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo`
+export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo?populate=*`
 export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil`
 export const PROJECTS_DATA = `${CMS_BASE_URL}/api/projects`
 export const PROJECTS_LIST_DATA = `${PROJECTS_DATA}?pagination[pageSize]=100&populate=media`

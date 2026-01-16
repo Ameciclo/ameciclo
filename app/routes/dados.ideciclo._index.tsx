@@ -83,9 +83,11 @@ export default function Ideciclo() {
         }
     }, []);
 
+    const coverImage = pageData?.cover?.url || "/pages_covers/ideciclo-cover.png";
+
     return (
         <>
-            <Banner title="" image="/pages_covers/ideciclo-cover.png" />
+            <Banner title="" image={coverImage} />
             <Breadcrumb label="Ideciclo" slug="/dados/ideciclo" routes={["/", "/dados"]} />
             <ApiStatusHandler apiDown={apiDown} />
             
