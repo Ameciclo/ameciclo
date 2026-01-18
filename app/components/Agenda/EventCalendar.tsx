@@ -108,7 +108,12 @@ function CalendarComponent({ googleCalendarApiKey, externalCalendarId, internalC
       }}
       eventClick={handleEventClick}
       eventSourceFailure={() => setHasError(true)}
-      viewDidMount={(info) => setCookie(CALENDAR_VIEW_COOKIE, info.view.type)}
+      viewDidMount={(info) => {
+        setCookie(CALENDAR_VIEW_COOKIE, info.view.type);
+      }}
+      datesSet={(info) => {
+        setCookie(CALENDAR_VIEW_COOKIE, info.view.type);
+      }}
     />
   );
 }
