@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@remix-run/react";
 import { motion } from "framer-motion";
+import { ComingSoonButton } from "./ComingSoonButton";
 
 const dataSubPages = [
   { name: "Contagens", url: "/dados/contagens" },
@@ -30,11 +31,17 @@ export function DataSubmenu() {
       role="navigation"
       aria-label="Submenu de dados"
     >
-      <div className="w-full flex items-center justify-center px-8 py-1 m-0 lg:px-32 xl:px-32">
-        <div className="hidden xl:flex items-center space-x-1 py-1">
+      <div className="w-full flex items-center justify-start px-8 py-1 m-0 lg:px-32 xl:px-32">
+        <div className="hidden xl:flex items-center justify-start flex-wrap gap-1 py-1">
           {dataSubPages.map((subPage, index) => {
             const isActive = location.pathname === subPage.url || 
               location.pathname.startsWith(subPage.url + '/');
+            const isComingSoon = subPage.name === "Execução Cicloviária" || subPage.name === "Sinistros Fatais";
+            
+            if (isComingSoon) {
+              return <ComingSoonButton key={subPage.name} name={subPage.name} />;
+            }
+            
             return (
               <Link
                 key={subPage.name}
@@ -57,11 +64,17 @@ export function DataSubmenu() {
           })}
         </div>
         
-        <div className="xl:hidden flex items-center py-1 overflow-x-auto scrollbar-hide">
-          <div className="flex items-center space-x-1 py-1 min-w-max">
+        <div className="xl:hidden flex items-center justify-start py-1 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center flex-wrap justify-start gap-1 py-1">
             {dataSubPages.map((subPage, index) => {
               const isActive = location.pathname === subPage.url || 
                 location.pathname.startsWith(subPage.url + '/');
+              const isComingSoon = subPage.name === "Execução Cicloviária" || subPage.name === "Sinistros Fatais";
+              
+              if (isComingSoon) {
+                return <ComingSoonButton key={subPage.name} name={subPage.name} />;
+              }
+              
               return (
                 <Link
                   key={subPage.name}
