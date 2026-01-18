@@ -12,6 +12,8 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
+import TableMaintenanceMessage from "~/components/Commom/TableMaintenanceMessage";
+import { TableLoading } from "~/components/ExecucaoCicloviaria/Loading/TableLoading";
 
 import { loader } from "~/loader/dados.execucaocicloviaria";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
@@ -263,14 +265,18 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
                 />
             </div>
             
-            <div data-table-section>
-                <Table
-                    title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
-                    data={localSelectedCity?.relations || []}
-                    columns={columns}
-                    showFilters={true}
-                    setShowFilters={null}
-                />
+            <div data-table-section className="container mx-auto my-12">
+                <h2 className="text-3xl font-bold text-center mb-8">
+                    Estruturas do PDC para {localSelectedCity?.name || ""}
+                </h2>
+                <div className="relative">
+                    <div className="opacity-30">
+                        <TableLoading />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <TableMaintenanceMessage />
+                    </div>
+                </div>
             </div>
         </div>
     );
