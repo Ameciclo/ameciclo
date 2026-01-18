@@ -160,6 +160,12 @@ export default function ViasInsegurasClientSide({
             Visualização geoespacial das vias com maior concentração de
             sinistros com vítima.
           </p>
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 max-w-2xl mx-auto">
+            <p className="text-sm text-blue-800">
+              ℹ️ As geometrias exibidas são simplificadas para melhor performance. 
+              Os dados de localização e estatísticas são precisos.
+            </p>
+          </div>
         </div>
 
         {mapData.vias.length > 0 ? (

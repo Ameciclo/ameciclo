@@ -36,22 +36,22 @@ export default function ViasRankingTable({
   const tableData = (data || [])
     .filter((via) => {
       if (!densityFilter) return true;
-      return getDensityCategory(via.sinistros_por_km) === densityFilter;
+      return getDensityCategory(via.sinistros_por_km || 0) === densityFilter;
     })
     .map((via) => ({
-      ranking: via.top,
-      nome_via: via.nome || `Via ${via.top}`,
-      slug: via.nome ? slugify(via.nome) : `via-${via.top}`,
-      total_sinistros: via.sinistros.toLocaleString(),
-      extensao_km: via.km.toFixed(1),
-      sinistros_por_km: via.sinistros_por_km.toFixed(1),
-      percentual_total: `${via.percentual_total.toFixed(2)}%`,
-      densidade_categoria: getDensityCategory(via.sinistros_por_km),
+      ranking: via.top || 0,
+      nome_via: via.nome || `Via ${via.top || 0}`,
+      slug: via.nome ? slugify(via.nome) : `via-${via.top || 0}`,
+      total_sinistros: (via.sinistros || 0).toLocaleString(),
+      extensao_km: (via.km || 0).toFixed(1),
+      sinistros_por_km: (via.sinistros_por_km || 0).toFixed(1),
+      percentual_total: `${(via.percentual_total || 0).toFixed(2)}%`,
+      densidade_categoria: getDensityCategory(via.sinistros_por_km || 0),
       // Dados brutos para ordenação
-      _sinistros: via.sinistros,
-      _km: via.km,
-      _densidade: via.sinistros_por_km,
-      _percentual: via.percentual_total,
+      _sinistros: via.sinistros || 0,
+      _km: via.km || 0,
+      _densidade: via.sinistros_por_km || 0,
+      _percentual: via.percentual_total || 0,
     }));
 
   function getDensityCategory(density: number): string {
@@ -327,7 +327,7 @@ export default function ViasRankingTable({
               <p>
                 <strong>Via mais perigosa</strong> tem densidade de{" "}
                 <span className="font-semibold">
-                  {(data || [])[0]?.sinistros_por_km?.toFixed(1) || '0'} sinistros/km
+                  {((data || [])[0]?.sinistros_por_km || 0).toFixed(1)} sinistros/km
                 </span>.
               </p>
             </div>
@@ -335,13 +335,13 @@ export default function ViasRankingTable({
               <p className="mb-2">
                 <strong>Densidade média</strong> das top 10:{" "}
                 <span className="font-semibold">
-                  {((data || []).slice(0, 10).reduce((sum, via) => sum + via.sinistros_por_km, 0) / Math.max(1, (data || []).slice(0, 10).length)).toFixed(1)} sinistros/km
+                  {((data || []).slice(0, 10).reduce((sum, via) => sum + (via.sinistros_por_km || 0), 0) / Math.max(1, (data || []).slice(0, 10).length)).toFixed(1)} sinistros/km
                 </span>.
               </p>
               <p>
                 <strong>Extensão total</strong> analisada:{" "}
                 <span className="font-semibold">
-                  {(data || []).reduce((sum, via) => sum + via.km, 0).toFixed(1)} km
+                  {(data || []).reduce((sum, via) => sum + (via.km || 0), 0).toFixed(1)} km
                 </span>.
               </p>
             </div>

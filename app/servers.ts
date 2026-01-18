@@ -103,12 +103,13 @@ export const SAMU_HEALTH = `${SAMU_ATLAS_BASE}/health`
 // TODO: Integração Strapi - Descomentar quando API estiver disponível
 // export const SAMU_PAGE_DATA = `${CMS_BASE_URL}/api/samu?populate=*`
 
-export const VIAS_INSEGURAS_SUMMARY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/summary`
-export const VIAS_INSEGURAS_TOP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/top?limite=2111&intervalor=1`
-export const VIAS_INSEGURAS_MAP = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/map?limite=2111`
-export const VIAS_INSEGURAS_HISTORY = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/history`
-export const VIAS_INSEGURAS_SEARCH = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/search`
-export const VIAS_INSEGURAS_LIST = `${VIAS_INSEGURAS_BASE_URL}/samu-calls/streets/list`
+// Vias Inseguras - Usando novos endpoints v2 do SAMU Atlas
+export const VIAS_INSEGURAS_SUMMARY = SAMU_UNSAFE_STREETS_CITY_SUMMARY('RECIFE')
+export const VIAS_INSEGURAS_TOP = `${SAMU_UNSAFE_STREETS_CITY_CONCENTRATION('RECIFE')}?interval=150`
+export const VIAS_INSEGURAS_MAP = `${SAMU_UNSAFE_STREETS_CITY_GEOJSON('RECIFE')}?ranking_from=1&ranking_to=150`
+export const VIAS_INSEGURAS_HISTORY = `${SAMU_ATLAS_BASE}/v1/streets/history`
+export const VIAS_INSEGURAS_SEARCH = `${SAMU_ATLAS_BASE}/v1/streets/search`
+export const VIAS_INSEGURAS_LIST = `${SAMU_ATLAS_BASE}/v1/streets/top`
 
 // Endpoints para CicloDados - APIs da página de dados integrados
 export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
