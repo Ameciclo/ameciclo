@@ -1,5 +1,5 @@
 import { OverviewIcon, StatusIcon } from "~/components/Commom/Icones/DocumentationIcons";
-import DocumentationSearchBar from "~/components/DocumentationSearchBar";
+import DocumentationSearchBar from "~/components/Documentacao/DocumentationSearchBar";
 
 interface VisaoGeralProps {
   searchTerm: string;

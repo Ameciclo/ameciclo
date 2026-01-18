@@ -71,9 +71,9 @@ const highContrastStyles = `
     display: none !important;
   }
 `;
-import DocumentationSidebar from "~/components/DocumentationSidebar";
-import DocumentationBanner from "~/components/DocumentationBanner";
-import DocumentationSearchBar from "~/components/DocumentationSearchBar";
+import DocumentationSidebar from "~/components/Documentacao/DocumentationSidebar";
+import DocumentationBanner from "~/components/Documentacao/DocumentationBanner";
+import DocumentationSearchBar from "~/components/Documentacao/DocumentationSearchBar";
 import VisaoGeral from "~/components/Documentacao/VisaoGeral";
 import Instalacao from "~/components/Documentacao/Instalacao";
 import EstruturaProjeto from "~/components/Documentacao/EstruturaProjeto";

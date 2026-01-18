@@ -7,6 +7,7 @@ import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { CardsSession } from "~/components/Commom/CardsSession";
+import { PointDetailsModal } from "~/components/Contagens/PointDetailsModal";
 
 import { loader } from "~/loader/dados.contagens";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
@@ -161,71 +162,7 @@ export default function Contagens() {
                 }}
             />
             
-            {selectedPoint && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setSelectedPoint(null)}>
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
-                        <div className={`px-6 py-4 text-white rounded-t-lg ${
-                            selectedPoint.type === 'prefeitura' ? 'bg-gradient-to-r from-red-500 to-red-600' :
-                            'bg-gradient-to-r from-teal-500 to-teal-600'
-                        }`}>
-                            <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-lg">{selectedPoint.popup?.name}</h3>
-                                <button 
-                                    onClick={() => setSelectedPoint(null)}
-                                    className="text-white hover:bg-black hover:bg-opacity-20 rounded-full p-1 transition-colors"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div className="p-6">
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-3 h-3 rounded-full ${
-                                        selectedPoint.type === 'prefeitura' ? 'bg-red-500' : 'bg-teal-500'
-                                    }`}></div>
-                                    <span className="text-2xl font-bold text-gray-900">{selectedPoint.popup?.total} ciclistas</span>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-gray-50 p-3 rounded-lg">
-                                        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Data</div>
-                                        <div className="font-medium text-gray-900">{selectedPoint.popup?.date}</div>
-                                    </div>
-                                    <div className="bg-gray-50 p-3 rounded-lg">
-                                        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Fonte</div>
-                                        <div className="font-medium text-gray-900">{selectedPoint.type === 'prefeitura' ? 'PCR' : 'Ameciclo'}</div>
-                                    </div>
-                                </div>
-                                
-                                {selectedPoint.popup?.obs && (
-                                    <div className="border-t pt-4">
-                                        <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Observações</div>
-                                        <div className="text-sm text-gray-700">{selectedPoint.popup.obs}</div>
-                                    </div>
-                                )}
-                                
-                                {/* {selectedPoint.popup?.url && (
-                                    <div className="border-t pt-4">
-                                        <a 
-                                            href={selectedPoint.popup.url}
-                                            className="inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-                                        >
-                                            Ver detalhes
-                                            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                            </svg>
-                                        </a>
-                                    </div>
-                                )} */}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
             <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
             <CardsSession
                 title={"Documentos para realizar contagens de ciclistas."}

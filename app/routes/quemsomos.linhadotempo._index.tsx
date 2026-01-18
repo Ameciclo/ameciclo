@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Calendar, Users, Award, MapPin, BookOpen, Bike } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import DocumentationSearchBar from "~/components/DocumentationSearchBar";
+import DocumentationSearchBar from "~/components/Documentacao/DocumentationSearchBar";
 
 export const meta: MetaFunction = () => {
   return [
