@@ -1,13 +1,34 @@
 import { useState, useEffect } from "react";
 import { ClientOnly } from "remix-utils/client-only";
 
+const CALENDAR_VIEW_COOKIE = "ameciclo_calendar_view";
+
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
+
+function setCookie(name: string, value: string, days: number = 365) {
+  if (typeof document === "undefined") return;
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+}
+
 function CalendarComponent({ googleCalendarApiKey, externalCalendarId, internalCalendarId }: any) {
   const [FullCalendar, setFullCalendar] = useState<any>(null);
   const [plugins, setPlugins] = useState<any[]>([]);
   const [locale, setLocale] = useState<any>(null);
   const [hasError, setHasError] = useState(false);
+  const [initialView, setInitialView] = useState("listWeek");
 
   useEffect(() => {
+    const savedView = getCookie(CALENDAR_VIEW_COOKIE);
+    if (savedView) setInitialView(savedView);
+
     const loadCalendar = async () => {
       try {
         const [fcReact, dayGrid, googleCal, list, ptBr] = await Promise.all([
@@ -68,7 +89,7 @@ function CalendarComponent({ googleCalendarApiKey, externalCalendarId, internalC
           color: "#008080",
         },
       ]}
-      initialView="listWeek"
+      initialView={initialView}
       locale={locale}
       height={650}
       nowIndicator={true}
@@ -87,6 +108,7 @@ function CalendarComponent({ googleCalendarApiKey, externalCalendarId, internalC
       }}
       eventClick={handleEventClick}
       eventSourceFailure={() => setHasError(true)}
+      viewDidMount={(info) => setCookie(CALENDAR_VIEW_COOKIE, info.view.type)}
     />
   );
 }
