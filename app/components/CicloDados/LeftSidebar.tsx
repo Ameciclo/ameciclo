@@ -36,6 +36,12 @@ interface LeftSidebarProps {
   onPerfilToggleAll?: (options: string[], selectAll: boolean) => void;
   selectedGenero: string;
   onGeneroChange: (value: string) => void;
+  selectedAno: string[];
+  onAnoChange: (value: string) => void;
+  selectedArea: string;
+  onAreaChange: (value: string) => void;
+  selectedIdade: string;
+  onIdadeChange: (value: string) => void;
   selectedRaca: string;
   onRacaChange: (value: string) => void;
   selectedSocio: string;
@@ -87,6 +93,12 @@ export function LeftSidebar({
   onPerfilToggleAll,
   selectedGenero,
   onGeneroChange,
+  selectedAno,
+  onAnoChange,
+  selectedArea,
+  onAreaChange,
+  selectedIdade,
+  onIdadeChange,
   selectedRaca,
   onRacaChange,
   selectedSocio,
@@ -99,9 +111,15 @@ export function LeftSidebar({
   onReloadGeneralData,
   loadingStates = { infra: false, pdc: false, sinistros: false, estacionamento: false }
 }: LeftSidebarProps) {
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'rota', 'ideciclo']));
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
   
   const toggleSection = (sectionId: string) => {
+    // Prevenir expansão de seções "em breve"
+    const comingSoonSections = ['infracao', 'sinistro', 'rota', 'ideciclo'];
+    if (comingSoonSections.includes(sectionId) && collapsedSections.has(sectionId)) {
+      return;
+    }
+    
     setCollapsedSections(prev => {
       const newSet = new Set(prev);
       if (newSet.has(sectionId)) {
@@ -118,10 +136,11 @@ export function LeftSidebar({
   };
   
   const expandAll = () => {
-    setCollapsedSections(new Set());
+    // Manter seções "em breve" sempre colapsadas
+    setCollapsedSections(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
   };
   
-  const allCollapsed = collapsedSections.size > 2; // Don't count infracao and sinistro as they start collapsed
+  const allCollapsed = collapsedSections.size >= 6; // Considera colapsado se 6 ou mais seções estão colapsadas (excluindo as 4 "em breve")
   
   // Check if ALL options are selected across all sections
   const allOptionsSelected = 
@@ -141,9 +160,14 @@ export function LeftSidebar({
     }
   };
   return (
-    <aside className={`bg-gray-50 border-r transition-all duration-300 flex-shrink-0 overflow-hidden flex flex-col ${
-      isOpen ? 'w-72' : 'w-0'
-    }`} style={{height: '100%'}}>
+    <aside 
+      className={`bg-gray-50 border-r transition-all duration-300 flex-shrink-0 overflow-hidden flex flex-col ${
+        isOpen ? 'w-72' : 'w-0'
+      }`} 
+      style={{height: '100%'}}
+      role="complementary"
+      aria-label="Filtros de camadas de dados"
+    >
       {/* Fixed header */}
       <div className={`items-center justify-between p-3 bg-gray-50 border-b border-gray-200 flex-shrink-0 ${
         isOpen ? 'flex' : 'hidden md:flex flex-col gap-2'
@@ -154,11 +178,13 @@ export function LeftSidebar({
             className={`hover:bg-gray-200 rounded transition-colors ${
               isOpen ? 'p-1' : 'p-2 w-8 h-8 flex items-center justify-center'
             }`}
-            title={isOpen ? 'Minimizar' : 'Expandir'}
+            title={isOpen ? 'Minimizar painel de filtros' : 'Expandir painel de filtros'}
+            aria-label={isOpen ? 'Minimizar painel de filtros' : 'Expandir painel de filtros'}
+            aria-expanded={isOpen}
           >
             <svg className={`w-4 h-4 transition-transform ${
               isOpen ? '' : 'rotate-180'
-            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -169,16 +195,19 @@ export function LeftSidebar({
             <button
               onClick={toggleAllOptions}
               className="hover:bg-gray-200 rounded transition-colors p-1"
-              title={allOptionsSelected ? "Ocultar todas as camadas" : "Mostrar todas as camadas"}
+              title={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
+              aria-label={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
             >
-              {allOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-teal-600" />}
+              {allOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" /> : <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" />}
             </button>
             <button
               onClick={allCollapsed ? expandAll : collapseAll}
               className="hover:bg-gray-200 rounded transition-colors p-1"
-              title={allCollapsed ? 'Expandir todos' : 'Recolher todos'}
+              title={allCollapsed ? 'Expandir todas as seções de filtros' : 'Minimizar todas as seções de filtros'}
+              aria-label={allCollapsed ? 'Expandir todas as seções de filtros' : 'Minimizar todas as seções de filtros'}
+              aria-expanded={!allCollapsed}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 {allCollapsed ? (
                   // Expand icon - chevrons pointing down
                   <>
@@ -239,27 +268,33 @@ export function LeftSidebar({
                 loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
               />
               
-              <div className="bg-white rounded border">
+              <div className="bg-white rounded border" role="region" aria-labelledby="estacionamento-heading">
                 <div className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => onEstacionamentoToggleAll?.(estacionamentoOptions, selectedEstacionamento.length === 0)}
                         className="hover:bg-gray-50 rounded p-1 transition-colors"
+                        title={selectedEstacionamento.length > 0 ? 'Ocultar todas as opções de estacionamento' : 'Exibir todas as opções de estacionamento'}
+                        aria-label={selectedEstacionamento.length > 0 ? 'Ocultar todas as opções de estacionamento' : 'Exibir todas as opções de estacionamento'}
                       >
-                        {selectedEstacionamento.length > 0 ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                        {selectedEstacionamento.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
                       </button>
-                      <span className="font-medium">∩ Estacionamento e compartilhamento</span>
+                      <span id="estacionamento-heading" className="font-medium">∩ Estacionamento e compartilhamento</span>
                     </div>
                     <button 
                       onClick={() => toggleSection('estacionamento')}
                       className="hover:bg-gray-50 rounded p-1 transition-colors"
+                      title={collapsedSections.has('estacionamento') ? 'Expandir seção de estacionamento' : 'Minimizar seção de estacionamento'}
+                      aria-label={collapsedSections.has('estacionamento') ? 'Expandir seção de estacionamento' : 'Minimizar seção de estacionamento'}
+                      aria-expanded={!collapsedSections.has('estacionamento')}
                     >
                       <svg 
                         className={`w-4 h-4 transition-transform ${!collapsedSections.has('estacionamento') ? 'rotate-180' : ''}`} 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
@@ -267,17 +302,25 @@ export function LeftSidebar({
                   </div>
                 </div>
                 {!collapsedSections.has('estacionamento') && (
-                  <div className="px-2 pb-2 space-y-2">
+                  <div className="px-2 pb-2 space-y-1">
                     {estacionamentoOptions.map((option) => (
-                      <div key={option} className="flex items-center gap-2">
-                        <button
-                          onClick={() => onEstacionamentoToggle(option)}
-                          className="hover:bg-gray-50 rounded p-1 transition-colors"
-                        >
-                          {selectedEstacionamento.includes(option) ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
-                        </button>
+                      <button
+                        key={option}
+                        onClick={() => onEstacionamentoToggle(option)}
+                        className={`w-full flex items-center gap-2 p-2 rounded transition-all duration-200 text-left ${
+                          selectedEstacionamento.includes(option)
+                            ? 'bg-teal-50 border border-teal-200 shadow-sm'
+                            : 'hover:bg-gray-50 border border-transparent'
+                        }`}
+                        title={selectedEstacionamento.includes(option) ? `Ocultar ${option.toLowerCase()}` : `Exibir ${option.toLowerCase()}`}
+                        aria-label={selectedEstacionamento.includes(option) ? `Ocultar ${option}` : `Exibir ${option}`}
+                        aria-pressed={selectedEstacionamento.includes(option)}
+                      >
+                        <div className="flex-shrink-0">
+                          {selectedEstacionamento.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
+                        </div>
                         <div className="flex items-center justify-between flex-1">
-                          <span className="text-sm">{option}</span>
+                          <span className={`text-sm transition-colors ${selectedEstacionamento.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{option}</span>
                           {option === 'Bicicletários' && (
                             <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
                               <span className="text-white font-black text-[10px]" style={{textShadow: '0 0 1px white'}}>∩</span>
@@ -285,72 +328,97 @@ export function LeftSidebar({
                           )}
                           {option === 'Estações de Bike PE' && (
                             <div className="bg-orange-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
-                              <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M5 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm14 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm-7-8c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm5.5 2.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm-11 0c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
                               </svg>
                             </div>
                           )}
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
               </div>
               
-              <div className="bg-white rounded border">
+              <div className="bg-white rounded border" role="region" aria-labelledby="perfil-heading">
                 <div className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <button 
-                        onClick={() => onPerfilToggle('Perfil de Ciclistas')}
+                        onClick={() => {
+                          const allYears = ["2024", "2021", "2018", "2015"];
+                          const allSelected = selectedAno.length === 4;
+                          if (allSelected) {
+                            allYears.forEach(year => onAnoChange(year));
+                          } else {
+                            allYears.forEach(year => {
+                              if (!selectedAno.includes(year)) onAnoChange(year);
+                            });
+                          }
+                        }}
                         className="hover:bg-gray-50 rounded p-1 transition-colors"
+                        title={selectedAno.length > 0 ? 'Ocultar todos os anos de edições de perfil de ciclista' : 'Exibir todos os anos de edições de perfil de ciclista'}
+                        aria-label={selectedAno.length > 0 ? 'Ocultar todos os anos' : 'Exibir todos os anos'}
                       >
-                        {selectedPerfil.includes('Perfil de Ciclistas') ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                        {selectedAno.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
                       </button>
                       <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        <span className="font-medium">Perfil de ciclistas</span>
+                        <User className="w-4 h-4" aria-hidden="true" />
+                        <span id="perfil-heading" className="font-medium">Perfil de ciclistas</span>
                       </div>
                     </div>
                     <button 
                       onClick={() => toggleSection('perfil-pontos')}
                       className="hover:bg-gray-50 rounded p-1 transition-colors"
+                      title={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
+                      aria-label={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
+                      aria-expanded={!collapsedSections.has('perfil-pontos')}
                     >
                       <svg 
                         className={`w-4 h-4 transition-transform ${!collapsedSections.has('perfil-pontos') ? 'rotate-180' : ''}`} 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                   </div>
                 </div>
-                {!collapsedSections.has('perfil-pontos') && selectedPerfil.length > 0 && (
-                  <div className="px-2 pb-2 space-y-3">
-                    {/* Edições (Anos) */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Edições</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {["Todas", "2024", "2021", "2018", "2015"].map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => onGeneroChange(option)}
-                            className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                              selectedGenero === option
-                                ? 'bg-purple-600 text-white'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                          >
-                            {option === 'Todas' && (
-                              selectedGenero === option ? <Eye size={12} /> : <EyeOff size={12} />
-                            )}
-                            {option}
-                          </button>
-                        ))}
+                {!collapsedSections.has('perfil-pontos') && (
+                  <div className="px-2 pb-2 space-y-1">
+                    {["2024", "2021", "2018", "2015"].map((option) => (
+                      <div
+                        key={option}
+                        onClick={() => onAnoChange(option)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onAnoChange(option);
+                          }
+                        }}
+                        className={`flex items-center gap-2 p-2 rounded transition-all duration-200 cursor-pointer ${
+                          selectedAno.includes(option)
+                            ? 'bg-teal-50 border border-teal-200 shadow-sm'
+                            : 'hover:bg-gray-50 border border-transparent'
+                        }`}
+                        role="button"
+                        tabIndex={0}
+                        title={selectedAno.includes(option) ? `Ocultar edição ${option}` : `Exibir edição ${option}`}
+                        aria-label={`${selectedAno.includes(option) ? 'Ocultar' : 'Exibir'} edição ${option}`}
+                        aria-pressed={selectedAno.includes(option)}
+                      >
+                        <div className="flex-shrink-0">
+                          {selectedAno.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
+                        </div>
+                        <span className={`text-sm transition-colors ${selectedAno.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Edição {option}</span>
+                        <div className="ml-auto bg-purple-500 text-white px-2 py-0.5 rounded shadow-sm border border-purple-700 flex items-center gap-1">
+                          <User className="w-2.5 h-2.5 text-white" aria-hidden="true" />
+                          <span className="text-[9px] font-medium">{option}</span>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -408,9 +476,11 @@ export function LeftSidebar({
         <button 
           onClick={onToggle}
           className="fixed top-1/2 -translate-y-1/2 left-2 md:left-4 z-[60] bg-blue-500 md:bg-white border-2 border-blue-500 rounded-full p-3 md:p-2 shadow-xl hover:bg-blue-600 md:hover:bg-gray-100 transition-colors"
-          title="Expandir filtros"
+          title="Expandir painel de filtros de camadas"
+          aria-label="Expandir painel de filtros de camadas"
+          aria-expanded="false"
         >
-          <svg className="w-6 h-6 md:w-4 md:h-4 text-white md:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 md:w-4 md:h-4 text-white md:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>

@@ -25,6 +25,7 @@ interface MapViewProps {
   selectedSinistro: string[];
   selectedPerfil: string[];
   selectedGenero: string;
+  selectedAno: string[];
   selectedRaca: string;
   selectedSocio: string;
   selectedDias: string;
@@ -38,6 +39,7 @@ interface MapViewProps {
   bicicletarios: any;
   onPointClick?: (point: any) => void;
   externalViewState?: {latitude: number, longitude: number, zoom: number};
+  onMapMove?: (viewState: {latitude: number, longitude: number, zoom: number}) => void;
   highlightedStreet?: any;
   streetData?: any;
   selectedStreetFilter?: string | null;
@@ -54,6 +56,7 @@ export function MapView({
   selectedSinistro,
   selectedPerfil,
   selectedGenero,
+  selectedAno,
   selectedRaca,
   selectedSocio,
   selectedDias,
@@ -65,6 +68,7 @@ export function MapView({
   pdcOptions,
   onPointClick,
   externalViewState,
+  onMapMove,
   highlightedStreet,
   streetData,
   selectedStreetFilter,
@@ -80,17 +84,16 @@ export function MapView({
   const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
-  const [mapViewState, setMapViewState] = useState({ latitude: -8.0476, longitude: -34.8770, zoom: 11 });
+  const [mapViewState, setMapViewState] = useState(() => externalViewState || { latitude: -8.0476, longitude: -34.8770, zoom: 11 });
 
   const [forceRender, setForceRender] = useState(0);
   const [renderedLayers, setRenderedLayers] = useState<Set<string>>(new Set());
   const [loadingLayers, setLoadingLayers] = useState<Set<string>>(new Set());
 
-  // Atualizar com estado externo quando fornecido
+  // Sync with external view state
   useEffect(() => {
     if (externalViewState) {
       setMapViewState(externalViewState);
-      setForceRender(Date.now());
     }
   }, [externalViewState]);
 
@@ -106,8 +109,6 @@ export function MapView({
 
   const lastLoggedCircle = useRef<string | null>(null);
   const lastClickTime = useRef<number>(0);
-
-  // Salvar posição do mapa no localStorage com debounce
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Calcular bounds do viewport atual
@@ -135,17 +136,6 @@ export function MapView({
   
   useEffect(() => {
     setIsClient(true);
-    
-    // Load saved map position after hydration
-    const saved = localStorage.getItem('ciclodados-map-view');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setMapViewState(parsed);
-      } catch (e) {
-        // Erro silencioso
-      }
-    }
   }, []);
   
   // Usar hooks com bounds para filtrar dados apenas no cliente
@@ -268,20 +258,13 @@ export function MapView({
   const handleMapViewChange = (viewState: any) => {
     setMapViewState(viewState);
     
-    // Debounce para evitar muitas escritas no localStorage
+    // Debounce apenas para chamar onMapMove
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
     
     saveTimeoutRef.current = setTimeout(() => {
-      if (isClient) {
-        const dataToSave = {
-          latitude: viewState.latitude,
-          longitude: viewState.longitude,
-          zoom: viewState.zoom
-        };
-        localStorage.setItem('ciclodados-map-view', JSON.stringify(dataToSave));
-      }
+      onMapMove?.(viewState);
     }, 500);
   };
 
@@ -414,18 +397,14 @@ export function MapView({
     window.location.reload();
   };
 
-  // Função para lidar com clique em cluster - zoom in na coordenada do cluster
+  // Função para lidar com clique em cluster - zoom in +2 na coordenada do cluster
   const handleClusterClick = (item: any) => {
     const newViewState = {
       latitude: item.geometry.coordinates[1],
       longitude: item.geometry.coordinates[0],
-      zoom: Math.min(mapViewState.zoom + 2, 20)
+      zoom: Math.min(mapViewState.zoom + 2, 22)
     };
     setMapViewState(newViewState);
-    // Chamar onViewStateChange diretamente para atualizar o mapa
-    if (onViewStateChange) {
-      onViewStateChange(newViewState);
-    }
     handleMapViewChange(newViewState);
   };
 
@@ -591,13 +570,58 @@ export function MapView({
           // PDC layers - double lines that embrace infrastructure (apenas se não houver erro)
           // Só mostrar se não há filtro de rua ou se há dados na área
           ...(!execucaoError && execucaoCicloviaria?.features && selectedPdc.length > 0 ? [
-            // PDC Realizado Designado - double purple lines
+            // PDC Não Realizado - double pink dotted lines (renderizar primeiro, ficar embaixo)
+            {
+              id: 'pdc-nao-realizado-left',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
+              paint: {
+                'line-color': '#EC4899',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [0.1, 3],
+                'line-offset': -4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
+              id: 'pdc-nao-realizado-right',
+              type: 'line',
+              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
+              paint: {
+                'line-color': '#EC4899',
+                'line-width': 2,
+                'line-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', 'pulse'],
+                  0, 0.3,
+                  100, 1.0
+                ],
+                'line-dasharray': [0.1, 3],
+                'line-offset': 4
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            // PDC Realizado Designado - double green lines
             {
               id: 'pdc-realizado-designado-left',
               type: 'line',
               filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
               paint: {
-                'line-color': '#8B5CF6',
+                'line-color': '#10B981',
                 'line-width': 2,
                 'line-opacity': [
                   'interpolate',
@@ -618,7 +642,7 @@ export function MapView({
               type: 'line',
               filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
               paint: {
-                'line-color': '#8B5CF6',
+                'line-color': '#10B981',
                 'line-width': 2,
                 'line-opacity': [
                   'interpolate',
@@ -724,51 +748,6 @@ export function MapView({
                 'line-cap': 'round'
               }
             },
-            // PDC Não Realizado - double pink dotted lines
-            {
-              id: 'pdc-nao-realizado-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
-              paint: {
-                'line-color': '#EC4899',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [0.1, 3],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'pdc-nao-realizado-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
-              paint: {
-                'line-color': '#EC4899',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [0.1, 3],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            }
           ] : []),
 
           ...(!infraError && infraCicloviaria?.features && selectedInfra.length > 0 ? [
@@ -1203,18 +1182,11 @@ export function MapView({
               }) : []),
 
           // Pontos de Perfil de Ciclistas (Nova API)
-          ...(isClient && selectedPerfil.includes('Perfil de Ciclistas') && perfilCiclistas?.features && Array.isArray(perfilCiclistas.features) ? (() => {
-            // Filtrar por edição (ano) selecionada
-            const filteredFeatures = selectedGenero === 'Todas' 
-              ? perfilCiclistas.features 
-              : perfilCiclistas.features.filter((point: any) => point.properties.survey_year === selectedGenero);
-            
-            // Limitar pontos para melhor performance quando não for "Todas"
-            const MAX_PROFILE_POINTS = 20;
-            const limitedFeatures = selectedGenero === 'Todas' ? filteredFeatures : filteredFeatures.slice(0, MAX_PROFILE_POINTS);
+          ...(isClient && selectedPerfil.length > 0 && selectedAno.length > 0 && perfilCiclistas?.features && Array.isArray(perfilCiclistas.features) ? (() => {
+            const filteredFeatures = perfilCiclistas.features.filter((point: any) => selectedAno.includes(point.properties.survey_year));
             
             return createClusters(
-              limitedFeatures, 
+              filteredFeatures, 
               mapViewState.zoom, 
               mapViewState
             ).map((item: any) => {
@@ -1247,7 +1219,12 @@ export function MapView({
                   <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                     <div className="bg-purple-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[50px] justify-center">
                       <UserCheck size={12} className="text-white" />
-                      <span className="text-xs font-bold">{totalResponses}</span>
+                      <div className="flex flex-col items-center">
+                        <span className="text-xs font-bold">{totalResponses}</span>
+                        <span className="text-[10px] font-medium text-white">
+                          {item.properties.items?.[0]?.properties?.survey_year || new Date().getFullYear()}
+                        </span>
+                      </div>
                       {item.isCluster && item.properties.count > 1 && (
                         <span className="text-[8px] bg-purple-500 text-white border border-purple-700 rounded-full px-1 ml-1">
                           {item.properties.count}
@@ -1315,7 +1292,16 @@ export function MapView({
         onMapClick={handleMapClick}
         selectedPoints={selectedPoints.map(point => ({
           ...point,
-          customIcon: <MapPin size={20} className="text-red-500" />
+          customIcon: (
+            <div className="relative">
+              <div className="bg-red-500 rounded-full w-6 h-6 flex items-center justify-center shadow-lg border-2 border-white">
+                <div className="bg-white rounded-full w-2 h-2"></div>
+              </div>
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500"></div>
+              </div>
+            </div>
+          )
         }))}
         onMouseMove={handleMapMouseMove}
         onMouseDown={handleMapMouseDown}

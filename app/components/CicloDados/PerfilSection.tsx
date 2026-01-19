@@ -4,7 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 interface PerfilSectionProps {
   selectedGenero: string;
   onGeneroChange: (value: string) => void;
-  selectedAno: string;
+  selectedAno: string[];
   onAnoChange: (value: string) => void;
   selectedArea: string;
   onAreaChange: (value: string) => void;
@@ -41,7 +41,6 @@ export function PerfilSection({
     // Reset all perfil selections when hiding
     if (isPerfilVisible) {
       onGeneroChange('Todos');
-      onAnoChange('Todos');
       onAreaChange('Todas');
       onIdadeChange('Todas');
     }
@@ -53,7 +52,7 @@ export function PerfilSection({
   }, []);
 
   const generoOptions = ["Todos", "Masculino", "Feminino"];
-  const anoOptions = ["Todos", "2024", "2021", "2018", "2015"];
+  const anoOptions = ["2024", "2021", "2018", "2015"];
   const areaOptions = ["Todas", "Área 1 - Área Central", "Área 2 - Área Intermediária", "Área 3 - Área Periférica"];
   const idadeOptions = ["Todas", "18-25 anos", "26-35 anos", "36-45 anos", "46+ anos"];
 
@@ -116,14 +115,11 @@ export function PerfilSection({
                   key={option}
                   onClick={() => onAnoChange(option)}
                   className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                    mounted && selectedAno === option
+                    mounted && selectedAno.includes(option)
                       ? 'bg-purple-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {option === 'Todos' && mounted && (
-                    selectedAno === option ? <Eye size={12} /> : <EyeOff size={12} />
-                  )}
                   {option}
                 </button>
               ))}

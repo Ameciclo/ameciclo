@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp, User, ShieldCheck, UserPlus, Wrench, RotateCcw, Package, Baby, Footprints } from 'lucide-react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import { calculatePercentage } from '~/utils/translations';
-import { useFocusTrap } from '~/hooks/useFocusTrap';
 
 interface PointInfoPopupProps {
   lat: number;
@@ -101,7 +100,60 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
   const [expandedEditions, setExpandedEditions] = useState<Set<string>>(new Set());
   const [expandedCounts, setExpandedCounts] = useState<Set<string>>(new Set());
-  const modalRef = useFocusTrap(true);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const currentZoom = url.searchParams.get('zoom') || '16';
+    url.searchParams.set('lat', lat.toFixed(6));
+    url.searchParams.set('lon', lng.toFixed(6));
+    url.searchParams.set('zoom', currentZoom);
+    url.searchParams.set('modal', 'open');
+    window.history.pushState({}, '', url.toString());
+  }, [lat, lng]);
+
+  const handleClose = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('modal');
+    window.history.pushState({}, '', url.toString());
+    onClose();
+  };
+
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusableElements = modal.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement?.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement?.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, activeTab, expandedEditions, expandedCounts]);
 
   const toggleEdition = (edition: string) => {
     const newExpanded = new Set(expandedEditions);
@@ -263,13 +315,13 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-red-600">Erro</h3>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
               <X size={20} />
             </button>
           </div>
           <p className="text-gray-700">{error?.message || 'Erro desconhecido'}</p>
           <button 
-            onClick={onClose}
+            onClick={handleClose}
             className="mt-4 w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
           >
             Fechar
@@ -346,7 +398,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
             >
               <Share2 size={20} />
             </button>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
               <X size={24} />
             </button>
           </div>
@@ -596,6 +648,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                   const y = 170 - ((year.total_calls - minCalls) / range) * 120;
                                   return `${x},${y}`;
                                 }).join(' ');
+                                const currentYear = new Date().getFullYear();
                                 
                                 return (
                                   <>
@@ -608,6 +661,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                     {years.map((year, index) => {
                                       const x = 80 + (index * (640 / (years.length - 1 || 1)));
                                       const y = 170 - ((year.total_calls - minCalls) / range) * 120;
+                                      const is2025 = year.year === currentYear;
                                       return (
                                         <g key={year.year}>
                                           <circle cx={x} cy={y} r="4" fill="#dc2626" />
@@ -617,6 +671,14 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                           <text x={x} y={190} textAnchor="middle" className="text-xs fill-gray-500">
                                             {year.year}
                                           </text>
+                                          {is2025 && (
+                                            <>
+                                              <rect x={x - 35} y={y - 45} width="70" height="18" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1" rx="3" />
+                                              <text x={x} y={y - 32} textAnchor="middle" className="text-[9px] font-bold fill-amber-900">
+                                                Até março/2025
+                                              </text>
+                                            </>
+                                          )}
                                         </g>
                                       );
                                     })}
@@ -1165,33 +1227,12 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
               {/* Gráfico de Emergências ao Longo do Tempo */}
               {finalData.emergency_calls?.annual_history?.length > 1 && (() => {
                 const currentYear = new Date().getFullYear();
-                const chartData = finalData.emergency_calls.annual_history
-                  .filter(y => y.year < currentYear)
-                  .sort((a, b) => a.year - b.year);
+                const allData = finalData.emergency_calls.annual_history.sort((a, b) => a.year - b.year);
+                const chartData = allData.slice(-8);
                 
-                const chartOptions = {
-                  chart: { type: 'line', height: 280, backgroundColor: 'transparent' },
-                  title: { text: null },
-                  credits: { enabled: false },
-                  xAxis: { categories: chartData.map(d => d.year.toString()), title: { text: 'Ano' } },
-                  yAxis: { title: { text: 'Chamadas' }, min: 0 },
-                  series: [{
-                    name: 'Emergências',
-                    data: chartData.map(d => d.total_calls),
-                    color: '#dc2626',
-                    marker: { radius: 4 }
-                  }],
-                  tooltip: {
-                    formatter: function(this: any) {
-                      return `<b>${this.x}</b><br/>${this.series.name}: <b>${this.y}</b> chamadas`;
-                    }
-                  },
-                  plotOptions: {
-                    line: {
-                      dataLabels: { enabled: true, format: '{y}' }
-                    }
-                  }
-                };
+                const maxCalls = Math.max(...chartData.map(y => y.total_calls));
+                const minCalls = Math.min(...chartData.map(y => y.total_calls));
+                const range = maxCalls - minCalls || 1;
                 
                 return (
                   <div className="bg-white border rounded-lg p-4">
@@ -1207,19 +1248,59 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <div role="img" aria-label={`Gráfico de evolução de emergências: ${chartData.map(d => `${d.year}: ${d.total_calls} chamadas`).join(', ')}`}>
-                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
-                    </div>
+                    <svg className="w-full" viewBox="0 0 800 200" style={{height: '200px'}}>
+                      <defs>
+                        <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
+                          <path d="M 80 0 L 0 0 0 20" fill="none" stroke="#f3f4f6" strokeWidth="1"/>
+                        </pattern>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(#grid)" />
+                      
+                      {(() => {
+                        const points = chartData.map((year, index) => {
+                          const x = 80 + (index * (640 / (chartData.length - 1 || 1)));
+                          const y = 170 - ((year.total_calls - minCalls) / range) * 120;
+                          return `${x},${y}`;
+                        }).join(' ');
+                        
+                        return (
+                          <>
+                            <polyline fill="none" stroke="#dc2626" strokeWidth="3" points={points} />
+                            {chartData.map((year, index) => {
+                              const x = 80 + (index * (640 / (chartData.length - 1 || 1)));
+                              const y = 170 - ((year.total_calls - minCalls) / range) * 120;
+                              const is2025 = year.year === 2025;
+                              const isLastPoint = index === chartData.length - 1;
+                              return (
+                                <g key={year.year}>
+                                  <circle cx={x} cy={y} r="4" fill="#dc2626" />
+                                  <text x={x} y={y - 10} textAnchor="middle" className="text-xs font-bold fill-gray-700">{year.total_calls}</text>
+                                  <text x={x} y={190} textAnchor="middle" className="text-xs fill-gray-500">{year.year}</text>
+                                  {is2025 && isLastPoint && (
+                                    <>
+                                      <rect x={x - 45} y={y - 60} width="90" height="22" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" rx="4" />
+                                      <text x={x} y={y - 44} textAnchor="middle" className="text-[11px] font-bold fill-amber-900">
+                                        Dados até março
+                                      </text>
+                                    </>
+                                  )}
+                                </g>
+                              );
+                            })}
+                          </>
+                        );
+                      })()}
+                    </svg>
                     <div className="grid grid-cols-3 gap-3 mt-4">
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">
-                          {finalData.emergency_calls.annual_history.reduce((sum, year) => sum + year.total_calls, 0)}
+                          {allData.reduce((sum, year) => sum + year.total_calls, 0)}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">Total Histórico</p>
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">
-                          {Math.round(finalData.emergency_calls.annual_history.reduce((sum, year) => sum + year.total_calls, 0) / chartData.length)}
+                          {Math.round(allData.reduce((sum, year) => sum + year.total_calls, 0) / allData.filter(y => y.year < currentYear).length)}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">Média Anual</p>
                       </div>
@@ -1236,30 +1317,8 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
               
               {/* Gráfico de Categorias de Emergência */}
               {finalData.emergency_calls?.by_category?.length > 0 && (() => {
-                const chartOptions = {
-                  chart: { type: 'pie', height: 280, backgroundColor: 'transparent' },
-                  title: { text: null },
-                  credits: { enabled: false },
-                  plotOptions: {
-                    pie: {
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                      dataLabels: {
-                        enabled: true,
-                        format: '<b>{point.name}</b>: {point.percentage:.1f}%'
-                      },
-                      showInLegend: true
-                    }
-                  },
-                  series: [{
-                    name: 'Chamadas',
-                    colorByPoint: true,
-                    data: finalData.emergency_calls.by_category.map(cat => ({
-                      name: cat.category,
-                      y: cat.count
-                    }))
-                  }]
-                };
+                const total = finalData.emergency_calls.by_category.reduce((sum, cat) => sum + cat.count, 0);
+                const colors = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e'];
                 
                 return (
                   <div className="bg-white border rounded-lg p-4">
@@ -1275,37 +1334,44 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <div role="img" aria-label={`Gráfico de emergências por categoria: ${finalData.emergency_calls.by_category.map(cat => `${cat.category}: ${cat.count} chamadas`).join(', ')}`}>
-                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                    <div className="space-y-2">
+                      {finalData.emergency_calls.by_category.map((cat, index) => {
+                        const percentage = (cat.count / total) * 100;
+                        return (
+                          <div key={cat.category}>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="font-medium">{cat.category}</span>
+                              <span className="text-gray-600">{cat.count} ({percentage.toFixed(1)}%)</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="h-2 rounded-full transition-all" 
+                                style={{ 
+                                  width: `${percentage}%`,
+                                  backgroundColor: colors[index % colors.length]
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
               })()}
 
-              {/* Gráfico de Infraestrutura */}
+              {/* Infraestrutura */}
               {finalData.cycling_infra && (finalData.cycling_infra.existing?.length > 0 || finalData.cycling_infra.planned_pdc?.length > 0) && (() => {
                 const infraTypes: Record<string, number> = {};
                 finalData.cycling_infra.existing?.forEach(infra => {
                   infraTypes[infra.type] = (infraTypes[infra.type] || 0) + 1;
                 });
                 
-                const chartOptions = {
-                  chart: { type: 'column', height: 280, backgroundColor: 'transparent' },
-                  title: { text: null },
-                  credits: { enabled: false },
-                  xAxis: { categories: Object.keys(infraTypes), title: { text: 'Tipo' } },
-                  yAxis: { title: { text: 'Quantidade' }, min: 0, allowDecimals: false },
-                  series: [{
-                    name: 'Vias',
-                    data: Object.values(infraTypes),
-                    color: '#10b981'
-                  }],
-                  plotOptions: {
-                    column: {
-                      dataLabels: { enabled: true }
-                    }
-                  }
-                };
+                const kmPlanejados = finalData.cycling_infra.planned_pdc?.reduce((sum, pdc) => sum + pdc.pdc_km, 0) || 0;
+                const kmExecutados = finalData.cycling_infra.existing?.reduce((sum, infra) => sum + (infra.distance_meters || 0), 0) / 1000 || 0;
+                const totalKm = kmPlanejados + kmExecutados;
+                const percentExecutado = totalKm > 0 ? (kmExecutados / totalKm) * 100 : 0;
+                const percentPlanejado = totalKm > 0 ? (kmPlanejados / totalKm) * 100 : 0;
                 
                 return (
                   <div className="bg-white border rounded-lg p-4">
@@ -1321,15 +1387,51 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <ArrowRight size={12} />
                       </a>
                     </div>
-                    <div role="img" aria-label={`Gráfico de infraestrutura cicloviária por tipo: ${Object.entries(infraTypes).map(([type, count]) => `${type}: ${count} vias`).join(', ')}`}>
-                      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
-                    </div>
-                    <div className="grid grid-cols-3 gap-3 mt-4">
+                    
+                    {Object.keys(infraTypes).length > 0 && (
+                      <div className="mb-4">
+                        <h6 className="text-xs font-semibold text-gray-700 mb-2">Tipos de Infraestrutura</h6>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(infraTypes).map(([type, count]) => (
+                            <div key={type} className="bg-green-50 p-2 rounded text-center">
+                              <p className="text-lg font-bold text-green-600">{count}</p>
+                              <p className="text-xs text-gray-600">{type}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {totalKm > 0 && (
+                      <div className="mb-4">
+                        <h6 className="text-xs font-semibold text-gray-700 mb-2">Execução vs Planejamento</h6>
+                        <div className="w-full bg-gray-200 rounded-full h-8 flex overflow-hidden">
+                          <div 
+                            className="bg-green-500 h-8 flex items-center justify-center text-white text-xs font-bold"
+                            style={{ width: `${percentExecutado}%` }}
+                          >
+                            {percentExecutado > 15 && `${kmExecutados.toFixed(1)} km`}
+                          </div>
+                          <div 
+                            className="bg-purple-500 h-8 flex items-center justify-center text-white text-xs font-bold"
+                            style={{ width: `${percentPlanejado}%` }}
+                          >
+                            {percentPlanejado > 15 && `${kmPlanejados.toFixed(1)} km`}
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-600 mt-1">
+                          <span>• Executado</span>
+                          <span>• Planejado</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-3 gap-3">
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">
-                          {finalData.cycling_infra.existing?.length || 0}
+                          {kmExecutados.toFixed(1)}
                         </p>
-                        <p className="text-xs text-gray-600 mt-1">Vias Existentes</p>
+                        <p className="text-xs text-gray-600 mt-1">km Executados</p>
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">
@@ -1339,7 +1441,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded">
                         <p className="text-2xl font-bold text-gray-800">
-                          {finalData.cycling_infra.planned_pdc?.reduce((sum, pdc) => sum + pdc.pdc_km, 0)?.toFixed(1) || '0.0'}
+                          {kmPlanejados.toFixed(1)}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">km Planejados</p>
                       </div>
@@ -1359,7 +1461,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                 const years = Object.keys(countsByYear).sort();
                 
                 const chartOptions = {
-                  chart: { type: 'column', height: 280, backgroundColor: 'transparent' },
+                  chart: { type: 'column', height: 280, backgroundColor: 'transparent', animation: false },
                   title: { text: null },
                   credits: { enabled: false },
                   xAxis: { categories: years, title: { text: 'Ano' } },
@@ -1435,7 +1537,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                 if (!latestEdition.gender_distribution) return null;
                 
                 const chartOptions = {
-                  chart: { type: 'pie', height: 280, backgroundColor: 'transparent' },
+                  chart: { type: 'pie', height: 280, backgroundColor: 'transparent', animation: false },
                   title: { text: null },
                   credits: { enabled: false },
                   plotOptions: {
@@ -1548,20 +1650,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
         {/* Footer */}
         <div className="border-t p-4 bg-gray-50 flex-shrink-0">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-sm text-gray-600">
-            <div className="flex-1">
-              <p className="font-medium text-gray-700">Dados em raio de 200m do ponto selecionado</p>
-              <p className="text-xs text-gray-500 mt-1">
-                Coordenadas: {finalData.location?.lat.toFixed(6)}, {finalData.location?.lng.toFixed(6)}
-              </p>
-            </div>
-            <button 
-              onClick={onClose}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap"
-            >
-              Fechar
-            </button>
-          </div>
+          <p className="text-xs text-gray-500">
+            Coordenadas: {finalData.location?.lat.toFixed(6)}, {finalData.location?.lng.toFixed(6)}
+          </p>
         </div>
       </div>
     </div>

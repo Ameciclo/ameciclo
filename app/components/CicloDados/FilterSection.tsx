@@ -28,8 +28,24 @@ function OptionItem({
     onToggle(option.name);
   };
   
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onToggle(option.name);
+    }
+  };
+  
   return (
-    <div onClick={handleClick} className={isSelected ? selectedClassName : defaultClassName}>
+    <div 
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      className={isSelected ? selectedClassName : defaultClassName}
+      role="button"
+      tabIndex={0}
+      title={isSelected ? `Ocultar ${option.name.toLowerCase()}` : `Exibir ${option.name.toLowerCase()}`}
+      aria-pressed={isSelected}
+      aria-label={`${isSelected ? 'Ocultar' : 'Exibir'} ${option.name}`}
+    >
       {hasPattern ? (
         <>
           <div className="flex items-center space-x-2 mb-1">
@@ -158,15 +174,6 @@ export function FilterSection({
 
   return (
     <div className="bg-white rounded border relative">
-      {comingSoon && (
-        <div className="absolute inset-0 bg-white z-10 flex items-center justify-center rounded comingSoonOverlay">
-          <div className="text-center">
-            <div className="text-gray-500 font-medium text-sm">
-              EM BREVE
-            </div>
-          </div>
-        </div>
-      )}
       <div className="p-2">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -180,7 +187,14 @@ export function FilterSection({
                 comingSoon || isToggling ? 'cursor-not-allowed' : 'hover:bg-gray-50'
               }`}
               disabled={comingSoon || isToggling}
-              aria-label={isAllSelected ? 'Ocultar todos os itens' : 'Mostrar todos os itens'}
+              title={(() => {
+                const titleStr = typeof title === 'string' ? title : '';
+                if (titleStr.includes('Infraestrutura')) return isAllSelected ? 'Ocultar todos os itens da seção infraestrutura cicloviária' : 'Exibir todos os itens da seção infraestrutura cicloviária';
+                if (titleStr.includes('Contagem')) return isAllSelected ? 'Ocultar todos os itens da seção contagem de ciclistas' : 'Exibir todos os itens da seção contagem de ciclistas';
+                if (titleStr.includes('Plano Diretor')) return isAllSelected ? 'Ocultar todos os itens da seção plano diretor cicloviário' : 'Exibir todos os itens da seção plano diretor cicloviário';
+                return isAllSelected ? 'Ocultar todos os itens desta seção' : 'Exibir todos os itens desta seção';
+              })()}
+              aria-label={isAllSelected ? 'Ocultar todos os itens' : 'Exibir todos os itens'}
               aria-pressed={isAllSelected}
             >
               {isAllSelected ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
@@ -193,7 +207,8 @@ export function FilterSection({
               comingSoon ? 'cursor-not-allowed' : 'hover:bg-gray-50'
             }`}
             disabled={comingSoon}
-            aria-label={actuallyExpanded ? 'Recolher seção' : 'Expandir seção'}
+            title={actuallyExpanded ? 'Minimizar esta seção' : 'Expandir esta seção'}
+            aria-label={actuallyExpanded ? 'Minimizar seção' : 'Expandir seção'}
             aria-expanded={actuallyExpanded}
             aria-controls={`filter-section-${typeof title === 'string' ? title.toLowerCase().replace(/\s+/g, '-') : 'content'}`}
           >
@@ -230,6 +245,29 @@ export function FilterSection({
             />
           ))}
         </div>
+      )}
+      {comingSoon && (
+        <>
+          <div 
+            className="absolute inset-0 bg-white z-10 flex items-center justify-center rounded"
+            style={{
+              animation: 'comingSoonPulse 3.5s ease-in-out infinite'
+            }}
+          >
+            <div className="text-gray-600 font-semibold text-sm tracking-wide">
+              EM BREVE
+            </div>
+          </div>
+          <style>{`
+            @keyframes comingSoonPulse {
+              0% { opacity: 0; }
+              14% { opacity: 1; }
+              43% { opacity: 1; }
+              57% { opacity: 0; }
+              100% { opacity: 0; }
+            }
+          `}</style>
+        </>
       )}
     </div>
   );

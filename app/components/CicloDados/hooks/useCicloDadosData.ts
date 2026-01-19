@@ -12,7 +12,7 @@ export function useCicloDadosData() {
   ];
 
   const pdcOptions = [
-    { name: "PDC Realizado Designado", color: "#8B5CF6", pattern: "parallel", apiKey: "pdc_realizado_designado" },
+    { name: "PDC Realizado Designado", color: "#10B981", pattern: "parallel", apiKey: "pdc_realizado_designado" },
     { name: "PDC Realizado Não Designado", color: "#8B5CF6", pattern: "parallel-dashed", apiKey: "pdc_realizado_nao_designado" },
     { name: "Realizado Fora PDC", color: "#F59E0B", pattern: "parallel-orange-dashed", apiKey: "realizado_fora_pdc" },
     { name: "PDC Não Realizado", color: "#EC4899", pattern: "striped", apiKey: "pdc_nao_realizado" }

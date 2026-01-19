@@ -1,6 +1,6 @@
 import { Search, Users, Bike, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchStreets, getStreetDetails, getStreetDataSummary, type StreetMatch } from '~/services/streets.service';
+import { searchStreets, type StreetMatch } from '~/services/streets.service';
 
 interface CicloDadosHeaderProps {
   viewMode: 'map' | 'mural';
@@ -14,17 +14,14 @@ interface CicloDadosHeaderProps {
 export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, onZoomToStreet }: CicloDadosHeaderProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [streetSuggestions, setStreetSuggestions] = useState<StreetMatch[]>([]);
-  const [streetDataCache, setStreetDataCache] = useState<Record<string, StreetDataSummary>>({});
-  const [streetLengthCache, setStreetLengthCache] = useState<Record<string, number>>({});
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedStreet, setSelectedStreet] = useState<string>('');
-
   const searchRef = useRef<HTMLDivElement>(null);
 
   const searchStreetsDebounced = useCallback(
     async (query: string) => {
-      if (!query.trim()) {
+      if (!query.trim() || query.length < 2) {
         setStreetSuggestions([]);
         return;
       }
@@ -32,34 +29,7 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
       setIsSearching(true);
       try {
         const results = await searchStreets(query);
-        
-        // Ordenar apenas por confiabilidade
-        const sortedResults = results.sort((a, b) => b.confidence - a.confidence);
-        
-        setStreetSuggestions(sortedResults);
-        
-        // Buscar dados e extensão das primeiras 3 sugestões
-        const topResults = sortedResults.slice(0, 3);
-        topResults.forEach(async (street) => {
-          if (!streetDataCache[street.id]) {
-            try {
-              const [data, details] = await Promise.all([
-                getStreetDataSummary(street.id),
-                getStreetDetails(street.id)
-              ]);
-              
-              if (data) {
-                setStreetDataCache(prev => ({ ...prev, [street.id]: data }));
-              }
-              
-              if (details?.properties?.totalLength) {
-                setStreetLengthCache(prev => ({ ...prev, [street.id]: details.properties.totalLength }));
-              }
-            } catch (error) {
-              console.error('Erro ao buscar dados da via:', error);
-            }
-          }
-        });
+        setStreetSuggestions(results);
       } catch (error) {
         console.error('Erro na busca:', error);
         setStreetSuggestions([]);
@@ -89,46 +59,14 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleStreetSelect = async (street: StreetMatch) => {
+  const handleStreetSelect = (street: StreetMatch) => {
     setSelectedStreet(street.name);
     setSearchTerm('');
     setShowSuggestions(false);
     onStreetSelect?.(street);
     
-    // Fazer zoom para a rua selecionada usando coordenadas padrão do Recife
-    // Como não temos geometria real, vamos usar bounds genéricos baseados no nome
-    try {
-      let bounds;
-      
-      // Coordenadas específicas para ruas conhecidas
-      if (street.name.toLowerCase().includes('boa viagem')) {
-        bounds = {
-          north: -8.1100,
-          south: -8.1300,
-          east: -34.8800,
-          west: -34.9100
-        };
-      } else if (street.name.toLowerCase().includes('conde da boa vista')) {
-        bounds = {
-          north: -8.0550,
-          south: -8.0650,
-          east: -34.8750,
-          west: -34.8850
-        };
-      } else {
-        // Bounds genéricos para o centro do Recife
-        bounds = {
-          north: -8.0400,
-          south: -8.0600,
-          east: -34.8700,
-          west: -34.8900
-        };
-      }
-      
-      onZoomToStreet?.(bounds, null, street.id, street.name);
-      
-    } catch (error) {
-      console.error('❌ Erro ao fazer zoom:', error);
+    if (street.coordinates && street.bounds) {
+      onZoomToStreet?.(street.bounds, street.coordinates, street.id, street.name);
     }
   };
 
@@ -147,7 +85,6 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
             <button 
               onClick={() => {
                 setSelectedStreet('');
-                // Notificar componente pai para limpar seleção do mapa
                 onZoomToStreet?.({ north: -8.0400, south: -8.0600, east: -34.8700, west: -34.8900 }, null, '', '');
               }}
               className="hover:bg-red-600 rounded-full p-1 transition-colors"
@@ -192,32 +129,8 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
                     onClick={() => handleStreetSelect(street)}
                     className="w-full text-left px-3 py-2 hover:bg-gray-100 text-black text-xs border-b border-gray-100 last:border-b-0"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium">{street.name}</div>
-                        <div className="text-gray-500 text-xs">
-                          {street.municipality}
-                          {streetLengthCache[street.id] && (
-                            <span> • {(streetLengthCache[street.id] / 1000).toFixed(1)}km</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        {streetDataCache[street.id] && (
-                          <>
-                            {parseInt(streetDataCache[street.id].data_summary.cycling_counts) > 0 && (
-                              <Bike size={12} className="text-green-500" title="Contagens de ciclistas" />
-                            )}
-                            {streetDataCache[street.id].data_summary.cycling_profile > 0 && (
-                              <Users size={12} className="text-blue-500" title="Perfil de ciclistas" />
-                            )}
-                            {parseInt(streetDataCache[street.id].data_summary.emergency_calls) > 0 && (
-                              <AlertTriangle size={12} className="text-red-500" title="Chamadas de emergência" />
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
+                    <div className="font-medium">{street.name}</div>
+                    <div className="text-gray-500 text-xs">{street.municipality}</div>
                   </button>
                 ))
               ) : (

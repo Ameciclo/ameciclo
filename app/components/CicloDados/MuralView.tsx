@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { User, Shield, RotateCcw, Users, Package, Wrench, Bike, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Shield, RotateCcw, Users, Package, Wrench, Bike, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { MuralSidebar } from './MuralSidebar';
@@ -489,6 +489,37 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
   const [animatingCards, setAnimatingCards] = useState<Set<string>>(new Set());
   const [selectedMotivation, setSelectedMotivation] = useState('todas');
   const [selectedSocioeconomic, setSelectedSocioeconomic] = useState('todos');
+  const [maximizedCard, setMaximizedCard] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!maximizedCard || !modalRef.current) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMaximizedCard(null);
+        return;
+      }
+      
+      if (e.key === 'Tab') {
+        const focusable = modalRef.current!.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [maximizedCard]);
 
   const handleCardToggle = (cardId: string) => {
     const isVisible = cardVisibility[cardId];
@@ -529,11 +560,21 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-medium text-gray-600">Sinistros Totais</h3>
-                  <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
-                    <span className="text-xs text-gray-600">i</span>
-                    <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                      Total de sinistros registrados no período analisado
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
+                      <span className="text-xs text-gray-600">i</span>
+                      <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                        Total de sinistros registrados no período analisado
+                      </div>
                     </div>
+                    <button
+                      onClick={() => setMaximizedCard('sinistros')}
+                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      aria-label="Maximizar card de sinistros"
+                      title="Maximizar"
+                    >
+                      <Maximize2 size={14} className="text-gray-600" />
+                    </button>
                   </div>
                 </div>
                 <p className="text-3xl font-bold text-gray-900">581</p>
@@ -988,6 +1029,39 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
         )}
         </div>
       </div>
+      
+      {/* Modal Maximizado */}
+      {maximizedCard && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4" role="dialog" aria-modal="true" aria-labelledby="maximized-card-title">
+          <div ref={modalRef} tabIndex={-1} className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 id="maximized-card-title" className="text-xl font-bold text-gray-800">
+                {maximizedCard === 'sinistros' && 'Sinistros Totais'}
+                {maximizedCard === 'velocidade' && 'Velocidade Média'}
+                {maximizedCard === 'fluxo' && 'Fluxo de Ciclistas'}
+                {maximizedCard === 'mulheres' && 'Percentual de Mulheres'}
+              </h2>
+              <button
+                onClick={() => setMaximizedCard(null)}
+                className="p-2 hover:bg-gray-100 rounded transition-colors"
+                aria-label="Fechar modal"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              {maximizedCard === 'sinistros' && (
+                <div className="space-y-4">
+                  <p className="text-5xl font-bold text-gray-900">581</p>
+                  <p className="text-lg text-gray-600 flex items-center gap-2">Redução dos Fatais 12% <span className="text-green-500">▲</span></p>
+                  <p className="text-lg text-gray-600 flex items-center gap-2">Aumento nos não fatais 11% <span className="text-red-500">▼</span></p>
+                  <p className="text-lg text-gray-500 mt-4">Ano anterior: 482</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
