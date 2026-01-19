@@ -44,7 +44,7 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
               <br />/dados.samu.tsx                      → /dados/samu
               <br />/dados.sinistros-fatais.tsx         → /dados/sinistros-fatais
               <br />/dados.vias-inseguras.tsx           → /dados/vias-inseguras
-              <br />/dados.via.$slug.tsx                → /dados/via/:slug
+              <br />/dados.viasinseguras.$slug.tsx      → /dados/vias-inseguras/:slug
             </code>
           </div>
 

@@ -1,5 +1,5 @@
-import React, { Suspense, useEffect } from "react";
-import { useLoaderData, Await } from "@remix-run/react";
+import React from "react";
+import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -7,9 +7,9 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import ViasInsegurasClientSide from "~/components/ViasInseguras/ViasInsegurasClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
-
+import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { loader } from "~/loader/dados.vias-inseguras";
+
 export { loader };
 
 export default function ViasInsegurasPage() {
@@ -29,18 +29,7 @@ export default function ViasInsegurasPage() {
     apiErrors,
   } = useLoaderData<typeof loader>();
   
-  const { setApiDown, addApiError } = useApiStatus();
-  
-  useEffect(() => {
-    if (apiDown) {
-      setApiDown(true);
-    }
-    if (apiErrors && apiErrors.length > 0) {
-      apiErrors.forEach((error: {url: string, error: string}) => {
-        addApiError(error.url, error.error, '/dados/observatorio/vias-inseguras');
-      });
-    }
-  }, [apiDown, apiErrors, setApiDown, addApiError]);
+  useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/vias-inseguras');
 
   return (
     <>
@@ -71,22 +60,12 @@ export default function ViasInsegurasPage() {
           },
         ]}
       />
-      <Suspense fallback={
-        <div className="container mx-auto py-8">
-          <div className="animate-pulse bg-gray-200 h-96 w-full rounded-lg mb-12"></div>
-        </div>
-      }>
-        <Await resolve={Promise.all([summaryData, topViasData, mapData, historyData])}>
-          {([resolvedSummaryData, resolvedTopViasData, resolvedMapData, resolvedHistoryData]) => (
-            <ViasInsegurasClientSide 
-              summaryData={resolvedSummaryData}
-              topViasData={resolvedTopViasData}
-              mapData={resolvedMapData}
-              historyData={resolvedHistoryData}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <ViasInsegurasClientSide 
+        summaryData={summaryData}
+        topViasData={topViasData}
+        mapData={mapData}
+        historyData={historyData}
+      />
       {/* <CardsSession title={documents.title} cards={documents.cards} /> */}
     </>
   );

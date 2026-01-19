@@ -4,12 +4,13 @@ import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { loader } from "~/loader/dados.loa";
-import Chart from "react-google-charts";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { formatLargeValue } from "~/utils/formatCurrency";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
-import { CardLoading, ChartLoading } from "~/components/Dom/LoaDataLoading";
+import { InvestmentCards } from "~/components/Loa/sections/InvestmentCards";
+import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetComparisonCards";
+import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
 export { loader };
 
 export default function Loa() {
@@ -163,191 +164,25 @@ export default function Loa() {
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Investimentos e Emissões</h2>
                     <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações climáticas, orçamento total e custo por emissão de carbono.</p>
-
-                    {!hasData ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                            <CardLoading />
-                            <CardLoading />
-                            <CardLoading />
-                        </div>
-                    ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                        <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Investimento em ações climáticas">
-                            <div className="mb-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Ações climáticas</div>
-                            <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                <span>{totalClimateBudgeted >= 1000000000 ? (totalClimateBudgeted / 1000000000).toFixed(1).replace('.0', '') : totalClimateBudgeted >= 1000000 ? (totalClimateBudgeted / 1000000).toFixed(1).replace('.0', '') : totalClimateBudgeted.toFixed(0)}</span>
-                                <span className="text-xl ml-1">{totalClimateBudgeted >= 1000000000 ? 'Bi' : totalClimateBudgeted >= 1000000 ? 'Mi' : ''}</span>
-                            </h3>
-                            <p className="text-base mb-1">Recursos destinados a programas de sustentabilidade e meio ambiente</p>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Orçamento total do estado">
-                            <div className="mb-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Orçamento total</div>
-                            <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                <span>{totalStateBudget >= 1000000000 ? (totalStateBudget / 1000000000).toFixed(1).replace('.0', '') : totalStateBudget >= 1000000 ? (totalStateBudget / 1000000).toFixed(1).replace('.0', '') : totalStateBudget.toFixed(0)}</span>
-                                <span className="text-xl ml-1">{totalStateBudget >= 1000000000 ? 'Bi' : totalStateBudget >= 1000000 ? 'Mi' : ''}</span>
-                            </h3>
-                            <p className="text-base mb-1">Soma de todos os recursos públicos estaduais</p>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Custo por tonelada de CO2 equivalente">
-                            <div className="mb-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
-                            <h3 className="text-3xl font-bold mb-1">R$ 1400 Mil / CO2e</h3>
-                            <p className="text-base mb-1">Valor investido para cada tonelada de CO2 reduzida</p>
-                            <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
-                        </div>
-                    </div>
-                    )}
+                    <InvestmentCards 
+                        hasData={hasData} 
+                        totalClimateBudgeted={totalClimateBudgeted} 
+                        totalStateBudget={totalStateBudget} 
+                    />
                 </section>
 
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçado vs. Executado em Ações Climáticas</h2>
                     <p className="text-gray-600 mb-4">Comparação entre o valor planejado no orçamento e o valor efetivamente executado em ações para o clima.</p>
-
-                    {!hasData ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                            <CardLoading />
-                            <CardLoading />
-                        </div>
-                    ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo">
-                            <div className="mb-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Valor Orçado 2025</div>
-                            <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                <span>{totalClimateBudgeted >= 1000000000 ? (totalClimateBudgeted / 1000000000).toFixed(1).replace('.0', '') : totalClimateBudgeted >= 1000000 ? (totalClimateBudgeted / 1000000).toFixed(1).replace('.0', '') : totalClimateBudgeted.toFixed(0)}</span>
-                                <span className="text-xl ml-1">{totalClimateBudgeted >= 1000000000 ? 'Bi' : totalClimateBudgeted >= 1000000 ? 'Mi' : ''}</span>
-                            </h3>
-                            <p className="text-base mb-1">Dotação orçamentária aprovada para políticas ambientais em 2025</p>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-gray-400">
-                            <div className="mb-2 inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">Valor Executado 2025</div>
-                            <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                <span>{totalClimateExecuted >= 1000000000 ? (totalClimateExecuted / 1000000000).toFixed(1).replace('.0', '') : totalClimateExecuted >= 1000000 ? (totalClimateExecuted / 1000000).toFixed(1).replace('.0', '') : totalClimateExecuted.toFixed(0)}</span>
-                                <span className="text-xl ml-1">{totalClimateExecuted >= 1000000000 ? 'Bi' : totalClimateExecuted >= 1000000 ? 'Mi' : ''}</span>
-                            </h3>
-                            <p className="text-base mb-1">Recursos efetivamente pagos em programas climáticos em 2025</p>
-                        </div>
-                    </div>
-                    )}
+                    <BudgetComparisonCards 
+                        hasData={hasData} 
+                        totalClimateBudgeted={totalClimateBudgeted} 
+                        totalClimateExecuted={totalClimateExecuted} 
+                    />
                 </section>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-                    {!hasData ? (
-                        <>
-                            <ChartLoading />
-                            <ChartLoading />
-                        </>
-                    ) : (
-                    <>
-                    <section className="h-auto">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Evolução Orçamentária Climática</h2>
-                        <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados e executados em ações para o clima ao longo dos anos entre 2020 e 2025.</p>
-
-                        <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
-                            <div className="w-full max-w-[500px]">
-                                <Chart
-                                    chartType="Bar"
-                                    data={[
-                                        ["Ano", "Orçado (R$)", 'Executado (R$)'],
-                                        ['2020', data.totalValueBudgeted2020, data.totalValueExecuted2020],
-                                        ['2021', data.totalValueBudgeted2021, data.totalValueExecuted2021],
-                                        ['2022', data.totalValueBudgeted2022, data.totalValueExecuted2022],
-                                        ['2023', data.totalValueBudgeted2023, data.totalValueExecuted2023],
-                                        ['2024', data.totalValueBudgeted2024, data.totalValueExecuted2024],
-                                        ['2025', data.totalValueBudgeted2025, data.totalValueExecuted2025],
-                                    ]}
-                                    width="100%"
-                                    height="300px"
-                                    options={{
-                                        chart: {
-                                            subtitle: "Comparativo anual 2020-2025",
-                                        },
-                                        colors: ['#38A169', '#3182CE'],
-                                        accessibility: {
-                                            highContrastMode: true
-                                        },
-                                        legend: {
-                                            position: 'bottom',
-                                            alignment: 'center',
-                                            textStyle: {
-                                                fontSize: 13,
-                                                color: '#333333'
-                                            }
-                                        },
-                                        hAxis: {
-                                            textStyle: {
-                                                fontSize: 13,
-                                                color: '#333333'
-                                            }
-                                        },
-                                        vAxis: {
-                                            textStyle: {
-                                                fontSize: 13,
-                                                color: '#333333'
-                                            },
-                                            format: 'short'
-                                        },
-                                        chartArea: {
-                                            width: '80%',
-                                            height: '70%'
-                                        }
-                                    }}
-                                    legendToggle
-                                />
-                            </div>
-                        </div>
-                    </section>
-
-                    <section className="h-auto">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Total por Ano</h2>
-                        <p className="text-gray-600 mb-4">Evolução do orçamento total do estado para todas as ações entre 2020 e 2025</p>
-
-                        <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
-                            <div className="w-full max-w-[500px]">
-                                <Chart
-                                    chartType="Bar"
-                                    data={[
-                                        ["Ano", "Total (R$)"],
-                                        ['2020', data.totalValueActions2020],
-                                        ['2021', data.totalValueActions2021],
-                                        ['2022', data.totalValueActions2022],
-                                        ['2023', data.totalValueActions2023],
-                                        ['2024', data.totalValueActions2024],
-                                        ['2025', data.totalValueActions2025],
-                                    ]}
-                                    width="100%"
-                                    height="300px"
-                                    options={{
-                                        chart: {
-                                            subtitle: "Orçamento total 2020-2025",
-                                        },
-                                        colors: ['#3182CE'],
-                                        accessibility: {
-                                            highContrastMode: true
-                                        },
-                                        legend: {
-                                            position: 'bottom',
-                                            alignment: 'center',
-                                            textStyle: {
-                                                fontSize: 13,
-                                                color: '#333333'
-                                            }
-                                        },
-                                        chartArea: {
-                                            width: '80%',
-                                            height: '70%'
-                                        },
-                                        vAxis: {
-                                            format: 'short'
-                                        }
-                                    }}
-                                    legendToggle
-                                />
-                            </div>
-                        </div>
-                    </section>
-                    </>)}
+                    <BudgetCharts hasData={hasData} data={data} />
                 </div>
                 <section>
                     {(() => {

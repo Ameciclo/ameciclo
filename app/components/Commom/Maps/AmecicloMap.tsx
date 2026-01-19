@@ -454,14 +454,38 @@ export const AmecicloMap = ({
 
 
 
-    const [viewport, setViewport] = useState({
-        latitude: -8.0584364,
-        longitude: -34.945277,
-        zoom: 10,
-        bearing: 0,
-        pitch: 0,
+    const [viewport, setViewport] = useState(() => {
+        if (initialViewState) {
+            return {
+                ...initialViewState,
+                bearing: 0,
+                pitch: 0
+            };
+        }
+        return {
+            latitude: -8.0584364,
+            longitude: -34.945277,
+            zoom: 10,
+            bearing: 0,
+            pitch: 0,
+        };
     });
-    const [initialViewport, setInitialViewport] = useState(viewport);
+    const [initialViewport, setInitialViewport] = useState(() => {
+        if (initialViewState) {
+            return {
+                ...initialViewState,
+                bearing: 0,
+                pitch: 0
+            };
+        }
+        return {
+            latitude: -8.0584364,
+            longitude: -34.945277,
+            zoom: 10,
+            bearing: 0,
+            pitch: 0,
+        };
+    });
 
 
     const [hasSetInitialViewport, setHasSetInitialViewport] = useState(false);
@@ -470,23 +494,21 @@ export const AmecicloMap = ({
         if (isClient && isMapReady && !hasSetInitialViewport) {
             let newViewport;
             if (initialViewState) {
-                // Usar viewState fornecido via props
+                // Prioridade: usar viewState fornecido via props (vem de URL params ou localStorage)
                 newViewport = {
                     ...initialViewState,
                     bearing: 0,
                     pitch: 0
                 };
-
             } else {
-                // Calcular baseado nos dados
+                // Só calcular baseado nos dados se NÃO houver initialViewState
                 newViewport = getInicialViewPort(pointsData, layerData);
-
             }
             setViewport(newViewport);
             setInitialViewport(newViewport);
             setHasSetInitialViewport(true);
         }
-    }, [isClient, isMapReady, initialViewState, hasSetInitialViewport]);
+    }, [isClient, isMapReady, hasSetInitialViewport]);
     
     // Atualizar viewport quando initialViewState mudar (para zoom em clusters)
     useEffect(() => {

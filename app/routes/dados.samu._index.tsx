@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -7,9 +7,9 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import SamuClientSide from "~/components/Samu/SamuClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
-
+import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { loader } from "~/loader/dados.samu";
+
 export { loader };
 
 export default function SamuPage() {
@@ -28,18 +28,7 @@ export default function SamuPage() {
     apiErrors,
   } = useLoaderData<typeof loader>();
   
-  const { setApiDown, addApiError } = useApiStatus();
-  
-  useEffect(() => {
-    if (apiDown) {
-      setApiDown(true);
-    }
-    if (apiErrors && apiErrors.length > 0) {
-      apiErrors.forEach((error: {url: string, error: string}) => {
-        addApiError(error.url, error.error, '/dados/observatorio/samu');
-      });
-    }
-  }, [apiDown, apiErrors]);
+  useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/samu');
 
   return (
     <>

@@ -1,22 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLoaderData } from "@remix-run/react";
 import { LayerProps } from "react-map-gl";
-import { filterById, filterByName, IntlNumber2Digit, IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import Table from "~/components/Commom/Table/Table";
-import { ColumnFilter, SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import { CyclingInfrastructureByCity } from "~/components/ExecucaoCicloviaria/CyclingInfrastructureByCity";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
-import TableMaintenanceMessage from "~/components/Commom/TableMaintenanceMessage";
-import { TableLoading } from "~/components/ExecucaoCicloviaria/Loading/TableLoading";
-
-import { loader } from "~/loader/dados.execucaocicloviaria";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
+import { CityContent } from "~/components/ExecucaoCicloviaria/CityContent";
+import { loader } from "~/loader/dados.execucaocicloviaria";
 export { loader };
 
 export default function ExecucaoCicloviaria() {
@@ -46,41 +40,14 @@ export default function ExecucaoCicloviaria() {
         }
     }, [apiDown, apiErrors]);
 
-    function sortCards(data: any, order: any) {
-        const units: any = {
-            percentil: "%",
-            pdc_feito: "km",
-            pdc_total: "km",
-            total: "km",
-        };
-        return data
-            .map((d: any) => ({
-                id: d.id,
-                label: d.name,
-                unit: units[order],
-                value: d[order],
-            }))
-            .sort((a: any, b: any) => (b.value >= a.value ? 1 : -1));
-    }
-
     const [optionsType, setOptionsType] = useState("max1digit");
     const [city_sort, sortCity] = useState("total");
-    const [selectedCity, setCity] = useState(null);
-    
-    const sortCityAndType = (value: any) => {
-        sortCity(value);
-        let type = "max1digit";
-        if (value == "percent") type = "percentual";
-        setOptionsType(type);
-    };
-
-    const changeCity = (id: any, citiesStatsArray: any) => { 
-        setCity(filterById(citiesStatsArray, id)); 
-    };
-    
-
-    const sectionRef = useRef<HTMLDivElement>(null);
     const filterRef = useRef<HTMLDivElement>(null);
+    
+    const sortCityAndType = (value: string) => {
+        sortCity(value);
+        setOptionsType(value === "percent" ? "percentual" : "max1digit");
+    };
 
     const sort_cities = [
         {
@@ -100,384 +67,7 @@ export default function ExecucaoCicloviaria() {
 
 
 
-    const [showPercentage, setShowPercentage] = useState(false);
-    const [showFilters, setShowFilters] = useState(false);
 
-function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsType, changeCity, selectedCity, setCity, sortCityAndType, showPercentage, setShowPercentage, showFilters, setShowFilters, columns }: any) {
-    const citiesStatsArray = React.useMemo(() => 
-        Object.values(citiesStats ?? {}).filter((c: any) => c.name !== undefined),
-        [citiesStats]
-    );
-    
-    const [localSelectedCity, setLocalSelectedCity] = useState(() => filterByName(citiesStatsArray, "Recife"));
-    const [showFixedBar, setShowFixedBar] = useState(false);
-    const [showFloatingFilter, setShowFloatingFilter] = useState(false);
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const cardsRef = useRef<HTMLDivElement>(null);
-    
-    useEffect(() => {
-        const handleScroll = () => {
-            if (sectionRef.current && filterRef.current && cardsRef.current) {
-                // Busca pelo select dentro do filterRef
-                const selectElement = filterRef.current.querySelector('select');
-                const selectRect = selectElement?.getBoundingClientRect();
-                
-                // Busca pela grid de cards
-                const cardsGrid = cardsRef.current.querySelector('.grid');
-                const cardsGridRect = cardsGrid?.getBoundingClientRect();
-                
-                const statsSection = sectionRef.current.querySelector('[data-stats-section]');
-                const statsRect = statsSection?.getBoundingClientRect();
-                
-                // FloatingFilter: aparece quando select sai da tela e desaparece quando grid de cards sai da tela
-                const selectOutOfView = selectRect ? selectRect.bottom < 0 : false;
-                const cardsStillVisible = cardsGridRect ? cardsGridRect.bottom > 56 : false;
-                const showFloating = selectOutOfView && cardsStillVisible;
-                setShowFloatingFilter(showFloating);
-                
-                // FixedBar: aparece quando stats entra na tela e desaparece na seção de documentos
-                const documentsSection = document.querySelector('[data-documents-section]');
-                const documentsRect = documentsSection?.getBoundingClientRect();
-                const documentsVisible = documentsRect ? documentsRect.top <= 56 : false;
-                
-                const showFixed = statsRect ? statsRect.top <= 56 && !documentsVisible : false;
-                setShowFixedBar(showFixed);
-            }
-        };
-        
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [city_sort]);
-    
-    const sortedCards = React.useMemo(() => {
-        if (citiesStatsArray.length === 0) return [];
-        return sortCards(citiesStatsArray, city_sort);
-    }, [citiesStatsArray, city_sort]);
-    
-    const cityCycleStats = React.useMemo(() => {
-        if (!localSelectedCity) return [];
-        const { pdc_feito, pdc_total, percent, total } = localSelectedCity;
-        
-        const getPercentageColor = (value: number) => {
-            if (value >= 98) return "text-green-600";
-            if (value >= 90) return "text-blue-600";
-            if (value >= 80) return "text-yellow-600";
-            if (value >= 60) return "text-orange-600";
-            if (value >= 35) return "text-red-600";
-            return "text-red-800";
-        };
-        
-        return [
-            {
-                title: "estruturas cicloviárias",
-                unit: "km",
-                value: IntlNumberMax1Digit(total),
-            },
-            {
-                title: "projetadas no plano cicloviário",
-                unit: "km",
-                value: IntlNumberMax1Digit(pdc_total),
-            },
-            {
-                title: "implantados no plano cicloviário",
-                unit: "km",
-                value: IntlNumberMax1Digit(pdc_feito),
-            },
-            {
-                title: "cobertos do plano cicloviário",
-                value: IntlPercentil(percent),
-                unit: "%",
-                color: getPercentageColor(percent),
-            },
-        ].filter((e) => e);
-    }, [localSelectedCity]);
-    
-    const handleChangeCity = (id: any) => {
-        setLocalSelectedCity(filterById(citiesStatsArray, id));
-    };
-    
-    return (
-        <div ref={sectionRef}>
-            <div ref={filterRef}>
-                <div ref={cardsRef}>
-                    <CyclingInfrastructureByCity
-                        cards={sortedCards}
-                        data={{
-                            title: "Estrutura nas cidades",
-                            filters: sort_cities,
-                        }}
-                        options={{
-                            changeFunction: handleChangeCity,
-                            type: optionsType,
-                        }}
-                        selected={localSelectedCity?.id}
-                    />
-                </div>
-            </div>
-            
-            {showFloatingFilter && (
-                <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-200 py-3 px-4 rounded-lg shadow-lg z-[9999] max-w-[90vw]">
-                    <div className="flex items-center gap-3 text-sm">
-                        <span className="font-semibold text-gray-700 whitespace-nowrap">Dados:</span>
-                        <select
-                            value={city_sort}
-                            onChange={(e) => sortCityAndType(e.target.value)}
-                            className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent max-w-[200px]"
-                            tabIndex={-1}
-                        >
-                            {sort_cities[0].items.map((item: any) => (
-                                <option key={item.value} value={item.value}>
-                                    {item.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-            )}
-            
-            {showFixedBar && (
-                <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-200 py-3 px-6 rounded-lg shadow-lg z-50">
-                    <div className="flex items-center gap-3">
-                        <span className="text-sm font-semibold text-gray-700">Cidade:</span>
-                        <select
-                            value={localSelectedCity?.id || ''}
-                            onChange={(e) => handleChangeCity(parseInt(e.target.value))}
-                            className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
-                            tabIndex={-1}
-                        >
-                            {citiesStatsArray.map((city: any) => (
-                                <option key={city.id} value={city.id}>
-                                    {city.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-            )}
-            
-
-            
-            <div data-stats-section>
-                <StatisticsBox
-                    title={localSelectedCity?.name || ""}
-                    subtitle={"Estatísticas Gerais"}
-                    boxes={cityCycleStats}
-                />
-            </div>
-            
-            <div data-table-section className="container mx-auto my-12">
-                <h2 className="text-3xl font-bold text-center mb-8">
-                    Estruturas do PDC para {localSelectedCity?.name || ""}
-                </h2>
-                <div className="relative">
-                    <div className="opacity-30">
-                        <TableLoading />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <TableMaintenanceMessage />
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-    
-
-    
-    const ExtensionCell = ({ value }: any) => <>{<span>{IntlNumber2Digit(value)} km</span>}</>;
-    
-    const PercentageCell = ({ row }: any) => {
-        const prevista = row.original.length || 0;
-        const executada = row.original.has_cycleway_length || 0;
-        const percentage = prevista > 0 ? (executada / prevista) * 100 : 0;
-        
-        let colorClass = 'text-red-600'; // Péssimo (0-25%)
-        if (percentage >= 75) colorClass = 'text-green-600'; // Excelente (75-100%)
-        else if (percentage >= 50) colorClass = 'text-yellow-600'; // Bom (50-75%)
-        else if (percentage >= 25) colorClass = 'text-orange-600'; // Ruim (25-50%)
-        
-        return <span className={colorClass}>{percentage.toFixed(1)}%</span>;
-    };
-    
-    const ExecutedTypologyCell = ({ value }: any) => {
-        if (!value || value === 'none') {
-            return <span>Nada executado</span>;
-        }
-        
-        const validTypes = ['ciclofaixa', 'ciclorrota', 'ciclovia', 'calçada compartilhada'];
-        const types = value.split(',').map((type: string) => type.trim().toLowerCase());
-        const filteredTypes = types.filter((type: string) => 
-            validTypes.includes(type) && type !== 'none'
-        );
-        
-        if (filteredTypes.length === 0) {
-            return <span>Nada executado</span>;
-        }
-        
-        // Capitaliza primeira letra e formata com "e" para o último item
-        const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-        const capitalizedTypes = filteredTypes.map(capitalize);
-        
-        if (capitalizedTypes.length === 1) {
-            return <span>{capitalizedTypes[0]}</span>;
-        } else if (capitalizedTypes.length === 2) {
-            return <span>{capitalizedTypes[0]} e {capitalizedTypes[1]}</span>;
-        } else {
-            const lastType = capitalizedTypes.pop();
-            return <span>{capitalizedTypes.join(', ')} e {lastType}</span>;
-        }
-    };
-    
-    const ExecutedTypologyFilter = ({ column }: any) => {
-        const { filterValue, setFilter, preFilteredRows, id } = column;
-        const options = ['ciclofaixa', 'ciclorrota', 'ciclovia', 'calçada compartilhada', 'Nada executado'];
-        
-        return (
-            <select
-                className="my-2 max-w-sm text-gray-600 border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none"
-                value={filterValue || ''}
-                onChange={(e) => setFilter(e.target.value || undefined)}
-            >
-                <option value="">Todos tipos</option>
-                {options.map((option, i) => (
-                    <option key={i} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-        );
-    };
-    
-    const ApproximateValueFilter = ({ column, placeholder }: any) => {
-        const { filterValue, setFilter } = column;
-        
-        return (
-            <input
-                className="my-2 max-w-sm text-gray-600 border-2 border-gray-300 bg-white h-10 px-4 rounded-lg text-sm focus:outline-none"
-                type="text"
-                placeholder={placeholder}
-                value={filterValue || ""}
-                onChange={(e) => {
-                    const value = e.target.value;
-                    if (value && !isNaN(parseFloat(value))) {
-                        setFilter(parseFloat(value));
-                    } else {
-                        setFilter(undefined);
-                    }
-                }}
-            />
-        );
-    };
-
-    const columns = React.useMemo(() => [
-        {
-            Header: "Nome da Via (COD)",
-            accessor: "cod_name",
-            Cell: ({ value }: any) => {
-                if (!value) return <span>-</span>;
-                
-                const cleanValue = value.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-                const match = cleanValue.match(/^\(([^)]+)\)\s*(.+)$/);
-                
-                let displayText;
-                if (match) {
-                    const cod = match[1];
-                    let nome = match[2].trim().replace(/\//g, ' / ');
-                    displayText = `${nome} (${cod})`;
-                } else {
-                    displayText = cleanValue;
-                }
-                
-                return (
-                    <div className="group relative">
-                        <span className="line-clamp-2">{displayText}</span>
-                        <div className="hidden group-hover:block absolute left-0 top-0 bg-white border border-gray-300 shadow-lg p-2 rounded z-50 max-w-md whitespace-normal">
-                            {displayText}
-                        </div>
-                    </div>
-                );
-            },
-            sortType: (rowA: any, rowB: any) => {
-                const extractName = (value: string) => {
-                    if (!value) return '';
-                    const cleanValue = value.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-                    const match = cleanValue.match(/^\(([^)]+)\)\s*(.+)$/);
-                    return match ? match[2].trim() : cleanValue;
-                };
-                
-                const nameA = extractName(rowA.values.cod_name).toLowerCase();
-                const nameB = extractName(rowB.values.cod_name).toLowerCase();
-                
-                return nameA.localeCompare(nameB);
-            },
-            Filter: (props: any) => <ColumnFilter {...props} placeholder="Nome da via" />,
-        },
-        {
-            Header: "Tipologia prevista",
-            accessor: "pdc_typology",
-            Filter: (props: any) => <SelectColumnFilter {...props} />,
-        },
-        {
-            Header: "Tipologia executada",
-            accessor: "typologies_str",
-            Cell: ExecutedTypologyCell,
-            Filter: (props: any) => <ExecutedTypologyFilter {...props} />,
-            filter: (rows: any, id: any, filterValue: any) => {
-                if (!filterValue) return rows;
-                return rows.filter((row: any) => {
-                    const cellValue = row.values[id] || '';
-                    if (filterValue === 'Nada executado') {
-                        return !cellValue || cellValue === 'none';
-                    }
-                    return cellValue.toLowerCase().includes(filterValue.toLowerCase());
-                });
-            },
-        },
-        {
-            Header: "Extensão prevista",
-            accessor: "length",
-            Cell: ({ value }: any) => <ExtensionCell value={value} />,
-            Filter: (props: any) => <ApproximateValueFilter {...props} placeholder="valor aproximado (km)" />,
-            filter: (rows: any, id: any, filterValue: any) => {
-                if (!filterValue) return rows;
-                return rows.filter((row: any) => {
-                    const rowValue = parseFloat(row.values[id]) || 0;
-                    const searchValue = parseFloat(filterValue);
-                    const tolerance = searchValue * 0.2; // 20% de tolerância
-                    return Math.abs(rowValue - searchValue) <= tolerance;
-                });
-            },
-        },
-        {
-            Header: () => (
-                <div className="flex items-center">
-                    <span>Extensão executada</span>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setShowPercentage(!showPercentage);
-                        }}
-                        className="ml-2 text-xs text-gray-500 hover:text-gray-700 transition-colors underline"
-                        title={showPercentage ? "Mostrar em km" : "Mostrar em %"}
-                    >
-                        {showPercentage ? "%" : "km"}
-                    </button>
-                </div>
-            ),
-            accessor: "has_cycleway_length",
-            Cell: showPercentage ? PercentageCell : ({ value }: any) => <ExtensionCell value={value} />,
-            Filter: (props: any) => <ApproximateValueFilter {...props} placeholder={showPercentage ? "valor aproximado (%)" : "valor aproximado (km)"} />,
-            filter: (rows: any, id: any, filterValue: any) => {
-                if (!filterValue) return rows;
-                return rows.filter((row: any) => {
-                    const rowValue = parseFloat(row.values[id]) || 0;
-                    const searchValue = parseFloat(filterValue);
-                    const tolerance = searchValue * 0.2; // 20% de tolerância
-                    return Math.abs(rowValue - searchValue) <= tolerance;
-                });
-            },
-        },
-    ], [showPercentage]);
 
 
 
@@ -528,24 +118,14 @@ function CityContent({ citiesStats, filterRef, sort_cities, city_sort, optionsTy
                     layersConf={layersConf as LayerProps[]}
                 />
             </div>
-            <div ref={sectionRef}>
-                <CityContent 
-                    citiesStats={citiesData}
-                    filterRef={filterRef}
-                    sort_cities={sort_cities}
-                    city_sort={city_sort}
-                    optionsType={optionsType}
-                    changeCity={changeCity}
-                    selectedCity={selectedCity}
-                    setCity={setCity}
-                    sortCityAndType={sortCityAndType}
-                    showPercentage={showPercentage}
-                    setShowPercentage={setShowPercentage}
-                    showFilters={showFilters}
-                    setShowFilters={setShowFilters}
-                    columns={columns}
-                />
-            </div>
+            <CityContent 
+                citiesStats={citiesData}
+                filterRef={filterRef}
+                sort_cities={sort_cities}
+                city_sort={city_sort}
+                optionsType={optionsType}
+                sortCityAndType={sortCityAndType}
+            />
 
 
             <div data-documents-section>

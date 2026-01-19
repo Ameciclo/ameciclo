@@ -109,7 +109,7 @@ export default function ViasRankingTable({
       disableFilters: false,
       Cell: ({ value, row }: any) => (
         <Link
-          to={`/dados/via/${row.original.slug}`}
+          to={`/dados/vias-inseguras/${row.original.slug}`}
           className="text-left hover:text-ameciclo hover:underline transition-colors block"
         >
           <div className="font-medium">{value}</div>

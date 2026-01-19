@@ -8,6 +8,7 @@ import Loading from "~/components/Dom/Loading";
 import { loader } from "~/loader/dados.dom";
 import Chart from "react-google-charts";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
+import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
 export { loader };
 
 export default function Dom() {
@@ -29,28 +30,7 @@ export default function Dom() {
         return () => clearTimeout(timeout);
     }, []);
 
-    const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-
-    function AnimatedNumber({ initialValue, finalValue, duration }: any) {
-        const [value, setValue] = useState(initialValue);
-
-        useEffect(() => {
-            const increment = (finalValue - initialValue) / (duration / 10);
-
-            const interval = setInterval(() => {
-                setValue((prevValue: any) => {
-                    const newValue = prevValue + increment;
-                    return newValue >= finalValue ? finalValue : newValue;
-                });
-            }, 10);
-
-            return () => {
-                clearInterval(interval);
-            };
-        }, [initialValue, finalValue, duration]);
-
-        return `${numParse(value)}`;
-    }
+    const numParse = (numero: number) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
     return (
         <>
