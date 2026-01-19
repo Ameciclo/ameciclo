@@ -1,6 +1,6 @@
 import { defer } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-import { TRAFFIC_DEATHS_SUMMARY, DATASUS_CITIES_BY_YEAR_DATA, OBSERVATORIO_SINISTROS_PAGE_DATA } from "~/servers";
+import { DATASUS_SUMMARY_DATA, DATASUS_CITIES_BY_YEAR_DATA, OBSERVATORIO_SINISTROS_PAGE_DATA } from "~/servers";
 
 const MOCK_PAGE_DATA = {
   id: 4,
@@ -28,11 +28,11 @@ export async function loader() {
 
   const [summary, citiesByYear, pageData] = await Promise.all([
     fetchWithTimeout(
-      TRAFFIC_DEATHS_SUMMARY, 
+      DATASUS_SUMMARY_DATA, 
       {}, 
       10000, 
       null, 
-      onError(TRAFFIC_DEATHS_SUMMARY),
+      onError(DATASUS_SUMMARY_DATA),
       2
     ),
     fetchWithTimeout(
