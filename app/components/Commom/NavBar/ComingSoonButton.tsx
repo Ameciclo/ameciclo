@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 interface ComingSoonButtonProps {
   name: string;
   width?: string;
+  icon?: string;
 }
 
-export function ComingSoonButton({ name, width = '130px' }: ComingSoonButtonProps) {
+export function ComingSoonButton({ name, width = '130px', icon }: ComingSoonButtonProps) {
   const [showComingSoon, setShowComingSoon] = useState(true);
 
   useEffect(() => {
@@ -22,15 +23,19 @@ export function ComingSoonButton({ name, width = '130px' }: ComingSoonButtonProp
       style={{ width, height: '28px' }}
     >
       <AnimatePresence mode="wait">
-        <motion.span
+        <motion.div
           key={showComingSoon ? 'soon' : 'title'}
-          initial={{ opacity: 0, position: 'absolute' }}
-          animate={{ opacity: 1, position: 'absolute' }}
-          exit={{ opacity: 0, position: 'absolute' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
+          className="flex items-center gap-2"
         >
-          {showComingSoon ? 'EM BREVE' : name}
-        </motion.span>
+          {icon && (
+            <img src={icon} alt="" className="w-6 h-6 object-contain brightness-0 invert" aria-hidden="true" />
+          )}
+          <span>{showComingSoon ? 'EM BREVE' : name}</span>
+        </motion.div>
       </AnimatePresence>
     </div>
   );

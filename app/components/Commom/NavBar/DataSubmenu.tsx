@@ -3,17 +3,17 @@ import { motion } from "framer-motion";
 import { ComingSoonButton } from "./ComingSoonButton";
 
 const dataSubPages = [
-  { name: "Contagens", url: "/dados/contagens" },
-  { name: "Ideciclo", url: "/dados/ideciclo" },
-  { name: "Documentos", url: "/dados/documentos" },
-  { name: "Perfil", url: "/dados/perfil" },
-  { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria" },
-  { name: "LOA", url: "/dados/loa" },
-  { name: "DOM", url: "/dados/dom" },
-  { name: "SAMU", url: "/dados/samu" },
-  { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
-  { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
-  { name: "CicloDados", url: "/dados/ciclodados" },
+  { name: "Contagens", url: "/dados/contagens", icon: "/icons/dados/contagem.svg" },
+  { name: "Ideciclo", url: "/dados/ideciclo", icon: "/icons/dados/ideciclo.svg" },
+  { name: "Documentos", url: "/dados/documentos", icon: "/icons/dados/relatorio.svg" },
+  { name: "Perfil", url: "/dados/perfil", icon: "/icons/dados/perfil.svg" },
+  { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria", icon: "/icons/dados/mapa.svg" },
+  { name: "LOA", url: "/dados/loa", icon: "/icons/home/logo2.1d0f07c6.png" },
+  { name: "DOM", url: "/dados/dom", icon: "/icons/home/header-logo.4f44929c.png" },
+  { name: "SAMU", url: "/dados/samu", icon: "/icons/home/chamados_sinistros.svg" },
+  { name: "Vias Inseguras", url: "/dados/vias-inseguras", icon: "/icons/home/vias-inseguras.svg" },
+  { name: "Sinistros Fatais", url: "/dados/sinistros-fatais", icon: "/icons/home/sinistrosfatais.png" },
+  { name: "CicloDados", url: "/dados/ciclodados", icon: "/icons/dados/ciclodados.svg" },
 ];
 
 export function DataSubmenu() {
@@ -31,25 +31,28 @@ export function DataSubmenu() {
       role="navigation"
       aria-label="Submenu de dados"
     >
-      <div className="w-full flex items-center justify-start px-8 py-1 m-0 lg:px-32 xl:px-32">
+      <div className="w-full flex items-center justify-center px-8 py-1 m-0">
         <div className="hidden xl:flex items-center justify-start flex-wrap gap-1 py-1">
           {dataSubPages.map((subPage, index) => {
             const isActive = location.pathname === subPage.url || 
               location.pathname.startsWith(subPage.url + '/');
-            const isComingSoon = subPage.name === "Execução Cicloviária" || subPage.name === "Sinistros Fatais";
+            const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
             
             if (isComingSoon) {
-              return <ComingSoonButton key={subPage.name} name={subPage.name} />;
+              return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;
             }
             
             return (
               <Link
                 key={subPage.name}
                 to={subPage.url}
-                className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 ${
+                className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 flex items-center gap-2 ${
                   isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
                 }`}
               >
+                {subPage.icon && (
+                  <img src={subPage.icon} alt="" className="w-6 h-6 object-contain brightness-0 invert" aria-hidden="true" />
+                )}
                 <span className="relative z-10">{subPage.name}</span>
                 {isActive && (
                   <motion.div
@@ -64,25 +67,28 @@ export function DataSubmenu() {
           })}
         </div>
         
-        <div className="xl:hidden flex items-center justify-start py-1 overflow-x-auto scrollbar-hide">
+        <div className="xl:hidden flex items-center justify-center py-1 overflow-x-auto scrollbar-hide">
           <div className="flex items-center flex-wrap justify-start gap-1 py-1">
             {dataSubPages.map((subPage, index) => {
               const isActive = location.pathname === subPage.url || 
                 location.pathname.startsWith(subPage.url + '/');
-              const isComingSoon = subPage.name === "Execução Cicloviária" || subPage.name === "Sinistros Fatais";
+              const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
               
               if (isComingSoon) {
-                return <ComingSoonButton key={subPage.name} name={subPage.name} />;
+                return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;
               }
               
               return (
                 <Link
                   key={subPage.name}
                   to={subPage.url}
-                  className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 whitespace-nowrap ${
+                  className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 whitespace-nowrap flex items-center gap-2 ${
                     isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
                   }`}
                 >
+                  {subPage.icon && (
+                    <img src={subPage.icon} alt="" className="w-6 h-6 object-contain brightness-0 invert" aria-hidden="true" />
+                  )}
                   <span className="relative z-10">{subPage.name}</span>
                   {isActive && (
                     <motion.div

@@ -34,9 +34,10 @@ export default function Dados() {
         {
             title: "Ideciclo",
             src: "/icons/dados/ideciclo.svg",
-            url: "/dados/ideciclo",
+            url: "#",
             description: "Índice que mede a malha e qualidade da estrutura cicloviaria",
             target: "",
+            comingSoon: true,
         },
         {
             title: "Estudos e Pesquisas",
@@ -56,10 +57,11 @@ export default function Dados() {
         {
             title: "Execução Cicloviária",
             src: "/icons/dados/mapa.svg",
-            url: "/dados/execucaocicloviaria",
+            url: "#",
             description:
                 "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
             target: "",
+            comingSoon: true,
         },
         {
             title: "Orçamento Estadual para o Clima",
@@ -88,10 +90,11 @@ export default function Dados() {
         {
             title: "Vias Inseguras",
             src: "/icons/home/vias-inseguras.svg",
-            url: "/dados/vias-inseguras",
+            url: "#",
             description:
                 "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
             target: "",
+            comingSoon: true,
         },
         {
             title: "Sinistros Fatais",
@@ -108,6 +111,7 @@ export default function Dados() {
             description:
                 "Plataforma integrada de dados sobre mobilidade urbana e infraestrutura cicloviária",
             target: "",
+            isNew: true,
         },
         // {
         //     title: "Infrações de trânsito",
