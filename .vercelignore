@@ -1,0 +1,13 @@
+node_modules
+.git
+.cache
+build
+*.log
+.env.local
+.DS_Store
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage
+.nyc_output

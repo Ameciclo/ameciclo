@@ -1,0 +1,18 @@
+# Formato de commit em português
+# Tipo: Descrição breve em português
+#
+# Tipos válidos:
+# feat: Nova funcionalidade
+# fix: Correção de bug
+# docs: Documentação
+# style: Formatação, espaços em branco, etc
+# refactor: Refatoração de código
+# test: Adição ou correção de testes
+# chore: Tarefas de manutenção
+#
+# Exemplo:
+# feat: Adiciona gráfico de dados cicloviários
+#
+# - Implementa visualização com Highcharts
+# - Adiciona filtros interativos
+# - Melhora experiência do usuário

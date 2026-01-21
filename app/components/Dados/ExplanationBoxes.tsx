@@ -1,0 +1,30 @@
+type box = {
+  title: string;
+  description: string | null;
+};
+
+export const ExplanationBoxes = ({ boxes }: { boxes: box[] }) => {
+  return (
+    <section className="container mx-auto my-5 md:my-6 shadow-2xl rounded px-6 py-12 overflow-auto bg-gray-100">
+      <div className="flex flex-col sm:flex-row justify-between">
+        {boxes.map((box : box, index) => {
+          return (
+            <div key={index} className="text-gray-800 p-6 sm:w-2/3 lg:w-5/6 sm:max-w-2xl mx-auto">
+              <h2 className="text-4xl font-bold mb-2">{box.title}</h2>
+              {box.description ? (
+                <p className="text-left">{box.description}</p>
+              ) : (
+                <div className="space-y-2 animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-full"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full"></div>
+                  <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+                  <div className="h-4 bg-gray-300 rounded w-4/6"></div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};

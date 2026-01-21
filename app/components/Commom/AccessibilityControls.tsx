@@ -1,0 +1,153 @@
+import { useEffect, useRef } from "react";
+import { ArrowUpIcon } from "~/components/Commom/Icones/DocumentationIcons";
+
+const AccessibilityIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2M21 9v2a4 4 0 0 1-4 4h-3v4a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1z"/>
+  </svg>
+);
+
+interface AccessibilityControlsProps {
+  darkMode: boolean;
+  fontSize: number;
+  setFontSize: (value: number) => void;
+  highContrast: boolean;
+  setHighContrast: (value: boolean) => void;
+  showAccessibilityMenu: boolean;
+  setShowAccessibilityMenu: (value: boolean) => void;
+  showScrollTop: boolean;
+  onScrollTop: () => void;
+}
+
+export default function AccessibilityControls({
+  darkMode,
+  fontSize,
+  setFontSize,
+  highContrast,
+  setHighContrast,
+  showAccessibilityMenu,
+  setShowAccessibilityMenu,
+  showScrollTop,
+  onScrollTop
+}: AccessibilityControlsProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (showAccessibilityMenu) {
+      timeoutRef.current = setTimeout(() => setShowAccessibilityMenu(false), 3000);
+    }
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [showAccessibilityMenu, setShowAccessibilityMenu]);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setShowAccessibilityMenu(false), 3000);
+  };
+  return (
+    <>
+
+      <div className="fixed top-1/4 right-0 transform -translate-y-1/2 z-40 accessibility-controls">
+        <button
+          onClick={() => setShowAccessibilityMenu(!showAccessibilityMenu)}
+          className={`p-3 rounded-l-lg shadow-lg transition-colors flex items-center justify-center ${
+            darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-white hover:bg-gray-100"
+          }`}
+          aria-label="Opções de acessibilidade"
+        >
+          <AccessibilityIcon className="w-6 h-6 text-blue-500" />
+        </button>
+      </div>
+
+
+
+
+      {showAccessibilityMenu && (
+        <div 
+          ref={menuRef}
+          className="fixed top-1/4 right-14 transform -translate-y-1/2 -translate-y-8 z-40 accessibility-controls"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className={`p-3 rounded-lg border shadow-lg ${
+            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+          }`}>
+            <div className="text-xs font-medium mb-2">Acessibilidade:</div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setFontSize(Math.min(fontSize + 2, 24))} 
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    darkMode 
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  }`}
+                  aria-label="Aumentar tamanho da fonte"
+                >
+                  A+
+                </button>
+                <button 
+                  onClick={() => setFontSize(16)} 
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    darkMode 
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  }`}
+                  aria-label="Tamanho normal da fonte"
+                >
+                  A
+                </button>
+                <button 
+                  onClick={() => setFontSize(Math.max(fontSize - 2, 12))} 
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    darkMode 
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  }`}
+                  aria-label="Diminuir tamanho da fonte"
+                >
+                  A-
+                </button>
+                <span className="text-xs">Tamanho do texto</span>
+              </div>
+              <button 
+                onClick={() => setHighContrast(!highContrast)} 
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-2 ${
+                  highContrast 
+                    ? "bg-yellow-500 text-black" 
+                    : darkMode 
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+                aria-label="Alternar alto contraste"
+              >
+                <span className={`w-3 h-3 rounded-full ${highContrast ? "bg-black" : "bg-gray-400"}`}></span>
+                Alto contraste {highContrast ? "ON" : "OFF"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {showScrollTop && (
+        <button
+          onClick={onScrollTop}
+          className={`fixed bottom-8 right-8 p-3 rounded-full shadow-lg transition-all duration-300 z-50 accessibility-controls ${
+            highContrast 
+              ? 'bg-black text-white border-2 border-white' 
+              : 'bg-green-600 hover:bg-green-700 text-white'
+          }`}
+          aria-label="Voltar ao topo"
+        >
+          <ArrowUpIcon className="w-6 h-6" />
+        </button>
+      )}
+    </>
+  );
+}
