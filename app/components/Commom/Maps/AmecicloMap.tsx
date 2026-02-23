@@ -8,6 +8,7 @@ import * as turf from "@turf/helpers";
 import { pointData } from "../../../../typings";
 import * as Remix from "@remix-run/react";
 import { Move } from 'lucide-react';
+import { MapboxKeyWarning } from './MapboxKeyWarning';
 
 
 
@@ -587,6 +588,17 @@ export const AmecicloMap = ({
             [layerId]: !prev[layerId],
         }));
     };
+
+    // Verificar se o token do Mapbox está disponível
+    if (!MAPBOXTOKEN) {
+        return (
+            <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
+                <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
+                    <MapboxKeyWarning />
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
