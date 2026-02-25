@@ -1,0 +1,256 @@
+{
+  "data": [
+    {
+      "id": 9999,
+      "slug": "bota_pra_rodar_en",
+      "name": "Bota pra Rodar",
+      "goal": "Recover unused bicycles to enhance the right to the city through community shared bicycle systems.",
+      "description": "Bota Pra Rodar is a community integration project that, through meetings, dialogue circles on topics related to the right to the city, basic mechanics and entrepreneurship workshops, and the assembly of a community shared bicycle system, built in collaboration between Ameciclo members and residents of participating communities through the donation of used bicycles.",
+      "long_description": [
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "What is Bota Pra Rodar?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Bota Pra Rodar is a community integration project that, through meetings, dialogue circles on topics related to the right to the city, basic mechanics and entrepreneurship workshops, and the assembly of a community shared bicycle system, built in collaboration between Ameciclo members and residents of participating communities through the donation of used bicycles. Bicycles that are idle, gathering dust, usually in more vertical and privileged areas of the city, are transformed through this project into a tool for transforming the city into a more human, democratic and sustainable environment.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "The project is a tool to combat socio-spatial inequalities, a very striking characteristic in the city of Recife, which is one of the most unequal capitals in the country, where instruments of access and exercise of rights (such as leisure, education, health and mobility) are concentrated in specific areas of the city, characterizing as a privilege something that is everyone's right.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Believing that mobility is an essential right that allows people to access other fundamental rights, Bota Pra Rodar, through the repair of used and donated bicycles, allows men and women to move around the city, whether to work, their children's school or leisure and sociability spaces, using a safe, cheap and sustainable means of transport. In this way, the project strengthens the bicycle culture in the peripheries of Recife (which already has the bicycle as a daily means of transport), promotes the autonomy of peripheral women, as many do not have their own means of transport other than their own bodies, and allows the exchange of knowledge about citizenship, collectivity and technical information about bicycle mechanics, thus providing another possibility of obtaining income for people who are currently without employment options.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Currently, in the context of the health crisis, the project contributes to reducing the risks of coronavirus contagion, as the bicycle is the safest means of transport as it promotes social distancing, enables one less person on buses and allows the person to circulate in open environments throughout the journey, factors that are essential for coexistence with the new coronavirus.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "How did the project come about?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Bota pra Rodar emerged from old Ameciclo projects that aimed to collect and donate bicycles. However, the question arose: what is the best way to donate a bicycle and who would deserve one? Thus, inspired by the White Bicycles movement in Amsterdam in the 1960s, a provocation by the anarchist group PROVOS, we decided to use the donations to set up a community shared bicycle system, seeking collections from vertical areas of the city and taking these bicycles to places with low access to mobility and other rights. This is how the Bota Pra Rodar project was born.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "How does it work?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Basically, the project works with the following flowchart:",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "format": "unordered",
+          "children": [
+            {
+              "type": "list-item",
+              "children": [{ "text": "Campaign and articulation to collect bicycles", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Donor contacts Ameciclo", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Donor arranges a place to leave the bicycle OR arranges a time when we will collect the bicycle", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Bicycle undergoes repair through basic mechanics workshops with project participants who live in the contemplated community", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Bicycle is made available for community use through a sharing system self-managed by the community itself, with the help of an app developed in partnership with ThoughtWorks, exclusive to Bota Pra Rodar", "type": "text" }]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "However, the project also includes workshops on citizenship and entrepreneurship, where we invite groups to give talks on the subject, showing the step-by-step process to start entrepreneurship, as well as inviting companies that work with bicycles to give talks about how they were planned and executed, sharing their achievements and difficulties with the group. In addition, in one of the Bota Pra Rodar units, in Vila de Santa Luzia, a mechanical workshop is being set up, which will be made available for community use and collectively managed by participants in the basic mechanics course promoted by the project, which also included workshops on associativism and corporatism.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "Where is it currently happening?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Currently, Bota Pra Rodar takes place in two neighborhoods in the western zone of Recife: Ilha do Retiro and Torre. In Ilha do Retiro, the project is installed in the ZEIS (Special Zones of Social Interest) Caranguejo-Tabaiares, through articulation with the Caranguejo-Tabaiares Community Library. In the Torre neighborhood, the project takes place in ZEIS Vila de Santa Luzia, in partnership with CEPAS - Centro de Ensino Popular e Assistência Social Santa Paula Frassinetti. Recently, we obtained approval, through a public call, for another installation of Bota Pra Rodar, through the Recife Secretariat of Environment and Sustainability, however, the resource has not yet been made available. Our interest is that Bota Pra Rodar is increasingly present in the city, strengthening the bicycle culture and providing safe and sustainable locomotion for the population.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "What have we achieved?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Our main achievement, without a doubt, is contributing to access to the city, which is the main focus of this project. When the project manages to get rolling and has its bicycles circulating in the city, it helps people who have little access to transportation to get to their workplaces, study and leisure places, having a possibility of daily transportation. Another achievement is the fact that the project has been replicated in other cities in Brazil, such as Queimados (RJ) and Boa Vista (DF).",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "In addition to the social good, Bota Pra Rodar was the winner of the Promoting Bicycle Mobility in Brazil Award 2017, obtaining recognition from an international company. From this project, Ameciclo was invited to participate in events such as Summit Mobilidade 2020 and Mostra Laços de Iniciativas de Impacto Social Positivo, through the organization Muitos de Nós, where we received mentorship to improve our institutional communication focused on the project.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "Who has already contributed to the project?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Since the first Bota Pra Rodar, the project has had financial support from institutions such as Fundo Casa Socioambiental (Caixa Econômica Federal), Itaú and Greenpeace, all through funding calls. This funding is what allows us to buy the tools and parts for replacing parts of donated bicycles that are no longer usable, pay the project management group and spend on other material resources, such as: graphic material, paint, transportation and other expenses that arise throughout the project. In addition to the calls, Ameciclo received, in 2017, the Bicycle Promotion Award in Brazil, with Bota Pra Rodar, and in 2018 the recognition from Folkersma and the Dutch Cycle Embassy, together with Pedala Queimados (RJ).",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "We also have help from partner institutions and groups, who volunteer to contribute to the project or who help us in articulations and strengthening the bicycle culture and active and sustainable mobility in their regions, such as: Caranguejo-Tabaiares Community Library, Associação Desportiva Cultural da Capoeira Arte Pernambucana, União dos Moradores da Caranguejo-Tabaiares, Grupo Pedala Queimados (RJ), Centro de Ensino Popular e Assistência Social Santa Paula Frassinetti and La Ursa Tours.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "We have the contribution of members who are willing to help with the demands that arise in the project's pedaling, each in their own way. And, of course, we had the essential contribution of everyone who let go of their bikes and got them rolling! Donations are the key point of this project. Without them, we would not be able to set up shared bicycle systems. Our heartfelt thanks to everyone who contributed to Bota Pra Rodar! ♥",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "How can you help?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Bota Pra Rodar is possible because we count on many hands and legs to guide this ride towards our mission as an Association, which is to transform the city, through the bicycle, into more human, democratic and sustainable environments. The project, to happen, relies on the collaboration of funders, management team, volunteer members and people who believe that sharing is a way to combat inequalities and help us by donating their idle bicycles or even promoting the project with friends, family or residents of their building.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "There are several ways you can contribute to the project, directly or indirectly:",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "format": "unordered",
+          "children": [
+            {
+              "type": "list-item",
+              "children": [{ "text": "Donate your idle bicycle! The bicycle is a means of transport with great potential to transform cities into a humanized environment and more inviting to the occupation of the streets in a safe and pleasant way, without threatening the lives of passersby due to high speed, in addition to being a non-polluting means of transport. In addition, your idle bicycle can be the tool that other people need to access basic rights, but who are not covered by accessible public transport. Get it rolling!", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Talk to your building manager! The project might be just what they needed to clear out that bike rack full of idle bicycles gathering rust. Informing your neighbors about the project can enable people who didn't know what to do with their bicycles to find a way to get their bike moving and still help a great social project in your city. All good, right? Put Bota Pra Rodar on the agenda at the condominium meeting and it will be a success!", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Volunteer! Our members contribute a lot to the project, whether by making themselves available to collect donated bicycles (we do bicycle transportation!), or by joining in for other things that may arise in the project's pedaling, such as: workshops on specific topics, where someone volunteers to promote this exchange with the communities; events that promote active mobility, where integration between people from different areas of the city is important for the exchange of experiences. Join us! Everyone has something to offer and to learn from others. You can join the project's Working Group, which is open to all members, and works on the Telegram program. Not a member yet?! It's easy, just go back to the home page and click on 'Become a Member'. It's free, there's no queue and you'll also contribute to the association's representativeness. You'll be very welcome!", "type": "text" }]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Still have questions about the project? Contact us. Our channels are in the footer of this page ; )",
+              "type": "text"
+            }
+          ]
+        }
+      ],
+      "project_status": "ongoing",
+      "bikeCulture": "high",
+      "instArticulation": "medium",
+      "politicIncidence": "medium",
+      "startDate": "2014-08-01",
+      "endDate": null,
+      "media": {
+        "url": "/projetos.webp"
+      },
+      "cover": {
+        "url": "/projetos.webp"
+      },
+      "workgroup": {
+        "name": "Mobility"
+      },
+      "Links": [],
+      "gallery": [],
+      "products": [],
+      "partners": [],
+      "sponsors": []
+    }
+  ]
+}

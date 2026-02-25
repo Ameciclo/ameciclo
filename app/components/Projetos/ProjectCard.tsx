@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import { LanguageBadge } from "./LanguageBadge";
 
 const StatusIndicator = ({ status }: any) => {
     const statusMap = new Map([
@@ -26,35 +27,7 @@ const StatusIndicator = ({ status }: any) => {
     );
 };
 
-export const ProjectCard = ({ project, translations }: any) => {
-    const translationLinks = [];
-
-    if (translations["es"]) {
-        translationLinks.push(
-            <Link to={`/projetos/${translations["es"].slug}`} key="es">
-                <a className="flex items-center mx-2 text-lg">
-                    <span role="img" aria-label="Espanhol" className="mr-1">
-                        🇪🇸
-                    </span>
-                    <span>Traducción</span>
-                </a>
-            </Link>
-        );
-    }
-
-    if (translations["en"]) {
-        translationLinks.push(
-            <Link to={`/projetos/${translations["en"].slug}`} key="en" >
-                <a className="flex items-center mx-2 text-lg">
-                    <span role="img" aria-label="Inglês" className="mr-1">
-                        🇬🇧
-                    </span>
-                    <span>Translation</span>
-                </a>
-            </Link>
-        );
-    }
-
+export const ProjectCard = ({ project }: any) => {
     return (
         <div className="bg-white rounded-lg shadow relative" style={{ minHeight: "450px" }}>
             <div className="absolute top-0 left-0">
@@ -97,9 +70,9 @@ export const ProjectCard = ({ project, translations }: any) => {
                         {project.description}
                     </dt>
                 </dl>
-                {translationLinks.length > 0 && (
-                    <div className="mt-4 flex items-center">
-                        {translationLinks}
+                {project.slug === 'bota_pra_rodar' && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                        <LanguageBadge currentSlug={project.slug} />
                     </div>
                 )}
             </div>
