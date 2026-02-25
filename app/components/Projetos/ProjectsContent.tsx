@@ -14,11 +14,6 @@ interface Project {
   workgroup?: { name: string };
 }
 
-interface GroupedProject {
-  main: Project | null;
-  translations: Record<string, Project>;
-}
-
 interface ProjectsContentProps {
   projectsData: {
     projects: Project[];
@@ -40,76 +35,48 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
     setApiDown(hasApiError);
   }, [hasApiError, setApiDown]);
 
-  const groupedProjects: GroupedProject[] = useMemo(() => {
-    const groups: Record<string, GroupedProject> = {};
-
-    projects.forEach((project: any) => {
-      const baseSlug = project.slug.replace(/(_es|_en)$/, "");
-      let lang = "pt";
-      if (project.slug.endsWith("_es")) lang = "es";
-      else if (project.slug.endsWith("_en")) lang = "en";
-
-      if (!groups[baseSlug]) {
-        groups[baseSlug] = { main: null, translations: {} };
-      }
-
-      if (lang === "pt") {
-        groups[baseSlug].main = project;
-      } else {
-        groups[baseSlug].translations[lang] = project;
-      }
-    });
-
-    return Object.values(groups);
-  }, [projects]);
-
   const filteredProjects = useMemo(() => {
-    let filtered = groupedProjects;
+    let filtered = projects.filter((project: Project) => {
+      const isTranslation = project.slug.endsWith('_es') || project.slug.endsWith('_en');
+      return !isTranslation;
+    });
 
     if (searchTerm) {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      filtered = filtered.filter((groupedProject) => {
-        const project = groupedProject.main || Object.values(groupedProject.translations)[0];
-        return project?.name.toLowerCase().includes(lowerCaseSearchTerm);
-      });
+      filtered = filtered.filter((project) => 
+        project.name.toLowerCase().includes(lowerCaseSearchTerm)
+      );
     }
 
     if (status || group) {
-      filtered = filtered.filter((groupedProject) => {
-        const project = groupedProject.main || Object.values(groupedProject.translations)[0];
-        if (project) {
-          if (group !== "" && status !== "") {
-            return project.project_status === status && project.workgroup?.name === group;
-          } else {
-            return project.project_status === status || project.workgroup?.name === group;
-          }
+      filtered = filtered.filter((project) => {
+        if (group !== "" && status !== "") {
+          return project.project_status === status && project.workgroup?.name === group;
+        } else {
+          return project.project_status === status || project.workgroup?.name === group;
         }
-        return false;
       });
     }
 
-    const highlighted: GroupedProject[] = [];
-    const ongoing: GroupedProject[] = [];
-    const paused: GroupedProject[] = [];
-    const others: GroupedProject[] = [];
+    const highlighted: Project[] = [];
+    const ongoing: Project[] = [];
+    const paused: Project[] = [];
+    const others: Project[] = [];
 
-    filtered.forEach((groupedProject) => {
-      const project = groupedProject.main || Object.values(groupedProject.translations)[0];
-      if (project) {
-        if (project.isHighlighted) {
-          highlighted.push(groupedProject);
-        } else if (project.project_status === "ongoing") {
-          ongoing.push(groupedProject);
-        } else if (project.project_status === "paused") {
-          paused.push(groupedProject);
-        } else {
-          others.push(groupedProject);
-        }
+    filtered.forEach((project) => {
+      if (project.isHighlighted) {
+        highlighted.push(project);
+      } else if (project.project_status === "ongoing") {
+        ongoing.push(project);
+      } else if (project.project_status === "paused") {
+        paused.push(project);
+      } else {
+        others.push(project);
       }
     });
 
     return { highlighted, ongoing, paused, others };
-  }, [status, group, searchTerm, groupedProjects]);
+  }, [status, group, searchTerm, projects]);
 
   const allProjectsCount =
     filteredProjects.highlighted.length +
@@ -146,12 +113,8 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
         <>
           {filteredProjects.highlighted.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {filteredProjects.highlighted.map((groupedProject) => (
-                <ProjectCard
-                  key={groupedProject.main?.id}
-                  project={groupedProject.main}
-                  translations={groupedProject.translations}
-                />
+              {filteredProjects.highlighted.map((project) => (
+                <ProjectCard key={project.id} project={project} />
               ))}
             </div>
           )}
@@ -160,12 +123,8 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
             <>
               <h2 className="text-2xl font-bold mb-4">Projetos em Andamento</h2>
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {filteredProjects.ongoing.map((groupedProject) => (
-                  <ProjectCard
-                    key={groupedProject.main?.id}
-                    project={groupedProject.main}
-                    translations={groupedProject.translations}
-                  />
+                {filteredProjects.ongoing.map((project) => (
+                  <ProjectCard key={project.id} project={project} />
                 ))}
               </div>
             </>
@@ -175,12 +134,8 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
             <>
               <h2 className="text-2xl font-bold mb-4">Projetos Pausados</h2>
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {filteredProjects.paused.map((groupedProject) => (
-                  <ProjectCard
-                    key={groupedProject.main?.id}
-                    project={groupedProject.main}
-                    translations={groupedProject.translations}
-                  />
+                {filteredProjects.paused.map((project) => (
+                  <ProjectCard key={project.id} project={project} />
                 ))}
               </div>
             </>
@@ -190,12 +145,8 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
             <>
               <h2 className="text-2xl font-bold mb-4">Demais Projetos</h2>
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {filteredProjects.others.map((groupedProject) => (
-                  <ProjectCard
-                    key={groupedProject.main?.id}
-                    project={groupedProject.main}
-                    translations={groupedProject.translations}
-                  />
+                {filteredProjects.others.map((project) => (
+                  <ProjectCard key={project.id} project={project} />
                 ))}
               </div>
             </>
