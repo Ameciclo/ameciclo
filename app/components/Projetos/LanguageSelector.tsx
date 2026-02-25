@@ -1,55 +1,87 @@
-import { useState, useRef, useEffect } from 'react';
+import { Link } from "@remix-run/react";
+import { Globe } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
-const LanguageSelector = ({ links }: { links: any[] }) => {
+interface LanguageSelectorProps {
+  currentSlug: string;
+  availableLanguages?: Array<{
+    lang: string;
+    slug: string;
+  }>;
+}
+
+export const LanguageSelector = ({ currentSlug, availableLanguages = [] }: LanguageSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Detectar idioma atual
+  let currentLang = 'pt';
+  let baseSlug = currentSlug;
+  
+  if (currentSlug.endsWith('_en')) {
+    currentLang = 'en';
+    baseSlug = currentSlug.replace('_en', '');
+  } else if (currentSlug.endsWith('_es')) {
+    currentLang = 'es';
+    baseSlug = currentSlug.replace('_es', '');
+  }
+
+  const languages = [
+    { lang: 'pt', flag: '🇧🇷', label: 'Português', slug: baseSlug },
+    { lang: 'en', flag: '🇬🇧', label: 'English', slug: `${baseSlug}_en` },
+    { lang: 'es', flag: '🇪🇸', label: 'Español', slug: `${baseSlug}_es` },
+  ];
+
+  const currentLanguage = languages.find(l => l.lang === currentLang);
+  const otherLanguages = languages.filter(l => l.lang !== currentLang);
+
+  // Fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [ref]);
 
-  if (!links || links.length === 0) {
-    return null;
-  }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-center w-10 h-10 bg-white bg-opacity-20 rounded-full text-white hover:bg-opacity-30 focus:outline-none transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-all duration-200 text-white font-medium shadow-lg backdrop-blur-sm"
         aria-label="Selecionar idioma"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9"></path></svg>
+        <Globe className="w-5 h-5" />
+        <span className="text-lg">{currentLanguage?.flag}</span>
+        <span className="hidden sm:inline">{currentLanguage?.label}</span>
+        <svg
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-          <div className="py-1 rounded-md bg-white shadow-xs">
-            {links.map((link: any) => (
-              <a
-                key={link.id}
-                href={link.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-              >
-                <span className="mr-2 text-xl">{link.title}</span>
-                <span className="capitalize">{link.language || 'Tradução'}</span>
-              </a>
-            ))}
-          </div>
+        <div className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-xl overflow-hidden z-50 min-w-[180px] border border-gray-200">
+          {otherLanguages.map((lang) => (
+            <Link
+              key={lang.lang}
+              to={`/projetos/${lang.slug}`}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 hover:text-teal-600"
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="text-xl">{lang.flag}</span>
+              <span className="font-medium">{lang.label}</span>
+            </Link>
+          ))}
         </div>
       )}
     </div>
   );
 };
-
-export default LanguageSelector;
