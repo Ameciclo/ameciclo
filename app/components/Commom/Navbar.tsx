@@ -70,15 +70,18 @@ export const Navbar = ({ pages }: any) => {
   return (
     <>
       <motion.nav
-        animate={{ y: isMenuOpen ? -120 : 0 }}
+        animate={{ y: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={"flex fixed top-0 left-0 right-0 items-center h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
         role="navigation mt-0"
       >
-        <div className="w-full flex items-center justify-between px-8 py-0 m-0 lg:px-32 xl:px-32">
-          <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-[85] pointer-events-auto" prefetch="intent">
-            <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
-          </Link>
+        <div className="w-full flex items-center justify-between px-4 lg:px-32 xl:px-32 py-0 m-0">
+          {!isMenuOpen && (
+            <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-[85] pointer-events-auto" prefetch="intent">
+              <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
+            </Link>
+          )}
+          {isMenuOpen && <div className="lg:hidden" />}
 
           <div className="hidden lg:flex space-x-8">
             <BigMenu pages={pages} setIsSubmenuVisible={setIsSubmenuVisible} isSubmenuVisible={isSubmenuVisible} />
