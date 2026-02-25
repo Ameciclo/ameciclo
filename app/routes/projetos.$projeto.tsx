@@ -1,11 +1,22 @@
 import { useLoaderData } from "@remix-run/react";
+import { MetaFunction } from "@remix-run/node";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
 import { projetoLoader } from "~/loader/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
+import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
+import { ProjectSteps } from "~/components/Projetos/ProjectSteps";
 
 export const loader = projetoLoader;
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const projectName = data?.project?.name || "Projeto";
+  return [
+    { title: projectName },
+    { name: "description", content: data?.project?.description || "" },
+  ];
+};
 
 const ProjectDate = ({ project }: any) => {
   const dateOption: Intl.DateTimeFormatOptions = {
@@ -15,18 +26,18 @@ const ProjectDate = ({ project }: any) => {
 
   return (
     project.startDate && (
-      <div className="flex flex-row justify-center">
-        <svg className="w-4 h-4 mr-2 fill-current" viewBox="0 0 512 512">
+      <div className="flex flex-row justify-center items-center gap-3">
+        <svg className="w-4 h-4 fill-current" viewBox="0 0 512 512">
           <path d="M452 40h-24V0h-40v40H124V0H84v40H60C26.916 40 0 66.916 0 100v352c0 33.084 26.916 60 60 60h392c33.084 0 60-26.916 60-60V100c0-33.084-26.916-60-60-60zm20 412c0 11.028-8.972 20-20 20H60c-11.028 0-20-8.972-20-20V188h432v264zm0-304H40v-48c0-11.028 8.972-20 20-20h24v40h40V80h264v40h40V80h24c11.028 0 20 8.972 20 20v48z" />
           <path d="M76 230h40v40H76zM156 230h40v40h-40zM236 230h40v40h-40zM316 230h40v40h-40zM396 230h40v40h-40zM76 310h40v40H76zM156 310h40v40h-40zM236 310h40v40h-40zM316 310h40v40h-40zM76 390h40v40H76zM156 390h40v40h-40zM236 390h40v40h-40zM316 390h40v40h-40zM396 310h40v40h-40z" />
         </svg>
-        <span className="mt-0 mb-2 leading-normal text-white">
+        <span className="leading-normal text-white">
           {new Date(project.startDate)
             .toLocaleDateString("pt-br", dateOption)
             .toUpperCase()}
         </span>
-        <span className="mx-4 font-bold text-white">a</span>
-        <span className="mt-0 mb-2 leading-normal text-white">
+        <span className="text-white">—</span>
+        <span className="leading-normal text-white">
           {project.endDate
             ? new Date(project.endDate)
                 .toLocaleDateString("pt-br", dateOption)
@@ -138,25 +149,6 @@ export default function Projeto() {
 
     const otherLinks = project?.Links || [];
     
-    // Lógica de tradução: detectar idioma atual e criar links para outros idiomas
-    const currentSlug = project?.slug || '';
-    let baseSlug = currentSlug;
-    let currentLang = 'pt';
-    
-    if (currentSlug.endsWith('_en')) {
-        baseSlug = currentSlug.replace('_en', '');
-        currentLang = 'en';
-    } else if (currentSlug.endsWith('_es')) {
-        baseSlug = currentSlug.replace('_es', '');
-        currentLang = 'es';
-    }
-    
-    const translations = [
-        { lang: 'pt', flag: '🇧🇷', label: 'Português', slug: baseSlug },
-        { lang: 'en', flag: '🇬🇧', label: 'English', slug: `${baseSlug}_en` },
-        { lang: 'es', flag: '🇪🇸', label: 'Español', slug: `${baseSlug}_es` },
-    ].filter(t => t.lang !== currentLang);
-    
     // Converter rich text blocks para Markdown
     const getLongDescription = () => {
         if (!project?.long_description) return null;
@@ -207,7 +199,7 @@ export default function Projeto() {
                             __html: `
                                 .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 {
                                     color: #1f2937;
-                                    font-weight: 600;
+                                    font-weight: 400;
                                     margin-top: 1.5em;
                                     margin-bottom: 0.5em;
                                 }
@@ -216,9 +208,10 @@ export default function Projeto() {
                                 .markdown-content h3 { font-size: 1.5rem; }
                                 .markdown-content h4 { font-size: 1.25rem; }
                                 .markdown-content p {
-                                    margin-bottom: 1em; /* Adjusted for better flow */
-                                    line-height: 1.7; /* Adjusted for better readability */
+                                    margin-bottom: 1em;
+                                    line-height: 1.7;
                                     text-align: justify;
+                                    text-indent: 3em;
                                 }
                                 .markdown-content ul {
                                     list-style-type: disc;
@@ -283,33 +276,23 @@ export default function Projeto() {
                         
 
                         <section>
-                            <div className="container mx-auto mt-8 mb-8">
-                                <div className="flex flex-wrap items-center justify-center p-16 mx-auto my-auto text-white rounded bg-ameciclo lg:mx-0 relative">
-                                    {translations.length > 0 && (
-                                        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                                            {translations.map((t) => (
-                                                <a href={`/projetos/${t.slug}`} key={t.lang}>
-                                                    <button
-                                                        className="px-3 py-1 bg-black bg-opacity-20 rounded-md shadow-lg hover:bg-opacity-40 focus:outline-none text-white flex items-center gap-2"
-                                                        type="button"
-                                                    >
-                                                        <span>{t.label}</span>
-                                                        <span className="text-base">{t.flag}</span>
-                                                    </button>
-                                                </a>
-                                            ))}
+                            <div className="container mx-auto mt-8 mb-8 px-4">
+                                <div className="flex flex-wrap items-center justify-center p-6 lg:p-16 mx-auto my-auto text-white rounded bg-ameciclo lg:mx-0 relative">
+                                    {(project?.slug === 'bota_pra_rodar' || project?.slug?.startsWith('bota_pra_rodar_')) && (
+                                        <div className="absolute top-4 right-4">
+                                            <LanguageSelector currentSlug={project?.slug || ''} />
                                         </div>
                                     )}
                                     <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
                                         <p
-                                            className="text-lg lg:text-3xl"
+                                            className="text-xl lg:text-3xl"
                                             style={{ textTransform: "uppercase" }}
                                         >
                                             {project?.goal}
                                         </p>
                                     </div>
                                     <div className="w-full mb-4 lg:w-1/2 lg:mb-0">
-                                        <div className="mb-2 text-xs tracking-wide text-white lg:text-base">
+                                        <div className="mb-2 text-sm tracking-wide text-white lg:text-base">
                                             {(project?.startDate || project?.endDate) && (
                                                 <ProjectDate project={project} />
                                             )}
@@ -318,20 +301,20 @@ export default function Projeto() {
                                             className="flex flex-col items-center justify-center w-full pt-4 mt-6 lg:pt-4 lg:flex-row"
                                             style={{ textTransform: "uppercase" }}
                                         >
-                                            <div className="p-3 mr-4 text-center">
-                                                <span className="mb-2 text-xs tracking-wide text-white lg:text-base">
+                                            <div className="p-3 mr-0 lg:mr-4 text-center">
+                                                <span className="mb-2 text-sm tracking-wide text-white lg:text-base">
                                                     Cultura da Bicicleta
                                                 </span>
                                                 <Rating rating={project?.bikeCulture || "low"} />
                                             </div>
-                                            <div className="p-3 mr-4 text-center">
-                                                <span className="mb-2 text-xs tracking-wide text-white lg:text-base">
+                                            <div className="p-3 mr-0 lg:mr-4 text-center">
+                                                <span className="mb-2 text-sm tracking-wide text-white lg:text-base">
                                                     Articulação Institucional
                                                 </span>
                                                 <Rating rating={project?.instArticulation || "low"} />
                                             </div>
-                                            <div className="p-3 text-center lg:mr-4">
-                                                <span className="mb-2 text-xs tracking-wide text-white lg:text-base">
+                                            <div className="p-3 text-center mr-0 lg:mr-4">
+                                                <span className="mb-2 text-sm tracking-wide text-white lg:text-base">
                                                     Incidência Política
                                                 </span>
                                                 <Rating rating={project?.politicIncidence || "low"} />
@@ -341,7 +324,7 @@ export default function Projeto() {
                                             {otherLinks.map((link: any) => (
                                                 <a href={link.link} key={link.id}>
                                                     <button
-                                                        className="px-4 py-2 mx-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none sm:mr-2"
+                                                        className="px-4 py-2 mx-2 mb-2 text-sm font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none"
                                                         type="button"
                                                         style={{ transition: "all .15s ease" }}
                                                     >
@@ -355,7 +338,11 @@ export default function Projeto() {
                             </div>
                         </section>
 
-                        <section className="container mx-auto my-10">
+                        {(project?.slug === 'bota_pra_rodar' || project?.slug?.startsWith('bota_pra_rodar_')) && (
+                            <ProjectSteps currentSlug={project?.slug} />
+                        )}
+
+                        <section className="container mx-auto my-10 px-4">
                             <div className="flex flex-col bg-white rounded-lg shadow-xl">
                                 {project?.steps && project.steps.length > 0 && (
                                     <div className="container flex justify-center mx-auto">
@@ -368,7 +355,7 @@ export default function Projeto() {
                                 )}
                                 <div className="py-6 text-center">
                                     <div className="flex flex-wrap justify-center">
-                                        <div className="w-full px-4 mb-4 text-lg leading-relaxed text-justify text-gray-800 lg:w-7/12">
+                                        <div className="w-full px-4 mb-4 text-base lg:text-lg leading-relaxed text-justify text-gray-800 lg:w-7/12">
                                             <div className="markdown-content">
                                                 {longDescription ? (
                                                     <ReactMarkdown>{longDescription}</ReactMarkdown>
@@ -427,7 +414,7 @@ export default function Projeto() {
                                 </div>
                             )}
 
-                            <div className="container flex justify-center pt-10 mx-4 mx-auto">
+                            <div className="container flex justify-center pt-10 mx-auto px-4">
                                 {project?.partners && project.partners.length > 0 && (
                                     <div className="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-10">
                                         {project.partners.map((partner: any) => (
