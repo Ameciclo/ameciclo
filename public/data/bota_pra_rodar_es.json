@@ -1,0 +1,256 @@
+{
+  "data": [
+    {
+      "id": 9998,
+      "slug": "bota_pra_rodar_es",
+      "name": "Bota pra Rodar",
+      "goal": "Recuperar bicicletas en desuso para potenciar el derecho a la ciudad a través de sistemas de bicicletas comunitarias compartidas.",
+      "description": "Bota Pra Rodar es un proyecto de integración comunitaria que, a través de encuentros, ruedas de diálogos sobre temas relacionados con el derecho a la ciudad, talleres de mecánica básica y emprendimiento, y el montaje de un sistema de bicicletas comunitarias compartidas, construido en colaboración entre miembros de Ameciclo y residentes de las comunidades participantes a través de la donación de bicicletas usadas.",
+      "long_description": [
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "¿Qué es Bota Pra Rodar?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Bota Pra Rodar es un proyecto de integración comunitaria que, a través de encuentros, ruedas de diálogos sobre temas que atraviesan el tema del derecho a la ciudad, talleres de mecánica básica y emprendimiento y montaje de un sistema de bicicletas comunitarias compartidas, montado en colaboración entre ameciclistas y residentes de las comunidades participantes, a través de la donación de bicicletas usadas. Bicicletas que se encuentran paradas, acumulando polvo, generalmente en lugares más verticales y privilegiados de la ciudad y que se transforman, a través de este proyecto, en una herramienta de transformación de la ciudad en un ambiente más humano, democrático y sostenible.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "El proyecto es una herramienta de combate a las desigualdades socioespaciales, característica muy marcada en la ciudad de Recife, que se configura como siendo una de las capitales más desiguales del país, donde instrumentos de acceso y ejercicio de derechos (como ocio, educación, salud y movilidad) se encuentran concentrados en zonas específicas de la ciudad, caracterizando como privilegio algo que es derecho de todos y todas.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Creyendo que la movilidad es un derecho imprescindible que permite que las personas accedan a otros derechos fundamentales, el Bota Pra Rodar, a través de reformas de bicicletas usadas y donadas, permite que hombres y mujeres puedan desplazarse por la ciudad, sea con destino al trabajo, escuela de sus niños o espacios de ocio y sociabilidad, utilizando un medio de transporte seguro, barato y sostenible. De esta forma, el proyecto fortalece la cultura de la bicicleta en las periferias de Recife (que ya tiene la bicicleta como medio de transporte del día a día), promueve la autonomía de las mujeres periféricas, en la medida en que muchas no poseen medios de transporte propios además de sus propios cuerpos y permite el intercambio de conocimientos sobre ciudadanía, colectividad e informaciones técnicas sobre mecánica de bicicleta, proporcionando, así, una posibilidad más de obtención de renta para personas que se encuentran, hoy, sin opciones de empleo.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Actualmente, en contexto de crisis sanitaria, el proyecto contribuye para la disminución de los riesgos de contagio por coronavirus, pues la bicicleta es el medio de transporte más seguro en la medida en que promueve el distanciamiento social, posibilita una persona menos en autobuses y posibilita que en todo el trayecto la persona esté circulando en ambientes abiertos, factores que son esenciales para la convivencia con el nuevo coronavirus.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "¿Cómo surgió el proyecto?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "El Bota pra Rodar surgió a partir de antiguos proyectos de Ameciclo, que buscaban la recaudación y donación de bicicletas. Sin embargo, surgió la cuestión: ¿cuál es la mejor forma de donar una bicicleta y quién sería merecedor de una? Así, inspirándonos en el movimiento Bicicletas Blancas de Ámsterdam, de la década de 60, una provocación del grupo anarquista PROVOS, resolvimos, entonces, usar las donaciones para montar un sistema de bicicletas compartidas comunitarias, buscando recaudaciones de zonas verticales de la ciudad y llevando esas bicicletas para lugares de bajo acceso a la movilidad y otros derechos. Así nació el proyecto Bota Pra Rodar.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "¿Cómo funciona?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Básicamente, el proyecto funciona con el siguiente flujo:",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "format": "unordered",
+          "children": [
+            {
+              "type": "list-item",
+              "children": [{ "text": "Campaña y articulación para recaudación de bicicletas", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Donante entra en contacto con Ameciclo", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Donante combina lugar para dejar la bicicleta O combina horario en que recogeremos la bicicleta", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Bicicleta pasa por reforma, a través de talleres de mecánica básica con los participantes del proyecto que viven en la comunidad contemplada", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "Bicicleta es disponibilizada para uso comunitario, a través de un sistema de compartimiento autogestionado por la propia comunidad, con la ayuda de una aplicación desarrollada en asociación con ThoughtWorks, exclusiva para el Bota Pra Rodar", "type": "text" }]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Sin embargo, el proyecto también cuenta con talleres sobre ciudadanía y emprendimiento, donde invitamos grupos de charla sobre el tema, mostrando el paso a paso para comenzar a emprender, así como invitamos empresas que trabajan con la bicicleta para dar charlas sobre cómo fueron planeadas y ejecutadas, trayendo sus conquistas y dificultades para compartir con el grupo. Además, en una de las unidades del Bota Pra Rodar, en la Vila de Santa Luzia, está siendo montado un taller mecánico, que será disponibilizado para uso comunitario y gestionado colectivamente por participantes del curso de mecánica básica promovido por el proyecto, que contó, también, con talleres sobre asociativismo y corporativismo.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "¿Dónde está ocurriendo actualmente?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Actualmente, el Bota Pra Rodar ocurre en dos barrios de la zona oeste de Recife: Ilha do Retiro y Torre. En Ilha do Retiro, el proyecto está instalado en la ZEIS (Zonas Especiales de Interés Social) Caranguejo-Tabaiares, a través de la articulación con la Biblioteca Comunitaria Caranguejo-Tabaiares. Ya en el barrio de Torre, el proyecto ocurre en la ZEIS Vila de Santa Luzia, en articulación con el CEPAS - Centro de Enseñanza Popular y Asistencia Social Santa Paula Frassinetti. Recientemente, conseguimos la aprobación, a través de convocatoria, para una instalación más del Bota Pra Rodar, a través de la Secretaría de Medio Ambiente y Sustentabilidad de Recife, sin embargo, el recurso aún no fue viabilizado. Nuestro interés es que el Bota Pra Rodar esté cada vez más presente en la ciudad, fortaleciendo la cultura de la bicicleta y proporcionando la locomoción segura y sostenible de la población.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "¿Qué conquistamos?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Nuestra principal conquista, sin dudas, es contribuir con el acceso a la ciudad, que es el principal foco de este proyecto. Cuando el proyecto consigue poner para rodar y tiene sus bicicletas circulando en la ciudad, ayuda personas que tienen poco acceso al transporte a conseguir llegar a sus locales de trabajo, estudio y ocio, teniendo una posibilidad de transporte diario. Otra conquista es el hecho del proyecto haber sido replicado en otras ciudades de Brasil, a ejemplo de Queimados (RJ) y Boa Vista (DF).",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Además del bien social, el Bota Pra Rodar fue vencedor del Premio Promoviendo la Movilidad por Bicicletas en Brasil 2017, obteniendo reconocimiento de una empresa internacional. A partir de ese proyecto, Ameciclo fue invitada a participar de eventos como Summit Mobilidade 2020 y Mostra Lazos de Iniciativas de Impacto Social Positivo, a través de la organización Muitos de Nós, en que ganamos mentoría para mejorar nuestra comunicación institucional volcada para el proyecto.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "¿Quién ya contribuyó con el proyecto?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Desde el primer Bota Pra Rodar, el proyecto contó con apoyo financiero de instituciones como Fundo Casa Socioambiental (Caixa Econômica Federal), Itaú y Greenpeace, todos a través de convocatorias de financiamiento. Ese financiamiento es lo que permite que compremos las herramientas y piezas para los cambios de partes de las bicicletas donadas que no son más utilizables, pagamos el grupo gestor del proyecto y gasto con otros recursos materiales, como: material gráfico, tinta, traslado y otros gastos que surgen a lo largo del proyecto. Además de las convocatorias, Ameciclo recibió, en 2017, el Premio Promoción de la Bicicleta en Brasil, con el Bota Pra Rodar, y en 2018 el reconocimiento de Folkersma y de la Dutch Cycle Embassy, juntamente con el Pedala Queimados (RJ).",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "También tenemos ayuda de instituciones y grupos socios, que se voluntarizan para contribuir con el proyecto o que nos ayudan en las articulaciones y fortaleciendo la cultura de la bicicleta y la movilidad activa y sostenible en sus regiones, como: Biblioteca Comunitaria Caranguejo-Tabaiares, Asociación Deportiva Cultural de la Capoeira Arte Pernambucana, Unión de los Moradores de Caranguejo-Tabaiares, Grupo Pedala Queimados (RJ), Centro de Enseñanza Popular y Asistencia Social Santa Paula Frassinetti y La Ursa Tours.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Tenemos la contribución de asociados que se disponen a ayudar en las demandas que surgen en el pedalear del proyecto, cada uno(a) a su manera. Y, claro, tuvimos la contribución imprescindible de todos y todas que se desapegaron de sus bicicletas y las pusieron para rodar! Las donaciones son el punto clave de ese proyecto. Sin ellas, no conseguiríamos montar los sistemas de bicicletas compartidas. ¡Nuestro muchas gracias a todo el mundo que contribuyó con el Bota Pra Rodar! ♥",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "children": [{ "text": "¿Cómo puedes ayudar?", "type": "text" }]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "El Bota Pra Rodar es posible porque contamos con muchas manos y piernas para guiar esa pedaleada a camino de nuestra misión mientras Asociación, que es transformar la ciudad, a través de la bicicleta, en ambientes más humanos, democráticos y sostenibles. El proyecto, para ocurrir, cuenta con la colaboración de financiadores, equipo de gestión, asociados voluntarios y de personas que creen que el compartimiento es una manera de combatir desigualdades y nos ayudan donando sus bicicletas paradas o mismo divulgando el proyecto con amigos, familiares o con los moradores de su edificio.",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "Existen varias maneras en que puedes contribuir para el proyecto, directa o indirectamente:",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "format": "unordered",
+          "children": [
+            {
+              "type": "list-item",
+              "children": [{ "text": "¡Dona tu bicicleta parada! La bicicleta es un medio de transporte con mucho potencial para transformar las ciudades en un ambiente humanizado y más invitador a la ocupación de las calles de forma segura y agradable, sin amenazar la vida de transeúntes por alta velocidad, además de ser un medio de transporte no contaminante. Además, tu bicicleta parada puede ser la herramienta que otras personas están necesitando para acceder a derechos básicos, pero que no son contempladas por un transporte público accesible. ¡Pon para rodar!", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "¡Habla con tu síndico(a)! El proyecto puede ser todo lo que estaba necesitando para desahogar aquel bicicletero lleno de bicicleta parada acumulando herrumbre. Informar a tus vecinos sobre el proyecto puede posibilitar que las personas que no sabían lo que hacer con sus bicicletas encuentren un medio de desencallar la bicicleta y aún ayudan un proyecto social genial en tu ciudad. ¡Todo de bueno, no? ¡Coloca el Bota Pra Rodar como pauta en la reunión del condominio que va a ser éxito!", "type": "text" }]
+            },
+            {
+              "type": "list-item",
+              "children": [{ "text": "¡Voluntarízate! Nuestros asociados y asociadas contribuyen mucho con el proyecto, sea disponibilizándose para hacer la colecta de las bicicletas donadas (¡hacemos el traslado de bicicleta!), sea llegando junto para otras cosas que pueden surgir en el pedalear del proyecto, como: talleres de temas específicos, donde tiene alguien que se voluntariza para promover ese intercambio con las comunidades; eventos que promuevan la movilidad activa, en que es importante la integración entre las personas de diversas áreas de la ciudad para el intercambio de experiencias. ¡Llega junto! Todo el mundo tiene algo para ofrecer y para aprender con los otros. Puedes entrar en el Grupo de Trabajo del proyecto, que es abierto para todos que son asociados, y funciona en el programa Telegram. ¿Aún no eres asociado?! Es fácil, solo volver para la página inicial y hacer clic en 'Asóciate'. Es gratis, no tiene fila y aún contribuirás para la representatividad de la asociación. ¡Serás bien venido!", "type": "text" }]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "¿Aún tienes dudas sobre el proyecto? Entra en contacto con nosotros. Nuestros canales están en el pie de esta página ; )",
+              "type": "text"
+            }
+          ]
+        }
+      ],
+      "project_status": "ongoing",
+      "bikeCulture": "high",
+      "instArticulation": "medium",
+      "politicIncidence": "medium",
+      "startDate": "2014-08-01",
+      "endDate": null,
+      "media": {
+        "url": "/projetos.webp"
+      },
+      "cover": {
+        "url": "/projetos.webp"
+      },
+      "workgroup": {
+        "name": "Movilidad"
+      },
+      "Links": [],
+      "gallery": [],
+      "products": [],
+      "partners": [],
+      "sponsors": []
+    }
+  ]
+}
