@@ -16,8 +16,9 @@ export const Footer = () => {
           url: "https://api.whatsapp.com/send?phone=5581997860060",
         },
         {
-          label: "R. da Aurora, 529, loja 2 - Santo Amaro, Recife/PE, 50050-145",
-          url: "https://bit.ly/2C01AhY",
+          label:
+            "R. da Aurora, 529, loja 2 - Santo Amaro, Recife/PE, 50050-145",
+          url: "https://www.google.com/maps/place/Ameciclo/@-8.0593531,-34.8803879,19z/data=!4m12!1m5!3m4!2zOMKwMDMnMzMuNSJTIDM0wrA1Mic1Ny42Ilc!8m2!3d-8.0593056!4d-34.8826667!3m5!1s0x7ab18578298db9d:0xb5de9fc1b3a78f7f!8m2!3d-8.0593077!4d-34.8800935!16s%2Fg%2F11c1v0rrc2?entry=ttu&g_ep=EgoyMDI2MDMwOC4wIKXMDSoASAFQAw%3D%3D",
         },
         {
           label: "contato@ameciclo.org",
@@ -56,24 +57,20 @@ export const Footer = () => {
       align: "center",
       content: [
         {
-          label: "Facebook",
-          url: "https://facebook.com/ameciclo",
-        },
-        {
           label: "Instagram",
           url: "https://instagram.com/ameciclo",
         },
         {
-          label: "Twitter",
-          url: "https://twitter.com/ameciclo",
-        },
-        {
           label: "Telegram",
-          url: "https://t.me/ameciclo",
+          url: "https://t.me/s/ameciclo",
         },
         {
           label: "Youtube",
           url: "https://www.youtube.com/ameciclo",
+        },
+        {
+          label: "Facebook",
+          url: "https://facebook.com/ameciclo",
         },
       ],
     },
@@ -86,7 +83,9 @@ export const Footer = () => {
           {columns.map((column: footerColumn, i: number) => (
             <div
               key={i}
-              className={`w-full md:w-1/3 text-center md:text-${column.align || "center"}`}
+              className={`w-full md:w-1/3 text-center md:text-${
+                column.align || "center"
+              }`}
             >
               <FooterColumn column={column} />
               {column.button && (

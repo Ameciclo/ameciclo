@@ -16,6 +16,7 @@ export function ContactForm() {
   const initialMessage = searchParams.get("message") || "";
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [success, setSuccess] = useState<{[key: string]: boolean}>({});
+  const [showEmailMessage, setShowEmailMessage] = useState(false);
 
   const getFormData = (): FormData => ({
     nome: (document.getElementById('nome') as HTMLInputElement)?.value || '',
@@ -26,13 +27,17 @@ export function ContactForm() {
     ddi: (document.getElementById('ddi') as HTMLSelectElement)?.value || '+55'
   });
 
-  const validateForm = (data: FormData): {[key: string]: string} => {
+  const validateForm = (data: FormData, requireEmail: boolean = true): {[key: string]: string} => {
     const newErrors: {[key: string]: string} = {};
     
     if (!data.nome) newErrors.nome = 'Nome é obrigatório';
-    if (!data.email) {
-      newErrors.email = 'Email é obrigatório';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    if (requireEmail) {
+      if (!data.email) {
+        newErrors.email = 'Email é obrigatório';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        newErrors.email = 'Email inválido';
+      }
+    } else if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       newErrors.email = 'Email inválido';
     }
     if (data.telefone && !/^\d{10,11}$/.test(data.telefone.replace(/\D/g, ''))) {
@@ -44,9 +49,9 @@ export function ContactForm() {
     return newErrors;
   };
 
-  const handleFormSubmit = (callback: (data: FormData) => void) => {
+  const handleFormSubmit = (callback: (data: FormData) => void, requireEmail: boolean = true) => {
     const data = getFormData();
-    const validationErrors = validateForm(data);
+    const validationErrors = validateForm(data, requireEmail);
     
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -85,7 +90,7 @@ export function ContactForm() {
         </div>
         
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <div className="relative">
             <input
               type="email"
@@ -211,6 +216,8 @@ export function ContactForm() {
               const subject = customSubject || `Contato via página de contato - ${data.nome}`;
               const body = `Email: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
               window.location.href = `mailto:contato@ameciclo.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+              setShowEmailMessage(true);
+              setTimeout(() => setShowEmailMessage(false), 5000);
             })}
             className="flex-1 bg-[#008080] text-white px-4 py-2 rounded-md hover:bg-[#006666] transition-colors font-medium flex items-center justify-center gap-2"
           >
@@ -221,15 +228,27 @@ export function ContactForm() {
             type="button"
             onClick={() => handleFormSubmit((data) => {
               const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
-              const whatsappMsg = `Olá! Me chamo ${data.nome}!\\n\\nEmail: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
+              const emailInfo = data.email ? `Email: ${data.email}\\n` : '';
+              const whatsappMsg = `Olá! Me chamo ${data.nome}!\\n\\n${emailInfo}Telefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
               window.open(`https://wa.me/5581994586830?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
-            })}
+            }, false)}
             className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
           >
             <MessageCircle size={18} /> WhatsApp
           </button>
         </div>
       </form>
+      
+      {showEmailMessage && (
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-sm text-blue-800 mb-2">
+            📧 <strong>Cliente de e-mail não instalado?</strong>
+          </p>
+          <p className="text-sm text-blue-700">
+            Envie manualmente para: <strong className="select-all bg-blue-100 px-2 py-1 rounded">contato@ameciclo.org</strong>
+          </p>
+        </div>
+      )}
     </div>
   );
 }
