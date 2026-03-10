@@ -4,7 +4,7 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
-import { useLoaderData, Await } from "@remix-run/react";
+import { useLoaderData, Await, useParams } from "@remix-run/react";
 import { Suspense } from "react";
 import { loader } from "~/loader/dados.contagens.$slug";
 import {
@@ -18,9 +18,10 @@ export { loader };
 
 const Contagem = () => {
     const { dataPromise, pageDataPromise } = useLoaderData<typeof loader>();
+    const params = useParams();
 
     return (
-        <main className="flex-auto">
+        <main className="flex-auto" key={params.slug}>
             <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
                 <Await resolve={pageDataPromise}>
                     {(pageData) => (
@@ -60,7 +61,6 @@ const Contagem = () => {
                     {(data) => {
                         if (!data) return null;
                         const pointsData = getPointsData(data, data.selectedCount);
-                        const flowData = getFlowData(data, data.selectedCount);
                         return (
                             <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
                                 <div className="bg-green-200 rounded shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
