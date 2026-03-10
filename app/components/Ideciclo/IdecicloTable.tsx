@@ -3,15 +3,21 @@ import React, { useState } from "react";
 import Table from "../Commom/Table/Table";
 
 function ColumnFilter({ column }: any) {
-    const { filterValue, setFilter } = column;
+    const { filterValue, setFilter, id } = column;
+    const inputId = `ideciclo-filter-${id}`;
     return (
-        <input
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
-            type="text"
-            placeholder="Buscar..."
-            value={filterValue || ""}
-            onChange={(e) => setFilter(e.target.value)}
-        />
+        <>
+            <label htmlFor={inputId} className="sr-only">Buscar na coluna</label>
+            <input
+                id={inputId}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+                type="text"
+                placeholder="Buscar..."
+                value={filterValue || ""}
+                onChange={(e) => setFilter(e.target.value)}
+                aria-label="Buscar na coluna"
+            />
+        </>
     );
 }
 
@@ -26,9 +32,14 @@ function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, 
         return [min, max];
     }, [id, preFilteredRows]);
 
+    const minId = `range-min-${id}`;
+    const maxId = `range-max-${id}`;
+
     return (
         <div className="flex gap-2 items-center">
+            <label htmlFor={minId} className="sr-only">Valor mínimo</label>
             <input
+                id={minId}
                 className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#008080]"
                 value={filterValue[0] || ""}
                 type="number"
@@ -37,9 +48,12 @@ function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, 
                     setFilter((old = []) => [val ? parseFloat(val) : undefined, old[1]]);
                 }}
                 placeholder={`${min.toFixed(1)}`}
+                aria-label="Valor mínimo"
             />
             <span className="text-xs text-gray-500">a</span>
+            <label htmlFor={maxId} className="sr-only">Valor máximo</label>
             <input
+                id={maxId}
                 className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#008080]"
                 value={filterValue[1] || ""}
                 type="number"
@@ -48,6 +62,7 @@ function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, 
                     setFilter((old = []) => [old[0], val ? parseFloat(val) : undefined]);
                 }}
                 placeholder={`${max.toFixed(1)}`}
+                aria-label="Valor máximo"
             />
         </div>
     );

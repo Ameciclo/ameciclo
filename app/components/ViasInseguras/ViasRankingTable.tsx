@@ -77,14 +77,22 @@ export default function ViasRankingTable({
       Header: "Ranking",
       accessor: "ranking",
       disableFilters: false,
-      Filter: ({ column: { filterValue, setFilter } }: any) => (
-        <input
-          value={filterValue || ''}
-          onChange={e => setFilter(e.target.value || undefined)}
-          placeholder="Buscar ranking"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        />
-      ),
+      Filter: ({ column: { filterValue, setFilter, id } }: any) => {
+        const inputId = `ranking-filter-${id}`;
+        return (
+          <>
+            <label htmlFor={inputId} className="sr-only">Buscar ranking</label>
+            <input
+              id={inputId}
+              value={filterValue || ''}
+              onChange={e => setFilter(e.target.value || undefined)}
+              placeholder="Buscar ranking"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              aria-label="Buscar ranking"
+            />
+          </>
+        );
+      },
       Cell: ({ value, row }: any) => (
         <div className="flex items-center gap-2">
           <span className={`
@@ -123,11 +131,15 @@ export default function ViasRankingTable({
       Header: "Total de Sinistros",
       accessor: "_sinistros",
       disableFilters: false,
-      Filter: ({ column: { filterValue = [], setFilter } }: any) => {
+      Filter: ({ column: { filterValue = [], setFilter, id } }: any) => {
         const [min, max] = filterValue;
+        const minId = `sinistros-min-${id}`;
+        const maxId = `sinistros-max-${id}`;
         return (
           <div className="flex space-x-2">
+            <label htmlFor={minId} className="sr-only">Sinistros mínimo</label>
             <input
+              id={minId}
               value={min || ''}
               type="number"
               onChange={e => {
@@ -136,8 +148,11 @@ export default function ViasRankingTable({
               }}
               placeholder="Mín"
               className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              aria-label="Sinistros mínimo"
             />
+            <label htmlFor={maxId} className="sr-only">Sinistros máximo</label>
             <input
+              id={maxId}
               value={max || ''}
               type="number"
               onChange={e => {
@@ -146,6 +161,7 @@ export default function ViasRankingTable({
               }}
               placeholder="Máx"
               className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              aria-label="Sinistros máximo"
             />
           </div>
         );
@@ -164,11 +180,15 @@ export default function ViasRankingTable({
       Header: "Extensão (km)",
       accessor: "_km",
       disableFilters: false,
-      Filter: ({ column: { filterValue = [], setFilter } }: any) => {
+      Filter: ({ column: { filterValue = [], setFilter, id } }: any) => {
         const [min, max] = filterValue;
+        const minId = `km-min-${id}`;
+        const maxId = `km-max-${id}`;
         return (
           <div className="flex space-x-2">
+            <label htmlFor={minId} className="sr-only">Extensão mínima em km</label>
             <input
+              id={minId}
               value={min || ''}
               type="number"
               step="0.1"
@@ -178,8 +198,11 @@ export default function ViasRankingTable({
               }}
               placeholder="Mín km"
               className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              aria-label="Extensão mínima em km"
             />
+            <label htmlFor={maxId} className="sr-only">Extensão máxima em km</label>
             <input
+              id={maxId}
               value={max || ''}
               type="number"
               step="0.1"
@@ -189,6 +212,7 @@ export default function ViasRankingTable({
               }}
               placeholder="Máx km"
               className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              aria-label="Extensão máxima em km"
             />
           </div>
         );

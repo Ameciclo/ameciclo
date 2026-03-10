@@ -88,13 +88,18 @@ export default function ViaSearch({ onSearch, onViaSelect, isLoading = false }: 
       <div className="relative">
         <div className="flex gap-2">
           <div className="flex-1 relative">
+            <label htmlFor="via-search-input" className="sr-only">
+              Digite o nome da via para buscar
+            </label>
             <input
+              id="via-search-input"
               type="text"
               value={query}
               onChange={handleInputChange}
               placeholder="Digite o nome da via (ex: Boa Viagem, Recife, Norte...)"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ameciclo focus:border-transparent"
               disabled={isLoading}
+              aria-label="Buscar via específica"
             />
             
             {/* Ícone de busca */}

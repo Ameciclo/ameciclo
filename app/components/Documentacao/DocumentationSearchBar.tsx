@@ -48,12 +48,17 @@ function DocumentationSearchBar({
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         <SearchIcon className="w-4 h-4 text-gray-400" />
       </div>
+      <label htmlFor="documentation-search" className="sr-only">
+        {placeholder}
+      </label>
       <input
+        id="documentation-search"
         type="text"
         placeholder={placeholder}
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         className={`${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900 border border-gray-300'} pl-9 pr-3 py-2 rounded-lg ${width} focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg text-sm`}
+        aria-label={placeholder}
       />
       {searchResults.length > 0 && (
         <div className={`absolute top-full mt-2 w-full ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'} border rounded-lg shadow-xl z-50`}>

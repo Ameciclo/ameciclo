@@ -11,12 +11,16 @@ interface ContagensTableProps {
 
 // Componente de filtro de valor aproximado adaptado para a tabela de contagens
 const RangeValueFilter = ({ column }: any) => {
-  const { filterValue = [], setFilter } = column;
+  const { filterValue = [], setFilter, id } = column;
   const [min, max] = filterValue;
+  const minId = `range-min-${id}`;
+  const maxId = `range-max-${id}`;
 
   return (
     <div className="flex items-center space-x-2 my-2">
+      <label htmlFor={minId} className="sr-only">Valor mínimo</label>
       <input
+        id={minId}
         className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
         type="number"
         placeholder="Min"
@@ -25,9 +29,12 @@ const RangeValueFilter = ({ column }: any) => {
           const val = e.target.value;
           setFilter([val ? parseFloat(val) : undefined, max]);
         }}
+        aria-label="Valor mínimo"
       />
       <span className="text-gray-500">a</span>
+      <label htmlFor={maxId} className="sr-only">Valor máximo</label>
       <input
+        id={maxId}
         className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
         type="number"
         placeholder="Max"
@@ -36,6 +43,7 @@ const RangeValueFilter = ({ column }: any) => {
           const val = e.target.value;
           setFilter([min, val ? parseFloat(val) : undefined]);
         }}
+        aria-label="Valor máximo"
       />
     </div>
   );

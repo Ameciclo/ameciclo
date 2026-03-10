@@ -102,7 +102,11 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
         <div className="relative max-w-[200px] sm:max-w-xs" ref={searchRef}>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+            <label htmlFor="ciclodados-street-search" className="sr-only">
+              Buscar rua ou avenida
+            </label>
             <input
+              id="ciclodados-street-search"
               type="text"
               placeholder="Buscar rua/avenida..."
               value={searchTerm}
@@ -112,6 +116,7 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
               }}
               onFocus={() => setShowSuggestions(true)}
               className="pl-8 pr-2 py-1 rounded border text-black focus:outline-none focus:ring-2 focus:ring-white text-xs sm:text-sm w-full"
+              aria-label="Buscar rua ou avenida"
             />
           </div>
           

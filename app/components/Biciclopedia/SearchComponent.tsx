@@ -36,9 +36,12 @@ export const SearchComponent = (props: SearchComponentProps) => {
   return (
     <div className="relative">
       <div className="relative flex flex-col items-center ">
-        <h1 className="mb-4 text-4xl font-bold">O que você está procurando?</h1>
+        <label htmlFor="biciclopedia-search" className="mb-4 text-4xl font-bold">
+          O que você está procurando?
+        </label>
 
         <input
+          id="biciclopedia-search"
           type="search"
           name="search"
           placeholder="Qual o melhor tipo de bicicletário?"
@@ -54,6 +57,7 @@ export const SearchComponent = (props: SearchComponentProps) => {
               setSearchResultsVisible(false);
             }, 200);
           }}
+          aria-label="Buscar perguntas na Biciclopédia"
         />
       </div>
       {searchTerm.length > 0 && searchResultsVisible && (

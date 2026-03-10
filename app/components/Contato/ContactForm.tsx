@@ -113,13 +113,17 @@ export function ContactForm() {
         <div>
           <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
           <div className="flex gap-2">
-            <select
-              id="ddi"
-              className="px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent text-sm"
-              defaultValue="+55"
-            >
-              <option value="+55">🇧🇷 +55</option>
-            </select>
+            <div>
+              <label htmlFor="ddi" className="sr-only">Código do país (DDI)</label>
+              <select
+                id="ddi"
+                className="px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent text-sm"
+                defaultValue="+55"
+                aria-label="Código do país (DDI)"
+              >
+                <option value="+55">🇧🇷 +55</option>
+              </select>
+            </div>
             <div className="relative flex-1">
               <input
                 type="tel"

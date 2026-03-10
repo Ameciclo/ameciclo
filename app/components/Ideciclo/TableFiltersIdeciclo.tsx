@@ -2,16 +2,20 @@ import React from "react";
 
 
 export const ColumnFilter = ({ column }: any) => {
-    const { filterValue, setFilter } = column;
+    const { filterValue, setFilter, id } = column;
+    const inputId = `filter-${id}`;
     return (
         <>
+            <label htmlFor={inputId} className="sr-only">Buscar na coluna</label>
             <input
+                id={inputId}
                 className="my-2 max-w-sm text-gray-600 bg-white h-10 px-4 rounded-xl text-sm focus:outline-none"
                 type="search"
                 name="search"
                 placeholder="Buscar"
                 value={filterValue || ""}
                 onChange={(e) => setFilter(e.target.value)}
+                aria-label="Buscar na coluna"
                 style={{
                     background: "#E5E8E9",
                 }}
@@ -33,13 +37,17 @@ export function NumberRangeColumnFilter({
         return [min, max];
     }, [id, preFilteredRows]);
 
+    const minId = `range-min-${id}`;
+    const maxId = `range-max-${id}`;
     return (
         <div
             style={{
                 display: "flex",
             }}
         >
+            <label htmlFor={minId} className="sr-only">Valor mínimo</label>
             <input
+                id={minId}
                 className="my-2 max-w-sm text-gray-600 bg-gray-300 h-10 rounded-xl text-sl text-center focus:outline-none"
                 value={filterValue[0] || ""}
                 type="number"
@@ -52,6 +60,7 @@ export function NumberRangeColumnFilter({
                     });
                 }}
                 placeholder={`Mín(${min.toFixed(1)})`}
+                aria-label="Valor mínimo"
                 style={{
                     width: "70px",
                     marginRight: "0.5rem",
@@ -59,7 +68,9 @@ export function NumberRangeColumnFilter({
                 }}
             />
             <div className="my-5 max-w-sm text-gray-600  text-sl text-center">a</div>
+            <label htmlFor={maxId} className="sr-only">Valor máximo</label>
             <input
+                id={maxId}
                 className="my-2 max-w-sm text-gray-600 bg-gray-300 h-10 rounded-xl text-sl text-center focus:outline-none"
                 value={filterValue[1] || ""}
                 type="number"
@@ -72,6 +83,7 @@ export function NumberRangeColumnFilter({
                     });
                 }}
                 placeholder={`Máx(${max.toFixed(1)})`}
+                aria-label="Valor máximo"
                 style={{
                     width: "70px",
                     marginLeft: "0.5rem",

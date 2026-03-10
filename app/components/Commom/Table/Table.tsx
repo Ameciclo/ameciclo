@@ -14,10 +14,14 @@ fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
 export function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, setFilter, id } }: any) {
     const [min, max] = filterValue;
+    const minId = `range-min-${id}`;
+    const maxId = `range-max-${id}`;
 
     return (
         <div className="flex space-x-2">
+            <label htmlFor={minId} className="sr-only">Valor mínimo</label>
             <input
+                id={minId}
                 value={min || ''}
                 type="number"
                 onChange={e => {
@@ -26,8 +30,11 @@ export function NumberRangeColumnFilter({ column: { filterValue = [], preFiltere
                 }}
                 placeholder="Mínimo"
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Valor mínimo"
             />
+            <label htmlFor={maxId} className="sr-only">Valor máximo</label>
             <input
+                id={maxId}
                 value={max || ''}
                 type="number"
                 onChange={e => {
@@ -36,6 +43,7 @@ export function NumberRangeColumnFilter({ column: { filterValue = [], preFiltere
                 }}
                 placeholder="Máximo"
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Valor máximo"
             />
         </div>
     );
@@ -54,18 +62,25 @@ export function numberRangeFilterFn(rows: any, id: any, filterValue: any) {
 
 numberRangeFilterFn.autoRemove = (val: any) => !val[0] && !val[1];
 
-function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter, Header } }: any) {
+function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter, Header, id } }: any) {
     const count = preFilteredRows.length;
+    const inputId = `default-filter-${id}`;
+    const labelText = `Buscar ${typeof Header === 'string' ? Header : 'coluna'}`;
 
     return (
-        <input
-            value={filterValue || ''}
-            onChange={e => {
-                setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-            }}
-            placeholder={`Buscar ${typeof Header === 'string' ? Header : ''}`}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        />
+        <>
+            <label htmlFor={inputId} className="sr-only">{labelText}</label>
+            <input
+                id={inputId}
+                value={filterValue || ''}
+                onChange={e => {
+                    setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+                }}
+                placeholder={`Buscar ${typeof Header === 'string' ? Header : ''}`}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                aria-label={labelText}
+            />
+        </>
     );
 }
 

@@ -47,10 +47,15 @@ export function FloatingChat({ isOpen, onToggle }: FloatingChatProps) {
             </div>
             <div className="p-4 border-t bg-gray-50">
               <div className="flex items-center gap-3">
-                <input 
+                <label htmlFor="chat-input" className="sr-only">
+                  Digite sua pergunta para a IA
+                </label>
+                <input
+                  id="chat-input"
                   type="text" 
                   placeholder="Digite sua pergunta..."
                   className="flex-1 p-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  aria-label="Digite sua pergunta para a IA"
                 />
                 <button className="p-3 text-gray-400 hover:text-pink-500 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
