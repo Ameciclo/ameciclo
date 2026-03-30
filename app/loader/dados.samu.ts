@@ -1,15 +1,14 @@
-import { json } from "@remix-run/node";
 import { SAMU_SUMMARY_API, SAMU_CITIES_LIST, SAMU_CALLS_OUTCOMES, SAMU_CALLS_PROFILES } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import samuMockData from "~/data/samu-mock-data.json";
 
 export async function loader() {
   const errors: Array<{url: string, error: string}> = [];
-  
+
   const onError = (url: string) => (error: string) => {
     errors.push({ url, error });
   };
-  
+
   try {
     const cover = "/pages_covers/chamadosdosamu.png";
     const title1 = "O que são chamadas de sinistro?";
@@ -26,17 +25,17 @@ export async function loader() {
     let processedData;
 
     if (summaryData && citiesData) {
-      console.log('🔍 Dados de cidades da API:', citiesData.cidades?.[0]);
-      
+      console.log('Dados de cidades da API:', citiesData.cidades?.[0]);
+
       const totalChamadas = summaryData.totalChamadas || 0;
       const evolucaoAnual = summaryData.evolucaoAnual || [];
-      const anoMaisViolento = evolucaoAnual.length > 0 
+      const anoMaisViolento = evolucaoAnual.length > 0
         ? evolucaoAnual.reduce((max: any, curr: any) => curr.count > max.count ? curr : max)
         : { ano: 0, count: 0 };
-      
+
       const cidadeMaisViolenta = summaryData.cidadeMaisViolenta || {};
       const totalCidades = citiesData.cidades?.length || 0;
-      
+
       // Mapear cidades com estrutura padronizada
       const citiesWithDetails = citiesData.cidades.map((city: any, index: number) => {
         const municipio = city.municipio_samu || city.name || city.municipio || `CIDADE_${index}`;
@@ -47,12 +46,12 @@ export async function loader() {
           municipio_samu: city.municipio_samu || municipio
         };
       });
-      
+
       processedData = {
         totalChamadas,
-        anoMaisViolento: { 
-          ano: anoMaisViolento.ano || 0, 
-          total: anoMaisViolento.count || 0 
+        anoMaisViolento: {
+          ano: anoMaisViolento.ano || 0,
+          total: anoMaisViolento.count || 0
         },
         cidadeMaisViolenta: {
           municipio: cidadeMaisViolenta.municipio || "N/A",
@@ -63,7 +62,7 @@ export async function loader() {
         citiesData: { ...citiesData, cidades: citiesWithDetails }
       };
     } else {
-      console.warn("⚠️ Usando dados estáticos do SAMU");
+      console.warn("Usando dados estaticos do SAMU");
       usingMockData = true;
       processedData = {
         totalChamadas: 73667,
@@ -86,9 +85,9 @@ export async function loader() {
         unit: `${processedData.anoMaisViolento.total.toLocaleString()} chamadas`,
       },
       {
-        title: "Área de cobertura (PE)",
+        title: "Area de cobertura (PE)",
         value: processedData.totalMunicipios.toString(),
-        unit: "municípios",
+        unit: "municipios",
       },
       {
         title: "Cidade mais violenta",
@@ -115,7 +114,7 @@ export async function loader() {
       ],
     };
 
-    return json({
+    return {
       cover,
       title1,
       description1,
@@ -127,9 +126,9 @@ export async function loader() {
       usingMockData,
       apiDown: errors.length > 0,
       apiErrors: errors,
-    });
+    };
   } catch (error) {
-    console.error("❌ Erro crítico no SAMU Loader:", error);
+    console.error("Erro critico no SAMU Loader:", error);
     throw error;
   }
 }

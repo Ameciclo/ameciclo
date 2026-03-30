@@ -1,10 +1,9 @@
-import { json, LoaderFunction } from "@remix-run/node";
 import { DOCUMENTS_DATA, DOCUMENTS_PAGE } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
     const errors: Array<{url: string, error: string}> = [];
-    
+
     const onError = (url: string) => (error: string) => {
         errors.push({ url, error });
     };
@@ -47,24 +46,24 @@ export const loader: LoaderFunction = async () => {
                 coverAlt: doc.cover?.alternativeText || doc.cover?.alt || null,
             };
         });
-        
-        return json({
+
+        return {
             cover: pageData.cover || null,
             description: pageData.description || null,
             objectives: pageData.objectives || null,
             documents: documents,
             apiDown: errors.length > 0,
             apiErrors: errors
-        });
+        };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        return json({
+        return {
             cover: null,
             description: null,
             objectives: null,
             documents: [],
             apiDown: true,
             apiErrors: [{ url: 'DOCUMENTS_API', error: errorMessage || 'Erro desconhecido' }]
-        });
+        };
     }
 };

@@ -3,7 +3,7 @@ import ReactMapGL, { Source, Layer, Marker, LayerProps, NavigationControl, Fulls
 import 'mapbox-gl/dist/mapbox-gl.css';
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { pointData } from "../../../typings";
 
 export const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;

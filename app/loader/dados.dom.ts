@@ -1,9 +1,8 @@
-import { json, LoaderFunction } from "@remix-run/node";
 import { LOA_RMR_ATLAS_API } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
     const errors: Array<{url: string, error: string}> = [];
-    
+
     // TODO: Integração Strapi v5 - Descomentar quando API estiver disponível
     // const onError = (url: string) => (error: string) => {
     //   errors.push({ url, error });
@@ -142,7 +141,7 @@ export const loader: LoaderFunction = async () => {
             ]
         };
 
-        return json({
+        return {
             cover,
             description,
             totalGoodActions,
@@ -153,5 +152,5 @@ export const loader: LoaderFunction = async () => {
             carbonValue: 3045.957,
             apiDown: errors.length > 0,
             apiErrors: errors
-        });
+        };
 };

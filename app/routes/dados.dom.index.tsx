@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -9,17 +9,21 @@ import { loader } from "~/loader/dados.dom";
 import Chart from "react-google-charts";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
-export { loader };
 
-export default function Dom() {
-    const { 
-        cover, 
-        description, 
-        chartData, 
-        sustainableTotal, 
-        unsustainableTotal, 
-        carbonValue 
-    } = useLoaderData<any>();
+export const Route = createFileRoute("/dados/dom/")({
+  loader: () => loader(),
+  component: Dom,
+});
+
+function Dom() {
+    const {
+        cover,
+        description,
+        chartData,
+        sustainableTotal,
+        unsustainableTotal,
+        carbonValue
+    } = Route.useLoaderData();
     const [renderOthers, setRenderOthers] = useState(false);
 
     useEffect(() => {
@@ -205,7 +209,7 @@ export default function Dom() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Total por Ano</h2>
                             <p className="text-gray-600 mb-4">Visão geral do orçamento municipal total ao longo dos anos.</p>
 

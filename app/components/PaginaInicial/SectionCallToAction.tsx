@@ -1,7 +1,7 @@
 import Apoie from "../Commom/Icones/apoie";
 import Associe from "../Commom/Icones/associe";
 import Participe from "../Commom/Icones/participe";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 
 export default function SectionCallToAction({ home }: any) {
     return (

@@ -1,7 +1,6 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { IDECICLO_FORMS_DATA, IDECICLO_PAGE_DATA, IDECICLO_STRUCTURES_DATA } from "~/servers";
 
-async function getStructureMap(structure: any, request: Request) {
+async function getStructureMap(structure: any, requestUrl: string) {
   const geoJsonMap = {
     type: "FeatureCollection",
     name: structure.street,
@@ -13,8 +12,7 @@ async function getStructureMap(structure: any, request: Request) {
   };
 
   try {
-    const url = new URL(request.url);
-    const mapUrl = new URL('/dbs/malhacicloviariapermanente_mar2021.json', url.origin);
+    const mapUrl = new URL('/dbs/malhacicloviariapermanente_mar2021.json', 'https://ameciclo.org');
     const response = await fetch(mapUrl);
     if (!response.ok) {
       throw new Error('Failed to fetch map data');
@@ -39,7 +37,7 @@ async function getStructureMap(structure: any, request: Request) {
   return geoJsonMap;
 }
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ params }: { params: { id: string } }) {
   const id = params.id;
   if (!id) throw new Error("ID is required");
 
@@ -54,7 +52,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const pageDataResponse = await pageDataRes.json();
   const pageData = pageDataResponse?.data || { description: "", objective: "", methodology: "", cover: null };
 
-  const mapData = await getStructureMap(structure, request);
+  const mapData = await getStructureMap(structure, 'https://ameciclo.org');
 
-  return json({ structure, forms, pageData, mapData });
+  return { structure, forms, pageData, mapData };
 }

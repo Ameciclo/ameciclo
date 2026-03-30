@@ -1,10 +1,9 @@
-import { defer, LoaderFunction } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { IDECICLO_STRUCTURES_DATA, IDECICLO_PAGE_DATA, IDECICLO_FORMS_DATA } from "~/servers";
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader = async ({ params }: { params: { id: string } }) => {
     const { id } = params;
-    
+
     const structurePromise = fetchWithTimeout(
         `${IDECICLO_STRUCTURES_DATA}/${id}`,
         { cache: "no-cache" },
@@ -23,9 +22,9 @@ export const loader: LoaderFunction = async ({ params }) => {
         if (!structure || !structure.reviews || structure.reviews.length === 0) {
             return null;
         }
-        
+
         const newReviewFormId = structure.reviews[structure.reviews.length - 1].segments[0].form_id;
-        
+
         return fetchWithTimeout(
             `${IDECICLO_FORMS_DATA}/${newReviewFormId}`,
             { cache: "no-cache" },
@@ -34,10 +33,10 @@ export const loader: LoaderFunction = async ({ params }) => {
         );
     });
 
-    return defer({
+    return {
         structurePromise,
         pageDataPromise,
         formsPromise,
         id
-    });
+    };
 };

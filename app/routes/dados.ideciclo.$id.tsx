@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
@@ -10,10 +10,13 @@ import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/Vertical
 import { loader } from "~/loader/dados.ideciclo.$id";
 import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
 
-export { loader };
+export const Route = createFileRoute("/dados/ideciclo/$id")({
+  loader: ({ params }) => loader({ params }),
+  component: IdecicloDetail,
+});
 
-export default function Ideciclo() {
-  const { structure, forms, pageData, mapData } = useLoaderData<typeof loader>();
+function IdecicloDetail() {
+  const { structure, forms, pageData, mapData } = Route.useLoaderData();
 
   const info = getRatesSummary(structure, forms);
   const GeneralStatistics = structureStatistics(structure, info);

@@ -1,7 +1,6 @@
-import { json, LoaderFunction } from "@remix-run/node";
 import { PERFIL_PAGE_DATA, PERFIL_API_URL } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
     let apiDown = false;
     const apiErrors: Array<{url: string, error: string}> = [];
     let cover = null;
@@ -35,14 +34,14 @@ export const loader: LoaderFunction = async () => {
             error: error instanceof Error ? error.message : "Erro ao conectar com Strapi"
         });
     }
-    
+
     // Busca dados de perfil da API
     try {
         const apiTest = await fetch(PERFIL_API_URL, {
             method: "GET",
             signal: AbortSignal.timeout(10000)
         });
-        
+
         if (apiTest.ok) {
             profileData = await apiTest.json();
         } else {
@@ -59,13 +58,13 @@ export const loader: LoaderFunction = async () => {
             error: apiError instanceof Error ? apiError.message : "Erro desconhecido"
         });
     }
-    
-    return json({ 
+
+    return {
         cover,
         description,
         objective,
         profileData,
         apiDown,
         apiErrors
-    });
+    };
 };

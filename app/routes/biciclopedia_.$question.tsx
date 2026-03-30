@@ -1,5 +1,4 @@
-
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import ReactMarkdown from "react-markdown";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { loader } from "~/loader/biciclopedia.$question";
@@ -18,27 +17,28 @@ interface Question {
   faq_tags: FAQTag[];
 }
 
-interface LoaderData {
-  question: Question;
-}
+export const Route = createFileRoute("/biciclopedia_/$question")({
+  loader: ({ params }) => loader({ params }),
+  head: ({ loaderData }) => {
+    if (!loaderData?.question) {
+      return {
+        meta: [
+          { title: "Pergunta não encontrada - Biciclopedia" },
+        ],
+      };
+    }
+    return {
+      meta: [
+        { title: `${loaderData.question.title} - Biciclopedia` },
+        { name: "description", content: loaderData.question.description },
+      ],
+    };
+  },
+  component: QuestionPage,
+});
 
-export { loader };
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data?.question) {
-    return [
-      { title: "Pergunta não encontrada - Biciclopedia" },
-    ];
-  }
-  
-  return [
-    { title: `${data.question.title} - Biciclopedia` },
-    { name: "description", content: data.question.description },
-  ];
-};
-
-export default function Question() {
-  const { question } = useLoaderData<LoaderData>();
+function QuestionPage() {
+  const { question } = Route.useLoaderData();
 
   return (
     <>

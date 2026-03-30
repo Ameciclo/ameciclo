@@ -1,5 +1,5 @@
 import Counter from "../Commom/Counter";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 
 export default function SectionData({ projects, apiDown }: any) {
     const validProjects = Array.isArray(projects) ? projects.filter(

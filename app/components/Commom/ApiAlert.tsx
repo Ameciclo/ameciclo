@@ -1,11 +1,11 @@
-import { useLocation } from '@remix-run/react';
+import { useRouterState } from '@tanstack/react-router';
 import { useApiStatus } from '~/contexts/ApiStatusContext';
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export function ApiAlert() {
   const { isApiDown, apiErrors, clearErrors } = useApiStatus();
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   const [showDetails, setShowDetails] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "@remix-run/react";
+import { useSearch } from "@tanstack/react-router";
 import { Mail, MessageCircle, Check, X } from "lucide-react";
 
 interface FormData {
@@ -12,8 +12,8 @@ interface FormData {
 }
 
 export function ContactForm() {
-  const [searchParams] = useSearchParams();
-  const initialMessage = searchParams.get("message") || "";
+  const searchParams = useSearch({ strict: false });
+  const initialMessage = (searchParams as any).message || "";
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [success, setSuccess] = useState<{[key: string]: boolean}>({});
 
@@ -203,7 +203,7 @@ export function ContactForm() {
             type="button"
             onClick={() => handleFormSubmit((data) => {
               const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
-              const customSubject = searchParams.get('subject');
+              const customSubject = (searchParams as any).subject || '';
               const subject = customSubject || `Contato via página de contato - ${data.nome}`;
               const body = `Email: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
               window.location.href = `mailto:contato@ameciclo.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

@@ -1,5 +1,4 @@
-import { defer } from "@remix-run/node";
-import { 
+import {
   VIAS_INSEGURAS_SUMMARY,
   VIAS_INSEGURAS_TOP,
   VIAS_INSEGURAS_MAP,
@@ -9,11 +8,11 @@ import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
 export async function loader() {
   const errors: Array<{url: string, error: string}> = [];
-  
+
   const onError = (url: string) => (error: string) => {
     errors.push({ url, error });
   };
-  
+
   try {
     const mockSummaryData = {
       totalSinistros: 15420,
@@ -64,16 +63,16 @@ export async function loader() {
     const viasCompletas = (mapDataRaw.features || []).map((feature: any) => {
       const ranking = feature.properties.ranking;
       const concentrationData = concentrationMap.get(ranking) || {};
-      
+
       return {
         ranking: ranking,
         street_name: feature.properties.street_name,
         total_accidents: feature.properties.accidents_count || concentrationData.total_accidents || 0,
         length_km: feature.properties.extension_km || concentrationData.length_km || 0,
-        accidents_per_km: feature.properties.extension_km 
+        accidents_per_km: feature.properties.extension_km
           ? (feature.properties.accidents_count / feature.properties.extension_km)
           : 0,
-        percentage: summaryData.totalSinistros 
+        percentage: summaryData.totalSinistros
           ? ((feature.properties.accidents_count || 0) / summaryData.totalSinistros * 100)
           : 0,
         geometry: feature.geometry
@@ -83,12 +82,12 @@ export async function loader() {
     // Calcular dados acumulados
     let accumulatedAccidents = 0;
     let accumulatedKm = 0;
-    
+
     const topViasData = {
       dados: viasCompletas.map((via: any) => {
         accumulatedAccidents += via.total_accidents;
         accumulatedKm += via.length_km;
-        
+
         return {
           top: via.ranking,
           nome: via.street_name,
@@ -173,7 +172,7 @@ export async function loader() {
       ],
     };
 
-    return defer({
+    return {
       cover: "/pages_covers/vias-inseguras.png",
       title1: "O que são vias inseguras?",
       description1: "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU, permitindo mapear os pontos críticos da cidade e orientar políticas públicas de segurança viária.",
@@ -187,12 +186,19 @@ export async function loader() {
       historyData: Promise.resolve(historyData),
       apiDown: errors.length > 0,
       apiErrors: errors,
-    });
+    };
   } catch (error) {
     console.error("Erro ao buscar dados das vias inseguras:", error);
-    
-    
-    return defer({
+
+    const mockData = {
+      totalSinistros: 15420,
+      totalVias: 2341,
+      periodoInicio: "2016",
+      periodoFim: "2024",
+      viaMaisPerigosa: { nome: "Avenida Norte Miguel Arraes de Alencar", total: 245, percentual: 1.59 }
+    };
+
+    return {
       cover: "/pages_covers/vias-inseguras.png",
       title1: "O que são vias inseguras?",
       description1: "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU.",
@@ -230,6 +236,6 @@ export async function loader() {
       historyData: Promise.resolve({ evolucao: [] }),
       apiDown: true,
       apiErrors: [{ url: 'vias-inseguras', error: String(error) }],
-    });
+    };
   }
 }

@@ -41,6 +41,12 @@ jspm_packages/
 /dist
 /.cache
 
+# TanStack Router generated route tree
+app/routeTree.gen.ts
+
+# Cloudflare
+.wrangler/
+
 # Environment variables
 .env
 .env.local

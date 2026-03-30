@@ -1,6 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
 import SectionCallToAction from "~/components/PaginaInicial/SectionCallToAction";
 import SectionCarousel from "~/components/PaginaInicial/SectionCarousel";
-import { useLoaderData } from "@remix-run/react";
 import SectionData from "~/components/PaginaInicial/SectionData";
 import bannerImage from "/backgroundImage.webp";
 import HomeBanner from "~/components/PaginaInicial/HomeBanner";
@@ -9,12 +9,16 @@ import { useApiStatus } from "~/contexts/ApiStatusContext";
 import CachePermissionBar from "~/components/Commom/CachePermissionModal";
 import { useEffect } from "react";
 import { loader } from "../loader/home";
-export { loader };
 
-export default function Index() {
-  const { home, projects, apiDown, apiErrors } = useLoaderData<any>();
+export const Route = createFileRoute("/")({
+  loader: () => loader(),
+  component: Index,
+});
+
+function Index() {
+  const { home, projects, apiDown, apiErrors } = Route.useLoaderData();
   const { setApiDown, addApiError } = useApiStatus();
-  
+
   useEffect(() => {
     setApiDown(apiDown);
     if (apiErrors && apiErrors.length > 0) {
@@ -31,27 +35,27 @@ export default function Index() {
   const handleCacheDeny = () => {
     // Modal fechado
   };
-  
+
   return (
     <>
-      <HomeBanner 
-        image={bannerImage} 
+      <HomeBanner
+        image={bannerImage}
         alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"
       />
       <ApiStatusHandler apiDown={apiDown} />
-      
+
       <SectionCallToAction home={home} />
-      <SectionCarousel 
-        featuredProjects={home?.projects || []} 
+      <SectionCarousel
+        featuredProjects={home?.projects || []}
         isLoading={!home}
         hasApiError={apiDown}
       />
-      <SectionData 
-        projects={projects || []} 
-        apiDown={!projects} 
+      <SectionData
+        projects={projects || []}
+        apiDown={!projects}
       />
-      
-      <CachePermissionBar 
+
+      <CachePermissionBar
         onAllow={handleCacheAllow}
         onDeny={handleCacheDeny}
       />

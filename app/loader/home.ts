@@ -1,10 +1,9 @@
-import { json } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { HOME_DATA, PROJECTS_DATA } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const errors: Array<{url: string, error: string}> = [];
-  
+
   const onError = (url: string) => (error: string) => {
     errors.push({ url, error });
   };
@@ -38,7 +37,7 @@ export const loader: LoaderFunction = async () => {
     )
   ]);
 
-  return json({
+  return {
     home: {
       ...homeData?.data,
       projects: featuredProjectsData?.data || []
@@ -46,5 +45,5 @@ export const loader: LoaderFunction = async () => {
     projects: projectsData?.data || null,
     apiDown: errors.length > 0,
     apiErrors: errors
-  });
+  };
 }

@@ -1,5 +1,3 @@
-import { defer } from "@remix-run/node";
-
 // Dados reais completos da API SAMU (baseados na resposta real da API)
 const realSummaryData = {
   totalChamadas: 73667,
@@ -233,7 +231,7 @@ const realCitiesData = {
 };
 
 export async function loader() {
-  
+
   // Função que sempre resolve com dados mock
   const createSafePromise = (data: any) => {
     return new Promise((resolve) => {
@@ -285,8 +283,8 @@ export async function loader() {
     ],
   };
 
-  
-  return defer({
+
+  return {
     cover: "/pages_covers/chamadosdosamu.png",
     title1: "O que são chamadas de sinistro?",
     description1: "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.",
@@ -296,5 +294,5 @@ export async function loader() {
     statisticsBoxes,
     summaryData: createSafePromise(realSummaryData),
     citiesData: createSafePromise(realCitiesData),
-  });
+  };
 }

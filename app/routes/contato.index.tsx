@@ -1,15 +1,18 @@
-import { MetaFunction } from "@remix-run/node";
+import { createFileRoute } from "@tanstack/react-router";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import bannerContatact from "/contato.webp";
 import Banner from "~/components/Commom/Banner";
 import { ContactForm } from "~/components/Contato/ContactForm";
 import { ContactMap } from "~/components/Contato/ContactMap";
 
-export const meta: MetaFunction = () => {
-  return [{ title: "Contato" }];
-};
+export const Route = createFileRoute("/contato/")({
+  head: () => ({
+    meta: [{ title: "Contato" }],
+  }),
+  component: Contato,
+});
 
-export default function Contato() {
+function Contato() {
   return (
     <>
       <Banner image={bannerContatact} alt="Mulher negra de cabelo crespo volumoso andando de bicicleta com camisa branca de costas no canto direito do banner, passando ao lado de um bicicletário com várias bicicletas e cones que protegem este bicicletário" />

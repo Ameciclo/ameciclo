@@ -1,4 +1,4 @@
-import { MetaFunction } from "@remix-run/node";
+import { createFileRoute } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import Participe from "~/components/Commom/Icones/participe";
@@ -16,11 +16,14 @@ import { HeadquartersSection } from "~/components/Participe/HeadquartersSection"
 import { OpenSourceSection } from "~/components/Participe/OpenSourceSection";
 import { useEffect, useState } from "react";
 
-export const meta: MetaFunction = () => {
-  return [{ title: "Participe - Ameciclo" }];
-};
+export const Route = createFileRoute("/participe/")({
+  head: () => ({
+    meta: [{ title: "Participe - Ameciclo" }],
+  }),
+  component: ParticiparPage,
+});
 
-export default function ParticiparPage() {
+function ParticiparPage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [fontSize, setFontSize] = useState(16);
@@ -73,7 +76,7 @@ export default function ParticiparPage() {
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       <Banner image="/projetos.webp" alt="Participe da Ameciclo" />
       <Breadcrumb label="Participe" slug="/participe" routes={["/"]} />
-      
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
         <div className="text-center mb-12 lg:mb-16">
@@ -81,9 +84,9 @@ export default function ParticiparPage() {
             Faça Parte da Mudança
           </h1>
           <p className={`text-lg sm:text-xl max-w-3xl mx-auto px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            A Ameciclo é uma associação que trabalha pela mobilidade urbana sustentável 
-            e pelo direito à cidade. Existem várias formas de participar e contribuir 
-            para um Recife mais ciclável e humano. Fique de olho na nossa agenda e na página inicial 
+            A Ameciclo é uma associação que trabalha pela mobilidade urbana sustentável
+            e pelo direito à cidade. Existem várias formas de participar e contribuir
+            para um Recife mais ciclável e humano. Fique de olho na nossa agenda e na página inicial
             do site para avisos de convocação!
           </p>
         </div>
@@ -196,7 +199,7 @@ export default function ParticiparPage() {
         <OpenSourceSection darkMode={darkMode} />
 
       </div>
-      
+
       <AccessibilityControls
         darkMode={darkMode}
         fontSize={fontSize}

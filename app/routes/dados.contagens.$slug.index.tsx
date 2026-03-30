@@ -1,10 +1,10 @@
+import { createFileRoute, Await } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
-import { useLoaderData, Await } from "@remix-run/react";
 import { Suspense } from "react";
 import { loader } from "~/loader/dados.contagens.$slug";
 import {
@@ -14,49 +14,52 @@ import {
   transformOtherCountsForComparison,
 } from "~/services/counting-details.service";
 
-export { loader };
+export const Route = createFileRoute("/dados/contagens/$slug/")({
+  loader: ({ params }) => loader({ params }),
+  component: Contagem,
+});
 
-const Contagem = () => {
-    const { dataPromise, pageDataPromise } = useLoaderData<typeof loader>();
+function Contagem() {
+    const { dataPromise, pageDataPromise } = Route.useLoaderData();
 
     return (
         <main className="flex-auto">
             <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
-                <Await resolve={pageDataPromise}>
+                <Await promise={pageDataPromise}>
                     {(pageData) => (
                         <Banner image={pageData.pageCover?.cover?.url} alt="Capa da contagem" />
                     )}
                 </Await>
             </Suspense>
-            
+
             <Suspense fallback={<Breadcrumb label="Contagens" slug="/dados/contagens" routes={["/", "/dados"]} />}>
-                <Await resolve={dataPromise}>
+                <Await promise={dataPromise}>
                     {(data) => (
-                        <Breadcrumb 
-                            label={["Contagens", data?.name || ""]} 
-                            slug={["/dados/contagens", ""]} 
-                            routes={["/", "/dados"]} 
+                        <Breadcrumb
+                            label={["Contagens", data?.name || ""]}
+                            slug={["/dados/contagens", ""]}
+                            routes={["/", "/dados"]}
                         />
                     )}
                 </Await>
             </Suspense>
-            
+
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-32" />}>
-                <Await resolve={dataPromise}>
+                <Await promise={dataPromise}>
                     {(data) => {
                         if (!data) throw new Response("Not Found", { status: 404 });
                         return (
-                            <StatisticsBox 
-                                title={data.name} 
-                                boxes={getCountingStatistics(data, data.selectedCount)} 
+                            <StatisticsBox
+                                title={data.name}
+                                boxes={getCountingStatistics(data, data.selectedCount)}
                             />
                         );
                     }}
                 </Await>
             </Suspense>
-            
+
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-                <Await resolve={dataPromise}>
+                <Await promise={dataPromise}>
                     {(data) => {
                         if (!data) return null;
                         const pointsData = getPointsData(data, data.selectedCount);
@@ -84,18 +87,18 @@ const Contagem = () => {
                     }}
                 </Await>
             </Suspense>
-            
+
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
-                <Await resolve={dataPromise}>
+                <Await promise={dataPromise}>
                     {(data) => {
                         if (!data) return null;
                         return <InfoCards cards={getCountingCards(data.selectedCount)} />;
                     }}
                 </Await>
             </Suspense>
-            
+
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-                <Await resolve={dataPromise}>
+                <Await promise={dataPromise}>
                     {(data) => {
                         if (!data) return null;
                         return (
@@ -110,9 +113,9 @@ const Contagem = () => {
                     }}
                 </Await>
             </Suspense>
-            
+
             <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
-                <Await resolve={Promise.all([dataPromise, pageDataPromise])}>
+                <Await promise={Promise.all([dataPromise, pageDataPromise])}>
                     {([data, pageData]) => {
                         if (!data) return null;
                         const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], data.id);
@@ -127,6 +130,4 @@ const Contagem = () => {
             </Suspense>
         </main>
     );
-};
-
-export default Contagem;
+}

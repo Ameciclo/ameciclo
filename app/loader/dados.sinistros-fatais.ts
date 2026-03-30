@@ -1,4 +1,3 @@
-import { defer } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { DATASUS_SUMMARY_DATA, DATASUS_CITIES_BY_YEAR_DATA, OBSERVATORIO_SINISTROS_PAGE_DATA } from "~/servers";
 
@@ -21,25 +20,25 @@ const MOCK_PAGE_DATA = {
 
 export async function loader() {
   const errors: Array<{url: string, error: string}> = [];
-  
+
   const onError = (url: string) => (error: string) => {
     errors.push({ url, error });
   };
 
   const [summary, citiesByYear, pageData] = await Promise.all([
     fetchWithTimeout(
-      DATASUS_SUMMARY_DATA, 
-      {}, 
-      10000, 
-      null, 
+      DATASUS_SUMMARY_DATA,
+      {},
+      10000,
+      null,
       onError(DATASUS_SUMMARY_DATA),
       2
     ),
     fetchWithTimeout(
-      DATASUS_CITIES_BY_YEAR_DATA, 
-      {}, 
-      10000, 
-      null, 
+      DATASUS_CITIES_BY_YEAR_DATA,
+      {},
+      10000,
+      null,
       onError(DATASUS_CITIES_BY_YEAR_DATA),
       2
     ),
@@ -53,11 +52,11 @@ export async function loader() {
     )
   ]);
 
-  return defer({
+  return {
     summary: Promise.resolve(summary),
     citiesByYear: Promise.resolve(citiesByYear),
     pageData: Promise.resolve(pageData),
     apiDown: errors.length > 0,
     apiErrors: errors,
-  });
+  };
 }

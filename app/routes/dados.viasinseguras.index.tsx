@@ -1,5 +1,5 @@
+import { createFileRoute } from "@tanstack/react-router";
 import React from "react";
-import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -10,9 +10,12 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { loader } from "~/loader/dados.vias-inseguras";
 
-export { loader };
+export const Route = createFileRoute("/dados/viasinseguras/")({
+  loader: () => loader(),
+  component: ViasInsegurasPage,
+});
 
-export default function ViasInsegurasPage() {
+function ViasInsegurasPage() {
   const {
     cover,
     title1,
@@ -27,8 +30,8 @@ export default function ViasInsegurasPage() {
     historyData,
     apiDown,
     apiErrors,
-  } = useLoaderData<typeof loader>();
-  
+  } = Route.useLoaderData();
+
   useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/vias-inseguras');
 
   return (
@@ -60,7 +63,7 @@ export default function ViasInsegurasPage() {
           },
         ]}
       />
-      <ViasInsegurasClientSide 
+      <ViasInsegurasClientSide
         summaryData={summaryData}
         topViasData={topViasData}
         mapData={mapData}

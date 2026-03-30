@@ -1,4 +1,4 @@
-import { useLoaderData, Await } from "@remix-run/react";
+import { createFileRoute, Await } from "@tanstack/react-router";
 import { Suspense } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -11,7 +11,6 @@ import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
 import { processProfileData } from "~/components/ViasInseguras/sections/profileDataHelper";
 import { loader } from "~/loader/dados.viasinseguras.$slug";
-export { loader };
 
 interface ViaHistoryData {
   evolucao: Array<{
@@ -32,14 +31,14 @@ interface ViaHistoryData {
 
 const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);
-  
+
   // Calcular média anual ajustada por dias com dados
   const mediaAjustada = data.evolucao.reduce((sum, year) => {
     const diasComDados = year.dias_com_dados || 365;
     const sinistrosPorDia = year.sinistros / diasComDados;
     return sum + (sinistrosPorDia * 365);
   }, 0) / data.evolucao.length;
-  
+
   // Encontrar ano mais perigoso
   const anoMaisPerigoso = data.evolucao.reduce((max, year) => {
     const diasComDados = year.dias_com_dados || 365;
@@ -48,13 +47,13 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
     const maxSinistrosPorDia = max.sinistros / maxDiasComDados;
     return sinistrosPorDia > maxSinistrosPorDia ? year : max;
   });
-  
+
   const primeiroAno = data.evolucao[0];
   const ultimoAno = data.evolucao[data.evolucao.length - 1];
-  
+
   // Extensão da via (se disponível nos dados do mapa)
   const extensaoVia = mapData?.vias?.[0]?.km;
-  
+
   const stats = [
     { title: "Total de vítimas", value: IntlNumber(totalSinistros), unit: `${primeiroAno.ano} - ${ultimoAno.ano}` },
     { title: "Média Anual", value: IntlNumber(Math.round(mediaAjustada)), unit: "ajustada pelas projeções" },
@@ -65,29 +64,34 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   return stats;
 };
 
-export default function ViaInsegura() {
-  const { dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise } = useLoaderData<typeof loader>();
+export const Route = createFileRoute("/dados/viasinseguras/$slug")({
+  loader: ({ params }) => loader({ params }),
+  component: ViaInsegura,
+});
+
+function ViaInsegura() {
+  const { dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise } = Route.useLoaderData();
 
   return (
     <main className="flex-auto">
       <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
-        <Await resolve={pageDataPromise}>
+        <Await promise={pageDataPromise}>
           {(pageData) => (
-            <Banner 
-              image={pageData?.cover?.url || "/pages_covers/vias-inseguras.png"} 
-              alt="Capa das vias inseguras" 
+            <Banner
+              image={pageData?.cover?.url || "/pages_covers/vias-inseguras.png"}
+              alt="Capa das vias inseguras"
             />
           )}
         </Await>
       </Suspense>
 
       <Suspense fallback={<div className="animate-pulse bg-gray-200 h-12" />}>
-        <Await resolve={dataPromise}>
+        <Await promise={dataPromise}>
           {(data) => (
-            <Breadcrumb 
-              label={data?.via || "Via"} 
-              slug={`/dados/vias-inseguras/${data?.via}`} 
-              routes={["/", "/dados", "/dados/vias-inseguras"]} 
+            <Breadcrumb
+              label={data?.via || "Via"}
+              slug={`/dados/vias-inseguras/${data?.via}`}
+              routes={["/", "/dados", "/dados/vias-inseguras"]}
             />
           )}
         </Await>
@@ -95,7 +99,7 @@ export default function ViaInsegura() {
 
       <section className="container mx-auto px-4 py-8">
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-32" />}>
-          <Await resolve={dataPromise}>
+          <Await promise={dataPromise}>
             {(data) => {
               if (!data || !data.via) {
                 return (
@@ -121,13 +125,13 @@ export default function ViaInsegura() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
-          <Await resolve={Promise.all([dataPromise, mapDataPromise])}>
+          <Await promise={Promise.all([dataPromise, mapDataPromise])}>
             {([data, mapData]) => {
               if (!data || !data.via) return null;
               return (
-                <StatisticsBox 
-                  title={data.via} 
-                  boxes={getViaStatistics(data, mapData)} 
+                <StatisticsBox
+                  title={data.via}
+                  boxes={getViaStatistics(data, mapData)}
                 />
               );
             }}
@@ -135,7 +139,7 @@ export default function ViaInsegura() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await resolve={dataPromise}>
+          <Await promise={dataPromise}>
             {(data) => {
               if (!data?.via || !data.evolucao?.length) return null;
               const { genderData, ageData, categoryData } = processProfileData(data.evolucao);
@@ -151,13 +155,13 @@ export default function ViaInsegura() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await resolve={Promise.all([dataPromise, mapDataPromise])}>
+          <Await promise={Promise.all([dataPromise, mapDataPromise])}>
             {([data, mapData]) => {
               if (!data?.via) return null;
-              
+
               const totalSinistros = data.evolucao.reduce((sum: number, year: any) => sum + year.sinistros, 0);
               let geoJsonData = null;
-              
+
               if (mapData?.vias?.length > 0) {
                 const via = mapData.vias[0];
                 if (via.geometria?.coordinates) {
@@ -176,7 +180,7 @@ export default function ViaInsegura() {
                   };
                 }
               }
-              
+
               return (
                 <MapSection
                   viaName={data.via}
@@ -189,7 +193,7 @@ export default function ViaInsegura() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await resolve={dataPromise}>
+          <Await promise={dataPromise}>
             {(data) => {
               if (!data?.via || !data.evolucao?.length) return null;
               return <EvolucaoAnualSection evolucaoData={data.evolucao} />;
@@ -199,10 +203,10 @@ export default function ViaInsegura() {
 
         {/* Tabela de Sinistros */}
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await resolve={sinistrosDataPromise}>
+          <Await promise={sinistrosDataPromise}>
             {(sinistrosData) => {
               if (!sinistrosData?.sinistros?.length) return null;
-              
+
               const categoryLabels = {
                 "Acidente de Moto": "Sinistro de Moto",
                 "Acidente de Carro": "Sinistro de Carro",
@@ -215,15 +219,15 @@ export default function ViaInsegura() {
                 "Outro": "Outro",
                 "Não Informado": "Não Informado",
               };
-              
+
               // Filtrar apenas as categorias de desfecho permitidas
               const allowedDesfechos = [
                 'Atendimento Concluído com Êxito',
-                'Removido por Particulares', 
+                'Removido por Particulares',
                 'Removido pelos Bombeiros/CIODS',
                 'Óbito no Local/Atendimento'
               ];
-              
+
               const tableData = sinistrosData.sinistros
                 .filter((sinistro: any) => {
                   const desfecho = sinistro.motivo_desf_cat || '';
@@ -272,17 +276,17 @@ export default function ViaInsegura() {
 
       {/* Documentos */}
       <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
-        <Await resolve={pageDataPromise}>
+        <Await promise={pageDataPromise}>
           {(pageData) => {
             if (!pageData?.archives?.length) return null;
-            
+
             const docs = pageData.archives.map((a: any) => ({
               title: a.filename,
               description: a.description,
               src: a.image?.url,
               url: a.file.url,
             }));
-            
+
             return (
               <CardsSession
                 title="Documentos sobre Vias Inseguras"

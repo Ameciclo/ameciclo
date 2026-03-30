@@ -1,5 +1,3 @@
-import { json } from "@remix-run/node";
-
 export interface Action {
   cod: number;
   name: string;
@@ -8,7 +6,7 @@ export interface Action {
   total: number;
 }
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   try {
     const totalGoodActions: any[] = [
       {
@@ -114,17 +112,17 @@ export const loader: LoaderFunction = async () => {
       ]
     };
 
-    return json({
+    return {
       totalGoodActions,
       totalBadActions,
       chartData,
       sustainableTotal: 35175000,
       unsustainableTotal: 148715000,
       carbonValue: 3045.957
-    });
+    };
   } catch (error) {
     console.error("Erro ao carregar dados:", error);
-    return json({ 
+    return {
       error: "Falha ao carregar dados",
       totalGoodActions: [],
       totalBadActions: [],
@@ -136,6 +134,6 @@ export const loader: LoaderFunction = async () => {
       sustainableTotal: 0,
       unsustainableTotal: 0,
       carbonValue: 0
-    });
+    };
   }
 };

@@ -1,5 +1,4 @@
-import { MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import SEO from "~/components/Commom/SEO";
@@ -7,15 +6,19 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { QuemSomosContent } from "~/components/QuemSomos/QuemSomosContent";
 import { loader } from "~/loader/quemsomos";
-export { loader };
 
-export const meta: MetaFunction = () => {
-  return [{ title: "Quem Somos" }];
-};
-export default function QuemSomos() {
-  const { pageData, apiErrors } = useLoaderData<typeof loader>();
+export const Route = createFileRoute("/quemsomos/")({
+  loader: () => loader(),
+  head: () => ({
+    meta: [{ title: "Quem Somos" }],
+  }),
+  component: QuemSomos,
+});
+
+function QuemSomos() {
+  const { pageData, apiErrors } = Route.useLoaderData();
   const { addApiError } = useApiStatus();
-  
+
   useEffect(() => {
     if (apiErrors && apiErrors.length > 0) {
       apiErrors.forEach((error: {url: string, error: string}) => {

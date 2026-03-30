@@ -1,5 +1,5 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
-import { MetaFunction } from "@remix-run/node";
 import {
   OverviewIcon,
   InstallIcon,
@@ -89,14 +89,17 @@ import BoasPraticas from "~/components/Documentacao/BoasPraticas";
 import AccessibilityControls from "~/components/Commom/AccessibilityControls";
 import ChangeThemeButton from "~/components/Commom/ChangeThemeButton";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Documentação - Ameciclo" },
-    { name: "description", content: "Documentação completa do projeto Ameciclo para desenvolvedores" },
-  ];
-};
+export const Route = createFileRoute("/documentacao/")({
+  head: () => ({
+    meta: [
+      { title: "Documentação - Ameciclo" },
+      { name: "description", content: "Documentação completa do projeto Ameciclo para desenvolvedores" },
+    ],
+  }),
+  component: Docs,
+});
 
-export default function Docs() {
+function Docs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [activeSection, setActiveSection] = useState("");
@@ -125,7 +128,7 @@ export default function Docs() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   useEffect(() => {
     const stored = localStorage.getItem("theme");
     if (stored === "dark") {
@@ -142,7 +145,7 @@ export default function Docs() {
     document.body.classList.toggle("dark", darkMode);
     localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
-  
+
   useEffect(() => {
     document.body.classList.toggle("high-contrast", highContrast);
     let styleElement = document.getElementById("high-contrast-styles");
@@ -192,8 +195,8 @@ export default function Docs() {
       const results = searchData.filter(item => {
         const titleMatch = item.title.toLowerCase().includes(searchLower);
         const contentMatch = item.content.toLowerCase().includes(searchLower);
-        const wordsMatch = searchLower.split(' ').some(word => 
-          item.title.toLowerCase().includes(word) || 
+        const wordsMatch = searchLower.split(' ').some(word =>
+          item.title.toLowerCase().includes(word) ||
           item.content.toLowerCase().includes(word)
         );
         return titleMatch || contentMatch || wordsMatch;

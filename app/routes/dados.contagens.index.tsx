@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { pointData } from "typings";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -16,14 +16,17 @@ import { useCountsMapData } from "~/hooks/useCountsMapData";
 import { loader } from "~/loader/dados.contagens";
 import { useState, useEffect } from "react";
 
-export { loader };
+export const Route = createFileRoute("/dados/contagens/")({
+  loader: () => loader(),
+  component: Contagens,
+});
 
-export default function Contagens() {
-    const { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function Contagens() {
+    const { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } = Route.useLoaderData();
     const { setApiDown, addApiError } = useApiStatus();
     const [showFilters, setShowFilters] = useState(false);
     const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
-    
+
     useEffect(() => {
         setApiDown(apiDown);
         if (apiErrors && apiErrors.length > 0) {
@@ -35,7 +38,8 @@ export default function Contagens() {
 
     const statistics = useCountsStatistics(summaryData.summaryData);
     const { pointsData, controlPanel } = useCountsMapData(amecicloData, pcrCounts);
-    
+
+
 
 
     const docs = (data?.archives || []).map((a: any) => {
@@ -56,13 +60,13 @@ export default function Contagens() {
             <ExplanationBoxes boxes={[{ title: "O que é?", description: data?.description }, { title: "E o que mais?", description: data?.objective }]} />
             <InfoCards cards={summaryData.cards} />
             <AmecicloMap
-                pointsData={pointsData} 
+                pointsData={pointsData}
                 controlPanel={controlPanel}
                 onPointClick={(point) => {
                     setSelectedPoint(point);
                 }}
             />
-            
+
             <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
             <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
             <CardsSession

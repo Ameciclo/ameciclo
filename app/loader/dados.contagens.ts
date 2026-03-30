@@ -1,13 +1,10 @@
-import { json, LoaderFunction } from "@remix-run/node";
 import { IntlPercentil } from "~/services/utils";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
-import * as fs from "fs/promises";
-import * as path from "path";
 import { COUNTINGS_PAGE_DATA, COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const errors: Array<{url: string, error: string}> = [];
-  
+
   const onError = (url: string) => (error: string) => {
     errors.push({ url, error });
   };
@@ -15,7 +12,7 @@ export const loader: LoaderFunction = async () => {
   try {
     const [dataResponse, pcrCounts, atlasData] = await Promise.all([
       fetchWithTimeout(
-        COUNTINGS_PAGE_DATA, 
+        COUNTINGS_PAGE_DATA,
         { cache: "no-cache" },
         5000,
         null,
@@ -23,11 +20,11 @@ export const loader: LoaderFunction = async () => {
       ),
       (async () => {
         try {
-          const jsonPath = path.join(process.cwd(), "public", "dbs", "PCR_CONTAGENS.json");
-          const fileContent = await fs.readFile(jsonPath, "utf-8");
-          return JSON.parse(fileContent);
+          const response = await fetch('https://ameciclo.org/dbs/PCR_CONTAGENS.json');
+          const data = await response.json();
+          return data;
         } catch (error) {
-          console.error("Error reading PCR_CONTAGENS.json:", error);
+          console.error("Error fetching PCR_CONTAGENS.json:", error);
           return [];
         }
       })(),
@@ -41,7 +38,7 @@ export const loader: LoaderFunction = async () => {
     ]);
 
     const data = dataResponse?.data || { cover: null, description: null, objective: null, archives: [] };
-    
+
     // Calcular estatísticas a partir dos dados do Atlas
     let totalCyclists = 0;
     let totalWomen = 0;
@@ -61,16 +58,16 @@ export const loader: LoaderFunction = async () => {
 
     if (atlasData && Array.isArray(atlasData)) {
       differentPoints = atlasData.length;
-      
+
       atlasData.forEach((location: any) => {
         if (location.counts && Array.isArray(location.counts)) {
           location.counts.forEach((count: any) => {
             totalCounts++;
             const cyclists = count.total_cyclists || 0;
             totalCyclists += cyclists;
-            
+
             if (cyclists > maxCount) maxCount = cyclists;
-            
+
             const chars = count.characteristics || {};
             totalWomen += chars.women || 0;
             totalJuveniles += chars.juveniles || 0;
@@ -122,23 +119,23 @@ export const loader: LoaderFunction = async () => {
       { label: "Contramão", icon: "wrong_way", data: IntlPercentil(totalWrongWay / totalCyclists) },
     ] : [];
 
-    return json({
+    return {
       data,
       summaryData: { summaryData, countsData, cards },
       pcrCounts,
       amecicloData: atlasData,
       apiDown: errors.length > 0,
       apiErrors: errors
-    });
+    };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return json({
+    return {
       data: { cover: null, description: null, objective: null, archives: [] },
       summaryData: { summaryData: null, countsData: [], cards: [] },
       pcrCounts: [],
       amecicloData: [],
       apiDown: true,
       apiErrors: [{ url: 'COUNTINGS_API', error: errorMessage || 'Erro desconhecido' }]
-    });
+    };
   }
 };

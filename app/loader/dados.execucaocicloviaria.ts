@@ -1,11 +1,10 @@
-import { LoaderFunction } from "@remix-run/node";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { EXECUCAO_CICLOVIARIA_DATA, EXECUCAO_CICLOVIARIA_SUMMARY, EXECUCAO_CICLOVIARIA_RELATIONS, PDC_VOL1_URL, PDC_VOL2_URL, PDC_PASTA_URL, CICLOMAPA_URL, PDC_PODCAST_URL, PDC_WIKI_URL } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const apiErrors: Array<{url: string, error: string}> = [];
-  
+
   const onError = (url: string) => (error: string) => {
     apiErrors.push({ url, error });
   };
@@ -18,8 +17,8 @@ export const loader: LoaderFunction = async () => {
       text_1: `O Observatório Cicloviário é uma central de monitoramento que acompanha a evolução da estrutura cicloviária da Região Metropolitana do Recife, comparando a estrutura projetada pelo Plano Diretor Cicloviário frente à estrutura executada.
             Para facilitar a demonstração dos dados, considera-se EXECUTADA o local onde havia previsão de estrutura e foi implatado algo lá, não necessariamente da mesma tipologia.`,
       title_2: 'Por que o PDC?',
-      text_2: `Em 4 de fevereiro de 2014 o Governo do Estado de Pernambuco, junto com as prefeituras da Região Metropolitana do Recife, lançou o Plano Diretor Cicloviário (PDC). 
-            O Plano integra os diversos municípios da RMR com uma ampla rede cicloviária, priorizando as principais avenidas e pontos de conexão das cidades. Sua construção teve participação não só dos entes públicos, mas também da sociedade civil, como nós, da Ameciclo. 
+      text_2: `Em 4 de fevereiro de 2014 o Governo do Estado de Pernambuco, junto com as prefeituras da Região Metropolitana do Recife, lançou o Plano Diretor Cicloviário (PDC).
+            O Plano integra os diversos municípios da RMR com uma ampla rede cicloviária, priorizando as principais avenidas e pontos de conexão das cidades. Sua construção teve participação não só dos entes públicos, mas também da sociedade civil, como nós, da Ameciclo.
             Com metas estipuladas em fases,  o PDC precisa ser concluído em 2024.`
     }
   };
@@ -171,7 +170,7 @@ export const loader: LoaderFunction = async () => {
 
   const allWaysData = apiData || fallbackData;
   const statsData = cycleStructureExecutionStatistics(summaryData?.all || fallbackStats);
-  
+
   const citiesData: any = {};
   if (summaryData?.byCity) {
     Object.entries(summaryData.byCity).forEach(([cityId, cityData]: [string, any]) => {

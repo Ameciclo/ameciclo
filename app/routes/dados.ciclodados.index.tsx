@@ -1,6 +1,5 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from 'react';
-import { json, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { useLoaderData, useRevalidator } from '@remix-run/react';
 import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
 import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
 import { useCicloDadosMap } from '~/hooks/useCicloDadosMap';
@@ -18,66 +17,67 @@ import {
   generateLayersConf
 } from '~/components/CicloDados';
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "CicloDados - Dados de Ciclismo Urbano" },
-    { name: "description", content: "Visualização de dados de ciclismo urbano, contagens, infraestrutura e perfil de ciclistas" },
-  ];
-};
+export const Route = createFileRoute("/dados/ciclodados/")({
+  loader: async ({ request }: { request?: Request } = {}) => {
+    const url = request ? new URL(request.url) : null;
+    const lat = url?.searchParams.get('lat') ?? null;
+    const lon = url?.searchParams.get('lon') ?? null;
+    const zoom = url?.searchParams.get('zoom') ?? null;
+    const modalOpen = url?.searchParams.get('modal') ?? null;
+    const modalTab = url?.searchParams.get('tab') ?? null;
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const lat = url.searchParams.get('lat');
-  const lon = url.searchParams.get('lon');
-  const zoom = url.searchParams.get('zoom');
-  const modalOpen = url.searchParams.get('modal');
-  const modalTab = url.searchParams.get('tab');
-  
-  try {
-    const [amecicloResponse, perfilResponse] = await Promise.all([
-      fetch('https://cyclist-counts.atlas.ameciclo.org/v1/locations'),
-      fetch('https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations')
-    ]);
-    
-    const amecicloData = amecicloResponse.ok ? await amecicloResponse.json() : [];
-    const perfilData = perfilResponse.ok ? await perfilResponse.json() : null;
-    
-    return json({ 
-      contagemData: {
-        ameciclo: amecicloData,
-        prefeitura: []
-      }, 
-      execucaoCicloviaria: null,
-      perfilCiclistas: perfilData,
-      initialViewState: lat && lon && zoom ? {
-        latitude: parseFloat(lat),
-        longitude: parseFloat(lon),
-        zoom: parseFloat(zoom)
-      } : null,
-      modalState: modalOpen ? {
-        open: modalOpen === 'true',
-        tab: modalTab || 'overview'
-      } : null
-    });
-  } catch (error) {
-    console.error('Error loading data:', error);
-    return json({ 
-      contagemData: {
-        ameciclo: [],
-        prefeitura: []
-      }, 
-      execucaoCicloviaria: null,
-      perfilCiclistas: null,
-      initialViewState: null,
-      modalState: null
-    });
-  }
-}
+    try {
+      const [amecicloResponse, perfilResponse] = await Promise.all([
+        fetch('https://cyclist-counts.atlas.ameciclo.org/v1/locations'),
+        fetch('https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations')
+      ]);
 
-export default function CicloDados() {
-  const { contagemData, execucaoCicloviaria, perfilCiclistas, initialViewState, modalState } = useLoaderData<typeof loader>();
-  const revalidator = useRevalidator();
-  
+      const amecicloData = amecicloResponse.ok ? await amecicloResponse.json() : [];
+      const perfilData = perfilResponse.ok ? await perfilResponse.json() : null;
+
+      return {
+        contagemData: {
+          ameciclo: amecicloData,
+          prefeitura: []
+        },
+        execucaoCicloviaria: null,
+        perfilCiclistas: perfilData,
+        initialViewState: lat && lon && zoom ? {
+          latitude: parseFloat(lat),
+          longitude: parseFloat(lon),
+          zoom: parseFloat(zoom)
+        } : null,
+        modalState: modalOpen ? {
+          open: modalOpen === 'true',
+          tab: modalTab || 'overview'
+        } : null
+      };
+    } catch (error) {
+      console.error('Error loading data:', error);
+      return {
+        contagemData: {
+          ameciclo: [],
+          prefeitura: []
+        },
+        execucaoCicloviaria: null,
+        perfilCiclistas: null,
+        initialViewState: null,
+        modalState: null
+      };
+    }
+  },
+  head: () => ({
+    meta: [
+      { title: "CicloDados - Dados de Ciclismo Urbano" },
+      { name: "description", content: "Visualização de dados de ciclismo urbano, contagens, infraestrutura e perfil de ciclistas" },
+    ],
+  }),
+  component: CicloDados,
+});
+
+function CicloDados() {
+  const { contagemData, execucaoCicloviaria, perfilCiclistas, initialViewState, modalState } = Route.useLoaderData();
+
   const {
     mapSelection,
     mapViewState,
@@ -92,9 +92,9 @@ export default function CicloDados() {
     handleMapMove,
     setAutoOpenPopup
   } = useCicloDadosMap(initialViewState);
-  
+
   const { processedPerfilData, processedContagemData } = useProcessedData(contagemData, perfilCiclistas);
-  
+
   const {
     infraOptions,
     contagemOptions,
@@ -103,7 +103,7 @@ export default function CicloDados() {
     sinistroOptions,
     estacionamentoOptions
   } = useCicloDadosData();
-  
+
   const perfilOptions = ['Perfil de Ciclistas'];
 
   const {
@@ -169,20 +169,20 @@ export default function CicloDados() {
   const layersConf = generateLayersConf(selectedInfra, selectedPdc, infraOptions, pdcOptions);
 
   const handleReloadMapData = () => {
-    revalidator.revalidate();
+    // revalidation handled by TanStack Router
   };
-  
+
   const handleReloadGeneralData = () => {
     selectAllOptions();
-    revalidator.revalidate();
+    // revalidation handled by TanStack Router
   };
 
   return (
     <CicloDadosErrorBoundary>
       <ClientOnly fallback={<CicloDadosLoader />}>
         <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
-          <CicloDadosHeader 
-            viewMode={viewMode} 
+          <CicloDadosHeader
+            viewMode={viewMode}
             onViewModeChange={setViewMode}
             onZoomToStreet={handleZoomToStreet}
           />

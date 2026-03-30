@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 
 export const StatisticsBoxIdeciclo = ({ title, boxes, subtitle = "" }: any) => {
     return (

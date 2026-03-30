@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useEffect } from "react";
@@ -10,13 +10,15 @@ import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdecic
 import { calculateIdecicloStatistics } from "~/services/ideciclo-statistics.service";
 import { loader } from "~/loader/dados.ideciclo";
 
-export { loader };
+export const Route = createFileRoute("/dados/ideciclo/")({
+  loader: () => loader(),
+  component: Ideciclo,
+});
 
-
-export default function Ideciclo() {
-    const { ideciclo, structures, pageData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function Ideciclo() {
+    const { ideciclo, structures, pageData, apiDown, apiErrors } = Route.useLoaderData();
     const { setApiDown, addApiError } = useApiStatus();
-    
+
     useEffect(() => {
         setApiDown(apiDown);
         if (apiErrors && apiErrors.length > 0) {

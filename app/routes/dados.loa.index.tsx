@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -11,10 +11,14 @@ import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { InvestmentCards } from "~/components/Loa/sections/InvestmentCards";
 import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetComparisonCards";
 import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
-export { loader };
 
-export default function Loa() {
-    const data = useLoaderData<any>();
+export const Route = createFileRoute("/dados/loa/")({
+  loader: () => loader(),
+  component: Loa,
+});
+
+function Loa() {
+    const data = Route.useLoaderData();
     const [showFilters, setShowFilters] = useState(false);
     const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
     const { setApiDown, addApiError } = useApiStatus();
@@ -164,20 +168,20 @@ export default function Loa() {
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Investimentos e Emissões</h2>
                     <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações climáticas, orçamento total e custo por emissão de carbono.</p>
-                    <InvestmentCards 
-                        hasData={hasData} 
-                        totalClimateBudgeted={totalClimateBudgeted} 
-                        totalStateBudget={totalStateBudget} 
+                    <InvestmentCards
+                        hasData={hasData}
+                        totalClimateBudgeted={totalClimateBudgeted}
+                        totalStateBudget={totalStateBudget}
                     />
                 </section>
 
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçado vs. Executado em Ações Climáticas</h2>
                     <p className="text-gray-600 mb-4">Comparação entre o valor planejado no orçamento e o valor efetivamente executado em ações para o clima.</p>
-                    <BudgetComparisonCards 
-                        hasData={hasData} 
-                        totalClimateBudgeted={totalClimateBudgeted} 
-                        totalClimateExecuted={totalClimateExecuted} 
+                    <BudgetComparisonCards
+                        hasData={hasData}
+                        totalClimateBudgeted={totalClimateBudgeted}
+                        totalClimateExecuted={totalClimateExecuted}
                     />
                 </section>
 
@@ -200,22 +204,22 @@ export default function Loa() {
                                             };
                                         }
                                     });
-                                    
+
                                     let filteredActions = processedActions;
                                     if (filterType === 'good') {
                                         filteredActions = processedActions.filter((action: any) => action.type === 'good');
                                     } else if (filterType === 'bad') {
                                         filteredActions = processedActions.filter((action: any) => action.type === 'bad');
                                     }
-                                    
+
                                     return (
-                                        <Table 
-                                            title="Ações e Programas da LOA" 
-                                            data={filteredActions} 
-                                            columns={columns} 
-                                            allColumns={allColumns} 
-                                            showFilters={showFilters} 
-                                            setShowFilters={setShowFilters} 
+                                        <Table
+                                            title="Ações e Programas da LOA"
+                                            data={filteredActions}
+                                            columns={columns}
+                                            allColumns={allColumns}
+                                            showFilters={showFilters}
+                                            setShowFilters={setShowFilters}
                                             filterType={filterType}
                                             setFilterType={setFilterType}
                                             classifyAction={classifyAction}

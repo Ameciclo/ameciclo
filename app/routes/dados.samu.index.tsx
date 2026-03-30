@@ -1,5 +1,5 @@
+import { createFileRoute } from "@tanstack/react-router";
 import React from "react";
-import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -10,9 +10,12 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { loader } from "~/loader/dados.samu";
 
-export { loader };
+export const Route = createFileRoute("/dados/samu/")({
+  loader: () => loader(),
+  component: SamuPage,
+});
 
-export default function SamuPage() {
+function SamuPage() {
   const {
     cover,
     title1,
@@ -26,8 +29,8 @@ export default function SamuPage() {
     mockDataDate,
     apiDown,
     apiErrors,
-  } = useLoaderData<typeof loader>();
-  
+  } = Route.useLoaderData();
+
   useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/samu');
 
   return (

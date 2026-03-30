@@ -1,8 +1,7 @@
+import { createFileRoute, Await, Link } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
-import { useLoaderData, Link, Await } from "@remix-run/react";
 import { Suspense } from "react";
 import { loader } from "~/loader/dados.contagens.$slug.compare.$compareSlug";
-export { loader };
 import React from "react";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
@@ -66,9 +65,9 @@ function getPointsDataForComparingCounting(data: any[]) {
     const count = location.selectedCount || {};
     const lat = parseFloat(location.latitude);
     const lng = parseFloat(location.longitude);
-    
+
     if (isNaN(lat) || isNaN(lng)) return null;
-    
+
     return {
       key: location.name,
       latitude: lat,
@@ -90,21 +89,26 @@ function getPointsDataForComparingCounting(data: any[]) {
 
 
 
-export default function Compare() {
-  const { dataPromise, pageDataPromise, boxesPromise, toCompare } = useLoaderData<typeof loader>();
+export const Route = createFileRoute("/dados/contagens/$slug/compare/$compareSlug")({
+  loader: ({ params }) => loader({ params }),
+  component: Compare,
+});
+
+function Compare() {
+  const { dataPromise, pageDataPromise, boxesPromise, toCompare } = Route.useLoaderData();
 
   return (
     <main className="flex-auto overflow-x-hidden">
       <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
-        <Await resolve={pageDataPromise}>
+        <Await promise={pageDataPromise}>
           {(pageData) => (
             <Banner image={pageData.pageCover.cover.url} alt="Comparação de contagens" />
           )}
         </Await>
       </Suspense>
-      
+
       <Suspense fallback={<div className="bg-ameciclo h-12 animate-pulse" />}>
-        <Await resolve={dataPromise}>
+        <Await promise={dataPromise}>
           {(data) => (
             <div className="bg-ameciclo text-white py-2 px-4 uppercase flex items-center text-sm md:text-base">
               <div className="container mx-auto">
@@ -133,7 +137,7 @@ export default function Compare() {
                         <Link to={`/dados/contagens/${location?.id || ''}`} className="text-white">{location?.name || 'Contagem'}</Link>
                         <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
                           <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
-                        </svg>
+                          </svg>
                       </li>
                     ))}
                     <li className="flex items-center">
@@ -146,7 +150,7 @@ export default function Compare() {
           )}
         </Await>
       </Suspense>
-      
+
       <section className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Comparação entre Contagens</h1>
@@ -154,7 +158,7 @@ export default function Compare() {
         </div>
 
         <Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"><div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div><div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div></div>}>
-          <Await resolve={Promise.all([dataPromise, boxesPromise])}>
+          <Await promise={Promise.all([dataPromise, boxesPromise])}>
             {([data, boxesResult]) => {
               const boxes = boxesResult.boxes;
               return (
@@ -166,7 +170,7 @@ export default function Compare() {
               text: index === 0 ? 'text-teal-700' : 'text-emerald-700',
               accent: index === 0 ? 'bg-teal-500' : 'bg-emerald-500'
             };
-            
+
                     return (
                       <div key={index} className={`${colors.bg} ${colors.border} border-2 rounded-lg p-6 shadow-lg`}>
                         <div className="flex items-center justify-between mb-4">
@@ -176,9 +180,9 @@ export default function Compare() {
                           </div>
                           <span className="text-sm text-gray-500">{box.date}</span>
                         </div>
-                        
+
                         <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>{box.title}</h2>
-                        
+
                         <div className="space-y-4">
                           <div className="flex justify-between items-center py-2 border-b border-gray-200">
                             <Tooltip text="Total geral de ciclistas contabilizados">
@@ -190,7 +194,7 @@ export default function Compare() {
                               </span>
                             </Tooltip>
                           </div>
-                          
+
                           {data[index] && data[index].selectedCount && (
                             <>
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
@@ -203,7 +207,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Ciclistas usando capacete de segurança">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Com Capacete <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.helmet || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -214,7 +218,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Ciclistas levando carona (uma pessoa leva outra na bicicleta)">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Carona <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.ride || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -225,7 +229,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas a serviço: cargueiras com água, frutas, mercadorias ou entregadores de app">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Serviço <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.service || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -236,7 +240,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas de carga transportando mercadorias">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Bicicletas de Carga <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.cargo || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -247,7 +251,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas compartilhadas como Bike Itaú, Bike Tem">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Compartilhada <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.shared_bike || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -258,7 +262,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas pedalando pela calçada (não inclui quem está andando)">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Calçada <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.sidewalk || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -269,7 +273,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                 <Tooltip text="Bicicletas que vieram na contramão do trânsito">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Contramão <span className="text-sm text-gray-500">({(((data[index].selectedCount.characteristics?.wrong_way || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -280,7 +284,7 @@ export default function Compare() {
                                   </span>
                                 </Tooltip>
                               </div>
-                              
+
                               <div className="flex justify-between items-center py-2">
                                 <Tooltip text="Maior quantidade de ciclistas registrada em uma única hora">
                                   <span className="text-base font-medium text-gray-700 cursor-help">Pico em 1h <span className="text-sm text-gray-500">({(((data[index].selectedCount.max_hour_cyclists || 0) / (data[index].selectedCount.total_cyclists > 0 ? data[index].selectedCount.total_cyclists : 1)) * 100).toFixed(1)}%)</span></span>
@@ -293,9 +297,9 @@ export default function Compare() {
                               </div>
                             </>
                           )}
-                          
+
                           <div className="pt-4">
-                            <Link 
+                            <Link
                               to={`/dados/contagens/${data[index]?.slug}`}
                               className={`inline-block w-full text-center py-3 px-4 ${colors.accent} text-white rounded-md hover:opacity-90 transition-opacity font-medium`}
                             >
@@ -313,7 +317,7 @@ export default function Compare() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96 rounded-lg" />}>
-          <Await resolve={dataPromise}>
+          <Await promise={dataPromise}>
             {(data) => {
               const pointsData = getPointsDataForComparingCounting(data);
               return (
@@ -326,7 +330,7 @@ export default function Compare() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96 rounded-lg" />}>
-          <Await resolve={dataPromise}>
+          <Await promise={dataPromise}>
             {(data) => {
               const { series, hours } = getChartData(data);
               if (series.length === 0 || hours.length === 0) {
@@ -348,7 +352,7 @@ export default function Compare() {
         </Suspense>
 
         <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64" />}>
-          <Await resolve={Promise.all([dataPromise, pageDataPromise, Promise.resolve(toCompare)])}>
+          <Await promise={Promise.all([dataPromise, pageDataPromise, Promise.resolve(toCompare)])}>
             {([data, pageData, compareIds]) => {
               const excludeIds = data.map((d: any) => d?.id).filter(Boolean);
               const filteredData = pageData.otherCounts.filter((d: any) => !excludeIds.includes(d.id));

@@ -1,8 +1,7 @@
-import { json, LoaderFunction } from "@remix-run/node";
 import { fetchWithServerAlert } from "~/services/apiWithAlert.server";
 import { PLATAFORM_HOME_PAGE } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
     try {
         const { data, apiDown } = await fetchWithServerAlert(
             PLATAFORM_HOME_PAGE,
@@ -12,19 +11,19 @@ export const loader: LoaderFunction = async () => {
         );
 
         const { cover, description, partners } = data || {};
-        return json({ 
-            cover, 
-            description, 
+        return {
+            cover,
+            description,
             partners,
             apiDown // passa o status da API para o componente
-        });
+        };
     } catch (error) {
         console.error("Erro no loader:", error);
-        return json({ 
-            cover: null, 
-            description: null, 
+        return {
+            cover: null,
+            description: null,
             partners: [],
             apiDown: true
-        });
+        };
     }
 };

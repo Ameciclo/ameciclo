@@ -1,17 +1,16 @@
-import { LoaderFunction, json } from "@remix-run/node";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { IDECICLO_DATA, IDECICLO_STRUCTURES_DATA, IDECICLO_PAGE_DATA } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
     const errors: Array<{url: string, error: string}> = [];
-    
+
     const onError = (url: string) => (error: string) => {
         errors.push({ url, error });
     };
 
     const [idecicloData, structuresData, pageDataResponse] = await Promise.all([
         fetchWithTimeout(
-            IDECICLO_DATA, 
+            IDECICLO_DATA,
             { cache: "no-cache" },
             30000,
             [],
@@ -25,7 +24,7 @@ export const loader: LoaderFunction = async () => {
             onError(IDECICLO_STRUCTURES_DATA)
         ),
         fetchWithTimeout(
-            IDECICLO_PAGE_DATA, 
+            IDECICLO_PAGE_DATA,
             { cache: "no-cache" },
             30000,
             null,
@@ -35,11 +34,11 @@ export const loader: LoaderFunction = async () => {
 
     const pageData = pageDataResponse?.data || { description: "", objective: "", methodology: "", cover: null };
 
-    return json({
+    return {
         ideciclo: idecicloData,
         structures: structuresData,
         pageData,
         apiDown: errors.length > 0,
         apiErrors: errors
-    });
+    };
 };

@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ameciclo-org",
+  "compatibility_date": "2026-03-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "dist/client"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

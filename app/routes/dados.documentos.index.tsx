@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
@@ -7,10 +7,13 @@ import { DocumentsSession } from "~/components/Documentos/DocumentsSession";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { loader } from "~/loader/dados.documentos";
 
-export { loader };
+export const Route = createFileRoute("/dados/documentos/")({
+  loader: () => loader(),
+  component: Documentos,
+});
 
-export default function Documentos() {
-    const { cover, description, objectives, documents, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function Documentos() {
+    const { cover, description, objectives, documents, apiDown, apiErrors } = Route.useLoaderData();
     useApiStatusHandler(apiDown, apiErrors, '/dados/documentos');
 
     return (

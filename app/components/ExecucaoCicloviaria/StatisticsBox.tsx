@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 
 export const StatisticsBox = ({ title, boxes, subtitle = "" }: any) => {
   const hasData = boxes && boxes.length > 0;

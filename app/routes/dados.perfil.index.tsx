@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -7,10 +7,13 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { loader } from "~/loader/dados.perfil";
 
-export { loader };
+export const Route = createFileRoute("/dados/perfil/")({
+  loader: () => loader(),
+  component: PerfilPage,
+});
 
-export default function perfil() {
-    const { cover, description, objective, profileData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function PerfilPage() {
+    const { cover, description, objective, profileData, apiDown, apiErrors } = Route.useLoaderData();
     useApiStatusHandler(apiDown, apiErrors, '/dados/perfil');
 
     return (
