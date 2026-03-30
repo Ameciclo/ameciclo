@@ -24,6 +24,8 @@
     "@tanstack/react-start": "^1.167.13",
     "@turf/bbox": "^7.2.0",
     "@turf/helpers": "^7.2.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "framer-motion": "^11.18.0",
     "fuse.js": "^7.1.0",
     "highcharts": "^12.2.0",
@@ -41,8 +43,9 @@
     "react-markdown": "^10.1.0",
     "react-spinners": "^0.17.0",
     "react-table": "^7.8.0",
-    "styled-components": "^6.1.14",
-    "swiper": "^12.0.3"
+    "swiper": "^12.0.3",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.0.0",

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useSearch } from "@tanstack/react-router";
 import { Mail, MessageCircle, Check, X } from "lucide-react";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
+import { Select } from "~/components/ui/select";
+import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
 interface FormData {
   nome: string;
@@ -28,7 +34,7 @@ export function ContactForm() {
 
   const validateForm = (data: FormData): {[key: string]: string} => {
     const newErrors: {[key: string]: string} = {};
-    
+
     if (!data.nome) newErrors.nome = 'Nome é obrigatório';
     if (!data.email) {
       newErrors.email = 'Email é obrigatório';
@@ -40,20 +46,20 @@ export function ContactForm() {
     }
     if (!data.mensagem) newErrors.mensagem = 'Mensagem é obrigatória';
     if (!data.lgpdChecked) newErrors.lgpd = 'Você precisa aceitar os termos da LGPD';
-    
+
     return newErrors;
   };
 
   const handleFormSubmit = (callback: (data: FormData) => void) => {
     const data = getFormData();
     const validationErrors = validateForm(data);
-    
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       document.getElementById(Object.keys(validationErrors)[0])?.focus();
       return;
     }
-    
+
     setErrors({});
     callback(data);
   };
@@ -61,16 +67,19 @@ export function ContactForm() {
   return (
     <div className="bg-white rounded-lg shadow-lg p-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">Entre em Contato</h2>
-      
+
       <form className="space-y-4">
         <div>
-          <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">Nome <span className="text-red-500">*</span></label>
+          <Label htmlFor="nome" className="mb-1">Nome <span className="text-red-500">*</span></Label>
           <div className="relative">
-            <input
+            <Input
               type="text"
               id="nome"
               required
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.nome ? 'border-red-500 bg-red-50' : success.nome ? 'border-green-500' : 'border-gray-300'}`}
+              className={cn(
+                errors.nome && 'border-red-500 bg-red-50',
+                success.nome && !errors.nome && 'border-green-500'
+              )}
               placeholder="Seu nome"
               onChange={(e) => {
                 const value = e.target.value;
@@ -83,15 +92,18 @@ export function ContactForm() {
           </div>
           {errors.nome && <p className="text-red-600 text-xs mt-1">{errors.nome}</p>}
         </div>
-        
+
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
+          <Label htmlFor="email" className="mb-1">Email <span className="text-red-500">*</span></Label>
           <div className="relative">
-            <input
+            <Input
               type="email"
               id="email"
               required
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.email ? 'border-red-500 bg-red-50' : success.email ? 'border-green-500' : 'border-gray-300'}`}
+              className={cn(
+                errors.email && 'border-red-500 bg-red-50',
+                success.email && !errors.email && 'border-green-500'
+              )}
               placeholder="seu@email.com"
               onChange={(e) => {
                 const value = e.target.value;
@@ -109,22 +121,25 @@ export function ContactForm() {
           </div>
           {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
         </div>
-        
+
         <div>
-          <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+          <Label htmlFor="telefone" className="mb-1">Telefone</Label>
           <div className="flex gap-2">
-            <select
+            <Select
               id="ddi"
-              className="px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent text-sm"
+              className="w-auto"
               defaultValue="+55"
             >
-              <option value="+55">🇧🇷 +55</option>
-            </select>
+              <option value="+55">+55</option>
+            </Select>
             <div className="relative flex-1">
-              <input
+              <Input
                 type="tel"
                 id="telefone"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.telefone ? 'border-red-500 bg-red-50' : success.telefone ? 'border-green-500' : 'border-gray-300'}`}
+                className={cn(
+                  errors.telefone && 'border-red-500 bg-red-50',
+                  success.telefone && !errors.telefone && 'border-green-500'
+                )}
                 placeholder="81912345678"
                 onInput={(e) => {
                   const input = e.target as HTMLInputElement;
@@ -147,15 +162,18 @@ export function ContactForm() {
           </div>
           {errors.telefone && <p className="text-red-600 text-xs mt-1">{errors.telefone}</p>}
         </div>
-        
+
         <div>
-          <label htmlFor="mensagem" className="block text-sm font-medium text-gray-700 mb-1">Mensagem <span className="text-red-500">*</span></label>
+          <Label htmlFor="mensagem" className="mb-1">Mensagem <span className="text-red-500">*</span></Label>
           <div className="relative">
-            <textarea
+            <Textarea
               id="mensagem"
               rows={4}
               required
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.mensagem ? 'border-red-500 bg-red-50' : success.mensagem ? 'border-green-500' : 'border-gray-300'}`}
+              className={cn(
+                errors.mensagem && 'border-red-500 bg-red-50',
+                success.mensagem && !errors.mensagem && 'border-green-500'
+              )}
               placeholder="Sua mensagem..."
               defaultValue={initialMessage}
               onChange={(e) => {
@@ -169,12 +187,15 @@ export function ContactForm() {
           </div>
           {errors.mensagem && <p className="text-red-600 text-xs mt-1">{errors.mensagem}</p>}
         </div>
-        
+
         <div className="flex items-start space-x-2">
           <input
             type="checkbox"
             id="lgpd"
-            className={`mt-1 h-4 w-4 text-[#008080] focus:ring-[#008080] border-gray-300 rounded ${errors.lgpd ? 'border-red-500' : ''}`}
+            className={cn(
+              "mt-1 h-4 w-4 text-[#008080] focus:ring-[#008080] border-gray-300 rounded",
+              errors.lgpd && 'border-red-500'
+            )}
             required
             onChange={(e) => {
               setErrors(prev => ({...prev, lgpd: ''}));
@@ -182,24 +203,24 @@ export function ContactForm() {
             }}
           />
           <div className="flex-1">
-            <label htmlFor="lgpd" className="text-sm text-gray-600">
+            <Label htmlFor="lgpd" className="text-sm text-gray-600 font-normal">
               Concordo com o tratamento dos meus dados pessoais de acordo com a{' '}
-              <a 
-                href="https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd" 
-                target="_blank" 
+              <a
+                href="https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#008080] underline hover:no-underline"
               >
                 Lei Geral de Proteção de Dados (LGPD)
               </a>
               . Os dados fornecidos serão utilizados exclusivamente para responder ao seu contato.
-            </label>
+            </Label>
             {errors.lgpd && <p className="text-red-600 text-xs mt-1">{errors.lgpd}</p>}
           </div>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3">
-          <button
+          <Button
             type="button"
             onClick={() => handleFormSubmit((data) => {
               const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
@@ -208,22 +229,22 @@ export function ContactForm() {
               const body = `Email: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
               window.location.href = `mailto:contato@ameciclo.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             })}
-            className="flex-1 bg-[#008080] text-white px-4 py-2 rounded-md hover:bg-[#006666] transition-colors font-medium flex items-center justify-center gap-2"
+            className="flex-1 bg-[#008080] hover:bg-[#006666] gap-2"
           >
             <Mail size={18} /> Enviar E-mail
-          </button>
-          
-          <button
+          </Button>
+
+          <Button
             type="button"
             onClick={() => handleFormSubmit((data) => {
               const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
               const whatsappMsg = `Olá! Me chamo ${data.nome}!\\n\\nEmail: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
               window.open(`https://wa.me/5581994586830?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
             })}
-            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+            className="flex-1 bg-green-600 hover:bg-green-700 gap-2"
           >
             <MessageCircle size={18} /> WhatsApp
-          </button>
+          </Button>
         </div>
       </form>
     </div>
