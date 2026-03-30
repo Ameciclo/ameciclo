@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import SectionCarouselLoading from "./SectionCarouselLoading";
 
 export default function SectionCarousel({ featuredProjects = [], isLoading = false, hasApiError = false }) {

@@ -1,4 +1,4 @@
-import { defer } from "@remix-run/node";
+import { queryOptions } from "@tanstack/react-query";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { DATASUS_SUMMARY_DATA, DATASUS_CITIES_BY_YEAR_DATA, OBSERVATORIO_SINISTROS_PAGE_DATA } from "~/servers";
 
@@ -19,45 +19,54 @@ const MOCK_PAGE_DATA = {
   supportFiles: []
 };
 
-export async function loader() {
-  const errors: Array<{url: string, error: string}> = [];
-  
-  const onError = (url: string) => (error: string) => {
-    errors.push({ url, error });
-  };
+export const sinistrosFataisQueryOptions = () =>
+  queryOptions({
+    queryKey: ["dados", "sinistros-fatais"],
+    queryFn: async () => {
+      const errors: Array<{url: string, error: string}> = [];
 
-  const [summary, citiesByYear, pageData] = await Promise.all([
-    fetchWithTimeout(
-      DATASUS_SUMMARY_DATA, 
-      {}, 
-      10000, 
-      null, 
-      onError(DATASUS_SUMMARY_DATA),
-      2
-    ),
-    fetchWithTimeout(
-      DATASUS_CITIES_BY_YEAR_DATA, 
-      {}, 
-      10000, 
-      null, 
-      onError(DATASUS_CITIES_BY_YEAR_DATA),
-      2
-    ),
-    fetchWithTimeout(
-      OBSERVATORIO_SINISTROS_PAGE_DATA,
-      {},
-      10000,
-      MOCK_PAGE_DATA,
-      onError(OBSERVATORIO_SINISTROS_PAGE_DATA),
-      2
-    )
-  ]);
+      const onError = (url: string) => (error: string) => {
+        errors.push({ url, error });
+      };
 
-  return defer({
-    summary: Promise.resolve(summary),
-    citiesByYear: Promise.resolve(citiesByYear),
-    pageData: Promise.resolve(pageData),
-    apiDown: errors.length > 0,
-    apiErrors: errors,
+      const [summary, citiesByYear, pageData] = await Promise.all([
+        fetchWithTimeout(
+          DATASUS_SUMMARY_DATA,
+          {},
+          10000,
+          null,
+          onError(DATASUS_SUMMARY_DATA),
+          2
+        ),
+        fetchWithTimeout(
+          DATASUS_CITIES_BY_YEAR_DATA,
+          {},
+          10000,
+          null,
+          onError(DATASUS_CITIES_BY_YEAR_DATA),
+          2
+        ),
+        fetchWithTimeout(
+          OBSERVATORIO_SINISTROS_PAGE_DATA,
+          {},
+          10000,
+          MOCK_PAGE_DATA,
+          onError(OBSERVATORIO_SINISTROS_PAGE_DATA),
+          2
+        )
+      ]);
+
+      return {
+        summary,
+        citiesByYear,
+        pageData,
+        apiDown: errors.length > 0,
+        apiErrors: errors,
+      };
+    },
   });
+
+// Keep for backwards compatibility
+export async function loader() {
+  return sinistrosFataisQueryOptions().queryFn({} as any);
 }

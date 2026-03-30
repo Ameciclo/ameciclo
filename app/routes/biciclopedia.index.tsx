@@ -1,9 +1,9 @@
-
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { SearchComponent } from "../components/Biciclopedia/SearchComponent";
 import { AccordionItem } from "../components/Biciclopedia/AccordionFAQ";
-import { loader } from "~/loader/biciclopedia";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { biciclopediaQueryOptions } from "~/loader/biciclopedia";
 
 interface FAQ {
   id: number;
@@ -18,25 +18,23 @@ interface Category {
   faqs: FAQ[];
 }
 
-interface LoaderData {
-  faqs: FAQ[];
-  categories: Category[];
-}
+export const Route = createFileRoute("/biciclopedia/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(biciclopediaQueryOptions()),
+  head: () => ({
+    meta: [
+      { title: "Biciclopedia - Ameciclo" },
+      { name: "description", content: "Perguntas e respostas sobre mobilidade urbana e ciclismo" },
+    ],
+  }),
+  component: Biciclopedia,
+});
 
-export { loader };
+function Biciclopedia() {
+  const { data: { faqs, categories } } = useSuspenseQuery(biciclopediaQueryOptions());
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Biciclopedia - Ameciclo" },
-    { name: "description", content: "Perguntas e respostas sobre mobilidade urbana e ciclismo" },
-  ];
-};
-
-export default function Biciclopedia() {
-  const { faqs, categories } = useLoaderData<LoaderData>();
-  
-  const disponibleCategories = categories.filter(category => category.faqs.length > 0);
-  const sortedCategories = disponibleCategories.sort((a, b) => a.title.localeCompare(b.title));
+  const disponibleCategories = categories.filter((category: Category) => category.faqs.length > 0);
+  const sortedCategories = disponibleCategories.sort((a: Category, b: Category) => a.title.localeCompare(b.title));
 
   return (
     <>
@@ -69,7 +67,7 @@ export default function Biciclopedia() {
           {sortedCategories.length === 0 ? (
             <div className="p-4">Nenhuma categoria encontrada</div>
           ) : (
-            sortedCategories.map((cat) => (
+            sortedCategories.map((cat: Category) => (
               <AccordionItem categories={cat} key={cat.id} />
             ))
           )}

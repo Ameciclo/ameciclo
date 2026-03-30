@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -7,13 +7,19 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { dadosQueryOptions } from "~/loader/dados";
 
-import { loader } from "~/loader/dados";
-export { loader };
-export default function Dados() {
-    const { data, apiDown, apiErrors } = useLoaderData<typeof loader>();
+export const Route = createFileRoute("/dados/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(dadosQueryOptions()),
+  component: Dados,
+});
+
+function Dados() {
+    const { data: { data, apiDown, apiErrors } } = useSuspenseQuery(dadosQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
-    
+
     useEffect(() => {
         setApiDown(apiDown);
         if (apiErrors && apiErrors.length > 0) {
@@ -140,8 +146,8 @@ export default function Dados() {
                 title="Navegue por nossas pesquisas"
                 cards={FEATURED_PAGES}
             />
-            <ImagesGrid 
-                title="Outras plataformas de dados de parceiras" 
+            <ImagesGrid
+                title="Outras plataformas de dados de parceiras"
                 images={(data.partners || []).filter((p: any) => p?.image?.[0]?.url).map((p: any) => ({
                     src: p.image[0].url,
                     alt: p.title,

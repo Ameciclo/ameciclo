@@ -1,5 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
-import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -8,27 +9,33 @@ import { CardsSession } from "~/components/Commom/CardsSession";
 import ViasInsegurasClientSide from "~/components/ViasInseguras/ViasInsegurasClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { loader } from "~/loader/dados.vias-inseguras";
+import { viasInsegurasQueryOptions } from "~/loader/dados.vias-inseguras";
 
-export { loader };
+export const Route = createFileRoute("/dados/viasinseguras/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(viasInsegurasQueryOptions()),
+  component: ViasInsegurasPage,
+});
 
-export default function ViasInsegurasPage() {
+function ViasInsegurasPage() {
   const {
-    cover,
-    title1,
-    description1,
-    title2,
-    description2,
-    documents,
-    statisticsBoxes,
-    summaryData,
-    topViasData,
-    mapData,
-    historyData,
-    apiDown,
-    apiErrors,
-  } = useLoaderData<typeof loader>();
-  
+    data: {
+      cover,
+      title1,
+      description1,
+      title2,
+      description2,
+      documents,
+      statisticsBoxes,
+      summaryData,
+      topViasData,
+      mapData,
+      historyData,
+      apiDown,
+      apiErrors,
+    },
+  } = useSuspenseQuery(viasInsegurasQueryOptions());
+
   useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/vias-inseguras');
 
   return (
@@ -60,7 +67,7 @@ export default function ViasInsegurasPage() {
           },
         ]}
       />
-      <ViasInsegurasClientSide 
+      <ViasInsegurasClientSide
         summaryData={summaryData}
         topViasData={topViasData}
         mapData={mapData}

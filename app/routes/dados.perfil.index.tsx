@@ -1,16 +1,21 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import PerfilDashboard from "~/components/Perfil/PerfilDashboard";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { loader } from "~/loader/dados.perfil";
+import { perfilQueryOptions } from "~/loader/dados.perfil";
 
-export { loader };
+export const Route = createFileRoute("/dados/perfil/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(perfilQueryOptions()),
+  component: PerfilPage,
+});
 
-export default function perfil() {
-    const { cover, description, objective, profileData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function PerfilPage() {
+    const { data: { cover, description, objective, profileData, apiDown, apiErrors } } = useSuspenseQuery(perfilQueryOptions());
     useApiStatusHandler(apiDown, apiErrors, '/dados/perfil');
 
     return (

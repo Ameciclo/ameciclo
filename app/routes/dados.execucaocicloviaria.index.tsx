@@ -1,5 +1,5 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
-import { useLoaderData } from "@remix-run/react";
 import { LayerProps } from "react-map-gl";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -10,11 +10,17 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CityContent } from "~/components/ExecucaoCicloviaria/CityContent";
-import { loader } from "~/loader/dados.execucaocicloviaria";
-export { loader };
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { execucaoCicloviariaQueryOptions } from "~/loader/dados.execucaocicloviaria";
 
-export default function ExecucaoCicloviaria() {
-    const {
+export const Route = createFileRoute("/dados/execucaocicloviaria/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(execucaoCicloviariaQueryOptions()),
+  component: ExecucaoCicloviaria,
+});
+
+function ExecucaoCicloviaria() {
+    const { data: {
         cover,
         title1,
         title2,
@@ -27,7 +33,7 @@ export default function ExecucaoCicloviaria() {
         citiesData,
         apiDown,
         apiErrors
-    } = useLoaderData<typeof loader>();
+    } } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
 
     const { setApiDown, addApiError } = useApiStatus();
 
@@ -43,7 +49,7 @@ export default function ExecucaoCicloviaria() {
     const [optionsType, setOptionsType] = useState("max1digit");
     const [city_sort, sortCity] = useState("total");
     const filterRef = useRef<HTMLDivElement>(null);
-    
+
     const sortCityAndType = (value: string) => {
         sortCity(value);
         setOptionsType(value === "percent" ? "percentual" : "max1digit");
@@ -103,7 +109,7 @@ export default function ExecucaoCicloviaria() {
                                 </svg>
                                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Dados do mapa indisponíveis</h3>
                                 <p className="text-gray-600 mb-6">Não foi possível carregar os dados do mapa no momento. Tente novamente mais tarde.</p>
-                                <a 
+                                <a
                                     href="/contato"
                                     className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-3 rounded-lg transition-colors"
                                 >
@@ -113,12 +119,12 @@ export default function ExecucaoCicloviaria() {
                         </div>
                     </div>
                 )}
-                <AmecicloMap 
-                    layerData={allWaysData} 
+                <AmecicloMap
+                    layerData={allWaysData}
                     layersConf={layersConf as LayerProps[]}
                 />
             </div>
-            <CityContent 
+            <CityContent
                 citiesStats={citiesData}
                 filterRef={filterRef}
                 sort_cities={sort_cities}

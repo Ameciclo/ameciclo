@@ -1,22 +1,27 @@
-import { useLoaderData } from "@remix-run/react";
-import { MetaFunction } from "@remix-run/node";
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
-import { projetoLoader } from "~/loader/projetos";
+import { projetoQueryOptions } from "~/loader/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
 import { ProjectSteps } from "~/components/Projetos/ProjectSteps";
 
-export const loader = projetoLoader;
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const projectName = data?.project?.name || "Projeto";
-  return [
-    { title: projectName },
-    { name: "description", content: data?.project?.description || "" },
-  ];
-};
+export const Route = createFileRoute("/projetos/$projeto")({
+  loader: ({ params, context: { queryClient } }) =>
+    queryClient.ensureQueryData(projetoQueryOptions(params.projeto)),
+  head: ({ loaderData }) => {
+    const projectName = loaderData?.project?.name || "Projeto";
+    return {
+      meta: [
+        { title: projectName },
+        { name: "description", content: loaderData?.project?.description || "" },
+      ],
+    };
+  },
+  component: Projeto,
+});
 
 const ProjectDate = ({ project }: any) => {
   const dateOption: Intl.DateTimeFormatOptions = {
@@ -137,8 +142,9 @@ const StepCard = ({ step }: any) => {
   );
 };
 
-export default function Projeto() {
-    const { project } = useLoaderData<typeof loader>();
+function Projeto() {
+    const { projeto } = Route.useParams();
+    const { data: { project } } = useSuspenseQuery(projetoQueryOptions(projeto));
     const [galleryOpen, setGalleryOpen] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -148,7 +154,7 @@ export default function Projeto() {
     };
 
     const otherLinks = project?.Links || [];
-    
+
     // Converter rich text blocks para Markdown
     const getLongDescription = () => {
         if (!project?.long_description) return null;
@@ -188,9 +194,9 @@ export default function Projeto() {
         }
         return null;
     };
-    
+
     const longDescription = getLongDescription();
-    
+
     const bannerImage = project?.cover?.url || project?.media?.url || '/projetos.webp';
 
     return (
@@ -264,7 +270,7 @@ export default function Projeto() {
                                 backgroundImage: `url(${bannerImage})`,
                             }}
                         >
-                            
+
                         </div>
 
                         <Breadcrumb
@@ -273,7 +279,7 @@ export default function Projeto() {
                             routes={["/", "/projetos"]}
                         />
 
-                        
+
 
                         <section>
                             <div className="container mx-auto mt-8 mb-8 px-4">

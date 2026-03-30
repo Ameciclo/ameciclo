@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { pointData } from "typings";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -13,17 +13,22 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { useCountsStatistics } from "~/hooks/useCountsStatistics";
 import { useCountsMapData } from "~/hooks/useCountsMapData";
-import { loader } from "~/loader/dados.contagens";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { contagensQueryOptions } from "~/loader/dados.contagens";
 import { useState, useEffect } from "react";
 
-export { loader };
+export const Route = createFileRoute("/dados/contagens/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(contagensQueryOptions()),
+  component: Contagens,
+});
 
-export default function Contagens() {
-    const { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function Contagens() {
+    const { data: { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } } = useSuspenseQuery(contagensQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
     const [showFilters, setShowFilters] = useState(false);
     const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
-    
+
     useEffect(() => {
         setApiDown(apiDown);
         if (apiErrors && apiErrors.length > 0) {
@@ -35,7 +40,8 @@ export default function Contagens() {
 
     const statistics = useCountsStatistics(summaryData.summaryData);
     const { pointsData, controlPanel } = useCountsMapData(amecicloData, pcrCounts);
-    
+
+
 
 
     const docs = (data?.archives || []).map((a: any) => {
@@ -56,13 +62,13 @@ export default function Contagens() {
             <ExplanationBoxes boxes={[{ title: "O que é?", description: data?.description }, { title: "E o que mais?", description: data?.objective }]} />
             <InfoCards cards={summaryData.cards} />
             <AmecicloMap
-                pointsData={pointsData} 
+                pointsData={pointsData}
                 controlPanel={controlPanel}
                 onPointClick={(point) => {
                     setSelectedPoint(point);
                 }}
             />
-            
+
             <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
             <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
             <CardsSession

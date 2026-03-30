@@ -1,10 +1,10 @@
 import { useApiStatus } from '~/contexts/ApiStatusContext';
 import { fetchWithTimeout } from '~/services/fetchWithTimeout';
-import { useLocation } from '@remix-run/react';
+import { useRouterState } from '@tanstack/react-router';
 
 export function useApiWithAlert() {
   const { addApiError } = useApiStatus();
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
 
   const fetchWithAlert = async (
     url: string,

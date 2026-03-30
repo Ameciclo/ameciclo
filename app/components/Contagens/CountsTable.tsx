@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import React, { useState, useMemo } from "react";
 import type { ContagemData } from "~/services/contagens.service";
 import { IntlDateStr } from "~/services/utils";

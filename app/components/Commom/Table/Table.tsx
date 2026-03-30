@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { matchSorter } from "match-sorter";
-import * as Remix from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { useTable, usePagination, useFilters, useSortBy, useExpanded } from "react-table";
 import { ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 
@@ -495,12 +495,12 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     </div>
 
                     <div className="flex items-center space-x-4">
-                        <Remix.Link 
+                        <Link
                             to="/contato?message=Encontrei%20um%20erro%20na%20tabela%20de%20Estruturas%20do%20PDC%3A%0A%0ADescreva%20o%20erro%20encontrado%3A%0A"
                             className="text-xs text-gray-500 hover:text-[#008080] hover:underline transition-colors"
                         >
                             Reportar erro
-                        </Remix.Link>
+                        </Link>
 
                         <div className="flex items-center space-x-1">
                             <button

@@ -1,5 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
-import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -8,26 +9,32 @@ import { CardsSession } from "~/components/Commom/CardsSession";
 import SamuClientSide from "~/components/Samu/SamuClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { loader } from "~/loader/dados.samu";
+import { samuQueryOptions } from "~/loader/dados.samu";
 
-export { loader };
+export const Route = createFileRoute("/dados/samu/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(samuQueryOptions()),
+  component: SamuPage,
+});
 
-export default function SamuPage() {
+function SamuPage() {
   const {
-    cover,
-    title1,
-    description1,
-    title2,
-    description2,
-    documents,
-    statisticsBoxes,
-    citiesData,
-    usingMockData,
-    mockDataDate,
-    apiDown,
-    apiErrors,
-  } = useLoaderData<typeof loader>();
-  
+    data: {
+      cover,
+      title1,
+      description1,
+      title2,
+      description2,
+      documents,
+      statisticsBoxes,
+      citiesData,
+      usingMockData,
+      mockDataDate,
+      apiDown,
+      apiErrors,
+    },
+  } = useSuspenseQuery(samuQueryOptions());
+
   useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/samu');
 
   return (

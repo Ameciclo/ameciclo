@@ -1,6 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
 import SectionCallToAction from "~/components/PaginaInicial/SectionCallToAction";
 import SectionCarousel from "~/components/PaginaInicial/SectionCarousel";
-import { useLoaderData } from "@remix-run/react";
 import SectionData from "~/components/PaginaInicial/SectionData";
 import bannerImage from "/backgroundImage.webp";
 import HomeBanner from "~/components/PaginaInicial/HomeBanner";
@@ -8,13 +8,19 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import CachePermissionBar from "~/components/Commom/CachePermissionModal";
 import { useEffect } from "react";
-import { loader } from "../loader/home";
-export { loader };
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { homeQueryOptions } from "../loader/home";
 
-export default function Index() {
-  const { home, projects, apiDown, apiErrors } = useLoaderData<any>();
+export const Route = createFileRoute("/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(homeQueryOptions()),
+  component: Index,
+});
+
+function Index() {
+  const { data: { home, projects, apiDown, apiErrors } } = useSuspenseQuery(homeQueryOptions());
   const { setApiDown, addApiError } = useApiStatus();
-  
+
   useEffect(() => {
     setApiDown(apiDown);
     if (apiErrors && apiErrors.length > 0) {
@@ -31,27 +37,27 @@ export default function Index() {
   const handleCacheDeny = () => {
     // Modal fechado
   };
-  
+
   return (
     <>
-      <HomeBanner 
-        image={bannerImage} 
+      <HomeBanner
+        image={bannerImage}
         alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"
       />
       <ApiStatusHandler apiDown={apiDown} />
-      
+
       <SectionCallToAction home={home} />
-      <SectionCarousel 
-        featuredProjects={home?.projects || []} 
+      <SectionCarousel
+        featuredProjects={home?.projects || []}
         isLoading={!home}
         hasApiError={apiDown}
       />
-      <SectionData 
-        projects={projects || []} 
-        apiDown={!projects} 
+      <SectionData
+        projects={projects || []}
+        apiDown={!projects}
       />
-      
-      <CachePermissionBar 
+
+      <CachePermissionBar
         onAllow={handleCacheAllow}
         onDeny={handleCacheDeny}
       />

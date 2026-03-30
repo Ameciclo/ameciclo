@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import image from "/crash.webp";
 
 export default function PageNotFound() {

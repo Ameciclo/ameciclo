@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { matchSorter } from "match-sorter";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { ColumnFilter, NumberRangeColumnFilter } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
 import { IntlDateStr } from "~/services/utils";

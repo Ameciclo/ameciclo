@@ -1,16 +1,21 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { DocumentsSession } from "~/components/Documentos/DocumentsSession";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { loader } from "~/loader/dados.documentos";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { documentosQueryOptions } from "~/loader/dados.documentos";
 
-export { loader };
+export const Route = createFileRoute("/dados/documentos/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(documentosQueryOptions()),
+  component: Documentos,
+});
 
-export default function Documentos() {
-    const { cover, description, objectives, documents, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function Documentos() {
+    const { data: { cover, description, objectives, documents, apiDown, apiErrors } } = useSuspenseQuery(documentosQueryOptions());
     useApiStatusHandler(apiDown, apiErrors, '/dados/documentos');
 
     return (

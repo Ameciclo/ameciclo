@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { Highlight } from "react-highlighter-ts";
 import type { FuseResult } from "fuse.js";
 

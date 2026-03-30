@@ -1,23 +1,28 @@
-import { MetaFunction } from "@remix-run/node";
+import { createFileRoute } from "@tanstack/react-router";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { useLoaderData } from "@remix-run/react";
 import Banner from "~/components/Commom/Banner";
 import bannerSchedule from "/agenda.webp";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { useEffect, useRef } from "react";
 import { AgendaContent } from "~/components/Agenda/AgendaContent";
-import { loader } from "../loader/agenda";
-export { loader };
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { agendaQueryOptions } from "../loader/agenda";
 
-export const meta: MetaFunction = () => {
-    return [{ title: "Agenda" }];
-};
-export default function Agenda() {
-    const { calendarConfig, apiDown, apiErrors } = useLoaderData<typeof loader>();
+export const Route = createFileRoute("/agenda/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(agendaQueryOptions()),
+  head: () => ({
+    meta: [{ title: "Agenda" }],
+  }),
+  component: Agenda,
+});
+
+function Agenda() {
+    const { data: { calendarConfig, apiDown, apiErrors } } = useSuspenseQuery(agendaQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
     const errorsProcessed = useRef(false);
-    
+
     useEffect(() => {
         if (!errorsProcessed.current) {
             setApiDown(apiDown);

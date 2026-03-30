@@ -1,30 +1,37 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import { queryOptions } from "@tanstack/react-query";
 import { fetchWithServerAlert } from "~/services/apiWithAlert.server";
 import { PLATAFORM_HOME_PAGE } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
-    try {
+export const dadosExampleQueryOptions = () =>
+  queryOptions({
+    queryKey: ["dados", "example"],
+    queryFn: async () => {
+      try {
         const { data, apiDown } = await fetchWithServerAlert(
-            PLATAFORM_HOME_PAGE,
-            { cache: "no-cache" },
-            10000,
-            { cover: null, description: null, partners: [] } // fallback data
+          PLATAFORM_HOME_PAGE,
+          { cache: "no-cache" },
+          10000,
+          { cover: null, description: null, partners: [] }
         );
 
         const { cover, description, partners } = data || {};
-        return json({ 
-            cover, 
-            description, 
-            partners,
-            apiDown // passa o status da API para o componente
-        });
-    } catch (error) {
+        return {
+          cover,
+          description,
+          partners,
+          apiDown,
+        };
+      } catch (error) {
         console.error("Erro no loader:", error);
-        return json({ 
-            cover: null, 
-            description: null, 
-            partners: [],
-            apiDown: true
-        });
-    }
-};
+        return {
+          cover: null,
+          description: null,
+          partners: [],
+          apiDown: true,
+        };
+      }
+    },
+  });
+
+export const loader = async () =>
+  dadosExampleQueryOptions().queryFn({} as any);

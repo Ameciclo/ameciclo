@@ -1,21 +1,26 @@
-import { MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import SEO from "~/components/Commom/SEO";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { QuemSomosContent } from "~/components/QuemSomos/QuemSomosContent";
-import { loader } from "~/loader/quemsomos";
-export { loader };
+import { quemSomosQueryOptions } from "~/loader/quemsomos";
 
-export const meta: MetaFunction = () => {
-  return [{ title: "Quem Somos" }];
-};
-export default function QuemSomos() {
-  const { pageData, apiErrors } = useLoaderData<typeof loader>();
+export const Route = createFileRoute("/quemsomos/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(quemSomosQueryOptions()),
+  head: () => ({
+    meta: [{ title: "Quem Somos" }],
+  }),
+  component: QuemSomos,
+});
+
+function QuemSomos() {
+  const { data: { pageData, apiErrors } } = useSuspenseQuery(quemSomosQueryOptions());
   const { addApiError } = useApiStatus();
-  
+
   useEffect(() => {
     if (apiErrors && apiErrors.length > 0) {
       apiErrors.forEach((error: {url: string, error: string}) => {

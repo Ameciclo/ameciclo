@@ -1,50 +1,57 @@
-import { json } from "@remix-run/node";
+import { queryOptions } from "@tanstack/react-query";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 import { HOME_DATA, PROJECTS_DATA } from "~/servers";
 
-export const loader: LoaderFunction = async () => {
-  const errors: Array<{url: string, error: string}> = [];
-  
-  const onError = (url: string) => (error: string) => {
-    errors.push({ url, error });
-  };
+export const homeQueryOptions = () =>
+  queryOptions({
+    queryKey: ["home"],
+    queryFn: async () => {
+      const errors: Array<{url: string, error: string}> = [];
 
-  const FEATURED_PROJECTS_URL = `${PROJECTS_DATA}?filters[isHighlighted][$eq]=true&populate=media&pagination[pageSize]=100`;
+      const onError = (url: string) => (error: string) => {
+        errors.push({ url, error });
+      };
 
-  const [homeData, projectsData, featuredProjectsData] = await Promise.all([
-    fetchWithTimeout(
-      HOME_DATA,
-      { cache: "force-cache" },
-      1500,
-      null,
-      onError(HOME_DATA),
-      0
-    ),
-    fetchWithTimeout(
-      `${PROJECTS_DATA}?pagination[pageSize]=100`,
-      { cache: "force-cache" },
-      1500,
-      null,
-      onError(PROJECTS_DATA),
-      0
-    ),
-    fetchWithTimeout(
-      FEATURED_PROJECTS_URL,
-      { cache: "force-cache" },
-      1500,
-      null,
-      onError(FEATURED_PROJECTS_URL),
-      0
-    )
-  ]);
+      const FEATURED_PROJECTS_URL = `${PROJECTS_DATA}?filters[isHighlighted][$eq]=true&populate=media&pagination[pageSize]=100`;
 
-  return json({
-    home: {
-      ...homeData?.data,
-      projects: featuredProjectsData?.data || []
+      const [homeData, projectsData, featuredProjectsData] = await Promise.all([
+        fetchWithTimeout(
+          HOME_DATA,
+          { cache: "force-cache" },
+          1500,
+          null,
+          onError(HOME_DATA),
+          0
+        ),
+        fetchWithTimeout(
+          `${PROJECTS_DATA}?pagination[pageSize]=100`,
+          { cache: "force-cache" },
+          1500,
+          null,
+          onError(PROJECTS_DATA),
+          0
+        ),
+        fetchWithTimeout(
+          FEATURED_PROJECTS_URL,
+          { cache: "force-cache" },
+          1500,
+          null,
+          onError(FEATURED_PROJECTS_URL),
+          0
+        )
+      ]);
+
+      return {
+        home: {
+          ...homeData?.data,
+          projects: featuredProjectsData?.data || []
+        },
+        projects: projectsData?.data || null,
+        apiDown: errors.length > 0,
+        apiErrors: errors
+      };
     },
-    projects: projectsData?.data || null,
-    apiDown: errors.length > 0,
-    apiErrors: errors
   });
-}
+
+// Keep for backwards compatibility
+export const loader = async () => homeQueryOptions().queryFn({} as any);

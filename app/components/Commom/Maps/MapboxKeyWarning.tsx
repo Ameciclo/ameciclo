@@ -1,8 +1,8 @@
 import { AlertTriangle, Info, Mail } from 'lucide-react';
-import { Link, useLocation } from '@remix-run/react';
+import { Link, useRouterState } from '@tanstack/react-router';
 
 export const MapboxKeyWarning = () => {
-    const location = useLocation();
+    const location = useRouterState({ select: (s) => s.location });
     const currentPage = location.pathname;
     const errorMessage = encodeURIComponent(`Erro no mapa da página: ${currentPage}\n\nDescrição: A chave de acesso do serviço de mapas não está configurada.`);
     const subject = encodeURIComponent('Erro Técnico - Mapa não carrega');

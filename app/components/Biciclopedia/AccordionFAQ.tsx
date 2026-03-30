@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "./FAQIcon";
 

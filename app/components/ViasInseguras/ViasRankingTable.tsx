@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import Table from "../Commom/Table/Table";
 import { slugify } from "~/utils/slugify";
 

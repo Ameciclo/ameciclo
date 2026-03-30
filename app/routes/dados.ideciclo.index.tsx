@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useEffect } from "react";
@@ -8,15 +8,19 @@ import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxes
 import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
 import { calculateIdecicloStatistics } from "~/services/ideciclo-statistics.service";
-import { loader } from "~/loader/dados.ideciclo";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { idecicloQueryOptions } from "~/loader/dados.ideciclo";
 
-export { loader };
+export const Route = createFileRoute("/dados/ideciclo/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(idecicloQueryOptions()),
+  component: Ideciclo,
+});
 
-
-export default function Ideciclo() {
-    const { ideciclo, structures, pageData, apiDown, apiErrors } = useLoaderData<typeof loader>();
+function Ideciclo() {
+    const { data: { ideciclo, structures, pageData, apiDown, apiErrors } } = useSuspenseQuery(idecicloQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
-    
+
     useEffect(() => {
         setApiDown(apiDown);
         if (apiErrors && apiErrors.length > 0) {

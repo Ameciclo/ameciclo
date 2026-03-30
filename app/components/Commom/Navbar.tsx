@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@remix-run/react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AmecicloLogo } from "./NavBar/AmecicloLogo";
@@ -32,7 +32,7 @@ export const Navbar = ({ pages }: any) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hideRedNavbar, setHideRedNavbar] = useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   const isDataPage = location.pathname.startsWith('/dados') && location.pathname !== '/dados/ciclodados';
   const isCicloDadosPage = location.pathname === '/dados/ciclodados';
 
@@ -133,7 +133,7 @@ export const Navbar = ({ pages }: any) => {
 };
 
 function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   
   const isActivePage = (pageUrl: string) => {
     if (pageUrl === "/") {
@@ -187,7 +187,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
 }
 
 function SmallMenu({ pages, closeMenu }: any) {
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   const [isDataSubmenuOpen, setIsDataSubmenuOpen] = useState(false);
   
   const isActivePage = (pageUrl: string) => {

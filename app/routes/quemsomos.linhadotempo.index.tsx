@@ -1,16 +1,19 @@
-import { MetaFunction } from "@remix-run/node";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Calendar, Users, Award, MapPin, BookOpen, Bike } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import DocumentationSearchBar from "~/components/Documentacao/DocumentationSearchBar";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Linha do Tempo - Ameciclo" },
-    { name: "description", content: "História e marcos importantes da Ameciclo desde 2008" },
-  ];
-};
+export const Route = createFileRoute("/quemsomos/linhadotempo/")({
+  head: () => ({
+    meta: [
+      { title: "Linha do Tempo - Ameciclo" },
+      { name: "description", content: "História e marcos importantes da Ameciclo desde 2008" },
+    ],
+  }),
+  component: LinhaDoTempoPage,
+});
 
 interface TimelineEvent {
   year: string;
@@ -26,7 +29,7 @@ const events: TimelineEvent[] = [
   { year: "2012", title: "Cicloação", category: "pre", icon: "bike" },
   { year: "2012", title: "Reuniões estatutárias de formação da Ameciclo", category: "pre", icon: "users" },
   { year: "2012", title: "Massa Crítica (100 a 200 participantes)", category: "pre", icon: "users" },
-  
+
   { year: "2013", title: "Fundação", description: "1 de abril de 2013 - 72 pessoas na praça do Derby", category: "ameciclo", icon: "award" },
   { year: "2013", title: "1ª Sede (Plexos Coworking)", category: "ameciclo", icon: "map" },
   { year: "2013", title: "1° mudança Estatuto", description: "Mudanças a pedido do cartório", category: "ameciclo", icon: "book" },
@@ -37,35 +40,35 @@ const events: TimelineEvent[] = [
   { year: "2013", title: "Ameciclo nas Escolas", category: "ameciclo", icon: "book" },
   { year: "2013", title: "Ameciclo Debates", category: "ameciclo", icon: "users" },
   { year: "2013", title: "Amecine", category: "ameciclo", icon: "calendar" },
-  
+
   { year: "2014", title: "Primeira Avaliação Institucional", category: "ameciclo", icon: "book" },
   { year: "2014", title: "Bicicletários no Carnaval", category: "ameciclo", icon: "bike" },
   { year: "2014", title: "Concurso da Marca", category: "ameciclo", icon: "award" },
   { year: "2014", title: "Duas Menções Honrosas", description: "Prêmio Promoção da Bicicleta no Brasil", category: "ameciclo", icon: "award" },
   { year: "2014", title: "Projeto Ciclo", description: "Primeiro projeto financiado - Itaú", category: "ameciclo", icon: "award" },
   { year: "2014", title: "Vistorias de Bicicletas Compartilhadas", category: "ameciclo", icon: "bike" },
-  
+
   { year: "2015", title: "1ª Pesquisa Perfil do Ciclista", category: "ameciclo", icon: "book" },
   { year: "2015", title: "Meu Chinelo Não É Freio", category: "ameciclo", icon: "bike" },
   { year: "2015", title: "Bota Pra Rodar", description: "Fundo Socioambiental CASA", category: "ameciclo", icon: "award" },
   { year: "2015", title: "Livro A Bicicleta no Brasil", category: "ameciclo", icon: "book" },
   { year: "2015", title: "FNEBICI", category: "ameciclo", icon: "users" },
   { year: "2015", title: "Livro Bicicleta Amarela", category: "ameciclo", icon: "book" },
-  
+
   { year: "2016", title: "Desenvolvimento e aplicação do Ideciclo", category: "ameciclo", icon: "award" },
   { year: "2016", title: "Candidatura ao Fórum Mundial da Bicicleta", description: "Duas vezes segundo lugar", category: "ameciclo", icon: "award" },
   { year: "2016", title: "Eleitas delegada no Conselho das Cidades", category: "ameciclo", icon: "users" },
   { year: "2016", title: "Parceria com o Bike Noronha", category: "ameciclo", icon: "bike" },
   { year: "2016", title: "Relatório da Mobilidade por Bicicleta", category: "ameciclo", icon: "book" },
   { year: "2016", title: "Campanha Basta de Mortes no Trânsito", category: "ameciclo", icon: "users" },
-  
+
   { year: "2017", title: "2ª Sede (IAB-PE)", category: "ameciclo", icon: "map" },
   { year: "2017", title: "2° mudança Estatuto", description: "Horizontalidade e gênero neutro", category: "ameciclo", icon: "book" },
   { year: "2017", title: "Brasil que pedala: Tamandaré", category: "ameciclo", icon: "bike" },
   { year: "2017", title: "Prêmio Promoção da Bicicleta no Brasil", description: "Bota pra Rodar", category: "ameciclo", icon: "award" },
   { year: "2017", title: "Menção de reconhecimento da Folkersma", category: "ameciclo", icon: "award" },
   { year: "2017", title: "Bicicultura Recife: A Revolução das Bicicletas", category: "ameciclo", icon: "bike" },
-  
+
   { year: "2018", title: "Donde vem, pronde vão?", category: "ameciclo", icon: "book" },
   { year: "2018", title: "Apoio institucional para Cicloação e Biciflow", category: "ameciclo", icon: "users" },
   { year: "2018", title: "Apoio para diversos projetos com o Greenpeace", category: "ameciclo", icon: "users" },
@@ -74,7 +77,7 @@ const events: TimelineEvent[] = [
   { year: "2018", title: "Campanha #DesligamentoNão", category: "ameciclo", icon: "users" },
   { year: "2018", title: "Renovação do Bota pra Rodar Caranguejo Tabaiares", category: "ameciclo", icon: "bike" },
   { year: "2018", title: "Escola da Bicicleta", category: "ameciclo", icon: "book" },
-  
+
   { year: "2019", title: "Cargueira", description: "Fortalecimento Institucional - OAK", category: "ameciclo", icon: "award" },
   { year: "2019", title: "3° mudança Estatuto", category: "ameciclo", icon: "book" },
   { year: "2019", title: "Inauguração de sede própria (3ª Sede - Aurora)", category: "ameciclo", icon: "map" },
@@ -86,7 +89,7 @@ const events: TimelineEvent[] = [
   { year: "2019", title: "Escola Bike Polo", category: "ameciclo", icon: "bike" },
   { year: "2019", title: "Fundo de Ações Livres", category: "ameciclo", icon: "award" },
   { year: "2019", title: "Desafio Intermodal", category: "ameciclo", icon: "bike" },
-  
+
   { year: "2020", title: "Grupo de Trabalho Ciclopreto", category: "ameciclo", icon: "users" },
   { year: "2020", title: "Solta o Frei", category: "ameciclo", icon: "bike" },
   { year: "2020", title: "Relatório da Mobilidade Ativa", category: "ameciclo", icon: "book" },
@@ -106,15 +109,15 @@ const getIcon = (iconName?: string) => {
   }
 };
 
-export default function LinhaDoTempoPage() {
+function LinhaDoTempoPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFloating, setIsSearchFloating] = useState(false);
 
   const searchResults = useMemo(() => {
     if (!searchTerm.trim()) return [];
-    
+
     return events
-      .filter(event => 
+      .filter(event =>
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.year.includes(searchTerm)
@@ -170,10 +173,10 @@ export default function LinhaDoTempoPage() {
           loading="lazy"
         />
       </div>
-      <Breadcrumb 
-        label="Linha do Tempo" 
-        slug="/quemsomos/linhadotempo" 
-        routes={["/", "/quemsomos"]} 
+      <Breadcrumb
+        label="Linha do Tempo"
+        slug="/quemsomos/linhadotempo"
+        routes={["/", "/quemsomos"]}
       />
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-4xl mx-auto px-6 py-16">
@@ -186,7 +189,7 @@ export default function LinhaDoTempoPage() {
               >
                 <h1 className="text-5xl font-light text-gray-800 mb-4">Linha do Tempo</h1>
                 <p className="text-gray-600 text-lg max-w-2xl">
-                  Conheça a trajetória da Ameciclo desde os movimentos que antecederam sua fundação até os dias atuais. 
+                  Conheça a trajetória da Ameciclo desde os movimentos que antecederam sua fundação até os dias atuais.
                   Uma história de luta pela mobilidade ativa e por cidades mais humanas.
                 </p>
               </motion.div>
@@ -195,9 +198,9 @@ export default function LinhaDoTempoPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="ml-8 flex-shrink-0"
               >
-                <img 
-                  src="/miniatura-ameciclo-logo.webp" 
-                  alt="Logo Ameciclo" 
+                <img
+                  src="/miniatura-ameciclo-logo.webp"
+                  alt="Logo Ameciclo"
                   className="w-32 h-32 object-contain"
                 />
               </motion.div>
@@ -206,15 +209,15 @@ export default function LinhaDoTempoPage() {
         <div className="relative">
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-gray-300 via-green-400 to-green-600 -translate-x-1/2" />
 
-          <motion.div 
-            initial={{ opacity: 0 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="mb-16 text-center relative"
           >
             <div className="relative inline-block">
-              <svg 
-                className="absolute inset-0 w-full h-full opacity-5 -z-10" 
-                fill="#9ca3af" 
+              <svg
+                className="absolute inset-0 w-full h-full opacity-5 -z-10"
+                fill="#9ca3af"
                 viewBox="0 0 400 400"
               >
                 <path d="M1 1L0 201v199h400V0H200L1 1zm86 127c8 3 12 8 15 16 2 5 3 7 3 45v40h-3c-9 2-24 3-34 3-25 0-38-8-40-27-3-20 8-33 30-37 6-1 22-1 27 1 2 0 2 0 2-6 0-10-4-18-12-21-6-2-19-2-28 0-7 2-8 2-8-3l-1-6v-5l5-1c8-3 10-3 24-3 13 1 14 1 20 4zm91-1l8 4 3 3 4-2 13-6c8-2 10-2 17-2 19 1 28 9 33 26l2 107c0 98 1 102 2 104l6 3 6 2-1 8-1 8-7-1c-15-2-21-8-23-21l-1-102-1-101c-2-8-4-10-9-13-3-2-5-3-12-2-8 0-10 0-15 3-3 1-5 3-5 4 2 8 2 16 2 46v36h-7c-13 0-12 4-12-36 0-36 0-40-4-46s-8-7-19-7h-12l-4 1v44l-1 44h-18V129l11-2 14-2a121 121 0 0131 2zm157 1c14 7 21 21 21 46l1 10h-68v2c0 4 3 13 6 18 6 10 24 14 43 9l9-1c1 0 3 14 2 15s-11 4-21 5c-30 3-50-10-57-36-2-9-2-28 0-36 5-17 15-28 29-34 5-2 7-2 17-2 11 1 12 1 18 4zM137 241c2 0 4 2 4 3 2 3 3 11 1 14-2 4-6 6-11 6-4 0-5-1-8-4-2-3-3-4-3-8 0-10 8-16 17-12zm182 32c3 8 11 9 15 2 2-4 5-4 10-1 3 2 4 3 2 8s6 13 11 9c2-2 5-2 7 1 4 3 4 8 1 11-6 3-2 14 5 14 2 0 3 1 4 3 2 6 0 11-5 11-3 0-6 3-7 7l3 7c4 4 4 4 3 7l-3 5c-3 2-3 2-6 0-5-2-8-1-11 4v6c1 5 0 6-4 9-4 2-6 1-8-2-3-6-12-6-14 1-2 5-3 6-6 6-5 0-8-2-8-7s-3-8-8-8c-3 0-4 1-5 2-2 3-5 3-8 1-4-3-5-6-3-9 3-3 2-7-1-11-2-3-3-3-6-2-5 1-7-1-8-6s-1-5 3-8c4-2 5-3 5-7s-1-6-5-8-5-5-3-10c1-3 2-3 8-3l5-2c3-4 4-7 1-11l-2-4c0-2 6-8 8-8l4 3c6 5 13 1 13-8 0-5 2-6 8-6 4 0 4 0 5 4zm-225 2l7 3-2 8c-2 8-1 8-12 6-13-4-27 0-33 8s-7 14-7 27c-1 19 4 29 16 35 5 2 6 3 17 2l15-1 5-1c1 0 3 14 2 15-3 3-28 6-38 4-23-5-37-25-37-53 0-27 13-47 35-54 7-1 23-1 32 1zm125 1l6 2c1 1-2 15-3 16l-6-2c-7-2-22-2-27 0-12 5-18 18-18 35 0 20 7 32 21 36 6 3 20 2 27 0l6-2c1 1 2 15 1 16-2 2-12 4-22 5-26 1-44-12-50-37-3-8-2-27 0-36 5-18 17-31 34-35 7-1 22-1 31 2zm-78 52v52h-18l-1-51v-52l10-1h9v52z" />
@@ -230,11 +233,11 @@ export default function LinhaDoTempoPage() {
             const eventId = `${event.category}-${event.year}-${event.title}`;
             const isLeft = index % 2 === 0;
             return (
-              <motion.div 
+              <motion.div
                 key={`pre-${index}`}
                 id={eventId}
-                initial={{ opacity: 0, x: isLeft ? -20 : 20 }} 
-                whileInView={{ opacity: 1, x: 0 }} 
+                initial={{ opacity: 0, x: isLeft ? -20 : 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 className={`relative flex items-center mb-8 ${isLeft ? 'justify-start' : 'justify-end'}`}
               >
@@ -253,16 +256,16 @@ export default function LinhaDoTempoPage() {
             );
           })}
 
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            whileInView={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="my-16 text-center relative"
           >
             <div className="relative inline-block">
-              <svg 
-                className="absolute inset-0 w-full h-full opacity-10 -z-10" 
-                fill="#10b981" 
+              <svg
+                className="absolute inset-0 w-full h-full opacity-10 -z-10"
+                fill="#10b981"
                 viewBox="0 0 100.00014 29.999868"
               >
                 <path fill="teal" d="M0 0h100.000146v29.999869H0z"></path>
@@ -278,11 +281,11 @@ export default function LinhaDoTempoPage() {
             const eventId = `${event.category}-${event.year}-${event.title}`;
             const isLeft = index % 2 === 0;
             return (
-              <motion.div 
+              <motion.div
                 key={`ameciclo-${index}`}
                 id={eventId}
-                initial={{ opacity: 0, x: isLeft ? -20 : 20 }} 
-                whileInView={{ opacity: 1, x: 0 }} 
+                initial={{ opacity: 0, x: isLeft ? -20 : 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 className={`relative flex items-center mb-8 ${isLeft ? 'justify-start' : 'justify-end'}`}
               >
@@ -301,9 +304,9 @@ export default function LinhaDoTempoPage() {
             );
           })}
 
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            whileInView={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="relative flex justify-center"
           >
@@ -311,9 +314,9 @@ export default function LinhaDoTempoPage() {
           </motion.div>
         </div>
 
-          <motion.p 
-            initial={{ opacity: 0 }} 
-            whileInView={{ opacity: 1 }} 
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="text-center mt-20 text-gray-500 text-sm"
           >

@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
@@ -7,13 +7,19 @@ import { IdecicloDescription } from "../components/Ideciclo/IdecicloDescription"
 import { idecicloLayers } from "../components/Ideciclo/ideciclo_mapstyle";
 import { StatisticsBoxIdecicloDetalhes } from "../components/Ideciclo/StatisticsBoxIdeciclo";
 import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/VerticalStatisticsBoxesIdeciclo";
-import { loader } from "~/loader/dados.ideciclo.$id";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { idecicloDetailQueryOptions } from "~/loader/dados.ideciclo.$id";
 import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
 
-export { loader };
+export const Route = createFileRoute("/dados/ideciclo/$id")({
+  loader: ({ context: { queryClient }, params: { id } }) =>
+    queryClient.ensureQueryData(idecicloDetailQueryOptions(id)),
+  component: IdecicloDetail,
+});
 
-export default function Ideciclo() {
-  const { structure, forms, pageData, mapData } = useLoaderData<typeof loader>();
+function IdecicloDetail() {
+  const { id } = Route.useParams();
+  const { data: { structure, forms, pageData, mapData } } = useSuspenseQuery(idecicloDetailQueryOptions(id));
 
   const info = getRatesSummary(structure, forms);
   const GeneralStatistics = structureStatistics(structure, info);
