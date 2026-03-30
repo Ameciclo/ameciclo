@@ -54,9 +54,6 @@ app/routeTree.gen.ts
 .env.test.local
 .env.production.local
 
-# Vercel
-.vercel
-
 # Workspace files
 *.code-workspace
 ameciclo.code-workspace
