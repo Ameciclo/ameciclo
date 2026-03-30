@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import { fetchJsonFromCMS } from "../services/cmsApi";
 import { CMS_BASE_URL } from "~/servers";
 
@@ -16,16 +17,22 @@ interface Category {
   faqs: FAQ[];
 }
 
-export const loader = async () => {
-  try {
-    const [faqs, categories] = await Promise.all([
-      fetchJsonFromCMS<FAQ[]>(`${server}/faqs`),
-      fetchJsonFromCMS<Category[]>(`${server}/faq-tags`)
-    ]);
+export const biciclopediaQueryOptions = () =>
+  queryOptions({
+    queryKey: ["biciclopedia"],
+    queryFn: async () => {
+      try {
+        const [faqs, categories] = await Promise.all([
+          fetchJsonFromCMS<FAQ[]>(`${server}/faqs`),
+          fetchJsonFromCMS<Category[]>(`${server}/faq-tags`),
+        ]);
 
-    return { faqs: faqs || [], categories: categories || [] };
-  } catch (error) {
-    console.error('Error loading biciclopedia data:', error);
-    return { faqs: [], categories: [] };
-  }
-};
+        return { faqs: faqs || [], categories: categories || [] };
+      } catch (error) {
+        console.error("Error loading biciclopedia data:", error);
+        return { faqs: [], categories: [] };
+      }
+    },
+  });
+
+export const loader = async () => biciclopediaQueryOptions().queryFn({} as any);

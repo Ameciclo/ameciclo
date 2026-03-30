@@ -5,25 +5,27 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import LazyLoad from 'react-lazyload';
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import Loading from "~/components/Dom/Loading";
-import { loader } from "~/loader/dados.dom";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { domQueryOptions } from "~/loader/dados.dom";
 import Chart from "react-google-charts";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
 
 export const Route = createFileRoute("/dados/dom/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(domQueryOptions()),
   component: Dom,
 });
 
 function Dom() {
-    const {
+    const { data: {
         cover,
         description,
         chartData,
         sustainableTotal,
         unsustainableTotal,
         carbonValue
-    } = Route.useLoaderData();
+    } } = useSuspenseQuery(domQueryOptions());
     const [renderOthers, setRenderOthers] = useState(false);
 
     useEffect(() => {

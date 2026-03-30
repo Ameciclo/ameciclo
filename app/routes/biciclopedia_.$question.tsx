@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import ReactMarkdown from "react-markdown";
 import Breadcrumb from "../components/Commom/Breadcrumb";
-import { loader } from "~/loader/biciclopedia.$question";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { biciclopediaQuestionQueryOptions } from "~/loader/biciclopedia.$question";
 
 interface FAQTag {
   id: number;
@@ -18,7 +19,8 @@ interface Question {
 }
 
 export const Route = createFileRoute("/biciclopedia_/$question")({
-  loader: ({ params }) => loader({ params }),
+  loader: ({ context: { queryClient }, params: { question } }) =>
+    queryClient.ensureQueryData(biciclopediaQuestionQueryOptions(question)),
   head: ({ loaderData }) => {
     if (!loaderData?.question) {
       return {
@@ -38,7 +40,8 @@ export const Route = createFileRoute("/biciclopedia_/$question")({
 });
 
 function QuestionPage() {
-  const { question } = Route.useLoaderData();
+  const { question } = Route.useParams();
+  const { data: { question: questionData } } = useSuspenseQuery(biciclopediaQuestionQueryOptions(question));
 
   return (
     <>
@@ -56,7 +59,7 @@ function QuestionPage() {
       <div className="flex items-center p-4 text-white uppercase bg-ameciclo">
         <div className="container mx-auto">
           <Breadcrumb
-            label={question.faq_tags[0]?.title || "Biciclopedia"}
+            label={questionData.faq_tags[0]?.title || "Biciclopedia"}
             slug="/biciclopedia"
             routes={["/", "/biciclopedia"]}
           />
@@ -67,17 +70,17 @@ function QuestionPage() {
           <div className="px-6">
             <div className="mt-12 text-center">
               <h3 className="mb-2 text-4xl font-semibold leading-normal text-gray-800">
-                {question.title}
+                {questionData.title}
               </h3>
               <p className="mb-2 text-2xl font-semibold leading-normal text-gray-800">
-                {question.description}
+                {questionData.description}
               </p>
             </div>
           </div>
           <div className="py-10 mt-10 text-center border-t border-gray-300">
             <div className="flex flex-wrap justify-center">
               <div className="w-full px-4 mb-4 text-lg leading-relaxed text-center text-gray-800 lg:w-9/12 markdown_box">
-                <ReactMarkdown>{question.answer || ''}</ReactMarkdown>
+                <ReactMarkdown>{questionData.answer || ''}</ReactMarkdown>
               </div>
             </div>
           </div>

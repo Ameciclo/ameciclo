@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
-import { projetoLoader } from "~/loader/projetos";
+import { projetoQueryOptions } from "~/loader/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
 import { ProjectSteps } from "~/components/Projetos/ProjectSteps";
 
 export const Route = createFileRoute("/projetos/$projeto")({
-  loader: ({ params }) => projetoLoader({ params }),
+  loader: ({ params, context: { queryClient } }) =>
+    queryClient.ensureQueryData(projetoQueryOptions(params.projeto)),
   head: ({ loaderData }) => {
     const projectName = loaderData?.project?.name || "Projeto";
     return {
@@ -141,7 +143,8 @@ const StepCard = ({ step }: any) => {
 };
 
 function Projeto() {
-    const { project } = Route.useLoaderData();
+    const { projeto } = Route.useParams();
+    const { data: { project } } = useSuspenseQuery(projetoQueryOptions(projeto));
     const [galleryOpen, setGalleryOpen] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 

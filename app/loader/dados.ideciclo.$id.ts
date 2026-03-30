@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import { IDECICLO_FORMS_DATA, IDECICLO_PAGE_DATA, IDECICLO_STRUCTURES_DATA } from "~/servers";
 
 async function getStructureMap(structure: any, requestUrl: string) {
@@ -37,22 +38,30 @@ async function getStructureMap(structure: any, requestUrl: string) {
   return geoJsonMap;
 }
 
+export const idecicloDetailQueryOptions = (id: string) =>
+  queryOptions({
+    queryKey: ["dados", "ideciclo", id],
+    queryFn: async () => {
+      if (!id) throw new Error("ID is required");
+
+      const structureRes = await fetch(IDECICLO_STRUCTURES_DATA + "/" + id);
+      const structure = await structureRes.json();
+
+      const new_review_form_id = structure.reviews[structure.reviews.length - 1].segments[0].form_id;
+      const formRes = await fetch(IDECICLO_FORMS_DATA + "/" + new_review_form_id);
+      const forms = await formRes.json();
+
+      const pageDataRes = await fetch(IDECICLO_PAGE_DATA);
+      const pageDataResponse = await pageDataRes.json();
+      const pageData = pageDataResponse?.data || { description: "", objective: "", methodology: "", cover: null };
+
+      const mapData = await getStructureMap(structure, 'https://ameciclo.org');
+
+      return { structure, forms, pageData, mapData };
+    },
+  });
+
+// Keep for backwards compatibility
 export async function loader({ params }: { params: { id: string } }) {
-  const id = params.id;
-  if (!id) throw new Error("ID is required");
-
-  const structureRes = await fetch(IDECICLO_STRUCTURES_DATA + "/" + id);
-  const structure = await structureRes.json();
-
-  const new_review_form_id = structure.reviews[structure.reviews.length - 1].segments[0].form_id;
-  const formRes = await fetch(IDECICLO_FORMS_DATA + "/" + new_review_form_id);
-  const forms = await formRes.json();
-
-  const pageDataRes = await fetch(IDECICLO_PAGE_DATA);
-  const pageDataResponse = await pageDataRes.json();
-  const pageData = pageDataResponse?.data || { description: "", objective: "", methodology: "", cover: null };
-
-  const mapData = await getStructureMap(structure, 'https://ameciclo.org');
-
-  return { structure, forms, pageData, mapData };
+  return idecicloDetailQueryOptions(params.id).queryFn({} as any);
 }

@@ -1,5 +1,5 @@
-import { createFileRoute, Await } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
@@ -10,7 +10,7 @@ import { PerfilSocioeconomicoSection } from "~/components/ViasInseguras/sections
 import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
 import { processProfileData } from "~/components/ViasInseguras/sections/profileDataHelper";
-import { loader } from "~/loader/dados.viasinseguras.$slug";
+import { viasInsegurasSlugQueryOptions } from "~/loader/dados.viasinseguras.$slug";
 
 interface ViaHistoryData {
   evolucao: Array<{
@@ -65,83 +65,73 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
 };
 
 export const Route = createFileRoute("/dados/viasinseguras/$slug")({
-  loader: ({ params }) => loader({ params }),
+  loader: ({ params, context: { queryClient } }) =>
+    queryClient.ensureQueryData(viasInsegurasSlugQueryOptions(params.slug)),
   component: ViaInsegura,
 });
 
 function ViaInsegura() {
-  const { dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const { data: { data, mapData, sinistrosData, pageData } } = useSuspenseQuery(viasInsegurasSlugQueryOptions(slug));
+
+  const categoryLabels = {
+    "Acidente de Moto": "Sinistro de Moto",
+    "Acidente de Carro": "Sinistro de Carro",
+    "Atropelamento por Carro": "Atropelamento por Carro",
+    "Atropelamento por Moto": "Atropelamento por Moto",
+    "Acidente de Bicicleta": "Sinistro de Bicicleta",
+    "Acidente de Ônibus/Caminhão": "Sinistro Ônibus/Caminhão",
+    "Atropelamento por Ônibus/Caminhão": "Atropelamento Ônibus/Caminhão",
+    "Atropelamento de Bicicleta": "Sinistro de Bicicleta",
+    "Outro": "Outro",
+    "Não Informado": "Não Informado",
+  };
+
+  // Filtrar apenas as categorias de desfecho permitidas
+  const allowedDesfechos = [
+    'Atendimento Concluído com Êxito',
+    'Removido por Particulares',
+    'Removido pelos Bombeiros/CIODS',
+    'Óbito no Local/Atendimento'
+  ];
 
   return (
     <main className="flex-auto">
-      <Suspense fallback={<div className="animate-pulse bg-gray-300 h-64" />}>
-        <Await promise={pageDataPromise}>
-          {(pageData) => (
-            <Banner
-              image={pageData?.cover?.url || "/pages_covers/vias-inseguras.png"}
-              alt="Capa das vias inseguras"
-            />
-          )}
-        </Await>
-      </Suspense>
+      <Banner
+        image={pageData?.cover?.url || "/pages_covers/vias-inseguras.png"}
+        alt="Capa das vias inseguras"
+      />
 
-      <Suspense fallback={<div className="animate-pulse bg-gray-200 h-12" />}>
-        <Await promise={dataPromise}>
-          {(data) => (
-            <Breadcrumb
-              label={data?.via || "Via"}
-              slug={`/dados/vias-inseguras/${data?.via}`}
-              routes={["/", "/dados", "/dados/vias-inseguras"]}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <Breadcrumb
+        label={data?.via || "Via"}
+        slug={`/dados/vias-inseguras/${data?.via}`}
+        routes={["/", "/dados", "/dados/vias-inseguras"]}
+      />
 
       <section className="container mx-auto px-4 py-8">
-        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-32" />}>
-          <Await promise={dataPromise}>
-            {(data) => {
-              if (!data || !data.via) {
-                return (
-                  <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-red-600 mb-2">
-                      Via não encontrada
-                    </h1>
-                    <p className="text-lg text-gray-600">
-                      Os dados desta via não estão disponíveis no momento.
-                    </p>
-                  </div>
-                );
-              }
-              return (
-                <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                    Observatório das Vias Inseguras
-                  </h1>
-                </div>
-              );
-            }}
-          </Await>
-        </Suspense>
+        {(!data || !data.via) ? (
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-red-600 mb-2">
+              Via não encontrada
+            </h1>
+            <p className="text-lg text-gray-600">
+              Os dados desta via não estão disponíveis no momento.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Observatório das Vias Inseguras
+              </h1>
+            </div>
 
-        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
-          <Await promise={Promise.all([dataPromise, mapDataPromise])}>
-            {([data, mapData]) => {
-              if (!data || !data.via) return null;
-              return (
-                <StatisticsBox
-                  title={data.via}
-                  boxes={getViaStatistics(data, mapData)}
-                />
-              );
-            }}
-          </Await>
-        </Suspense>
+            <StatisticsBox
+              title={data.via}
+              boxes={getViaStatistics(data, mapData)}
+            />
 
-        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await promise={dataPromise}>
-            {(data) => {
-              if (!data?.via || !data.evolucao?.length) return null;
+            {data.evolucao?.length > 0 && (() => {
               const { genderData, ageData, categoryData } = processProfileData(data.evolucao);
               return (
                 <PerfilSocioeconomicoSection
@@ -150,15 +140,9 @@ function ViaInsegura() {
                   categoryData={categoryData}
                 />
               );
-            }}
-          </Await>
-        </Suspense>
+            })()}
 
-        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await promise={Promise.all([dataPromise, mapDataPromise])}>
-            {([data, mapData]) => {
-              if (!data?.via) return null;
-
+            {(() => {
               const totalSinistros = data.evolucao.reduce((sum: number, year: any) => sum + year.sinistros, 0);
               let geoJsonData = null;
 
@@ -188,46 +172,14 @@ function ViaInsegura() {
                   geoJsonData={geoJsonData}
                 />
               );
-            }}
-          </Await>
-        </Suspense>
+            })()}
 
-        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await promise={dataPromise}>
-            {(data) => {
-              if (!data?.via || !data.evolucao?.length) return null;
-              return <EvolucaoAnualSection evolucaoData={data.evolucao} />;
-            }}
-          </Await>
-        </Suspense>
+            {data.evolucao?.length > 0 && (
+              <EvolucaoAnualSection evolucaoData={data.evolucao} />
+            )}
 
-        {/* Tabela de Sinistros */}
-        <Suspense fallback={<div className="animate-pulse bg-gray-200 h-96" />}>
-          <Await promise={sinistrosDataPromise}>
-            {(sinistrosData) => {
-              if (!sinistrosData?.sinistros?.length) return null;
-
-              const categoryLabels = {
-                "Acidente de Moto": "Sinistro de Moto",
-                "Acidente de Carro": "Sinistro de Carro",
-                "Atropelamento por Carro": "Atropelamento por Carro",
-                "Atropelamento por Moto": "Atropelamento por Moto",
-                "Acidente de Bicicleta": "Sinistro de Bicicleta",
-                "Acidente de Ônibus/Caminhão": "Sinistro Ônibus/Caminhão",
-                "Atropelamento por Ônibus/Caminhão": "Atropelamento Ônibus/Caminhão",
-                "Atropelamento de Bicicleta": "Sinistro de Bicicleta",
-                "Outro": "Outro",
-                "Não Informado": "Não Informado",
-              };
-
-              // Filtrar apenas as categorias de desfecho permitidas
-              const allowedDesfechos = [
-                'Atendimento Concluído com Êxito',
-                'Removido por Particulares',
-                'Removido pelos Bombeiros/CIODS',
-                'Óbito no Local/Atendimento'
-              ];
-
+            {/* Tabela de Sinistros */}
+            {sinistrosData?.sinistros?.length > 0 && (() => {
               const tableData = sinistrosData.sinistros
                 .filter((sinistro: any) => {
                   const desfecho = sinistro.motivo_desf_cat || '';
@@ -244,7 +196,7 @@ function ViaInsegura() {
                     _sortDate: new Date(sinistro.data + ' ' + (sinistro.hora_minuto || '00:00')),
                   };
                 })
-                .sort((a, b) => b._sortDate.getTime() - a._sortDate.getTime());
+                .sort((a: any, b: any) => b._sortDate.getTime() - a._sortDate.getTime());
 
               const columns = [
                 { Header: "Data e Hora", accessor: "data_hora", disableFilters: false },
@@ -269,33 +221,27 @@ function ViaInsegura() {
                   </div>
                 </section>
               );
-            }}
-          </Await>
-        </Suspense>
+            })()}
+          </>
+        )}
       </section>
 
       {/* Documentos */}
-      <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48" />}>
-        <Await promise={pageDataPromise}>
-          {(pageData) => {
-            if (!pageData?.archives?.length) return null;
+      {pageData?.archives?.length > 0 && (() => {
+        const docs = pageData.archives.map((a: any) => ({
+          title: a.filename,
+          description: a.description,
+          src: a.image?.url,
+          url: a.file.url,
+        }));
 
-            const docs = pageData.archives.map((a: any) => ({
-              title: a.filename,
-              description: a.description,
-              src: a.image?.url,
-              url: a.file.url,
-            }));
-
-            return (
-              <CardsSession
-                title="Documentos sobre Vias Inseguras"
-                cards={docs}
-              />
-            );
-          }}
-        </Await>
-      </Suspense>
+        return (
+          <CardsSession
+            title="Documentos sobre Vias Inseguras"
+            cards={docs}
+          />
+        );
+      })()}
     </main>
   );
 }

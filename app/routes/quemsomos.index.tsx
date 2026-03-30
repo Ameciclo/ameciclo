@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import SEO from "~/components/Commom/SEO";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { QuemSomosContent } from "~/components/QuemSomos/QuemSomosContent";
-import { loader } from "~/loader/quemsomos";
+import { quemSomosQueryOptions } from "~/loader/quemsomos";
 
 export const Route = createFileRoute("/quemsomos/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(quemSomosQueryOptions()),
   head: () => ({
     meta: [{ title: "Quem Somos" }],
   }),
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/quemsomos/")({
 });
 
 function QuemSomos() {
-  const { pageData, apiErrors } = Route.useLoaderData();
+  const { data: { pageData, apiErrors } } = useSuspenseQuery(quemSomosQueryOptions());
   const { addApiError } = useApiStatus();
 
   useEffect(() => {

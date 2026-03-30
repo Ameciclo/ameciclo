@@ -13,16 +13,18 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { useCountsStatistics } from "~/hooks/useCountsStatistics";
 import { useCountsMapData } from "~/hooks/useCountsMapData";
-import { loader } from "~/loader/dados.contagens";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { contagensQueryOptions } from "~/loader/dados.contagens";
 import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/dados/contagens/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(contagensQueryOptions()),
   component: Contagens,
 });
 
 function Contagens() {
-    const { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } = Route.useLoaderData();
+    const { data: { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } } = useSuspenseQuery(contagensQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
     const [showFilters, setShowFilters] = useState(false);
     const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);

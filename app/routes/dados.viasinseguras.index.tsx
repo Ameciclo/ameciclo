@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -8,29 +9,32 @@ import { CardsSession } from "~/components/Commom/CardsSession";
 import ViasInsegurasClientSide from "~/components/ViasInseguras/ViasInsegurasClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { loader } from "~/loader/dados.vias-inseguras";
+import { viasInsegurasQueryOptions } from "~/loader/dados.vias-inseguras";
 
 export const Route = createFileRoute("/dados/viasinseguras/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(viasInsegurasQueryOptions()),
   component: ViasInsegurasPage,
 });
 
 function ViasInsegurasPage() {
   const {
-    cover,
-    title1,
-    description1,
-    title2,
-    description2,
-    documents,
-    statisticsBoxes,
-    summaryData,
-    topViasData,
-    mapData,
-    historyData,
-    apiDown,
-    apiErrors,
-  } = Route.useLoaderData();
+    data: {
+      cover,
+      title1,
+      description1,
+      title2,
+      description2,
+      documents,
+      statisticsBoxes,
+      summaryData,
+      topViasData,
+      mapData,
+      historyData,
+      apiDown,
+      apiErrors,
+    },
+  } = useSuspenseQuery(viasInsegurasQueryOptions());
 
   useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/vias-inseguras');
 

@@ -8,15 +8,17 @@ import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxes
 import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
 import { calculateIdecicloStatistics } from "~/services/ideciclo-statistics.service";
-import { loader } from "~/loader/dados.ideciclo";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { idecicloQueryOptions } from "~/loader/dados.ideciclo";
 
 export const Route = createFileRoute("/dados/ideciclo/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(idecicloQueryOptions()),
   component: Ideciclo,
 });
 
 function Ideciclo() {
-    const { ideciclo, structures, pageData, apiDown, apiErrors } = Route.useLoaderData();
+    const { data: { ideciclo, structures, pageData, apiDown, apiErrors } } = useSuspenseQuery(idecicloQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
 
     useEffect(() => {

@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import { loader } from "~/loader/dados.loa";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { loaQueryOptions } from "~/loader/dados.loa";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { formatLargeValue } from "~/utils/formatCurrency";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
@@ -13,12 +14,13 @@ import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetCompariso
 import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
 
 export const Route = createFileRoute("/dados/loa/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(loaQueryOptions()),
   component: Loa,
 });
 
 function Loa() {
-    const data = Route.useLoaderData();
+    const { data } = useSuspenseQuery(loaQueryOptions());
     const [showFilters, setShowFilters] = useState(false);
     const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
     const { setApiDown, addApiError } = useApiStatus();

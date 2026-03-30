@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import { unslugify } from "~/utils/slugify";
 import { VIAS_INSEGURAS_HISTORY, VIAS_INSEGURAS_BASE_URL, VIAS_INSEGURAS_SEARCH, VIAS_INSEGURAS_LIST } from "~/servers";
 
@@ -88,19 +89,23 @@ export const fetchPageData = async () => {
   return { cover: { url: "/pages_covers/vias-inseguras.png" }, archives: [] };
 };
 
-export const loader = async ({ params }: { params: { slug: string } }) => {
-  const viaNamePromise = fetchViaName(params.slug as string);
+export const viasInsegurasSlugQueryOptions = (slug: string) =>
+  queryOptions({
+    queryKey: ["dados", "vias-inseguras", slug],
+    queryFn: async () => {
+      const viaName = await fetchViaName(slug);
 
-  const dataPromise = viaNamePromise.then(viaName =>
-    viaName ? fetchViaData(viaName) : null
-  );
-  const mapDataPromise = viaNamePromise.then(viaName =>
-    viaName ? fetchViaMapData(viaName) : null
-  );
-  const sinistrosDataPromise = viaNamePromise.then(viaName =>
-    viaName ? fetchViaSinistrosData(viaName) : null
-  );
-  const pageDataPromise = Promise.resolve(fetchPageData());
+      const [data, mapData, sinistrosData, pageData] = await Promise.all([
+        viaName ? fetchViaData(viaName) : null,
+        viaName ? fetchViaMapData(viaName) : null,
+        viaName ? fetchViaSinistrosData(viaName) : null,
+        fetchPageData(),
+      ]);
 
-  return { dataPromise, mapDataPromise, sinistrosDataPromise, pageDataPromise };
-};
+      return { data, mapData, sinistrosData, pageData };
+    },
+  });
+
+// Keep for backwards compatibility
+export const loader = async ({ params }: { params: { slug: string } }) =>
+  viasInsegurasSlugQueryOptions(params.slug as string).queryFn({} as any);

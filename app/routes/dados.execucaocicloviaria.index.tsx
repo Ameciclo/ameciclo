@@ -10,15 +10,17 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CityContent } from "~/components/ExecucaoCicloviaria/CityContent";
-import { loader } from "~/loader/dados.execucaocicloviaria";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { execucaoCicloviariaQueryOptions } from "~/loader/dados.execucaocicloviaria";
 
 export const Route = createFileRoute("/dados/execucaocicloviaria/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(execucaoCicloviariaQueryOptions()),
   component: ExecucaoCicloviaria,
 });
 
 function ExecucaoCicloviaria() {
-    const {
+    const { data: {
         cover,
         title1,
         title2,
@@ -31,7 +33,7 @@ function ExecucaoCicloviaria() {
         citiesData,
         apiDown,
         apiErrors
-    } = Route.useLoaderData();
+    } } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
 
     const { setApiDown, addApiError } = useApiStatus();
 

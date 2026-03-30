@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { SearchComponent } from "../components/Biciclopedia/SearchComponent";
 import { AccordionItem } from "../components/Biciclopedia/AccordionFAQ";
-import { loader } from "~/loader/biciclopedia";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { biciclopediaQueryOptions } from "~/loader/biciclopedia";
 
 interface FAQ {
   id: number;
@@ -18,7 +19,8 @@ interface Category {
 }
 
 export const Route = createFileRoute("/biciclopedia/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(biciclopediaQueryOptions()),
   head: () => ({
     meta: [
       { title: "Biciclopedia - Ameciclo" },
@@ -29,7 +31,7 @@ export const Route = createFileRoute("/biciclopedia/")({
 });
 
 function Biciclopedia() {
-  const { faqs, categories } = Route.useLoaderData();
+  const { data: { faqs, categories } } = useSuspenseQuery(biciclopediaQueryOptions());
 
   const disponibleCategories = categories.filter((category: Category) => category.faqs.length > 0);
   const sortedCategories = disponibleCategories.sort((a: Category, b: Category) => a.title.localeCompare(b.title));

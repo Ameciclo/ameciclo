@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
@@ -46,19 +47,27 @@ const fetchLocationData = async (locationId: string) => {
   }
 };
 
-export const loader = async ({ params }: { params: { slug?: string; compareSlug?: string } }) => {
-  const slugParam = params.slug || "";
-  const compareSlugParam = params.compareSlug || "";
-  const toCompare = [slugParam, compareSlugParam].filter(Boolean);
+export const compareContagensQueryOptions = (slug: string, compareSlug: string) =>
+  queryOptions({
+    queryKey: ["dados", "contagens", "compareLoader", slug, compareSlug],
+    queryFn: async () => {
+      const slugParam = slug || "";
+      const compareSlugParam = compareSlug || "";
+      const toCompare = [slugParam, compareSlugParam].filter(Boolean);
 
-  const data = await Promise.all(
-    toCompare.map(async (locationId) => {
-      const result = await fetchLocationData(locationId);
-      return result;
-    })
-  );
+      const data = await Promise.all(
+        toCompare.map(async (locationId) => {
+          const result = await fetchLocationData(locationId);
+          return result;
+        })
+      );
 
-  const boxes = getBoxesForCountingComparision(data.filter(Boolean));
+      const boxes = getBoxesForCountingComparision(data.filter(Boolean));
 
-  return { boxes };
-};
+      return { boxes };
+    },
+  });
+
+// Keep for backwards compatibility
+export const loader = async ({ params }: { params: { slug?: string; compareSlug?: string } }) =>
+  compareContagensQueryOptions(params.slug || "", params.compareSlug || "").queryFn({} as any);

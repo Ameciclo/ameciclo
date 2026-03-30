@@ -7,16 +7,19 @@ import { IdecicloDescription } from "../components/Ideciclo/IdecicloDescription"
 import { idecicloLayers } from "../components/Ideciclo/ideciclo_mapstyle";
 import { StatisticsBoxIdecicloDetalhes } from "../components/Ideciclo/StatisticsBoxIdeciclo";
 import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/VerticalStatisticsBoxesIdeciclo";
-import { loader } from "~/loader/dados.ideciclo.$id";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { idecicloDetailQueryOptions } from "~/loader/dados.ideciclo.$id";
 import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
 
 export const Route = createFileRoute("/dados/ideciclo/$id")({
-  loader: ({ params }) => loader({ params }),
+  loader: ({ context: { queryClient }, params: { id } }) =>
+    queryClient.ensureQueryData(idecicloDetailQueryOptions(id)),
   component: IdecicloDetail,
 });
 
 function IdecicloDetail() {
-  const { structure, forms, pageData, mapData } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const { data: { structure, forms, pageData, mapData } } = useSuspenseQuery(idecicloDetailQueryOptions(id));
 
   const info = getRatesSummary(structure, forms);
   const GeneralStatistics = structureStatistics(structure, info);

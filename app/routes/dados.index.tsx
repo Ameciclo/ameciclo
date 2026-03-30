@@ -7,15 +7,17 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
-import { loader } from "~/loader/dados";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { dadosQueryOptions } from "~/loader/dados";
 
 export const Route = createFileRoute("/dados/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(dadosQueryOptions()),
   component: Dados,
 });
 
 function Dados() {
-    const { data, apiDown, apiErrors } = Route.useLoaderData();
+    const { data: { data, apiDown, apiErrors } } = useSuspenseQuery(dadosQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
 
     useEffect(() => {

@@ -8,15 +8,17 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import CachePermissionBar from "~/components/Commom/CachePermissionModal";
 import { useEffect } from "react";
-import { loader } from "../loader/home";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { homeQueryOptions } from "../loader/home";
 
 export const Route = createFileRoute("/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(homeQueryOptions()),
   component: Index,
 });
 
 function Index() {
-  const { home, projects, apiDown, apiErrors } = Route.useLoaderData();
+  const { data: { home, projects, apiDown, apiErrors } } = useSuspenseQuery(homeQueryOptions());
   const { setApiDown, addApiError } = useApiStatus();
 
   useEffect(() => {

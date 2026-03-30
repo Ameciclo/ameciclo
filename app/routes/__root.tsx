@@ -1,10 +1,11 @@
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   Outlet,
   HeadContent,
   Scripts,
   useRouterState,
 } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { Navbar } from "~/components/Commom/Navbar";
 import { Footer } from "~/components/Commom/Footer";
@@ -12,7 +13,6 @@ import { GoogleAnalytics } from "~/components/Commom/GoogleAnalytics";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { MainContent } from "~/components/Commom/MainContent";
 import { ApiStatusProvider } from "~/contexts/ApiStatusContext";
-import { QueryProvider } from "~/providers/QueryProvider";
 import "~/tailwind.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import PageNotFound from "~/components/Commom/PageNotFound";
@@ -22,7 +22,7 @@ const getMapboxToken = createServerFn().handler(async () => {
   return process.env.MAPBOX_ACCESS_TOKEN || "";
 });
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -87,6 +87,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const { mapboxToken } = Route.useLoaderData();
+  const { queryClient } = Route.useRouteContext();
 
   return (
     <html lang="pt-BR">
@@ -99,7 +100,7 @@ function RootComponent() {
         />
       </head>
       <body>
-        <QueryProvider>
+        <QueryClientProvider client={queryClient}>
           <ApiStatusProvider>
             <ApiAlert />
             <div className="flex flex-col min-h-screen">
@@ -110,7 +111,7 @@ function RootComponent() {
               <ConditionalFooter />
             </div>
           </ApiStatusProvider>
-        </QueryProvider>
+        </QueryClientProvider>
         <Scripts />
         <GoogleAnalytics gaId="G-PQNS7S7FD3" />
       </body>
@@ -126,18 +127,16 @@ function ErrorComponent({ error }: { error: any }) {
         <HeadContent />
       </head>
       <body>
-        <QueryProvider>
-          <ApiStatusProvider>
-            <ApiAlert />
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <MainContent>
-                <ErrorFallback error={error} />
-              </MainContent>
-              <Footer />
-            </div>
-          </ApiStatusProvider>
-        </QueryProvider>
+        <ApiStatusProvider>
+          <ApiAlert />
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <MainContent>
+              <ErrorFallback error={error} />
+            </MainContent>
+            <Footer />
+          </div>
+        </ApiStatusProvider>
         <Scripts />
         <GoogleAnalytics gaId="G-PQNS7S7FD3" />
       </body>
@@ -147,18 +146,16 @@ function ErrorComponent({ error }: { error: any }) {
 
 function NotFoundComponent() {
   return (
-    <QueryProvider>
-      <ApiStatusProvider>
-        <ApiAlert />
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <MainContent>
-            <PageNotFound />
-          </MainContent>
-          <Footer />
-        </div>
-      </ApiStatusProvider>
-    </QueryProvider>
+    <ApiStatusProvider>
+      <ApiAlert />
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <MainContent>
+          <PageNotFound />
+        </MainContent>
+        <Footer />
+      </div>
+    </ApiStatusProvider>
   );
 }
 

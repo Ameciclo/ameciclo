@@ -6,10 +6,12 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { useEffect, useRef } from "react";
 import { AgendaContent } from "~/components/Agenda/AgendaContent";
-import { loader } from "../loader/agenda";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { agendaQueryOptions } from "../loader/agenda";
 
 export const Route = createFileRoute("/agenda/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(agendaQueryOptions()),
   head: () => ({
     meta: [{ title: "Agenda" }],
   }),
@@ -17,7 +19,7 @@ export const Route = createFileRoute("/agenda/")({
 });
 
 function Agenda() {
-    const { calendarConfig, apiDown, apiErrors } = Route.useLoaderData();
+    const { data: { calendarConfig, apiDown, apiErrors } } = useSuspenseQuery(agendaQueryOptions());
     const { setApiDown, addApiError } = useApiStatus();
     const errorsProcessed = useRef(false);
 

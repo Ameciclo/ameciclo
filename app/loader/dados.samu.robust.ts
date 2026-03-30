@@ -1,3 +1,5 @@
+import { queryOptions } from "@tanstack/react-query";
+
 // Dados reais completos da API SAMU (baseados na resposta real da API)
 const realSummaryData = {
   totalChamadas: 73667,
@@ -230,69 +232,77 @@ const realCitiesData = {
   }
 };
 
+export const samuRobustQueryOptions = () =>
+  queryOptions({
+    queryKey: ["dados", "samu", "robust"],
+    queryFn: async () => {
+      // Função que sempre resolve com dados mock
+      const createSafePromise = (data: any) => {
+        return new Promise((resolve) => {
+          // Simula um pequeno delay para mostrar loading
+          setTimeout(() => {
+            resolve(data);
+          }, 100);
+        });
+      };
+
+      const statisticsBoxes = [
+        {
+          title: "Total de chamadas",
+          value: "73.667",
+          unit: "2020 - 2025",
+        },
+        {
+          title: "Ano mais violento",
+          value: "2024",
+          unit: "20.785 chamadas",
+        },
+        {
+          title: "Área de cobertura (PE)",
+          value: "72",
+          unit: "municípios",
+        },
+        {
+          title: "Cidade mais violenta",
+          value: "Recife",
+          unit: "36.5% das chamadas",
+        },
+      ];
+
+      const documents = {
+        title: "Documentos relacionados",
+        cards: [
+          {
+            title: "Metodologia",
+            description: "Como analisamos os dados das chamadas do SAMU",
+            url: "#metodologia",
+            target: "_self",
+          },
+          {
+            title: "Dados abertos",
+            description: "Acesse os dados brutos das chamadas do SAMU",
+            url: "#dados",
+            target: "_self",
+          },
+        ],
+      };
+
+
+      return {
+        cover: "/pages_covers/chamadosdosamu.png",
+        title1: "O que são chamadas de sinistro?",
+        description1: "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.",
+        title2: "Como utilizamos os dados?",
+        description2: "Processamos dados reais de chamadas do SAMU para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.",
+        documents,
+        statisticsBoxes,
+        summaryData: await createSafePromise(realSummaryData),
+        citiesData: await createSafePromise(realCitiesData),
+      };
+    },
+  });
+
+// Keep for backwards compatibility
 export async function loader() {
-
-  // Função que sempre resolve com dados mock
-  const createSafePromise = (data: any) => {
-    return new Promise((resolve) => {
-      // Simula um pequeno delay para mostrar loading
-      setTimeout(() => {
-        resolve(data);
-      }, 100);
-    });
-  };
-
-  const statisticsBoxes = [
-    {
-      title: "Total de chamadas",
-      value: "73.667",
-      unit: "2020 - 2025",
-    },
-    {
-      title: "Ano mais violento",
-      value: "2024",
-      unit: "20.785 chamadas",
-    },
-    {
-      title: "Área de cobertura (PE)",
-      value: "72",
-      unit: "municípios",
-    },
-    {
-      title: "Cidade mais violenta",
-      value: "Recife",
-      unit: "36.5% das chamadas",
-    },
-  ];
-
-  const documents = {
-    title: "Documentos relacionados",
-    cards: [
-      {
-        title: "Metodologia",
-        description: "Como analisamos os dados das chamadas do SAMU",
-        url: "#metodologia",
-        target: "_self",
-      },
-      {
-        title: "Dados abertos",
-        description: "Acesse os dados brutos das chamadas do SAMU",
-        url: "#dados",
-        target: "_self",
-      },
-    ],
-  };
-
-
-  return {
-    cover: "/pages_covers/chamadosdosamu.png",
-    title1: "O que são chamadas de sinistro?",
-    description1: "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.",
-    title2: "Como utilizamos os dados?",
-    description2: "Processamos dados reais de chamadas do SAMU para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.",
-    documents,
-    statisticsBoxes,
-    summaryData: createSafePromise(realSummaryData),
-    citiesData: createSafePromise(realCitiesData),
-  };
+  return samuRobustQueryOptions().queryFn({} as any);
 }

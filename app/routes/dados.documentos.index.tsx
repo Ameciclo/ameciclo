@@ -5,15 +5,17 @@ import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { DocumentsSession } from "~/components/Documentos/DocumentsSession";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { loader } from "~/loader/dados.documentos";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { documentosQueryOptions } from "~/loader/dados.documentos";
 
 export const Route = createFileRoute("/dados/documentos/")({
-  loader: () => loader(),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(documentosQueryOptions()),
   component: Documentos,
 });
 
 function Documentos() {
-    const { cover, description, objectives, documents, apiDown, apiErrors } = Route.useLoaderData();
+    const { data: { cover, description, objectives, documents, apiDown, apiErrors } } = useSuspenseQuery(documentosQueryOptions());
     useApiStatusHandler(apiDown, apiErrors, '/dados/documentos');
 
     return (
