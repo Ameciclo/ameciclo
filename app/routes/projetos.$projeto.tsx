@@ -419,9 +419,9 @@ export default function Projeto() {
                                     <div className="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-10">
                                         {project.partners.map((partner: any) => (
                                             <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
-                                                {partner.logo?.url ? (
+                                                {(partner.logo?.url || partner.logo?.[0]?.url) ? (
                                                     <img
-                                                        src={partner.logo.url}
+                                                        src={partner.logo?.url || partner.logo?.[0]?.url}
                                                         alt={partner.name}
                                                         className="max-h-16 max-w-full object-contain"
                                                     />
@@ -440,9 +440,9 @@ export default function Projeto() {
                                     <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
                                         {project.sponsors.map((sponsor: any) => (
                                             <div key={sponsor.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                                                {sponsor.logo?.url ? (
+                                                {(sponsor.logo?.url || sponsor.logo?.[0]?.url) ? (
                                                     <img
-                                                        src={sponsor.logo.url}
+                                                        src={sponsor.logo?.url || sponsor.logo?.[0]?.url}
                                                         alt={sponsor.name}
                                                         className="max-h-12 max-w-full object-contain"
                                                     />

@@ -10,7 +10,7 @@ export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo?populate=*`
 export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil?populate=*`
 export const PROJECTS_DATA = `${CMS_BASE_URL}/api/projects`
 export const PROJECTS_LIST_DATA = `${PROJECTS_DATA}?pagination[pageSize]=100&populate=media`
-export const PROJECT_DETAIL_DATA = (slug: string) => `${PROJECTS_DATA}?filters[slug][$eq]=${slug}&populate=*`
+export const PROJECT_DETAIL_DATA = (slug: string) => `${PROJECTS_DATA}?filters[slug][$eq]=${slug}&populate[0]=media&populate[1]=cover&populate[2]=gallery&populate[3]=partners.logo&populate[4]=workgroup`
 export const WORKGROUPS_DATA = `${CMS_BASE_URL}/api/workgroups`
 export const WORKGROUPS_LIST_DATA = `${WORKGROUPS_DATA}?pagination[pageSize]=100`
 export const PLATAFORMAS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas-de-dados?populate=*`
