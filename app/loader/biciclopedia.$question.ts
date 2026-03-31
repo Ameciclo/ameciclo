@@ -26,9 +26,9 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   }
 
   try {
-    const questions = await fetchJsonFromCMS<Question[]>(`${server}/faqs?id=${questionId}`);
-    const question = questions[0];
-    
+    const res = await fetchJsonFromCMS<{ data: Question[] }>(`${server}/api/faqs?filters[id][$eq]=${questionId}&populate=faq_tags`);
+    const question = res?.data?.[0];
+
     if (!question) {
       throw new Response("Question not found", { status: 404 });
     }

@@ -17,14 +17,21 @@ interface Category {
   faqs: FAQ[];
 }
 
+interface StrapiResponse<T> {
+  data: T;
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
-    const [faqs, categories] = await Promise.all([
-      fetchJsonFromCMS<FAQ[]>(`${server}/faqs`),
-      fetchJsonFromCMS<Category[]>(`${server}/faq-tags`)
+    const [faqsRes, categoriesRes] = await Promise.all([
+      fetchJsonFromCMS<StrapiResponse<FAQ[]>>(`${server}/api/faqs`),
+      fetchJsonFromCMS<StrapiResponse<Category[]>>(`${server}/api/faq-tags?populate=faqs`)
     ]);
 
-    return json({ faqs: faqs || [], categories: categories || [] });
+    return json({
+      faqs: faqsRes?.data || [],
+      categories: categoriesRes?.data || []
+    });
   } catch (error) {
     console.error('Error loading biciclopedia data:', error);
     return json({ faqs: [], categories: [] });
