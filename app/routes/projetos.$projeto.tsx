@@ -401,7 +401,13 @@ export default function Projeto() {
                                                 {project.products.map((product: any, index: number) => (
                                                     <tr key={product.id || index}>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {product.name}
+                                                            {product.link ? (
+                                                                <a href={product.link} target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline">
+                                                                    {product.title || product.name}
+                                                                </a>
+                                                            ) : (
+                                                                product.title || product.name
+                                                            )}
                                                         </td>
                                                         <td className="px-6 py-4 text-sm text-gray-500">
                                                             {product.description}
