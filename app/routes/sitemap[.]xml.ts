@@ -123,10 +123,13 @@ async function fetchBiciclopediaQuestionIds(): Promise<
 > {
   try {
     // Mirror biciclopedia loader's endpoint; return empty on any failure.
-    const faqs = await fetchJsonFromCMS<Array<any>>(`${CMS_BASE_URL}/faqs`);
+    const res = await fetchJsonFromCMS<{ data: Array<any> }>(
+      `${CMS_BASE_URL}/api/faqs`,
+    );
+    const faqs = res?.data;
     if (!Array.isArray(faqs)) return [];
     const out: Array<{ id: string | number; updatedAt?: string }> = [];
-    for (const q of faqs as any[]) {
+    for (const q of faqs) {
       const id = q?.id;
       if (id === undefined || id === null) continue;
       out.push(q?.updatedAt ? { id, updatedAt: q.updatedAt } : { id });

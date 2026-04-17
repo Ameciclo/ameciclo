@@ -27,10 +27,10 @@ export const biciclopediaQuestionQueryOptions = (question: string) =>
       }
 
       try {
-        const questions = await fetchJsonFromCMS<Question[]>(
-          `${server}/faqs?id=${question}`
+        const res = await fetchJsonFromCMS<{ data: Question[] }>(
+          `${server}/api/faqs?filters[id][$eq]=${question}&populate=faq_tags`,
         );
-        const questionData = questions[0];
+        const questionData = res?.data?.[0];
 
         if (!questionData) {
           throw new Response("Question not found", { status: 404 });

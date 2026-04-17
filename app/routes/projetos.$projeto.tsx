@@ -424,7 +424,13 @@ function Projeto() {
                                                 {project.products.map((product: any, index: number) => (
                                                     <tr key={product.id || index}>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {product.name}
+                                                            {product.link ? (
+                                                                <a href={product.link} target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline">
+                                                                    {product.title || product.name}
+                                                                </a>
+                                                            ) : (
+                                                                product.title || product.name
+                                                            )}
                                                         </td>
                                                         <td className="px-6 py-4 text-sm text-gray-500">
                                                             {product.description}
@@ -442,9 +448,9 @@ function Projeto() {
                                     <div className="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-10">
                                         {project.partners.map((partner: any) => (
                                             <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
-                                                {partner.logo?.url ? (
+                                                {(partner.logo?.url || partner.logo?.[0]?.url) ? (
                                                     <img
-                                                        src={partner.logo.url}
+                                                        src={partner.logo?.url || partner.logo?.[0]?.url}
                                                         alt={partner.name}
                                                         className="max-h-16 max-w-full object-contain"
                                                     />
@@ -463,9 +469,9 @@ function Projeto() {
                                     <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
                                         {project.sponsors.map((sponsor: any) => (
                                             <div key={sponsor.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                                                {sponsor.logo?.url ? (
+                                                {(sponsor.logo?.url || sponsor.logo?.[0]?.url) ? (
                                                     <img
-                                                        src={sponsor.logo.url}
+                                                        src={sponsor.logo?.url || sponsor.logo?.[0]?.url}
                                                         alt={sponsor.name}
                                                         className="max-h-12 max-w-full object-contain"
                                                     />
