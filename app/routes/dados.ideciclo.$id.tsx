@@ -10,10 +10,30 @@ import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/Vertical
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { idecicloDetailQueryOptions } from "~/loader/dados.ideciclo.$id";
 import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/ideciclo/$id")({
   loader: ({ context: { queryClient }, params: { id } }) =>
     queryClient.ensureQueryData(idecicloDetailQueryOptions(id)),
+  head: ({ params, loaderData }) => {
+    const structure = loaderData?.structure;
+    const pageData = loaderData?.pageData;
+    const street = structure?.street;
+    const title = street
+      ? `Ideciclo - ${street} - Ameciclo`
+      : "Ideciclo - Estrutura Cicloviária - Ameciclo";
+    const description = street
+      ? `Avaliação Ideciclo da estrutura cicloviária ${street} — índice que mede a qualidade da malha cicloviária.`
+      : "Detalhamento da estrutura cicloviária avaliada pelo Ideciclo.";
+    const s = seo({
+      title,
+      description,
+      pathname: `/dados/ideciclo/${params.id}`,
+      image: pageData?.cover?.url,
+      type: "article",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: IdecicloDetail,
 });
 

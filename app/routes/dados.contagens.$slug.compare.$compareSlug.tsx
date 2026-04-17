@@ -11,6 +11,7 @@ import { colors } from "~/components/Charts/FlowChart/FlowContainer";
 import { VerticalStatisticsBoxes } from "~/components/Contagens/VerticalStatisticsBoxes";
 import { Tooltip } from "~/components/Commom/Tooltip";
 import { contagemCompareQueryOptions } from "~/loader/dados.contagens.$slug.compare.$compareSlug";
+import { seo } from "~/utils/seo";
 
 interface Series {
   name: string | undefined;
@@ -92,6 +93,16 @@ function getPointsDataForComparingCounting(data: any[]) {
 export const Route = createFileRoute("/dados/contagens/$slug/compare/$compareSlug")({
   loader: ({ context: { queryClient }, params: { slug, compareSlug } }) =>
     queryClient.ensureQueryData(contagemCompareQueryOptions(slug, compareSlug)),
+  head: ({ params }) => {
+    const s = seo({
+      title: "Comparação de Contagens - Ameciclo",
+      description:
+        "Comparação entre contagens de ciclistas realizadas pela Ameciclo na Região Metropolitana do Recife.",
+      pathname: `/dados/contagens/${params.slug}/compare/${params.compareSlug}`,
+      noindex: true,
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Compare,
 });
 

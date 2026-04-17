@@ -56,9 +56,9 @@ async function geocodeWithNominatim(streetName: string, city: string = 'Recife')
  */
 async function geocodeWithMapbox(streetName: string, city: string = 'Recife'): Promise<GeocodingResult | null> {
   try {
-    const token = typeof window !== 'undefined' 
-      ? window.ENV?.MAPBOX_ACCESS_TOKEN 
-      : process.env.MAPBOX_ACCESS_TOKEN;
+    const token = typeof window !== 'undefined'
+      ? (window as any).MAPBOX_TOKEN
+      : undefined;
     
     if (!token) return null;
 

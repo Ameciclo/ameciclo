@@ -10,10 +10,20 @@ import { domQueryOptions } from "~/loader/dados.dom";
 import Chart from "react-google-charts";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/dom/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(domQueryOptions()),
+  head: () => {
+    const s = seo({
+      title: "DOM - Diagnóstico Orçamentário Municipal - Ameciclo",
+      description:
+        "Diagnóstico do orçamento municipal do Recife sob a ótica climática — sustentabilidade, emissões e ações executadas.",
+      pathname: "/dados/dom",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Dom,
 });
 

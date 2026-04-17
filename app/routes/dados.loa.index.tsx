@@ -12,10 +12,20 @@ import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { InvestmentCards } from "~/components/Loa/sections/InvestmentCards";
 import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetComparisonCards";
 import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/loa/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(loaQueryOptions()),
+  head: () => {
+    const s = seo({
+      title: "LOA - Orçamento Estadual para o Clima - Ameciclo",
+      description:
+        "Monitoramento da Lei Orçamentária Anual (LOA) de Pernambuco sob a ótica climática — ações sustentáveis, execução e comparativos.",
+      pathname: "/dados/loa",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Loa,
 });
 

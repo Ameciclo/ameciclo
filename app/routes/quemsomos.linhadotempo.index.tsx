@@ -4,14 +4,18 @@ import { Calendar, Users, Award, MapPin, BookOpen, Bike } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import DocumentationSearchBar from "~/components/Documentacao/DocumentationSearchBar";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/quemsomos/linhadotempo/")({
-  head: () => ({
-    meta: [
-      { title: "Linha do Tempo - Ameciclo" },
-      { name: "description", content: "História e marcos importantes da Ameciclo desde 2008" },
-    ],
-  }),
+  head: () => {
+    const s = seo({
+      title: "Linha do Tempo - Ameciclo",
+      description:
+        "História e marcos importantes da Ameciclo desde 2008 — construção do cicloativismo em Recife.",
+      pathname: "/quemsomos/linhadotempo",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: LinhaDoTempoPage,
 });
 

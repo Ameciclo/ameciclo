@@ -17,9 +17,12 @@ import "~/tailwind.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import PageNotFound from "~/components/Commom/PageNotFound";
 import ErrorFallback from "~/components/Commom/ErrorFallback";
+import { seo, organizationSchema } from "~/utils/seo";
+import { detectLocale } from "~/utils/locale";
 
 const getMapboxToken = createServerFn().handler(async () => {
-  return process.env.MAPBOX_ACCESS_TOKEN || "";
+  const { env } = await import("~/utils/env.server");
+  return env.MAPBOX_ACCESS_TOKEN;
 });
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -28,53 +31,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
       {
-        title:
-          "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
-      },
-      {
-        name: "description",
-        content:
-          "Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas. As informações são abertas para uso de todas as pessoas que desejam uma cidade mais humana, democrática e sustentável.",
-      },
-      {
-        name: "keywords",
-        content:
-          "ameciclo, dados, ciclo, ciclovia, recife, rmr, plataforma de dados",
-      },
-      {
         name: "author",
         content:
           "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
       },
-      { name: "robots", content: "index, follow" },
-      {
-        property: "og:title",
-        content:
+      ...seo({
+        title:
           "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
-      },
-      {
-        property: "og:description",
-        content:
-          "Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas.",
-      },
-      { property: "og:image", content: "https://ameciclo.org/favicon.ico" },
-      { property: "og:url", content: "https://ameciclo.org/" },
-      {
-        property: "twitter:title",
-        content:
-          "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
-      },
-      {
-        property: "twitter:description",
-        content:
-          "Nesta plataforma você encontra dados sobre mobilidade ativa, produzidos por nós ou pelo poder público, com visualização facilitada para estudantes, jornalistas, cicloativistas, pesquisadoras(es) e pessoas interessadas.",
-      },
-      {
-        property: "twitter:image",
-        content: "https://ameciclo.org/favicon.ico",
-      },
+        pathname: "/",
+        keywords:
+          "ameciclo, dados, ciclo, ciclovia, recife, rmr, plataforma de dados, mobilidade ativa",
+        jsonLd: organizationSchema,
+      }).meta,
     ],
-    links: [{ rel: "canonical", href: "https://ameciclo.org/" }],
+    links: seo({ title: "", pathname: "/" }).links,
+    scripts: seo({ title: "", pathname: "/", jsonLd: organizationSchema }).scripts,
   }),
   loader: async () => {
     const mapboxToken = await getMapboxToken();
@@ -88,9 +59,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootComponent() {
   const { mapboxToken } = Route.useLoaderData();
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const locale = detectLocale(pathname);
 
   return (
-    <html lang="pt-BR">
+    <html lang={locale}>
       <head>
         <HeadContent />
         <script
@@ -121,7 +94,7 @@ function RootComponent() {
 
 function ErrorComponent({ error }: { error: any }) {
   return (
-    <html>
+    <html lang="pt-BR">
       <head>
         <title>Erro!</title>
         <HeadContent />

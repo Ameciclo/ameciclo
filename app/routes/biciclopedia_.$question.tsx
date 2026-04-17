@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { biciclopediaQuestionQueryOptions } from "~/loader/biciclopedia.$question";
+import { seo } from "~/utils/seo";
 
 interface FAQTag {
   id: number;
@@ -21,20 +22,24 @@ interface Question {
 export const Route = createFileRoute("/biciclopedia_/$question")({
   loader: ({ context: { queryClient }, params: { question } }) =>
     queryClient.ensureQueryData(biciclopediaQuestionQueryOptions(question)),
-  head: ({ loaderData }) => {
-    if (!loaderData?.question) {
-      return {
-        meta: [
-          { title: "Pergunta não encontrada - Biciclopedia" },
-        ],
-      };
+  head: ({ params, loaderData }) => {
+    const question = loaderData?.question;
+    const pathname = `/biciclopedia/${params.question}`;
+    if (!question) {
+      const s = seo({
+        title: "Pergunta não encontrada - Biciclopedia - Ameciclo",
+        pathname,
+        noindex: true,
+      });
+      return { meta: s.meta, links: s.links, scripts: s.scripts };
     }
-    return {
-      meta: [
-        { title: `${loaderData.question.title} - Biciclopedia` },
-        { name: "description", content: loaderData.question.description },
-      ],
-    };
+    const s = seo({
+      title: `${question.title} - Biciclopedia - Ameciclo`,
+      description: question.description,
+      pathname,
+      type: "article",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
   },
   component: QuestionPage,
 });

@@ -7,18 +7,35 @@ import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
 import { ProjectSteps } from "~/components/Projetos/ProjectSteps";
+import { seo } from "~/utils/seo";
+import {
+  buildHreflangAlternates,
+  detectLocale,
+  stripLocaleSuffix,
+} from "~/utils/locale";
 
 export const Route = createFileRoute("/projetos/$projeto")({
   loader: ({ params, context: { queryClient } }) =>
     queryClient.ensureQueryData(projetoQueryOptions(params.projeto)),
-  head: ({ loaderData }) => {
-    const projectName = loaderData?.project?.name || "Projeto";
-    return {
-      meta: [
-        { title: projectName },
-        { name: "description", content: loaderData?.project?.description || "" },
-      ],
-    };
+  head: ({ params, loaderData }) => {
+    const project = loaderData?.project;
+    const slug = params.projeto;
+    const baseSlug = stripLocaleSuffix(slug);
+    const pathname = `/projetos/${slug}`;
+    const isI18n = baseSlug === "bota-pra-rodar";
+
+    const s = seo({
+      title: project?.name ? `${project.name} - Ameciclo` : "Projeto - Ameciclo",
+      description: project?.description ?? undefined,
+      pathname,
+      image: project?.coverImage,
+      locale: detectLocale(pathname),
+      hreflang: isI18n
+        ? buildHreflangAlternates(`/projetos/${baseSlug}`)
+        : undefined,
+      type: "article",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
   },
   component: Projeto,
 });

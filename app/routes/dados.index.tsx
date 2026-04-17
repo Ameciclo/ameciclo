@@ -9,10 +9,20 @@ import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { dadosQueryOptions } from "~/loader/dados";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(dadosQueryOptions()),
+  head: () => {
+    const s = seo({
+      title: "Dados - Ameciclo",
+      description:
+        "Plataforma de dados da Ameciclo sobre mobilidade ativa, infraestrutura cicloviária, sinistros e orçamento público no Recife.",
+      pathname: "/dados",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Dados,
 });
 

@@ -4,6 +4,7 @@ import { SearchComponent } from "../components/Biciclopedia/SearchComponent";
 import { AccordionItem } from "../components/Biciclopedia/AccordionFAQ";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { biciclopediaQueryOptions } from "~/loader/biciclopedia";
+import { seo } from "~/utils/seo";
 
 interface FAQ {
   id: number;
@@ -21,12 +22,31 @@ interface Category {
 export const Route = createFileRoute("/biciclopedia/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(biciclopediaQueryOptions()),
-  head: () => ({
-    meta: [
-      { title: "Biciclopedia - Ameciclo" },
-      { name: "description", content: "Perguntas e respostas sobre mobilidade urbana e ciclismo" },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const faqs: FAQ[] = loaderData?.faqs ?? [];
+    const faqSchema = faqs.length
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.slice(0, 50).map((faq) => ({
+            "@type": "Question",
+            name: faq.title,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: faq.answer ?? faq.description ?? "",
+            },
+          })),
+        }
+      : undefined;
+
+    const s = seo({
+      title: "Biciclopedia - Ameciclo",
+      description: "Perguntas e respostas sobre mobilidade urbana e ciclismo",
+      pathname: "/biciclopedia",
+      jsonLd: faqSchema,
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Biciclopedia,
 });
 

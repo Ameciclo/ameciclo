@@ -4,11 +4,18 @@ import bannerContatact from "/contato.webp";
 import Banner from "~/components/Commom/Banner";
 import { ContactForm } from "~/components/Contato/ContactForm";
 import { ContactMap } from "~/components/Contato/ContactMap";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/contato/")({
-  head: () => ({
-    meta: [{ title: "Contato" }],
-  }),
+  head: () => {
+    const s = seo({
+      title: "Contato - Ameciclo",
+      description:
+        "Entre em contato com a Ameciclo — envie mensagens, tire dúvidas e conheça nossa sede em Recife.",
+      pathname: "/contato",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Contato,
 });
 

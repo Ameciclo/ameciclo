@@ -1,14 +1,32 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "ameciclo-org",
+  "name": "ameciclo",
   "compatibility_date": "2026-03-17",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "assets": {
     "binding": "ASSETS",
-    "directory": "dist/client"
+    "directory": "dist/client",
   },
   "observability": {
-    "enabled": true
-  }
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": false,
+    },
+  },
+  /**
+   * Public, non-secret values. Available at runtime as process.env.* via the
+   * nodejs_compat flag. Override per environment under [env.production.vars].
+   *
+   * Secrets (MAPBOX_ACCESS_TOKEN, GOOGLE_CALENDAR_API_KEY) are NOT here —
+   * set them with: `wrangler secret put <NAME>`
+   */
+  "vars": {
+    "SITE_URL": "https://ameciclo.org",
+    "GOOGLE_CALENDAR_EXTERNAL_ID": "",
+    "GOOGLE_CALENDAR_INTERNAL_ID": "",
+  },
 }

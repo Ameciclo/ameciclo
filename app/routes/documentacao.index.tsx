@@ -88,14 +88,19 @@ import Solucoes from "~/components/Documentacao/Solucoes";
 import BoasPraticas from "~/components/Documentacao/BoasPraticas";
 import AccessibilityControls from "~/components/Commom/AccessibilityControls";
 import ChangeThemeButton from "~/components/Commom/ChangeThemeButton";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/documentacao/")({
-  head: () => ({
-    meta: [
-      { title: "Documentação - Ameciclo" },
-      { name: "description", content: "Documentação completa do projeto Ameciclo para desenvolvedores" },
-    ],
-  }),
+  head: () => {
+    const s = seo({
+      title: "Documentação - Ameciclo",
+      description:
+        "Documentação técnica interna do projeto Ameciclo para pessoas desenvolvedoras.",
+      pathname: "/documentacao",
+      noindex: true,
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Docs,
 });
 

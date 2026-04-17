@@ -11,6 +11,7 @@ import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
 import { processProfileData } from "~/components/ViasInseguras/sections/profileDataHelper";
 import { viasInsegurasSlugQueryOptions } from "~/loader/dados.viasinseguras.$slug";
+import { seo } from "~/utils/seo";
 
 interface ViaHistoryData {
   evolucao: Array<{
@@ -67,6 +68,24 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
 export const Route = createFileRoute("/dados/viasinseguras/$slug")({
   loader: ({ params, context: { queryClient } }) =>
     queryClient.ensureQueryData(viasInsegurasSlugQueryOptions(params.slug)),
+  head: ({ params, loaderData }) => {
+    const via = loaderData?.data?.via;
+    const pageData = loaderData?.pageData;
+    const title = via
+      ? `${via} - Vias Inseguras - Ameciclo`
+      : "Via Insegura - Ameciclo";
+    const description = via
+      ? `Histórico e análise de sinistros de trânsito na via ${via} no Recife.`
+      : "Análise de vias com maior concentração de sinistros de trânsito no Recife.";
+    const s = seo({
+      title,
+      description,
+      pathname: `/dados/viasinseguras/${params.slug}`,
+      image: pageData?.cover?.url,
+      type: "article",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: ViaInsegura,
 });
 

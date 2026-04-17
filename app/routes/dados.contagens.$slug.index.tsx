@@ -13,10 +13,29 @@ import {
   getCountingStatistics,
   transformOtherCountsForComparison,
 } from "~/services/counting-details.service";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/contagens/$slug/")({
   loader: ({ context: { queryClient }, params: { slug } }) =>
     queryClient.ensureQueryData(contagemSlugQueryOptions(slug)),
+  head: ({ params, loaderData }) => {
+    const data = loaderData?.data;
+    const pageData = loaderData?.pageData;
+    const title = data?.name
+      ? `Contagem ${data.name} - Ameciclo`
+      : "Contagem - Ameciclo";
+    const description = data?.name
+      ? `Dados e resultados da contagem de ciclistas realizada pela Ameciclo em ${data.name}.`
+      : "Resultados de contagens de ciclistas realizadas pela Ameciclo na Região Metropolitana do Recife.";
+    const s = seo({
+      title,
+      description,
+      pathname: `/dados/contagens/${params.slug}`,
+      image: pageData?.pageCover?.cover?.url,
+      type: "article",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Contagem,
 });
 

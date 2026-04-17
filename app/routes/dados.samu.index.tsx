@@ -10,10 +10,20 @@ import SamuClientSide from "~/components/Samu/SamuClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { samuQueryOptions } from "~/loader/dados.samu";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/samu/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(samuQueryOptions()),
+  head: () => {
+    const s = seo({
+      title: "Observatório SAMU - Chamados de Sinistros - Ameciclo",
+      description:
+        "Detalhamento dos chamados de sinistros de trânsito atendidos pelo SAMU na Região Metropolitana do Recife.",
+      pathname: "/dados/samu",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: SamuPage,
 });
 

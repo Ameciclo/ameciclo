@@ -80,27 +80,29 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
             <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// app/routes/contagens.$slug.tsx
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { createFileRoute } from "@tanstack/react-router";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { slug } = params;
-  // Usando fetchWithTimeout para evitar timeouts
-  const data = await fetchWithTimeout(
-    "http://api.garfo.ameciclo.org/cyclist-counts",
-    { cache: "no-cache" },
-    5000,
-    { counts: [] }
-  );
+export const Route = createFileRoute("/contagens/$slug")({
+  loader: async ({ params }) => {
+    const { slug } = params;
+    // Usando fetchWithTimeout para evitar timeouts
+    const data = await fetchWithTimeout(
+      "http://api.garfo.ameciclo.org/cyclist-counts",
+      { cache: "no-cache" },
+      5000,
+      { counts: [] }
+    );
   
-  const contagem = data.counts?.find((c: any) => c.slug === slug);
-  
-  if (!contagem) {
-    throw new Response("Contagem não encontrada", { status: 404 });
-  }
-  
-  return { contagem };
-}`}
+    const contagem = data.counts?.find((c: any) => c.slug === slug);
+
+    if (!contagem) {
+      throw new Response("Contagem não encontrada", { status: 404 });
+    }
+
+    return { contagem };
+  },
+});`}
               </code>
             </div>
           </div>

@@ -16,10 +16,20 @@ import { useCountsMapData } from "~/hooks/useCountsMapData";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { contagensQueryOptions } from "~/loader/dados.contagens";
 import { useState, useEffect } from "react";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/contagens/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(contagensQueryOptions()),
+  head: () => {
+    const s = seo({
+      title: "Contagens de Ciclistas - Ameciclo",
+      description:
+        "Contagens de ciclistas realizadas pela Ameciclo na Região Metropolitana do Recife — estatísticas, mapas e documentos.",
+      pathname: "/dados/contagens",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Contagens,
 });
 

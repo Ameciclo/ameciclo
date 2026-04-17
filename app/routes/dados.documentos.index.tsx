@@ -7,10 +7,20 @@ import { DocumentsSession } from "~/components/Documentos/DocumentsSession";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { documentosQueryOptions } from "~/loader/dados.documentos";
+import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/documentos/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(documentosQueryOptions()),
+  head: () => {
+    const s = seo({
+      title: "Documentos - Ameciclo",
+      description:
+        "Estudos, pesquisas, livros e relatórios produzidos pela Ameciclo ou em parcerias sobre mobilidade ativa e cicloativismo.",
+      pathname: "/dados/documentos",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: Documentos,
 });
 

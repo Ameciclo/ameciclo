@@ -16,6 +16,7 @@ import {
   getContagemIcon,
   generateLayersConf
 } from '~/components/CicloDados';
+import { seo } from '~/utils/seo';
 
 export const Route = createFileRoute("/dados/ciclodados/")({
   loader: async ({ request }: { request?: Request } = {}) => {
@@ -66,12 +67,15 @@ export const Route = createFileRoute("/dados/ciclodados/")({
       };
     }
   },
-  head: () => ({
-    meta: [
-      { title: "CicloDados - Dados de Ciclismo Urbano" },
-      { name: "description", content: "Visualização de dados de ciclismo urbano, contagens, infraestrutura e perfil de ciclistas" },
-    ],
-  }),
+  head: () => {
+    const s = seo({
+      title: "CicloDados - Dados de Ciclismo Urbano - Ameciclo",
+      description:
+        "Visualização de dados de ciclismo urbano, contagens, infraestrutura e perfil de ciclistas",
+      pathname: "/dados/ciclodados",
+    });
+    return { meta: s.meta, links: s.links, scripts: s.scripts };
+  },
   component: CicloDados,
 });
 

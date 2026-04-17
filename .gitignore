@@ -68,3 +68,9 @@ coverage/
 
 # ESLint cache
 .eslintcache
+
+# Migration scratch files
+migrate_files.py
+migration_comparison.py
+migration_review.tsv
+strapi_*.sql
