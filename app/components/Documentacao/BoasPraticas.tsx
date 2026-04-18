@@ -175,7 +175,7 @@ export async function getContagens() {
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// app/routes/minha-pagina/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
-import { loader } from "~/loader/minha-pagina";
+import { loader } from "~/queries/minha-pagina";
 import Banner from "~/components/Commom/Banner";
 
 export const Route = createFileRoute("/minha-pagina/")({

@@ -4,7 +4,7 @@ import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { loaQueryOptions } from "~/loader/dados.loa";
+import { loaQueryOptions } from "~/queries/dados.loa";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { formatLargeValue } from "~/utils/formatCurrency";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
@@ -17,15 +17,13 @@ import { seo } from "~/utils/seo";
 export const Route = createFileRoute("/dados/loa/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(loaQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "LOA - Orçamento Estadual para o Clima - Ameciclo",
       description:
         "Monitoramento da Lei Orçamentária Anual (LOA) de Pernambuco sob a ótica climática — ações sustentáveis, execução e comparativos.",
       pathname: "/dados/loa",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: Loa,
 });
 

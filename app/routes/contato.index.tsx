@@ -7,15 +7,13 @@ import { ContactMap } from "~/components/Contato/ContactMap";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/contato/")({
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Contato - Ameciclo",
       description:
         "Entre em contato com a Ameciclo — envie mensagens, tire dúvidas e conheça nossa sede em Recife.",
       pathname: "/contato",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: Contato,
 });
 

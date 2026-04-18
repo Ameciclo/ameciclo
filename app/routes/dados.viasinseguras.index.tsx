@@ -9,21 +9,19 @@ import { CardsSession } from "~/components/Commom/CardsSession";
 import ViasInsegurasClientSide from "~/components/ViasInseguras/ViasInsegurasClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { viasInsegurasQueryOptions } from "~/loader/dados.vias-inseguras";
+import { viasInsegurasQueryOptions } from "~/queries/dados.vias-inseguras";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/viasinseguras/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(viasInsegurasQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Observatório de Vias Inseguras - Ameciclo",
       description:
         "Ranking das vias com maior concentração de sinistros de trânsito no Recife, baseado nos dados do SAMU.",
       pathname: "/dados/viasinseguras",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: ViasInsegurasPage,
 });
 

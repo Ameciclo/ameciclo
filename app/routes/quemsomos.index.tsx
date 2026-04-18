@@ -5,21 +5,19 @@ import { useEffect } from "react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { QuemSomosContent } from "~/components/QuemSomos/QuemSomosContent";
-import { quemSomosQueryOptions } from "~/loader/quemsomos";
+import { quemSomosQueryOptions } from "~/queries/quemsomos";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/quemsomos/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(quemSomosQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Quem Somos - Ameciclo",
       description:
         "Conheça a Ameciclo — Associação Metropolitana de Ciclistas do Recife: missão, história e equipe.",
       pathname: "/quemsomos",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: QuemSomos,
 });
 

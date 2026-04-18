@@ -67,15 +67,13 @@ export const Route = createFileRoute("/dados/ciclodados/")({
       };
     }
   },
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "CicloDados - Dados de Ciclismo Urbano - Ameciclo",
       description:
         "Visualização de dados de ciclismo urbano, contagens, infraestrutura e perfil de ciclistas",
       pathname: "/dados/ciclodados",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: CicloDados,
 });
 

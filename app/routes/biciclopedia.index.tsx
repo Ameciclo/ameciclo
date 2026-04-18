@@ -3,7 +3,7 @@ import Breadcrumb from "../components/Commom/Breadcrumb";
 import { SearchComponent } from "../components/Biciclopedia/SearchComponent";
 import { AccordionItem } from "../components/Biciclopedia/AccordionFAQ";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { biciclopediaQueryOptions } from "~/loader/biciclopedia";
+import { biciclopediaQueryOptions } from "~/queries/biciclopedia";
 import { seo } from "~/utils/seo";
 
 interface FAQ {
@@ -39,13 +39,12 @@ export const Route = createFileRoute("/biciclopedia/")({
         }
       : undefined;
 
-    const s = seo({
+    return seo({
       title: "Biciclopedia - Ameciclo",
       description: "Perguntas e respostas sobre mobilidade urbana e ciclismo",
       pathname: "/biciclopedia",
       jsonLd: faqSchema,
     });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
   },
   component: Biciclopedia,
 });

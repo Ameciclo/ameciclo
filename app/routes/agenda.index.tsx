@@ -7,21 +7,19 @@ import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { useEffect, useRef } from "react";
 import { AgendaContent } from "~/components/Agenda/AgendaContent";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { agendaQueryOptions } from "../loader/agenda";
+import { agendaQueryOptions } from "~/queries/agenda";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/agenda/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(agendaQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Agenda - Ameciclo",
       description:
         "Agenda de eventos, atividades e encontros da Ameciclo — participe da comunidade cicloativista de Recife.",
       pathname: "/agenda",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: Agenda,
 });
 

@@ -11,21 +11,19 @@ import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CityContent } from "~/components/ExecucaoCicloviaria/CityContent";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { execucaoCicloviariaQueryOptions } from "~/loader/dados.execucaocicloviaria";
+import { execucaoCicloviariaQueryOptions } from "~/queries/dados.execucaocicloviaria";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/execucaocicloviaria/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(execucaoCicloviariaQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Execução Cicloviária - Ameciclo",
       description:
         "Monitoramento das estruturas cicloviárias projetadas e executadas nas cidades da Região Metropolitana do Recife.",
       pathname: "/dados/execucaocicloviaria",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: ExecucaoCicloviaria,
 });
 

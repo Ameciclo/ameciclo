@@ -18,15 +18,13 @@ import { useEffect, useState } from "react";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/participe/")({
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Participe - Ameciclo",
       description:
         "Participe da Ameciclo: associe-se, apoie, contribua em grupos de trabalho, voluntariado ou projetos open source.",
       pathname: "/participe",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: ParticiparPage,
 });
 

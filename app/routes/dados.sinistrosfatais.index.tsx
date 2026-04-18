@@ -5,21 +5,19 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import SinistrosFataisClientSide from "~/components/SinistrosFatais/SinistrosFataisClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { sinistrosFataisQueryOptions } from "~/loader/dados.sinistros-fatais";
+import { sinistrosFataisQueryOptions } from "~/queries/dados.sinistros-fatais";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/sinistrosfatais/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(sinistrosFataisQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Sinistros Fatais - Observatório de Segurança Viária - Ameciclo",
       description:
         "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária no Recife e Região Metropolitana.",
       pathname: "/dados/sinistrosfatais",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: SinistrosFataisPage,
 });
 

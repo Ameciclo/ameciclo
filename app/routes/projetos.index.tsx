@@ -6,21 +6,19 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { ProjectsContent } from "~/components/Projetos/ProjectsContent";
-import { projetosQueryOptions } from "~/loader/projetos";
+import { projetosQueryOptions } from "~/queries/projetos";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/projetos/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(projetosQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Projetos - Ameciclo",
       description:
         "Conheça os projetos desenvolvidos pela Ameciclo em prol da mobilidade ativa, cicloativismo e cidades mais humanas.",
       pathname: "/projetos",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: Projetos,
 });
 

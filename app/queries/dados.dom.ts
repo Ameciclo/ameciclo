@@ -160,5 +160,3 @@ export const domQueryOptions = () =>
     },
   });
 
-// Keep for backwards compatibility
-export const loader = async () => domQueryOptions().queryFn({} as any);

@@ -8,7 +8,7 @@ import { idecicloLayers } from "../components/Ideciclo/ideciclo_mapstyle";
 import { StatisticsBoxIdecicloDetalhes } from "../components/Ideciclo/StatisticsBoxIdeciclo";
 import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/VerticalStatisticsBoxesIdeciclo";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { idecicloDetailQueryOptions } from "~/loader/dados.ideciclo.$id";
+import { idecicloDetailQueryOptions } from "~/queries/dados.ideciclo.$id";
 import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
 import { seo } from "~/utils/seo";
 
@@ -25,14 +25,13 @@ export const Route = createFileRoute("/dados/ideciclo/$id")({
     const description = street
       ? `Avaliação Ideciclo da estrutura cicloviária ${street} — índice que mede a qualidade da malha cicloviária.`
       : "Detalhamento da estrutura cicloviária avaliada pelo Ideciclo.";
-    const s = seo({
+    return seo({
       title,
       description,
       pathname: `/dados/ideciclo/${params.id}`,
       image: pageData?.cover?.url,
       type: "article",
     });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
   },
   component: IdecicloDetail,
 });

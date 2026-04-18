@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import ReactMarkdown from "react-markdown";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { biciclopediaQuestionQueryOptions } from "~/loader/biciclopedia.$question";
+import { biciclopediaQuestionQueryOptions } from "~/queries/biciclopedia.$question";
 import { seo } from "~/utils/seo";
 
 interface FAQTag {
@@ -26,20 +26,18 @@ export const Route = createFileRoute("/biciclopedia_/$question")({
     const question = loaderData?.question;
     const pathname = `/biciclopedia/${params.question}`;
     if (!question) {
-      const s = seo({
+      return seo({
         title: "Pergunta não encontrada - Biciclopedia - Ameciclo",
         pathname,
         noindex: true,
       });
-      return { meta: s.meta, links: s.links, scripts: s.scripts };
     }
-    const s = seo({
+    return seo({
       title: `${question.title} - Biciclopedia - Ameciclo`,
       description: question.description,
       pathname,
       type: "article",
     });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
   },
   component: QuestionPage,
 });

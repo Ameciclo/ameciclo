@@ -10,7 +10,7 @@ import { PerfilSocioeconomicoSection } from "~/components/ViasInseguras/sections
 import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
 import { processProfileData } from "~/components/ViasInseguras/sections/profileDataHelper";
-import { viasInsegurasSlugQueryOptions } from "~/loader/dados.viasinseguras.$slug";
+import { viasInsegurasSlugQueryOptions } from "~/queries/dados.viasinseguras.$slug";
 import { seo } from "~/utils/seo";
 
 interface ViaHistoryData {
@@ -77,14 +77,13 @@ export const Route = createFileRoute("/dados/viasinseguras/$slug")({
     const description = via
       ? `Histórico e análise de sinistros de trânsito na via ${via} no Recife.`
       : "Análise de vias com maior concentração de sinistros de trânsito no Recife.";
-    const s = seo({
+    return seo({
       title,
       description,
       pathname: `/dados/viasinseguras/${params.slug}`,
       image: pageData?.cover?.url,
       type: "article",
     });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
   },
   component: ViaInsegura,
 });

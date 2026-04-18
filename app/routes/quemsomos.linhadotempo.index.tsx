@@ -7,15 +7,13 @@ import DocumentationSearchBar from "~/components/Documentacao/DocumentationSearc
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/quemsomos/linhadotempo/")({
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Linha do Tempo - Ameciclo",
       description:
         "História e marcos importantes da Ameciclo desde 2008 — construção do cicloativismo em Recife.",
       pathname: "/quemsomos/linhadotempo",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: LinhaDoTempoPage,
 });
 

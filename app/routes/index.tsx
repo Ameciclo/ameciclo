@@ -9,22 +9,20 @@ import { useApiStatus } from "~/contexts/ApiStatusContext";
 import CachePermissionBar from "~/components/Commom/CachePermissionModal";
 import { useEffect } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { homeQueryOptions } from "../loader/home";
+import { homeQueryOptions } from "~/queries/home";
 import { seo, organizationSchema } from "~/utils/seo";
 
 export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(homeQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Ameciclo - Associação Metropolitana de Ciclistas do Recife",
       description:
         "Associação Metropolitana de Ciclistas do Recife — promovemos mobilidade ativa, cicloativismo e cidades mais humanas na Região Metropolitana do Recife.",
       pathname: "/",
       jsonLd: organizationSchema,
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: Index,
 });
 

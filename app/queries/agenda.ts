@@ -10,12 +10,12 @@ const getAgendaConfig = createServerFn().handler(async () => {
   };
 });
 
-const queryFn = async () => ({ calendarConfig: await getAgendaConfig() });
-
 export const agendaQueryOptions = () =>
   queryOptions({
     queryKey: ["agenda"],
-    queryFn,
+    queryFn: async () => ({
+      calendarConfig: await getAgendaConfig(),
+      apiDown: false,
+      apiErrors: [] as Array<{ url: string; error: string }>,
+    }),
   });
-
-export const loader = async () => queryFn();

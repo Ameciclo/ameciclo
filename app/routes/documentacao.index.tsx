@@ -91,16 +91,14 @@ import ChangeThemeButton from "~/components/Commom/ChangeThemeButton";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/documentacao/")({
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Documentação - Ameciclo",
       description:
         "Documentação técnica interna do projeto Ameciclo para pessoas desenvolvedoras.",
       pathname: "/documentacao",
       noindex: true,
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: Docs,
 });
 

@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
+import { createServerFn } from "@tanstack/react-start";
 import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
-import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { cmsFetch } from "~/services/cmsFetch";
 
 function getBoxesForCountingComparision(data: any[]) {
   const boxes = data.map((location) => {
@@ -34,7 +35,10 @@ function getBoxesForCountingComparision(data: any[]) {
 
 const fetchLocationData = async (locationId: string) => {
   try {
-    const data = await fetchWithTimeout(COUNTINGS_ATLAS_LOCATION(locationId), { cache: "no-cache" }, 5000, null);
+    const data = await cmsFetch<any>(COUNTINGS_ATLAS_LOCATION(locationId), {
+      ttl: 60,
+      timeout: 5000,
+    });
     if (!data) return null;
 
     if (data.counts && data.counts.length > 0) {
@@ -47,27 +51,27 @@ const fetchLocationData = async (locationId: string) => {
   }
 };
 
+export const fetchCompareContagens = createServerFn()
+  .inputValidator((input: { slug: string; compareSlug: string }) => input)
+  .handler(async ({ data }) => {
+    const slugParam = data.slug || "";
+    const compareSlugParam = data.compareSlug || "";
+    const toCompare = [slugParam, compareSlugParam].filter(Boolean);
+
+    const result = await Promise.all(
+      toCompare.map(async (locationId) => {
+        const r = await fetchLocationData(locationId);
+        return r;
+      })
+    );
+
+    const boxes = getBoxesForCountingComparision(result.filter(Boolean));
+
+    return { boxes };
+  });
+
 export const compareContagensQueryOptions = (slug: string, compareSlug: string) =>
   queryOptions({
     queryKey: ["dados", "contagens", "compareLoader", slug, compareSlug],
-    queryFn: async () => {
-      const slugParam = slug || "";
-      const compareSlugParam = compareSlug || "";
-      const toCompare = [slugParam, compareSlugParam].filter(Boolean);
-
-      const data = await Promise.all(
-        toCompare.map(async (locationId) => {
-          const result = await fetchLocationData(locationId);
-          return result;
-        })
-      );
-
-      const boxes = getBoxesForCountingComparision(data.filter(Boolean));
-
-      return { boxes };
-    },
+    queryFn: () => fetchCompareContagens({ data: { slug, compareSlug } }),
   });
-
-// Keep for backwards compatibility
-export const loader = async ({ params }: { params: { slug?: string; compareSlug?: string } }) =>
-  compareContagensQueryOptions(params.slug || "", params.compareSlug || "").queryFn({} as any);

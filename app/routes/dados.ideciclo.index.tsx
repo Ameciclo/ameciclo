@@ -9,21 +9,19 @@ import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
 import { calculateIdecicloStatistics } from "~/services/ideciclo-statistics.service";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { idecicloQueryOptions } from "~/loader/dados.ideciclo";
+import { idecicloQueryOptions } from "~/queries/dados.ideciclo";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/ideciclo/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(idecicloQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Ideciclo - Índice de Desenvolvimento Cicloviário - Ameciclo",
       description:
         "Índice Ideciclo: metodologia de avaliação da malha e qualidade das estruturas cicloviárias das cidades brasileiras.",
       pathname: "/dados/ideciclo",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: Ideciclo,
 });
 

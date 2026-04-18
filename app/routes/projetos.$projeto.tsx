@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
-import { projetoQueryOptions } from "~/loader/projetos";
+import { projetoQueryOptions } from "~/queries/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/projetos/$projeto")({
     const pathname = `/projetos/${slug}`;
     const isI18n = baseSlug === "bota-pra-rodar";
 
-    const s = seo({
+    return seo({
       title: project?.name ? `${project.name} - Ameciclo` : "Projeto - Ameciclo",
       description: project?.description ?? undefined,
       pathname,
@@ -35,7 +35,6 @@ export const Route = createFileRoute("/projetos/$projeto")({
         : undefined,
       type: "article",
     });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
   },
   component: Projeto,
 });

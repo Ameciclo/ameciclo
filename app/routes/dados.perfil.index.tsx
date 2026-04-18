@@ -6,21 +6,19 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import PerfilDashboard from "~/components/Perfil/PerfilDashboard";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
-import { perfilQueryOptions } from "~/loader/dados.perfil";
+import { perfilQueryOptions } from "~/queries/dados.perfil";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/perfil/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(perfilQueryOptions()),
-  head: () => {
-    const s = seo({
+  head: () =>
+    seo({
       title: "Perfil do Ciclista - Ameciclo",
       description:
         "Pesquisa de perfil do ciclista: dados socioeconômicos, percepções e hábitos de quem pedala no Recife.",
       pathname: "/dados/perfil",
-    });
-    return { meta: s.meta, links: s.links, scripts: s.scripts };
-  },
+    }),
   component: PerfilPage,
 });
 
