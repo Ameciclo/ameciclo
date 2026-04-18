@@ -34,7 +34,7 @@ interface LeftSidebarProps {
   selectedPerfil: string[];
   onPerfilToggle: (option: string) => void;
   onPerfilToggleAll?: (options: string[], selectAll: boolean) => void;
-  selectedGenero: string;
+  selectedGenero: string[];
   onGeneroChange: (value: string) => void;
   selectedAno: string[];
   onAnoChange: (value: string) => void;
@@ -42,12 +42,12 @@ interface LeftSidebarProps {
   onAreaChange: (value: string) => void;
   selectedIdade: string;
   onIdadeChange: (value: string) => void;
-  selectedRaca: string;
-  onRacaChange: (value: string) => void;
-  selectedSocio: string;
-  onSocioChange: (value: string) => void;
-  selectedDias: string;
-  onDiasChange: (value: string) => void;
+  selectedRaca?: string;
+  onRacaChange?: (value: string) => void;
+  selectedSocio?: string;
+  onSocioChange?: (value: string) => void;
+  selectedDias?: string;
+  onDiasChange?: (value: string) => void;
   onClearAll: () => void;
   onSelectAll: () => void;
   onReloadMapData?: () => void;

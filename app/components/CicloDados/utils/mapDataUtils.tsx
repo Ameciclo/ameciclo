@@ -76,7 +76,10 @@ export function generatePdcData(selectedPdc: string[], execucaoCicloviaria?: any
 }
 
 export function generateContagemData(selectedContagem: string[], apiData?: any, profileFilters?: {
-  genero?: string;
+  genero?: string | string[];
+  ano?: string | string[];
+  area?: string;
+  idade?: string;
   raca?: string;
   socio?: string;
   dias?: string;

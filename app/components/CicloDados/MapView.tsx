@@ -24,11 +24,13 @@ interface MapViewProps {
   selectedEstacionamento: string[];
   selectedSinistro: string[];
   selectedPerfil: string[];
-  selectedGenero: string;
+  selectedGenero: string[];
   selectedAno: string[];
-  selectedRaca: string;
-  selectedSocio: string;
-  selectedDias: string;
+  selectedArea?: string;
+  selectedIdade?: string;
+  selectedRaca?: string;
+  selectedSocio?: string;
+  selectedDias?: string;
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   pdcOptions: Array<{ name: string; color: string; pattern: string; apiKey?: string }>;
   layersConf: any[];
