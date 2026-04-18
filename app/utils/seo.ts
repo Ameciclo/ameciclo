@@ -1,5 +1,5 @@
 export const SITE_URL = "https://ameciclo.org";
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/miniatura-ameciclo-logo.webp`;
 
 export type Locale = "pt-BR" | "en" | "es";
 
