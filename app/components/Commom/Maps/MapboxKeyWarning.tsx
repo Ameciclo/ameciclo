@@ -39,8 +39,9 @@ export const MapboxKeyWarning = () => {
                         </div>
                     </div>
                     
-                    <Link 
-                        to={`/contato?subject=${subject}&message=${errorMessage}`}
+                    <Link
+                        to="/contato"
+                        search={{ subject, message: errorMessage } as never}
                         className="flex items-center justify-center gap-2 w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                     >
                         <Mail className="w-5 h-5" />

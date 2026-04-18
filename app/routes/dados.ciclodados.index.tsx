@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect } from 'react';
 import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
 import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
@@ -17,56 +18,26 @@ import {
   generateLayersConf
 } from '~/components/CicloDados';
 import { seo } from '~/utils/seo';
+import { ciclodadosQueryOptions } from '~/queries/dados.ciclodados';
+
+type CicloDadosSearch = {
+  lat?: string;
+  lon?: string;
+  zoom?: string;
+  modal?: string;
+  tab?: string;
+};
 
 export const Route = createFileRoute("/dados/ciclodados/")({
-  loader: async ({ request }: { request?: Request } = {}) => {
-    const url = request ? new URL(request.url) : null;
-    const lat = url?.searchParams.get('lat') ?? null;
-    const lon = url?.searchParams.get('lon') ?? null;
-    const zoom = url?.searchParams.get('zoom') ?? null;
-    const modalOpen = url?.searchParams.get('modal') ?? null;
-    const modalTab = url?.searchParams.get('tab') ?? null;
-
-    try {
-      const [amecicloResponse, perfilResponse] = await Promise.all([
-        fetch('https://cyclist-counts.atlas.ameciclo.org/v1/locations'),
-        fetch('https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations')
-      ]);
-
-      const amecicloData = amecicloResponse.ok ? await amecicloResponse.json() : [];
-      const perfilData = perfilResponse.ok ? await perfilResponse.json() : null;
-
-      return {
-        contagemData: {
-          ameciclo: amecicloData,
-          prefeitura: []
-        },
-        execucaoCicloviaria: null,
-        perfilCiclistas: perfilData,
-        initialViewState: lat && lon && zoom ? {
-          latitude: parseFloat(lat),
-          longitude: parseFloat(lon),
-          zoom: parseFloat(zoom)
-        } : null,
-        modalState: modalOpen ? {
-          open: modalOpen === 'true',
-          tab: modalTab || 'overview'
-        } : null
-      };
-    } catch (error) {
-      console.error('Error loading data:', error);
-      return {
-        contagemData: {
-          ameciclo: [],
-          prefeitura: []
-        },
-        execucaoCicloviaria: null,
-        perfilCiclistas: null,
-        initialViewState: null,
-        modalState: null
-      };
-    }
-  },
+  validateSearch: (search: Record<string, unknown>): CicloDadosSearch => ({
+    lat: typeof search.lat === "string" ? search.lat : undefined,
+    lon: typeof search.lon === "string" ? search.lon : undefined,
+    zoom: typeof search.zoom === "string" ? search.zoom : undefined,
+    modal: typeof search.modal === "string" ? search.modal : undefined,
+    tab: typeof search.tab === "string" ? search.tab : undefined,
+  }),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(ciclodadosQueryOptions()),
   head: () =>
     seo({
       title: "CicloDados - Dados de Ciclismo Urbano - Ameciclo",
@@ -78,7 +49,21 @@ export const Route = createFileRoute("/dados/ciclodados/")({
 });
 
 function CicloDados() {
-  const { contagemData, execucaoCicloviaria, perfilCiclistas, initialViewState, modalState } = Route.useLoaderData();
+  const { data: { contagemData, execucaoCicloviaria, perfilCiclistas } } =
+    useSuspenseQuery(ciclodadosQueryOptions());
+  const { lat, lon, zoom, modal, tab } = Route.useSearch();
+
+  const initialViewState =
+    lat && lon && zoom
+      ? {
+          latitude: parseFloat(lat),
+          longitude: parseFloat(lon),
+          zoom: parseFloat(zoom),
+        }
+      : null;
+  const modalState = modal
+    ? { open: modal === "true", tab: tab || "overview" }
+    : null;
 
   const {
     mapSelection,

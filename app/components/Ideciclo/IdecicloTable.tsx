@@ -88,7 +88,8 @@ export const IdecicloTable = ({ title, data }: any) => {
                 accessor: "logradouro",
                 Cell: ({ row }: any) => (
                     <Link
-                        to={`/dados/ideciclo/${row.original.id}`}
+                        to="/dados/ideciclo/$id"
+                        params={{ id: String(row.original.id) }}
                         className={`hover:underline ${row.original.cidade === 1 ? "text-[#008080] font-medium" : "text-gray-700"
                             }`}
                     >

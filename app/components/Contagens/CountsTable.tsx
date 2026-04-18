@@ -55,7 +55,8 @@ export function CountsTable({ data }: ContagensTableProps) {
           return (
             <Link
               className="text-ameciclo hover:underline"
-              to={`/dados/contagens/${slug}`}
+              to="/dados/contagens/$slug"
+              params={{ slug: String(slug) }}
             >
               {row.original.name}
             </Link>

@@ -34,7 +34,7 @@ export const ProjectCard = ({ project }: any) => {
                 <StatusIndicator status={project.project_status} />
             </div>
             {project.media?.url ? (
-                <Link to={`/projetos/${project.slug}`}>
+                <Link to="/projetos/$projeto" params={{ projeto: project.slug }}>
                     <div
                         style={{
                             backgroundImage: `url(${project.media.url})`,
@@ -52,7 +52,7 @@ export const ProjectCard = ({ project }: any) => {
             )}
             <div className="px-4 py-5 lg:p-6">
                 <dl className="pb-6">
-                    <Link to={`/projetos/${project.slug}`}>
+                    <Link to="/projetos/$projeto" params={{ projeto: project.slug }}>
                         <dt className="mt-1 text-3xl font-semibold leading-9 text-gray-900 cursor-pointer">
                             {project.name}
                         </dt>

@@ -254,7 +254,8 @@ const ProjectSlide = memo(({ project, onMouseEnter, onMouseLeave }) => {
                 </p>
                 {slug && (
                   <Link
-                    to={`/projetos/${slug}`}
+                    to="/projetos/$projeto"
+                    params={{ projeto: slug }}
                     className="flex items-baseline justify-center mt-3 md:mt-3 text-ameciclo hover:text-red-600 focus:text-red-600 font-semibold"
                   >
                     <span className="text-base md:text-base">Conheça mais</span>

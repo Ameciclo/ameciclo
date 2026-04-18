@@ -496,7 +496,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
 
                     <div className="flex items-center space-x-4">
                         <Link
-                            to="/contato?message=Encontrei%20um%20erro%20na%20tabela%20de%20Estruturas%20do%20PDC%3A%0A%0ADescreva%20o%20erro%20encontrado%3A%0A"
+                            to="/contato"
+                            search={{ message: "Encontrei um erro na tabela de Estruturas do PDC:\n\nDescreva o erro encontrado:\n" } as never}
                             className="text-xs text-gray-500 hover:text-[#008080] hover:underline transition-colors"
                         >
                             Reportar erro

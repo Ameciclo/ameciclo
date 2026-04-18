@@ -97,7 +97,7 @@ export const AccordionItem = ({ categories }: AccordionItemProps) => {
                 );
                 if (faq[3]) {
                   saibaMais = (
-                    <Link to={`/biciclopedia/${faq[0]}`} key={faq[0]}>
+                    <Link to="/biciclopedia/$question" params={{ question: String(faq[0]) }} key={faq[0]}>
                       <p className="p-4">
                         <strong>P: {faq[1]}</strong>
                         <p className="pl-5">

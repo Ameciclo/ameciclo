@@ -9,7 +9,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
   if (project.translations?.es) {
     translationLinks.push(
-      <Link to={`/projetos/${project.translations.es.slug}`} key="es">
+      <Link to="/projetos/$projeto" params={{ projeto: project.translations.es.slug }} key="es">
         <span className="flex items-center mx-2 text-lg hover:text-ameciclo">
           <span role="img" aria-label="Espanhol" className="mr-1">🇪🇸</span>
           <span>Traducción</span>
@@ -20,7 +20,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
   if (project.translations?.en) {
     translationLinks.push(
-      <Link to={`/projetos/${project.translations.en.slug}`} key="en">
+      <Link to="/projetos/$projeto" params={{ projeto: project.translations.en.slug }} key="en">
         <span className="flex items-center mx-2 text-lg hover:text-ameciclo">
           <span role="img" aria-label="Inglês" className="mr-1">🇬🇧</span>
           <span>Translation</span>
