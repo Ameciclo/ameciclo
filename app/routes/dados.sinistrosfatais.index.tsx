@@ -4,7 +4,8 @@ import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import SinistrosFataisClientSide from "~/components/SinistrosFatais/SinistrosFataisClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { sinistrosFataisQueryOptions } from "~/queries/dados.sinistros-fatais";
 import { seo } from "~/utils/seo";
 
@@ -19,11 +20,16 @@ export const Route = createFileRoute("/dados/sinistrosfatais/")({
       pathname: "/dados/sinistrosfatais",
     }),
   component: SinistrosFataisPage,
+  pendingComponent: () => <RouteLoading label="Carregando sinistros fatais..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function SinistrosFataisPage() {
-  const { data: { summary, citiesByYear, pageData, apiDown, apiErrors } } = useSuspenseQuery(sinistrosFataisQueryOptions());
-  useApiStatusHandler(apiDown, apiErrors, '/dados/sinistros-fatais');
+  const { data } = useSuspenseQuery(sinistrosFataisQueryOptions());
+  const { summary, citiesByYear, pageData, apiDown } = data;
+  useReportApiErrors(data);
 
   return (
     <>

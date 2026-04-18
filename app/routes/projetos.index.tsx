@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { ProjectsContent } from "~/components/Projetos/ProjectsContent";
 import { projetosQueryOptions } from "~/queries/projetos";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/projetos/")({
@@ -23,17 +22,9 @@ export const Route = createFileRoute("/projetos/")({
 });
 
 function Projetos() {
-  const { data: { projectsData, apiDown, apiErrors } } = useSuspenseQuery(projetosQueryOptions());
-  const { setApiDown, addApiError } = useApiStatus();
-
-  useEffect(() => {
-    setApiDown(apiDown);
-    if (apiErrors && apiErrors.length > 0) {
-      apiErrors.forEach((error: {url: string, error: string}) => {
-        addApiError(error.url, error.error, '/projetos');
-      });
-    }
-  }, []);
+  const { data } = useSuspenseQuery(projetosQueryOptions());
+  const { projectsData } = data;
+  useReportApiErrors(data);
 
   return (
     <>

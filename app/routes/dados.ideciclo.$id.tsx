@@ -10,6 +10,7 @@ import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/Vertical
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { idecicloDetailQueryOptions } from "~/queries/dados.ideciclo.$id";
 import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/ideciclo/$id")({
@@ -34,6 +35,10 @@ export const Route = createFileRoute("/dados/ideciclo/$id")({
     });
   },
   component: IdecicloDetail,
+  pendingComponent: () => <RouteLoading label="Carregando estrutura cicloviária..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function IdecicloDetail() {

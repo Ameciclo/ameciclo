@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect } from 'react';
 import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
 import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
 import { useCicloDadosMap } from '~/hooks/useCicloDadosMap';
@@ -19,6 +18,7 @@ import {
 } from '~/components/CicloDados';
 import { seo } from '~/utils/seo';
 import { ciclodadosQueryOptions } from '~/queries/dados.ciclodados';
+import { RouteErrorBoundary } from '~/components/Commom/RouteBoundaries';
 
 type CicloDadosSearch = {
   lat?: string;
@@ -46,6 +46,7 @@ export const Route = createFileRoute("/dados/ciclodados/")({
       pathname: "/dados/ciclodados",
     }),
   component: CicloDados,
+  errorComponent: RouteErrorBoundary,
 });
 
 function CicloDados() {

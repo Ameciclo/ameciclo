@@ -11,6 +11,7 @@ import { colors } from "~/components/Charts/FlowChart/FlowContainer";
 import { VerticalStatisticsBoxes } from "~/components/Contagens/VerticalStatisticsBoxes";
 import { Tooltip } from "~/components/Commom/Tooltip";
 import { contagemCompareQueryOptions } from "~/queries/dados.contagens.$slug.compare.$compareSlug";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 interface Series {
@@ -102,6 +103,10 @@ export const Route = createFileRoute("/dados/contagens/$slug/compare/$compareSlu
       noindex: true,
     }),
   component: Compare,
+  pendingComponent: () => <RouteLoading label="Carregando comparação..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function Compare() {

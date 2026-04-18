@@ -10,12 +10,13 @@ import { CardsSession } from "~/components/Commom/CardsSession";
 import { PointDetailsModal } from "~/components/Contagens/PointDetailsModal";
 import { CountsTable } from "~/components/Contagens/CountsTable";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { useCountsStatistics } from "~/hooks/useCountsStatistics";
 import { useCountsMapData } from "~/hooks/useCountsMapData";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { contagensQueryOptions } from "~/queries/dados.contagens";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/contagens/")({
@@ -29,22 +30,18 @@ export const Route = createFileRoute("/dados/contagens/")({
       pathname: "/dados/contagens",
     }),
   component: Contagens,
+  pendingComponent: () => <RouteLoading label="Carregando contagens..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function Contagens() {
-    const { data: { data, summaryData, pcrCounts, amecicloData, apiDown, apiErrors } } = useSuspenseQuery(contagensQueryOptions());
-    const { setApiDown, addApiError } = useApiStatus();
+    const { data: loaderData } = useSuspenseQuery(contagensQueryOptions());
+    const { data, summaryData, pcrCounts, amecicloData, apiDown } = loaderData;
+    useReportApiErrors(loaderData);
     const [showFilters, setShowFilters] = useState(false);
     const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
-
-    useEffect(() => {
-        setApiDown(apiDown);
-        if (apiErrors && apiErrors.length > 0) {
-            apiErrors.forEach((error: {url: string, error: string}) => {
-                addApiError(error.url, error.error, '/dados/contagens');
-            });
-        }
-    }, [apiDown, apiErrors]);
 
     const statistics = useCountsStatistics(summaryData.summaryData);
     const { pointsData, controlPanel } = useCountsMapData(amecicloData, pcrCounts);

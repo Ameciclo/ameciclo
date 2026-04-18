@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
@@ -10,6 +8,8 @@ import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdecic
 import { calculateIdecicloStatistics } from "~/services/ideciclo-statistics.service";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { idecicloQueryOptions } from "~/queries/dados.ideciclo";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/ideciclo/")({
@@ -23,20 +23,16 @@ export const Route = createFileRoute("/dados/ideciclo/")({
       pathname: "/dados/ideciclo",
     }),
   component: Ideciclo,
+  pendingComponent: () => <RouteLoading label="Carregando dados do IDECICLO..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function Ideciclo() {
-    const { data: { ideciclo, structures, pageData, apiDown, apiErrors } } = useSuspenseQuery(idecicloQueryOptions());
-    const { setApiDown, addApiError } = useApiStatus();
-
-    useEffect(() => {
-        setApiDown(apiDown);
-        if (apiErrors && apiErrors.length > 0) {
-            apiErrors.forEach((error: {url: string, error: string}) => {
-                addApiError(error.url, error.error, '/dados/ideciclo');
-            });
-        }
-    }, []);
+    const { data } = useSuspenseQuery(idecicloQueryOptions());
+    const { ideciclo, structures, pageData, apiDown } = data;
+    useReportApiErrors(data);
 
     const coverImage = pageData?.cover?.url || "/pages_covers/ideciclo-cover.png";
     const cidades = (ideciclo || []).filter((c: any) => c.reviews?.length > 0);

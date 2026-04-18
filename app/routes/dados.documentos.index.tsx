@@ -4,7 +4,7 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { DocumentsSession } from "~/components/Documentos/DocumentsSession";
-import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { documentosQueryOptions } from "~/queries/dados.documentos";
 import { seo } from "~/utils/seo";
@@ -23,8 +23,9 @@ export const Route = createFileRoute("/dados/documentos/")({
 });
 
 function Documentos() {
-    const { data: { cover, description, objectives, documents, apiDown, apiErrors } } = useSuspenseQuery(documentosQueryOptions());
-    useApiStatusHandler(apiDown, apiErrors, '/dados/documentos');
+    const { data } = useSuspenseQuery(documentosQueryOptions());
+    const { cover, description, objectives, documents, apiDown } = data;
+    useReportApiErrors(data);
 
     return (
         <>

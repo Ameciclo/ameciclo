@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "@tanstack/react-router";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 
 import { MapPin, Bike, UserCheck } from 'lucide-react';
@@ -395,8 +396,9 @@ export function MapView({
     }
   };
   
+  const router = useRouter();
   const handleReloadAllData = () => {
-    window.location.reload();
+    router.invalidate();
   };
 
   // Função para lidar com clique em cluster - zoom in +2 na coordenada do cluster

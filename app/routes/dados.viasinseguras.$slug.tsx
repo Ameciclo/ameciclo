@@ -11,6 +11,7 @@ import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
 import { processProfileData } from "~/components/ViasInseguras/sections/profileDataHelper";
 import { viasInsegurasSlugQueryOptions } from "~/queries/dados.viasinseguras.$slug";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 interface ViaHistoryData {
@@ -86,6 +87,10 @@ export const Route = createFileRoute("/dados/viasinseguras/$slug")({
     });
   },
   component: ViaInsegura,
+  pendingComponent: () => <RouteLoading label="Carregando via..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function ViaInsegura() {

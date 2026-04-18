@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { LayerProps } from "react-map-gl";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -7,7 +7,8 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CityContent } from "~/components/ExecucaoCicloviaria/CityContent";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -25,10 +26,15 @@ export const Route = createFileRoute("/dados/execucaocicloviaria/")({
       pathname: "/dados/execucaocicloviaria",
     }),
   component: ExecucaoCicloviaria,
+  pendingComponent: () => <RouteLoading label="Carregando execução cicloviária..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function ExecucaoCicloviaria() {
-    const { data: {
+    const { data } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
+    const {
         cover,
         title1,
         title2,
@@ -40,19 +46,9 @@ function ExecucaoCicloviaria() {
         statsData,
         citiesData,
         apiDown,
-        apiErrors
-    } } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
+    } = data;
 
-    const { setApiDown, addApiError } = useApiStatus();
-
-    useEffect(() => {
-        setApiDown(apiDown);
-        if (apiErrors && apiErrors.length > 0) {
-            apiErrors.forEach((error: {url: string, error: string}) => {
-                addApiError(error.url, error.error, '/dados/execucaocicloviaria');
-            });
-        }
-    }, [apiDown, apiErrors]);
+    useReportApiErrors(data);
 
     const [optionsType, setOptionsType] = useState("max1digit");
     const [city_sort, sortCity] = useState("total");

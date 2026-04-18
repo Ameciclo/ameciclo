@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { QuemSomosContent } from "~/components/QuemSomos/QuemSomosContent";
 import { quemSomosQueryOptions } from "~/queries/quemsomos";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/quemsomos/")({
@@ -22,16 +21,9 @@ export const Route = createFileRoute("/quemsomos/")({
 });
 
 function QuemSomos() {
-  const { data: { pageData, apiErrors } } = useSuspenseQuery(quemSomosQueryOptions());
-  const { addApiError } = useApiStatus();
-
-  useEffect(() => {
-    if (apiErrors && apiErrors.length > 0) {
-      apiErrors.forEach((error: {url: string, error: string}) => {
-        addApiError(error.url, error.error, '/quemsomos');
-      });
-    }
-  }, [apiErrors, addApiError]);
+  const { data } = useSuspenseQuery(quemSomosQueryOptions());
+  const { pageData } = data;
+  useReportApiErrors(data);
 
   return (
     <>

@@ -1,15 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import SectionCallToAction from "~/components/PaginaInicial/SectionCallToAction";
 import SectionCarousel from "~/components/PaginaInicial/SectionCarousel";
 import SectionData from "~/components/PaginaInicial/SectionData";
 import bannerImage from "/backgroundImage.webp";
 import HomeBanner from "~/components/PaginaInicial/HomeBanner";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
 import CachePermissionBar from "~/components/Commom/CachePermissionModal";
-import { useEffect } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { homeQueryOptions } from "~/queries/home";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo, organizationSchema } from "~/utils/seo";
 
 export const Route = createFileRoute("/")({
@@ -27,20 +26,13 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { data: { home, projects, apiDown, apiErrors } } = useSuspenseQuery(homeQueryOptions());
-  const { setApiDown, addApiError } = useApiStatus();
-
-  useEffect(() => {
-    setApiDown(apiDown);
-    if (apiErrors && apiErrors.length > 0) {
-      apiErrors.forEach((error: {url: string, error: string}) => {
-        addApiError(error.url, error.error, '/');
-      });
-    }
-  }, []);
+  const { data } = useSuspenseQuery(homeQueryOptions());
+  const { home, projects, apiDown } = data;
+  useReportApiErrors(data);
+  const router = useRouter();
 
   const handleCacheAllow = () => {
-    window.location.reload();
+    router.invalidate();
   };
 
   const handleCacheDeny = () => {

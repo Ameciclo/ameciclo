@@ -13,6 +13,7 @@ import {
   getCountingStatistics,
   transformOtherCountsForComparison,
 } from "~/services/counting-details.service";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/contagens/$slug/")({
@@ -36,6 +37,10 @@ export const Route = createFileRoute("/dados/contagens/$slug/")({
     });
   },
   component: Contagem,
+  pendingComponent: () => <RouteLoading label="Carregando contagem..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function Contagem() {

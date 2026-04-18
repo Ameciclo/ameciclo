@@ -5,7 +5,8 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import PerfilDashboard from "~/components/Perfil/PerfilDashboard";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { perfilQueryOptions } from "~/queries/dados.perfil";
 import { seo } from "~/utils/seo";
 
@@ -20,11 +21,16 @@ export const Route = createFileRoute("/dados/perfil/")({
       pathname: "/dados/perfil",
     }),
   component: PerfilPage,
+  pendingComponent: () => <RouteLoading label="Carregando perfil do ciclista..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function PerfilPage() {
-    const { data: { cover, description, objective, profileData, apiDown, apiErrors } } = useSuspenseQuery(perfilQueryOptions());
-    useApiStatusHandler(apiDown, apiErrors, '/dados/perfil');
+    const { data } = useSuspenseQuery(perfilQueryOptions());
+    const { cover, description, objective, profileData, apiDown } = data;
+    useReportApiErrors(data);
 
     return (
         <>

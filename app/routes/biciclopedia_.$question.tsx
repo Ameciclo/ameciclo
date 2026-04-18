@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { biciclopediaQuestionQueryOptions } from "~/queries/biciclopedia.$question";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 interface FAQTag {
@@ -40,6 +41,10 @@ export const Route = createFileRoute("/biciclopedia_/$question")({
     });
   },
   component: QuestionPage,
+  pendingComponent: () => <RouteLoading label="Carregando pergunta..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function QuestionPage() {

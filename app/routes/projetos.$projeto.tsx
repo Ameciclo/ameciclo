@@ -7,6 +7,7 @@ import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
 import { ProjectSteps } from "~/components/Projetos/ProjectSteps";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 import {
   buildHreflangAlternates,
@@ -37,6 +38,10 @@ export const Route = createFileRoute("/projetos/$projeto")({
     });
   },
   component: Projeto,
+  pendingComponent: () => <RouteLoading label="Carregando projeto..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 const ProjectDate = ({ project }: any) => {

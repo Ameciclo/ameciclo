@@ -10,6 +10,7 @@ import { domQueryOptions } from "~/queries/dados.dom";
 import Chart from "react-google-charts";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/dom/")({
@@ -23,6 +24,10 @@ export const Route = createFileRoute("/dados/dom/")({
       pathname: "/dados/dom",
     }),
   component: Dom,
+  pendingComponent: () => <RouteLoading label="Carregando dados do DOM..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function Dom() {

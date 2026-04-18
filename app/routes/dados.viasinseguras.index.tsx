@@ -8,7 +8,8 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import ViasInsegurasClientSide from "~/components/ViasInseguras/ViasInsegurasClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { viasInsegurasQueryOptions } from "~/queries/dados.vias-inseguras";
 import { seo } from "~/utils/seo";
 
@@ -23,28 +24,28 @@ export const Route = createFileRoute("/dados/viasinseguras/")({
       pathname: "/dados/viasinseguras",
     }),
   component: ViasInsegurasPage,
+  pendingComponent: () => <RouteLoading label="Carregando vias inseguras..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function ViasInsegurasPage() {
+  const { data } = useSuspenseQuery(viasInsegurasQueryOptions());
   const {
-    data: {
-      cover,
-      title1,
-      description1,
-      title2,
-      description2,
-      documents,
-      statisticsBoxes,
-      summaryData,
-      topViasData,
-      mapData,
-      historyData,
-      apiDown,
-      apiErrors,
-    },
-  } = useSuspenseQuery(viasInsegurasQueryOptions());
+    title1,
+    description1,
+    title2,
+    description2,
+    statisticsBoxes,
+    summaryData,
+    topViasData,
+    mapData,
+    historyData,
+    apiDown,
+  } = data;
 
-  useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/vias-inseguras');
+  useReportApiErrors(data);
 
   return (
     <>

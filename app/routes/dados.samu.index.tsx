@@ -8,7 +8,8 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import SamuClientSide from "~/components/Samu/SamuClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatusHandler } from "~/hooks/useApiStatusHandler";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { samuQueryOptions } from "~/queries/dados.samu";
 import { seo } from "~/utils/seo";
 
@@ -23,27 +24,27 @@ export const Route = createFileRoute("/dados/samu/")({
       pathname: "/dados/samu",
     }),
   component: SamuPage,
+  pendingComponent: () => <RouteLoading label="Carregando dados do SAMU..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function SamuPage() {
+  const { data } = useSuspenseQuery(samuQueryOptions());
   const {
-    data: {
-      cover,
-      title1,
-      description1,
-      title2,
-      description2,
-      documents,
-      statisticsBoxes,
-      citiesData,
-      usingMockData,
-      mockDataDate,
-      apiDown,
-      apiErrors,
-    },
-  } = useSuspenseQuery(samuQueryOptions());
+    cover,
+    title1,
+    description1,
+    title2,
+    description2,
+    documents,
+    statisticsBoxes,
+    citiesData,
+    apiDown,
+  } = data;
 
-  useApiStatusHandler(apiDown, apiErrors, '/dados/observatorio/samu');
+  useReportApiErrors(data);
 
   return (
     <>

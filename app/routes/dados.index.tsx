@@ -1,14 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { dadosQueryOptions } from "~/queries/dados";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/")({
@@ -25,17 +24,9 @@ export const Route = createFileRoute("/dados/")({
 });
 
 function Dados() {
-    const { data: { data, apiDown, apiErrors } } = useSuspenseQuery(dadosQueryOptions());
-    const { setApiDown, addApiError } = useApiStatus();
-
-    useEffect(() => {
-        setApiDown(apiDown);
-        if (apiErrors && apiErrors.length > 0) {
-            apiErrors.forEach((error: {url: string, error: string}) => {
-                addApiError(error.url, error.error, '/dados');
-            });
-        }
-    }, []);
+    const { data: loaderData } = useSuspenseQuery(dadosQueryOptions());
+    const { data } = loaderData;
+    useReportApiErrors(loaderData);
     const FEATURED_PAGES = [
         {
             title: "Contagens",

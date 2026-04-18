@@ -3,11 +3,10 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import Banner from "~/components/Commom/Banner";
 import bannerSchedule from "/agenda.webp";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
-import { useEffect, useRef } from "react";
 import { AgendaContent } from "~/components/Agenda/AgendaContent";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { agendaQueryOptions } from "~/queries/agenda";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/agenda/")({
@@ -24,21 +23,9 @@ export const Route = createFileRoute("/agenda/")({
 });
 
 function Agenda() {
-    const { data: { calendarConfig, apiDown, apiErrors } } = useSuspenseQuery(agendaQueryOptions());
-    const { setApiDown, addApiError } = useApiStatus();
-    const errorsProcessed = useRef(false);
-
-    useEffect(() => {
-        if (!errorsProcessed.current) {
-            setApiDown(apiDown);
-            if (apiErrors && apiErrors.length > 0) {
-                apiErrors.forEach((error: {url: string, error: string}) => {
-                    addApiError(error.url, error.error, '/agenda');
-                });
-            }
-            errorsProcessed.current = true;
-        }
-    }, [apiDown, apiErrors, setApiDown, addApiError]);
+    const { data } = useSuspenseQuery(agendaQueryOptions());
+    const { calendarConfig, apiDown } = data;
+    useReportApiErrors(data);
 
     return (
         <>

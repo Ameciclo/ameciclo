@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -8,7 +8,8 @@ import { loaQueryOptions } from "~/queries/dados.loa";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { formatLargeValue } from "~/utils/formatCurrency";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useApiStatus } from "~/contexts/ApiStatusContext";
+import { useReportApiErrors } from "~/hooks/useReportApiErrors";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { InvestmentCards } from "~/components/Loa/sections/InvestmentCards";
 import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetComparisonCards";
 import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
@@ -25,24 +26,17 @@ export const Route = createFileRoute("/dados/loa/")({
       pathname: "/dados/loa",
     }),
   component: Loa,
+  pendingComponent: () => <RouteLoading label="Carregando dados do LOA..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
 });
 
 function Loa() {
     const { data } = useSuspenseQuery(loaQueryOptions());
+    useReportApiErrors(data);
     const [showFilters, setShowFilters] = useState(false);
     const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
-    const { setApiDown, addApiError } = useApiStatus();
-
-    useEffect(() => {
-        if (data?.apiDown) {
-            setApiDown(true);
-        }
-        if (data?.apiErrors?.length > 0) {
-            data.apiErrors.forEach((error: {url: string, error: string}) => {
-                addApiError(error.url, error.error, '/dados/loa');
-            });
-        }
-    }, []);
 
     const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
