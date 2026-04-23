@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import ReactMapGL, { Source, Layer, Marker, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import ReactMapGL, { Source, Layer, Marker, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl/maplibre";
+import 'maplibre-gl/dist/maplibre-gl.css';
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
 import { Link } from "@tanstack/react-router";
 import { pointData } from "../../../typings";
 
-export const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-export const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+export const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 const isValidCoordinate = (lng: number, lat: number) => {
     return lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90 && !isNaN(lng) && !isNaN(lat);
@@ -96,8 +95,7 @@ export const mapInicialState = {
     dragPan: true,
     dragRotate: true,
     scrollZoom: false,
-    touchZoom: true,
-    touchRotate: true,
+    touchZoomRotate: true,
     keyboard: true,
     boxZoom: true,
     doubleClickZoom: true,
@@ -147,11 +145,9 @@ export const CountsMap = ({
                 <ReactMapGL
                     {...viewport}
                     {...settings}
-                    onViewportChange={setViewport}
-                    mapStyle={MAPBOXSTYLE}
-                    mapboxApiAccessToken={MAPBOXTOKEN}
-                    width={width}
-                    height={height}
+                    onMove={(evt) => setViewport(evt.viewState)}
+                    mapStyle={MAPSTYLE}
+                    style={{ width, height }}
                 >
                     <NavigationControl position="top-right" showCompass={false} />
                     <FullscreenControl position="top-right" />

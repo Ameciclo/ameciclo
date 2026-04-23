@@ -1,4 +1,5 @@
 
+import { LayerProps } from "react-map-gl/maplibre";
 import ViasInsegurasMap from "./ViasInsegurasMap";
 import ConcentrationChart from "./ConcentrationChart";
 import ConcentrationByKmChart from "./ConcentrationByKmChart";
@@ -169,7 +170,10 @@ export default function ViasInsegurasClientSide({
         </div>
 
         {mapData.vias.length > 0 ? (
-          <ViasInsegurasMap layerData={layerData} layersConf={layersConf} />
+          <ViasInsegurasMap
+            layerData={layerData as GeoJSON.FeatureCollection}
+            layersConf={layersConf as unknown as LayerProps[]}
+          />
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="text-gray-400 mb-4">

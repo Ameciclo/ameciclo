@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ReactMapGL, { Source, Layer, NavigationControl, FullscreenControl } from "react-map-gl";
+import ReactMapGL, { Source, Layer, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl/maplibre";
 
-const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 interface CityData {
   municipio_samu?: string;
@@ -228,16 +227,13 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
           <div className="bg-green-200 rounded shadow-2xl">
             <ReactMapGL
               {...viewport}
-              onViewportChange={(nextViewport: any) => setViewport(nextViewport)}
-              width="100%"
-              height="400px"
-              mapStyle={MAPBOXSTYLE}
-              mapboxApiAccessToken={MAPBOXTOKEN}
+              onMove={(evt) => setViewport(evt.viewState)}
+              style={{ width: "100%", height: "400px" }}
+              mapStyle={MAPSTYLE}
               dragPan={true}
               dragRotate={true}
               scrollZoom={true}
-              touchZoom={true}
-              touchRotate={true}
+              touchZoomRotate={true}
               keyboard={true}
               boxZoom={true}
               doubleClickZoom={true}
@@ -246,7 +242,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
             >
               <Source id="samu-data" type="geojson" data={geoJsonData}>
                 {layersConf.map((layer, index) => (
-                  <Layer key={index} {...layer} />
+                  <Layer key={index} {...(layer as LayerProps)} />
                 ))}
               </Source>
               

@@ -37,7 +37,7 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Visualização de Dados</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>highcharts</strong> (v12.2.0) + <strong>highcharts-react-official</strong> - Gráficos interativos</li>
-              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-map-gl</strong> (v6.1.21) + <strong>mapbox-gl</strong> (v1.13.0) - Mapas interativos</li>
+              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-map-gl</strong> (v8.1.1) + <strong>maplibre-gl</strong> (v5.24.0) - Mapas interativos via MapLibre + OpenFreeMap</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-google-charts</strong> (v5.2.1) - Gráficos Google Charts</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@turf/*</strong> - Manipulação de dados geoespaciais</li>
             </ul>

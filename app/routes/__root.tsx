@@ -14,7 +14,7 @@ import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { MainContent } from "~/components/Commom/MainContent";
 import { ApiStatusProvider } from "~/contexts/ApiStatusContext";
 import "~/tailwind.css";
-import "mapbox-gl/dist/mapbox-gl.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 import PageNotFound from "~/components/Commom/PageNotFound";
 import ErrorFallback from "~/components/Commom/ErrorFallback";
 import { seo, organizationSchema } from "~/utils/seo";
