@@ -1,6 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ameciclo",
+  "account_id": "8b9af9b81476222e1a787f42f3c8076a",
+  "routes": [
+    { "pattern": "ameciclo.org", "custom_domain": true },
+    { "pattern": "www.ameciclo.org", "custom_domain": true },
+  ],
   "compatibility_date": "2026-03-17",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
@@ -26,7 +31,7 @@
    */
   "vars": {
     "SITE_URL": "https://ameciclo.org",
-    "GOOGLE_CALENDAR_EXTERNAL_ID": "",
-    "GOOGLE_CALENDAR_INTERNAL_ID": "",
+    "GOOGLE_CALENDAR_EXTERNAL_ID": "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
+    "GOOGLE_CALENDAR_INTERNAL_ID": "ameciclo@gmail.com",
   },
 }
