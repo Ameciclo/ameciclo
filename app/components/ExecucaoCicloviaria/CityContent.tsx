@@ -1,8 +1,25 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { filterById, filterByName, IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { CyclingInfrastructureByCity } from "./CyclingInfrastructureByCity";
 import { StatisticsBox } from "./StatisticsBox";
-import Table from "../Commom/Table/Table";
+import { DataTable } from "~/components/ui/data-table";
+
+interface PdcRelation {
+  name: string;
+  pdc_typology: string;
+  typologies_str: string;
+  length: number;
+  has_cycleway_length: number;
+}
+
+const pdcColumns: ColumnDef<PdcRelation>[] = [
+  { header: "Nome", accessorKey: "name" },
+  { header: "Tipologia Prevista", accessorKey: "pdc_typology" },
+  { header: "Tipologia Executada", accessorKey: "typologies_str" },
+  { header: "Extensão Prevista (km)", accessorKey: "length" },
+  { header: "Extensão Executada (km)", accessorKey: "has_cycleway_length" },
+];
 
 interface CityContentProps {
   citiesStats: any;
@@ -197,17 +214,40 @@ export function CityContent({
 
       {localSelectedCity?.relations && localSelectedCity.relations.length > 0 && (
         <div data-table-section className="container mx-auto my-12">
-          <Table
-            title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
+          <h3 className="text-gray-600 text-3xl mb-4">
+            Estruturas do PDC para {localSelectedCity?.name || ""}
+          </h3>
+          <DataTable
+            columns={pdcColumns}
             data={localSelectedCity.relations}
-            columns={[
-              { header: "Nome", accessorKey: "name" },
-              { header: "Tipologia Prevista", accessorKey: "pdc_typology" },
-              { header: "Tipologia Executada", accessorKey: "typologies_str" },
-              { header: "Extensão Prevista (km)", accessorKey: "length" },
-              { header: "Extensão Executada (km)", accessorKey: "has_cycleway_length" },
-            ]}
-            showFilters={true}
+            toolbar={(table) => {
+              const column = table.getColumn("pdc_typology");
+              const rawFilterValue = column?.getFilterValue();
+              const filterValue = typeof rawFilterValue === "string" ? rawFilterValue : "";
+              const options = Array.from(column?.getFacetedUniqueValues().keys() ?? [])
+                .filter((v): v is string => typeof v === "string" && v.length > 0)
+                .sort();
+              return (
+                <div className="flex items-center gap-2">
+                  <label htmlFor="pdc-typology-filter" className="text-sm text-gray-600">
+                    Tipologia Prevista:
+                  </label>
+                  <select
+                    id="pdc-typology-filter"
+                    value={filterValue}
+                    onChange={(e) => column?.setFilterValue(e.target.value || undefined)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+                  >
+                    <option value="">Todas</option>
+                    {options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }}
           />
         </div>
       )}
