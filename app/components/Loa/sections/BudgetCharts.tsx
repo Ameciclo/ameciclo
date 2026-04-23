@@ -1,10 +1,54 @@
-import Chart from "react-google-charts";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import { ChartLoading } from "~/components/Dom/LoaDataLoading";
 
 interface BudgetChartsProps {
   hasData: boolean;
   data: any;
 }
+
+const YEARS = ["2020", "2021", "2022", "2023", "2024", "2025"];
+
+function formatShort(n: number): string {
+  if (!Number.isFinite(n)) return String(n);
+  if (Math.abs(n) >= 1_000_000_000) return `R$ ${(n / 1_000_000_000).toFixed(1)} Bi`;
+  if (Math.abs(n) >= 1_000_000) return `R$ ${(n / 1_000_000).toFixed(1)} Mi`;
+  if (Math.abs(n) >= 1_000) return `R$ ${(n / 1_000).toFixed(1)} Mil`;
+  return `R$ ${n.toFixed(0)}`;
+}
+
+function formatBRL(n: number): string {
+  return n.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+}
+
+const baseOptions: Highcharts.Options = {
+  chart: { type: "column", height: 300 },
+  title: { text: "" },
+  xAxis: { categories: YEARS },
+  yAxis: {
+    title: { text: undefined },
+    labels: {
+      formatter: function () {
+        return formatShort(Number(this.value));
+      },
+    },
+  },
+  legend: { align: "center", verticalAlign: "bottom" },
+  credits: { enabled: false },
+  tooltip: {
+    shared: true,
+    useHTML: true,
+    formatter: function () {
+      const lines = [`<b>${this.x}</b>`];
+      this.points?.forEach((p) => {
+        lines.push(
+          `<span style="color:${p.color}">●</span> ${p.series.name}: <b>R$ ${formatBRL(Number(p.y))}</b>`
+        );
+      });
+      return lines.join("<br/>");
+    },
+  },
+};
 
 export function BudgetCharts({ hasData, data }: BudgetChartsProps) {
   if (!hasData) {
@@ -16,44 +60,37 @@ export function BudgetCharts({ hasData, data }: BudgetChartsProps) {
     );
   }
 
-  const chartOptions = {
-    colors: ['#38A169', '#3182CE'],
-    accessibility: {
-      highContrastMode: true
-    },
-    legend: {
-      position: 'bottom',
-      alignment: 'center',
-      textStyle: {
-        fontSize: 13,
-        color: '#333333'
-      }
-    },
-    hAxis: {
-      textStyle: {
-        fontSize: 13,
-        color: '#333333'
-      }
-    },
-    vAxis: {
-      textStyle: {
-        fontSize: 13,
-        color: '#333333'
+  const comparativeOptions: Highcharts.Options = {
+    ...baseOptions,
+    subtitle: { text: "Comparativo anual 2020-2025" },
+    series: [
+      {
+        type: "column",
+        name: "Orçado (R$)",
+        color: "#38A169",
+        data: YEARS.map((y) => Number(data[`totalValueBudgeted${y}`] ?? 0)),
       },
-      format: 'short'
-    },
-    chartArea: {
-      width: '80%',
-      height: '70%'
-    }
+      {
+        type: "column",
+        name: "Executado (R$)",
+        color: "#3182CE",
+        data: YEARS.map((y) => Number(data[`totalValueExecuted${y}`] ?? 0)),
+      },
+    ],
   };
 
-  const totalBudgetOptions = {
-    ...chartOptions,
-    colors: ['#3182CE'],
-    chart: {
-      subtitle: "Orçamento total 2020-2025",
-    }
+  const totalOptions: Highcharts.Options = {
+    ...baseOptions,
+    subtitle: { text: "Orçamento total 2020-2025" },
+    legend: { enabled: false },
+    series: [
+      {
+        type: "column",
+        name: "Total (R$)",
+        color: "#3182CE",
+        data: YEARS.map((y) => Number(data[`totalValueActions${y}`] ?? 0)),
+      },
+    ],
   };
 
   return (
@@ -66,27 +103,7 @@ export function BudgetCharts({ hasData, data }: BudgetChartsProps) {
 
         <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
           <div className="w-full max-w-[500px]">
-            <Chart
-              chartType="Bar"
-              data={[
-                ["Ano", "Orçado (R$)", 'Executado (R$)'],
-                ['2020', data.totalValueBudgeted2020, data.totalValueExecuted2020],
-                ['2021', data.totalValueBudgeted2021, data.totalValueExecuted2021],
-                ['2022', data.totalValueBudgeted2022, data.totalValueExecuted2022],
-                ['2023', data.totalValueBudgeted2023, data.totalValueExecuted2023],
-                ['2024', data.totalValueBudgeted2024, data.totalValueExecuted2024],
-                ['2025', data.totalValueBudgeted2025, data.totalValueExecuted2025],
-              ]}
-              width="100%"
-              height="300px"
-              options={{
-                ...chartOptions,
-                chart: {
-                  subtitle: "Comparativo anual 2020-2025",
-                }
-              }}
-              legendToggle
-            />
+            <HighchartsReact highcharts={Highcharts} options={comparativeOptions} />
           </div>
         </div>
       </section>
@@ -99,22 +116,7 @@ export function BudgetCharts({ hasData, data }: BudgetChartsProps) {
 
         <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
           <div className="w-full max-w-[500px]">
-            <Chart
-              chartType="Bar"
-              data={[
-                ["Ano", "Total (R$)"],
-                ['2020', data.totalValueActions2020],
-                ['2021', data.totalValueActions2021],
-                ['2022', data.totalValueActions2022],
-                ['2023', data.totalValueActions2023],
-                ['2024', data.totalValueActions2024],
-                ['2025', data.totalValueActions2025],
-              ]}
-              width="100%"
-              height="300px"
-              options={totalBudgetOptions}
-              legendToggle
-            />
+            <HighchartsReact highcharts={Highcharts} options={totalOptions} />
           </div>
         </div>
       </section>

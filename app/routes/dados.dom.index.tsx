@@ -7,7 +7,8 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import Loading from "~/components/Dom/Loading";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { domQueryOptions } from "~/queries/dados.dom";
-import Chart from "react-google-charts";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
@@ -50,6 +51,58 @@ function Dom() {
     }, []);
 
     const numParse = (numero: number) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+    /**
+     * Converts the Google-Charts-shaped 2D array (header row + data rows) that
+     * `chartData.*` currently carries into a Highcharts categories + series pair.
+     */
+    function toHighchartsConfig(
+        table: Array<Array<string | number>>,
+        colors: string[]
+    ): Highcharts.Options {
+        const [header, ...rows] = table;
+        const categories = rows.map((row) => String(row[0]));
+        const series = header.slice(1).map((name, colIdx): Highcharts.SeriesColumnOptions => ({
+            type: "column",
+            name: String(name),
+            color: colors[colIdx],
+            data: rows.map((row) => Number(row[colIdx + 1]) || 0),
+        }));
+        return {
+            chart: { type: "column", height: 300 },
+            title: { text: "" },
+            xAxis: { categories },
+            yAxis: {
+                title: { text: undefined },
+                labels: {
+                    formatter: function () {
+                        const n = Number(this.value);
+                        if (!Number.isFinite(n)) return String(this.value);
+                        if (Math.abs(n) >= 1_000_000_000) return `R$ ${(n / 1_000_000_000).toFixed(1)} Bi`;
+                        if (Math.abs(n) >= 1_000_000) return `R$ ${(n / 1_000_000).toFixed(1)} Mi`;
+                        if (Math.abs(n) >= 1_000) return `R$ ${(n / 1_000).toFixed(1)} Mil`;
+                        return `R$ ${n.toFixed(0)}`;
+                    },
+                },
+            },
+            legend: { align: "center", verticalAlign: "bottom" },
+            credits: { enabled: false },
+            tooltip: {
+                shared: true,
+                useHTML: true,
+                formatter: function () {
+                    const lines = [`<b>${this.x}</b>`];
+                    this.points?.forEach((p) => {
+                        lines.push(
+                            `<span style="color:${p.color}">●</span> ${p.series.name}: <b>R$ ${Number(p.y).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</b>`
+                        );
+                    });
+                    return lines.join("<br/>");
+                },
+            },
+            series,
+        };
+    }
 
     return (
         <>
@@ -138,46 +191,12 @@ function Dom() {
 
                                     <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                         <div className="w-full max-w-[500px]">
-                                            <Chart
-                                                chartType="Bar"
-                                                data={chartData.yearlyComparison}
-                                                width="100%"
-                                                height="300px"
+                                            <HighchartsReact
+                                                highcharts={Highcharts}
                                                 options={{
-                                                    chart: {
-                                                        subtitle: "Comparativo anual de investimentos",
-                                                    },
-                                                    colors: ['#38A169', '#E53E3E'],
-                                                    accessibility: {
-                                                        highContrastMode: true
-                                                    },
-                                                    legend: {
-                                                        position: 'bottom',
-                                                        alignment: 'center',
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        }
-                                                    },
-                                                    hAxis: {
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        }
-                                                    },
-                                                    vAxis: {
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        },
-                                                        format: 'short'
-                                                    },
-                                                    chartArea: {
-                                                        width: '80%',
-                                                        height: '70%'
-                                                    }
+                                                    ...toHighchartsConfig(chartData.yearlyComparison, ["#38A169", "#E53E3E"]),
+                                                    subtitle: { text: "Comparativo anual de investimentos" },
                                                 }}
-                                                legendToggle
                                             />
                                         </div>
                                     </div>
@@ -189,36 +208,13 @@ function Dom() {
 
                                     <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                         <div className="w-full max-w-[500px]">
-                                            <Chart
-                                                chartType="Bar"
-                                                data={chartData.goodActionsYearly}
-                                                width="100%"
-                                                height="300px"
+                                            <HighchartsReact
+                                                highcharts={Highcharts}
                                                 options={{
-                                                    chart: {
-                                                        subtitle: "Investimentos em sustentabilidade por ano",
-                                                    },
-                                                    colors: ['#38A169'],
-                                                    accessibility: {
-                                                        highContrastMode: true
-                                                    },
-                                                    legend: {
-                                                        position: 'bottom',
-                                                        alignment: 'center',
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        }
-                                                    },
-                                                    chartArea: {
-                                                        width: '80%',
-                                                        height: '70%'
-                                                    },
-                                                    vAxis: {
-                                                        format: 'short'
-                                                    }
+                                                    ...toHighchartsConfig(chartData.goodActionsYearly, ["#38A169"]),
+                                                    subtitle: { text: "Investimentos em sustentabilidade por ano" },
+                                                    legend: { enabled: false },
                                                 }}
-                                                legendToggle
                                             />
                                         </div>
                                     </div>
@@ -230,36 +226,13 @@ function Dom() {
 
                             <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
                                 <div className="w-full max-w-[1000px]">
-                                    <Chart
-                                        chartType="Bar"
-                                        data={chartData.totalSpendingYearly}
-                                        width="100%"
-                                        height="300px"
+                                    <HighchartsReact
+                                        highcharts={Highcharts}
                                         options={{
-                                            chart: {
-                                                subtitle: "Orçamento municipal consolidado",
-                                            },
-                                            colors: ['#3182CE'],
-                                            accessibility: {
-                                                highContrastMode: true
-                                            },
-                                            legend: {
-                                                position: 'bottom',
-                                                alignment: 'center',
-                                                textStyle: {
-                                                    fontSize: 13,
-                                                    color: '#333333'
-                                                }
-                                            },
-                                            chartArea: {
-                                                width: '80%',
-                                                height: '70%'
-                                            },
-                                            vAxis: {
-                                                format: 'short'
-                                            }
+                                            ...toHighchartsConfig(chartData.totalSpendingYearly, ["#3182CE"]),
+                                            subtitle: { text: "Orçamento municipal consolidado" },
+                                            legend: { enabled: false },
                                         }}
-                                        legendToggle
                                     />
                                 </div>
                             </div>

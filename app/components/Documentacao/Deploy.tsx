@@ -37,7 +37,6 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>highcharts</strong> (v12.2.0) + <strong>highcharts-react-official</strong> - Gráficos interativos</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-map-gl</strong> (v6.1.21) + <strong>mapbox-gl</strong> (v1.13.0) - Mapas interativos</li>
-              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-google-charts</strong> (v5.2.1) - Gráficos Google Charts</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@turf/*</strong> - Manipulação de dados geoespaciais</li>
             </ul>
           </div>
