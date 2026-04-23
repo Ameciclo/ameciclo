@@ -201,11 +201,11 @@ export function CityContent({
             title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
             data={localSelectedCity.relations}
             columns={[
-              { Header: "Nome", accessor: "name" },
-              { Header: "Tipologia Prevista", accessor: "pdc_typology" },
-              { Header: "Tipologia Executada", accessor: "typologies_str" },
-              { Header: "Extensão Prevista (km)", accessor: "length" },
-              { Header: "Extensão Executada (km)", accessor: "has_cycleway_length" },
+              { header: "Nome", accessorKey: "name" },
+              { header: "Tipologia Prevista", accessorKey: "pdc_typology" },
+              { header: "Tipologia Executada", accessorKey: "typologies_str" },
+              { header: "Extensão Prevista (km)", accessorKey: "length" },
+              { header: "Extensão Executada (km)", accessorKey: "has_cycleway_length" },
             ]}
             showFilters={true}
           />

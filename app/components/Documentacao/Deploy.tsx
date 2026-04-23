@@ -61,7 +61,7 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-spinners</strong> (v0.17.0) - Loading indicators</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-lazyload</strong> (v3.2.1) - Lazy loading</li>
-              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-table</strong> (v7.8.0) - Tabelas avançadas</li>
+              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@tanstack/react-table</strong> (v8) - Tabelas avançadas</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>isbot</strong> (v4.1.0) - Detecção de bots</li>
             </ul>
           </div>

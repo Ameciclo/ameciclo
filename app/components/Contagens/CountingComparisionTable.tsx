@@ -1,19 +1,12 @@
 "use client";
 import React from "react";
-import { matchSorter } from "match-sorter";
 import { Link } from "@tanstack/react-router";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ColumnFilter, NumberRangeColumnFilter } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
 import { IntlDateStr } from "~/services/utils";
 
-function fuzzyTextFilterFn(rows: any[], id: string, filterValue: string) {
-  return matchSorter(rows, filterValue, { keys: [(row: any) => row.values[id]] });
-}
-
-// Let the table remove the filter if the string is empty
-fuzzyTextFilterFn.autoRemove = (val: any) => !val;
-
-export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], firstSlug: string }) => {
+export const CountingComparisionTable = ({ data, firstSlug }: { data: any[]; firstSlug: string }) => {
   const [showFilters, setShowFilters] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
 
@@ -21,41 +14,12 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
     setIsMounted(true);
   }, []);
 
-  const filterTypes = React.useMemo(
-    () => ({
-      // Add a new fuzzyTextFilterFn filter type.
-      fuzzyText: fuzzyTextFilterFn,
-      // Or, override the default text filter to use
-      // "startWith"
-      text: (rows: any[], id: string, filterValue: string) => {
-        return rows.filter((row) => {
-          const rowValue = row.values[id];
-          return rowValue !== undefined
-            ? String(rowValue)
-                .toLowerCase()
-                .startsWith(String(filterValue).toLowerCase())
-            : true;
-        });
-      },
-      between: (rows: any[], id: string, filterValue: [number, number]) => {
-        return rows.filter((row) => {
-          const rowValue = row.values[id];
-          if (rowValue === undefined) return true;
-          if (filterValue[0] && rowValue < filterValue[0]) return false;
-          if (filterValue[1] && rowValue > filterValue[1]) return false;
-          return true;
-        });
-      },
-    }),
-    []
-  );
-
-  const columns = React.useMemo(
+  const columns = React.useMemo<ColumnDef<any, any>[]>(
     () => [
       {
-        Header: "Nome",
-        accessor: "name",
-        Cell: ({ row }: { row: any }) => (
+        header: "Nome",
+        accessorKey: "name",
+        cell: ({ row }) => (
           <Link
             className="text-ameciclo"
             to="/dados/contagens/$slug"
@@ -65,12 +29,13 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             {row.original.name}
           </Link>
         ),
-        Filter: ColumnFilter,
+        meta: { Filter: ColumnFilter },
       },
       {
-        Header: "Data",
-        accessor: "date",
-        Cell: ({ value }: { value: string }) => {
+        header: "Data",
+        accessorKey: "date",
+        cell: ({ getValue }) => {
+          const value = getValue() as string;
           if (!value) return <span>-</span>;
           try {
             return <span>{IntlDateStr(value)}</span>;
@@ -78,18 +43,20 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             return <span>{value}</span>;
           }
         },
-        Filter: ColumnFilter,
+        meta: { Filter: ColumnFilter },
       },
       {
-        Header: "Total de Ciclistas",
-        accessor: "total_cyclists",
-        Filter: NumberRangeColumnFilter,
-        filter: "between",
+        header: "Total de Ciclistas",
+        accessorKey: "total_cyclists",
+        filterFn: "numberRange" as any,
+        meta: { Filter: NumberRangeColumnFilter },
       },
       {
-        Header: "COMPARE",
-        accessor: "compare", // Adiciona accessor
-        Cell: ({ row }: { row: any }) => (
+        header: "COMPARE",
+        accessorKey: "compare",
+        enableColumnFilter: false,
+        enableSorting: false,
+        cell: ({ row }) => (
           <Link
             className="text-ameciclo hover:underline font-medium"
             to="/dados/contagens/$slug/compare/$compareSlug"
@@ -98,8 +65,6 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             COMPARE
           </Link>
         ),
-        disableFilters: true,
-        disableSortBy: true,
       },
     ],
     [firstSlug]
@@ -132,7 +97,6 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
       title={"Compare com outras contagens"}
       data={data}
       columns={columns}
-      filterTypes={filterTypes}
       showFilters={showFilters}
       setShowFilters={setShowFilters}
     />

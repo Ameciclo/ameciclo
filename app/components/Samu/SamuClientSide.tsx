@@ -602,22 +602,10 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
             title="Lista completa das cidades"
             data={allCitiesTableData}
             columns={[
-              { Header: "Ranking", accessor: "ranking", disableFilters: true },
-              {
-                Header: "Município",
-                accessor: "municipio",
-                disableFilters: true,
-              },
-              {
-                Header: "Total de Chamadas",
-                accessor: "total_chamadas",
-                disableFilters: true,
-              },
-              {
-                Header: "Percentual (%)",
-                accessor: "percentual",
-                disableFilters: true,
-              },
+              { header: "Ranking", accessorKey: "ranking", enableColumnFilter: false },
+              { header: "Município", accessorKey: "municipio", enableColumnFilter: false },
+              { header: "Total de Chamadas", accessorKey: "total_chamadas", enableColumnFilter: false },
+              { header: "Percentual (%)", accessorKey: "percentual", enableColumnFilter: false },
             ]}
           />
         </div>

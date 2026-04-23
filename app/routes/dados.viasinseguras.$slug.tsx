@@ -222,11 +222,11 @@ function ViaInsegura() {
                 .sort((a: any, b: any) => b._sortDate.getTime() - a._sortDate.getTime());
 
               const columns = [
-                { Header: "Data e Hora", accessor: "data_hora", disableFilters: false },
-                { Header: "Categoria", accessor: "categoria", disableFilters: false },
-                { Header: "Sexo", accessor: "sexo", disableFilters: false },
-                { Header: "Idade", accessor: "idade", disableFilters: false },
-                { Header: "Desfecho", accessor: "desfecho", disableFilters: false },
+                { header: "Data e Hora", accessorKey: "data_hora" },
+                { header: "Categoria", accessorKey: "categoria" },
+                { header: "Sexo", accessorKey: "sexo" },
+                { header: "Idade", accessorKey: "idade" },
+                { header: "Desfecho", accessorKey: "desfecho" },
               ];
 
               return (

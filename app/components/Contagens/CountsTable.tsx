@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import type { ContagemData } from "~/services/contagens.service";
 import { IntlDateStr } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
@@ -9,9 +10,8 @@ interface ContagensTableProps {
   data: ContagemData[];
 }
 
-// Componente de filtro de valor aproximado adaptado para a tabela de contagens
-const RangeValueFilter = ({ column }: any) => {
-  const { filterValue = [], setFilter } = column;
+const RangeValueFilter = ({ column }: { column: any }) => {
+  const filterValue = (column.getFilterValue() as [number | undefined, number | undefined]) ?? [];
   const [min, max] = filterValue;
 
   return (
@@ -20,10 +20,10 @@ const RangeValueFilter = ({ column }: any) => {
         className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
         type="number"
         placeholder="Min"
-        value={min || ''}
+        value={min ?? ""}
         onChange={(e) => {
           const val = e.target.value;
-          setFilter([val ? parseFloat(val) : undefined, max]);
+          column.setFilterValue([val ? parseFloat(val) : undefined, max]);
         }}
       />
       <span className="text-gray-500">a</span>
@@ -31,10 +31,10 @@ const RangeValueFilter = ({ column }: any) => {
         className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
         type="number"
         placeholder="Max"
-        value={max || ''}
+        value={max ?? ""}
         onChange={(e) => {
           const val = e.target.value;
-          setFilter([min, val ? parseFloat(val) : undefined]);
+          column.setFilterValue([min, val ? parseFloat(val) : undefined]);
         }}
       />
     </div>
@@ -44,13 +44,12 @@ const RangeValueFilter = ({ column }: any) => {
 export function CountsTable({ data }: ContagensTableProps) {
   const [showFilters, setShowFilters] = useState(false);
 
-  const columns = useMemo(
+  const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
       {
-        Header: "Nome",
-        accessor: "name",
-        Cell: ({ row }: any) => {
-          // Generate slug from ID and name if slug doesn't exist
+        header: "Nome",
+        accessorKey: "name",
+        cell: ({ row }) => {
           const slug = row.original.id || `${row.original.id}`;
           return (
             <Link
@@ -62,34 +61,27 @@ export function CountsTable({ data }: ContagensTableProps) {
             </Link>
           );
         },
-        Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" />,
+        meta: { Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" /> },
       },
       {
-        Header: "Data",
-        accessor: "date",
-        Cell: ({ value }: any) => IntlDateStr(value),
-        Filter: (props: any) => <ColumnFilter {...props} placeholder="Filtrar por data" />,
+        header: "Data",
+        accessorKey: "date",
+        cell: ({ getValue }) => IntlDateStr(getValue() as string),
+        meta: { Filter: (props: any) => <ColumnFilter {...props} placeholder="Filtrar por data" /> },
       },
       {
-        Header: "Total de Ciclistas",
-        accessor: "total_cyclists",
-        Filter: RangeValueFilter,
-        filter: (rows: any, id: any, filterValue: any) => {
-          const [min, max] = filterValue || [];
-          return rows.filter((row: any) => {
-            const rowValue = parseFloat(row.values[id]) || 0;
-            if (min !== undefined && rowValue < min) return false;
-            if (max !== undefined && rowValue > max) return false;
-            return true;
-          });
-        },
+        header: "Total de Ciclistas",
+        accessorKey: "total_cyclists",
+        filterFn: "numberRange" as any,
+        meta: { Filter: RangeValueFilter },
       },
-
       {
-        Header: "Dados",
-        accessor: "id",
-        Cell: ({ row }: any) => {
-          const locationId = row.original.slug?.split('-')[0] || row.original.id;
+        header: "Dados",
+        accessorKey: "id",
+        enableColumnFilter: false,
+        enableSorting: false,
+        cell: ({ row }) => {
+          const locationId = row.original.slug?.split("-")[0] || row.original.id;
           return (
             <a
               className="text-ameciclo hover:underline"
@@ -101,8 +93,6 @@ export function CountsTable({ data }: ContagensTableProps) {
             </a>
           );
         },
-        disableFilters: true,
-        disableSortBy: true,
       },
     ],
     []

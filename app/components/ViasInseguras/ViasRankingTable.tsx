@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import type { ColumnDef } from "@tanstack/react-table";
 import Table from "../Commom/Table/Table";
 import { slugify } from "~/utils/slugify";
 
@@ -72,156 +73,130 @@ export default function ViasRankingTable({
     }
   }
 
-  const columns = [
-    {
-      Header: "Ranking",
-      accessor: "ranking",
-      disableFilters: false,
-      Filter: ({ column: { filterValue, setFilter } }: any) => (
+  const RankingFilter = ({ column }: { column: any }) => (
+    <input
+      value={(column.getFilterValue() as string) ?? ""}
+      onChange={(e) => column.setFilterValue(e.target.value || undefined)}
+      placeholder="Buscar ranking"
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+    />
+  );
+
+  const NumRangeFilter = ({ column, placeholderMin, placeholderMax, step }: any) => {
+    const [min, max] = (column.getFilterValue() as [number | undefined, number | undefined]) ?? [];
+    return (
+      <div className="flex space-x-2">
         <input
-          value={filterValue || ''}
-          onChange={e => setFilter(e.target.value || undefined)}
-          placeholder="Buscar ranking"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          value={min ?? ""}
+          type="number"
+          step={step}
+          onChange={(e) => {
+            const val = e.target.value;
+            column.setFilterValue((old: [number | undefined, number | undefined] | undefined) => [
+              val ? Number(val) : undefined,
+              old?.[1],
+            ]);
+          }}
+          placeholder={placeholderMin}
+          className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
         />
-      ),
-      Cell: ({ value, row }: any) => (
-        <div className="flex items-center gap-2">
-          <span className={`
-            inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
-            ${value <= 3 ? 'bg-red-100 text-red-800' : 
-              value <= 10 ? 'bg-orange-100 text-orange-800' : 
-              'bg-gray-100 text-gray-800'}
-          `}>
-            {value}
-          </span>
-          {value <= 3 && (
-            <span className="text-lg">
-              {value === 1 ? '🥇' : value === 2 ? '🥈' : '🥉'}
+        <input
+          value={max ?? ""}
+          type="number"
+          step={step}
+          onChange={(e) => {
+            const val = e.target.value;
+            column.setFilterValue((old: [number | undefined, number | undefined] | undefined) => [
+              old?.[0],
+              val ? Number(val) : undefined,
+            ]);
+          }}
+          placeholder={placeholderMax}
+          className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+        />
+      </div>
+    );
+  };
+
+  const columns: ColumnDef<any, any>[] = [
+    {
+      header: "Ranking",
+      accessorKey: "ranking",
+      meta: { Filter: RankingFilter },
+      cell: ({ getValue }) => {
+        const value = getValue() as number;
+        return (
+          <div className="flex items-center gap-2">
+            <span
+              className={`
+                inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
+                ${value <= 3 ? "bg-red-100 text-red-800" : value <= 10 ? "bg-orange-100 text-orange-800" : "bg-gray-100 text-gray-800"}
+              `}
+            >
+              {value}
             </span>
-          )}
-        </div>
-      ),
+            {value <= 3 && <span className="text-lg">{value === 1 ? "🥇" : value === 2 ? "🥈" : "🥉"}</span>}
+          </div>
+        );
+      },
     },
     {
-      Header: "Nome da Via",
-      accessor: "nome_via",
-      disableFilters: false,
-      Cell: ({ value, row }: any) => (
+      header: "Nome da Via",
+      accessorKey: "nome_via",
+      cell: ({ getValue, row }) => (
         <Link
           to="/dados/viasinseguras/$slug"
           params={{ slug: String(row.original.slug) }}
           className="text-left hover:text-ameciclo hover:underline transition-colors block"
         >
-          <div className="font-medium">{value}</div>
-          <div className="text-sm text-gray-500">
-            Clique para ver detalhes
-          </div>
+          <div className="font-medium">{getValue() as string}</div>
+          <div className="text-sm text-gray-500">Clique para ver detalhes</div>
         </Link>
       ),
     },
     {
-      Header: "Total de Sinistros",
-      accessor: "_sinistros",
-      disableFilters: false,
-      Filter: ({ column: { filterValue = [], setFilter } }: any) => {
-        const [min, max] = filterValue;
-        return (
-          <div className="flex space-x-2">
-            <input
-              value={min || ''}
-              type="number"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
-              }}
-              placeholder="Mín"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
-            />
-            <input
-              value={max || ''}
-              type="number"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
-              }}
-              placeholder="Máx"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
-            />
-          </div>
-        );
-      },
-      filter: 'numberRange',
-      Cell: ({ value, row }: any) => (
+      header: "Total de Sinistros",
+      accessorKey: "_sinistros",
+      filterFn: "numberRange" as any,
+      meta: { Filter: (props: any) => <NumRangeFilter {...props} placeholderMin="Mín" placeholderMax="Máx" /> },
+      cell: ({ getValue, row }) => (
         <div className="text-right">
-          <div className="font-semibold text-lg">{value}</div>
-          <div className="text-sm text-gray-500">
-            {row.original.percentual_total} do total
-          </div>
+          <div className="font-semibold text-lg">{getValue() as number}</div>
+          <div className="text-sm text-gray-500">{row.original.percentual_total} do total</div>
         </div>
       ),
     },
     {
-      Header: "Extensão (km)",
-      accessor: "_km",
-      disableFilters: false,
-      Filter: ({ column: { filterValue = [], setFilter } }: any) => {
-        const [min, max] = filterValue;
-        return (
-          <div className="flex space-x-2">
-            <input
-              value={min || ''}
-              type="number"
-              step="0.1"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
-              }}
-              placeholder="Mín km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
-            />
-            <input
-              value={max || ''}
-              type="number"
-              step="0.1"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
-              }}
-              placeholder="Máx km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
-            />
-          </div>
-        );
-      },
-      filter: 'numberRange',
-      Cell: ({ row }: any) => (
+      header: "Extensão (km)",
+      accessorKey: "_km",
+      filterFn: "numberRange" as any,
+      meta: { Filter: (props: any) => <NumRangeFilter {...props} placeholderMin="Mín km" placeholderMax="Máx km" step="0.1" /> },
+      cell: ({ row }) => (
         <div className="text-right">
           <span className="font-mono">{row.original.extensao_km}</span>
         </div>
       ),
     },
     {
-      Header: "Vítimas/km",
-      accessor: "densidade_categoria",
-      disableFilters: false,
-      Cell: ({ value, row }: any) => (
-        <div className="text-right">
-          {row.original._km >= 1 ? (
-            <>
-              <div className="font-semibold">{row.original.sinistros_por_km}</div>
-              <span className={`
-                inline-block px-2 py-1 rounded-full text-xs font-medium
-                ${getDensityColor(value)}
-              `}>
-                {value}
-              </span>
-            </>
-          ) : (
-            <div className="text-gray-400 text-sm">-</div>
-          )}
-        </div>
-      ),
+      header: "Vítimas/km",
+      accessorKey: "densidade_categoria",
+      cell: ({ getValue, row }) => {
+        const value = getValue() as string;
+        return (
+          <div className="text-right">
+            {row.original._km >= 1 ? (
+              <>
+                <div className="font-semibold">{row.original.sinistros_por_km}</div>
+                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getDensityColor(value)}`}>
+                  {value}
+                </span>
+              </>
+            ) : (
+              <div className="text-gray-400 text-sm">-</div>
+            )}
+          </div>
+        );
+      },
     },
   ];
 

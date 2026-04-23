@@ -89,72 +89,51 @@ function Loa() {
     }, 0);
 
     const allColumns = [
+        { header: "Função", accessorKey: "cd_nm_funcao" },
+        { header: "Programa", accessorKey: "cd_nm_prog" },
+        { header: "Ação", accessorKey: "cd_nm_acao" },
+        { header: "Sub-ação", accessorKey: "cd_nm_subacao" },
+        { header: "Sub-função", accessorKey: "cd_nm_subfuncao" },
         {
-            Header: "Função",
-            accessor: "cd_nm_funcao",
+            header: "Dotação Atualizada",
+            accessorKey: "vlrdotatualizada",
+            cell: ({ getValue }: any) => `R$ ${(getValue() as number).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
         },
         {
-            Header: "Programa",
-            accessor: "cd_nm_prog",
+            header: "Valor Empenhado",
+            accessorKey: "vlrempenhado",
+            cell: ({ getValue }: any) => `R$ ${(getValue() as number).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
         },
         {
-            Header: "Ação",
-            accessor: "cd_nm_acao",
+            header: "Valor Liquidado",
+            accessorKey: "vlrliquidado",
+            cell: ({ getValue }: any) => `R$ ${(getValue() as number).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
         },
         {
-            Header: "Sub-ação",
-            accessor: "cd_nm_subacao",
-        },
-        {
-            Header: "Sub-função",
-            accessor: "cd_nm_subfuncao",
-        },
-        {
-            Header: "Dotação Atualizada",
-            accessor: "vlrdotatualizada",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-        },
-        {
-            Header: "Valor Empenhado",
-            accessor: "vlrempenhado",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-        },
-        {
-            Header: "Valor Liquidado",
-            accessor: "vlrliquidado",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-        },
-        {
-            Header: "Total Pago",
-            accessor: "vlrtotalpago",
-            Cell: ({ value }: any) => formatLargeValue(value),
-            Filter: NumberRangeColumnFilter,
-            filter: 'numberRange',
+            header: "Total Pago",
+            accessorKey: "vlrtotalpago",
+            cell: ({ getValue }: any) => formatLargeValue(getValue() as number),
+            filterFn: "numberRange" as any,
+            meta: { Filter: NumberRangeColumnFilter },
         },
     ];
 
     const columns = [
+        { header: "Ação", accessorKey: "cd_nm_acao" },
+        { header: "Sub-ação", accessorKey: "cd_nm_subacao" },
         {
-            Header: "Ação",
-            accessor: "cd_nm_acao",
+            header: "Total Empenhado",
+            accessorKey: "vlrdotatualizada",
+            cell: ({ getValue }: any) => formatLargeValue(getValue() as number),
+            filterFn: "numberRange" as any,
+            meta: { Filter: NumberRangeColumnFilter },
         },
         {
-            Header: "Sub-ação",
-            accessor: "cd_nm_subacao",
-        },
-        {
-            Header: "Total Empenhado",
-            accessor: "vlrdotatualizada",
-            Cell: ({ value }: any) => formatLargeValue(value),
-            Filter: NumberRangeColumnFilter,
-            filter: 'numberRange',
-        },
-        {
-            Header: "Total Pago",
-            accessor: "vlrtotalpago",
-            Cell: ({ value }: any) => formatLargeValue(value),
-            Filter: NumberRangeColumnFilter,
-            filter: 'numberRange',
+            header: "Total Pago",
+            accessorKey: "vlrtotalpago",
+            cell: ({ getValue }: any) => formatLargeValue(getValue() as number),
+            filterFn: "numberRange" as any,
+            meta: { Filter: NumberRangeColumnFilter },
         },
     ];
 
