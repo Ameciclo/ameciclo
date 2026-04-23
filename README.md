@@ -5,8 +5,9 @@
   
   ### Associação Metropolitana de Ciclistas do Recife
   
-  [![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
-  [![Remix](https://img.shields.io/badge/Remix-2.16-blue.svg)](https://remix.run/)
+  [![Node.js](https://img.shields.io/badge/Node.js-24.x-green.svg)](https://nodejs.org/)
+  [![TanStack Start](https://img.shields.io/badge/TanStack%20Start-1.167-blue.svg)](https://tanstack.com/start)
+  [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange.svg)](https://workers.cloudflare.com/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.1-blue.svg)](https://www.typescriptlang.org/)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 </div>
@@ -31,10 +32,15 @@ A **Plataforma Ameciclo** é uma aplicação web full-stack que centraliza e vis
 ## 🛠️ Stack Tecnológica
 
 ### Core
-- **[Remix](https://remix.run/)** 2.16 - Framework full-stack com SSR
+- **[TanStack Start](https://tanstack.com/start)** 1.167 - Framework full-stack com SSR
+- **[TanStack Router](https://tanstack.com/router)** 1.168 - Roteamento tipado file-based
 - **[React](https://react.dev/)** 18.2 - Biblioteca UI
 - **[TypeScript](https://www.typescriptlang.org/)** 5.1 - Tipagem estática
-- **[Vite](https://vitejs.dev/)** 5.1 - Build tool
+- **[Vite](https://vitejs.dev/)** 7.3 - Build tool
+
+### Deploy & Runtime
+- **[Cloudflare Workers](https://workers.cloudflare.com/)** - Runtime edge via `@cloudflare/vite-plugin`
+- **[Wrangler](https://developers.cloudflare.com/workers/wrangler/)** 4.84 - CLI de deploy
 
 ### UI & Styling
 - **[Tailwind CSS](https://tailwindcss.com/)** 3.4 - Framework CSS utility-first
@@ -47,7 +53,7 @@ A **Plataforma Ameciclo** é uma aplicação web full-stack que centraliza e vis
 - **[FullCalendar](https://fullcalendar.io/)** - Calendário de eventos
 
 ### Gerenciamento de Estado
-- **[TanStack Query](https://tanstack.com/query)** - Cache e sincronização
+- **[TanStack Query](https://tanstack.com/query)** - Cache e sincronização (SSR via `@tanstack/react-router-with-query`)
 - **React Context API** - Estado global
 
 ---
@@ -56,11 +62,10 @@ A **Plataforma Ameciclo** é uma aplicação web full-stack que centraliza e vis
 
 ### ⚠️ Requisitos Obrigatórios
 
-> **IMPORTANTE**: Certifique-se de ter as versões corretas instaladas antes de prosseguir.
-
-- **Node.js** >= 20.0.0 ([Download](https://nodejs.org/))
-- **npm** >= 10.0.0 (incluído com Node.js)
+- **Node.js** 24.x (LTS) — a versão exata está pinada em `mise.toml`
 - **Git** ([Download](https://git-scm.com/))
+
+> **Dica**: recomendamos [mise](https://mise.jdx.dev/) para gerenciar a versão do Node. Com `mise` instalado, basta rodar `mise install` na raiz do projeto e a versão correta será instalada automaticamente.
 
 ### 📦 Instalação
 
@@ -69,12 +74,11 @@ A **Plataforma Ameciclo** é uma aplicação web full-stack que centraliza e vis
 git clone https://github.com/Ameciclo/ameciclo.git
 cd ameciclo
 
-# 2. Instale as dependências
-npm install
+# 2. Ative a versão do Node (se usar mise)
+mise install
 
-# 3. Configure as variáveis de ambiente (opcional)
-cp .env.example .env
-# Edite o arquivo .env com suas credenciais
+# 3. Instale as dependências
+npm install
 
 # 4. Inicie o servidor de desenvolvimento
 npm run dev
@@ -85,9 +89,10 @@ O projeto estará disponível em: **http://localhost:5173**
 ### 🔧 Scripts Disponíveis
 
 ```bash
-npm run dev        # Inicia servidor de desenvolvimento
+npm run dev        # Inicia servidor de desenvolvimento (Vite)
 npm run build      # Gera build de produção
-npm start          # Inicia servidor de produção
+npm run preview    # Servidor local para inspecionar o build
+npm run deploy     # Build + deploy no Cloudflare Workers (wrangler)
 npm run lint       # Verifica qualidade do código
 npm run typecheck  # Verifica tipos TypeScript
 ```
@@ -99,12 +104,12 @@ npm run typecheck  # Verifica tipos TypeScript
 ```
 ameciclo/
 ├── app/
-│   ├── components/      # 182+ componentes React
+│   ├── components/      # 220+ componentes React
 │   │   ├── Commom/      # Componentes globais
 │   │   ├── CicloDados/  # Plataforma colaborativa
 │   │   ├── ViasInseguras/ # Análise de vias
 │   │   └── ...
-│   ├── routes/          # 27 rotas (file-based routing)
+│   ├── routes/          # 29 rotas (file-based routing via TanStack Router)
 │   ├── loader/          # Loaders para SSR
 │   ├── services/        # Lógica de negócio e APIs
 │   ├── contexts/        # React Context
@@ -119,25 +124,42 @@ ameciclo/
 
 ## 🌐 Variáveis de Ambiente
 
-Crie um arquivo `.env` na raiz do projeto:
+Em produção (Cloudflare Workers), a configuração vive no `wrangler.jsonc`:
+
+- **Valores públicos** (URLs, IDs de calendário, etc.) ficam no bloco `vars` do `wrangler.jsonc` e são acessíveis em runtime via `process.env.*` graças à flag `nodejs_compat`.
+- **Segredos** (tokens, chaves de API) **não** vão no `wrangler.jsonc`. Use:
+
+  ```bash
+  wrangler secret put MAPBOX_ACCESS_TOKEN
+  wrangler secret put GOOGLE_CALENDAR_API_KEY
+  ```
+
+### Desenvolvimento local
+
+Crie um arquivo `.dev.vars` na raiz do projeto (já está no `.gitignore`) para carregar segredos durante `npm run dev`:
 
 ```env
-# APIs Externas
-API_GARFO_URL=http://api.garfo.ameciclo.org
-CMS_BASE_URL=http://do.strapi.ameciclo.org
-
-# Mapbox (obtenha em https://mapbox.com)
 MAPBOX_ACCESS_TOKEN=pk.seu_token_aqui
-
-# Google Calendar
 GOOGLE_CALENDAR_API_KEY=sua_chave_aqui
-
-# Analytics
-GOOGLE_ANALYTICS_ID=G-PQNS7S7FD3
-
-# Ambiente
-NODE_ENV=development
 ```
+
+Variáveis públicas do `wrangler.jsonc` (`SITE_URL`, `GOOGLE_CALENDAR_EXTERNAL_ID`, `GOOGLE_CALENDAR_INTERNAL_ID`) são carregadas automaticamente.
+
+---
+
+## ☁️ Deploy
+
+O deploy é feito diretamente para Cloudflare Workers via Wrangler:
+
+```bash
+# Login (primeira vez)
+npx wrangler login
+
+# Deploy
+npm run deploy
+```
+
+A configuração do Worker (nome, domínios customizados, vars) está no `wrangler.jsonc`. O site é servido nos domínios **ameciclo.org** e **www.ameciclo.org**.
 
 ---
 
@@ -211,7 +233,7 @@ lsof -ti:5173 | xargs kill -9
 ```
 
 ### Erro: Mapbox não carrega
-Configure `MAPBOX_ACCESS_TOKEN` no arquivo `.env`
+Configure `MAPBOX_ACCESS_TOKEN` no arquivo `.dev.vars` (dev) ou via `wrangler secret put MAPBOX_ACCESS_TOKEN` (produção).
 
 ---
 
