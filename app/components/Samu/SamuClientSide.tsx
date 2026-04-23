@@ -1,9 +1,24 @@
 import { useState, useEffect, useMemo } from "react";
-import Table from "../Commom/Table/Table";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "~/components/ui/data-table";
 import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
 import { SAMU_CALLS_OUTCOMES, SAMU_CALLS_PROFILES } from "~/servers";
+
+interface CityRow {
+  ranking: number;
+  municipio: string;
+  total_chamadas: string;
+  percentual: string;
+}
+
+const citiesTableColumns: ColumnDef<CityRow>[] = [
+  { header: "Ranking", accessorKey: "ranking" },
+  { header: "Município", accessorKey: "municipio" },
+  { header: "Total de Chamadas", accessorKey: "total_chamadas" },
+  { header: "Percentual (%)", accessorKey: "percentual" },
+];
 
 interface CityData {
   id?: string | number;
@@ -598,16 +613,8 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
 
       <div className="mx-auto container my-2">
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <Table
-            title="Lista completa das cidades"
-            data={allCitiesTableData}
-            columns={[
-              { header: "Ranking", accessorKey: "ranking", enableColumnFilter: false },
-              { header: "Município", accessorKey: "municipio", enableColumnFilter: false },
-              { header: "Total de Chamadas", accessorKey: "total_chamadas", enableColumnFilter: false },
-              { header: "Percentual (%)", accessorKey: "percentual", enableColumnFilter: false },
-            ]}
-          />
+          <h3 className="text-lg font-bold mb-4 text-gray-700">Lista completa das cidades</h3>
+          <DataTable columns={citiesTableColumns} data={allCitiesTableData} />
         </div>
       </div>
     </section>

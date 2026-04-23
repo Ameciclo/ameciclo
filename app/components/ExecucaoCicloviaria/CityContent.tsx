@@ -1,8 +1,25 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { filterById, filterByName, IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { CyclingInfrastructureByCity } from "./CyclingInfrastructureByCity";
 import { StatisticsBox } from "./StatisticsBox";
-import Table from "../Commom/Table/Table";
+import { DataTable } from "~/components/ui/data-table";
+
+interface PdcRelation {
+  name: string;
+  pdc_typology: string;
+  typologies_str: string;
+  length: number;
+  has_cycleway_length: number;
+}
+
+const pdcColumns: ColumnDef<PdcRelation>[] = [
+  { header: "Nome", accessorKey: "name" },
+  { header: "Tipologia Prevista", accessorKey: "pdc_typology" },
+  { header: "Tipologia Executada", accessorKey: "typologies_str" },
+  { header: "Extensão Prevista (km)", accessorKey: "length" },
+  { header: "Extensão Executada (km)", accessorKey: "has_cycleway_length" },
+];
 
 interface CityContentProps {
   citiesStats: any;
@@ -197,18 +214,10 @@ export function CityContent({
 
       {localSelectedCity?.relations && localSelectedCity.relations.length > 0 && (
         <div data-table-section className="container mx-auto my-12">
-          <Table
-            title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
-            data={localSelectedCity.relations}
-            columns={[
-              { header: "Nome", accessorKey: "name" },
-              { header: "Tipologia Prevista", accessorKey: "pdc_typology" },
-              { header: "Tipologia Executada", accessorKey: "typologies_str" },
-              { header: "Extensão Prevista (km)", accessorKey: "length" },
-              { header: "Extensão Executada (km)", accessorKey: "has_cycleway_length" },
-            ]}
-            showFilters={true}
-          />
+          <h3 className="text-gray-600 text-3xl mb-4">
+            Estruturas do PDC para {localSelectedCity?.name || ""}
+          </h3>
+          <DataTable columns={pdcColumns} data={localSelectedCity.relations as PdcRelation[]} />
         </div>
       )}
     </div>
