@@ -173,15 +173,18 @@ export async function getContagens() {
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Exemplo Completo</h3>
             <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
-{`// app/routes/minha-pagina._index.tsx
-import { useLoaderData } from "@remix-run/react";
-import { loader } from "~/loader/minha-pagina";
+{`// app/routes/minha-pagina/index.tsx
+import { createFileRoute } from "@tanstack/react-router";
+import { loader } from "~/queries/minha-pagina";
 import Banner from "~/components/Commom/Banner";
 
-export { loader };
+export const Route = createFileRoute("/minha-pagina/")({
+  loader,
+  component: MinhaPagina,
+});
 
-export default function MinhaPagina() {
-  const { data } = useLoaderData<typeof loader>();
+function MinhaPagina() {
+  const { data } = Route.useLoaderData();
   
   return (
     <>

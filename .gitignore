@@ -41,15 +41,18 @@ jspm_packages/
 /dist
 /.cache
 
+# TanStack Router generated route tree
+app/routeTree.gen.ts
+
+# Cloudflare
+.wrangler/
+
 # Environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Vercel
-.vercel
 
 # Workspace files
 *.code-workspace
@@ -65,3 +68,9 @@ coverage/
 
 # ESLint cache
 .eslintcache
+
+# Migration scratch files
+migrate_files.py
+migration_comparison.py
+migration_review.tsv
+strapi_*.sql

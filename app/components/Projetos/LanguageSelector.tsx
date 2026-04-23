@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { Globe } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -72,7 +72,8 @@ export const LanguageSelector = ({ currentSlug, availableLanguages = [] }: Langu
           {otherLanguages.map((lang) => (
             <Link
               key={lang.lang}
-              to={`/projetos/${lang.slug}`}
+              to="/projetos/$projeto"
+              params={{ projeto: lang.slug }}
               className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 hover:text-teal-600"
               onClick={() => setIsOpen(false)}
             >

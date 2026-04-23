@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { ClientOnly } from "remix-utils/client-only";
+import { useState, useEffect, type ReactNode } from "react";
 
 const CALENDAR_VIEW_COOKIE = "ameciclo_calendar_view";
 
@@ -116,6 +115,12 @@ function CalendarComponent({ googleCalendarApiKey, externalCalendarId, internalC
       }}
     />
   );
+}
+
+function ClientOnly({ children, fallback }: { children: () => ReactNode; fallback: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return <>{mounted ? children() : fallback}</>;
 }
 
 export default function EventCalendar(props: any) {

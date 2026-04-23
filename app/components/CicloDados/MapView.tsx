@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "@tanstack/react-router";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 
 import { MapPin, Bike, UserCheck } from 'lucide-react';
@@ -24,11 +25,13 @@ interface MapViewProps {
   selectedEstacionamento: string[];
   selectedSinistro: string[];
   selectedPerfil: string[];
-  selectedGenero: string;
+  selectedGenero: string[];
   selectedAno: string[];
-  selectedRaca: string;
-  selectedSocio: string;
-  selectedDias: string;
+  selectedArea?: string;
+  selectedIdade?: string;
+  selectedRaca?: string;
+  selectedSocio?: string;
+  selectedDias?: string;
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   pdcOptions: Array<{ name: string; color: string; pattern: string; apiKey?: string }>;
   layersConf: any[];
@@ -393,8 +396,9 @@ export function MapView({
     }
   };
   
+  const router = useRouter();
   const handleReloadAllData = () => {
-    window.location.reload();
+    router.invalidate();
   };
 
   // Função para lidar com clique em cluster - zoom in +2 na coordenada do cluster

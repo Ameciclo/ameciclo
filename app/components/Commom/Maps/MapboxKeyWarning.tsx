@@ -1,8 +1,8 @@
 import { AlertTriangle, Info, Mail } from 'lucide-react';
-import { Link, useLocation } from '@remix-run/react';
+import { Link, useRouterState } from '@tanstack/react-router';
 
 export const MapboxKeyWarning = () => {
-    const location = useLocation();
+    const location = useRouterState({ select: (s) => s.location });
     const currentPage = location.pathname;
     const errorMessage = encodeURIComponent(`Erro no mapa da página: ${currentPage}\n\nDescrição: A chave de acesso do serviço de mapas não está configurada.`);
     const subject = encodeURIComponent('Erro Técnico - Mapa não carrega');
@@ -39,8 +39,9 @@ export const MapboxKeyWarning = () => {
                         </div>
                     </div>
                     
-                    <Link 
-                        to={`/contato?subject=${subject}&message=${errorMessage}`}
+                    <Link
+                        to="/contato"
+                        search={{ subject, message: errorMessage } as never}
                         className="flex items-center justify-center gap-2 w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                     >
                         <Mail className="w-5 h-5" />

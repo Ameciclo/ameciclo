@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { Highlight } from "react-highlighter-ts";
 import type { FuseResult } from "fuse.js";
 
@@ -65,7 +65,8 @@ export const SearchComponent = (props: SearchComponentProps) => {
             {results.map((result) => {
               return (
                 <Link
-                  to={`/biciclopedia/${result.item.id}`}
+                  to="/biciclopedia/$question"
+                  params={{ question: String(result.item.id) }}
                   key={result.item.id}
                 >
                   <div

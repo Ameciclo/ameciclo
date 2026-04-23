@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { matchSorter } from "match-sorter";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { ColumnFilter, NumberRangeColumnFilter } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
 import { IntlDateStr } from "~/services/utils";
@@ -58,7 +58,8 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
         Cell: ({ row }: { row: any }) => (
           <Link
             className="text-ameciclo"
-            to={`/dados/contagens/${row.original.id}`}
+            to="/dados/contagens/$slug"
+            params={{ slug: String(row.original.id) }}
             key={row.original.id}
           >
             {row.original.name}
@@ -91,7 +92,8 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
         Cell: ({ row }: { row: any }) => (
           <Link
             className="text-ameciclo hover:underline font-medium"
-            to={`/dados/contagens/${firstSlug}/compare/${row.original.id}`}
+            to="/dados/contagens/$slug/compare/$compareSlug"
+            params={{ slug: String(firstSlug), compareSlug: String(row.original.id) }}
           >
             COMPARE
           </Link>

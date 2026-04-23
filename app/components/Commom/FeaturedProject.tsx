@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 
 export const FeaturedProject = ({ project }: { project: Project }) => {
   return (
@@ -30,7 +30,7 @@ export const FeaturedProject = ({ project }: { project: Project }) => {
                   >
                     {project.description}
                   </p>
-                  <Link to={`/projetos/${project.slug}`}>
+                  <Link to="/projetos/$projeto" params={{ projeto: project.slug }}>
                     <a className="flex items-baseline mt-3 text-ameciclo hover:text-red-600 focus:text-red-600">
                       <span>Conheça mais</span>
                       <span className="ml-1 text-xs">&#x279c;</span>

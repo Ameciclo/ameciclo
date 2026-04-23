@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 interface PerfilSectionProps {
-  selectedGenero: string;
+  selectedGenero: string[];
   onGeneroChange: (value: string) => void;
   selectedAno: string[];
   onAnoChange: (value: string) => void;
@@ -92,13 +92,13 @@ export function PerfilSection({
                   key={option}
                   onClick={() => onGeneroChange(option)}
                   className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
-                    mounted && selectedGenero === option
+                    mounted && selectedGenero.includes(option)
                       ? 'bg-purple-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
                   {option === 'Todos' && mounted && (
-                    selectedGenero === option ? <Eye size={12} /> : <EyeOff size={12} />
+                    selectedGenero.includes(option) ? <Eye size={12} /> : <EyeOff size={12} />
                   )}
                   {option}
                 </button>

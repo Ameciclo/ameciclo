@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@remix-run/react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ComingSoonButton } from "./ComingSoonButton";
 
@@ -17,7 +17,7 @@ const dataSubPages = [
 ];
 
 export function DataSubmenu() {
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
 
   return (
     <motion.div

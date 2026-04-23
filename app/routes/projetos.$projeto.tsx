@@ -1,22 +1,48 @@
-import { useLoaderData } from "@remix-run/react";
-import { MetaFunction } from "@remix-run/node";
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import ReactMarkdown from "react-markdown";
-import { projetoLoader } from "~/loader/projetos";
+import { projetoQueryOptions } from "~/queries/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
 import { ProjectSteps } from "~/components/Projetos/ProjectSteps";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
+import { seo } from "~/utils/seo";
+import {
+  buildHreflangAlternates,
+  detectLocale,
+  stripLocaleSuffix,
+} from "~/utils/locale";
 
-export const loader = projetoLoader;
+export const Route = createFileRoute("/projetos/$projeto")({
+  loader: ({ params, context: { queryClient } }) =>
+    queryClient.ensureQueryData(projetoQueryOptions(params.projeto)),
+  head: ({ params, loaderData }) => {
+    const project = loaderData?.project;
+    const slug = params.projeto;
+    const baseSlug = stripLocaleSuffix(slug);
+    const pathname = `/projetos/${slug}`;
+    const isI18n = baseSlug === "bota-pra-rodar";
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const projectName = data?.project?.name || "Projeto";
-  return [
-    { title: projectName },
-    { name: "description", content: data?.project?.description || "" },
-  ];
-};
+    return seo({
+      title: project?.name ? `${project.name} - Ameciclo` : "Projeto - Ameciclo",
+      description: project?.description ?? undefined,
+      pathname,
+      image: project?.coverImage,
+      locale: detectLocale(pathname),
+      hreflang: isI18n
+        ? buildHreflangAlternates(`/projetos/${baseSlug}`)
+        : undefined,
+      type: "article",
+    });
+  },
+  component: Projeto,
+  pendingComponent: () => <RouteLoading label="Carregando projeto..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
+});
 
 const ProjectDate = ({ project }: any) => {
   const dateOption: Intl.DateTimeFormatOptions = {
@@ -137,8 +163,9 @@ const StepCard = ({ step }: any) => {
   );
 };
 
-export default function Projeto() {
-    const { project } = useLoaderData<typeof loader>();
+function Projeto() {
+    const { projeto } = Route.useParams();
+    const { data: { project } } = useSuspenseQuery(projetoQueryOptions(projeto));
     const [galleryOpen, setGalleryOpen] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -148,7 +175,7 @@ export default function Projeto() {
     };
 
     const otherLinks = project?.Links || [];
-    
+
     // Converter rich text blocks para Markdown
     const getLongDescription = () => {
         if (!project?.long_description) return null;
@@ -188,9 +215,9 @@ export default function Projeto() {
         }
         return null;
     };
-    
+
     const longDescription = getLongDescription();
-    
+
     const bannerImage = project?.cover?.url || project?.media?.url || '/projetos.webp';
 
     return (
@@ -264,7 +291,7 @@ export default function Projeto() {
                                 backgroundImage: `url(${bannerImage})`,
                             }}
                         >
-                            
+
                         </div>
 
                         <Breadcrumb
@@ -273,7 +300,7 @@ export default function Projeto() {
                             routes={["/", "/projetos"]}
                         />
 
-                        
+
 
                         <section>
                             <div className="container mx-auto mt-8 mb-8 px-4">

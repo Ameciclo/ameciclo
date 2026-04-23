@@ -7,7 +7,7 @@ export type document = {
   cover: any;
   coverAlt?: string;
 };
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 
 const highlightText = (text: string, searchTerm: string) => {
   if (!searchTerm) return text;

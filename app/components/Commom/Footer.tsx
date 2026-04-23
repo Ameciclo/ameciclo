@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { footerColumn, footerColumnContent } from "../../../typings";
 
 export const Footer = () => {
@@ -100,9 +100,6 @@ export const Footer = () => {
             </div>
           ))}
         </div>
-        <div className="container p3">
-          <VercelSponsor />
-        </div>
       </div>
     </footer>
   );
@@ -133,20 +130,3 @@ function FooterColumn({ column }: FooterColumnProps) {
   );
 }
 
-function VercelSponsor() {
-  return (
-    <Link
-      to=" https://vercel.com/?utm_source=ameciclo&utm_campaign=oss"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <img
-        src="/vercel_logo/vercel-logo.svg"
-        alt="Vercel Logo"
-        width={212}
-        height={44}
-        className="mx-auto"
-      />
-    </Link>
-  );
-}

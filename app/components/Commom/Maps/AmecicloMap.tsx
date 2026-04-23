@@ -6,7 +6,7 @@ import { WebMercatorViewport } from "@math.gl/web-mercator";
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
 import { pointData } from "../../../../typings";
-import * as Remix from "@remix-run/react";
+
 import { Move } from 'lucide-react';
 import { MapboxKeyWarning } from './MapboxKeyWarning';
 

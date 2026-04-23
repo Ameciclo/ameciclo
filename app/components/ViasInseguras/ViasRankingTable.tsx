@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import Table from "../Commom/Table/Table";
 import { slugify } from "~/utils/slugify";
 
@@ -109,7 +109,8 @@ export default function ViasRankingTable({
       disableFilters: false,
       Cell: ({ value, row }: any) => (
         <Link
-          to={`/dados/vias-inseguras/${row.original.slug}`}
+          to="/dados/viasinseguras/$slug"
+          params={{ slug: String(row.original.slug) }}
           className="text-left hover:text-ameciclo hover:underline transition-colors block"
         >
           <div className="font-medium">{value}</div>

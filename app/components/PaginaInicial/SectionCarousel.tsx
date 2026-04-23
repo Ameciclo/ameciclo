@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import SectionCarouselLoading from "./SectionCarouselLoading";
 
 export default function SectionCarousel({ featuredProjects = [], isLoading = false, hasApiError = false }) {
@@ -254,7 +254,8 @@ const ProjectSlide = memo(({ project, onMouseEnter, onMouseLeave }) => {
                 </p>
                 {slug && (
                   <Link
-                    to={`/projetos/${slug}`}
+                    to="/projetos/$projeto"
+                    params={{ projeto: slug }}
                     className="flex items-baseline justify-center mt-3 md:mt-3 text-ameciclo hover:text-red-600 focus:text-red-600 font-semibold"
                   >
                     <span className="text-base md:text-base">Conheça mais</span>

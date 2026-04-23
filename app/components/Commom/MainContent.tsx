@@ -1,11 +1,11 @@
-import { useLocation } from "@remix-run/react";
+import { useRouterState } from "@tanstack/react-router";
 
 interface MainContentProps {
   children: React.ReactNode;
 }
 
 export function MainContent({ children }: MainContentProps) {
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   const isCicloDadosPage = location.pathname === '/dados/ciclodados';
   
   return (

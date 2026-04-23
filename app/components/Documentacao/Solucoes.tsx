@@ -71,11 +71,10 @@ export default function Solucoes({ darkMode = true, fontSize = 16 }: Documentati
 
           <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Problema: Highcharts não renderiza ou erro "Highcharts is not defined"</h4>
-            <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong> Usar ClientOnly ou lazy loading</p>
+            <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong> Usar guarda <code>typeof window</code> ou lazy loading</p>
             <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
-{`import { ClientOnly } from "remix-utils/client-only";
-<ClientOnly>{() => <ChartComponent />}</ClientOnly>`}
+{`{typeof window !== "undefined" && <ChartComponent />}`}
               </code>
             </div>
           </div>
