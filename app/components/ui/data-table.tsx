@@ -1,9 +1,13 @@
 import { useState } from "react";
 import {
   ColumnDef,
+  ColumnFiltersState,
   SortingState,
+  Table as TanstackTable,
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -32,6 +36,15 @@ export interface DataTableProps<TData, TValue> {
   className?: string;
   /** Optional per-row className — useful for type-based coloring */
   rowClassName?: (row: TData) => string | undefined;
+  /**
+   * Optional render-prop for a toolbar above the table. Receives the TanStack
+   * table instance so the consumer can wire up filter inputs, selects, etc.
+   * Example:
+   *   toolbar={(table) => (
+   *     <MyFilters onChange={v => table.getColumn("x")?.setFilterValue(v)} />
+   *   )}
+   */
+  toolbar?: (table: TanstackTable<TData>) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -42,19 +55,24 @@ export function DataTable<TData, TValue>({
   emptyMessage = "Nenhum resultado encontrado.",
   className,
   rowClassName,
+  toolbar,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting },
+    state: { sorting, columnFilters },
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     initialState: { pagination: { pageSize } },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
   const pageIndex = table.getState().pagination.pageIndex;
@@ -62,6 +80,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={className}>
+      {toolbar && <div className="mb-4">{toolbar(table)}</div>}
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow">
         <Table>
           <TableHeader>
@@ -78,7 +97,7 @@ export function DataTable<TData, TValue>({
                       {canSort ? (
                         <button
                           onClick={column.getToggleSortingHandler()}
-                          className="flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#008080] focus:ring-offset-2 rounded px-1 -mx-1"
+                          className="inline-flex items-center gap-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#008080]"
                           aria-label={`Ordenar por ${headerText}${
                             isSorted === "desc"
                               ? " em ordem decrescente"
@@ -90,13 +109,15 @@ export function DataTable<TData, TValue>({
                             isSorted === "desc" ? "descending" : isSorted === "asc" ? "ascending" : "none"
                           }
                         >
-                          {isSorted === "desc" ? (
-                            <ChevronDown size={16} className="text-gray-600" aria-hidden="true" />
-                          ) : isSorted === "asc" ? (
-                            <ChevronUp size={16} className="text-gray-600" aria-hidden="true" />
-                          ) : (
-                            <ChevronsUpDown size={16} className="text-gray-400" aria-hidden="true" />
-                          )}
+                          <span className="inline-flex w-4 h-4 items-center justify-center shrink-0">
+                            {isSorted === "desc" ? (
+                              <ChevronDown size={16} className="text-gray-600" aria-hidden="true" />
+                            ) : isSorted === "asc" ? (
+                              <ChevronUp size={16} className="text-gray-600" aria-hidden="true" />
+                            ) : (
+                              <ChevronsUpDown size={16} className="text-gray-400" aria-hidden="true" />
+                            )}
+                          </span>
                           {flexRender(column.columnDef.header, header.getContext())}
                         </button>
                       ) : (

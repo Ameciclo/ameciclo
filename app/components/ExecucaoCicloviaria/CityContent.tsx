@@ -217,7 +217,38 @@ export function CityContent({
           <h3 className="text-gray-600 text-3xl mb-4">
             Estruturas do PDC para {localSelectedCity?.name || ""}
           </h3>
-          <DataTable columns={pdcColumns} data={localSelectedCity.relations as PdcRelation[]} />
+          <DataTable
+            columns={pdcColumns}
+            data={localSelectedCity.relations}
+            toolbar={(table) => {
+              const column = table.getColumn("pdc_typology");
+              const rawFilterValue = column?.getFilterValue();
+              const filterValue = typeof rawFilterValue === "string" ? rawFilterValue : "";
+              const options = Array.from(column?.getFacetedUniqueValues().keys() ?? [])
+                .filter((v): v is string => typeof v === "string" && v.length > 0)
+                .sort();
+              return (
+                <div className="flex items-center gap-2">
+                  <label htmlFor="pdc-typology-filter" className="text-sm text-gray-600">
+                    Tipologia Prevista:
+                  </label>
+                  <select
+                    id="pdc-typology-filter"
+                    value={filterValue}
+                    onChange={(e) => column?.setFilterValue(e.target.value || undefined)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+                  >
+                    <option value="">Todas</option>
+                    {options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }}
+          />
         </div>
       )}
     </div>
