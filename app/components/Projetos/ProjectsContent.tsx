@@ -3,21 +3,12 @@ import { ProjectCard } from "./ProjectCard";
 import { ProjectCardLoading } from "./ProjectCardLoading";
 import SearchProject from "./SearchProject";
 import { useApiStatus } from "~/contexts/ApiStatusContext";
-
-interface Project {
-  id: string;
-  name: string;
-  slug: string;
-  project_status: string;
-  isHighlighted?: boolean;
-  media?: { url: string };
-  workgroup?: { name: string };
-}
+import type { Project, Workgroup } from "~/queries/projetos";
 
 interface ProjectsContentProps {
   projectsData: {
     projects: Project[];
-    workgroups: { id: string; name: string }[];
+    workgroups: Workgroup[];
   };
 }
 
@@ -36,15 +27,16 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
   }, [hasApiError, setApiDown]);
 
   const filteredProjects = useMemo(() => {
-    let filtered = projects.filter((project: Project) => {
-      const isTranslation = project.slug.endsWith('_es') || project.slug.endsWith('_en');
+    let filtered = projects.filter((project) => {
+      const isTranslation =
+        project.slug?.endsWith("_es") || project.slug?.endsWith("_en");
       return !isTranslation;
     });
 
     if (searchTerm) {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      filtered = filtered.filter((project) => 
-        project.name.toLowerCase().includes(lowerCaseSearchTerm)
+      filtered = filtered.filter((project) =>
+        (project.name ?? "").toLowerCase().includes(lowerCaseSearchTerm)
       );
     }
 

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/projetos/$projeto")({
       title: project?.name ? `${project.name} - Ameciclo` : "Projeto - Ameciclo",
       description: project?.description ?? undefined,
       pathname,
-      image: project?.coverImage,
+      image: project?.cover?.url ?? project?.media?.url ?? undefined,
       locale: detectLocale(pathname),
       hreflang: isI18n
         ? buildHreflangAlternates(`/projetos/${baseSlug}`)
@@ -467,31 +467,13 @@ function Projeto() {
                                 )}
                             </div>
 
-                            {project?.sponsors && project.sponsors.length > 0 && (
-                                <div className="container mx-auto mt-10 mb-10">
-                                    <h3 className="text-2xl font-bold text-center mb-6">Patrocinadores</h3>
-                                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
-                                        {project.sponsors.map((sponsor: any) => (
-                                            <div key={sponsor.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                                                {(sponsor.logo?.url || sponsor.logo?.[0]?.url) ? (
-                                                    <img
-                                                        src={sponsor.logo?.url || sponsor.logo?.[0]?.url}
-                                                        alt={sponsor.name}
-                                                        className="max-h-12 max-w-full object-contain"
-                                                    />
-                                                ) : (
-                                                    <span className="text-xs text-gray-600 text-center">{sponsor.name}</span>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </section>
 
                         {/* Modal da Galeria */}
                         <ImageGalleryWithZoom
-                            images={project?.gallery || []}
+                            images={(project?.gallery ?? []).flatMap((img) =>
+                                img.url ? [{ id: img.id ?? undefined, url: img.url, caption: img.caption ?? undefined }] : []
+                            )}
                             isOpen={galleryOpen}
                             onClose={() => setGalleryOpen(false)}
                             initialIndex={selectedImageIndex}

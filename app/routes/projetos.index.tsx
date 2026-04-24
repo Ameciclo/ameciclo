@@ -5,7 +5,6 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { ProjectsContent } from "~/components/Projetos/ProjectsContent";
 import { projetosQueryOptions } from "~/queries/projetos";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/projetos/")({
@@ -24,7 +23,6 @@ export const Route = createFileRoute("/projetos/")({
 function Projetos() {
   const { data } = useSuspenseQuery(projetosQueryOptions());
   const { projectsData } = data;
-  useReportApiErrors(data);
 
   return (
     <>
