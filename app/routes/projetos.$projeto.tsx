@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { BlocksRenderer, type BlocksContent } from "@strapi/blocks-react-renderer";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import ReactMarkdown from "react-markdown";
 import { projetoQueryOptions } from "~/queries/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
@@ -176,47 +176,10 @@ function Projeto() {
 
     const otherLinks = project?.Links || [];
 
-    // Converter rich text blocks para Markdown
-    const getLongDescription = () => {
-        if (!project?.long_description) return null;
-        if (typeof project.long_description === 'string') return project.long_description;
-        if (Array.isArray(project.long_description)) {
-            return project.long_description.map((block: any) => {
-                if (block.type === 'heading') {
-                    const text = block.children?.map((child: any) => {
-                        let t = child.text || '';
-                        if (child.bold) t = `**${t}**`;
-                        if (child.italic) t = `*${t}*`;
-                        return t;
-                    }).join('') || '';
-                    const level = '#'.repeat(block.level || 2);
-                    return `${level} ${text}`;
-                }
-                if (block.type === 'paragraph') {
-                    const text = block.children?.map((child: any) => {
-                        if (child.type === 'link') {
-                            return `[${child.children?.[0]?.text || ''}](${child.url || ''})`;
-                        }
-                        let t = child.text || '';
-                        if (child.bold) t = `**${t}**`;
-                        if (child.italic) t = `*${t}*`;
-                        return t;
-                    }).join('') || '';
-                    return text;
-                }
-                if (block.type === 'list') {
-                    return block.children?.map((item: any, i: number) => {
-                        const text = item.children?.map((child: any) => child.text || '').join('') || '';
-                        return block.format === 'ordered' ? `${i + 1}. ${text}` : `- ${text}`;
-                    }).join('\n') || '';
-                }
-                return '';
-            }).filter(Boolean).join('\n\n');
-        }
-        return null;
-    };
-
-    const longDescription = getLongDescription();
+    const longDescriptionBlocks =
+        Array.isArray(project?.long_description) && project.long_description.length > 0
+            ? (project.long_description as BlocksContent)
+            : null;
 
     const bannerImage = project?.cover?.url || project?.media?.url || '/projetos.webp';
 
@@ -384,8 +347,8 @@ function Projeto() {
                                     <div className="flex flex-wrap justify-center">
                                         <div className="w-full px-4 mb-4 text-base lg:text-lg leading-relaxed text-justify text-gray-800 lg:w-7/12">
                                             <div className="markdown-content">
-                                                {longDescription ? (
-                                                    <ReactMarkdown>{longDescription}</ReactMarkdown>
+                                                {longDescriptionBlocks ? (
+                                                    <BlocksRenderer content={longDescriptionBlocks} />
                                                 ) : (
                                                     <p>{project?.description}</p>
                                                 )}
