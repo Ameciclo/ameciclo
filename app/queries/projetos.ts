@@ -42,7 +42,7 @@ const PartnerSchema = z.object({
   id: z.union([z.string(), z.number()]),
   documentId: z.string().nullish(),
   name: z.string().nullish(),
-  logo: MediaSchema.nullish(),
+  logo: z.array(MediaSchema).nullish(),
 });
 
 const ProjectListSchema = z.object({

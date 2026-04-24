@@ -355,19 +355,22 @@ function Projeto() {
                             <div className="container flex justify-center pt-10 mx-auto px-4">
                                 {project?.partners && project.partners.length > 0 && (
                                     <div className="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-10">
-                                        {project.partners.map((partner: any) => (
-                                            <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
-                                                {(partner.logo?.url || partner.logo?.[0]?.url) ? (
-                                                    <img
-                                                        src={partner.logo?.url || partner.logo?.[0]?.url}
-                                                        alt={partner.name}
-                                                        className="max-h-16 max-w-full object-contain"
-                                                    />
-                                                ) : (
-                                                    <span className="text-sm text-gray-600">{partner.name}</span>
-                                                )}
-                                            </div>
-                                        ))}
+                                        {project.partners.map((partner) => {
+                                            const logoUrl = partner.logo?.[0]?.url;
+                                            return (
+                                                <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
+                                                    {logoUrl ? (
+                                                        <img
+                                                            src={logoUrl}
+                                                            alt={partner.name ?? ""}
+                                                            className="max-h-16 max-w-full object-contain"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-sm text-gray-600">{partner.name}</span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
