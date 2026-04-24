@@ -1,15 +1,13 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import SectionCallToAction from "~/components/PaginaInicial/SectionCallToAction";
+import { createFileRoute } from "@tanstack/react-router";
 import SectionCarousel from "~/components/PaginaInicial/SectionCarousel";
 import SectionData from "~/components/PaginaInicial/SectionData";
 import bannerImage from "/backgroundImage.webp";
-import HomeBanner from "~/components/PaginaInicial/HomeBanner";
-import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import CachePermissionBar from "~/components/Commom/CachePermissionModal";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { homeQueryOptions } from "~/queries/home";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo, organizationSchema } from "~/utils/seo";
+import Apoie from "~/components/Commom/Icones/apoie";
+import Associe from "~/components/Commom/Icones/associe";
+import Participe from "~/components/Commom/Icones/participe";
 
 export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient } }) =>
@@ -27,41 +25,36 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { data } = useSuspenseQuery(homeQueryOptions());
-  const { home, projects, apiDown } = data;
-  useReportApiErrors(data);
-  const router = useRouter();
-
-  const handleCacheAllow = () => {
-    router.invalidate();
-  };
-
-  const handleCacheDeny = () => {
-    // Modal fechado
-  };
+  const { home, projects } = data;
 
   return (
     <>
-      <HomeBanner
-        image={bannerImage}
-        alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"
-      />
-      <ApiStatusHandler apiDown={apiDown} />
+      <section className="h-[70vh] w-full relative overflow-hidden py-[58px]">
+        <img
+          src={bannerImage}
+          alt="Várias mulheres (11) de bicicleta andando na rua ocupando duas faixas e atravessando um cruzamento"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </section>
 
-      <SectionCallToAction home={home} />
-      <SectionCarousel
-        featuredProjects={home?.projects || []}
-        isLoading={!home}
-        hasApiError={apiDown}
-      />
-      <SectionData
-        projects={projects || []}
-        apiDown={!projects}
-      />
+      <section className="bg-ameciclo">
+        <div className="container px-6 py-6 mx-auto">
+          <div className="flex flex-col sm:flex-row justify-around items-center gap-4 sm:gap-0">
+            {home.participation_url && (
+              <a className="buttom-call-actions" href={home.participation_url} target="_blank" rel="noopener noreferrer"><Participe /></a>
+            )}
+            {home.association_url && (
+              <a className="buttom-call-actions" href={home.association_url} target="_blank" rel="noopener noreferrer"><Associe /></a>
+            )}
+            {home.donate_url && (
+              <a className="buttom-call-actions" href={home.donate_url} target="_blank" rel="noopener noreferrer"><Apoie /></a>
+            )}
+          </div>
+        </div>
+      </section>
 
-      <CachePermissionBar
-        onAllow={handleCacheAllow}
-        onDeny={handleCacheDeny}
-      />
+      <SectionCarousel featuredProjects={home.projects} />
+      <SectionData projects={projects} />
     </>
   );
 }
