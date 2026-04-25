@@ -173,7 +173,7 @@ const fetchProjeto = createServerFn()
 
     const projects = await findProjectBySlug(projeto);
     if (projects.length === 0) {
-      throw notFound();
+      throw notFound({ data: { slug: projeto } });
     }
 
     const project = ProjectDetailSchema.parse(projects[0]);
