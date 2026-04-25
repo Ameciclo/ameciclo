@@ -2,7 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { BlocksRenderer, type BlocksContent } from "@strapi/blocks-react-renderer";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { projetoQueryOptions } from "~/queries/projetos";
+import {
+  projetoQueryOptions,
+  type ProjectDetail,
+  type ProjectStep,
+} from "~/queries/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
@@ -23,7 +27,7 @@ export const Route = createFileRoute("/projetos/$projeto")({
     const slug = params.projeto;
     const baseSlug = stripLocaleSuffix(slug);
     const pathname = `/projetos/${slug}`;
-    const isI18n = baseSlug === "bota-pra-rodar";
+    const isI18n = baseSlug === "bota_pra_rodar";
 
     return seo({
       title: project?.name ? `${project.name} - Ameciclo` : "Projeto - Ameciclo",
@@ -77,7 +81,7 @@ function ProjectNotFound() {
   );
 }
 
-const ProjectDate = ({ project }: any) => {
+const ProjectDate = ({ project }: { project: ProjectDetail }) => {
   const dateOption: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
@@ -143,7 +147,7 @@ const Rating = ({ rating }: { rating: string }) => {
   );
 };
 
-const StepCard = ({ step }: any) => {
+const StepCard = ({ step }: { step: ProjectStep }) => {
   const CardContent = (
     <div
       className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
@@ -286,8 +290,8 @@ function Projeto() {
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap justify-center mt-6">
-                                            {otherLinks.map((link: any) => (
-                                                <a href={link.link} key={link.id}>
+                                            {otherLinks.map((link) => (
+                                                <a href={link.link ?? "#"} key={link.id}>
                                                     <button
                                                         className="px-4 py-2 mx-2 mb-2 text-sm font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none"
                                                         type="button"
@@ -312,7 +316,7 @@ function Projeto() {
                                 {project?.steps && project.steps.length > 0 && (
                                     <div className="container flex justify-center mx-auto">
                                         <div className="grid gap-6 mx-auto my-4 md:grid-flow-col">
-                                            {project.steps.map((step: any) => (
+                                            {project.steps.map((step) => (
                                                 <StepCard step={step} key={step.id} />
                                             ))}
                                         </div>
@@ -332,24 +336,29 @@ function Projeto() {
                                     </div>
                                 </div>
 
-                                {project?.gallery && project.gallery.length > 0 && (
-                                    <div className="px-4 pb-6">
-                                        <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">Galeria de Imagens</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {project.gallery.map((photo: any, index: number) => (
-                                                <div key={photo.id || index} className="aspect-square group">
-                                                    <img
-                                                        src={photo.url}
-                                                        alt={photo.caption || `Galeria ${index + 1}`}
-                                                        className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
-                                                        onClick={() => openGallery(index)}
-                                                    />
-
-                                                </div>
-                                            ))}
+                                {(() => {
+                                    const galleryPhotos = (project?.gallery ?? []).filter(
+                                        (p): p is typeof p & { url: string } => typeof p.url === "string"
+                                    );
+                                    if (galleryPhotos.length === 0) return null;
+                                    return (
+                                        <div className="px-4 pb-6">
+                                            <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">Galeria de Imagens</h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                {galleryPhotos.map((photo, index) => (
+                                                    <div key={photo.id ?? index} className="aspect-square group">
+                                                        <img
+                                                            src={photo.url}
+                                                            alt={photo.caption ?? `Galeria ${index + 1}`}
+                                                            className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
+                                                            onClick={() => openGallery(index)}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    );
+                                })()}
                             </div>
 
                             {project?.products && project.products.length > 0 && (
@@ -363,8 +372,8 @@ function Projeto() {
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
-                                                {project.products.map((product: any, index: number) => (
-                                                    <tr key={product.id || index}>
+                                                {project.products.map((product, index) => (
+                                                    <tr key={product.id ?? index}>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                             {product.link ? (
                                                                 <a href={product.link} target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline">

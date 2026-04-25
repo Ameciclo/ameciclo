@@ -77,6 +77,11 @@ const ProjectDetailSchema = ProjectListSchema.extend({
 export type Project = z.infer<typeof ProjectListSchema>;
 export type ProjectDetail = z.infer<typeof ProjectDetailSchema>;
 export type Workgroup = z.infer<typeof WorkgroupSchema>;
+export type ProjectMedia = z.infer<typeof MediaSchema>;
+export type ProjectLink = z.infer<typeof LinkEntrySchema>;
+export type ProjectStep = z.infer<typeof StepEntrySchema>;
+export type ProjectProduct = z.infer<typeof ProductEntrySchema>;
+export type ProjectPartner = z.infer<typeof PartnerSchema>;
 
 const fetchProjetos = createServerFn().handler(async () => {
   const [projectsRes, workgroupsRes] = await Promise.all([
