@@ -38,10 +38,10 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
                 <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>3. Desenvolva e Teste</h4>
                 <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mt-2`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
-                    npm install<br />
-                    npm run dev<br />
-                    npm run lint<br />
-                    npm run typecheck
+                    pnpm install<br />
+                    pnpm dev<br />
+                    pnpm lint<br />
+                    pnpm typecheck
                   </code>
                 </div>
               </div>
