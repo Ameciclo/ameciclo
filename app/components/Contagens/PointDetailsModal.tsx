@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { pointData } from "typings";
 
 interface PointDetailsModalProps {
@@ -53,6 +54,15 @@ export function PointDetailsModal({ point, onClose }: PointDetailsModalProps) {
                 <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Observações</div>
                 <div className="text-sm text-gray-700">{point.popup.obs}</div>
               </div>
+            )}
+
+            {point.popup?.url && (
+              <Link
+                to={point.popup.url}
+                className="block w-full text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg transition-colors"
+              >
+                Ver mais
+              </Link>
             )}
           </div>
         </div>
