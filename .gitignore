@@ -4,6 +4,7 @@ node_modules
 /build
 .env
 .gemini/
+.playwright-cli/
 
 docs
 
