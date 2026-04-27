@@ -2,37 +2,25 @@ import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "./FAQIcon";
-
-interface FAQ {
-  id: number;
-  title: string;
-  description: string;
-  answer?: string;
-}
-
-interface Category {
-  id: number;
-  title: string;
-  slug?: string;
-  faqs: FAQ[];
-}
+import type { FAQCategory } from "~/queries/biciclopedia";
 
 interface AccordionItemProps {
-  categories: Category;
+  categories: FAQCategory;
   defaultOpen?: boolean;
 }
 
+type FAQRow = [number, string, string, string | null | undefined];
+
 export const AccordionItem = ({ categories, defaultOpen = false }: AccordionItemProps) => {
-  const faqs = categories.faqs;
-  const faqs_titles: [number, string, string, string | undefined][] = [];
+  const faqs = categories.faqs ?? [];
+  const faqs_titles: FAQRow[] = faqs.map((faq) => [
+    faq.id,
+    faq.title ?? "",
+    faq.description ?? "",
+    faq.answer,
+  ]);
 
-  faqs.forEach((faq) => {
-    faqs_titles.push([faq.id, faq.title, faq.description, faq.answer]);
-  });
-
-  faqs_titles.sort((a, b) => {
-    return a[1].localeCompare(b[1]);
-  });
+  faqs_titles.sort((a, b) => a[1].localeCompare(b[1]));
 
   const [isOpen, toggleIsOpen] = useState(defaultOpen);
 
