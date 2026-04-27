@@ -63,9 +63,10 @@ A **Plataforma Ameciclo** é uma aplicação web full-stack que centraliza e vis
 ### ⚠️ Requisitos Obrigatórios
 
 - **Node.js** 24.x (LTS) — a versão exata está pinada em `mise.toml`
+- **pnpm** 10.x — gerenciador de pacotes (também pinado em `mise.toml`)
 - **Git** ([Download](https://git-scm.com/))
 
-> **Dica**: recomendamos [mise](https://mise.jdx.dev/) para gerenciar a versão do Node. Com `mise` instalado, basta rodar `mise install` na raiz do projeto e a versão correta será instalada automaticamente.
+> **Dica**: recomendamos [mise](https://mise.jdx.dev/) para gerenciar Node e pnpm. Com `mise` instalado, basta rodar `mise install` na raiz do projeto e as versões corretas serão instaladas automaticamente.
 
 ### 📦 Instalação
 
@@ -74,14 +75,14 @@ A **Plataforma Ameciclo** é uma aplicação web full-stack que centraliza e vis
 git clone https://github.com/Ameciclo/ameciclo.git
 cd ameciclo
 
-# 2. Ative a versão do Node (se usar mise)
+# 2. Ative Node e pnpm (se usar mise)
 mise install
 
 # 3. Instale as dependências
-npm install
+pnpm install
 
 # 4. Inicie o servidor de desenvolvimento
-npm run dev
+pnpm dev
 ```
 
 O projeto estará disponível em: **http://localhost:5173**
@@ -89,12 +90,12 @@ O projeto estará disponível em: **http://localhost:5173**
 ### 🔧 Scripts Disponíveis
 
 ```bash
-npm run dev        # Inicia servidor de desenvolvimento (Vite)
-npm run build      # Gera build de produção
-npm run preview    # Servidor local para inspecionar o build
-npm run deploy     # Build + deploy no Cloudflare Workers (wrangler)
-npm run lint       # Verifica qualidade do código
-npm run typecheck  # Verifica tipos TypeScript
+pnpm dev           # Inicia servidor de desenvolvimento (Vite)
+pnpm build         # Gera build de produção
+pnpm preview       # Servidor local para inspecionar o build
+pnpm deploy        # Build + deploy no Cloudflare Workers (wrangler)
+pnpm lint          # Verifica qualidade do código
+pnpm typecheck     # Verifica tipos TypeScript
 ```
 
 ---
@@ -136,7 +137,7 @@ Em produção (Cloudflare Workers), a configuração vive no `wrangler.jsonc`:
 
 ### Desenvolvimento local
 
-Crie um arquivo `.dev.vars` na raiz do projeto (já está no `.gitignore`) para carregar segredos durante `npm run dev`:
+Crie um arquivo `.dev.vars` na raiz do projeto (já está no `.gitignore`) para carregar segredos durante `pnpm dev`:
 
 ```env
 MAPBOX_ACCESS_TOKEN=pk.seu_token_aqui
@@ -153,10 +154,10 @@ O deploy é feito diretamente para Cloudflare Workers via Wrangler:
 
 ```bash
 # Login (primeira vez)
-npx wrangler login
+pnpm dlx wrangler login
 
 # Deploy
-npm run deploy
+pnpm deploy
 ```
 
 A configuração do Worker (nome, domínios customizados, vars) está no `wrangler.jsonc`. O site é servido nos domínios **ameciclo.org** e **www.ameciclo.org**.
@@ -195,10 +196,10 @@ Contribuições são bem-vindas! Siga os passos:
 
 3. **Desenvolva e teste**
    ```bash
-   npm install
-   npm run dev
-   npm run lint
-   npm run typecheck
+   pnpm install
+   pnpm dev
+   pnpm lint
+   pnpm typecheck
    ```
 
 4. **Commit e push**
@@ -223,8 +224,8 @@ Contribuições são bem-vindas! Siga os passos:
 
 ### Erro: "Module not found"
 ```bash
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
 ```
 
 ### Erro: "Port already in use"
