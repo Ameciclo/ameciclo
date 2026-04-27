@@ -33,19 +33,17 @@ export default function Testes({ darkMode = true, fontSize = 16 }: Documentation
           </div>
           
           <div>
-            <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Configuração do ESLint</h3>
+            <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Configuração do oxlint</h3>
             <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
-{`// .eslintrc.cjs
-module.exports = {
-  extends: [
-    "@remix-run/eslint-config",
-    "@remix-run/eslint-config/node"
+{`// .oxlintrc.json
+{
+  "plugins": [
+    "typescript", "react", "jsx-a11y",
+    "import", "unicorn", "oxc"
   ],
-  rules: {
-    // Regras personalizadas do projeto
-  }
-};`}
+  "categories": { "correctness": "error" }
+}`}
               </code>
             </div>
           </div>
