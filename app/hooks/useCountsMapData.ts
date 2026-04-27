@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { pointData, PcrCounting } from "typings";
 import { IntlDateStr } from "~/services/utils";
+import { contagemSlug } from "~/utils/slugify";
 
 const calculateMarkerSize = (totalCyclists: number) => {
   if (totalCyclists === 0) return 8;
@@ -48,7 +49,7 @@ export function useCountsMapData(amecicloData: any[], pcrCounts: PcrCounting[]) 
             name: ponto.name || "Contagem Ameciclo",
             total: totalCyclists,
             date: latestCount?.date ? IntlDateStr(latestCount.date) : "Sem data",
-            url: `/dados/contagens/${ponto.id}`,
+            url: latestCount?.date ? `/dados/contagens/${contagemSlug(latestCount.date, ponto.name || '')}` : `/dados/contagens/${ponto.id}`,
             obs: "As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.",
           },
           size: calculateMarkerSize(totalCyclists),
