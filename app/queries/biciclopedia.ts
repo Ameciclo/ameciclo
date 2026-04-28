@@ -1,45 +1,41 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { cmsFetch } from "~/services/cmsFetch";
-import { makeApiErrorTracker } from "~/services/apiTracking";
-import { CMS_BASE_URL } from "~/servers";
+import { z } from "zod";
+import { strapiClient } from "~/lib/strapi";
 
-const server = CMS_BASE_URL;
+const FAQSchema = z.object({
+  id: z.number(),
+  documentId: z.string().nullish(),
+  title: z.string().nullish(),
+  description: z.string().nullish(),
+  answer: z.string().nullish(),
+});
 
-interface FAQ {
-  id: number;
-  title: string;
-  description: string;
-  answer?: string;
-}
+const FAQCategorySchema = z.object({
+  id: z.number(),
+  documentId: z.string().nullish(),
+  title: z.string().nullish(),
+  faqs: z.array(FAQSchema).nullish(),
+});
 
-interface Category {
-  id: number;
-  title: string;
-  faqs: FAQ[];
-}
-
-const FAQS_URL = `${server}/api/faqs`;
-const CATEGORIES_URL = `${server}/api/faq-tags?populate=faqs`;
+export type FAQ = z.infer<typeof FAQSchema>;
+export type FAQCategory = z.infer<typeof FAQCategorySchema>;
 
 const fetchBiciclopedia = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
-
   const [faqsRes, categoriesRes] = await Promise.all([
-    cmsFetch<{ data: FAQ[] }>(FAQS_URL, {
-      ttl: 600,
-      onError: tracker.at(FAQS_URL),
+    strapiClient.collection("faqs").find({
+      pagination: { pageSize: 100 },
     }),
-    cmsFetch<{ data: Category[] }>(CATEGORIES_URL, {
-      ttl: 600,
-      onError: tracker.at(CATEGORIES_URL),
+    strapiClient.collection("faq-tags").find({
+      pagination: { pageSize: 100 },
+      populate: ["faqs"],
     }),
   ]);
 
-  return {
-    faqs: faqsRes?.data || [],
-    categories: categoriesRes?.data || [],
-  };
+  const faqs = z.array(FAQSchema).parse(faqsRes.data);
+  const categories = z.array(FAQCategorySchema).parse(categoriesRes.data);
+
+  return { faqs, categories };
 });
 
 export const biciclopediaQueryOptions = () =>

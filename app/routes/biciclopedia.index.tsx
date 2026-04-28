@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { SearchComponent } from "../components/Biciclopedia/SearchComponent";
 import { AccordionItem } from "../components/Biciclopedia/AccordionFAQ";
@@ -6,31 +7,23 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { biciclopediaQueryOptions } from "~/queries/biciclopedia";
 import { seo } from "~/utils/seo";
 
-interface FAQ {
-  id: number;
-  title: string;
-  description: string;
-  answer?: string;
-}
-
-interface Category {
-  id: number;
-  title: string;
-  faqs: FAQ[];
-}
+const searchSchema = z.object({
+  categoria: z.number().optional(),
+});
 
 export const Route = createFileRoute("/biciclopedia/")({
+  validateSearch: searchSchema,
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(biciclopediaQueryOptions()),
   head: ({ loaderData }) => {
-    const faqs: FAQ[] = loaderData?.faqs ?? [];
+    const faqs = loaderData?.faqs ?? [];
     const faqSchema = faqs.length
       ? {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           mainEntity: faqs.slice(0, 50).map((faq) => ({
             "@type": "Question",
-            name: faq.title,
+            name: faq.title ?? "",
             acceptedAnswer: {
               "@type": "Answer",
               text: faq.answer ?? faq.description ?? "",
@@ -51,9 +44,14 @@ export const Route = createFileRoute("/biciclopedia/")({
 
 function Biciclopedia() {
   const { data: { faqs, categories } } = useSuspenseQuery(biciclopediaQueryOptions());
+  const { categoria } = Route.useSearch();
 
-  const disponibleCategories = categories.filter((category: Category) => category.faqs.length > 0);
-  const sortedCategories = disponibleCategories.sort((a: Category, b: Category) => a.title.localeCompare(b.title));
+  const disponibleCategories = categories.filter(
+    (category) => (category.faqs?.length ?? 0) > 0,
+  );
+  const sortedCategories = disponibleCategories.sort((a, b) =>
+    (a.title ?? "").localeCompare(b.title ?? ""),
+  );
 
   return (
     <>
@@ -86,8 +84,12 @@ function Biciclopedia() {
           {sortedCategories.length === 0 ? (
             <div className="p-4">Nenhuma categoria encontrada</div>
           ) : (
-            sortedCategories.map((cat: Category) => (
-              <AccordionItem categories={cat} key={cat.id} />
+            sortedCategories.map((cat) => (
+              <AccordionItem
+                categories={cat}
+                key={cat.id}
+                defaultOpen={categoria != null && cat.id === categoria}
+              />
             ))
           )}
         </div>

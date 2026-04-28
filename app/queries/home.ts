@@ -14,7 +14,7 @@ const HomeSchema = z.object({
 });
 
 const ProjectSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   documentId: z.string().nullish(),
   name: z.string().nullish(),
   description: z.string().nullish(),
