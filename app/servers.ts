@@ -1,18 +1,11 @@
 export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
-export const HOME_DATA = `${CMS_BASE_URL}/api/home`
-export const AMECICLISTAS_DATA = `${CMS_BASE_URL}/api/ameciclistas?populate=media&pagination[pageSize]=100`
-export const QUEM_SOMOS_DATA = `${CMS_BASE_URL}/api/quem-somo?populate=links`
 export const PLATAFORM_HOME_PAGE = `${CMS_BASE_URL}/api/plataforma-de-dado?populate[partners][populate]=image&populate=cover`
 export const DOCUMENTS_PAGE = `${CMS_BASE_URL}/api/documento?populate=*`
 export const DOCUMENTS_DATA = `${CMS_BASE_URL}/api/documents?populate=*&pagination[pageSize]=100`
 export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagem?populate=*`
 export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo?populate=*`
 export const PERFIL_PAGE_DATA = `${CMS_BASE_URL}/api/perfil?populate=*`
-export const PROJECTS_DATA = `${CMS_BASE_URL}/api/projects`
-export const PROJECTS_LIST_DATA = `${PROJECTS_DATA}?pagination[pageSize]=100&populate=media`
-export const PROJECT_DETAIL_DATA = (slug: string) => `${PROJECTS_DATA}?filters[slug][$eq]=${slug}&populate[0]=media&populate[1]=cover&populate[2]=gallery&populate[3]=partners.logo&populate[4]=workgroup&populate[5]=products&populate[6]=Links&populate[7]=steps`
-export const WORKGROUPS_DATA = `${CMS_BASE_URL}/api/workgroups`
-export const WORKGROUPS_LIST_DATA = `${WORKGROUPS_DATA}?pagination[pageSize]=100`
+export const PROJECTS_LIST_DATA = `${CMS_BASE_URL}/api/projects?pagination[pageSize]=100&populate=media`
 export const PLATAFORMAS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas-de-dados?populate=*`
 export const LOA_PAGE_DATA = `${CMS_BASE_URL}/api/loa?populate=*`
 export const DOM_PAGE_DATA = `${CMS_BASE_URL}/api/dom?populate=*`
