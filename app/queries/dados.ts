@@ -1,33 +1,43 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { cmsFetch } from "~/services/cmsFetch";
-import { makeApiErrorTracker } from "~/services/apiTracking";
-import { PLATAFORM_HOME_PAGE } from "~/servers";
+import { z } from "zod";
+import { strapiClient } from "~/lib/strapi";
+
+const MediaSchema = z.object({
+  id: z.number(),
+  url: z.string().nullish(),
+  alternativeText: z.string().nullish(),
+});
+
+const PartnerSchema = z.object({
+  id: z.number(),
+  title: z.string().nullish(),
+  description: z.string().nullish(),
+  link: z.string().nullish(),
+  image: z.array(MediaSchema).nullish(),
+});
+
+const DadosPageSchema = z.object({
+  id: z.number(),
+  documentId: z.string().nullish(),
+  description: z.string().nullish(),
+  cover: MediaSchema.nullish(),
+  partners: z.array(PartnerSchema).nullish(),
+});
+
+export type DadosPartner = z.infer<typeof PartnerSchema>;
+export type DadosPage = z.infer<typeof DadosPageSchema>;
 
 const fetchDados = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
-
-  const response = await cmsFetch<any>(PLATAFORM_HOME_PAGE, {
-    ttl: 600,
-    timeout: 5000,
-    fallback: null,
-    onError: tracker.at(PLATAFORM_HOME_PAGE),
+  const res = await strapiClient.single("plataforma-de-dado").find({
+    populate: {
+      cover: true,
+      partners: { populate: "image" },
+    },
   });
 
-  const data = response?.data || {};
-  const { cover, description, partners } = data;
-  const summary = tracker.summary();
-
-  return {
-    data: {
-      cover: cover || null,
-      description: description || "",
-      partners: partners || [],
-      apiDown: summary.apiDown,
-    },
-    apiDown: summary.apiDown,
-    apiErrors: summary.apiErrors,
-  };
+  const page = DadosPageSchema.parse(res.data);
+  return { page };
 });
 
 export const dadosQueryOptions = () =>
