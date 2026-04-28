@@ -215,7 +215,7 @@ Contribuições são bem-vindas! Siga os passos:
 
 - Use **Conventional Commits**: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`
 - Sempre tipifique com **TypeScript**
-- Siga os padrões de estilo do **ESLint**
+- Siga os padrões de estilo do **oxlint** (rode `pnpm lint`)
 - Componentes em **PascalCase**, arquivos de serviço em **camelCase**
 
 ---
