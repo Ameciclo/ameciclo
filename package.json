@@ -13,11 +13,8 @@
     "gen:strapi-types": "openapi-typescript ./specification.json -o ./app/types/strapi-api.ts"
   },
   "dependencies": {
-    "@fullcalendar/core": "^6.1.19",
-    "@fullcalendar/daygrid": "^6.1.15",
-    "@fullcalendar/google-calendar": "^6.1.15",
-    "@fullcalendar/list": "^6.1.15",
-    "@fullcalendar/react": "^6.1.15",
+    "@fullcalendar/core": "7.0.0-rc.2",
+    "@fullcalendar/react": "7.0.0-rc.2",
     "@math.gl/web-mercator": "^4.1.0",
     "@strapi/blocks-react-renderer": "^1.0.2",
     "@strapi/client": "^1.6.1",
