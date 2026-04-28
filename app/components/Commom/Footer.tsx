@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 import { footerColumn, footerColumnContent } from "../../../typings";
 
 export const Footer = () => {
-  const columns = [
+  const columns: footerColumn[] = [
     {
       title: "Ameciclo",
       align: "left",
@@ -38,16 +38,20 @@ export const Footer = () => {
           url: "/dados",
         },
         {
-          label: "Projetos",
-          url: "/projetos",
-        },
-        {
           label: "Documentação",
           url: "/documentacao",
         },
         {
-          label: "Biciclopedia (FAQ)",
+          label: "Biciclopédia",
           url: "/biciclopedia",
+        },
+        {
+          label: "API Garfo",
+          url: "http://api.garfo.ameciclo.org",
+        },
+        {
+          label: "CMS Strapi",
+          url: "http://do.strapi.ameciclo.org",
         },
       ],
     },
@@ -56,24 +60,20 @@ export const Footer = () => {
       align: "center",
       content: [
         {
-          label: "Facebook",
-          url: "https://facebook.com/ameciclo",
-        },
-        {
           label: "Instagram",
           url: "https://instagram.com/ameciclo",
         },
         {
-          label: "Twitter",
-          url: "https://twitter.com/ameciclo",
+          label: "YouTube",
+          url: "https://www.youtube.com/ameciclo",
         },
         {
           label: "Telegram",
           url: "https://t.me/ameciclo",
         },
         {
-          label: "Youtube",
-          url: "https://www.youtube.com/ameciclo",
+          label: "GitHub",
+          url: "https://github.com/Ameciclo",
         },
       ],
     },
@@ -99,9 +99,6 @@ export const Footer = () => {
               )}
             </div>
           ))}
-        </div>
-        <div className="container p3">
-          <VercelSponsor />
         </div>
       </div>
     </footer>
@@ -130,23 +127,5 @@ function FooterColumn({ column }: FooterColumnProps) {
         ))}
       </ul>
     </>
-  );
-}
-
-function VercelSponsor() {
-  return (
-    <Link
-      to=" https://vercel.com/?utm_source=ameciclo&utm_campaign=oss"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <img
-        src="/vercel_logo/vercel-logo.svg"
-        alt="Vercel Logo"
-        width={212}
-        height={44}
-        className="mx-auto"
-      />
-    </Link>
   );
 }
