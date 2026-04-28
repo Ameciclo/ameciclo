@@ -5,25 +5,25 @@ import { z } from "zod";
 import { strapiClient } from "~/lib/strapi";
 
 const MediaSchema = z.object({
-  id: z.union([z.string(), z.number()]).nullish(),
+  id: z.number().nullish(),
   url: z.string().nullish(),
   caption: z.string().nullish(),
 });
 
 const WorkgroupSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   documentId: z.string().nullish(),
   name: z.string().nullish(),
 });
 
 const LinkEntrySchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   title: z.string().nullish(),
   link: z.string().nullish(),
 });
 
 const StepEntrySchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   title: z.string().nullish(),
   description: z.string().nullish(),
   link: z.string().nullish(),
@@ -31,7 +31,7 @@ const StepEntrySchema = z.object({
 });
 
 const ProductEntrySchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   title: z.string().nullish(),
   name: z.string().nullish(),
   description: z.string().nullish(),
@@ -39,14 +39,14 @@ const ProductEntrySchema = z.object({
 });
 
 const PartnerSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   documentId: z.string().nullish(),
   name: z.string().nullish(),
   logo: z.array(MediaSchema).nullish(),
 });
 
 const ProjectListSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   documentId: z.string().nullish(),
   name: z.string().nullish(),
   slug: z.string().nullish(),
