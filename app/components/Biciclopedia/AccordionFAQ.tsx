@@ -13,17 +13,19 @@ interface FAQ {
 interface Category {
   id: number;
   title: string;
+  slug?: string;
   faqs: FAQ[];
 }
 
 interface AccordionItemProps {
   categories: Category;
+  defaultOpen?: boolean;
 }
 
-export const AccordionItem = ({ categories }: AccordionItemProps) => {
+export const AccordionItem = ({ categories, defaultOpen = false }: AccordionItemProps) => {
   const faqs = categories.faqs;
   const faqs_titles: [number, string, string, string | undefined][] = [];
-  
+
   faqs.forEach((faq) => {
     faqs_titles.push([faq.id, faq.title, faq.description, faq.answer]);
   });
@@ -32,10 +34,13 @@ export const AccordionItem = ({ categories }: AccordionItemProps) => {
     return a[1].localeCompare(b[1]);
   });
 
-  const [isOpen, toggleIsOpen] = useState(false);
+  const [isOpen, toggleIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="w-full overflow-hidden border-t tab">
+    <div
+      id={`categoria-${categories.id}`}
+      className="w-full overflow-hidden border-t tab scroll-mt-20"
+    >
       <div
         className="flex flex-row items-center pl-5"
         onClick={() => {

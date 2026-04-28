@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import Breadcrumb from "../components/Commom/Breadcrumb";
 import { SearchComponent } from "../components/Biciclopedia/SearchComponent";
 import { AccordionItem } from "../components/Biciclopedia/AccordionFAQ";
@@ -16,10 +17,16 @@ interface FAQ {
 interface Category {
   id: number;
   title: string;
+  slug?: string;
   faqs: FAQ[];
 }
 
+const searchSchema = z.object({
+  categoria: z.number().optional(),
+});
+
 export const Route = createFileRoute("/biciclopedia/")({
+  validateSearch: searchSchema,
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(biciclopediaQueryOptions()),
   head: ({ loaderData }) => {
@@ -51,6 +58,7 @@ export const Route = createFileRoute("/biciclopedia/")({
 
 function Biciclopedia() {
   const { data: { faqs, categories } } = useSuspenseQuery(biciclopediaQueryOptions());
+  const { categoria } = Route.useSearch();
 
   const disponibleCategories = categories.filter((category: Category) => category.faqs.length > 0);
   const sortedCategories = disponibleCategories.sort((a: Category, b: Category) => a.title.localeCompare(b.title));
@@ -87,7 +95,11 @@ function Biciclopedia() {
             <div className="p-4">Nenhuma categoria encontrada</div>
           ) : (
             sortedCategories.map((cat: Category) => (
-              <AccordionItem categories={cat} key={cat.id} />
+              <AccordionItem
+                categories={cat}
+                key={cat.id}
+                defaultOpen={categoria != null && cat.id === categoria}
+              />
             ))
           )}
         </div>

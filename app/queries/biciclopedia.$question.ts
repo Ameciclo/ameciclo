@@ -37,7 +37,19 @@ const fetchBiciclopediaQuestion = createServerFn()
       throw notFound();
     }
 
-    return { question: questionData };
+    const tagIds = (questionData.faq_tags ?? []).map((t) => t.id);
+
+    let related: Question[] = [];
+    if (tagIds.length > 0) {
+      const tagFilters = tagIds
+        .map((id, i) => `filters[faq_tags][id][$in][${i}]=${id}`)
+        .join("&");
+      const relatedUrl = `${server}/api/faqs?${tagFilters}&filters[id][$ne]=${encodeURIComponent(question)}&pagination[pageSize]=3&populate=faq_tags`;
+      const relatedRes = await cmsFetch<{ data: Question[] }>(relatedUrl, { ttl: 600 });
+      related = relatedRes?.data ?? [];
+    }
+
+    return { question: questionData, related };
   });
 
 export const biciclopediaQuestionQueryOptions = (question: string) =>
