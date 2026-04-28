@@ -1,21 +1,14 @@
-import { lazy, Suspense } from "react";
 import type { AgendaEvent } from "~/queries/agenda";
-import { UpcomingEventsList } from "./UpcomingEventsList";
+import FullCalendarWidget from "./FullCalendarWidget";
 
-// FullCalendar v7's React binding supports SSR + StrictMode natively, so we
-// no longer need a `<ClientOnly>` wrapper. We still code-split via lazy() so
-// the calendar's JS lives in its own chunk and the upcoming-events list
-// renders as a Suspense fallback during the brief hydration window.
-const FullCalendarWidget = lazy(() => import("./FullCalendarWidget"));
-
+// FullCalendar v7's React binding renders a real calendar grid on the
+// server, so we mount the widget directly — no lazy() / Suspense /
+// ClientOnly wrappers. The agenda route's own chunk still keeps the
+// calendar JS out of the home/landing bundle.
 interface EventCalendarProps {
   initialEvents: AgendaEvent[];
 }
 
 export default function EventCalendar({ initialEvents }: EventCalendarProps) {
-  return (
-    <Suspense fallback={<UpcomingEventsList events={initialEvents} />}>
-      <FullCalendarWidget initialEvents={initialEvents} />
-    </Suspense>
-  );
+  return <FullCalendarWidget initialEvents={initialEvents} />;
 }

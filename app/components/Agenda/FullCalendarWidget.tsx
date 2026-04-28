@@ -1,4 +1,5 @@
-import Calendar from "@fullcalendar/react";
+import FullCalendar from "@fullcalendar/react";
+import themePlugin from "@fullcalendar/react/themes/monarch";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
 import listPlugin from "@fullcalendar/react/list";
 import ptBrLocale from "@fullcalendar/react/locales/pt-br";
@@ -9,8 +10,9 @@ import type {
   ViewDisplayInfo,
 } from "@fullcalendar/react";
 import "@fullcalendar/react/skeleton.css";
-import "@fullcalendar/react/themes/classic/theme.css";
-import "@fullcalendar/react/themes/classic/palette.css";
+import "@fullcalendar/react/themes/monarch/theme.css";
+import "@fullcalendar/react/themes/monarch/palettes/green.css";
+import "./calendar-theme.css";
 import type { AgendaEvent } from "~/queries/agenda";
 import { fetchAgendaEvents } from "~/queries/agenda";
 
@@ -84,25 +86,27 @@ export default function FullCalendarWidget(_props: FullCalendarWidgetProps) {
   };
 
   return (
-    <Calendar
-      plugins={[dayGridPlugin, listPlugin]}
-      events={fetchEvents}
-      initialView={initialView}
-      locale={ptBrLocale}
-      height={650}
-      nowIndicator
-      headerToolbar={{
-        left: "prev,next,today",
-        center: "title",
-        right: "dayGridMonth,dayGridWeek,listWeek",
-      }}
-      eventTimeFormat={{
-        hour: "numeric",
-        minute: "2-digit",
-        meridiem: false,
-      }}
-      eventClick={handleEventClick}
-      viewDidMount={handleViewMount}
-    />
+    <div className="agenda-calendar">
+      <FullCalendar
+        plugins={[themePlugin, dayGridPlugin, listPlugin]}
+        events={fetchEvents}
+        initialView={initialView}
+        locale={ptBrLocale}
+        height={650}
+        nowIndicator
+        headerToolbar={{
+          left: "prev,next,today",
+          center: "title",
+          right: "dayGridMonth,dayGridWeek,listWeek",
+        }}
+        eventTimeFormat={{
+          hour: "numeric",
+          minute: "2-digit",
+          meridiem: false,
+        }}
+        eventClick={handleEventClick}
+        viewDidMount={handleViewMount}
+      />
+    </div>
   );
 }
