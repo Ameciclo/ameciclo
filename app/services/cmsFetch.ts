@@ -7,7 +7,7 @@
  * (Workers doesn't honor it).
  *
  * Usage:
- *   const data = await cmsFetch(HOME_DATA, { ttl: 300 });
+ *   const data = await cmsFetch(SOME_API_URL, { ttl: 300 });
  *
  * If the cache API isn't available (e.g. Vite dev, Node runtime), falls back
  * to a direct fetch + timeout.
