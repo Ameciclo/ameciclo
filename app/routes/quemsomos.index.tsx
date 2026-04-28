@@ -4,7 +4,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { QuemSomosContent } from "~/components/QuemSomos/QuemSomosContent";
 import { quemSomosQueryOptions } from "~/queries/quemsomos";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/quemsomos/")({
@@ -21,9 +20,7 @@ export const Route = createFileRoute("/quemsomos/")({
 });
 
 function QuemSomos() {
-  const { data } = useSuspenseQuery(quemSomosQueryOptions());
-  const { pageData } = data;
-  useReportApiErrors(data);
+  const { data: { pageData } } = useSuspenseQuery(quemSomosQueryOptions());
 
   return (
     <>

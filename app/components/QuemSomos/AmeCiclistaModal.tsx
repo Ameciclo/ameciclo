@@ -1,14 +1,11 @@
 import { useFocusTrap } from '~/hooks/useFocusTrap';
 import { useEffect } from 'react';
+import type { Ameciclista } from '~/queries/quemsomos';
 
 type AmeCiclistaModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  ameciclista: {
-    name: string;
-    bio?: string;
-    media?: { url: string };
-  } | null;
+  ameciclista: Ameciclista | null;
 };
 
 export default function AmeCiclistaModal({
@@ -52,13 +49,13 @@ export default function AmeCiclistaModal({
           &times;
         </button>
         <div className="flex flex-col items-center">
-          {ameciclista.media?.url && (
+          {ameciclista.media?.url ? (
             <img
               src={ameciclista.media.url}
-              alt={ameciclista.name}
+              alt={ameciclista.name ?? ""}
               className="w-64 h-64 object-cover rounded-full mb-4"
             />
-          )}
+          ) : null}
           <h2 className="text-2xl font-bold text-gray-900 mb-2" id="ameciclista-modal-title">
             {ameciclista.name}
           </h2>
