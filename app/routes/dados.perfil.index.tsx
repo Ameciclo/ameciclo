@@ -5,7 +5,6 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import PerfilDashboard from "~/components/Perfil/PerfilDashboard";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { perfilQueryOptions } from "~/queries/dados.perfil";
 import { seo } from "~/utils/seo";
@@ -28,28 +27,20 @@ export const Route = createFileRoute("/dados/perfil/")({
 });
 
 function PerfilPage() {
-    const { data } = useSuspenseQuery(perfilQueryOptions());
-    const { cover, description, objective, profileData, apiDown } = data;
-    useReportApiErrors(data);
+  const { data: { page, profileData, profileApiDown } } = useSuspenseQuery(perfilQueryOptions());
 
-    return (
-        <>
-            <Banner image={cover?.url} alt="Capa da página de Perfil do Ciclista" />
-            <Breadcrumb label="perfil" slug="/perfil" routes={["/", "/dados"]} />
-            <ApiStatusHandler apiDown={apiDown} />
-            <ExplanationBoxes
-                boxes={[
-                    {
-                        title: "O que é?",
-                        description: description,
-                    },
-                    {
-                        title: "Para o que serve?",
-                        description: objective,
-                    },
-                ]}
-            />
-            <PerfilDashboard apiDown={apiDown} profileData={profileData} />
-        </>
-    );
+  return (
+    <>
+      <Banner image={page.cover?.url ?? undefined} alt="Capa da página de Perfil do Ciclista" />
+      <Breadcrumb label="perfil" slug="/perfil" routes={["/", "/dados"]} />
+      <ApiStatusHandler apiDown={profileApiDown} />
+      <ExplanationBoxes
+        boxes={[
+          { title: "O que é?", description: page.description ?? null },
+          { title: "Para o que serve?", description: page.objective ?? null },
+        ]}
+      />
+      <PerfilDashboard apiDown={profileApiDown} profileData={profileData} />
+    </>
+  );
 }
