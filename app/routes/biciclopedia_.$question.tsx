@@ -14,20 +14,6 @@ const rehypePlugins: PluggableList = [
   [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
 ];
 
-interface FAQTag {
-  id: number;
-  title: string;
-  slug: string;
-}
-
-interface Question {
-  id: number;
-  title: string;
-  description: string;
-  answer: string;
-  faq_tags: FAQTag[];
-}
-
 export const Route = createFileRoute("/biciclopedia_/$question")({
   loader: ({ context: { queryClient }, params: { question } }) =>
     queryClient.ensureQueryData(biciclopediaQuestionQueryOptions(question)),
@@ -43,7 +29,7 @@ export const Route = createFileRoute("/biciclopedia_/$question")({
     }
     return seo({
       title: `${question.title} - Biciclopedia - Ameciclo`,
-      description: question.description,
+      description: question.description ?? undefined,
       pathname,
       type: "article",
     });

@@ -1,52 +1,61 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { notFound } from "@tanstack/react-router";
-import { cmsFetch } from "~/services/cmsFetch";
-import { CMS_BASE_URL } from "~/servers";
+import { z } from "zod";
+import { strapiClient } from "~/lib/strapi";
 
-const server = CMS_BASE_URL;
+const FAQTagSchema = z.object({
+  id: z.number(),
+  documentId: z.string().nullish(),
+  title: z.string().nullish(),
+  slug: z.string().nullish(),
+});
 
-interface FAQTag {
-  id: number;
-  title: string;
-  slug: string;
-}
+const FAQDetailSchema = z.object({
+  id: z.number(),
+  documentId: z.string().nullish(),
+  title: z.string().nullish(),
+  description: z.string().nullish(),
+  answer: z.string().nullish(),
+  faq_tags: z.array(FAQTagSchema).nullish(),
+});
 
-interface Question {
-  id: number;
-  title: string;
-  description: string;
-  answer: string;
-  faq_tags: FAQTag[];
-}
+export type FAQTag = z.infer<typeof FAQTagSchema>;
+export type FAQDetail = z.infer<typeof FAQDetailSchema>;
 
 const fetchBiciclopediaQuestion = createServerFn()
   .inputValidator((input: { question: string }) => input)
-  .handler(async ({ data }) => {
-    const { question } = data;
+  .handler(async ({ data: input }) => {
+    const { question } = input;
     if (!question) {
       throw new Error("Question ID is required");
     }
 
-    const url = `${server}/api/faqs?filters[id][$eq]=${question}&populate=faq_tags`;
+    const res = await strapiClient.collection("faqs").find({
+      filters: { id: { $eq: question } },
+      populate: ["faq_tags"],
+    });
 
-    const res = await cmsFetch<{ data: Question[] }>(url, { ttl: 600 });
-    const questionData = res?.data?.[0];
-
-    if (!questionData) {
+    const raw = res.data?.[0];
+    if (!raw) {
       throw notFound();
     }
 
+    const questionData = FAQDetailSchema.parse(raw);
+
     const tagIds = (questionData.faq_tags ?? []).map((t) => t.id);
 
-    let related: Question[] = [];
+    let related: FAQDetail[] = [];
     if (tagIds.length > 0) {
-      const tagFilters = tagIds
-        .map((id, i) => `filters[faq_tags][id][$in][${i}]=${id}`)
-        .join("&");
-      const relatedUrl = `${server}/api/faqs?${tagFilters}&filters[id][$ne]=${encodeURIComponent(question)}&pagination[pageSize]=3&populate=faq_tags`;
-      const relatedRes = await cmsFetch<{ data: Question[] }>(relatedUrl, { ttl: 600 });
-      related = relatedRes?.data ?? [];
+      const relatedRes = await strapiClient.collection("faqs").find({
+        filters: {
+          faq_tags: { id: { $in: tagIds } },
+          id: { $ne: question },
+        },
+        pagination: { pageSize: 3 },
+        populate: ["faq_tags"],
+      });
+      related = z.array(FAQDetailSchema).parse(relatedRes.data ?? []);
     }
 
     return { question: questionData, related };
