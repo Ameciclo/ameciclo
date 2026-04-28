@@ -84,6 +84,7 @@ function QuestionPage() {
                       <Link
                         to="/biciclopedia"
                         search={{ categoria: tag.id }}
+                        hash={`categoria-${tag.id}`}
                         className="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wide text-white bg-ameciclo rounded-full hover:opacity-80"
                       >
                         {tag.title}

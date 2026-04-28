@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "./FAQIcon";
@@ -35,17 +35,9 @@ export const AccordionItem = ({ categories, defaultOpen = false }: AccordionItem
   });
 
   const [isOpen, toggleIsOpen] = useState(defaultOpen);
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (defaultOpen && sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [defaultOpen]);
 
   return (
     <div
-      ref={sectionRef}
       id={`categoria-${categories.id}`}
       className="w-full overflow-hidden border-t tab scroll-mt-20"
     >
