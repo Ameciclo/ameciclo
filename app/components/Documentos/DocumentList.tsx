@@ -1,42 +1,64 @@
-export type document = {
-  title: string;
-  description: string;
-  url: string;
-  type: string;
-  release_date: string;
-  cover: any;
-  coverAlt?: string;
-};
+import React from "react";
 import { Link } from "@tanstack/react-router";
+import type { DocumentEntry } from "~/queries/dados.documentos";
 
-const highlightText = (text: string, searchTerm: string) => {
+interface DocTypeIndicator {
+  value: string;
+  label: string;
+  color: string;
+  fontColor: string;
+}
+
+interface DocumentsListProps {
+  documents: DocumentEntry[];
+  docTypes: DocTypeIndicator[];
+  searchTerm: string;
+}
+
+const highlightText = (text: string, searchTerm: string): React.ReactNode => {
   if (!searchTerm) return text;
-  
-  const regex = new RegExp(`(${searchTerm})`, 'gi');
+
+  const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escaped})`, "gi");
   const parts = text.split(regex);
-  
-  return parts.map((part, index) => 
+
+  return parts.map((part, index) =>
     regex.test(part) ? (
-      <mark key={index} className="bg-yellow-200 px-1 rounded">{part}</mark>
-    ) : part
+      <mark key={index} className="bg-yellow-200 px-1 rounded">
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
   );
 };
 
-export const DocumentsList = ({ documents, docTypes, searchTerm }: any) => {
+export const DocumentsList = ({ documents, docTypes, searchTerm }: DocumentsListProps) => {
   return (
     <div className="mt-5 mx-3 px-10 shadow border grid grid-cols-1 min-[450px]:grid-cols-2 md:grid-cols-3  auto-cols-max lg:grid-cols-4 gap-10">
-      {documents.map((document: document) => (
-        <DocumentCard
-          {...{
-            document,
-            indicator: docTypes.filter((d: any) => document.type === d.value)[0],
-            searchTerm,
-          }}
-        />
-      ))}
+      {documents.map((document) => {
+        const indicator = docTypes.find((d) => document.type === d.value);
+        return (
+          <DocumentCard
+            key={document.id}
+            document={document}
+            indicator={indicator}
+            searchTerm={searchTerm}
+          />
+        );
+      })}
     </div>
   );
 };
+
+interface ImageWithLinkProps {
+  url: string;
+  alt: string;
+  src: string;
+  aspectRatio?: number;
+  width?: number;
+  target?: "_blank" | "_self";
+}
 
 export function ImageWithLink({
   url,
@@ -45,7 +67,7 @@ export function ImageWithLink({
   aspectRatio = 16 / 9,
   width = 400,
   target = "_blank",
-}: any) {
+}: ImageWithLinkProps) {
   return (
     <Link to={url} target={target}>
       <div className="relative h-0" style={{ paddingBottom: `${100 / aspectRatio}%` }}>
@@ -61,35 +83,45 @@ export function ImageWithLink({
   );
 }
 
-const DocumentCard = ({ document, indicator, searchTerm }: any) => {
+interface DocumentCardProps {
+  document: DocumentEntry;
+  indicator: DocTypeIndicator | undefined;
+  searchTerm: string;
+}
+
+const DocumentCard = ({ document, indicator, searchTerm }: DocumentCardProps) => {
+  const coverUrl = document.cover?.url;
+  const coverAlt =
+    document.cover?.alternativeText || document.title || "Capa do documento";
+
   return (
     <div
       className="bg-white relative rounded-lg border"
       style={{ minHeight: "450px", maxWidth: "220" }}
     >
-      {indicator?.label != "" && (
+      {indicator && indicator.label !== "" ? (
         <div className=" absolute top-0 left-0 z-10">
           <DocumentTypeIndicator {...indicator} />
         </div>
-      )}
-      {document.cover ? (
-        <div className="">
+      ) : null}
+      {coverUrl ? (
+        <div>
           <ImageWithLink
-            url={document.url}
-            alt={document.coverAlt || document.title}
-            src={document.cover}
+            url={document.url ?? "#"}
+            alt={coverAlt}
+            src={coverUrl}
             aspectRatio={0.75}
           />
         </div>
       ) : (
         <div style={{ minHeight: "270px" }} />
       )}
-      <DocumentDescription {...document} searchTerm={searchTerm} />
+      <DocumentDescription document={document} searchTerm={searchTerm} />
     </div>
   );
 };
 
-const DocumentTypeIndicator = ({ label, color, fontColor }: any) => {
+const DocumentTypeIndicator = ({ label, color, fontColor }: DocTypeIndicator) => {
   return (
     <div
       className="uppercase p-2 rounded bg-green-400 text-base font-semibold truncate"
@@ -107,13 +139,20 @@ const DocumentTypeIndicator = ({ label, color, fontColor }: any) => {
   );
 };
 
-const DocumentDescription = ({ title, url, release_date, description, searchTerm }: any) => {
+interface DocumentDescriptionProps {
+  document: DocumentEntry;
+  searchTerm: string;
+}
+
+const DocumentDescription = ({ document, searchTerm }: DocumentDescriptionProps) => {
+  const releaseYear = document.release_date?.slice(0, 4) ?? "";
   return (
     <div className="px-4 py-5 lg:p-6">
       <dl className="pb-6">
-        <Link to={url}>
+        <Link to={document.url ?? "#"}>
           <dt className="mt-1 text-2xl font-semibold leading-9 text-gray-900 cursor-pointer">
-            {highlightText(title, searchTerm)} ({release_date.substr(0, 4)})
+            {highlightText(document.title ?? "", searchTerm)}
+            {releaseYear ? ` (${releaseYear})` : ""}
           </dt>
         </Link>
         <dt
@@ -126,7 +165,7 @@ const DocumentDescription = ({ title, url, release_date, description, searchTerm
             WebkitBoxOrient: "vertical",
           }}
         >
-          {highlightText(description || '', searchTerm)}
+          {highlightText(document.description ?? "", searchTerm)}
         </dt>
       </dl>
     </div>
