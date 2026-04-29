@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { BlocksRenderer, type BlocksContent } from "@strapi/blocks-react-renderer";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import ReactMarkdown from "react-markdown";
-import { projetoQueryOptions } from "~/queries/projetos";
+import {
+  projetoQueryOptions,
+  type ProjectDetail,
+  type ProjectStep,
+} from "~/queries/projetos";
 import { useState } from "react";
 import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
@@ -23,13 +27,13 @@ export const Route = createFileRoute("/projetos/$projeto")({
     const slug = params.projeto;
     const baseSlug = stripLocaleSuffix(slug);
     const pathname = `/projetos/${slug}`;
-    const isI18n = baseSlug === "bota-pra-rodar";
+    const isI18n = baseSlug === "bota_pra_rodar";
 
     return seo({
       title: project?.name ? `${project.name} - Ameciclo` : "Projeto - Ameciclo",
       description: project?.description ?? undefined,
       pathname,
-      image: project?.coverImage,
+      image: project?.cover?.url ?? project?.media?.url ?? undefined,
       locale: detectLocale(pathname),
       hreflang: isI18n
         ? buildHreflangAlternates(`/projetos/${baseSlug}`)
@@ -42,9 +46,42 @@ export const Route = createFileRoute("/projetos/$projeto")({
   pendingMs: 500,
   pendingMinMs: 800,
   errorComponent: RouteErrorBoundary,
+  notFoundComponent: ProjectNotFound,
 });
 
-const ProjectDate = ({ project }: any) => {
+function ProjectNotFound() {
+  const { projeto } = Route.useParams();
+  return (
+    <div className="container mx-auto px-4 py-16">
+      <div className="mx-auto max-w-xl rounded-lg border border-amber-200 bg-amber-50 p-6">
+        <h2 className="text-xl font-semibold text-amber-900">
+          Projeto não encontrado
+        </h2>
+        <p className="mt-2 text-sm text-amber-800">
+          O projeto{" "}
+          <code className="font-mono bg-amber-100 px-1 rounded">{projeto}</code>{" "}
+          não existe ou foi removido.
+        </p>
+        <div className="mt-4 flex gap-3">
+          <a
+            href="/projetos"
+            className="rounded-md bg-ameciclo px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
+          >
+            Ver todos os projetos
+          </a>
+          <a
+            href="/"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Voltar para o início
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ProjectDate = ({ project }: { project: ProjectDetail }) => {
   const dateOption: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
@@ -110,7 +147,7 @@ const Rating = ({ rating }: { rating: string }) => {
   );
 };
 
-const StepCard = ({ step }: any) => {
+const StepCard = ({ step }: { step: ProjectStep }) => {
   const CardContent = (
     <div
       className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
@@ -176,110 +213,15 @@ function Projeto() {
 
     const otherLinks = project?.Links || [];
 
-    // Converter rich text blocks para Markdown
-    const getLongDescription = () => {
-        if (!project?.long_description) return null;
-        if (typeof project.long_description === 'string') return project.long_description;
-        if (Array.isArray(project.long_description)) {
-            return project.long_description.map((block: any) => {
-                if (block.type === 'heading') {
-                    const text = block.children?.map((child: any) => {
-                        let t = child.text || '';
-                        if (child.bold) t = `**${t}**`;
-                        if (child.italic) t = `*${t}*`;
-                        return t;
-                    }).join('') || '';
-                    const level = '#'.repeat(block.level || 2);
-                    return `${level} ${text}`;
-                }
-                if (block.type === 'paragraph') {
-                    const text = block.children?.map((child: any) => {
-                        if (child.type === 'link') {
-                            return `[${child.children?.[0]?.text || ''}](${child.url || ''})`;
-                        }
-                        let t = child.text || '';
-                        if (child.bold) t = `**${t}**`;
-                        if (child.italic) t = `*${t}*`;
-                        return t;
-                    }).join('') || '';
-                    return text;
-                }
-                if (block.type === 'list') {
-                    return block.children?.map((item: any, i: number) => {
-                        const text = item.children?.map((child: any) => child.text || '').join('') || '';
-                        return block.format === 'ordered' ? `${i + 1}. ${text}` : `- ${text}`;
-                    }).join('\n') || '';
-                }
-                return '';
-            }).filter(Boolean).join('\n\n');
-        }
-        return null;
-    };
-
-    const longDescription = getLongDescription();
+    const longDescriptionBlocks =
+        Array.isArray(project?.long_description) && project.long_description.length > 0
+            ? (project.long_description as BlocksContent)
+            : null;
 
     const bannerImage = project?.cover?.url || project?.media?.url || '/projetos.webp';
 
     return (
                     <>
-                        <style dangerouslySetInnerHTML={{
-                            __html: `
-                                .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 {
-                                    color: #1f2937;
-                                    font-weight: 400;
-                                    margin-top: 1.5em;
-                                    margin-bottom: 0.5em;
-                                }
-                                .markdown-content h1 { font-size: 2.25rem; }
-                                .markdown-content h2 { font-size: 1.875rem; }
-                                .markdown-content h3 { font-size: 1.5rem; }
-                                .markdown-content h4 { font-size: 1.25rem; }
-                                .markdown-content p {
-                                    margin-bottom: 1em;
-                                    line-height: 1.7;
-                                    text-align: justify;
-                                    text-indent: 3em;
-                                }
-                                .markdown-content ul {
-                                    list-style-type: disc;
-                                    margin: 1.2em 0;
-                                    padding-left: 2.5em; /* Increased padding to ensure bullet visibility */
-                                }
-                                .markdown-content ol {
-                                    list-style-type: decimal;
-                                    margin: 1.2em 0;
-                                    padding-left: 2.5em; /* Increased padding to ensure number visibility */
-                                }
-                                .markdown-content li {
-                                    margin-bottom: 0.5em; /* Slightly reduced for tighter lists */
-                                    line-height: 1.6; /* Adjusted for better readability */
-                                }
-                                .markdown-content strong {
-                                    font-weight: 600;
-                                    color: #111827;
-                                }
-                                .markdown-content em {
-                                    font-style: italic;
-                                }
-                                .markdown-content blockquote {
-                                    border-left: 4px solid #e5e7eb;
-                                    padding-left: 1.5em;
-                                    margin: 1.5em 0;
-                                    font-style: italic;
-                                    color: #6b7280;
-                                    background-color: #f9fafb;
-                                    padding: 1em 1.5em;
-                                    border-radius: 0.375rem;
-                                }
-                                .markdown-content a {
-                                    color: #dc2626;
-                                    text-decoration: underline;
-                                }
-                                .markdown-content a:hover {
-                                    color: #b91c1c;
-                                }
-                            `
-                        }} />
                         <div
                             className="flex items-center justify-center object-fill h-auto px-10 py-24 my-auto text-white bg-center bg-cover"
                             style={{
@@ -348,8 +290,8 @@ function Projeto() {
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap justify-center mt-6">
-                                            {otherLinks.map((link: any) => (
-                                                <a href={link.link} key={link.id}>
+                                            {otherLinks.map((link) => (
+                                                <a href={link.link ?? "#"} key={link.id}>
                                                     <button
                                                         className="px-4 py-2 mx-2 mb-2 text-sm font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none"
                                                         type="button"
@@ -374,7 +316,7 @@ function Projeto() {
                                 {project?.steps && project.steps.length > 0 && (
                                     <div className="container flex justify-center mx-auto">
                                         <div className="grid gap-6 mx-auto my-4 md:grid-flow-col">
-                                            {project.steps.map((step: any) => (
+                                            {project.steps.map((step) => (
                                                 <StepCard step={step} key={step.id} />
                                             ))}
                                         </div>
@@ -384,8 +326,8 @@ function Projeto() {
                                     <div className="flex flex-wrap justify-center">
                                         <div className="w-full px-4 mb-4 text-base lg:text-lg leading-relaxed text-justify text-gray-800 lg:w-7/12">
                                             <div className="markdown-content">
-                                                {longDescription ? (
-                                                    <ReactMarkdown>{longDescription}</ReactMarkdown>
+                                                {longDescriptionBlocks ? (
+                                                    <BlocksRenderer content={longDescriptionBlocks} />
                                                 ) : (
                                                     <p>{project?.description}</p>
                                                 )}
@@ -394,24 +336,29 @@ function Projeto() {
                                     </div>
                                 </div>
 
-                                {project?.gallery && project.gallery.length > 0 && (
-                                    <div className="px-4 pb-6">
-                                        <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">Galeria de Imagens</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {project.gallery.map((photo: any, index: number) => (
-                                                <div key={photo.id || index} className="aspect-square group">
-                                                    <img
-                                                        src={photo.url}
-                                                        alt={photo.caption || `Galeria ${index + 1}`}
-                                                        className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
-                                                        onClick={() => openGallery(index)}
-                                                    />
-
-                                                </div>
-                                            ))}
+                                {(() => {
+                                    const galleryPhotos = (project?.gallery ?? []).filter(
+                                        (p): p is typeof p & { url: string } => typeof p.url === "string"
+                                    );
+                                    if (galleryPhotos.length === 0) return null;
+                                    return (
+                                        <div className="px-4 pb-6">
+                                            <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">Galeria de Imagens</h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                {galleryPhotos.map((photo, index) => (
+                                                    <div key={photo.id ?? index} className="aspect-square group">
+                                                        <img
+                                                            src={photo.url}
+                                                            alt={photo.caption ?? `Galeria ${index + 1}`}
+                                                            className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
+                                                            onClick={() => openGallery(index)}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    );
+                                })()}
                             </div>
 
                             {project?.products && project.products.length > 0 && (
@@ -425,8 +372,8 @@ function Projeto() {
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
-                                                {project.products.map((product: any, index: number) => (
-                                                    <tr key={product.id || index}>
+                                                {project.products.map((product, index) => (
+                                                    <tr key={product.id ?? index}>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                             {product.link ? (
                                                                 <a href={product.link} target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline">
@@ -450,48 +397,33 @@ function Projeto() {
                             <div className="container flex justify-center pt-10 mx-auto px-4">
                                 {project?.partners && project.partners.length > 0 && (
                                     <div className="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-10">
-                                        {project.partners.map((partner: any) => (
-                                            <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
-                                                {(partner.logo?.url || partner.logo?.[0]?.url) ? (
-                                                    <img
-                                                        src={partner.logo?.url || partner.logo?.[0]?.url}
-                                                        alt={partner.name}
-                                                        className="max-h-16 max-w-full object-contain"
-                                                    />
-                                                ) : (
-                                                    <span className="text-sm text-gray-600">{partner.name}</span>
-                                                )}
-                                            </div>
-                                        ))}
+                                        {project.partners.map((partner) => {
+                                            const logoUrl = partner.logo?.[0]?.url;
+                                            return (
+                                                <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
+                                                    {logoUrl ? (
+                                                        <img
+                                                            src={logoUrl}
+                                                            alt={partner.name ?? ""}
+                                                            className="max-h-16 max-w-full object-contain"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-sm text-gray-600">{partner.name}</span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
 
-                            {project?.sponsors && project.sponsors.length > 0 && (
-                                <div className="container mx-auto mt-10 mb-10">
-                                    <h3 className="text-2xl font-bold text-center mb-6">Patrocinadores</h3>
-                                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
-                                        {project.sponsors.map((sponsor: any) => (
-                                            <div key={sponsor.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                                                {(sponsor.logo?.url || sponsor.logo?.[0]?.url) ? (
-                                                    <img
-                                                        src={sponsor.logo?.url || sponsor.logo?.[0]?.url}
-                                                        alt={sponsor.name}
-                                                        className="max-h-12 max-w-full object-contain"
-                                                    />
-                                                ) : (
-                                                    <span className="text-xs text-gray-600 text-center">{sponsor.name}</span>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </section>
 
                         {/* Modal da Galeria */}
                         <ImageGalleryWithZoom
-                            images={project?.gallery || []}
+                            images={(project?.gallery ?? []).flatMap((img) =>
+                                img.url ? [{ id: img.id ?? undefined, url: img.url, caption: img.caption ?? undefined }] : []
+                            )}
                             isOpen={galleryOpen}
                             onClose={() => setGalleryOpen(false)}
                             initialIndex={selectedImageIndex}

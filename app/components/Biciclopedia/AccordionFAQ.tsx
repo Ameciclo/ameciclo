@@ -2,40 +2,33 @@ import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import FAQIcon from "./FAQIcon";
-
-interface FAQ {
-  id: number;
-  title: string;
-  description: string;
-  answer?: string;
-}
-
-interface Category {
-  id: number;
-  title: string;
-  faqs: FAQ[];
-}
+import type { FAQCategory } from "~/queries/biciclopedia";
 
 interface AccordionItemProps {
-  categories: Category;
+  categories: FAQCategory;
+  defaultOpen?: boolean;
 }
 
-export const AccordionItem = ({ categories }: AccordionItemProps) => {
-  const faqs = categories.faqs;
-  const faqs_titles: [number, string, string, string | undefined][] = [];
-  
-  faqs.forEach((faq) => {
-    faqs_titles.push([faq.id, faq.title, faq.description, faq.answer]);
-  });
+type FAQRow = [number, string, string, string | null | undefined];
 
-  faqs_titles.sort((a, b) => {
-    return a[1].localeCompare(b[1]);
-  });
+export const AccordionItem = ({ categories, defaultOpen = false }: AccordionItemProps) => {
+  const faqs = categories.faqs ?? [];
+  const faqs_titles: FAQRow[] = faqs.map((faq) => [
+    faq.id,
+    faq.title ?? "",
+    faq.description ?? "",
+    faq.answer,
+  ]);
 
-  const [isOpen, toggleIsOpen] = useState(false);
+  faqs_titles.sort((a, b) => a[1].localeCompare(b[1]));
+
+  const [isOpen, toggleIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="w-full overflow-hidden border-t tab">
+    <div
+      id={`categoria-${categories.id}`}
+      className="w-full overflow-hidden border-t tab scroll-mt-20"
+    >
       <div
         className="flex flex-row items-center pl-5"
         onClick={() => {

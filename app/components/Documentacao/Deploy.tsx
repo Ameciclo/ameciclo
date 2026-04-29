@@ -28,7 +28,6 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>tailwindcss</strong> (v3.4.4) - Framework CSS utility-first</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>framer-motion</strong> (v11.18.0) - Animações declarativas</li>
-              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>styled-components</strong> (v6.1.14) - CSS-in-JS</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>lucide-react</strong> (v0.545.0) - Ícones SVG</li>
             </ul>
           </div>
@@ -59,7 +58,6 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
           <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Utilitários</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
-              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-spinners</strong> (v0.17.0) - Loading indicators</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-lazyload</strong> (v3.2.1) - Lazy loading</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@tanstack/react-table</strong> (v8) - Tabelas avançadas</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>isbot</strong> (v4.1.0) - Detecção de bots</li>

@@ -2,13 +2,7 @@ import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Highlight } from "react-highlighter-ts";
 import type { FuseResult } from "fuse.js";
-
-interface FAQ {
-  id: number;
-  title: string;
-  description: string;
-  answer?: string;
-}
+import type { FAQ } from "~/queries/biciclopedia";
 
 interface SearchComponentProps {
   faqs: FAQ[];
