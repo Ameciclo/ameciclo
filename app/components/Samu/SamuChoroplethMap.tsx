@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ReactMapGL, { Source, Layer, NavigationControl, FullscreenControl } from "react-map-gl";
+import ReactMapGL, { Source, Layer, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl/maplibre";
 
-const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 interface CityData {
   municipio_samu?: string;
@@ -117,11 +116,11 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
   }, [citiesData]);
   
   const totalCities = citiesData.length;
-  const layersConf = geoJsonData
+  const layersConf: LayerProps[] = geoJsonData
     ? [
         {
           id: "samu-choropleth",
-          type: "fill" as const,
+          type: "fill",
           paint: {
             "fill-color": [
               "case",
@@ -143,7 +142,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
         },
         {
           id: "samu-choropleth-border",
-          type: "line" as const,
+          type: "line",
           paint: {
             "line-color": "#ffffff",
             "line-width": 1,
@@ -152,7 +151,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
         },
         {
           id: "samu-city-names",
-          type: "symbol" as const,
+          type: "symbol",
           paint: {
             "text-color": "#000000",
             "text-halo-color": "#ffffff",
@@ -173,7 +172,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
         },
         {
           id: "samu-labels",
-          type: "symbol" as const,
+          type: "symbol",
           paint: {
             "text-color": "#000000",
             "text-halo-color": "#ffffff",
@@ -228,16 +227,13 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
           <div className="bg-green-200 rounded shadow-2xl">
             <ReactMapGL
               {...viewport}
-              onViewportChange={(nextViewport: any) => setViewport(nextViewport)}
-              width="100%"
-              height="400px"
-              mapStyle={MAPBOXSTYLE}
-              mapboxApiAccessToken={MAPBOXTOKEN}
+              onMove={(evt) => setViewport(evt.viewState)}
+              style={{ width: "100%", height: "400px" }}
+              mapStyle={MAPSTYLE}
               dragPan={true}
               dragRotate={true}
               scrollZoom={true}
-              touchZoom={true}
-              touchRotate={true}
+              touchZoomRotate={true}
               keyboard={true}
               boxZoom={true}
               doubleClickZoom={true}

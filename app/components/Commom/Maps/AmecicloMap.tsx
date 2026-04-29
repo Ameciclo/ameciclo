@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Map, { Source, Layer, Marker, Popup, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl";
+import Map, { Source, Layer, Marker, Popup, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl/maplibre";
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 
@@ -8,7 +8,6 @@ import * as turf from "@turf/helpers";
 import { pointData } from "../../../../typings";
 
 import { Move } from 'lucide-react';
-import { MapboxKeyWarning } from './MapboxKeyWarning';
 
 
 
@@ -198,8 +197,7 @@ const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: 
     );
 };
 
-const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 const getInicialViewPort = (pointsData: any, layerData: any) => {
     let standardViewPort = {
@@ -275,8 +273,7 @@ const getMapInitialState = (defaultDragPan: boolean) => ({
     dragPan: defaultDragPan,
     dragRotate: true,
     scrollZoom: defaultDragPan,
-    touchZoom: true,
-    touchRotate: true,
+    touchZoomRotate: true,
     keyboard: true,
     boxZoom: true,
     doubleClickZoom: true,
@@ -415,34 +412,33 @@ export const AmecicloMap = ({
     useEffect(() => {
         setIsClient(true);
         
-        // Adicionar CSS para mapbox no head
-        const existingStyle = document.getElementById('mapbox-custom-styles');
+        const existingStyle = document.getElementById('map-custom-styles');
         if (!existingStyle) {
             const style = document.createElement('style');
-            style.id = 'mapbox-custom-styles';
+            style.id = 'map-custom-styles';
             style.textContent = `
-                .mapboxgl-ctrl-attrib {
+                .maplibregl-ctrl-attrib {
                     color: #d1d5db !important;
                     font-size: 10px !important;
                     opacity: 0.6 !important;
                 }
-                .mapboxgl-ctrl-attrib a {
+                .maplibregl-ctrl-attrib a {
                     color: #d1d5db !important;
                     font-size: 10px !important;
                 }
-                .mapboxgl-popup {
+                .maplibregl-popup {
                     max-width: none !important;
                 }
-                .mapboxgl-popup-content {
+                .maplibregl-popup-content {
                     padding: 0 !important;
                     background: transparent !important;
                     box-shadow: none !important;
                     border: none !important;
                 }
-                .mapboxgl-popup-close-button {
+                .maplibregl-popup-close-button {
                     display: none !important;
                 }
-                .mapboxgl-popup-tip {
+                .maplibregl-popup-tip {
                     border-top-color: white !important;
                 }
             `;
@@ -525,8 +521,7 @@ export const AmecicloMap = ({
         dragPan: dragPanEnabled ?? defaultDragPan,
         dragRotate: true,
         scrollZoom: dragPanEnabled ?? defaultDragPan,
-        touchZoom: true,
-        touchRotate: true,
+        touchZoomRotate: true,
         keyboard: true,
         boxZoom: true,
         doubleClickZoom: true,
@@ -589,17 +584,6 @@ export const AmecicloMap = ({
         }));
     };
 
-    // Verificar se o token do Mapbox está disponível
-    if (!MAPBOXTOKEN) {
-        return (
-            <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
-                <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
-                    <MapboxKeyWarning />
-                </div>
-            </section>
-        );
-    }
-
     return (
         <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
 
@@ -609,8 +593,7 @@ export const AmecicloMap = ({
                     <Map
                         {...viewport}
                         {...settings}
-                        width="100%"
-                        height={isFullscreen ? "100vh" : height}
+                        style={{ width: "100%", height: isFullscreen ? "100vh" : height }}
                         onMove={(evt) => {
                             const newViewport = evt.viewState;
                             setViewport(newViewport);
@@ -618,19 +601,8 @@ export const AmecicloMap = ({
                                 onViewStateChange(newViewport);
                             }
                         }}
-                        onViewStateChange={(evt) => {
-                            const newViewport = evt.viewState;
-                            setViewport(newViewport);
-                            if (onViewStateChange) {
-                                onViewStateChange(newViewport);
-                            }
-                        }}
-                        mapStyle={MAPBOXSTYLE}
-                        mapboxApiAccessToken={MAPBOXTOKEN}
-                        getCursor={({ isDragging }) => {
-                            if (isSelectionMode) return 'pointer';
-                            return settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer';
-                        }}
+                        mapStyle={MAPSTYLE}
+                        cursor={isSelectionMode || !settings.dragPan ? "pointer" : "grab"}
                         onClick={(e) => {
                             setSelectedMarker(null);
                             if (onMapClick) onMapClick(e);
@@ -810,7 +782,7 @@ export const AmecicloMap = ({
                                 onClose={() => setSelectedMarker(null)}
                                 closeButton={true}
                                 closeOnClick={false}
-                                offsetTop={-10}
+                                offset={[0, -10]}
                                 anchor="bottom"
                             >
                                 <div className="bg-white rounded-lg shadow-xl border-0 overflow-hidden min-w-[280px] max-w-[320px]">

@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import Map, { Source, Layer } from "react-map-gl";
+import Map, { Source, Layer } from "react-map-gl/maplibre";
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 import bbox from "@turf/bbox";
 
-const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 const MapCommands = ({ viewport, setViewport, settings, setsettings, initialViewport }: any) => {
     const handleZoomIn = () => {
@@ -136,8 +135,7 @@ const mapInicialState = {
     dragPan: false,
     dragRotate: true,
     scrollZoom: false,
-    touchZoom: true,
-    touchRotate: true,
+    touchZoomRotate: true,
     keyboard: true,
     boxZoom: true,
     doubleClickZoom: true,
@@ -217,20 +215,17 @@ export default function ViaIndividualMap({ viaName, totalSinistros, mapData }: V
                 <Map
                     {...viewport}
                     {...settings}
-                    width="100%"
-                    height="400px"
-                    onViewportChange={setViewport}
-                    mapStyle={MAPBOXSTYLE}
-                    mapboxApiAccessToken={MAPBOXTOKEN}
-                    getCursor={({ isDragging }) => (settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer')}
+                    style={{ width: "100%", height: "400px" }}
+                    onMove={(evt) => setViewport(evt.viewState)}
+                    mapStyle={MAPSTYLE}
                 >
                     <style>{`
-                        .mapboxgl-ctrl-attrib {
+                        .maplibregl-ctrl-attrib {
                             color: #d1d5db !important;
                             font-size: 10px !important;
                             opacity: 0.6 !important;
                         }
-                        .mapboxgl-ctrl-attrib a {
+                        .maplibregl-ctrl-attrib a {
                             color: #d1d5db !important;
                             font-size: 10px !important;
                         }
