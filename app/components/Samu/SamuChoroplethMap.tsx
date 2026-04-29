@@ -116,11 +116,11 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
   }, [citiesData]);
   
   const totalCities = citiesData.length;
-  const layersConf = geoJsonData
+  const layersConf: LayerProps[] = geoJsonData
     ? [
         {
           id: "samu-choropleth",
-          type: "fill" as const,
+          type: "fill",
           paint: {
             "fill-color": [
               "case",
@@ -142,7 +142,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
         },
         {
           id: "samu-choropleth-border",
-          type: "line" as const,
+          type: "line",
           paint: {
             "line-color": "#ffffff",
             "line-width": 1,
@@ -151,7 +151,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
         },
         {
           id: "samu-city-names",
-          type: "symbol" as const,
+          type: "symbol",
           paint: {
             "text-color": "#000000",
             "text-halo-color": "#ffffff",
@@ -172,7 +172,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
         },
         {
           id: "samu-labels",
-          type: "symbol" as const,
+          type: "symbol",
           paint: {
             "text-color": "#000000",
             "text-halo-color": "#ffffff",
@@ -242,7 +242,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
             >
               <Source id="samu-data" type="geojson" data={geoJsonData}>
                 {layersConf.map((layer, index) => (
-                  <Layer key={index} {...(layer as LayerProps)} />
+                  <Layer key={index} {...layer} />
                 ))}
               </Source>
               

@@ -39,10 +39,7 @@ interface ViasInsegurasClientSideProps {
       km: number;
       sinistros_por_km: number;
       percentual: number;
-      geometria: {
-        type: string;
-        coordinates: number[][];
-      };
+      geometria: GeoJSON.LineString | GeoJSON.MultiLineString;
     }>;
   };
   historyData: {
@@ -68,9 +65,9 @@ export default function ViasInsegurasClientSide({
 
   // Converter dados das vias para GeoJSON
   const layerData = {
-    type: "FeatureCollection" as const,
+    type: "FeatureCollection",
     features: mapData.vias.map((via) => ({
-      type: "Feature" as const,
+      type: "Feature",
       properties: {
         id: via.id,
         nome: via.nome,
@@ -78,13 +75,13 @@ export default function ViasInsegurasClientSide({
       },
       geometry: via.geometria,
     })),
-  };
+  } satisfies GeoJSON.FeatureCollection;
 
   // Configuração das camadas do mapa
-  const layersConf = [
+  const layersConf: LayerProps[] = [
     {
       id: "vias-inseguras",
-      type: "line" as const,
+      type: "line",
       paint: {
         "line-color": [
           "interpolate",
@@ -171,8 +168,8 @@ export default function ViasInsegurasClientSide({
 
         {mapData.vias.length > 0 ? (
           <ViasInsegurasMap
-            layerData={layerData as GeoJSON.FeatureCollection}
-            layersConf={layersConf as unknown as LayerProps[]}
+            layerData={layerData}
+            layersConf={layersConf}
           />
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">

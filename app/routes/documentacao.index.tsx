@@ -184,7 +184,7 @@ function Docs() {
     { id: "componentes", title: "Componentes", content: "React componentes reutilizáveis Breadcrumb Header Footer Sidebar Navigation Menu Button Card Modal" },
     { id: "rotas", title: "Rotas", content: "Remix routing páginas navegação loader action params slug dynamic routes nested" },
     { id: "api", title: "API", content: "endpoints dados contagens cyclist-counts cms strapi fetch timeout" },
-    { id: "testes", title: "Testes", content: "testing jest cypress eslint typecheck lint qualidade código" },
+    { id: "testes", title: "Testes", content: "testing jest cypress oxlint typecheck lint qualidade código" },
     { id: "configuracao", title: "Configuração", content: "environment variables config .env tailwind analytics google" },
     { id: "solucoes", title: "Soluções", content: "problemas erros soluções troubleshooting debug port timeout module not found" },
     { id: "deploy", title: "Deploy", content: "produção build deployment npm start servidor dependências framework" },

@@ -38,4 +38,9 @@ export default defineConfig({
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
   },
+  ssr: {
+    // CJS shims (module.exports = ...) need to be bundled for the
+    // Cloudflare Workers runtime, which only understands ESM.
+    noExternal: ["use-sync-external-store"],
+  },
 });
