@@ -1,10 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import LazyLoad from 'react-lazyload';
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import Loading from "~/components/Dom/Loading";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { domQueryOptions } from "~/queries/dados.dom";
 import Chart from "react-google-charts";
@@ -39,17 +36,6 @@ function Dom() {
         unsustainableTotal,
         carbonValue
     } } = useSuspenseQuery(domQueryOptions());
-    const [renderOthers, setRenderOthers] = useState(false);
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setRenderOthers(true);
-        }, 2000);
-
-        return () => clearTimeout(timeout);
-    }, []);
-
-    const numParse = (numero: number) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
     return (
         <>
@@ -57,45 +43,38 @@ function Dom() {
             <Breadcrumb label="DOM" slug="/dados/dom" routes={["/", "/dados"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
 
-            {renderOthers ? (
-                <div className="container mx-auto px-4 py-6">
+            <div className="container mx-auto px-4 py-6">
                     <section>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento e Emissões</h2>
                         <p className="text-gray-600 mb-4">Comparação entre os valores destinados a ações sustentáveis, não sustentáveis e o custo por emissão de carbono no município.</p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-green-600" aria-label="Investimento em ações sustentáveis">
-                                <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
-                                        <span className="text-xl ml-1">Bi</span>
-                                    </h3>
-                                    <p className="text-base mb-1">Investimento em ações sustentáveis:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
-                                    <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Sustentável</div>
-                                </LazyLoad>
+                                <h3 className="text-3xl font-bold mb-1 flex items-baseline">
+                                    <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
+                                    <span className="text-xl ml-1">Bi</span>
+                                </h3>
+                                <p className="text-base mb-1">Investimento em ações sustentáveis:</p>
+                                <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
+                                <div className="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Sustentável</div>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-red-600" aria-label="Investimento em ações não sustentáveis">
-                                <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span><AnimatedNumber initialValue={0} finalValue={148.7} duration={500} /></span>
-                                        <span className="text-xl ml-1">Bi</span>
-                                    </h3>
-                                    <p className="text-base mb-1">Investimento em ações não sustentáveis:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={unsustainableTotal} duration={4000} /></p>
-                                    <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Não sustentável</div>
-                                </LazyLoad>
+                                <h3 className="text-3xl font-bold mb-1 flex items-baseline">
+                                    <span><AnimatedNumber initialValue={0} finalValue={148.7} duration={500} /></span>
+                                    <span className="text-xl ml-1">Bi</span>
+                                </h3>
+                                <p className="text-base mb-1">Investimento em ações não sustentáveis:</p>
+                                <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={unsustainableTotal} duration={4000} /></p>
+                                <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Não sustentável</div>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-blue-600" aria-label="Custo por tonelada de CO2 equivalente">
-                                <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
-                                    <p className="text-base mb-1">Custo por tonelada de CO2 equivalente (2020)</p>
-                                    <p className="text-lg font-semibold"><AnimatedNumber initialValue={0} finalValue={carbonValue} duration={500} /></p>
-                                    <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
-                                    <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
-                                </LazyLoad>
+                                <h3 className="text-3xl font-bold mb-1">R$ 3 Mil / CO2e</h3>
+                                <p className="text-base mb-1">Custo por tonelada de CO2 equivalente (2020)</p>
+                                <p className="text-lg font-semibold"><AnimatedNumber initialValue={0} finalValue={carbonValue} duration={500} /></p>
+                                <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Emissão de carbono</div>
+                                <p className="text-xs text-gray-500 mt-2">Fonte: <a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline">semas.pe.gov.br</a></p>
                             </div>
                         </div>
                     </section>
@@ -106,25 +85,21 @@ function Dom() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-ameciclo">
-                                <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1 flex items-baseline">
-                                        <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
-                                        <span className="text-xl ml-1">Bi</span>
-                                    </h3>
-                                    <p className="text-base mb-1">Orçamento planejado para sustentabilidade:</p>
-                                    <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
-                                </LazyLoad>
+                                <h3 className="text-3xl font-bold mb-1 flex items-baseline">
+                                    <span><AnimatedNumber initialValue={0} finalValue={35.2} duration={500} /></span>
+                                    <span className="text-xl ml-1">Bi</span>
+                                </h3>
+                                <p className="text-base mb-1">Orçamento planejado para sustentabilidade:</p>
+                                <p className="text-lg font-semibold">R$ <AnimatedNumber initialValue={0} finalValue={sustainableTotal} duration={2000} /></p>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-lg p-4 border-l-8 border-gray-400">
-                                <LazyLoad height={300} offset={0}>
-                                    <h3 className="text-3xl font-bold mb-1">
-                                        <span><AnimatedNumber initialValue={0} finalValue={2.2} duration={500} /></span>
-                                        <span className="text-xl ml-1">Mi</span>
-                                    </h3>
-                                    <p className="text-base mb-1">Orçamento executado em sustentabilidade:</p>
-                                    <p className="text-lg font-semibold"><AnimatedNumber initialValue={0} finalValue={2189490.07} duration={500} /></p>
-                                </LazyLoad>
+                                <h3 className="text-3xl font-bold mb-1">
+                                    <span><AnimatedNumber initialValue={0} finalValue={2.2} duration={500} /></span>
+                                    <span className="text-xl ml-1">Mi</span>
+                                </h3>
+                                <p className="text-base mb-1">Orçamento executado em sustentabilidade:</p>
+                                <p className="text-lg font-semibold"><AnimatedNumber initialValue={0} finalValue={2189490.07} duration={500} /></p>
                             </div>
                         </div>
                     </section>
@@ -302,8 +277,7 @@ function Dom() {
                             </div>
                         </div>
                     </section>
-                </div>
-            ) : <Loading />}
+            </div>
         </>
     );
 }
