@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { AdminSidebar } from "~/components/Admin/AdminSidebar";
+import { Toaster } from "~/components/ui/sonner";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/admin")({
@@ -21,6 +22,7 @@ function AdminLayout() {
       <div className="flex-1 min-w-0 flex flex-col">
         <Outlet />
       </div>
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }
