@@ -35,8 +35,8 @@ function NumberBox({ title, value, unit = undefined, color }: any) {
       <div>
         {isLoading ? (
           <div className="flex flex-col items-center gap-2">
-            <div className="h-12 w-24 bg-gray-200 animate-pulse rounded"></div>
-            {unit && <div className="h-4 w-32 bg-gray-200 animate-pulse rounded"></div>}
+            <div className="h-12 w-24 bg-gray-200 animate-pulse rounded-sm"></div>
+            {unit && <div className="h-4 w-32 bg-gray-200 animate-pulse rounded-sm"></div>}
           </div>
         ) : (
           <>
@@ -57,7 +57,7 @@ function LinksBox({ title, value }: any) {
         <Link
           key={`link-${index}`}
           to={v.url}
-          className="border border-teal-500 bg-ameciclo text-white hover:bg-red-500 hover:border-red-300 rounded px-4 py-2 mt-2"
+          className="border border-teal-500 bg-ameciclo text-white hover:bg-red-500 hover:border-red-300 rounded-sm px-4 py-2 mt-2"
         >
           {v.label}
         </Link>

@@ -36,7 +36,7 @@ export const SearchComponent = (props: SearchComponentProps) => {
           type="search"
           name="search"
           placeholder="Qual o melhor tipo de bicicletário?"
-          className="w-full h-10 px-5 pr-10 text-sm text-gray-600 bg-white rounded shadow-2xl focus:outline-none"
+          className="w-full h-10 px-5 pr-10 text-sm text-gray-600 bg-white rounded-sm shadow-2xl focus:outline-hidden"
           value={searchTerm}
           onChange={handleChange}
           onFocus={() => {
@@ -52,7 +52,7 @@ export const SearchComponent = (props: SearchComponentProps) => {
       </div>
       {searchTerm.length > 0 && searchResultsVisible && (
         <div
-          className="absolute left-0 right-0 z-10 mt-2 mb-4 overflow-hidden overflow-y-auto text-left text-gray-800 normal-case bg-white border rounded-lg shadow w-108"
+          className="absolute left-0 right-0 z-10 mt-2 mb-4 overflow-hidden overflow-y-auto text-left text-gray-800 normal-case bg-white border rounded-lg shadow-sm w-108"
           style={{ maxHeight: "32rem" }}
         >
           <div className="flex flex-col">

@@ -66,16 +66,16 @@ function IdecicloDetail() {
 
       <div className="w-full bg-amber-300 py-20">
         <section className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-auto gap-10 min-h-[500px]">
-          <div className="rounded bg-white shadow-2xl h-full">
+          <div className="rounded-sm bg-white shadow-2xl h-full">
             <IdecicloDescription info={info} />
           </div>
-          <div className="bg-white rounded shadow-2xl h-full">
+          <div className="bg-white rounded-sm shadow-2xl h-full">
             <AmecicloMap
               layerData={mapData}
               layersConf={idecicloLayers}
             />
           </div>
-          <div className="rounded bg-white shadow-2xl h-full">
+          <div className="rounded-sm bg-white shadow-2xl h-full">
             <RadarChart
               {...info}
               title={"EVOLUÇÃO DA NOTA"}

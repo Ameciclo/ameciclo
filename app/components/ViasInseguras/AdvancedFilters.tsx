@@ -113,7 +113,7 @@ export default function AdvancedFilters({ onFiltersChange, isLoading = false }: 
                 <select
                   value={filters.anoInicio}
                   onChange={(e) => handleFilterChange('anoInicio', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ameciclo"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-ameciclo"
                   disabled={isLoading}
                 >
                   {availableYears.map(year => (
@@ -126,7 +126,7 @@ export default function AdvancedFilters({ onFiltersChange, isLoading = false }: 
                 <select
                   value={filters.anoFim}
                   onChange={(e) => handleFilterChange('anoFim', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ameciclo"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-ameciclo"
                   disabled={isLoading}
                 >
                   {availableYears.filter(year => year >= filters.anoInicio).map(year => (
@@ -160,7 +160,7 @@ export default function AdvancedFilters({ onFiltersChange, isLoading = false }: 
                   max="100"
                   value={filters.limite}
                   onChange={(e) => handleFilterChange('limite', parseInt(e.target.value))}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
+                  className="w-20 px-2 py-1 border border-gray-300 rounded-sm text-center"
                   disabled={isLoading}
                 />
                 <span className="text-sm text-gray-500">vias</span>
@@ -213,7 +213,7 @@ export default function AdvancedFilters({ onFiltersChange, isLoading = false }: 
             <select
               value={filters.intervalo}
               onChange={(e) => handleFilterChange('intervalo', parseInt(e.target.value))}
-              className="w-full md:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ameciclo"
+              className="w-full md:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-ameciclo"
               disabled={isLoading}
             >
               <option value={1}>1 (Dados anuais)</option>

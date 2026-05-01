@@ -13,28 +13,28 @@ export default function Solucoes({ darkMode = true, fontSize = 16 }: Documentati
         <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }}>Problemas Comuns</h3>
         
         <div className="space-y-6">
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Erro: "Module not found" ou problemas com node_modules</h4>
             <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong></p>
-            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mb-2`}>
+            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mb-2`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>rm -rf node_modules package-lock.json && npm install</code>
             </div>
             <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Limpa e reinstala todas as dependências.</p>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Erro: "Port already in use" (porta 5173)</h4>
             <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong></p>
-            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mb-2`}>
+            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mb-2`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>lsof -ti:5173 | xargs kill -9</code>
             </div>
             <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Mata o processo usando a porta.</p>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Erro de API: "Failed to fetch", "504 Gateway Timeout" ou "ECONNREFUSED"</h4>
             <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Causa:</strong> API externa indisponível ou timeout</p>
-            <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong> O sistema já usa <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>fetchWithTimeout</code> com fallback automático. Verifique:</p>
+            <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong> O sistema já usa <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>fetchWithTimeout</code> com fallback automático. Verifique:</p>
             <ul className="text-sm list-disc list-inside space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
               <li>Status da API em /status (se disponível)</li>
               <li>Logs do console para detalhes do erro</li>
@@ -42,37 +42,37 @@ export default function Solucoes({ darkMode = true, fontSize = 16 }: Documentati
             </ul>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Erro: "Mapbox token not found" ou mapa não carrega</h4>
             <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong></p>
-            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mb-2`}>
+            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mb-2`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>MAPBOX_ACCESS_TOKEN=pk.seu_token_aqui</code>
             </div>
             <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Configure o token no .env. Obtenha em mapbox.com</p>
           </div>
 
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Erro: TypeScript "Type error" ou "Cannot find module"</h4>
             <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong></p>
-            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mb-2`}>
+            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mb-2`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>npm run typecheck</code>
             </div>
-            <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Verifica erros de tipo. Use <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>// @ts-ignore</code> apenas em casos extremos.</p>
+            <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Verifica erros de tipo. Use <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>// @ts-ignore</code> apenas em casos extremos.</p>
           </div>
 
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Erro: Build falha com "Chunk size warning" ou "Out of memory"</h4>
             <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong> Já configurado code splitting no vite.config.ts</p>
-            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mb-2`}>
+            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mb-2`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>NODE_OPTIONS="--max-old-space-size=4096" npm run build</code>
             </div>
             <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Aumenta memória do Node se necessário.</p>
           </div>
 
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-red-400' : 'text-red-600'} mb-2`} style={{ fontSize: fontSize }}>Problema: Highcharts não renderiza ou erro "Highcharts is not defined"</h4>
             <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}><strong>Solução:</strong> Usar guarda <code>typeof window</code> ou lazy loading</p>
-            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded`}>
+            <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`{typeof window !== "undefined" && <ChartComponent />}`}
               </code>
@@ -80,7 +80,7 @@ export default function Solucoes({ darkMode = true, fontSize = 16 }: Documentati
           </div>
         </div>
         
-        <div className={`mt-6 p-4 ${darkMode ? 'bg-yellow-900 border-yellow-600' : 'bg-yellow-50 border-yellow-200'} border rounded`}>
+        <div className={`mt-6 p-4 ${darkMode ? 'bg-yellow-900 border-yellow-600' : 'bg-yellow-50 border-yellow-200'} border rounded-sm`}>
           <p className={`${darkMode ? 'text-yellow-200' : 'text-yellow-800'}`} style={{ fontSize: fontSize - 2 }}>
             <strong>Dica:</strong> Se o problema persistir, consulte os issues no GitHub ou abra um novo issue com detalhes do erro.
           </p>

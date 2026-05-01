@@ -24,7 +24,7 @@ function QuemSomos() {
 
   return (
     <>
-      <div className="relative py-24 w-full h-[52vh]">
+      <div className="relative py-24 w-full h-cover">
         <img
           src="/quem_somos.webp"
           alt="Quem somos?"

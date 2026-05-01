@@ -92,7 +92,7 @@ export function StreetSelectionModal({
             key={street.id}
             ref={index === 0 ? firstButtonRef : null}
             onClick={() => onSelectStreet(street)}
-            className="w-full text-left px-2 py-1 text-xs hover:bg-blue-50 rounded transition-colors"
+            className="w-full text-left px-2 py-1 text-xs hover:bg-blue-50 rounded-sm transition-colors"
             aria-label={`Selecionar via ${street.name}, distância ${street.distance} metros`}
           >
             <div className="font-medium">{street.name}</div>
@@ -102,7 +102,7 @@ export function StreetSelectionModal({
       </div>
       <button
         onClick={onClose}
-        className="mt-2 w-full px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors"
+        className="mt-2 w-full px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded-sm transition-colors"
         aria-label="Cancelar seleção de via"
       >
         Cancelar

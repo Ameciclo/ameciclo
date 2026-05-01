@@ -59,7 +59,7 @@ function ProjectNotFound() {
         </h2>
         <p className="mt-2 text-sm text-amber-800">
           O projeto{" "}
-          <code className="font-mono bg-amber-100 px-1 rounded">{projeto}</code>{" "}
+          <code className="font-mono bg-amber-100 px-1 rounded-sm">{projeto}</code>{" "}
           não existe ou foi removido.
         </p>
         <div className="mt-4 flex gap-3">
@@ -150,7 +150,7 @@ const Rating = ({ rating }: { rating: string }) => {
 const StepCard = ({ step }: { step: ProjectStep }) => {
   const CardContent = (
     <div
-      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
+      className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow"
       style={{ minHeight: "380px", maxWidth: "300px" }}
     >
       {step.image ? (
@@ -246,7 +246,7 @@ function Projeto() {
 
                         <section>
                             <div className="container mx-auto mt-8 mb-8 px-4">
-                                <div className="flex flex-wrap items-center justify-center p-6 lg:p-16 mx-auto my-auto text-white rounded bg-ameciclo lg:mx-0 relative">
+                                <div className="flex flex-wrap items-center justify-center p-6 lg:p-16 mx-auto my-auto text-white rounded-sm bg-ameciclo lg:mx-0 relative">
                                     {(project?.slug === 'bota_pra_rodar' || project?.slug?.startsWith('bota_pra_rodar_')) && (
                                         <div className="absolute top-4 right-4">
                                             <LanguageSelector currentSlug={project?.slug || ''} />
@@ -293,7 +293,7 @@ function Projeto() {
                                             {otherLinks.map((link) => (
                                                 <a href={link.link ?? "#"} key={link.id}>
                                                     <button
-                                                        className="px-4 py-2 mx-2 mb-2 text-sm font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow outline-none hover:bg-white hover:text-ameciclo focus:outline-none"
+                                                        className="px-4 py-2 mx-2 mb-2 text-sm font-bold text-white uppercase bg-transparent border-2 border-white rounded-sm shadow-sm outline-hidden hover:bg-white hover:text-ameciclo focus:outline-hidden"
                                                         type="button"
                                                         style={{ transition: "all .15s ease" }}
                                                     >
@@ -362,7 +362,7 @@ function Projeto() {
                             </div>
 
                             {project?.products && project.products.length > 0 && (
-                                <div className="container p-12 mx-auto my-10 overflow-auto bg-gray-100 rounded shadow-2xl">
+                                <div className="container p-12 mx-auto my-10 overflow-auto bg-gray-100 rounded-sm shadow-2xl">
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full bg-white">
                                             <thead>
@@ -400,7 +400,7 @@ function Projeto() {
                                         {project.partners.map((partner) => {
                                             const logoUrl = partner.logo?.[0]?.url;
                                             return (
-                                                <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
+                                                <div key={partner.id} className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm">
                                                     {logoUrl ? (
                                                         <img
                                                             src={logoUrl}

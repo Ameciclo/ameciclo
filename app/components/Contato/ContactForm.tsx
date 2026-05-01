@@ -70,7 +70,7 @@ export function ContactForm() {
               type="text"
               id="nome"
               required
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.nome ? 'border-red-500 bg-red-50' : success.nome ? 'border-green-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent ${errors.nome ? 'border-red-500 bg-red-50' : success.nome ? 'border-green-500' : 'border-gray-300'}`}
               placeholder="Seu nome"
               onChange={(e) => {
                 const value = e.target.value;
@@ -91,7 +91,7 @@ export function ContactForm() {
               type="email"
               id="email"
               required
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.email ? 'border-red-500 bg-red-50' : success.email ? 'border-green-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent ${errors.email ? 'border-red-500 bg-red-50' : success.email ? 'border-green-500' : 'border-gray-300'}`}
               placeholder="seu@email.com"
               onChange={(e) => {
                 const value = e.target.value;
@@ -115,7 +115,7 @@ export function ContactForm() {
           <div className="flex gap-2">
             <select
               id="ddi"
-              className="px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent text-sm"
+              className="px-2 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent text-sm"
               defaultValue="+55"
             >
               <option value="+55">🇧🇷 +55</option>
@@ -124,7 +124,7 @@ export function ContactForm() {
               <input
                 type="tel"
                 id="telefone"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.telefone ? 'border-red-500 bg-red-50' : success.telefone ? 'border-green-500' : 'border-gray-300'}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent ${errors.telefone ? 'border-red-500 bg-red-50' : success.telefone ? 'border-green-500' : 'border-gray-300'}`}
                 placeholder="81912345678"
                 onInput={(e) => {
                   const input = e.target as HTMLInputElement;
@@ -155,7 +155,7 @@ export function ContactForm() {
               id="mensagem"
               rows={4}
               required
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.mensagem ? 'border-red-500 bg-red-50' : success.mensagem ? 'border-green-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent ${errors.mensagem ? 'border-red-500 bg-red-50' : success.mensagem ? 'border-green-500' : 'border-gray-300'}`}
               placeholder="Sua mensagem..."
               defaultValue={initialMessage}
               onChange={(e) => {
@@ -174,7 +174,7 @@ export function ContactForm() {
           <input
             type="checkbox"
             id="lgpd"
-            className={`mt-1 h-4 w-4 text-[#008080] focus:ring-[#008080] border-gray-300 rounded ${errors.lgpd ? 'border-red-500' : ''}`}
+            className={`mt-1 h-4 w-4 text-ameciclo focus:ring-ameciclo border-gray-300 rounded-sm ${errors.lgpd ? 'border-red-500' : ''}`}
             required
             onChange={(e) => {
               setErrors(prev => ({...prev, lgpd: ''}));
@@ -188,7 +188,7 @@ export function ContactForm() {
                 href="https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-[#008080] underline hover:no-underline"
+                className="text-ameciclo underline hover:no-underline"
               >
                 Lei Geral de Proteção de Dados (LGPD)
               </a>
@@ -208,7 +208,7 @@ export function ContactForm() {
               const body = `Email: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
               window.location.href = `mailto:contato@ameciclo.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             })}
-            className="flex-1 bg-[#008080] text-white px-4 py-2 rounded-md hover:bg-[#006666] transition-colors font-medium flex items-center justify-center gap-2"
+            className="flex-1 bg-ameciclo text-white px-4 py-2 rounded-md hover:bg-[#006666] transition-colors font-medium flex items-center justify-center gap-2"
           >
             <Mail size={18} /> Enviar E-mail
           </button>

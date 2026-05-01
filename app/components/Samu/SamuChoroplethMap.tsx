@@ -224,7 +224,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
 
       {geoJsonData && geoJsonData.features && geoJsonData.features.length > 0 && (
         <div className="relative">
-          <div className="bg-green-200 rounded shadow-2xl">
+          <div className="bg-green-200 rounded-sm shadow-2xl">
             <ReactMapGL
               {...viewport}
               onMove={(evt) => setViewport(evt.viewState)}

@@ -42,7 +42,7 @@ const Breadcrumb = ({ label, slug, routes }: BreadcrumbProps) => {
   return (
     <div className="bg-ameciclo text-white py-2 px-4 uppercase flex items-center text-sm md:text-base">
       <div className="container mx-auto">
-        <nav className="bg-grey-light rounded font-sans w-full">
+        <nav className="bg-grey-light rounded-sm font-sans w-full">
           <ol className="list-none p-0 inline-flex text-xs md:text-sm">
             {routes.map((route, i) => (
               <BreadcrumbItem

@@ -89,7 +89,7 @@ function QuestionPage() {
           </div>
           <div className="py-10 mt-10 text-center border-t border-gray-300">
             <div className="flex flex-wrap justify-center">
-              <div className="w-full px-4 mb-4 text-gray-800 lg:w-9/12 markdown_box prose prose-stone max-w-none mx-auto text-left prose-a:text-ameciclo prose-a:underline prose-a:underline-offset-2 hover:prose-a:opacity-80">
+              <div className="w-full px-4 mb-4 text-gray-800 lg:w-9/12 markdown_box prose prose-stone max-w-none mx-auto text-left prose-a:text-ameciclo prose-a:underline prose-a:underline-offset-2 prose-a:hover:opacity-80">
                 <ReactMarkdown
                   remarkPlugins={remarkPlugins}
                   rehypePlugins={rehypePlugins}

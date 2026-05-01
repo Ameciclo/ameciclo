@@ -168,7 +168,7 @@ function ParticiparPage() {
           <HeadquartersSection darkMode={darkMode} fontSize={fontSize} />
         </div>
 
-        <div className="bg-gradient-to-r from-ameciclo to-teal-700 text-white rounded-xl p-8 text-center shadow-2xl">
+        <div className="bg-linear-to-r from-ameciclo to-teal-700 text-white rounded-xl p-8 text-center shadow-2xl">
           <div className="flex items-center justify-center gap-4 mb-4">
             <EyeIcon className="w-8 h-8" />
             <h2 className="text-2xl sm:text-3xl font-bold">Fique de Olho na Agenda!</h2>
@@ -180,7 +180,7 @@ function ParticiparPage() {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
               href="/agenda"
-              className="bg-white/20 backdrop-blur text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-all duration-300 text-center font-semibold border border-white/30"
+              className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-all duration-300 text-center font-semibold border border-white/30"
             >
               📅 Ver Agenda
             </a>
@@ -188,7 +188,7 @@ function ParticiparPage() {
               href="https://t.me/ameciclo"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white/20 backdrop-blur text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-all duration-300 text-center font-semibold border border-white/30"
+              className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-all duration-300 text-center font-semibold border border-white/30"
             >
               📱 Canal Telegram
             </a>

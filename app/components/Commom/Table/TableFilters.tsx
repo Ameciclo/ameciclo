@@ -5,7 +5,7 @@ export const ColumnFilter = ({ column, placeholder = "Buscar" }: any) => {
     return (
         <>
             <input
-                className="my-2 w-full text-gray-600 border-2 border-gray-300 bg-white h-10 px-4 rounded-lg text-sm focus:outline-none"
+                className="my-2 w-full text-gray-600 border-2 border-gray-300 bg-white h-10 px-4 rounded-lg text-sm focus:outline-hidden"
                 type="text"
                 placeholder={placeholder}
                 value={filterValue || ""}
@@ -37,7 +37,7 @@ export function NumberRangeColumnFilter({
             }}
         >
             <input
-                className="my-2 max-w-sm text-gray-600 border-2 border-gray-300 bg-white h-10 rounded-lg text-sl text-center focus:outline-none"
+                className="my-2 max-w-sm text-gray-600 border-2 border-gray-300 bg-white h-10 rounded-lg text-sl text-center focus:outline-hidden"
                 value={filterValue[0] || ""}
                 type="number"
                 onChange={(e) => {
@@ -54,7 +54,7 @@ export function NumberRangeColumnFilter({
             />
             <div className="my-5 max-w-sm text-gray-600  text-sl text-center">a</div>
             <input
-                className="my-2 max-w-sm text-gray-600 border-2 border-gray-300 bg-white h-10 rounded-lg text-sl text-center focus:outline-none"
+                className="my-2 max-w-sm text-gray-600 border-2 border-gray-300 bg-white h-10 rounded-lg text-sl text-center focus:outline-hidden"
                 value={filterValue[1] || ""}
                 type="number"
                 onChange={(e) => {
@@ -86,7 +86,7 @@ export function SelectColumnFilter({
 
     return (
         <select
-            className="my-2 w-full text-gray-600 border-2 border-gray-300 bg-white h-10 px-2 rounded-lg text-sm focus:outline-none"
+            className="my-2 w-full text-gray-600 border-2 border-gray-300 bg-white h-10 px-2 rounded-lg text-sm focus:outline-hidden"
             value={filterValue}
             onChange={(e) => {
                 setFilter(e.target.value || undefined);

@@ -9,10 +9,10 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
         Rotas
       </h2>
       <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 lg:p-6 border`}>
-        <p className="mb-6" style={{ fontSize: fontSize }}>O Remix utiliza roteamento baseado em arquivos. Cada arquivo em <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded`}>app/routes/</code> representa uma rota. O projeto possui 27 rotas organizadas hierarquicamente:</p>
+        <p className="mb-6" style={{ fontSize: fontSize }}>O Remix utiliza roteamento baseado em arquivos. Cada arquivo em <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded-sm`}>app/routes/</code> representa uma rota. O projeto possui 27 rotas organizadas hierarquicamente:</p>
         
         <div className="space-y-4">
-          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Rotas Públicas:</h4>
             <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
               /_index.tsx                          → /
@@ -26,7 +26,7 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
             </code>
           </div>
 
-          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Rotas de Dados:</h4>
             <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
               /dados._index.tsx                    → /dados
@@ -48,7 +48,7 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
             </code>
           </div>
 
-          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Rotas de Projetos:</h4>
             <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
               /projetos._index.tsx                 → /projetos
@@ -56,7 +56,7 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
             </code>
           </div>
 
-          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+          <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Rota 404:</h4>
             <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
               /$.tsx                               → Catch-all para páginas não encontradas
@@ -65,19 +65,19 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
           
           <div>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Padrões de Nomenclatura:</h4>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border mb-4`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border mb-4`}>
               <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
-                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded`}>_index.tsx</code> - Rota index (sem segmento na URL)</li>
-                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded`}>$param.tsx</code> - Parâmetro dinâmico</li>
-                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded`}>parent.child.tsx</code> - Rota aninhada</li>
-                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded`}>$.tsx</code> - Catch-all (404)</li>
+                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded-sm`}>_index.tsx</code> - Rota index (sem segmento na URL)</li>
+                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded-sm`}>$param.tsx</code> - Parâmetro dinâmico</li>
+                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded-sm`}>parent.child.tsx</code> - Rota aninhada</li>
+                <li>• <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded-sm`}>$.tsx</code> - Catch-all (404)</li>
               </ul>
             </div>
           </div>
 
           <div>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Exemplo completo com loader e action:</h4>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// app/routes/contagens.$slug.tsx
 import { createFileRoute } from "@tanstack/react-router";

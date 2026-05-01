@@ -126,7 +126,7 @@ function Compare() {
 
       <div className="bg-ameciclo text-white py-2 px-4 uppercase flex items-center text-sm md:text-base">
         <div className="container mx-auto">
-          <nav className="bg-grey-light rounded font-sans w-full">
+          <nav className="bg-grey-light rounded-sm font-sans w-full">
             <ol className="list-none p-0 inline-flex text-xs md:text-sm">
               <li className="flex items-center">
                 <Link to="/" className="text-white">Página Inicial</Link>
@@ -324,7 +324,7 @@ function Compare() {
         </div>
 
         {series.length === 0 || hours.length === 0 ? (
-          <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+          <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
             <h2 className="text-gray-800 text-2xl font-bold mb-6">Quantidade de Ciclistas por Hora</h2>
             <div className="text-center text-gray-500 py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>

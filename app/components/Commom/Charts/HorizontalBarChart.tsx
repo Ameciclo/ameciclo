@@ -47,7 +47,7 @@ export default function HorizontalBarChart({title, yAxisTitle = "Quantidade", se
   };
 
   if (!chartsLoaded) {
-    return <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-96 flex items-center justify-center">Carregando gráfico...</div>;
+    return <div className="bg-white rounded-lg shadow-xs border border-gray-200 p-6 h-96 flex items-center justify-center">Carregando gráfico...</div>;
   }
 
   const getLabel = () => {
@@ -111,12 +111,12 @@ const options = {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg shadow-xs border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <HighchartsReact highcharts={Highcharts} options={options} />
       {onGenderChange && (
         <div className="flex items-center justify-center gap-3 mt-4 pt-4 border-t border-gray-200">
           <span className="text-sm text-gray-600">{getLabel()}</span>
-          <div className="flex gap-1 border border-gray-300 rounded p-1">
+          <div className="flex gap-1 border border-gray-300 rounded-sm p-1">
             <button
               onClick={() => onGenderChange('all')}
               className={`px-2 py-1 rounded text-xs transition-colors ${

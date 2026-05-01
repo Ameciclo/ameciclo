@@ -10,7 +10,7 @@ export function AgendaContent({ events, configured }: AgendaContentProps) {
   if (!configured) {
     return (
       <div className="container px-4 py-4 mx-auto my-10">
-        <div className="px-4 py-4 rounded border border-gray-300">
+        <div className="px-4 py-4 rounded-sm border border-gray-300">
           <div className="text-center py-12">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
               <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-yellow-100 rounded-full">
@@ -49,7 +49,7 @@ export function AgendaContent({ events, configured }: AgendaContentProps) {
 
   return (
     <div className="container px-4 py-4 mx-auto my-10">
-      <div className="px-4 py-4 rounded border border-gray-300">
+      <div className="px-4 py-4 rounded-sm border border-gray-300">
         <EventCalendar initialEvents={events} />
       </div>
     </div>

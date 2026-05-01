@@ -30,7 +30,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-50">
             <button
                 onClick={handleZoomIn}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom in"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,7 +40,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
 
             <button
                 onClick={handleZoomOut}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom out"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +50,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
 
             <button
                 onClick={handleToggleDragPan}
-                className={`bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors ${settings.dragPan ? 'text-blue-500' : ''}`}
+                className={`bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors ${settings.dragPan ? 'text-blue-500' : ''}`}
                 title="Mover mapa"
             >
                 <svg className="w-5 h-5" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -60,7 +60,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
 
             <button
                 onClick={handleRecenter}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Recentralizar mapa"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,11 +73,11 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
 
 const ViaLegend = ({ totalSinistros }: { totalSinistros: number }) => {
     return (
-        <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md max-w-xs">
+        <div className="absolute bottom-0 right-0 bg-white border rounded-sm p-4 m-2 shadow-md max-w-xs">
             <h3 className="font-bold mb-3 text-center">Via em Análise</h3>
             <div className="flex flex-col gap-2 text-sm">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-1 bg-red-600 rounded"></div>
+                    <div className="w-6 h-1 bg-red-600 rounded-sm"></div>
                     <span>{totalSinistros} sinistros totais</span>
                 </div>
             </div>
@@ -205,9 +205,9 @@ export default function ViaIndividualMap({ viaName, totalSinistros, mapData }: V
     const hasRealData = mapData && mapData.features && mapData.features.length > 0;
 
     return (
-        <div className="relative bg-gray-200 rounded shadow-2xl">
+        <div className="relative bg-gray-200 rounded-sm shadow-2xl">
             {!hasRealData && (
-                <div className="absolute top-4 left-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-3 py-2 rounded z-50 text-sm">
+                <div className="absolute top-4 left-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-3 py-2 rounded-sm z-50 text-sm">
                     ⚠️ Usando localização aproximada - dados de geometria não disponíveis
                 </div>
             )}

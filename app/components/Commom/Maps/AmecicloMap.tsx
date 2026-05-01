@@ -76,14 +76,14 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     return (
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-[60]">
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-60">
             <button
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     toggleFullscreen();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Expandir mapa em tela cheia"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleZoomIn();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom in"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleZoomOut();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom out"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleRecenter();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Voltar para visão geral"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +176,7 @@ const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: 
                                         type="checkbox"
                                         checked={isVisible}
                                         onChange={() => control.id && toggleLayerVisibility(control.id)}
-                                        className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                        className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-teal-500 focus:ring-2"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ const MapControlPanel = ({
                                                     handleMarkerToggle(point.key)
                                                 );
                                             }}
-                                            className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                            className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-teal-500 focus:ring-2"
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -588,7 +588,7 @@ export const AmecicloMap = ({
         <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
 
             
-            <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
+            <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded-sm shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded-sm shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
                 {isClient && isMapReady && (
                     <Map
                         {...viewport}
@@ -761,7 +761,7 @@ export const AmecicloMap = ({
                                 longitude={hoveredMarker.longitude}
                             >
                                 <div 
-                                    className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap"
+                                    className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded-sm text-sm whitespace-nowrap"
                                     style={{
                                         transform: 'translate(-50%, -100%)',
                                         marginTop: '-25px'
@@ -787,8 +787,8 @@ export const AmecicloMap = ({
                             >
                                 <div className="bg-white rounded-lg shadow-xl border-0 overflow-hidden min-w-[280px] max-w-[320px]">
                                     <div className={`px-4 py-3 text-white ${
-                                        selectedMarker.type === 'bikepe' ? 'bg-gradient-to-r from-orange-500 to-orange-600' :
-                                        'bg-gradient-to-r from-blue-500 to-blue-600'
+                                        selectedMarker.type === 'bikepe' ? 'bg-linear-to-r from-orange-500 to-orange-600' :
+                                        'bg-linear-to-r from-blue-500 to-blue-600'
                                     }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
@@ -804,7 +804,7 @@ export const AmecicloMap = ({
                                             </div>
                                             <button 
                                                 onClick={() => setSelectedMarker(null)}
-                                                className="text-white hover:bg-black hover:bg-opacity-20 rounded-full p-1 transition-colors"
+                                                className="text-white hover:bg-black/20 rounded-full p-1 transition-colors"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -822,19 +822,19 @@ export const AmecicloMap = ({
                                                 </div>
                                                 
                                                 <div className="grid grid-cols-2 gap-3 text-sm">
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Referência</div>
                                                         <div className="font-medium text-gray-900">#{selectedMarker.popup?.ref}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Capacidade</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.capacity} bikes</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Rede</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.network}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Operador</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.operator}</div>
                                                     </div>
@@ -860,19 +860,19 @@ export const AmecicloMap = ({
                                                 </div>
                                                 
                                                 <div className="grid grid-cols-2 gap-3 text-sm">
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Capacidade</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.capacity}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Coberto</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.covered}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Acesso</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.access}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Tipo</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.parking_type}</div>
                                                     </div>

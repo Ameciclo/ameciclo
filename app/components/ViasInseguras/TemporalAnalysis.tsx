@@ -42,7 +42,7 @@ export default function TemporalAnalysis({ data, selectedVia }: TemporalAnalysis
     return (
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-semibold mb-4">Análise Temporal</h3>
-        <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
+        <div className="h-64 bg-gray-100 rounded-sm flex items-center justify-center">
           <span className="text-gray-500">
             {!chartsLoaded ? "Carregando gráficos..." : "Nenhum dado temporal disponível"}
           </span>

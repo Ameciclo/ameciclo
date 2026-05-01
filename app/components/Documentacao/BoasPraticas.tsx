@@ -13,10 +13,10 @@ export default function BoasPraticas({ darkMode = true, fontSize = 16 }: Documen
         <div className="space-y-6">
           <div>
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Requisições de Dados</h3>
-            <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded mb-3`}>
+            <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm mb-3`}>
               <h4 className={`font-semibold ${darkMode ? 'text-blue-400' : 'text-blue-700'} mb-2`} style={{ fontSize: fontSize }}>✓ Use Loaders para dados estáticos</h4>
               <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Sempre busque dados no servidor usando loaders do Remix:</p>
-              <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded-sm`}>
                 <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// app/loader/minha-pagina.ts
 export async function loader() {
@@ -32,10 +32,10 @@ export async function loader() {
               </div>
             </div>
 
-            <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+            <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
               <h4 className={`font-semibold ${darkMode ? 'text-blue-400' : 'text-blue-700'} mb-2`} style={{ fontSize: fontSize }}>✓ Centralize URLs em arquivos server</h4>
               <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Mantenha URLs de APIs em arquivos de serviço:</p>
-              <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded-sm`}>
                 <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// app/services/contagens.service.ts
 const API_BASE = "http://api.garfo.ameciclo.org";
@@ -51,27 +51,27 @@ export async function getContagens() {
           <div>
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Padrão de Cores Ameciclo</h3>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold mb-3`} style={{ fontSize: fontSize }}>Cores Principais</h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded" style={{ backgroundColor: '#008080' }}></div>
+                    <div className="w-12 h-12 rounded-sm" style={{ backgroundColor: '#008080' }}></div>
                     <div className="text-sm" style={{ fontSize: fontSize - 2 }}>
                       <strong>ameciclo:</strong> #008080<br />
-                      <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>text-ameciclo</code>
+                      <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>text-ameciclo</code>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded" style={{ backgroundColor: '#5050aa' }}></div>
+                    <div className="w-12 h-12 rounded-sm" style={{ backgroundColor: '#5050aa' }}></div>
                     <div className="text-sm" style={{ fontSize: fontSize - 2 }}>
                       <strong>ideciclo:</strong> #5050aa<br />
-                      <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>text-ideciclo</code>
+                      <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>text-ideciclo</code>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold mb-3`} style={{ fontSize: fontSize }}>Cores Sugeridas</h4>
                 <ul className="text-sm space-y-1" style={{ fontSize: fontSize - 2 }}>
                   <li>• <strong>Sucesso:</strong> green-500, green-600</li>
@@ -88,35 +88,35 @@ export async function getContagens() {
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Padrões de Estilo</h3>
             
             <div className="space-y-3">
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'} mb-2`} style={{ fontSize: fontSize }}>Cards</h4>
                 <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Padrão: bordas arredondadas, sombra sutil</p>
-                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded`}>
+                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded-sm`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
                     className="rounded-lg shadow-md p-4 border"
                   </code>
                 </div>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'} mb-2`} style={{ fontSize: fontSize }}>Bordas</h4>
                 <ul className="text-sm space-y-1" style={{ fontSize: fontSize - 2 }}>
-                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>rounded</code> - 4px (padrão)</li>
-                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>rounded-lg</code> - 8px (cards)</li>
-                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>rounded-xl</code> - 12px (destaque)</li>
+                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>rounded</code> - 4px (padrão)</li>
+                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>rounded-lg</code> - 8px (cards)</li>
+                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>rounded-xl</code> - 12px (destaque)</li>
                 </ul>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'} mb-2`} style={{ fontSize: fontSize }}>Sombras</h4>
                 <ul className="text-sm space-y-1" style={{ fontSize: fontSize - 2 }}>
-                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>shadow-sm</code> - Sutil</li>
-                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>shadow-md</code> - Média (padrão cards)</li>
-                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>shadow-lg</code> - Destaque</li>
+                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>shadow-xs</code> - Sutil</li>
+                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>shadow-md</code> - Média (padrão cards)</li>
+                  <li>• <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>shadow-lg</code> - Destaque</li>
                 </ul>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'} mb-2`} style={{ fontSize: fontSize }}>Fontes</h4>
                 <ul className="text-sm space-y-1" style={{ fontSize: fontSize - 2 }}>
                   <li>• <strong>Família:</strong> Open Sans (font-custom)</li>
@@ -132,28 +132,28 @@ export async function getContagens() {
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Estrutura de Arquivos</h3>
             
             <div className="space-y-3">
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-orange-400' : 'text-orange-700'} mb-2`} style={{ fontSize: fontSize }}>Criando uma Nova Página</h4>
-                <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Use <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>_index.tsx</code> para rotas sem segmento adicional:</p>
-                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded mb-2`}>
+                <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Use <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>_index.tsx</code> para rotas sem segmento adicional:</p>
+                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded-sm mb-2`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
                     app/routes/minha-secao._index.tsx → /minha-secao
                   </code>
                 </div>
-                <p className="text-sm" style={{ fontSize: fontSize - 2 }}>O <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>_index</code> indica que é a rota raiz daquele segmento.</p>
+                <p className="text-sm" style={{ fontSize: fontSize - 2 }}>O <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>_index</code> indica que é a rota raiz daquele segmento.</p>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-orange-400' : 'text-orange-700'} mb-2`} style={{ fontSize: fontSize }}>Criando um Componente</h4>
                 <ol className="text-sm space-y-2 ml-4" style={{ fontSize: fontSize - 2 }}>
-                  <li>1. Crie em <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>app/components/[Secao]/</code></li>
-                  <li>2. Use PascalCase: <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>MeuComponente.tsx</code></li>
+                  <li>1. Crie em <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>app/components/[Secao]/</code></li>
+                  <li>2. Use PascalCase: <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>MeuComponente.tsx</code></li>
                   <li>3. Export default function</li>
                   <li>4. Tipagem com TypeScript</li>
                 </ol>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-orange-400' : 'text-orange-700'} mb-2`} style={{ fontSize: fontSize }}>Organização de Pastas</h4>
                 <ul className="text-sm space-y-1" style={{ fontSize: fontSize - 2 }}>
                   <li>• <strong>components/Commom/</strong> - Componentes globais reutilizáveis</li>
@@ -171,7 +171,7 @@ export async function getContagens() {
 
           <div>
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Exemplo Completo</h3>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// app/routes/minha-pagina/index.tsx
 import { createFileRoute } from "@tanstack/react-router";

@@ -51,7 +51,7 @@ export const LanguageSelector = ({ currentSlug, availableLanguages = [] }: Langu
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-all duration-200 text-white font-medium shadow-lg backdrop-blur-sm"
+        className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-white font-medium shadow-lg backdrop-blur-xs"
         aria-label="Selecionar idioma"
       >
         <Globe className="w-5 h-5" />

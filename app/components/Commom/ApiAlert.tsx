@@ -60,7 +60,7 @@ export function ApiAlert() {
 
   return (
     <>
-      <div className="fixed inset-0 pointer-events-none z-[90]">
+      <div className="fixed inset-0 pointer-events-none z-90">
         <div className="fixed top-16 left-1/2 -translate-x-1/2 w-fit bg-orange-500 text-white px-6 py-2 text-center rounded-lg shadow-lg relative pointer-events-auto">
           <p className="text-sm">
             Esta página está sofrendo instabilidade agora.{' '}
@@ -83,7 +83,7 @@ export function ApiAlert() {
       
       {showDetails && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-9999"
           onClick={() => setShowDetails(false)}
         >
           <div 
@@ -96,7 +96,7 @@ export function ApiAlert() {
           >
             <button
               onClick={() => setShowDetails(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 rounded-sm"
               aria-label="Fechar"
             >
               <X size={20} />
@@ -130,7 +130,7 @@ export function ApiAlert() {
             <div className="flex justify-end mt-6">
               <a 
                 href={`/contato?message=${generateErrorReport()}&subject=${encodeURIComponent('Aviso de erro via página de contato - Ver detalhes do Erro')}`}
-                className="font-bold text-blue-600 hover:text-blue-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                className="font-bold text-blue-600 hover:text-blue-800 underline focus:outline-hidden focus:ring-2 focus:ring-blue-500 rounded-sm"
               >
                 Avisar desenvolvedores
               </a>

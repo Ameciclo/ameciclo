@@ -69,7 +69,7 @@ function Contagem() {
             />
 
             <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
-                <div className="bg-green-200 rounded shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
+                <div className="bg-green-200 rounded-sm shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
                     {pointsData.length > 0 ? (
                         <AmecicloMap pointsData={pointsData} height="400px" />
                     ) : (
@@ -78,7 +78,7 @@ function Contagem() {
                         </div>
                     )}
                 </div>
-                <div className="rounded shadow-2xl lg:col-span-1 col-span-3 flex flex-col justify-center items-center p-8">
+                <div className="rounded-sm shadow-2xl lg:col-span-1 col-span-3 flex flex-col justify-center items-center p-8">
                     <h3 className="text-gray-800 text-xl font-bold mb-4 text-center">Fluxo de Ciclistas por Direção</h3>
                     <div className="text-center text-gray-500">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>
@@ -89,7 +89,7 @@ function Contagem() {
 
             <InfoCards cards={getCountingCards(data.selectedCount)} />
 
-            <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+            <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
                 <h2 className="text-gray-800 text-2xl font-bold mb-6">Gráfico de Ciclistas por Hora</h2>
                 <div className="text-center text-gray-500 py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>

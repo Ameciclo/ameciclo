@@ -141,7 +141,7 @@ export const CountsMap = ({
 
     return (
         <section className="container mx-auto">
-            <div className="relative bg-green-200 rounded shadow-2xl overflow-hidden">
+            <div className="relative bg-green-200 rounded-sm shadow-2xl overflow-hidden">
                 <ReactMapGL
                     {...viewport}
                     {...settings}
@@ -243,7 +243,7 @@ const MapMarker = ({ size = 20, icon, color = "#008888" }: any) => (
 );
 
 const MapControlPanel = ({ controlPanel, markerVisibility, pointsData, handleMarkerToggle }: any) => (
-    <div className="absolute bottom-0 right-0 bg-white border rounded p-4 mb-2 shadow">
+    <div className="absolute bottom-0 right-0 bg-white border rounded-sm p-4 mb-2 shadow-sm">
         <h3 className="font-bold mb-2">Legenda</h3>
         {controlPanel.map((control: any) => {
             const filteredPoints = pointsData.filter((marker: any) => marker.type === control.type);
@@ -281,7 +281,7 @@ const MapControlPanel = ({ controlPanel, markerVisibility, pointsData, handleMar
 );
 
 const MapLayersPanel = ({ layersConf }: any) => (
-    <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md">
+    <div className="absolute bottom-0 right-0 bg-white border rounded-sm p-4 m-2 shadow-md">
         <h3 className="font-bold mb-2">Legenda</h3>
         {layersConf.map((control: any) => {
             const color = control.paint["line-color"];
@@ -326,7 +326,7 @@ function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
 function HoverTooltip({ point }: { point: pointData }) {
     return (
         <div 
-            className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap"
+            className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded-sm text-sm whitespace-nowrap"
             style={{
                 transform: 'translate(-50%, -100%)',
                 marginTop: '-25px'

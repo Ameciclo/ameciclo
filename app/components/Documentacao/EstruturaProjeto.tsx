@@ -9,7 +9,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
         Estrutura do Projeto
       </h2>
       <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 lg:p-6 border`}>
-        <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border mb-6`}>
+        <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border mb-6`}>
           <pre className={`text-sm ${darkMode ? 'text-green-300' : 'text-green-700'} overflow-x-auto`} style={{ fontSize: fontSize - 2 }}>
 {`ameciclo/
 ├── app/
@@ -86,7 +86,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
         
         <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }}>Detalhamento das Pastas</h3>
         <div className="space-y-4">
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3 flex items-center gap-2`} style={{ fontSize: fontSize }}>
               <ComponentIcon className="w-5 h-5" />
               app/components/Commom/
@@ -108,7 +108,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
             </ul>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3 flex items-center gap-2`} style={{ fontSize: fontSize }}>
               <RouteIcon className="w-5 h-5" />
               app/routes/
@@ -130,7 +130,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
             </ul>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3 flex items-center gap-2`} style={{ fontSize: fontSize }}>
               <ApiIcon className="w-5 h-5" />
               app/loader/

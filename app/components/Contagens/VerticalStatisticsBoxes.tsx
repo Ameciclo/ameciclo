@@ -29,7 +29,7 @@ function VerticalBox({ titulo, media, mediaType = "", color, parametros }: any) 
   }
   
   return (
-    <div className="container rounded shadow-2xl flex flex-col">
+    <div className="container rounded-sm shadow-2xl flex flex-col">
       <div
         className="flex flex-col justify-center font-bold text-2xl uppercase w-full p-6 text-center tracking-widest text-white"
         style={{ background: color, flex: "1" }}
