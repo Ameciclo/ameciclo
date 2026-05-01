@@ -16,9 +16,9 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
           <div>
             <h3 className="text-xl font-semibold text-green-400 mb-4">Processo de Contribuição</h3>
             <div className="space-y-4">
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>1. Clone o Repositório</h4>
-                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mt-2`}>
+                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mt-2`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
                     git clone https://github.com/Ameciclo/ameciclo.git<br />
                     cd ameciclo
@@ -26,17 +26,17 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
                 </div>
               </div>
               
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>2. Crie uma branch</h4>
-                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mt-2`}>
+                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mt-2`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>git checkout -b feature/nova-funcionalidade</code>
                 </div>
-                <p className="text-sm mt-2" style={{ fontSize: fontSize - 2 }}>Use nomes descritivos: <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>feature/</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>fix/</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>docs/</code></p>
+                <p className="text-sm mt-2" style={{ fontSize: fontSize - 2 }}>Use nomes descritivos: <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>feature/</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>fix/</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>docs/</code></p>
               </div>
               
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>3. Desenvolva e Teste</h4>
-                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mt-2`}>
+                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mt-2`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
                     pnpm install<br />
                     pnpm dev<br />
@@ -46,9 +46,9 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
                 </div>
               </div>
               
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>4. Commit e Push</h4>
-                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded mt-2`}>
+                <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-2 rounded-sm mt-2`}>
                   <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
                     git add .<br />
                     git commit -m "feat: adiciona nova funcionalidade"<br />
@@ -57,7 +57,7 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
                 </div>
               </div>
               
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>5. Abra um Pull Request</h4>
                 <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Descreva claramente as alterações e inclua screenshots se necessário</p>
               </div>
@@ -67,15 +67,15 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
           <div>
             <h3 className="text-xl font-semibold text-green-400 mb-4">Padrões de Código</h3>
             <div className="space-y-3">
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-yellow-400' : 'text-yellow-700'} mb-1`} style={{ fontSize: fontSize - 2 }}>Commits</div>
-                <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Use conventional commits: <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>feat:</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>fix:</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded`}>docs:</code></p>
+                <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Use conventional commits: <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>feat:</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>fix:</code>, <code className={`${darkMode ? 'bg-gray-600' : 'bg-gray-300'} px-1 rounded-sm`}>docs:</code></p>
               </div>
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-yellow-400' : 'text-yellow-700'} mb-1`} style={{ fontSize: fontSize - 2 }}>TypeScript</div>
                 <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Sempre tipifique variáveis e funções</p>
               </div>
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-yellow-400' : 'text-yellow-700'} mb-1`} style={{ fontSize: fontSize - 2 }}>Componentes</div>
                 <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Use nomes descritivos e organize por funcionalidade</p>
               </div>
@@ -85,19 +85,19 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
           <div>
             <h3 className="text-xl font-semibold text-green-400 mb-4">Tipos de Contribuição</h3>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-blue-400' : 'text-blue-700'} mb-1`} style={{ fontSize: fontSize - 2 }}>Correção de Bugs</div>
                 <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Identifique e corrija problemas existentes</p>
               </div>
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'} mb-1`} style={{ fontSize: fontSize - 2 }}>Novas Funcionalidades</div>
                 <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Adicione recursos que melhorem a plataforma</p>
               </div>
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-1`} style={{ fontSize: fontSize - 2 }}>Documentação</div>
                 <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Melhore ou adicione documentação</p>
               </div>
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-orange-400' : 'text-orange-700'} mb-1`} style={{ fontSize: fontSize - 2 }}>Design/UX</div>
                 <p className="text-sm" style={{ fontSize: fontSize - 4 }}>Melhore a interface e experiência do usuário</p>
               </div>
@@ -105,7 +105,7 @@ export default function Contribuicao({ darkMode = true, fontSize = 16 }: Documen
           </div>
         </div>
         
-        <div className="mt-6 p-4 bg-blue-900 border border-blue-600 rounded">
+        <div className="mt-6 p-4 bg-blue-900 border border-blue-600 rounded-sm">
           <p className="text-blue-200" style={{ fontSize: fontSize - 2 }}>
             <strong>Dica:</strong> Consulte os <a href="https://github.com/Ameciclo/ameciclo/issues" className="text-blue-300 underline" target="_blank" rel="noopener noreferrer">issues abertos</a> no GitHub para encontrar tarefas que precisam de ajuda.
           </p>

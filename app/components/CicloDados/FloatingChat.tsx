@@ -15,7 +15,7 @@ export function FloatingChat({ isOpen, onToggle }: FloatingChatProps) {
       }`}>
         {isOpen ? (
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-4 flex items-center justify-between">
+            <div className="bg-linear-to-r from-pink-500 to-purple-600 p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                   <Bot className="w-5 h-5 text-white" />
@@ -32,7 +32,7 @@ export function FloatingChat({ isOpen, onToggle }: FloatingChatProps) {
               </button>
             </div>
             <div className="p-4 space-y-3 max-h-64 overflow-y-auto">
-              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-3 rounded-xl text-sm">
+              <div className="bg-linear-to-r from-pink-50 to-purple-50 p-3 rounded-xl text-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
                   <span className="font-medium text-gray-800">Assistente IA em Desenvolvimento</span>
@@ -50,7 +50,7 @@ export function FloatingChat({ isOpen, onToggle }: FloatingChatProps) {
                 <input 
                   type="text" 
                   placeholder="Digite sua pergunta..."
-                  className="flex-1 p-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  className="flex-1 p-3 border border-gray-300 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 />
                 <button className="p-3 text-gray-400 hover:text-pink-500 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@ export function FloatingChat({ isOpen, onToggle }: FloatingChatProps) {
         ) : (
           <button 
             onClick={onToggle}
-            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center overflow-hidden group hover:pr-4 transform hover:scale-105"
+            className="bg-linear-to-r from-pink-500 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center overflow-hidden group hover:pr-4 transform hover:scale-105"
           >
             <div className="p-4">
               <Bot className="w-6 h-6 text-white" />

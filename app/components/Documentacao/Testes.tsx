@@ -18,14 +18,14 @@ export default function Testes({ darkMode = true, fontSize = 16 }: Documentation
             <div className="space-y-3">
               <div>
                 <p className="mb-2" style={{ fontSize: fontSize - 2 }}>Verificar qualidade do código:</p>
-                <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded border`}>
+                <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded-sm border`}>
                   <code className={`${darkMode ? "text-green-300" : "text-green-700"}`} style={{ fontSize: fontSize - 2 }}>npm run lint</code>
                 </div>
               </div>
               
               <div>
                 <p className="mb-2" style={{ fontSize: fontSize - 2 }}>Verificar tipos TypeScript:</p>
-                <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded border`}>
+                <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded-sm border`}>
                   <code className={`${darkMode ? "text-green-300" : "text-green-700"}`} style={{ fontSize: fontSize - 2 }}>npm run typecheck</code>
                 </div>
               </div>
@@ -34,7 +34,7 @@ export default function Testes({ darkMode = true, fontSize = 16 }: Documentation
           
           <div>
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Configuração do oxlint</h3>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// .oxlintrc.json
 {
@@ -49,7 +49,7 @@ export default function Testes({ darkMode = true, fontSize = 16 }: Documentation
           </div>
         </div>
         
-        <div className={`mt-6 p-4 ${darkMode ? 'bg-blue-900 border-blue-600' : 'bg-blue-50 border-blue-200'} border rounded`}>
+        <div className={`mt-6 p-4 ${darkMode ? 'bg-blue-900 border-blue-600' : 'bg-blue-50 border-blue-200'} border rounded-sm`}>
           <p className="text-blue-200" style={{ fontSize: fontSize - 2 }}>
             <strong>Dica:</strong> Execute os testes antes de fazer commit para garantir a qualidade do código.
           </p>

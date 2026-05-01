@@ -137,7 +137,7 @@ function VerticalBarChart({
   };
 
   return (
-    <div className="shadow-2xl rounded p-10 text-center">
+    <div className="shadow-2xl rounded-sm p-10 text-center">
       <HighchartsReact highcharts={Highcharts} options={options} />
     </div>
   );

@@ -93,7 +93,7 @@ export default function ViaSearch({ onSearch, onViaSelect, isLoading = false }: 
               value={query}
               onChange={handleInputChange}
               placeholder="Digite o nome da via (ex: Boa Viagem, Recife, Norte...)"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ameciclo focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent"
               disabled={isLoading}
             />
             

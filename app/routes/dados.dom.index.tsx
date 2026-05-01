@@ -276,28 +276,28 @@ function Dom() {
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Documentos Orçamentários</h3>
                                 <ul className="space-y-2">
-                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/718e6705-a7e1-4395-a7c5-13c141c182f7" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Despesas orçamentárias 2021</a></li>
-                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/df6d4a2a-7f78-4f98-a38b-8cf74b7823d7" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Despesas orçamentárias 2022</a></li>
-                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/a4b97fb4-7dc6-4e70-a87d-3c3503f00b1e" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Despesas orçamentárias 2023</a></li>
-                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/6e5be9b8-7fe3-4831-abb2-44817d2f5417" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Despesas Totais 2024</a></li>
+                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/718e6705-a7e1-4395-a7c5-13c141c182f7" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">Despesas orçamentárias 2021</a></li>
+                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/df6d4a2a-7f78-4f98-a38b-8cf74b7823d7" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">Despesas orçamentárias 2022</a></li>
+                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/a4b97fb4-7dc6-4e70-a87d-3c3503f00b1e" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">Despesas orçamentárias 2023</a></li>
+                                    <li><a href="http://dados.recife.pe.gov.br/dataset/despesas-orcamentarias/resource/6e5be9b8-7fe3-4831-abb2-44817d2f5417" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">Despesas Totais 2024</a></li>
                                 </ul>
                             </div>
 
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Documentos Climáticos</h3>
                                 <ul className="space-y-2">
-                                    <li><a href="https://semas.pe.gov.br/wp-content/uploads/2022/03/2022_03_16_GIZ_plano_descarbonizacao_pernambuco-v6_reduzido.pdf" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Plano de descarbonização de Pernambuco</a></li>
-                                    <li><a href="https://www.gov.br/mma/pt-br/assuntos/climaozoniodesertificacao/clima/diretrizes-para-uma-estrategia-nacional-para-neutralidade-climatica_.pdf" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Diretrizes para neutralidade climática</a></li>
-                                    <li><a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">Gráfico – Inventário de Gases de Efeito Estufa</a></li>
+                                    <li><a href="https://semas.pe.gov.br/wp-content/uploads/2022/03/2022_03_16_GIZ_plano_descarbonizacao_pernambuco-v6_reduzido.pdf" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">Plano de descarbonização de Pernambuco</a></li>
+                                    <li><a href="https://www.gov.br/mma/pt-br/assuntos/climaozoniodesertificacao/clima/diretrizes-para-uma-estrategia-nacional-para-neutralidade-climatica_.pdf" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">Diretrizes para neutralidade climática</a></li>
+                                    <li><a href="https://semas.pe.gov.br/grafico-inventario-gee/" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">Gráfico – Inventário de Gases de Efeito Estufa</a></li>
                                 </ul>
                             </div>
 
                             <div>
                                 <h3 className="text-xl font-bold mb-3 text-gray-800">Baixe os Dados</h3>
                                 <ul className="space-y-2">
-                                    <li><a href="http://dados.recife.pe.gov.br/datastore/dump/df6d4a2a-7f78-4f98-a38b-8cf74b7823d7?bom=True" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">(CSV) Despesas orçamentárias 2021</a></li>
-                                    <li><a href="http://dados.recife.pe.gov.br/datastore/dump/ea074e10-46a1-46a4-a2a4-47d1b331544d?bom=True" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">(CSV) Despesas orçamentárias 2022</a></li>
-                                    <li><a href="http://dados.recife.pe.gov.br/datastore/dump/a4b97fb4-7dc6-4e70-a87d-3c3503f00b1e?bom=True" className="text-ameciclo hover:underline focus:outline-none focus:ring-2 focus:ring-ameciclo">(CSV) Despesas orçamentárias 2023</a></li>
+                                    <li><a href="http://dados.recife.pe.gov.br/datastore/dump/df6d4a2a-7f78-4f98-a38b-8cf74b7823d7?bom=True" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">(CSV) Despesas orçamentárias 2021</a></li>
+                                    <li><a href="http://dados.recife.pe.gov.br/datastore/dump/ea074e10-46a1-46a4-a2a4-47d1b331544d?bom=True" target="_blank" rel="noopener noreferrer" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">(CSV) Despesas orçamentárias 2022</a></li>
+                                    <li><a href="http://dados.recife.pe.gov.br/datastore/dump/a4b97fb4-7dc6-4e70-a87d-3c3503f00b1e?bom=True" className="text-ameciclo hover:underline focus:outline-hidden focus:ring-2 focus:ring-ameciclo">(CSV) Despesas orçamentárias 2023</a></li>
                                 </ul>
                             </div>
                         </div>

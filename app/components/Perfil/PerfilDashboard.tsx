@@ -402,13 +402,13 @@ function HistogramWithGenderFilter({ distanceOptions, profileData, filters, glob
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg shadow-xs border border-gray-200 p-6 hover:shadow-md transition-shadow">
       {chartsLoaded && Highcharts && HighchartsReact && chartOptions.series.length > 0 ? (
         <>
           <HighchartsReact highcharts={Highcharts} options={chartOptions} />
           <div className="flex items-center justify-center gap-3 mt-4 pt-4 border-t border-gray-200">
             <span className="text-sm text-gray-600">{getLabel()}</span>
-            <div className="flex gap-1 border border-gray-300 rounded p-1">
+            <div className="flex gap-1 border border-gray-300 rounded-sm p-1">
               <button
                 onClick={() => updateChartData('all')}
                 className={`px-2 py-1 rounded text-xs transition-colors ${
@@ -769,7 +769,7 @@ function PerfilClientSide({ apiDown, profileData }: { apiDown?: boolean, profile
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-600">Gênero:</span>
-                  <div className="flex gap-1 border border-gray-300 rounded p-1">
+                  <div className="flex gap-1 border border-gray-300 rounded-sm p-1">
                     <button
                       onClick={() => setGlobalGenderFilter('all')}
                       className={`px-2 py-1 rounded text-xs transition-colors ${
@@ -847,7 +847,7 @@ function PerfilClientSide({ apiDown, profileData }: { apiDown?: boolean, profile
               globalGenderFilter={globalGenderFilter}
             />
           ) : (
-            <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow">
+            <div key={index} className="bg-white rounded-lg shadow-xs border border-gray-200 p-8 hover:shadow-md transition-shadow">
               <h3 className="text-lg font-semibold mb-4 text-gray-800">{option.title}</h3>
               <div className="h-64 flex flex-col items-center justify-center">
                 <p className="text-gray-500 text-sm">Sem dados disponíveis</p>
@@ -867,7 +867,7 @@ function PerfilClientSide({ apiDown, profileData }: { apiDown?: boolean, profile
       </section>
 
       <section className="container mx-auto px-4 my-16">
-        <div className="bg-gradient-to-br from-ameciclo/5 to-ameciclo/10 rounded-xl p-8 border border-ameciclo/20">
+        <div className="bg-linear-to-br from-ameciclo/5 to-ameciclo/10 rounded-xl p-8 border border-ameciclo/20">
           <div className="flex items-center gap-3 mb-6">
             <FileText className="text-ameciclo" size={32} />
             <div>
@@ -961,7 +961,7 @@ function ToogleButton({ value, onChange, checked, disabled }: any) {
       <div
         className={`px-4 py-2 rounded-lg text-sm font-medium text-center transition-all duration-200 border ${
           checked 
-            ? 'bg-ameciclo text-white border-ameciclo shadow-sm' 
+            ? 'bg-ameciclo text-white border-ameciclo shadow-xs' 
             : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
         } focus-within:ring-2 focus-within:ring-ameciclo focus-within:ring-opacity-50`}
       >

@@ -81,7 +81,7 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
       <div className="container mx-auto px-4 py-2">
         <div className="flex flex-wrap justify-between items-center">
           {/* Base Type Filter */}
-          <div className="relative mb-1 flex-grow flex-shrink-0 basis-full sm:basis-auto">
+          <div className="relative mb-1 grow shrink-0 basis-full sm:basis-auto">
             <button 
               onClick={() => toggleFilter('baseType')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"
@@ -121,7 +121,7 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
           </div>
           
           {/* Death Location Filter */}
-          <div className="relative mb-1 flex-grow flex-shrink-0 basis-full sm:basis-auto">
+          <div className="relative mb-1 grow shrink-0 basis-full sm:basis-auto">
             <button 
               onClick={() => toggleFilter('deathLocation')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"
@@ -179,7 +179,7 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
           </div>
           
           {/* Year Filter */}
-          <div className="relative mb-1 flex-grow flex-shrink-0 basis-full sm:basis-auto">
+          <div className="relative mb-1 grow shrink-0 basis-full sm:basis-auto">
             <button 
               onClick={() => toggleFilter('year')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"
@@ -236,7 +236,7 @@ export const SelectionFilterMenu: React.FC<SelectionFilterMenuProps & {
           </div>
           
           {/* City Filter */}
-          <div className="relative mb-1 flex-grow flex-shrink-0 basis-full sm:basis-auto">
+          <div className="relative mb-1 grow shrink-0 basis-full sm:basis-auto">
             <button 
               onClick={() => toggleFilter('city')}
               className="w-full sm:w-auto flex justify-between items-center px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium"

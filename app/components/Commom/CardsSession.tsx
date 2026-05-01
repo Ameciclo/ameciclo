@@ -59,7 +59,7 @@ const Card = ({
   };
   
   const CardContent = () => (
-    <div className={`bg-gradient-to-br ${getTypeColor()} rounded-xl shadow-md ${!comingSoon && 'hover:shadow-xl'} transition-all duration-300 p-6 h-full flex flex-col relative group border border-gray-200 ${comingSoon && 'opacity-60 cursor-not-allowed'}`}>
+    <div className={`bg-linear-to-br ${getTypeColor()} rounded-xl shadow-md ${!comingSoon && 'hover:shadow-xl'} transition-all duration-300 p-6 h-full flex flex-col relative group border border-gray-200 ${comingSoon && 'opacity-60 cursor-not-allowed'}`}>
       {isNew && (
         <div className="absolute top-3 right-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -77,14 +77,14 @@ const Card = ({
       <div className="flex items-start gap-4 mb-4">
         {src && src !== "" && (
           <img
-            className="h-16 w-16 object-contain flex-shrink-0"
+            className="h-16 w-16 object-contain shrink-0"
             src={src}
             alt=""
             aria-hidden="true"
           />
         )}
         <div className="flex-1">
-          <h3 className={`text-2xl font-bold text-gray-900 ${!comingSoon && 'group-hover:text-[#008080]'} transition-colors mb-2`}>
+          <h3 className={`text-2xl font-bold text-gray-900 ${!comingSoon && 'group-hover:text-ameciclo'} transition-colors mb-2`}>
             {title}
           </h3>
         </div>
@@ -95,7 +95,7 @@ const Card = ({
       </p>
       
       {!comingSoon && (
-        <div className="mt-4 flex items-center text-[#008080] font-medium text-sm group-hover:translate-x-1 transition-transform">
+        <div className="mt-4 flex items-center text-ameciclo font-medium text-sm group-hover:translate-x-1 transition-transform">
           <span>Acessar</span>
           <ExternalLink size={16} className="ml-1" />
         </div>

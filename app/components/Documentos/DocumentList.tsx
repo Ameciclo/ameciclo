@@ -24,7 +24,7 @@ const highlightText = (text: string, searchTerm: string): React.ReactNode => {
 
   return parts.map((part, index) =>
     regex.test(part) ? (
-      <mark key={index} className="bg-yellow-200 px-1 rounded">
+      <mark key={index} className="bg-yellow-200 px-1 rounded-sm">
         {part}
       </mark>
     ) : (
@@ -35,7 +35,7 @@ const highlightText = (text: string, searchTerm: string): React.ReactNode => {
 
 export const DocumentsList = ({ documents, docTypes, searchTerm }: DocumentsListProps) => {
   return (
-    <div className="mt-5 mx-3 px-10 shadow border grid grid-cols-1 min-[450px]:grid-cols-2 md:grid-cols-3  auto-cols-max lg:grid-cols-4 gap-10">
+    <div className="mt-5 mx-3 px-10 shadow-sm border grid grid-cols-1 min-[450px]:grid-cols-2 md:grid-cols-3  auto-cols-max lg:grid-cols-4 gap-10">
       {documents.map((document) => {
         const indicator = docTypes.find((d) => document.type === d.value);
         return (
@@ -124,7 +124,7 @@ const DocumentCard = ({ document, indicator, searchTerm }: DocumentCardProps) =>
 const DocumentTypeIndicator = ({ label, color, fontColor }: DocTypeIndicator) => {
   return (
     <div
-      className="uppercase p-2 rounded bg-green-400 text-base font-semibold truncate"
+      className="uppercase p-2 rounded-sm bg-green-400 text-base font-semibold truncate"
       style={{
         maxHeight: "50px",
         color: fontColor,

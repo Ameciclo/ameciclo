@@ -12,7 +12,7 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
       <div className={`${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} rounded-lg p-4 lg:p-6 border`}>
         <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }}>Dependências Principais (40+ pacotes)</h3>
         <div className="space-y-4 mb-8">
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Framework e Core</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@remix-run/*</strong> (v2.16.5) - Framework full-stack com SSR, file-based routing, loaders</li>
@@ -23,7 +23,7 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             </ul>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>UI e Estilização</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>tailwindcss</strong> (v3.4.4) - Framework CSS utility-first</li>
@@ -32,7 +32,7 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             </ul>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Visualização de Dados</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>highcharts</strong> (v12.2.0) + <strong>highcharts-react-official</strong> - Gráficos interativos</li>
@@ -42,7 +42,7 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             </ul>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Funcionalidades Específicas</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@fullcalendar/*</strong> (v6.1.x) - Calendário com Google Calendar</li>
@@ -55,7 +55,7 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
             </ul>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Utilitários</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-lazyload</strong> (v3.2.1) - Lazy loading</li>
@@ -69,20 +69,20 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
         <div className="space-y-4">
           <div>
             <p className="mb-2" style={{ fontSize: fontSize - 2 }}>1. Gerar build otimizado:</p>
-            <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded border`}>
+            <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded-sm border`}>
               <code className={`${darkMode ? "text-green-300" : "text-green-700"}`} style={{ fontSize: fontSize - 2 }}>npm run build</code>
             </div>
           </div>
           
           <div>
             <p className="mb-2" style={{ fontSize: fontSize - 2 }}>2. Iniciar servidor de produção:</p>
-            <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded border`}>
+            <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded-sm border`}>
               <code className={`${darkMode ? "text-green-300" : "text-green-700"}`} style={{ fontSize: fontSize - 2 }}>npm start</code>
             </div>
           </div>
         </div>
         
-        <div className={`mt-6 p-4 ${darkMode ? 'bg-blue-900/30 border-blue-500/30' : 'bg-blue-50 border-blue-200'} border rounded`}>
+        <div className={`mt-6 p-4 ${darkMode ? 'bg-blue-900/30 border-blue-500/30' : 'bg-blue-50 border-blue-200'} border rounded-sm`}>
           <p className={`${darkMode ? 'text-blue-200' : 'text-blue-800'}`} style={{ fontSize: fontSize - 2 }}>
             <strong>Deploy:</strong> O projeto está configurado para deploy automático na Vercel via GitHub.
             Build otimizado com code splitting (Highcharts, Mapbox, Calendar em chunks separados).

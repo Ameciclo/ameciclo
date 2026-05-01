@@ -67,7 +67,7 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
             <summary className="cursor-pointer text-sm text-gray-500">
               Detalhes técnicos
             </summary>
-            <pre className="mt-2 text-xs text-gray-400 bg-gray-100 p-2 rounded overflow-auto">
+            <pre className="mt-2 text-xs text-gray-400 bg-gray-100 p-2 rounded-sm overflow-auto">
               {error.message}
             </pre>
           </details>

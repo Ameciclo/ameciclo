@@ -11,11 +11,11 @@ export default function Configuracao({ darkMode = true, fontSize = 16 }: Documen
       </h2>
       <div className={`${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} rounded-lg p-4 lg:p-6 border`}>
         <h3 className={`text-xl font-semibold mb-4`} style={{ fontSize: fontSize + 4 }}>Variáveis de Ambiente</h3>
-        <p className="mb-4" style={{ fontSize: fontSize }}>Configure as variáveis no arquivo <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded`}>.env</code>:</p>
+        <p className="mb-4" style={{ fontSize: fontSize }}>Configure as variáveis no arquivo <code className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded-sm`}>.env</code>:</p>
         
         <div className="space-y-4">
           <div>
-            <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded border`}>
+            <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded-sm border`}>
               <code className={`${darkMode ? "text-green-300" : "text-green-700"}`} style={{ fontSize: fontSize - 2 }}>
                 # APIs Externas<br />
                 API_GARFO_URL=http://api.garfo.ameciclo.org<br />
@@ -38,7 +38,7 @@ export default function Configuracao({ darkMode = true, fontSize = 16 }: Documen
         <div className="space-y-4">
           <div>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Vite + Remix (vite.config.ts)</h4>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`export default defineConfig({
   plugins: [
@@ -66,7 +66,7 @@ export default function Configuracao({ darkMode = true, fontSize = 16 }: Documen
 
           <div>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Tailwind CSS (tailwind.config.ts)</h4>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`module.exports = {
   content: ["./app/**/*.{ts,tsx}"],
@@ -89,7 +89,7 @@ export default function Configuracao({ darkMode = true, fontSize = 16 }: Documen
 
           <div>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>TypeScript (tsconfig.json)</h4>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`{
   "compilerOptions": {

@@ -71,8 +71,8 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
   };
 
   return (
-    <header className="flex items-center bg-teal-700 text-white px-2 sm:px-4 py-3 sm:py-2 flex-shrink-0" style={{minHeight: 'auto'}}>
-      <div className="flex items-center flex-shrink-0">
+    <header className="flex items-center bg-teal-700 text-white px-2 sm:px-4 py-3 sm:py-2 shrink-0" style={{minHeight: 'auto'}}>
+      <div className="flex items-center shrink-0">
         <a href="/dados" className="hover:opacity-80 transition-opacity">
           <img src="/ciclodados/Logo.svg" alt="CicloDados" className="h-8 sm:h-12" />
         </a>
@@ -111,12 +111,12 @@ export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, o
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              className="pl-8 pr-2 py-1 rounded border text-black focus:outline-none focus:ring-2 focus:ring-white text-xs sm:text-sm w-full"
+              className="pl-8 pr-2 py-1 rounded-sm border text-black focus:outline-hidden focus:ring-2 focus:ring-white text-xs sm:text-sm w-full"
             />
           </div>
           
           {showSuggestions && searchTerm && (
-            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b shadow-lg z-[9999] max-h-48 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b shadow-lg z-9999 max-h-48 overflow-y-auto">
               {isSearching ? (
                 <div className="px-3 py-2 text-gray-500 text-xs flex items-center gap-2">
                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500"></div>

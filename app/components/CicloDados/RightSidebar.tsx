@@ -445,13 +445,13 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
           <p className="text-xs mt-2">Clique no mapa para selecionar uma área</p>
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('demo-map-selection'))}
-            className="mt-3 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors mr-2"
+            className="mt-3 px-3 py-1 bg-blue-500 text-white text-xs rounded-sm hover:bg-blue-600 transition-colors mr-2"
           >
             Demo: Uma via
           </button>
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('demo-multiple-streets'))}
-            className="mt-3 px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
+            className="mt-3 px-3 py-1 bg-green-500 text-white text-xs rounded-sm hover:bg-green-600 transition-colors"
           >
             Demo: Duas vias
           </button>
@@ -479,12 +479,12 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
           {visibleCards.map((item) => {
             const isCollapsed = collapsedCards.has(item.id);
             return (
-              <div key={item.id} className="border rounded-lg p-3 shadow-sm bg-gray-50">
+              <div key={item.id} className="border rounded-lg p-3 shadow-xs bg-gray-50">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-medium text-gray-800 text-sm leading-tight">{item.title}</h3>
                   <button
                     onClick={() => toggleCard(item.id)}
-                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-200 rounded transition-colors"
+                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-200 rounded-sm transition-colors"
                   >
                     <svg className={`w-3 h-3 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -591,7 +591,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode, mapSelection }: Right
 
   return (
     <>
-      <aside className={`hidden md:flex bg-white border-l flex-col transition-all duration-300 flex-shrink-0 overflow-hidden ${
+      <aside className={`hidden md:flex bg-white border-l flex-col transition-all duration-300 shrink-0 overflow-hidden ${
         isOpen ? 'w-80' : 'w-0'
       }`} style={{height: '100%'}}>
         <div className="flex-1 overflow-y-auto min-h-0">
@@ -601,7 +601,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode, mapSelection }: Right
             <div className="flex items-center gap-2">
               <button 
                 onClick={onToggle}
-                className="hover:bg-white hover:bg-opacity-20 rounded text-white transition-colors p-1"
+                className="hover:bg-white hover:bg-opacity-20 rounded-sm text-white transition-colors p-1"
                 title={isOpen ? 'Minimizar' : 'Expandir'}
               >
                 <svg className={`w-4 h-4 transition-transform ${
@@ -615,7 +615,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode, mapSelection }: Right
             {isOpen && (
               <button
                 onClick={allCollapsed ? expandAll : collapseAll}
-                className="hover:bg-white hover:bg-opacity-20 rounded text-white transition-colors p-1"
+                className="hover:bg-white hover:bg-opacity-20 rounded-sm text-white transition-colors p-1"
                 title={allCollapsed ? 'Expandir todos' : 'Recolher todos'}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -642,7 +642,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode, mapSelection }: Right
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="hidden md:block fixed top-1/2 -translate-y-1/2 right-4 z-[55] bg-white border rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+          className="hidden md:block fixed top-1/2 -translate-y-1/2 right-4 z-55 bg-white border rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
           title="Expandir gráficos"
         >
           <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">

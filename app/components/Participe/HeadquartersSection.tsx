@@ -16,7 +16,7 @@ interface HeadquartersSectionProps {
 
 export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionProps) {
   return (
-    <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? "bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600" : "bg-gradient-to-br from-green-50 to-emerald-50 border-green-100"}`}>
+    <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? "bg-linear-to-br from-gray-800 to-gray-700 border-gray-600" : "bg-linear-to-br from-green-50 to-emerald-50 border-green-100"}`}>
       <div className="flex items-center justify-center gap-4 mb-8">
         <BuildingIcon className="w-8 h-8 text-gray-800" />
         <h2 className={`text-2xl sm:text-3xl font-bold ${darkMode ? "text-white" : "text-gray-600"}`}>
@@ -24,7 +24,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
         </h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-green-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-green-100">
           <div className="flex items-center gap-3 mb-4">
             <ChatIcon className="w-6 h-6 text-pink-600" />
             <h3 className="text-xl font-semibold text-pink-600">Troca de Ideias e Apoio</h3>
@@ -40,7 +40,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
           </ul>
         </div>
 
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-green-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-green-100">
           <div className="flex items-center gap-3 mb-4">
             <BikeIcon className="w-6 h-6 text-blue-600" />
             <h3 className="text-xl font-semibold text-blue-600">Doação de Bicicletas</h3>
@@ -55,7 +55,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
           </ul>
         </div>
 
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-green-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-green-100">
           <div className="flex items-center gap-3 mb-4">
             <ToolIcon className="w-6 h-6 text-green-600" />
             <h3 className="text-xl font-semibold text-green-600">Oficina Solidária</h3>
@@ -70,7 +70,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
           </ul>
         </div>
 
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-green-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-green-100">
           <div className="flex items-center gap-3 mb-4">
             <ShopIcon className="w-6 h-6 text-purple-600" />
             <h3 className="text-xl font-semibold text-purple-600">Lojinha</h3>
@@ -86,7 +86,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
           </ul>
         </div>
 
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-green-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-green-100">
           <div className="flex items-center gap-3 mb-4">
             <BookIcon className="w-6 h-6 text-indigo-600" />
             <h3 className="text-xl font-semibold text-indigo-600">Biblioteca</h3>
@@ -101,7 +101,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
           </ul>
         </div>
 
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-green-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-green-100">
           <div className="flex items-center gap-3 mb-4">
             <CoffeeIcon className="w-6 h-6 text-orange-600" />
             <h3 className="text-xl font-semibold text-orange-600">Comodidades</h3>
@@ -117,7 +117,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
         </div>
       </div>
 
-      <div className="mt-8 bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-lg border-2 border-green-200">
+      <div className="mt-8 bg-linear-to-r from-green-100 to-emerald-100 p-6 rounded-lg border-2 border-green-200">
         <div className="flex items-center gap-2 mb-4">
           <BuildingIcon className="w-5 h-5 text-green-700" />
           <h4 className="text-lg font-semibold text-green-700">Programa Ocupe a Sede</h4>
@@ -130,7 +130,7 @@ export function HeadquartersSection({ darkMode, fontSize }: HeadquartersSectionP
           href="https://ocupe.ameciclo.org"
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-6 py-3 rounded-lg hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 inline-flex items-center font-semibold shadow-lg"
+          className="bg-linear-to-r from-teal-500 to-emerald-500 text-white px-6 py-3 rounded-lg hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 inline-flex items-center font-semibold shadow-lg"
         >
           <FormIcon className="w-4 h-4 mr-2" />
           Acessar Formulário

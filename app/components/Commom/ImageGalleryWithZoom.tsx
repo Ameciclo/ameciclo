@@ -114,7 +114,7 @@ export default function ImageGalleryWithZoom({
   const currentImage = images[currentIndex];
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-95">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black bg-opacity-95">
       <div className="relative w-full h-full">
         {/* Botão fechar discreto */}
         <button
@@ -161,7 +161,7 @@ export default function ImageGalleryWithZoom({
               e.stopPropagation();
               resetZoom();
             }}
-            className="text-white hover:text-gray-300 text-xs font-bold bg-black bg-opacity-50 rounded px-2 py-1"
+            className="text-white hover:text-gray-300 text-xs font-bold bg-black bg-opacity-50 rounded-sm px-2 py-1"
             title="Reset Zoom"
           >
             1:1

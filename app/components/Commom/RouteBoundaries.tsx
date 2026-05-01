@@ -9,15 +9,15 @@ export function RouteLoading({ label = "Carregando..." }: { label?: string }) {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="animate-pulse space-y-4">
-        <div className="h-8 w-1/3 rounded bg-gray-200" />
-        <div className="h-4 w-2/3 rounded bg-gray-200" />
-        <div className="h-4 w-1/2 rounded bg-gray-200" />
+        <div className="h-8 w-1/3 rounded-sm bg-gray-200" />
+        <div className="h-4 w-2/3 rounded-sm bg-gray-200" />
+        <div className="h-4 w-1/2 rounded-sm bg-gray-200" />
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="h-32 rounded bg-gray-200" />
-          <div className="h-32 rounded bg-gray-200" />
-          <div className="h-32 rounded bg-gray-200" />
+          <div className="h-32 rounded-sm bg-gray-200" />
+          <div className="h-32 rounded-sm bg-gray-200" />
+          <div className="h-32 rounded-sm bg-gray-200" />
         </div>
-        <div className="h-64 rounded bg-gray-200" />
+        <div className="h-64 rounded-sm bg-gray-200" />
       </div>
       <span className="sr-only">{label}</span>
     </div>
@@ -43,7 +43,7 @@ export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
         <div className="mt-4 flex gap-3">
           <button
             onClick={reset}
-            className="rounded-md bg-ameciclo px-4 py-2 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-ameciclo focus:ring-offset-2"
+            className="rounded-md bg-ameciclo px-4 py-2 text-sm font-medium text-white hover:bg-red-600 focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:ring-offset-2"
           >
             Tentar novamente
           </button>

@@ -92,7 +92,7 @@ export const Footer = () => {
               {column.button && (
                 <Link
                   to={column.button.url}
-                  className="inline-block mt-4 px-4 py-2 text-sm border border-[#008080] text-[#008080] rounded hover:bg-[#008080] hover:text-white transition-colors"
+                  className="inline-block mt-4 px-4 py-2 text-sm border border-ameciclo text-ameciclo rounded-sm hover:bg-ameciclo hover:text-white transition-colors"
                 >
                   {column.button.label}
                 </Link>

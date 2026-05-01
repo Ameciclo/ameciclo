@@ -10,7 +10,7 @@ const StatusIndicator = ({ status }: any) => {
 
     return (
         <div
-            className="p-4 font-semibold uppercase bg-green-400 rounded"
+            className="p-4 font-semibold uppercase bg-green-400 rounded-sm"
             style={{
                 maxHeight: "50px",
                 color: statusMap.get(status)?.fontColor,
@@ -29,7 +29,7 @@ const StatusIndicator = ({ status }: any) => {
 
 export const ProjectCard = ({ project }: any) => {
     return (
-        <div className="bg-white rounded-lg shadow relative" style={{ minHeight: "450px" }}>
+        <div className="bg-white rounded-lg shadow-sm relative" style={{ minHeight: "450px" }}>
             <div className="absolute top-0 left-0">
                 <StatusIndicator status={project.project_status} />
             </div>

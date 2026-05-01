@@ -82,7 +82,7 @@ function DocumentationSidebar({
         {!isSidebarCollapsed && (
           <div className="mb-4">
             <div className="space-y-2">
-              <a href="/" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors flex items-center gap-2 p-2 rounded`} style={{ fontSize: fontSize - 2 }}>
+              <a href="/" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors flex items-center gap-2 p-2 rounded-sm`} style={{ fontSize: fontSize - 2 }}>
                 <HomeIcon className="w-4 h-4" />
                 Voltar ao site
               </a>
@@ -91,10 +91,10 @@ function DocumentationSidebar({
         )}
         {isSidebarCollapsed && (
           <div className="mb-4 flex flex-col items-center space-y-2">
-            <a href="/" className={`${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors p-2 rounded`} title="Voltar ao site">
+            <a href="/" className={`${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors p-2 rounded-sm`} title="Voltar ao site">
               <HomeIcon className="w-5 h-5" />
             </a>
-            <a href="/status" className={`${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors p-2 rounded`} title="Status dos Serviços">
+            <a href="/status" className={`${darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-gray-700' : 'text-gray-600 hover:text-green-700 hover:bg-gray-200'} transition-colors p-2 rounded-sm`} title="Status dos Serviços">
               <StatusIcon className="w-5 h-5" />
             </a>
           </div>

@@ -57,18 +57,18 @@ export function PerfilSection({
   const idadeOptions = ["Todas", "18-25 anos", "26-35 anos", "36-45 anos", "46+ anos"];
 
   return (
-    <div className="bg-white rounded border">
+    <div className="bg-white rounded-sm border">
       <div className="p-2">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <button onClick={togglePerfilVisibility} className="hover:bg-gray-50 rounded p-1 transition-colors">
+            <button onClick={togglePerfilVisibility} className="hover:bg-gray-50 rounded-sm p-1 transition-colors">
               {isPerfilVisible ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
             </button>
             <span className="font-medium">Perfil de ciclistas</span>
           </div>
           <button 
             onClick={handleToggleExpanded}
-            className="hover:bg-gray-50 rounded p-1 transition-colors"
+            className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
           >
             <svg 
               className={`w-4 h-4 transition-transform ${actuallyExpanded ? 'rotate-180' : ''}`} 

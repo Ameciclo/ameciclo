@@ -12,7 +12,7 @@ export default function Banner({
   const bannerImage = image?.startsWith('http') || image?.startsWith('/') ? image : `/${image}`;
   
   return (
-    <div className="relative py-24 w-full h-[52vh]">
+    <div className="relative py-24 w-full h-cover">
       <img
         src={bannerImage}
         alt={alt}

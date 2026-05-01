@@ -37,12 +37,12 @@ export default function AmeCiclistaModal({
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative outline-none"
+        className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative outline-hidden"
         onClick={(e) => e.stopPropagation()}
         tabIndex={-1}
       >
         <button
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-ameciclo focus-visible:ring-offset-2"
+          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ameciclo focus-visible:ring-offset-2"
           onClick={onClose}
           aria-label="Fechar modal"
         >

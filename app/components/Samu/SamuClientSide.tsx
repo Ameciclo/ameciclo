@@ -328,7 +328,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         </h2>
         {filteredEvolutionData?.data &&
         filteredEvolutionData.data.length > 0 ? (
-          <div className="shadow-2xl rounded p-6 pt-4 text-center">
+          <div className="shadow-2xl rounded-sm p-6 pt-4 text-center">
             <div className="mb-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">
                 Evolução Anual das Chamadas SAMU
@@ -359,7 +359,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                 ].map((item) => (
                   <div key={item.key} className="flex items-center">
                     <div
-                      className="w-4 h-4 mr-2 rounded-sm"
+                      className="w-4 h-4 mr-2 rounded-xs"
                       style={{ backgroundColor: item.color }}
                     ></div>
                     <span className="text-sm font-medium text-gray-700">{item.label}</span>
@@ -481,7 +481,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                     >
                       <div className="flex items-center">
                         <div
-                          className="w-4 h-4 rounded mr-2"
+                          className="w-4 h-4 rounded-sm mr-2"
                           style={{ backgroundColor: item.color }}
                         ></div>
                         <span className="text-sm">{item.label}</span>
@@ -529,7 +529,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                     >
                       <div className="flex items-center">
                         <div
-                          className="w-4 h-4 rounded mr-2"
+                          className="w-4 h-4 rounded-sm mr-2"
                           style={{ backgroundColor: item.color }}
                         ></div>
                         <span className="text-sm">{item.label}</span>
@@ -577,7 +577,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                     >
                       <div className="flex items-center">
                         <div
-                          className="w-4 h-4 rounded mr-2"
+                          className="w-4 h-4 rounded-sm mr-2"
                           style={{ backgroundColor: item.color }}
                         ></div>
                         <span className="text-sm">{item.label}</span>

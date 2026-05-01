@@ -569,7 +569,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                     </div>
                     <button
                       onClick={() => setMaximizedCard('sinistros')}
-                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      className="p-1 hover:bg-gray-100 rounded-sm transition-colors"
                       aria-label="Maximizar card de sinistros"
                       title="Maximizar"
                     >
@@ -666,7 +666,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
           <div className={`mt-3 md:mt-5 transition-all duration-300 w-full ${
             animatingCards.has('dados_gerais') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
           }`}>
-            <div className="bg-white rounded-lg shadow min-h-[300px] max-h-[500px] p-3 md:p-6 relative overflow-hidden w-full">
+            <div className="bg-white rounded-lg shadow-sm min-h-[300px] max-h-[500px] p-3 md:p-6 relative overflow-hidden w-full">
             {/* Barra de Filtros */}
             <div className="flex items-center gap-6 pb-4 border-b mb-4">
               <div className="flex items-center gap-2">
@@ -714,7 +714,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
               <div className="w-full lg:w-64">
                 <h3 className="font-semibold text-gray-800 mb-2">Características</h3>
                 <div className="space-y-1">
-                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">
+                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded-sm text-sm">
                     <div className="flex items-center gap-1">
                       <span className="w-4 h-4 bg-pink-500 text-white rounded-full flex items-center justify-center"><User size={10} /></span>
                       <span className="font-medium">Mulheres</span>
@@ -722,7 +722,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                     <span className="font-bold text-gray-900">323</span>
                   </div>
 
-                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">
+                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded-sm text-sm">
                     <div className="flex items-center gap-1">
                       <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center"><Shield size={10} /></span>
                       <span className="font-medium">Capacete</span>
@@ -730,7 +730,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                     <span className="font-bold text-gray-900">234</span>
                   </div>
 
-                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">
+                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded-sm text-sm">
                     <div className="flex items-center gap-1">
                       <span className="w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center"><RotateCcw size={10} /></span>
                       <span className="font-medium">Contramão</span>
@@ -738,7 +738,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                     <span className="font-bold text-gray-900">123</span>
                   </div>
 
-                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">
+                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded-sm text-sm">
                     <div className="flex items-center gap-1">
                       <span className="w-4 h-4 bg-green-500 text-white rounded-full flex items-center justify-center"><Users size={10} /></span>
                       <span className="font-medium">Caronas</span>
@@ -746,7 +746,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                     <span className="font-bold text-gray-900">141</span>
                   </div>
 
-                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">
+                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded-sm text-sm">
                     <div className="flex items-center gap-1">
                       <span className="w-4 h-4 bg-purple-500 text-white rounded-full flex items-center justify-center"><Package size={10} /></span>
                       <span className="font-medium">Cargueiras</span>
@@ -754,7 +754,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                     <span className="font-bold text-gray-900">452</span>
                   </div>
 
-                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">
+                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded-sm text-sm">
                     <div className="flex items-center gap-1">
                       <span className="w-4 h-4 bg-indigo-600 text-white rounded-full flex items-center justify-center"><Wrench size={10} /></span>
                       <span className="font-medium">Serviço</span>
@@ -762,7 +762,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                     <span className="font-bold text-gray-900">783</span>
                   </div>
 
-                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded text-sm">
+                  <div className="flex justify-between items-center px-2 py-1 bg-gray-50 rounded-sm text-sm">
                     <div className="flex items-center gap-1">
                       <span className="w-4 h-4 bg-orange-500 text-white rounded-full flex items-center justify-center"><Bike size={10} /></span>
                       <span className="font-medium">Compartilhadas</span>
@@ -792,7 +792,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
             </div>
             <p className="text-xs text-gray-500 mb-4">Av. Agamenon Magalhães x Av. Boa Vista</p>
             <div className="flex gap-3 mb-4">
-              <div className="flex-1 bg-white rounded-lg shadow min-h-[120px] max-h-[150px] p-4 flex flex-col">
+              <div className="flex-1 bg-white rounded-lg shadow-sm min-h-[120px] max-h-[150px] p-4 flex flex-col">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-gray-600">Participação feminina</h4>
@@ -832,7 +832,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                 </div>
               </div>
 
-              <div className="flex-1 bg-white rounded-lg shadow min-h-[120px] max-h-[150px] p-4 flex flex-col">
+              <div className="flex-1 bg-white rounded-lg shadow-sm min-h-[120px] max-h-[150px] p-4 flex flex-col">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-gray-600">Tempo médio de trajeto</h4>
@@ -900,7 +900,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                 <select 
                   value={selectedMotivation}
                   onChange={(e) => setSelectedMotivation(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="todas">Todas as motivações</option>
                   <option value="rapido_pratico">Rápido e prático</option>
@@ -957,7 +957,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
           <div className={`mt-5 transition-all duration-300 w-full overflow-hidden ${
             animatingCards.has('analise') ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
           }`}>
-            <div className="bg-white rounded-lg shadow min-h-[400px] max-h-[600px] p-6 w-full overflow-hidden">
+            <div className="bg-white rounded-lg shadow-sm min-h-[400px] max-h-[600px] p-6 w-full overflow-hidden">
             <div className="flex items-center gap-2 mb-4">
               <h3 className="text-lg font-semibold text-gray-800">Análise completa dos dados</h3>
               <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group">
@@ -973,7 +973,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
               <Swiper
                 spaceBetween={16}
                 slidesPerView="auto"
-                className="!overflow-hidden"
+                className="overflow-hidden!"
               >
                 {[
                   { title: 'Estacionar em Ciclovia', label: 'Infrações registradas', value: '1.247', progress: 85 },
@@ -989,8 +989,8 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
                   { title: 'Parar sobre Faixa', label: 'Bloqueios identificados', value: '345', progress: 55 },
                   { title: 'Desrespeito à Sinalização', label: 'Violações flagradas', value: '2.567', progress: 92 }
                 ].map((item, i) => (
-                  <SwiperSlide key={i} className="!w-[180px] !max-w-[180px] flex-shrink-0">
-                    <div className="w-[180px] h-[100px] bg-blue-50 rounded-lg border border-blue-200 p-3 flex flex-shrink-0">
+                  <SwiperSlide key={i} className="w-[180px]! max-w-[180px]! shrink-0">
+                    <div className="w-[180px] h-[100px] bg-blue-50 rounded-lg border border-blue-200 p-3 flex shrink-0">
                       <div className="flex-1">
                         <h4 className="text-xs font-semibold text-gray-800 mb-1">{item.title}</h4>
                         <p className="text-xs text-gray-500 mb-2">{item.label}</p>
@@ -1032,7 +1032,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
       
       {/* Modal Maximizado */}
       {maximizedCard && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4" role="dialog" aria-modal="true" aria-labelledby="maximized-card-title">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-4" role="dialog" aria-modal="true" aria-labelledby="maximized-card-title">
           <div ref={modalRef} tabIndex={-1} className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b">
               <h2 id="maximized-card-title" className="text-xl font-bold text-gray-800">
@@ -1043,7 +1043,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
               </h2>
               <button
                 onClick={() => setMaximizedCard(null)}
-                className="p-2 hover:bg-gray-100 rounded transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-sm transition-colors"
                 aria-label="Fechar modal"
               >
                 <X size={24} />
@@ -1179,11 +1179,11 @@ function PerfilTable() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center mt-2 gap-1 flex-shrink-0">
+      <div className="flex items-center justify-center mt-2 gap-1 shrink-0">
         <button
           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-1 rounded-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ChevronLeft className="w-3 h-3" />
         </button>
@@ -1204,7 +1204,7 @@ function PerfilTable() {
         <button
           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-1 rounded-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ChevronRight className="w-3 h-3" />
         </button>

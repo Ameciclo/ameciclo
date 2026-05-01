@@ -107,7 +107,7 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
 
   if (!isMounted) {
     return (
-      <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+      <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
         <div className="text-center">
           <h2 className="text-gray-600 text-2xl mb-4">Compare com outras contagens</h2>
           <p className="text-gray-500 mb-4">Carregando dados...</p>
@@ -118,7 +118,7 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
 
   if (!data || data.length === 0) {
     return (
-      <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-gray-50">
+      <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
         <div className="text-center">
           <h2 className="text-gray-600 text-2xl mb-4">Compare com outras contagens</h2>
           <p className="text-gray-500 mb-4">Nenhuma outra contagem disponível para comparação no momento.</p>

@@ -6,7 +6,7 @@ function ColumnFilter({ column }: any) {
     const { filterValue, setFilter } = column;
     return (
         <input
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent"
             type="text"
             placeholder="Buscar..."
             value={filterValue || ""}
@@ -29,7 +29,7 @@ function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, 
     return (
         <div className="flex gap-2 items-center">
             <input
-                className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#008080]"
+                className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm focus:outline-hidden focus:ring-1 focus:ring-ameciclo"
                 value={filterValue[0] || ""}
                 type="number"
                 onChange={(e) => {
@@ -40,7 +40,7 @@ function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, 
             />
             <span className="text-xs text-gray-500">a</span>
             <input
-                className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#008080]"
+                className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm focus:outline-hidden focus:ring-1 focus:ring-ameciclo"
                 value={filterValue[1] || ""}
                 type="number"
                 onChange={(e) => {
@@ -64,7 +64,7 @@ function SelectColumnFilter({ column: { filterValue, setFilter, preFilteredRows,
 
     return (
         <select
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent"
             value={filterValue}
             onChange={(e) => setFilter(e.target.value || undefined)}
         >
@@ -90,7 +90,7 @@ export const IdecicloTable = ({ title, data }: any) => {
                     <Link
                         to="/dados/ideciclo/$id"
                         params={{ id: String(row.original.id) }}
-                        className={`hover:underline ${row.original.cidade === 1 ? "text-[#008080] font-medium" : "text-gray-700"
+                        className={`hover:underline ${row.original.cidade === 1 ? "text-ameciclo font-medium" : "text-gray-700"
                             }`}
                     >
                         {row.original.logradouro}
@@ -137,7 +137,7 @@ export const IdecicloTable = ({ title, data }: any) => {
                     xmlns="http://www.w3.org/2000/svg"
                     width="100%" height="57" viewBox="0 0 488 57"
                     fill="none"
-                    className="absolute bottom-[-30px] transform drop-shadow-sm w-auto scale-x-[0.75] sm:scale-x-125"
+                    className="absolute bottom-[-30px] transform drop-shadow-xs w-auto scale-x-[0.75] sm:scale-x-125"
                     style={{ filter: 'drop-shadow(0px 3px 4px rgba(0, 0, 0, 0.25))' }}
                 >
                     <g filter="url(#filter0_d_70_1545)">
@@ -145,7 +145,7 @@ export const IdecicloTable = ({ title, data }: any) => {
                     </g>
                 </svg>
                 <h2
-                    className="text-2xl sm:text-5xl font-bold bg-[#EFC345] text-gray-700 rounded-[2.5rem] shadow-[0px_6px_8px_rgba(0,0,0,0.25)] inline-flex items-center justify-center h-[6rem] px-[2.1875rem] py-[1rem] gap-[1rem] flex-shrink-0 relative z-10">
+                    className="text-2xl sm:text-5xl font-bold bg-[#EFC345] text-gray-700 rounded-[2.5rem] shadow-[0px_6px_8px_rgba(0,0,0,0.25)] inline-flex items-center justify-center h-24 px-8.75 py-4 gap-4 shrink-0 relative z-10">
                     {title}
                 </h2>
             </div>

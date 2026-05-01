@@ -30,7 +30,7 @@ function NumberBox({ title, value, unit = undefined }: any) {
       <h3>{title}</h3>
       {isLoading ? (
         <div className="mt-2 space-y-2 animate-pulse">
-          <div className="h-10 bg-gray-300 rounded w-3/4 mx-auto"></div>
+          <div className="h-10 bg-gray-300 rounded-sm w-3/4 mx-auto"></div>
         </div>
       ) : (
         <h3 className="text-3xl sm:text-5xl font-bold mt-2">{value}</h3>
@@ -47,7 +47,7 @@ function LinksBox({ title, value }: any) {
       {value.map((v: any) => (
         <Link
           to={v.url}
-          className="border border-teal-500 bg-ameciclo text-white hover:bg-red-500 hover:border-red-300 rounded px-4 py-2 mt-2"
+          className="border border-teal-500 bg-ameciclo text-white hover:bg-red-500 hover:border-red-300 rounded-sm px-4 py-2 mt-2"
         >
           {v.label}
         </Link>

@@ -82,7 +82,7 @@ export default function ViasRankingTable({
           value={filterValue || ''}
           onChange={e => setFilter(e.target.value || undefined)}
           placeholder="Buscar ranking"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
         />
       ),
       Cell: ({ value, row }: any) => (
@@ -136,7 +136,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
               }}
               placeholder="Mín"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
             <input
               value={max || ''}
@@ -146,7 +146,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
               }}
               placeholder="Máx"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
           </div>
         );
@@ -178,7 +178,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
               }}
               placeholder="Mín km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
             <input
               value={max || ''}
@@ -189,7 +189,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
               }}
               placeholder="Máx km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
           </div>
         );

@@ -161,7 +161,7 @@ export function LeftSidebar({
   };
   return (
     <aside 
-      className={`bg-gray-50 border-r transition-all duration-300 flex-shrink-0 overflow-hidden flex flex-col ${
+      className={`bg-gray-50 border-r transition-all duration-300 shrink-0 overflow-hidden flex flex-col ${
         isOpen ? 'w-72' : 'w-0'
       }`} 
       style={{height: '100%'}}
@@ -169,7 +169,7 @@ export function LeftSidebar({
       aria-label="Filtros de camadas de dados"
     >
       {/* Fixed header */}
-      <div className={`items-center justify-between p-3 bg-gray-50 border-b border-gray-200 flex-shrink-0 ${
+      <div className={`items-center justify-between p-3 bg-gray-50 border-b border-gray-200 shrink-0 ${
         isOpen ? 'flex' : 'hidden md:flex flex-col gap-2'
       }`}>
         <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export function LeftSidebar({
           <div className="flex items-center gap-1">
             <button
               onClick={toggleAllOptions}
-              className="hover:bg-gray-200 rounded transition-colors p-1"
+              className="hover:bg-gray-200 rounded-sm transition-colors p-1"
               title={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
               aria-label={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
             >
@@ -202,7 +202,7 @@ export function LeftSidebar({
             </button>
             <button
               onClick={allCollapsed ? expandAll : collapseAll}
-              className="hover:bg-gray-200 rounded transition-colors p-1"
+              className="hover:bg-gray-200 rounded-sm transition-colors p-1"
               title={allCollapsed ? 'Expandir todas as seções de filtros' : 'Minimizar todas as seções de filtros'}
               aria-label={allCollapsed ? 'Expandir todas as seções de filtros' : 'Minimizar todas as seções de filtros'}
               aria-expanded={!allCollapsed}
@@ -268,13 +268,13 @@ export function LeftSidebar({
                 loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
               />
               
-              <div className="bg-white rounded border" role="region" aria-labelledby="estacionamento-heading">
+              <div className="bg-white rounded-sm border" role="region" aria-labelledby="estacionamento-heading">
                 <div className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => onEstacionamentoToggleAll?.(estacionamentoOptions, selectedEstacionamento.length === 0)}
-                        className="hover:bg-gray-50 rounded p-1 transition-colors"
+                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
                         title={selectedEstacionamento.length > 0 ? 'Ocultar todas as opções de estacionamento' : 'Exibir todas as opções de estacionamento'}
                         aria-label={selectedEstacionamento.length > 0 ? 'Ocultar todas as opções de estacionamento' : 'Exibir todas as opções de estacionamento'}
                       >
@@ -284,7 +284,7 @@ export function LeftSidebar({
                     </div>
                     <button 
                       onClick={() => toggleSection('estacionamento')}
-                      className="hover:bg-gray-50 rounded p-1 transition-colors"
+                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
                       title={collapsedSections.has('estacionamento') ? 'Expandir seção de estacionamento' : 'Minimizar seção de estacionamento'}
                       aria-label={collapsedSections.has('estacionamento') ? 'Expandir seção de estacionamento' : 'Minimizar seção de estacionamento'}
                       aria-expanded={!collapsedSections.has('estacionamento')}
@@ -309,14 +309,14 @@ export function LeftSidebar({
                         onClick={() => onEstacionamentoToggle(option)}
                         className={`w-full flex items-center gap-2 p-2 rounded transition-all duration-200 text-left ${
                           selectedEstacionamento.includes(option)
-                            ? 'bg-teal-50 border border-teal-200 shadow-sm'
+                            ? 'bg-teal-50 border border-teal-200 shadow-xs'
                             : 'hover:bg-gray-50 border border-transparent'
                         }`}
                         title={selectedEstacionamento.includes(option) ? `Ocultar ${option.toLowerCase()}` : `Exibir ${option.toLowerCase()}`}
                         aria-label={selectedEstacionamento.includes(option) ? `Ocultar ${option}` : `Exibir ${option}`}
                         aria-pressed={selectedEstacionamento.includes(option)}
                       >
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           {selectedEstacionamento.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
                         </div>
                         <div className="flex items-center justify-between flex-1">
@@ -340,7 +340,7 @@ export function LeftSidebar({
                 )}
               </div>
               
-              <div className="bg-white rounded border" role="region" aria-labelledby="perfil-heading">
+              <div className="bg-white rounded-sm border" role="region" aria-labelledby="perfil-heading">
                 <div className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export function LeftSidebar({
                             });
                           }
                         }}
-                        className="hover:bg-gray-50 rounded p-1 transition-colors"
+                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
                         title={selectedAno.length > 0 ? 'Ocultar todos os anos de edições de perfil de ciclista' : 'Exibir todos os anos de edições de perfil de ciclista'}
                         aria-label={selectedAno.length > 0 ? 'Ocultar todos os anos' : 'Exibir todos os anos'}
                       >
@@ -369,7 +369,7 @@ export function LeftSidebar({
                     </div>
                     <button 
                       onClick={() => toggleSection('perfil-pontos')}
-                      className="hover:bg-gray-50 rounded p-1 transition-colors"
+                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
                       title={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
                       aria-label={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
                       aria-expanded={!collapsedSections.has('perfil-pontos')}
@@ -400,7 +400,7 @@ export function LeftSidebar({
                         }}
                         className={`flex items-center gap-2 p-2 rounded transition-all duration-200 cursor-pointer ${
                           selectedAno.includes(option)
-                            ? 'bg-teal-50 border border-teal-200 shadow-sm'
+                            ? 'bg-teal-50 border border-teal-200 shadow-xs'
                             : 'hover:bg-gray-50 border border-transparent'
                         }`}
                         role="button"
@@ -409,11 +409,11 @@ export function LeftSidebar({
                         aria-label={`${selectedAno.includes(option) ? 'Ocultar' : 'Exibir'} edição ${option}`}
                         aria-pressed={selectedAno.includes(option)}
                       >
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           {selectedAno.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
                         </div>
                         <span className={`text-sm transition-colors ${selectedAno.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Edição {option}</span>
-                        <div className="ml-auto bg-purple-500 text-white px-2 py-0.5 rounded shadow-sm border border-purple-700 flex items-center gap-1">
+                        <div className="ml-auto bg-purple-500 text-white px-2 py-0.5 rounded-sm shadow-xs border border-purple-700 flex items-center gap-1">
                           <User className="w-2.5 h-2.5 text-white" aria-hidden="true" />
                           <span className="text-[9px] font-medium">{option}</span>
                         </div>
@@ -475,7 +475,7 @@ export function LeftSidebar({
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="fixed top-1/2 -translate-y-1/2 left-2 md:left-4 z-[60] bg-blue-500 md:bg-white border-2 border-blue-500 rounded-full p-3 md:p-2 shadow-xl hover:bg-blue-600 md:hover:bg-gray-100 transition-colors"
+          className="fixed top-1/2 -translate-y-1/2 left-2 md:left-4 z-60 bg-blue-500 md:bg-white border-2 border-blue-500 rounded-full p-3 md:p-2 shadow-xl hover:bg-blue-600 md:hover:bg-gray-100 transition-colors"
           title="Expandir painel de filtros de camadas"
           aria-label="Expandir painel de filtros de camadas"
           aria-expanded="false"

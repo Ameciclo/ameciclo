@@ -20,9 +20,9 @@ function OptionItem({
   onToggle: (option: string) => void;
   isLoading?: boolean;
 }) {
-  const baseClassName = `${hasPattern ? 'block' : 'flex items-center space-x-2'} p-2 rounded cursor-pointer transition-all duration-200`;
+  const baseClassName = `${hasPattern ? 'block' : 'flex items-center space-x-2'} p-2 rounded-sm cursor-pointer transition-all duration-200`;
   const defaultClassName = `${baseClassName} hover:bg-gray-50 border border-transparent`;
-  const selectedClassName = `${baseClassName} bg-teal-50 border border-teal-200 shadow-sm`;
+  const selectedClassName = `${baseClassName} bg-teal-50 border border-teal-200 shadow-xs`;
   
   const handleClick = () => {
     onToggle(option.name);
@@ -49,7 +49,7 @@ function OptionItem({
       {hasPattern ? (
         <>
           <div className="flex items-center space-x-2 mb-1">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
               ) : isSelected ? (
@@ -71,7 +71,7 @@ function OptionItem({
         </>
       ) : (
         <>
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             {isLoading ? (
               <div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
             ) : isSelected ? (
@@ -85,7 +85,7 @@ function OptionItem({
               {option.name}
             </span>
             {option.name === 'Contagem da Prefeitura' && (
-              <div className="bg-white text-black px-1 py-0.5 rounded border-2 border-black flex items-center gap-1 text-[8px]">
+              <div className="bg-white text-black px-1 py-0.5 rounded-sm border-2 border-black flex items-center gap-1 text-[8px]">
                 <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path d="M3 3v18h18"/>
                   <path d="M18 17V9"/>
@@ -96,7 +96,7 @@ function OptionItem({
               </div>
             )}
             {option.name === 'Contagem da Ameciclo' && (
-              <div className="bg-green-500 text-white px-1 py-0.5 rounded border-2 border-green-700 flex items-center gap-1 text-[8px]">
+              <div className="bg-green-500 text-white px-1 py-0.5 rounded-sm border-2 border-green-700 flex items-center gap-1 text-[8px]">
                 <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path d="M3 3v18h18"/>
                   <path d="M18 17V9"/>
@@ -173,7 +173,7 @@ export function FilterSection({
   };
 
   return (
-    <div className="bg-white rounded border relative">
+    <div className="bg-white rounded-sm border relative">
       <div className="p-2">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -249,7 +249,7 @@ export function FilterSection({
       {comingSoon && (
         <>
           <div 
-            className="absolute inset-0 bg-white z-10 flex items-center justify-center rounded"
+            className="absolute inset-0 bg-white z-10 flex items-center justify-center rounded-sm"
             style={{
               animation: 'comingSoonPulse 3.5s ease-in-out infinite'
             }}

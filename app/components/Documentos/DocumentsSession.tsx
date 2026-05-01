@@ -56,7 +56,7 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Search and Filters Section */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+      <div className="bg-white rounded-lg shadow-xs border p-6 mb-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-end">
           {/* Search Bar */}
           <div className="flex-1">
@@ -68,7 +68,7 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
               <input
                 type="text"
                 placeholder="Digite o título do documento..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -83,7 +83,7 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
             <select
               value={selectedDocumentOrder}
               onChange={(e) => setSelectedDocumentsOrder(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden bg-white"
             >
               <option value="date-newer">Mais recente</option>
               <option value="date-older">Mais antigo</option>
@@ -100,7 +100,7 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
             <select
               value={selectedDocumentType}
               onChange={(e) => setSelectedDocumentType(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden bg-white"
             >
               {docTypes.map((type) => (
                 <option key={type.value} value={type.value}>
