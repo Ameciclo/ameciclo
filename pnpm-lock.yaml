@@ -77,9 +77,6 @@ importers:
       react-highlighter-ts:
         specifier: ^18.0.1
         version: 18.0.1
-      react-lazyload:
-        specifier: ^3.2.1
-        version: 3.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-map-gl:
         specifier: ^8.1.1
         version: 8.1.1(maplibre-gl@5.24.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2516,12 +2513,6 @@ packages:
 
   react-highlighter-ts@18.0.1:
     resolution: {integrity: sha512-F6nNxaskfS5e7EwRWwpVHXJ8MB+CMr0MY1Uop8cHFNexQyciUklIPCJZTeD420H6YZI4kr3LvHe14NeKgxhCww==}
-
-  react-lazyload@3.2.1:
-    resolution: {integrity: sha512-oDLlLOI/rRLY0fUh/HYFCy4CqCe7zdJXv6oTl2pC30tN3ezWxvwcdHYfD/ZkrGOMOOT5pO7hNLSvg7WsmAij1w==}
-    peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
   react-map-gl@8.1.1:
     resolution: {integrity: sha512-aSqFAFoxvY7wxbGI93Dz0E41171mkAb3GcNbnkFIotmu88OFw495os6mIDZSi7irYNT/PZEIOEHUxhun4ToGuQ==}
@@ -5280,11 +5271,6 @@ snapshots:
   react-highlighter-ts@18.0.1:
     dependencies:
       react: 18.3.1
-
-  react-lazyload@3.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   react-map-gl@8.1.1(maplibre-gl@5.24.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

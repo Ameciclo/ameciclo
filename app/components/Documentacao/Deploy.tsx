@@ -58,7 +58,6 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
           <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Utilitários</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
-              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-lazyload</strong> (v3.2.1) - Lazy loading</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>react-table</strong> (v7.8.0) - Tabelas avançadas</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>isbot</strong> (v4.1.0) - Detecção de bots</li>
             </ul>
