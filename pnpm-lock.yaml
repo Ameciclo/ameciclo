@@ -65,9 +65,6 @@ importers:
       match-sorter:
         specifier: ^8.0.0
         version: 8.3.0
-      prop-types:
-        specifier: ^15.8.1
-        version: 15.8.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -80,9 +77,6 @@ importers:
       react-highlighter-ts:
         specifier: ^18.0.1
         version: 18.0.1
-      react-lazyload:
-        specifier: ^3.2.1
-        version: 3.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-map-gl:
         specifier: ^8.1.1
         version: 8.1.1(maplibre-gl@5.24.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2462,9 +2456,6 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  prop-types@15.8.1:
-    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
-
   property-information@7.1.0:
     resolution: {integrity: sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ==}
 
@@ -2494,15 +2485,6 @@ packages:
 
   react-highlighter-ts@18.0.1:
     resolution: {integrity: sha512-F6nNxaskfS5e7EwRWwpVHXJ8MB+CMr0MY1Uop8cHFNexQyciUklIPCJZTeD420H6YZI4kr3LvHe14NeKgxhCww==}
-
-  react-is@16.13.1:
-    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
-
-  react-lazyload@3.2.1:
-    resolution: {integrity: sha512-oDLlLOI/rRLY0fUh/HYFCy4CqCe7zdJXv6oTl2pC30tN3ezWxvwcdHYfD/ZkrGOMOOT5pO7hNLSvg7WsmAij1w==}
-    peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
   react-map-gl@8.1.1:
     resolution: {integrity: sha512-aSqFAFoxvY7wxbGI93Dz0E41171mkAb3GcNbnkFIotmu88OFw495os6mIDZSi7irYNT/PZEIOEHUxhun4ToGuQ==}
@@ -5261,12 +5243,6 @@ snapshots:
 
   prettier@3.8.3: {}
 
-  prop-types@15.8.1:
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react-is: 16.13.1
-
   property-information@7.1.0: {}
 
   protocol-buffers-schema@3.6.1: {}
@@ -5293,13 +5269,6 @@ snapshots:
   react-highlighter-ts@18.0.1:
     dependencies:
       react: 18.3.1
-
-  react-is@16.13.1: {}
-
-  react-lazyload@3.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   react-map-gl@8.1.1(maplibre-gl@5.24.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
