@@ -46,8 +46,8 @@ export function DataSubmenu() {
               <Link
                 key={subPage.name}
                 to={subPage.url}
-                className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-81 pointer-events-auto hover:bg-white hover:bg-opacity-10 flex items-center gap-2 ${
-                  isActive ? 'bg-white bg-opacity-20 font-semibold shadow-xs' : ''
+                className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-81 pointer-events-auto hover:bg-white/10 flex items-center gap-2 ${
+                  isActive ? 'bg-white/20 font-semibold shadow-xs' : ''
                 }`}
               >
                 {subPage.icon && (
@@ -57,7 +57,7 @@ export function DataSubmenu() {
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
+                    className="absolute inset-0 bg-white/15 rounded-md"
                     initial={false}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
@@ -82,8 +82,8 @@ export function DataSubmenu() {
                 <Link
                   key={subPage.name}
                   to={subPage.url}
-                  className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-81 pointer-events-auto hover:bg-white hover:bg-opacity-10 whitespace-nowrap flex items-center gap-2 ${
-                    isActive ? 'bg-white bg-opacity-20 font-semibold shadow-xs' : ''
+                  className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-81 pointer-events-auto hover:bg-white/10 whitespace-nowrap flex items-center gap-2 ${
+                    isActive ? 'bg-white/20 font-semibold shadow-xs' : ''
                   }`}
                 >
                   {subPage.icon && (
@@ -93,7 +93,7 @@ export function DataSubmenu() {
                   {isActive && (
                     <motion.div
                       layoutId="activeTabMobile"
-                      className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
+                      className="absolute inset-0 bg-white/15 rounded-md"
                       initial={false}
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />

@@ -963,7 +963,7 @@ function ToogleButton({ value, onChange, checked, disabled }: any) {
           checked 
             ? 'bg-ameciclo text-white border-ameciclo shadow-xs' 
             : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
-        } focus-within:ring-2 focus-within:ring-ameciclo focus-within:ring-opacity-50`}
+        } focus-within:ring-2 focus-within:ring-ameciclo/50`}
       >
         {value}
       </div>

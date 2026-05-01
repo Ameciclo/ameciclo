@@ -114,7 +114,7 @@ export default function ImageGalleryWithZoom({
   const currentImage = images[currentIndex];
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black bg-opacity-95">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/95">
       <div className="relative w-full h-full">
         {/* Botão fechar discreto */}
         <button
@@ -122,7 +122,7 @@ export default function ImageGalleryWithZoom({
             e.stopPropagation();
             onClose();
           }}
-          className="absolute top-4 right-4 z-30 text-white hover:text-gray-300 text-2xl bg-black bg-opacity-40 hover:bg-opacity-60 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200"
+          className="absolute top-4 right-4 z-30 text-white hover:text-gray-300 text-2xl bg-black/40 hover:bg-black/60 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200"
           title="Fechar (ESC)"
         >
           ×
@@ -141,7 +141,7 @@ export default function ImageGalleryWithZoom({
               e.stopPropagation();
               zoomIn();
             }}
-            className="text-white hover:text-gray-300 text-2xl font-bold bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center"
+            className="text-white hover:text-gray-300 text-2xl font-bold bg-black/50 rounded-full w-10 h-10 flex items-center justify-center"
             title="Zoom In (+)"
           >
             +
@@ -151,7 +151,7 @@ export default function ImageGalleryWithZoom({
               e.stopPropagation();
               zoomOut();
             }}
-            className="text-white hover:text-gray-300 text-2xl font-bold bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center"
+            className="text-white hover:text-gray-300 text-2xl font-bold bg-black/50 rounded-full w-10 h-10 flex items-center justify-center"
             title="Zoom Out (-)"
           >
             −
@@ -161,7 +161,7 @@ export default function ImageGalleryWithZoom({
               e.stopPropagation();
               resetZoom();
             }}
-            className="text-white hover:text-gray-300 text-xs font-bold bg-black bg-opacity-50 rounded-sm px-2 py-1"
+            className="text-white hover:text-gray-300 text-xs font-bold bg-black/50 rounded-sm px-2 py-1"
             title="Reset Zoom"
           >
             1:1
@@ -202,7 +202,7 @@ export default function ImageGalleryWithZoom({
                 setCurrentIndex(prev => prev > 0 ? prev - 1 : images.length - 1);
                 resetZoom();
               }}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 text-white hover:text-gray-300 text-5xl font-bold bg-black bg-opacity-50 rounded-full w-14 h-14 flex items-center justify-center"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 text-white hover:text-gray-300 text-5xl font-bold bg-black/50 rounded-full w-14 h-14 flex items-center justify-center"
             >
               ‹
             </button>
@@ -212,7 +212,7 @@ export default function ImageGalleryWithZoom({
                 setCurrentIndex(prev => prev < images.length - 1 ? prev + 1 : 0);
                 resetZoom();
               }}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 text-white hover:text-gray-300 text-5xl font-bold bg-black bg-opacity-50 rounded-full w-14 h-14 flex items-center justify-center"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 text-white hover:text-gray-300 text-5xl font-bold bg-black/50 rounded-full w-14 h-14 flex items-center justify-center"
             >
               ›
             </button>
@@ -221,19 +221,19 @@ export default function ImageGalleryWithZoom({
 
         {/* Caption */}
         {currentImage.caption && (
-          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-40 text-white text-center bg-black bg-opacity-70 px-6 py-3 rounded-lg max-w-2xl">
+          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-40 text-white text-center bg-black/70 px-6 py-3 rounded-lg max-w-2xl">
             {currentImage.caption}
           </div>
         )}
 
         {/* Contador e zoom info */}
-        <div className="absolute bottom-4 right-4 z-40 text-white text-sm bg-black bg-opacity-70 px-3 py-2 rounded-lg">
+        <div className="absolute bottom-4 right-4 z-40 text-white text-sm bg-black/70 px-3 py-2 rounded-lg">
           <div>{currentIndex + 1} / {images.length}</div>
           <div className="text-xs opacity-75">Zoom: {Math.round(zoom * 100)}%</div>
         </div>
 
         {/* Instruções */}
-        <div className="absolute bottom-4 left-4 z-40 text-white text-xs bg-black bg-opacity-70 px-3 py-2 rounded-lg max-w-xs">
+        <div className="absolute bottom-4 left-4 z-40 text-white text-xs bg-black/70 px-3 py-2 rounded-lg max-w-xs">
           <div>← → Navegar</div>
           <div>+ − Zoom</div>
           <div>Scroll: Zoom</div>

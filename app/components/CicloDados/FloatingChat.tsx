@@ -17,14 +17,14 @@ export function FloatingChat({ isOpen, onToggle }: FloatingChatProps) {
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <div className="bg-linear-to-r from-pink-500 to-purple-600 p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <span className="font-medium text-white">IA Ameciclo</span>
               </div>
               <button 
                 onClick={onToggle}
-                className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
+                className="text-white hover:bg-white/20 rounded-full p-1 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

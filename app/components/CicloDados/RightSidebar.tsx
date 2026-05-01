@@ -601,7 +601,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode, mapSelection }: Right
             <div className="flex items-center gap-2">
               <button 
                 onClick={onToggle}
-                className="hover:bg-white hover:bg-opacity-20 rounded-sm text-white transition-colors p-1"
+                className="hover:bg-white/20 rounded-sm text-white transition-colors p-1"
                 title={isOpen ? 'Minimizar' : 'Expandir'}
               >
                 <svg className={`w-4 h-4 transition-transform ${
@@ -615,7 +615,7 @@ export function RightSidebar({ isOpen, onToggle, viewMode, mapSelection }: Right
             {isOpen && (
               <button
                 onClick={allCollapsed ? expandAll : collapseAll}
-                className="hover:bg-white hover:bg-opacity-20 rounded-sm text-white transition-colors p-1"
+                className="hover:bg-white/20 rounded-sm text-white transition-colors p-1"
                 title={allCollapsed ? 'Expandir todos' : 'Recolher todos'}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

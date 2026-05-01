@@ -253,11 +253,11 @@ const ProjectSlide = memo(
               backgroundPosition: "center",
             }}
           />
-          <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+          <div className="absolute inset-0 bg-black/30"></div>
 
           <div className="absolute inset-0 flex items-center justify-center p-4">
             <div
-              className="rounded-lg shadow-xl bg-white bg-opacity-65 max-w-[320px] md:max-w-[800px] w-full"
+              className="rounded-lg shadow-xl bg-white/65 max-w-[320px] md:max-w-[800px] w-full"
               onMouseEnter={onMouseEnter}
               onMouseLeave={onMouseLeave}
             >

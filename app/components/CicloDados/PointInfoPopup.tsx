@@ -298,7 +298,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100">
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -311,7 +311,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100">
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-red-600">Erro</h3>
@@ -368,7 +368,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100 p-4">
       <div ref={modalRef} className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="point-info-title">
         {/* Header */}
         <div className="flex justify-between items-center p-5 border-b bg-linear-to-r from-gray-50 to-white">

@@ -1032,7 +1032,7 @@ export function MuralView({ sidebarOpen, onSidebarToggle }: MuralViewProps) {
       
       {/* Modal Maximizado */}
       {maximizedCard && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-4" role="dialog" aria-modal="true" aria-labelledby="maximized-card-title">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100 p-4" role="dialog" aria-modal="true" aria-labelledby="maximized-card-title">
           <div ref={modalRef} tabIndex={-1} className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b">
               <h2 id="maximized-card-title" className="text-xl font-bold text-gray-800">

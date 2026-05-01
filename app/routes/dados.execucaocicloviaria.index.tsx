@@ -105,7 +105,7 @@ function ExecucaoCicloviaria() {
             />
             <div className="relative">
                 {apiDown && (
-                    <div className="absolute inset-0 bg-white bg-opacity-90 z-10 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-white/90 z-10 flex items-center justify-center">
                         <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-8 max-w-md mx-4">
                             <div className="text-center">
                                 <svg className="w-16 h-16 text-orange-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

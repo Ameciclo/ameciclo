@@ -1332,7 +1332,7 @@ export function MapView({
         if (loadingLayers.has('perfil')) loadingLayerNames.push('Perfil de Ciclistas');
         
         return loadingLayerNames.length > 0 ? (
-          <div className="absolute bottom-4 left-4 z-60 bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
+          <div className="absolute bottom-4 left-4 z-60 bg-black/75 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             <span>Carregando {loadingLayerNames.join(', ')}...</span>
           </div>
