@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { AdminTopbar } from "~/components/Admin/AdminTopbar";
 import { ContagensTable, type ContagemRow } from "~/components/Admin/ContagensTable";
@@ -35,9 +35,11 @@ function AdminContagens() {
         title="Contagens"
         description="Gestão das contagens de ciclistas registradas pela Ameciclo."
         actions={
-          <Button size="sm" disabled>
-            <Plus className="size-4" />
-            Nova contagem
+          <Button asChild size="sm">
+            <Link to="/admin/contagens/nova">
+              <Plus className="size-4" />
+              Nova contagem
+            </Link>
           </Button>
         }
       />
