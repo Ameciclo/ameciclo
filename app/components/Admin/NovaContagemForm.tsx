@@ -350,36 +350,13 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
             />
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            <div className="space-y-3">
-              <Label className="text-sm">Aproximações</Label>
-              <p className="text-xs text-muted-foreground">
-                Nomeie cada perna do {form.topology === "point" ? "trecho" : "cruzamento"}.
-                Os nomes aparecem no diagrama e nos cabeçalhos da matriz.
-              </p>
-              <div className="space-y-2">
-                {form.approaches.map((label, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium tabular-nums">
-                      {idx + 1}
-                    </span>
-                    <Input
-                      value={label}
-                      onChange={(e) => setApproach(idx, e.target.value)}
-                      placeholder={`Aproximação ${idx + 1}`}
-                      aria-label={`Nome da aproximação ${idx + 1}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <TopologyDiagram
-              topology={form.topology}
-              approaches={form.approaches}
-              movements={form.movements}
-            />
-          </div>
+          <TopologyDiagram
+            topology={form.topology}
+            approaches={form.approaches}
+            movements={form.movements}
+            onApproachChange={setApproach}
+            onMovementChange={setMovement}
+          />
         </CardContent>
       </Card>
 
@@ -435,20 +412,11 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
         <CardHeader>
           <CardTitle>Resultados</CardTitle>
           <CardDescription>
-            Movimentos contados de cada aproximação para as demais (sem retorno
-            na mesma perna). O total é calculado automaticamente.
+            Os movimentos são editados clicando nas setas do diagrama acima.
+            Use a tabela quando precisar revisar todos os valores de uma vez.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <MovementMatrix
-            approaches={form.approaches}
-            movements={form.movements}
-            onChange={setMovement}
-          />
-          {submitted && errors.movements && (
-            <p className="text-xs text-destructive">{errors.movements}</p>
-          )}
-
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-md border bg-muted/40 px-4 py-3 flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Total de ciclistas</span>
@@ -472,6 +440,25 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
               />
             </Field>
           </div>
+
+          {submitted && errors.movements && (
+            <p className="text-xs text-destructive">{errors.movements}</p>
+          )}
+
+          <details className="rounded-md border bg-background group">
+            <summary className="cursor-pointer px-4 py-2.5 text-sm font-medium text-foreground select-none flex items-center justify-between">
+              <span>Ver matriz completa</span>
+              <span className="text-xs text-muted-foreground group-open:hidden">expandir</span>
+              <span className="text-xs text-muted-foreground hidden group-open:inline">recolher</span>
+            </summary>
+            <div className="px-4 pb-4 pt-2">
+              <MovementMatrix
+                approaches={form.approaches}
+                movements={form.movements}
+                onChange={setMovement}
+              />
+            </div>
+          </details>
         </CardContent>
       </Card>
 
