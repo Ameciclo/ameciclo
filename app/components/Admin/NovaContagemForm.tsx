@@ -1,7 +1,8 @@
-import { useState, useMemo, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Save, Info } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { ArrowLeft, Save, Info, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useForm } from "@tanstack/react-form";
+
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -25,30 +26,19 @@ import {
   TOPOLOGY_DIRECTIONS,
   emptyMovements,
   totalCyclists,
-  type Movements,
   type Topology,
 } from "~/components/Admin/topology/types";
 import { cn } from "~/lib/utils";
-
-type Characteristics = {
-  women: string;
-  juveniles: string;
-  ride: string;
-  helmet: string;
-  service: string;
-  cargo: string;
-  shared_bike: string;
-  sidewalk: string;
-  wrong_way: string;
-  motor: string;
-  rain: string;
-  other_active_modes: string;
-  other_behaviors: string;
-  others: string;
-};
+import { createContagem } from "~/admin/contagens/server/createContagem";
+import {
+  NovaFormSchema,
+  CHARACTERISTIC_KEYS,
+  type CharacteristicKey,
+  type NovaFormValues,
+} from "~/admin/contagens/schema/nova-form";
 
 const CHARACTERISTICS_FIELDS: Array<{
-  key: keyof Characteristics;
+  key: CharacteristicKey;
   label: string;
   group: "perfil" | "comportamento" | "modal" | "ambiente";
 }> = [
@@ -75,42 +65,7 @@ const GROUP_LABELS: Record<string, string> = {
   ambiente: "Ambiente / outros",
 };
 
-type LocationMode = "existing" | "new";
-
-type FormState = {
-  locationMode: LocationMode;
-  existingLocationId: number | string | null;
-  locationName: string;
-  topology: Topology;
-  approaches: string[];
-  movements: Movements;
-  date: string;
-  start_time: string;
-  end_time: string;
-  max_hour_cyclists: string;
-  weather_conditions: string;
-  notes: string;
-  characteristics: Characteristics;
-};
-
-const EMPTY_CHARACTERISTICS: Characteristics = {
-  women: "",
-  juveniles: "",
-  ride: "",
-  helmet: "",
-  service: "",
-  cargo: "",
-  shared_bike: "",
-  sidewalk: "",
-  wrong_way: "",
-  motor: "",
-  rain: "",
-  other_active_modes: "",
-  other_behaviors: "",
-  others: "",
-};
-
-function initialState(): FormState {
+function defaultValues(): NovaFormValues {
   const topology: Topology = "crossroad";
   const approachCount = TOPOLOGY_DIRECTIONS[topology].length;
   return {
@@ -121,12 +76,14 @@ function initialState(): FormState {
     approaches: Array.from({ length: approachCount }, () => ""),
     movements: emptyMovements(approachCount),
     date: "",
-    start_time: "",
-    end_time: "",
-    max_hour_cyclists: "",
-    weather_conditions: "",
+    startTime: "",
+    endTime: "",
+    maxHourCyclists: "",
+    weatherConditions: "",
     notes: "",
-    characteristics: EMPTY_CHARACTERISTICS,
+    characteristics: Object.fromEntries(
+      CHARACTERISTIC_KEYS.map((k) => [k, ""]),
+    ) as Record<CharacteristicKey, string>,
   };
 }
 
@@ -135,142 +92,112 @@ function toIntOrZero(s: string): number {
   return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
 }
 
+function diffMinutes(a: string, b: string): number {
+  if (!a || !b) return 0;
+  const [ah, am] = a.split(":").map(Number);
+  const [bh, bm] = b.split(":").map(Number);
+  return bh * 60 + bm - (ah * 60 + am);
+}
+
 export function NovaContagemForm({ locations }: { locations: LocationOption[] }) {
-  const [form, setForm] = useState<FormState>(initialState);
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
 
-  // Keep approaches/movements arrays in sync when topology changes.
-  useEffect(() => {
-    const target = TOPOLOGY_DIRECTIONS[form.topology].length;
-    if (form.approaches.length === target) return;
-    setForm((s) => {
-      const approaches = Array.from(
-        { length: target },
-        (_, i) => s.approaches[i] ?? "",
+  const form = useForm({
+    defaultValues: defaultValues(),
+    validators: { onSubmit: NovaFormSchema },
+    onSubmit: async ({ value }) => {
+      const sessionMinutes = diffMinutes(value.startTime, value.endTime);
+      const startedAt = `${value.date}T${value.startTime}:00`;
+
+      const movementsArrays: Record<string, number[]> = Object.fromEntries(
+        Object.entries(value.movements).map(([k, v]) => [k, [toIntOrZero(v)]]),
       );
-      return { ...s, approaches, movements: emptyMovements(target) };
-    });
-  }, [form.topology, form.approaches.length]);
+      const characteristicsArrays: Record<string, number[]> = Object.fromEntries(
+        Object.entries(value.characteristics)
+          .map(([k, v]) => [k, [toIntOrZero(v)]] as const)
+          .filter(([, [n]]) => n > 0),
+      );
 
-  const total = totalCyclists(form.movements);
-  const charsSum = useMemo(
-    () =>
-      (Object.keys(form.characteristics) as Array<keyof Characteristics>).reduce(
-        (acc, k) => acc + toIntOrZero(form.characteristics[k]),
-        0,
-      ),
-    [form.characteristics],
-  );
+      try {
+        const result = await createContagem({
+          data: {
+            localName: value.locationName,
+            startedAt,
+            timezone: "America/Recife",
+            bucketMinutes: sessionMinutes > 0 ? sessionMinutes : 60,
+            bucketCount: 1,
+            latitude: null,
+            longitude: null,
+            topology: value.topology,
+            notes: value.notes || null,
+            data: {
+              approaches: value.approaches,
+              movements: movementsArrays,
+              characteristics: characteristicsArrays,
+              outros: [],
+              bucketNotes: value.weatherConditions
+                ? [{ fromBucket: 0, toBucket: 0, note: value.weatherConditions }]
+                : [],
+            },
+          },
+        });
+        toast.success("Contagem registrada", {
+          description: `ID ${result.id} · ${result.totals.cyclists.toLocaleString("pt-BR")} ciclistas`,
+        });
+        router.navigate({ to: "/admin/contagens" });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Erro ao salvar contagem.";
+        toast.error("Não foi possível salvar.", { description: message });
+      }
+    },
+  });
 
-  const errors = useMemo(() => {
-    const e: Partial<Record<string, string>> = {};
-    if (!form.locationName.trim()) e.locationName = "Informe um nome para o ponto.";
-    if (form.locationMode === "existing" && form.existingLocationId == null) {
-      e.existingLocationId = "Selecione um ponto da lista.";
-    }
-    if (!form.date) e.date = "Informe a data.";
-    if (!form.start_time) e.start_time = "Informe o horário de início.";
-    if (!form.end_time) e.end_time = "Informe o horário de término.";
-    if (form.start_time && form.end_time && form.end_time <= form.start_time) {
-      e.end_time = "Deve ser depois do início.";
-    }
-    if (total === 0) e.movements = "A matriz precisa ter ao menos um movimento contado.";
-    return e;
-  }, [form, total]);
+  /* ----- mode + topology change handlers (no useEffect) ---------------- */
 
-  const hasErrors = Object.keys(errors).length > 0;
-
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((s) => ({ ...s, [key]: value }));
+  function onModeChange(mode: NovaFormValues["locationMode"]) {
+    form.setFieldValue("locationMode", mode);
+    form.setFieldValue("existingLocationId", null);
+    form.setFieldValue("locationName", "");
   }
 
-  function setApproach(i: number, value: string) {
-    setForm((s) => {
-      const approaches = [...s.approaches];
-      approaches[i] = value;
-      return { ...s, approaches };
-    });
-  }
-
-  function setMovement(key: string, value: string) {
-    setForm((s) => ({ ...s, movements: { ...s.movements, [key]: value } }));
-  }
-
-  function setChar(key: keyof Characteristics, value: string) {
-    setForm((s) => ({
-      ...s,
-      characteristics: { ...s.characteristics, [key]: value },
-    }));
-  }
-
-  function changeMode(mode: LocationMode) {
-    setForm((s) => ({
-      ...s,
-      locationMode: mode,
-      // Reset cross-mode fields so they don't leak between flows.
-      existingLocationId: null,
-      locationName: "",
-    }));
-  }
-
-  function selectExisting(id: number | string | null) {
+  function onExistingSelect(id: number | string | null) {
     const picked = locations.find((l) => String(l.id) === String(id));
-    setForm((s) => ({
-      ...s,
-      existingLocationId: id,
-      locationName: picked?.name ?? "",
-    }));
+    form.setFieldValue("existingLocationId", id);
+    form.setFieldValue("locationName", picked?.name ?? "");
   }
 
-  function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setSubmitted(true);
-    if (hasErrors) {
-      toast.error("Confira os campos destacados.");
-      return;
-    }
+  function onTopologyChange(t: Topology) {
+    const target = TOPOLOGY_DIRECTIONS[t].length;
+    const current = form.getFieldValue("approaches") ?? [];
+    const next = Array.from({ length: target }, (_, i) => current[i] ?? "");
+    form.setFieldValue("topology", t);
+    form.setFieldValue("approaches", next);
+    // Movement keys reference approach indices, so they're invalidated by a
+    // topology change.
+    form.setFieldValue("movements", emptyMovements(target));
+  }
 
-    const payload = {
-      location: {
-        mode: form.locationMode,
-        existing_id: form.existingLocationId,
-        name: form.locationName,
-        topology: form.topology,
-        approaches: form.approaches.map((a, i) => ({
-          index: i,
-          label: a,
-          direction: TOPOLOGY_DIRECTIONS[form.topology][i],
-        })),
-      },
-      session: {
-        date: form.date,
-        start_time: form.start_time,
-        end_time: form.end_time,
-      },
-      results: {
-        total_cyclists: total,
-        max_hour_cyclists: toIntOrZero(form.max_hour_cyclists),
-        movements: Object.fromEntries(
-          Object.entries(form.movements).map(([k, v]) => [k, toIntOrZero(v)]),
-        ),
-      },
-      characteristics: Object.fromEntries(
-        (Object.keys(form.characteristics) as Array<keyof Characteristics>).map(
-          (k) => [k, toIntOrZero(form.characteristics[k])],
-        ),
-      ),
-      weather_conditions: form.weather_conditions || null,
-      notes: form.notes || null,
-    };
+  function onApproachChange(idx: number, value: string) {
+    const next = [...(form.getFieldValue("approaches") ?? [])];
+    next[idx] = value;
+    form.setFieldValue("approaches", next);
+  }
 
-    console.info("[admin/contagens/nova] payload", payload);
-    toast.success("Contagem pronta para envio", {
-      description: "A camada de dados ainda não está conectada — payload no console.",
+  function onMovementChange(key: string, value: string) {
+    form.setFieldValue("movements", {
+      ...(form.getFieldValue("movements") ?? {}),
+      [key]: value,
     });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
+      className="space-y-6 max-w-4xl"
+    >
       {/* Local */}
       <Card>
         <CardHeader>
@@ -281,82 +208,109 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div role="tablist" className="inline-flex rounded-md border bg-muted/40 p-1 text-sm">
-            {(["existing", "new"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                role="tab"
-                aria-selected={form.locationMode === m}
-                onClick={() => changeMode(m)}
-                className={cn(
-                  "px-3 py-1.5 rounded-sm transition-colors",
-                  form.locationMode === m
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {m === "existing" ? "Selecionar existente" : "Novo ponto"}
-              </button>
-            ))}
-          </div>
+          <form.Subscribe selector={(s) => s.values.locationMode}>
+            {(locationMode) => (
+              <div role="tablist" className="inline-flex rounded-md border bg-muted/40 p-1 text-sm">
+                {(["existing", "new"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    role="tab"
+                    aria-selected={locationMode === m}
+                    onClick={() => onModeChange(m)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-sm transition-colors",
+                      locationMode === m
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {m === "existing" ? "Selecionar existente" : "Novo ponto"}
+                  </button>
+                ))}
+              </div>
+            )}
+          </form.Subscribe>
 
-          {form.locationMode === "existing" ? (
-            <Field
-              label="Ponto de contagem"
-              htmlFor="existing-location"
-              required
-              error={submitted ? errors.existingLocationId : undefined}
-            >
-              <LocationCombobox
-                options={locations}
-                value={form.existingLocationId}
-                onChange={selectExisting}
-              />
-            </Field>
-          ) : (
-            <Field
-              label="Nome do ponto"
-              htmlFor="location-name"
-              required
-              error={submitted ? errors.locationName : undefined}
-              hint="Ex: 'Av. Caxangá com Rua Cosme Viana'"
-            >
-              <Input
-                id="location-name"
-                value={form.locationName}
-                onChange={(e) => set("locationName", e.target.value)}
-                placeholder="Cruzamento da Av. Caxangá com..."
-                required
-              />
-            </Field>
-          )}
+          <form.Subscribe selector={(s) => s.values.locationMode}>
+            {(locationMode) =>
+              locationMode === "existing" ? (
+                <form.Field name="existingLocationId">
+                  {(field) => (
+                    <Field
+                      label="Ponto de contagem"
+                      htmlFor="existing-location"
+                      required
+                      error={fieldError(field)}
+                    >
+                      <LocationCombobox
+                        options={locations}
+                        value={field.state.value}
+                        onChange={onExistingSelect}
+                      />
+                    </Field>
+                  )}
+                </form.Field>
+              ) : (
+                <form.Field name="locationName">
+                  {(field) => (
+                    <Field
+                      label="Nome do ponto"
+                      htmlFor="location-name"
+                      required
+                      error={fieldError(field)}
+                      hint="Ex: 'Av. Caxangá com Rua Cosme Viana'"
+                    >
+                      <Input
+                        id="location-name"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Cruzamento da Av. Caxangá com..."
+                      />
+                    </Field>
+                  )}
+                </form.Field>
+              )
+            }
+          </form.Subscribe>
 
-          {form.locationMode === "existing" && form.locationName && (
-            <div className="rounded-md bg-muted/40 px-3 py-2 text-sm">
-              <span className="text-muted-foreground">Selecionado: </span>
-              <span className="font-medium">{form.locationName}</span>
-            </div>
-          )}
+          <form.Subscribe selector={(s) => [s.values.locationMode, s.values.locationName] as const}>
+            {([locationMode, locationName]) =>
+              locationMode === "existing" && locationName ? (
+                <div className="rounded-md bg-muted/40 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">Selecionado: </span>
+                  <span className="font-medium">{locationName}</span>
+                </div>
+              ) : null
+            }
+          </form.Subscribe>
 
           <div>
             <Label className="text-sm">Topologia</Label>
             <p className="mt-1 mb-3 text-xs text-muted-foreground">
               Define quantas aproximações o ponto possui e os movimentos possíveis.
             </p>
-            <TopologyPicker
-              value={form.topology}
-              onChange={(t) => set("topology", t)}
-            />
+            <form.Subscribe selector={(s) => s.values.topology}>
+              {(topology) => <TopologyPicker value={topology} onChange={onTopologyChange} />}
+            </form.Subscribe>
           </div>
 
-          <TopologyDiagram
-            topology={form.topology}
-            approaches={form.approaches}
-            movements={form.movements}
-            onApproachChange={setApproach}
-            onMovementChange={setMovement}
-          />
+          <form.Subscribe
+            selector={(s) =>
+              [s.values.topology, s.values.approaches, s.values.movements] as const
+            }
+          >
+            {([topology, approaches, movements]) => (
+              <TopologyDiagram
+                topology={topology}
+                approaches={approaches}
+                movements={movements}
+                onApproachChange={onApproachChange}
+                onMovementChange={onMovementChange}
+              />
+            )}
+          </form.Subscribe>
         </CardContent>
       </Card>
 
@@ -367,43 +321,45 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           <CardDescription>Quando a contagem foi feita.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
-          <Field label="Data" htmlFor="date" required error={submitted ? errors.date : undefined}>
-            <Input
-              id="date"
-              type="date"
-              value={form.date}
-              onChange={(e) => set("date", e.target.value)}
-              required
-            />
-          </Field>
-          <Field
-            label="Início"
-            htmlFor="start_time"
-            required
-            error={submitted ? errors.start_time : undefined}
-          >
-            <Input
-              id="start_time"
-              type="time"
-              value={form.start_time}
-              onChange={(e) => set("start_time", e.target.value)}
-              required
-            />
-          </Field>
-          <Field
-            label="Término"
-            htmlFor="end_time"
-            required
-            error={submitted ? errors.end_time : undefined}
-          >
-            <Input
-              id="end_time"
-              type="time"
-              value={form.end_time}
-              onChange={(e) => set("end_time", e.target.value)}
-              required
-            />
-          </Field>
+          <form.Field name="date">
+            {(field) => (
+              <Field label="Data" htmlFor="date" required error={fieldError(field)}>
+                <Input
+                  id="date"
+                  type="date"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </Field>
+            )}
+          </form.Field>
+          <form.Field name="startTime">
+            {(field) => (
+              <Field label="Início" htmlFor="start_time" required error={fieldError(field)}>
+                <Input
+                  id="start_time"
+                  type="time"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </Field>
+            )}
+          </form.Field>
+          <form.Field name="endTime">
+            {(field) => (
+              <Field label="Término" htmlFor="end_time" required error={fieldError(field)}>
+                <Input
+                  id="end_time"
+                  type="time"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </Field>
+            )}
+          </form.Field>
         </CardContent>
       </Card>
 
@@ -418,32 +374,37 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-md border bg-muted/40 px-4 py-3 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total de ciclistas</span>
-              <Badge className="text-base font-semibold tabular-nums" variant="secondary">
-                {total.toLocaleString("pt-BR")}
-              </Badge>
-            </div>
-            <Field
-              label="Pico em 1 hora"
-              htmlFor="max_hour_cyclists"
-              hint="Maior contagem observada em uma janela de 60 min."
-            >
-              <Input
-                id="max_hour_cyclists"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                step={1}
-                value={form.max_hour_cyclists}
-                onChange={(e) => set("max_hour_cyclists", e.target.value)}
-              />
-            </Field>
+            <form.Subscribe selector={(s) => s.values.movements}>
+              {(movements) => (
+                <div className="rounded-md border bg-muted/40 px-4 py-3 flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Total de ciclistas</span>
+                  <Badge className="text-base font-semibold tabular-nums" variant="secondary">
+                    {totalCyclists(movements).toLocaleString("pt-BR")}
+                  </Badge>
+                </div>
+              )}
+            </form.Subscribe>
+            <form.Field name="maxHourCyclists">
+              {(field) => (
+                <Field
+                  label="Pico em 1 hora"
+                  htmlFor="max_hour_cyclists"
+                  hint="Maior contagem observada em uma janela de 60 min."
+                >
+                  <Input
+                    id="max_hour_cyclists"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    step={1}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                </Field>
+              )}
+            </form.Field>
           </div>
-
-          {submitted && errors.movements && (
-            <p className="text-xs text-destructive">{errors.movements}</p>
-          )}
 
           <details className="rounded-md border bg-background group">
             <summary className="cursor-pointer px-4 py-2.5 text-sm font-medium text-foreground select-none flex items-center justify-between">
@@ -452,11 +413,17 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
               <span className="text-xs text-muted-foreground hidden group-open:inline">recolher</span>
             </summary>
             <div className="px-4 pb-4 pt-2">
-              <MovementMatrix
-                approaches={form.approaches}
-                movements={form.movements}
-                onChange={setMovement}
-              />
+              <form.Subscribe
+                selector={(s) => [s.values.approaches, s.values.movements] as const}
+              >
+                {([approaches, movements]) => (
+                  <MovementMatrix
+                    approaches={approaches}
+                    movements={movements}
+                    onChange={onMovementChange}
+                  />
+                )}
+              </form.Subscribe>
             </div>
           </details>
         </CardContent>
@@ -483,36 +450,54 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
               </h3>
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {CHARACTERISTICS_FIELDS.filter((f) => f.group === group).map((f) => (
-                  <Field key={f.key} label={f.label} htmlFor={`char-${f.key}`}>
-                    <Input
-                      id={`char-${f.key}`}
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      step={1}
-                      placeholder="0"
-                      value={form.characteristics[f.key]}
-                      onChange={(e) => setChar(f.key, e.target.value)}
-                    />
-                  </Field>
+                  <form.Field key={f.key} name={`characteristics.${f.key}` as const}>
+                    {(field) => (
+                      <Field label={f.label} htmlFor={`char-${f.key}`}>
+                        <Input
+                          id={`char-${f.key}`}
+                          type="number"
+                          inputMode="numeric"
+                          min={0}
+                          step={1}
+                          placeholder="0"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </Field>
+                    )}
+                  </form.Field>
                 ))}
               </div>
             </div>
           ))}
 
-          <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-3 text-sm">
-            <span className="text-muted-foreground">Soma das características vs. total</span>
-            <span className="flex items-center gap-2">
-              <Badge variant="secondary" className="tabular-nums">
-                {charsSum.toLocaleString("pt-BR")} / {total.toLocaleString("pt-BR")}
-              </Badge>
-              {total > 0 && charsSum > total && (
-                <span className="text-xs text-amber-700">
-                  Soma maior que o total — confira se é esperado.
-                </span>
-              )}
-            </span>
-          </div>
+          <form.Subscribe
+            selector={(s) => [s.values.movements, s.values.characteristics] as const}
+          >
+            {([movements, characteristics]) => {
+              const total = totalCyclists(movements);
+              const charsSum = CHARACTERISTIC_KEYS.reduce(
+                (acc, k) => acc + toIntOrZero(characteristics[k] ?? ""),
+                0,
+              );
+              return (
+                <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-3 text-sm">
+                  <span className="text-muted-foreground">Soma das características vs. total</span>
+                  <span className="flex items-center gap-2">
+                    <Badge variant="secondary" className="tabular-nums">
+                      {charsSum.toLocaleString("pt-BR")} / {total.toLocaleString("pt-BR")}
+                    </Badge>
+                    {total > 0 && charsSum > total && (
+                      <span className="text-xs text-amber-700">
+                        Soma maior que o total — confira se é esperado.
+                      </span>
+                    )}
+                  </span>
+                </div>
+              );
+            }}
+          </form.Subscribe>
         </CardContent>
       </Card>
 
@@ -523,27 +508,37 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           <CardDescription>Contexto opcional sobre a contagem.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <Field
-            label="Condição climática"
-            htmlFor="weather_conditions"
-            hint="Ex: ensolarado, garoa, vento forte..."
-          >
-            <Input
-              id="weather_conditions"
-              value={form.weather_conditions}
-              onChange={(e) => set("weather_conditions", e.target.value)}
-              placeholder="Ensolarado, ~28 °C"
-            />
-          </Field>
-          <Field label="Notas" htmlFor="notes" hint="Eventos, obras, particularidades...">
-            <Textarea
-              id="notes"
-              rows={3}
-              value={form.notes}
-              onChange={(e) => set("notes", e.target.value)}
-              placeholder="Obra na via lateral durante a contagem..."
-            />
-          </Field>
+          <form.Field name="weatherConditions">
+            {(field) => (
+              <Field
+                label="Condição climática"
+                htmlFor="weather_conditions"
+                hint="Ex: ensolarado, garoa, vento forte..."
+              >
+                <Input
+                  id="weather_conditions"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Ensolarado, ~28 °C"
+                />
+              </Field>
+            )}
+          </form.Field>
+          <form.Field name="notes">
+            {(field) => (
+              <Field label="Notas" htmlFor="notes" hint="Eventos, obras, particularidades...">
+                <Textarea
+                  id="notes"
+                  rows={3}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Obra na via lateral durante a contagem..."
+                />
+              </Field>
+            )}
+          </form.Field>
         </CardContent>
       </Card>
 
@@ -558,21 +553,35 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           <Button
             type="button"
             variant="outline"
-            onClick={() => {
-              setForm(initialState());
-              setSubmitted(false);
-            }}
+            onClick={() => form.reset(defaultValues())}
           >
             Limpar
           </Button>
-          <Button type="submit">
-            <Save className="size-4" />
-            Salvar contagem
-          </Button>
+          <form.Subscribe selector={(s) => s.isSubmitting}>
+            {(isSubmitting) => (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+                {isSubmitting ? "Salvando..." : "Salvar contagem"}
+              </Button>
+            )}
+          </form.Subscribe>
         </div>
       </div>
     </form>
   );
+}
+
+/** First validation error message for a TanStack Form field, post-submit. */
+function fieldError(field: { state: { meta: { errors: unknown[]; isTouched: boolean } } }): string | undefined {
+  const errs = field.state.meta.errors;
+  if (!errs || errs.length === 0) return undefined;
+  const first = errs[0];
+  if (!first) return undefined;
+  if (typeof first === "string") return first;
+  if (typeof first === "object" && first && "message" in first) {
+    return String((first as { message?: unknown }).message ?? "");
+  }
+  return undefined;
 }
 
 function Field({
@@ -590,15 +599,19 @@ function Field({
   hint?: string;
   children: React.ReactNode;
 }) {
-  const describedBy = [hint && `${htmlFor}-hint`, error && `${htmlFor}-error`]
-    .filter(Boolean)
-    .join(" ") || undefined;
+  const describedBy =
+    [hint && `${htmlFor}-hint`, error && `${htmlFor}-error`].filter(Boolean).join(" ") ||
+    undefined;
 
   return (
     <div className="space-y-1.5">
       <Label htmlFor={htmlFor} className="text-sm">
         {label}
-        {required && <span className="text-destructive ml-0.5" aria-hidden>*</span>}
+        {required && (
+          <span className="text-destructive ml-0.5" aria-hidden>
+            *
+          </span>
+        )}
       </Label>
       <div
         className={cn(
@@ -621,3 +634,4 @@ function Field({
     </div>
   );
 }
+
