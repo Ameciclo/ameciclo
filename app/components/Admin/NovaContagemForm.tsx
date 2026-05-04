@@ -34,37 +34,13 @@ import { createContagem } from "~/admin/contagens/server/createContagem";
 import {
   NovaFormSchema,
   CHARACTERISTIC_KEYS,
+  CHARACTERISTIC_GROUPS,
+  characteristicsInGroup,
   type CharacteristicKey,
   type NovaFormValues,
 } from "~/admin/contagens/schema/nova-form";
-
-const CHARACTERISTICS_FIELDS: Array<{
-  key: CharacteristicKey;
-  label: string;
-  group: "perfil" | "comportamento" | "modal" | "ambiente";
-}> = [
-  { key: "women", label: "Mulheres", group: "perfil" },
-  { key: "juveniles", label: "Crianças e adolescentes", group: "perfil" },
-  { key: "ride", label: "Carona", group: "perfil" },
-  { key: "helmet", label: "Capacete", group: "comportamento" },
-  { key: "wrong_way", label: "Contramão", group: "comportamento" },
-  { key: "sidewalk", label: "Calçada", group: "comportamento" },
-  { key: "service", label: "Serviço", group: "modal" },
-  { key: "cargo", label: "Cargueira", group: "modal" },
-  { key: "shared_bike", label: "Compartilhada", group: "modal" },
-  { key: "motor", label: "Motor / elétrica", group: "modal" },
-  { key: "other_active_modes", label: "Outros modos ativos", group: "modal" },
-  { key: "rain", label: "Sob chuva", group: "ambiente" },
-  { key: "other_behaviors", label: "Outros comportamentos", group: "comportamento" },
-  { key: "others", label: "Outros", group: "ambiente" },
-];
-
-const GROUP_LABELS: Record<string, string> = {
-  perfil: "Perfil",
-  comportamento: "Comportamento",
-  modal: "Tipo de bicicleta",
-  ambiente: "Ambiente / outros",
-};
+import { CHARACTERISTICS } from "~/admin/contagens/schema/contagem-data";
+import { Plus, Trash2 } from "lucide-react";
 
 function defaultValues(): NovaFormValues {
   const topology: Topology = "crossroad";
@@ -85,6 +61,7 @@ function defaultValues(): NovaFormValues {
     characteristics: Object.fromEntries(
       CHARACTERISTIC_KEYS.map((k) => [k, ""]),
     ) as Record<CharacteristicKey, string>,
+    outros: [],
   };
 }
 
@@ -135,7 +112,12 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
               approaches: value.approaches,
               movements: movementsArrays,
               characteristics: characteristicsArrays,
-              outros: [],
+              outros: value.outros
+                .filter((o) => o.label.trim() && toIntOrZero(o.count) > 0)
+                .map((o) => ({
+                  label: o.label.trim(),
+                  buckets: [toIntOrZero(o.count)],
+                })),
               bucketNotes: value.weatherConditions
                 ? [{ fromBucket: 0, toBucket: 0, note: value.weatherConditions }]
                 : [],
@@ -473,61 +455,152 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {(["perfil", "comportamento", "modal", "ambiente"] as const).map((group) => (
-            <div key={group} className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {GROUP_LABELS[group]}
-              </h3>
-              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                {CHARACTERISTICS_FIELDS.filter((f) => f.group === group).map((f) => (
-                  <form.Field key={f.key} name={`characteristics.${f.key}` as const}>
-                    {(field) => (
-                      <Field label={f.label} htmlFor={`char-${f.key}`}>
-                        <Input
-                          id={`char-${f.key}`}
-                          type="number"
-                          inputMode="numeric"
-                          min={0}
-                          step={1}
-                          placeholder="0"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </Field>
-                    )}
-                  </form.Field>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          <form.Subscribe
-            selector={(s) => [s.values.movements, s.values.characteristics] as const}
-          >
-            {([movements, characteristics]) => {
-              const total = totalCyclists(movements);
-              const charsSum = CHARACTERISTIC_KEYS.reduce(
-                (acc, k) => acc + toIntOrZero(characteristics[k] ?? ""),
-                0,
-              );
-              return (
-                <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-3 text-sm">
-                  <span className="text-muted-foreground">Soma das características vs. total</span>
-                  <span className="flex items-center gap-2">
-                    <Badge variant="secondary" className="tabular-nums">
-                      {charsSum.toLocaleString("pt-BR")} / {total.toLocaleString("pt-BR")}
-                    </Badge>
-                    {total > 0 && charsSum > total && (
-                      <span className="text-xs text-amber-700">
-                        Soma maior que o total — confira se é esperado.
-                      </span>
-                    )}
-                  </span>
+          {CHARACTERISTIC_GROUPS.map(({ group, label, rolledUpAs }) => {
+            const keys = characteristicsInGroup(group);
+            if (keys.length === 0) return null;
+            return (
+              <div key={group} className="space-y-3">
+                <div className="flex items-baseline justify-between">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </h3>
+                  {rolledUpAs && (
+                    <form.Subscribe selector={(s) => s.values.characteristics}>
+                      {(characteristics) => {
+                        const sum = keys.reduce(
+                          (acc, k) => acc + toIntOrZero(characteristics[k] ?? ""),
+                          0,
+                        );
+                        return (
+                          <span className="text-xs text-muted-foreground">
+                            {rolledUpAs}{": "}
+                            <Badge variant="secondary" className="tabular-nums">
+                              {sum.toLocaleString("pt-BR")}
+                            </Badge>
+                          </span>
+                        );
+                      }}
+                    </form.Subscribe>
+                  )}
                 </div>
-              );
-            }}
-          </form.Subscribe>
+                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                  {keys.map((k) => (
+                    <form.Field key={k} name={`characteristics.${k}` as const}>
+                      {(field) => (
+                        <Field label={CHARACTERISTICS[k].label} htmlFor={`char-${k}`}>
+                          <Input
+                            id={`char-${k}`}
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            step={1}
+                            placeholder="0"
+                            value={field.state.value ?? ""}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          />
+                        </Field>
+                      )}
+                    </form.Field>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      {/* Outros — ad-hoc per-session observations */}
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-3">
+          <div>
+            <CardTitle>Outros</CardTitle>
+            <CardDescription>
+              Observações pontuais que não estão na taxonomia padrão (ex: "corte
+              de caminho pela calçada do posto").
+            </CardDescription>
+          </div>
+          <form.Field name="outros" mode="array">
+            {(field) => (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => field.pushValue({ label: "", count: "" })}
+              >
+                <Plus className="size-4" />
+                Adicionar
+              </Button>
+            )}
+          </form.Field>
+        </CardHeader>
+        <CardContent>
+          <form.Field name="outros" mode="array">
+            {(field) =>
+              field.state.value.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma observação adicional. Use o botão acima para registrar uma.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {field.state.value.map((_, i) => (
+                    <div
+                      key={i}
+                      className="grid grid-cols-[1fr_120px_auto] gap-2 items-end"
+                    >
+                      <form.Field name={`outros[${i}].label` as const}>
+                        {(sub) => (
+                          <Field
+                            label={i === 0 ? "Descrição" : undefined}
+                            htmlFor={`outro-label-${i}`}
+                            error={fieldError(sub)}
+                          >
+                            <Input
+                              id={`outro-label-${i}`}
+                              value={sub.state.value}
+                              onBlur={sub.handleBlur}
+                              onChange={(e) => sub.handleChange(e.target.value)}
+                              placeholder="Corte de caminho pela calçada do posto"
+                            />
+                          </Field>
+                        )}
+                      </form.Field>
+                      <form.Field name={`outros[${i}].count` as const}>
+                        {(sub) => (
+                          <Field
+                            label={i === 0 ? "Contagem" : undefined}
+                            htmlFor={`outro-count-${i}`}
+                            error={fieldError(sub)}
+                          >
+                            <Input
+                              id={`outro-count-${i}`}
+                              type="number"
+                              inputMode="numeric"
+                              min={0}
+                              step={1}
+                              value={sub.state.value}
+                              onBlur={sub.handleBlur}
+                              onChange={(e) => sub.handleChange(e.target.value)}
+                            />
+                          </Field>
+                        )}
+                      </form.Field>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className="self-end mb-px"
+                        onClick={() => field.removeValue(i)}
+                        aria-label="Remover linha"
+                      >
+                        <Trash2 className="size-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )
+            }
+          </form.Field>
         </CardContent>
       </Card>
 
