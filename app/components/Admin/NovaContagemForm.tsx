@@ -2,6 +2,7 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Save, Info, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -235,7 +236,14 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           <form.Subscribe selector={(s) => s.values.locationMode}>
             {(locationMode) =>
               locationMode === "existing" ? (
-                <form.Field name="existingLocationId">
+                <form.Field
+                  name="existingLocationId"
+                  validators={{
+                    onChange: z
+                      .union([z.number(), z.string(), z.null()])
+                      .refine((v) => v !== null, "Selecione um ponto da lista."),
+                  }}
+                >
                   {(field) => (
                     <Field
                       label="Ponto de contagem"
@@ -252,7 +260,12 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
                   )}
                 </form.Field>
               ) : (
-                <form.Field name="locationName">
+                <form.Field
+                  name="locationName"
+                  validators={{
+                    onBlur: z.string().trim().min(1, "Informe o nome do local."),
+                  }}
+                >
                   {(field) => (
                     <Field
                       label="Nome do ponto"
@@ -321,7 +334,12 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           <CardDescription>Quando a contagem foi feita.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
-          <form.Field name="date">
+          <form.Field
+            name="date"
+            validators={{
+              onBlur: z.string().min(1, "Informe a data."),
+            }}
+          >
             {(field) => (
               <Field label="Data" htmlFor="date" required error={fieldError(field)}>
                 <Input
@@ -334,7 +352,12 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
               </Field>
             )}
           </form.Field>
-          <form.Field name="startTime">
+          <form.Field
+            name="startTime"
+            validators={{
+              onBlur: z.string().min(1, "Informe o início."),
+            }}
+          >
             {(field) => (
               <Field label="Início" htmlFor="start_time" required error={fieldError(field)}>
                 <Input
@@ -347,7 +370,14 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
               </Field>
             )}
           </form.Field>
-          <form.Field name="endTime">
+          <form.Field
+            name="endTime"
+            // Cross-field rule (end > start) stays in the form-level superRefine;
+            // here we just check presence so the message lands inline on blur.
+            validators={{
+              onBlur: z.string().min(1, "Informe o término."),
+            }}
+          >
             {(field) => (
               <Field label="Término" htmlFor="end_time" required error={fieldError(field)}>
                 <Input
@@ -557,9 +587,9 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
           >
             Limpar
           </Button>
-          <form.Subscribe selector={(s) => s.isSubmitting}>
-            {(isSubmitting) => (
-              <Button type="submit" disabled={isSubmitting}>
+          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting] as const}>
+            {([canSubmit, isSubmitting]) => (
+              <Button type="submit" disabled={!canSubmit || isSubmitting}>
                 {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
                 {isSubmitting ? "Salvando..." : "Salvar contagem"}
               </Button>
