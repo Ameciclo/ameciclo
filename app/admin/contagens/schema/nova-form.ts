@@ -4,21 +4,28 @@ import { CHARACTERISTICS } from "~/admin/contagens/schema/contagem-data";
 
 /**
  * Form-side Zod schema for the Nova Contagem form. Holds form state directly.
- * Numeric inputs are kept as strings so empty fields render naturally; we
- * coerce to ints only when submitting to the server fn.
  *
- * `characteristics` keys are the canonical leaves from CHARACTERISTICS in
- * contagem-data.ts (rollups like Caronas / Cargueiras / Serviços / Contramãos
- * are derived for display, not entered).
+ * Per-bucket data: `movements`, `characteristics` and `outros[].counts` are
+ * arrays of strings, one entry per bucket. Length tracks `bucketCount` derived
+ * from `startTime`, `endTime` and `bucketMinutes`. The form renders either
+ * totals (sum of the array) or each bucket cell directly depending on the
+ * current view mode (UI-only state).
  */
-export const CHARACTERISTIC_KEYS = Object.keys(CHARACTERISTICS) as Array<keyof typeof CHARACTERISTICS>;
+export const CHARACTERISTIC_KEYS = Object.keys(CHARACTERISTICS) as Array<
+  keyof typeof CHARACTERISTICS
+>;
 export type CharacteristicKey = (typeof CHARACTERISTIC_KEYS)[number];
+
+const StringBucketArray = z.array(z.string());
 
 const OutroRow = z.object({
   label: z.string().trim().default(""),
-  count: z.string().default(""),
+  counts: StringBucketArray.default([]),
 });
 export type OutroRow = z.infer<typeof OutroRow>;
+
+export const BUCKET_MINUTES_OPTIONS = ["15", "30", "60", "120"] as const;
+export type BucketMinutes = (typeof BUCKET_MINUTES_OPTIONS)[number];
 
 export const NovaFormSchema = z
   .object({
@@ -27,16 +34,15 @@ export const NovaFormSchema = z
     locationName: z.string().trim().min(1, "Informe o nome do local."),
     topology: z.enum(["point", "t_junction", "crossroad"]),
     approaches: z.array(z.string()),
-    movements: z.record(z.string(), z.string()),
+    movements: z.record(z.string(), StringBucketArray),
     date: z.string().min(1, "Informe a data."),
     startTime: z.string().min(1, "Informe o início."),
     endTime: z.string().min(1, "Informe o término."),
+    bucketMinutes: z.enum(BUCKET_MINUTES_OPTIONS).default("60"),
     maxHourCyclists: z.string().default(""),
     weatherConditions: z.string().default(""),
     notes: z.string().default(""),
-    // Canonical leaves only — record string→string for the input layer.
-    characteristics: z.record(z.string(), z.string()).default({}),
-    // Per-session ad-hoc observations (the xlsx "Outros" rows).
+    characteristics: z.record(z.string(), StringBucketArray).default({}),
     outros: z.array(OutroRow).default([]),
   })
   .superRefine((v, ctx) => {
@@ -62,11 +68,12 @@ export const NovaFormSchema = z
         message: `Esperadas ${expectedApproaches} aproximações para ${v.topology}.`,
       });
     }
-    // Total > 0 from movements
     let total = 0;
-    for (const val of Object.values(v.movements)) {
-      const n = Number(val);
-      if (Number.isFinite(n) && n > 0) total += n;
+    for (const arr of Object.values(v.movements)) {
+      for (const cell of arr) {
+        const n = Number(cell);
+        if (Number.isFinite(n) && n > 0) total += n;
+      }
     }
     if (total === 0) {
       ctx.addIssue({
@@ -75,10 +82,9 @@ export const NovaFormSchema = z
         message: "A matriz precisa ter ao menos um movimento contado.",
       });
     }
-    // Outros rows must have a label if a count is entered (and vice-versa).
     v.outros.forEach((row, i) => {
       const hasLabel = row.label.trim().length > 0;
-      const hasCount = Number(row.count) > 0;
+      const hasCount = sumStringArray(row.counts) > 0;
       if (hasCount && !hasLabel) {
         ctx.addIssue({
           code: "custom",
@@ -89,8 +95,8 @@ export const NovaFormSchema = z
       if (hasLabel && !hasCount) {
         ctx.addIssue({
           code: "custom",
-          path: ["outros", i, "count"],
-          message: "Informe a contagem.",
+          path: ["outros", i, "counts"],
+          message: "Informe ao menos uma contagem.",
         });
       }
     });
@@ -98,11 +104,62 @@ export const NovaFormSchema = z
 
 export type NovaFormValues = z.infer<typeof NovaFormSchema>;
 
-/** Display grouping of canonical characteristic keys for the form. Order matters. */
+/* ---------- helpers ---------------------------------------------------- */
+
+export function timeToMinutes(t: string): number {
+  if (!t) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+
+/** Number of buckets covered by [startTime, endTime) at bucketMinutes width.
+ * Returns 0 when times are missing/invalid. */
+export function deriveBucketCount(
+  startTime: string,
+  endTime: string,
+  bucketMinutes: BucketMinutes,
+): number {
+  const start = timeToMinutes(startTime);
+  const end = timeToMinutes(endTime);
+  const width = Number(bucketMinutes);
+  if (!start || !end || end <= start || !width) return 0;
+  return Math.max(0, Math.floor((end - start) / width));
+}
+
+/** Sum of numbers in a string array (NaN/"" treated as 0). */
+export function sumStringArray(arr: string[] | undefined): number {
+  if (!arr) return 0;
+  let s = 0;
+  for (const v of arr) {
+    const n = Number(v);
+    if (Number.isFinite(n) && n > 0) s += Math.trunc(n);
+  }
+  return s;
+}
+
+/** Build an array of length n filled with "". */
+export function emptyBucketArray(n: number): string[] {
+  return Array.from({ length: Math.max(0, n) }, () => "");
+}
+
+/** Read a string-array bucket cell with safe fallback. */
+export function readCell(arr: string[] | undefined, idx: number): string {
+  return arr?.[idx] ?? "";
+}
+
+/** Returns a copy of `arr` resized to `n`, padding with "" or truncating. */
+export function resizeBucketArray(arr: string[] | undefined, n: number): string[] {
+  const out = emptyBucketArray(n);
+  if (!arr) return out;
+  for (let i = 0; i < Math.min(arr.length, n); i++) out[i] = arr[i];
+  return out;
+}
+
+/* ---------- characteristic taxonomy display --------------------------- */
+
 export const CHARACTERISTIC_GROUPS: Array<{
   group: string;
   label: string;
-  /** Optional rollup label shown as a derived total under the group. */
   rolledUpAs?: string;
 }> = [
   { group: "profile", label: "Perfil" },
@@ -115,8 +172,6 @@ export const CHARACTERISTIC_GROUPS: Array<{
   { group: "program", label: "Programa" },
 ];
 
-/** Returns the leaf characteristic keys belonging to a given group, in
- * insertion order from CHARACTERISTICS. */
 export function characteristicsInGroup(group: string): string[] {
   return Object.entries(CHARACTERISTICS)
     .filter(([, meta]) => meta.group === group)

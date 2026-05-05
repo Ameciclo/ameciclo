@@ -1,16 +1,18 @@
 import * as XLSX from "xlsx";
 import type { Topology } from "~/components/Admin/topology/types";
-import { emptyMovements } from "~/components/Admin/topology/types";
-import type { NovaFormValues } from "~/admin/contagens/schema/nova-form";
+import type {
+  BucketMinutes,
+  NovaFormValues,
+} from "~/admin/contagens/schema/nova-form";
 
 /**
  * Parser for the Ameciclo "Dados da Contagem" xlsx template (Resumo + Dados
  * sheets). Returns a partial NovaFormValues the form layer can spread into
  * its defaults; values can be reviewed and edited before submit.
  *
- * The xlsx hourly granularity is collapsed into single totals here because
- * the form is single-bucket today. When per-bucket inputs land, swap the
- * hourly aggregation for arrays.
+ * Per-bucket fidelity: every hourly column becomes one entry in the value
+ * array (movements, characteristics, outros[].counts). The form switches to
+ * "Por hora" automatically when imported data is per-bucket.
  */
 
 /** xlsx label → canonical leaf key (CHARACTERISTICS in contagem-data.ts). */
@@ -41,7 +43,6 @@ const LEAF_BY_LABEL: Record<string, string> = {
   "Faixa Azul": "faixa_azul",
 };
 
-/** Plural rollups that should never be stored as leaves. */
 const ROLLUP_PLURAL_LABELS = new Set(["Caronas", "Cargueiras", "Serviços", "Contramãos"]);
 
 export type ImportResult = {
@@ -52,7 +53,6 @@ export type ImportResult = {
 export function parseContagemXlsx(buffer: ArrayBuffer): ImportResult {
   const wb = XLSX.read(buffer, { type: "array", cellDates: true });
   const warnings: string[] = [];
-
   const out: Partial<NovaFormValues> = {};
 
   /* ----- Resumo: name + date ------------------------------------------- */
@@ -81,8 +81,6 @@ export function parseContagemXlsx(buffer: ArrayBuffer): ImportResult {
       const dd = String(dateValue.getUTCDate()).padStart(2, "0");
       out.date = `${yyyy}-${mm}-${dd}`;
     }
-    // Coordinates kept aside as a warning for now — the form doesn't expose
-    // lat/lng inputs yet, so we just surface them so the user knows.
     const coords = String(resumoMap["Coordenadas Geográficas"] ?? "");
     const coordMatch = coords.match(/(-?\d+\.\d+)[\s,]+(-?\d+\.\d+)/);
     if (coordMatch) {
@@ -107,10 +105,54 @@ export function parseContagemXlsx(buffer: ArrayBuffer): ImportResult {
     raw: true,
   });
 
-  /* movement table: header row contains ORIGEM and DESTINO */
+  /* ----- detect hourly column geometry from movement table header ------ */
   const movHeaderIdx = rows.findIndex(
     (r) => Array.isArray(r) && r.includes("ORIGEM") && r.includes("DESTINO"),
   );
+
+  let bucketCount = 0;
+  let bucketMinutes: BucketMinutes = "60";
+  let startHour = 6;
+
+  if (movHeaderIdx >= 0) {
+    const header = rows[movHeaderIdx] as unknown[];
+    const totalCol = header.indexOf("TOTAL");
+    const destinoCol = header.indexOf("DESTINO");
+    const hourlyHeaders: { col: number; hour: number }[] = [];
+    for (let c = destinoCol + 1; c < (totalCol >= 0 ? totalCol : header.length); c++) {
+      const v = header[c];
+      if (typeof v === "number" && Number.isFinite(v)) {
+        hourlyHeaders.push({ col: c, hour: v });
+      }
+    }
+    if (hourlyHeaders.length > 0) {
+      bucketCount = hourlyHeaders.length;
+      startHour = hourlyHeaders[0].hour;
+      if (hourlyHeaders.length >= 2) {
+        const diffMin = Math.round((hourlyHeaders[1].hour - hourlyHeaders[0].hour) * 60);
+        if (diffMin === 15 || diffMin === 30 || diffMin === 60 || diffMin === 120) {
+          bucketMinutes = String(diffMin) as BucketMinutes;
+        } else {
+          warnings.push(
+            `Largura de bucket atípica (${diffMin}min); usando 60 min como fallback.`,
+          );
+        }
+      }
+      const widthMin = Number(bucketMinutes);
+      const startMin = startHour * 60;
+      const endMin = startMin + bucketCount * widthMin;
+      out.bucketMinutes = bucketMinutes;
+      out.startTime = formatHHMM(startMin);
+      out.endTime = formatHHMM(endMin);
+    }
+  }
+
+  if (bucketCount === 0) {
+    warnings.push("Não foi possível detectar a granularidade horária; usando 1 bucket.");
+    bucketCount = 1;
+  }
+
+  /* ----- movement table ------------------------------------------------- */
   if (movHeaderIdx === -1) {
     warnings.push("Tabela de movimentos não localizada.");
   } else {
@@ -119,26 +161,28 @@ export function parseContagemXlsx(buffer: ArrayBuffer): ImportResult {
     const destinoCol = header.indexOf("DESTINO");
     const totalCol = header.indexOf("TOTAL");
 
-    const movRows: { origem: string; destino: string; total: number }[] = [];
+    type MovRow = { origem: string; destino: string; buckets: string[] };
+    const movRows: MovRow[] = [];
     for (let i = movHeaderIdx + 1; i < rows.length; i++) {
       const row = rows[i];
       if (!Array.isArray(row)) break;
       const origem = row[origemCol];
       const destino = row[destinoCol];
       if (typeof origem !== "string" || typeof destino !== "string") break;
-      const total =
-        totalCol >= 0 && row[totalCol] != null
-          ? Number(row[totalCol])
-          : sumNumeric(row, destinoCol + 1, totalCol >= 0 ? totalCol : row.length);
-      movRows.push({
-        origem: origem.trim(),
-        destino: destino.trim(),
-        total: Number.isFinite(total) ? total : 0,
-      });
+
+      const buckets: string[] = [];
+      const last = totalCol >= 0 ? totalCol : row.length;
+      for (let c = destinoCol + 1; c < last; c++) {
+        const n = Number(row[c]);
+        buckets.push(Number.isFinite(n) && n > 0 ? String(Math.trunc(n)) : "");
+      }
+      // Truncate / pad to bucketCount in case the row is misaligned.
+      while (buckets.length < bucketCount) buckets.push("");
+      buckets.length = bucketCount;
+
+      movRows.push({ origem: origem.trim(), destino: destino.trim(), buckets });
     }
 
-    // Approach order = order of first appearance in ORIGEM column, then any
-    // DESTINO that didn't appear as origem (covers point-style sessions).
     const approachLabels: string[] = [];
     for (const m of movRows) if (!approachLabels.includes(m.origem)) approachLabels.push(m.origem);
     for (const m of movRows) if (!approachLabels.includes(m.destino)) approachLabels.push(m.destino);
@@ -158,26 +202,31 @@ export function parseContagemXlsx(buffer: ArrayBuffer): ImportResult {
             return "crossroad";
           })();
 
-    const movements = emptyMovements(approachLabels.length);
+    const movements: Record<string, string[]> = {};
+    for (let i = 0; i < approachLabels.length; i++) {
+      for (let j = 0; j < approachLabels.length; j++) {
+        if (i !== j) movements[`${i}-${j}`] = Array.from({ length: bucketCount }, () => "");
+      }
+    }
     for (const m of movRows) {
       const i = approachLabels.indexOf(m.origem);
       const j = approachLabels.indexOf(m.destino);
       if (i >= 0 && j >= 0 && i !== j) {
-        movements[`${i}-${j}`] = m.total > 0 ? String(m.total) : "";
+        movements[`${i}-${j}`] = m.buckets;
       }
     }
     out.movements = movements;
   }
 
-  /* characteristic tables: every header row containing "Característica" */
+  /* ----- characteristic tables ----------------------------------------- */
   const charHeaderIdxs: number[] = [];
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     if (Array.isArray(row) && row.includes("Característica")) charHeaderIdxs.push(i);
   }
 
-  const characteristics: Record<string, number> = {};
-  const outros: { label: string; count: number }[] = [];
+  const characteristics: Record<string, string[]> = {};
+  const outros: { label: string; counts: string[] }[] = [];
 
   for (let s = 0; s < charHeaderIdxs.length; s++) {
     const headerIdx = charHeaderIdxs[s];
@@ -185,47 +234,52 @@ export function parseContagemXlsx(buffer: ArrayBuffer): ImportResult {
     const labelCol = header.indexOf("Característica");
     const totalC = header.indexOf("TOTAL");
 
-    type Row = { label: string; total: number };
-    const sectionRows: Row[] = [];
+    type SectionRow = { label: string; total: number; buckets: string[] };
+    const sectionRows: SectionRow[] = [];
     const sectionEnd = charHeaderIdxs[s + 1] ?? rows.length;
     for (let i = headerIdx + 1; i < sectionEnd; i++) {
       const row = rows[i];
       if (!Array.isArray(row)) continue;
       const label = row[labelCol];
       if (typeof label !== "string") continue;
-      // Section divider rows ("Dados qualitativos ...") have no totals.
       if (label.startsWith("Dados qualitativos")) continue;
+
+      const buckets: string[] = [];
+      const last = totalC >= 0 ? totalC : row.length;
+      for (let c = labelCol + 1; c < last; c++) {
+        const n = Number(row[c]);
+        buckets.push(Number.isFinite(n) && n > 0 ? String(Math.trunc(n)) : "");
+      }
+      while (buckets.length < bucketCount) buckets.push("");
+      buckets.length = bucketCount;
+
       const total =
         totalC >= 0 && row[totalC] != null
           ? Number(row[totalC])
-          : sumNumeric(row, labelCol + 1, totalC >= 0 ? totalC : row.length);
-      sectionRows.push({ label: label.trim(), total: Number.isFinite(total) ? total : 0 });
+          : buckets.reduce((acc, x) => acc + (Number(x) || 0), 0);
+      sectionRows.push({ label: label.trim(), total: Number.isFinite(total) ? total : 0, buckets });
     }
 
-    // Decide whether ambiguous singulars ("Serviço", "Contramão") in this
-    // section are leaves or rollups: leaves only if their qualified sibling
-    // (Serviço APP / Contramão para conversão) is also in this section.
     const labels = new Set(sectionRows.map((r) => r.label));
     const servicoIsLeaf = labels.has("Serviço APP");
     const contramaoIsLeaf = labels.has("Contramão para conversão");
 
-    for (const { label, total } of sectionRows) {
+    for (const { label, total, buckets } of sectionRows) {
       if (ROLLUP_PLURAL_LABELS.has(label)) continue;
 
       if (label === "Serviço") {
-        if (servicoIsLeaf && total > 0) characteristics["servico"] = total;
+        if (servicoIsLeaf && total > 0) characteristics["servico"] = buckets;
         continue;
       }
       if (label === "Contramão") {
-        if (contramaoIsLeaf && total > 0) characteristics["contramao"] = total;
+        if (contramaoIsLeaf && total > 0) characteristics["contramao"] = buckets;
         continue;
       }
 
-      // "Outros" with optional " - <descrição>" suffix → ad-hoc row
       if (/^"?Outros"?\s*(-\s*.+)?$/.test(label)) {
         const desc = label.replace(/^"?Outros"?\s*-?\s*/, "").trim();
         if (total > 0 && desc.length > 0) {
-          outros.push({ label: desc, count: total });
+          outros.push({ label: desc, counts: buckets });
         }
         continue;
       }
@@ -237,29 +291,19 @@ export function parseContagemXlsx(buffer: ArrayBuffer): ImportResult {
         }
         continue;
       }
-      if (total > 0) characteristics[key] = total;
+      if (total > 0) characteristics[key] = buckets;
     }
   }
 
-  const characteristicsForForm: Record<string, string> = {};
-  for (const [k, v] of Object.entries(characteristics)) {
-    characteristicsForForm[k] = v > 0 ? String(v) : "";
-  }
-  out.characteristics = characteristicsForForm;
-  out.outros = outros.map((o) => ({ label: o.label, count: String(o.count) }));
-
-  // The xlsx template runs 06h–19h (14 hourly buckets). Use those as defaults.
-  out.startTime ??= "06:00";
-  out.endTime ??= "20:00";
+  out.characteristics = characteristics;
+  out.outros = outros.map((o) => ({ label: o.label, counts: o.counts }));
 
   return { values: out, warnings };
 }
 
-function sumNumeric(row: unknown[], from: number, to: number): number {
-  let s = 0;
-  for (let c = from; c < to; c++) {
-    const v = Number(row[c]);
-    if (Number.isFinite(v)) s += v;
-  }
-  return s;
+function formatHHMM(totalMinutes: number): string {
+  const m = Math.max(0, Math.round(totalMinutes));
+  const h = Math.floor(m / 60).toString().padStart(2, "0");
+  const mm = (m % 60).toString().padStart(2, "0");
+  return `${h}:${mm}`;
 }
