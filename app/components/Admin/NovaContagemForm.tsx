@@ -1,5 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeft, Save, Info, Loader2 } from "lucide-react";
+import { useRef } from "react";
+import { ArrowLeft, Save, Info, Loader2, Upload, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
@@ -40,7 +41,6 @@ import {
   type NovaFormValues,
 } from "~/admin/contagens/schema/nova-form";
 import { CHARACTERISTICS } from "~/admin/contagens/schema/contagem-data";
-import { Plus, Trash2 } from "lucide-react";
 
 function defaultValues(): NovaFormValues {
   const topology: Topology = "crossroad";
@@ -173,6 +173,31 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
     });
   }
 
+  /* ----- xlsx import --------------------------------------------------- */
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  async function handleImportFile(file: File) {
+    const buffer = await file.arrayBuffer();
+    try {
+      const { parseContagemXlsx } = await import("~/admin/contagens/parser/xlsx-import");
+      const { values, warnings } = parseContagemXlsx(buffer);
+      form.reset({ ...defaultValues(), ...values } as NovaFormValues);
+      if (warnings.length > 0) {
+        toast.warning("Importado com observações", {
+          description: warnings.join(" · "),
+        });
+      } else {
+        toast.success("Planilha importada", {
+          description: "Revise os campos antes de salvar.",
+        });
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao ler a planilha.";
+      toast.error("Falha ao importar planilha", { description: message });
+    }
+  }
+
   return (
     <form
       onSubmit={(e) => {
@@ -181,6 +206,35 @@ export function NovaContagemForm({ locations }: { locations: LocationOption[] })
       }}
       className="space-y-6 max-w-4xl"
     >
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImportFile(file);
+          e.target.value = "";
+        }}
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border bg-muted/30 px-4 py-3">
+        <div className="text-sm">
+          <p className="font-medium">Importar de planilha</p>
+          <p className="text-muted-foreground text-xs">
+            Carregue um arquivo .xlsx no template Ameciclo para preencher
+            automaticamente o formulário. Você pode revisar antes de salvar.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="size-4" />
+          Selecionar arquivo
+        </Button>
+      </div>
       {/* Local */}
       <Card>
         <CardHeader>
