@@ -45,4 +45,19 @@
     "GOOGLE_CALENDAR_EXTERNAL_ID": "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
     "GOOGLE_CALENDAR_INTERNAL_ID": "ameciclo@gmail.com",
   },
+  /**
+   * Local-dev only — D1 (SQLite) binding for the admin/contagens prototype.
+   * Production will replace this with a Hyperdrive binding to the existing
+   * Postgres instance; do NOT add a `database_id` here so this stays a
+   * local-only resource (wrangler creates an on-disk SQLite file under
+   * .wrangler/state/v3/d1/).
+   */
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ameciclo-admin-dev",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle",
+    },
+  ],
 }

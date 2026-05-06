@@ -6,6 +6,10 @@ node_modules
 .gemini/
 .playwright-cli/
 .tanstack/
+.wrangler/
+
+# Reference contagem spreadsheets — kept locally for schema reference, not source
+*.xlsx
 
 docs
 
