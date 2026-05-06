@@ -30,10 +30,10 @@ export function CharacteristicsHourlyTable({
     <div className="overflow-x-auto rounded-md border">
       <table className="text-sm">
         <thead>
-          <tr className="bg-muted/40 border-b">
+          <tr className="border-b">
             <th
               scope="col"
-              className="text-left font-medium text-muted-foreground px-3 py-2 text-xs uppercase tracking-wide whitespace-nowrap sticky left-0 z-10 bg-muted/40"
+              className="text-left font-medium text-muted-foreground px-3 py-2 text-xs uppercase tracking-wide whitespace-nowrap sticky left-0 z-20 bg-muted"
             >
               Característica
             </th>
@@ -41,14 +41,14 @@ export function CharacteristicsHourlyTable({
               <th
                 key={b}
                 scope="col"
-                className="font-medium text-foreground px-2 py-2 text-xs whitespace-nowrap"
+                className="font-medium text-foreground px-2 py-2 text-xs whitespace-nowrap bg-muted"
               >
                 {bucketLabel(b)}
               </th>
             ))}
             <th
               scope="col"
-              className="font-medium text-muted-foreground px-3 py-2 text-xs uppercase tracking-wide whitespace-nowrap"
+              className="font-medium text-muted-foreground px-3 py-2 text-xs uppercase tracking-wide whitespace-nowrap bg-muted"
             >
               Total
             </th>
