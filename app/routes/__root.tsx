@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { Navbar } from "~/components/Commom/Navbar";
 import { Footer } from "~/components/Commom/Footer";
-import { GoogleAnalytics } from "~/components/Commom/GoogleAnalytics";
+import { Plausible } from "~/utils/analytics";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { MainContent } from "~/components/Commom/MainContent";
 import { ApiStatusProvider } from "~/contexts/ApiStatusContext";
@@ -86,7 +86,7 @@ function RootComponent() {
           </ApiStatusProvider>
         </QueryClientProvider>
         <Scripts />
-        <GoogleAnalytics gaId="G-PQNS7S7FD3" />
+        <Plausible />
       </body>
     </html>
   );
@@ -111,7 +111,7 @@ function ErrorComponent({ error }: { error: any }) {
           </div>
         </ApiStatusProvider>
         <Scripts />
-        <GoogleAnalytics gaId="G-PQNS7S7FD3" />
+        <Plausible />
       </body>
     </html>
   );
