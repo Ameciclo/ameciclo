@@ -19,7 +19,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   │   │   ├── AccessibilityControls.tsx, ChangeThemeButton.tsx
 │   │   │   ├── ErrorBoundary.tsx, ApiStatusHandler.tsx
 │   │   │   ├── Charts/, Maps/, Table/, Icones/
-│   │   │   └── GoogleAnalytics.tsx, SEO.tsx
+│   │   │   └── SEO.tsx
 │   │   ├── Agenda/         # FullCalendar com Google Calendar API
 │   │   ├── Biciclopedia/   # FAQ com busca e accordion
 │   │   ├── CicloDados/     # Plataforma de dados colaborativos
@@ -62,7 +62,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   ├── hooks/              # Custom hooks
 │   │   ├── useApiWithAlert.ts, useFocusTrap.ts
 │   ├── utils/              # Utilitários
-│   │   ├── mapbox.server.ts, slugify.ts, translations.ts
+│   │   ├── mapbox.server.ts, slugify.ts, translations.ts, analytics.tsx
 │   │   └── contagens/
 │   ├── types/              # TypeScript types
 │   ├── root.tsx            # Root component com layout global
@@ -104,7 +104,6 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
               <li>• <strong>Charts/</strong> - Componentes Highcharts reutilizáveis</li>
               <li>• <strong>Maps/</strong> - Componentes Mapbox GL reutilizáveis</li>
               <li>• <strong>Table/</strong> - Tabelas com filtros e ordenação</li>
-              <li>• <strong>GoogleAnalytics.tsx</strong> - GA4 tracking</li>
             </ul>
           </div>
           
