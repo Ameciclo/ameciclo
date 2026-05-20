@@ -66,16 +66,16 @@ export function getCountingStatistics(location: any, count: any) {
   ];
 }
 
-export function transformOtherCountsForComparison(otherCounts: any[], currentLocationId: number) {
+export function transformOtherCountsForComparison(otherCounts: any[], currentLocationId: number, currentCountId?: number) {
   return (otherCounts || [])
-    .filter((loc: any) => loc.id !== currentLocationId)
     .flatMap((loc: any) =>
       (loc.counts || []).map((count: any) => ({
         id: loc.id,
         name: loc.name,
-        slug: loc.id.toString(),
         date: count.date,
+        countId: count.id,
         total_cyclists: count.total_cyclists,
       }))
-    );
+    )
+    .filter((row: any) => !(row.id === currentLocationId && row.countId === currentCountId));
 }

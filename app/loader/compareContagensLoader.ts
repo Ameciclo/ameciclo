@@ -1,6 +1,7 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
+import { COUNTINGS_ATLAS_LOCATION, COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
 import { fetchWithTimeout } from "~/services/fetchWithTimeout";
+import { contagemSlug } from "~/utils/slugify";
 
 function getBoxesForCountingComparision(data: any[]) {
   const boxes = data.map((location) => {
@@ -32,11 +33,16 @@ function getBoxesForCountingComparision(data: any[]) {
   return boxes;
 }
 
-const fetchLocationData = async (locationId: string) => {
+const fetchLocationData = async (locationId: string, countId?: string) => {
   try {
     const data = await fetchWithTimeout(COUNTINGS_ATLAS_LOCATION(locationId), { cache: "no-cache" }, 5000, null);
     if (!data) return null;
-    
+
+    if (countId && data.counts) {
+      const specificCount = data.counts.find((c: any) => c.id.toString() === countId);
+      if (specificCount) return { ...data, selectedCount: specificCount };
+    }
+
     if (data.counts && data.counts.length > 0) {
       return { ...data, selectedCount: data.counts[0] };
     }
@@ -47,15 +53,32 @@ const fetchLocationData = async (locationId: string) => {
   }
 };
 
+const resolveSlug = (slug: string, locations: any[]): { locationId: string; countId?: string } | null => {
+  if (/^\d+$/.test(slug)) return { locationId: slug };
+  for (const loc of locations) {
+    if (loc.counts && Array.isArray(loc.counts)) {
+      for (const count of loc.counts) {
+        if (contagemSlug(count.date, loc.name) === slug) {
+          return { locationId: loc.id.toString(), countId: count.id.toString() };
+        }
+      }
+    }
+  }
+  return null;
+};
+
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const slugParam = params.slug || "";
   const compareSlugParam = params.compareSlug || "";
   const toCompare = [slugParam, compareSlugParam].filter(Boolean);
 
+  const allLocations = await fetchWithTimeout(COUNTINGS_ATLAS_LOCATIONS, { cache: "no-cache" }, 5000, []);
+
   const data = await Promise.all(
-    toCompare.map(async (locationId) => {
-      const result = await fetchLocationData(locationId);
-      return result;
+    toCompare.map(async (slug) => {
+      const resolved = resolveSlug(slug, allLocations || []);
+      if (!resolved) return null;
+      return fetchLocationData(resolved.locationId, resolved.countId);
     })
   );
 

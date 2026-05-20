@@ -4,6 +4,7 @@ import type { ContagemData } from "~/services/contagens.service";
 import { IntlDateStr } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
 import { ColumnFilter } from "~/components/Commom/Table/TableFilters";
+import { contagemSlug } from "~/utils/slugify";
 
 interface ContagensTableProps {
   data: ContagemData[];
@@ -50,8 +51,9 @@ export function CountsTable({ data }: ContagensTableProps) {
         Header: "Nome",
         accessor: "name",
         Cell: ({ row }: any) => {
-          // Generate slug from ID and name if slug doesn't exist
-          const slug = row.original.id || `${row.original.id}`;
+          const slug = row.original.date
+            ? contagemSlug(row.original.date, row.original.name)
+            : String(row.original.id);
           return (
             <Link
               className="text-ameciclo hover:underline"

@@ -13,6 +13,7 @@ import {
   getCountingStatistics,
   transformOtherCountsForComparison,
 } from "~/services/counting-details.service";
+import { contagemSlug } from "~/utils/slugify";
 
 export { loader };
 
@@ -115,11 +116,14 @@ const Contagem = () => {
                 <Await resolve={Promise.all([dataPromise, pageDataPromise])}>
                     {([data, pageData]) => {
                         if (!data) return null;
-                        const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], data.id);
+                        const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], data.id, data.selectedCount?.id);
+                        const currentSlug = data.selectedCount?.date
+                            ? contagemSlug(data.selectedCount.date, data.name)
+                            : data.id.toString();
                         return (
                             <CountingComparisionTable
                                 data={allCounts}
-                                firstSlug={data.id.toString()}
+                                firstSlug={currentSlug}
                             />
                         );
                     }}

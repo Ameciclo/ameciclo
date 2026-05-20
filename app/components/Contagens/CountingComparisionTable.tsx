@@ -5,6 +5,7 @@ import { Link } from "@remix-run/react";
 import { ColumnFilter, NumberRangeColumnFilter } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
 import { IntlDateStr } from "~/services/utils";
+import { contagemSlug } from "~/utils/slugify";
 
 function fuzzyTextFilterFn(rows: any[], id: string, filterValue: string) {
   return matchSorter(rows, filterValue, { keys: [(row: any) => row.values[id]] });
@@ -55,15 +56,20 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
       {
         Header: "Nome",
         accessor: "name",
-        Cell: ({ row }: { row: any }) => (
-          <Link
-            className="text-ameciclo"
-            to={`/dados/contagens/${row.original.id}`}
-            key={row.original.id}
-          >
-            {row.original.name}
-          </Link>
-        ),
+        Cell: ({ row }: { row: any }) => {
+          const slug = row.original.date
+            ? contagemSlug(row.original.date, row.original.name)
+            : String(row.original.id);
+          return (
+            <Link
+              className="text-ameciclo"
+              to={`/dados/contagens/${slug}`}
+              key={row.original.id}
+            >
+              {row.original.name}
+            </Link>
+          );
+        },
         Filter: ColumnFilter,
       },
       {
@@ -87,15 +93,20 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
       },
       {
         Header: "COMPARE",
-        accessor: "compare", // Adiciona accessor
-        Cell: ({ row }: { row: any }) => (
-          <Link
-            className="text-ameciclo hover:underline font-medium"
-            to={`/dados/contagens/${firstSlug}/compare/${row.original.id}`}
-          >
-            COMPARE
-          </Link>
-        ),
+        accessor: "compare",
+        Cell: ({ row }: { row: any }) => {
+          const compareSlug = row.original.date
+            ? contagemSlug(row.original.date, row.original.name)
+            : String(row.original.id);
+          return (
+            <Link
+              className="text-ameciclo hover:underline font-medium"
+              to={`/dados/contagens/${firstSlug}/compare/${compareSlug}`}
+            >
+              COMPARE
+            </Link>
+          );
+        },
         disableFilters: true,
         disableSortBy: true,
       },

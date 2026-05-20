@@ -13,7 +13,17 @@ export const IntlPercentil = (n: number): string => {
 };
 
 export const IntlDateStr = (str: string): string => {
+  if (!str) return '';
+  const parts = str.slice(0, 10).split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts.map(Number);
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+      return new Intl.DateTimeFormat("pt-BR").format(new Date(year, month - 1, day));
+    }
+  }
+  // Fallback para formatos não-YYYY-MM-DD
   const date = new Date(str);
+  if (isNaN(date.getTime())) return str;
   return new Intl.DateTimeFormat("pt-BR").format(date);
 };
 

@@ -12,6 +12,8 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { colors } from "~/components/Charts/FlowChart/FlowContainer";
 import { VerticalStatisticsBoxes } from "~/components/Contagens/VerticalStatisticsBoxes";
 import { Tooltip } from "~/components/Commom/Tooltip";
+import { contagemSlug } from "~/utils/slugify";
+import { IntlDateStr } from "~/services/utils";
 
 interface Series {
   name: string | undefined;
@@ -68,7 +70,11 @@ function getPointsDataForComparingCounting(data: any[]) {
     const lng = parseFloat(location.longitude);
     
     if (isNaN(lat) || isNaN(lng)) return null;
-    
+
+    const slug = count.date
+      ? contagemSlug(count.date, location.name)
+      : String(location.id);
+
     return {
       key: location.name,
       latitude: lat,
@@ -77,8 +83,8 @@ function getPointsDataForComparingCounting(data: any[]) {
       popup: {
         name: location.name,
         total: count.total_cyclists || 0,
-        date: new Intl.DateTimeFormat("pt-BR").format(new Date(count.date)),
-        url: `/dados/contagens/${location.id}`,
+        date: count.date ? IntlDateStr(count.date) : '',
+        url: `/dados/contagens/${slug}`,
         obs: ""
       },
       size: Math.round((count.total_cyclists || 0) / 250) + 15,
@@ -128,14 +134,19 @@ export default function Compare() {
                         <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
                       </svg>
                     </li>
-                    {data.map((location: any, index: number) => (
-                      <li key={index} className="flex items-center">
-                        <Link to={`/dados/contagens/${location?.id || ''}`} className="text-white">{location?.name || 'Contagem'}</Link>
-                        <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                          <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
-                        </svg>
-                      </li>
-                    ))}
+                    {data.map((location: any, index: number) => {
+                      const locationSlug = location?.selectedCount?.date
+                        ? contagemSlug(location.selectedCount.date, location.name)
+                        : String(location?.id || '');
+                      return (
+                        <li key={index} className="flex items-center">
+                          <Link to={`/dados/contagens/${locationSlug}`} className="text-white">{location?.name || 'Contagem'}</Link>
+                          <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                            <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
+                          </svg>
+                        </li>
+                      );
+                    })}
                     <li className="flex items-center">
                       <span>Comparação</span>
                     </li>
@@ -166,7 +177,7 @@ export default function Compare() {
               text: index === 0 ? 'text-teal-700' : 'text-emerald-700',
               accent: index === 0 ? 'bg-teal-500' : 'bg-emerald-500'
             };
-            
+
                     return (
                       <div key={index} className={`${colors.bg} ${colors.border} border-2 rounded-lg p-6 shadow-lg`}>
                         <div className="flex items-center justify-between mb-4">
@@ -174,7 +185,7 @@ export default function Compare() {
                             <div className={`w-4 h-4 ${colors.accent} rounded-full`}></div>
                             <span className="text-sm font-medium text-gray-600">{data[index]?.name || `Ponto ${index + 1}`}</span>
                           </div>
-                          <span className="text-sm text-gray-500">{box.date}</span>
+                          <span className="text-sm text-gray-500">{box.date ? IntlDateStr(box.date) : ''}</span>
                         </div>
                         
                         <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>{box.title}</h2>
@@ -295,12 +306,19 @@ export default function Compare() {
                           )}
                           
                           <div className="pt-4">
-                            <Link 
-                              to={`/dados/contagens/${data[index]?.slug}`}
-                              className={`inline-block w-full text-center py-3 px-4 ${colors.accent} text-white rounded-md hover:opacity-90 transition-opacity font-medium`}
-                            >
-                              Ver Detalhes Completos
-                            </Link>
+                            {(() => {
+                              const detailSlug = data[index]?.selectedCount?.date
+                                ? contagemSlug(data[index].selectedCount.date, data[index].name)
+                                : String(data[index]?.id);
+                              return (
+                                <Link 
+                                  to={`/dados/contagens/${detailSlug}`}
+                                  className={`inline-block w-full text-center py-3 px-4 ${colors.accent} text-white rounded-md hover:opacity-90 transition-opacity font-medium`}
+                                >
+                                  Ver Detalhes Completos
+                                </Link>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -351,11 +369,23 @@ export default function Compare() {
           <Await resolve={Promise.all([dataPromise, pageDataPromise, Promise.resolve(toCompare)])}>
             {([data, pageData, compareIds]) => {
               const excludeIds = data.map((d: any) => d?.id).filter(Boolean);
-              const filteredData = pageData.otherCounts.filter((d: any) => !excludeIds.includes(d.id));
+              const flatData = (pageData.otherCounts || [])
+                .filter((loc: any) => !excludeIds.includes(loc.id))
+                .flatMap((loc: any) =>
+                  (loc.counts || []).map((count: any) => ({
+                    id: loc.id,
+                    name: loc.name,
+                    date: count.date,
+                    total_cyclists: count.total_cyclists,
+                  }))
+                );
+              const currentSlug = data[0]?.selectedCount?.date
+                ? contagemSlug(data[0].selectedCount.date, data[0].name)
+                : compareIds[0];
               return (
                 <CountingComparisionTable
-                  data={filteredData}
-                  firstSlug={compareIds[0]}
+                  data={flatData}
+                  firstSlug={currentSlug}
                 />
               );
             }}
