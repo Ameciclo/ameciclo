@@ -6,8 +6,9 @@ import { SamuChoroplethMap } from "./SamuChoroplethMap";
 import { SAMU_CALLS_OUTCOMES, SAMU_CALLS_PROFILES } from "~/servers";
 
 interface CityData {
-  id?: string | number;
+  id?: number;
   name?: string;
+  display_name?: string;
   municipio_samu?: string;
   count: number;
   rmr?: boolean;
@@ -56,7 +57,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       .sort((a, b) => b.count - a.count)
       .map((city, index) => ({
         id: city.id || `cidade-${index}`,
-        label: city.name || city.municipio_samu || "N/A",
+        label: city.display_name || city.name || city.municipio_samu || "N/A",
         value: parseInt(String(city.count)) || 0,
         unit: "chamadas",
         ranking: index + 1,
@@ -66,7 +67,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   const rmrCityStats = useMemo(() => {
     return cityStats.filter((city) => {
       const cityData = citiesData?.cidades?.find(
-        (c) => c.name === city.label || c.municipio_samu === city.label
+        (c) => c.municipio_samu === city.label.toUpperCase()
       );
       return cityData?.rmr === true;
     });

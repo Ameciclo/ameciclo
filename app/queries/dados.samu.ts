@@ -6,7 +6,6 @@ import {
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
 import { makeApiErrorTracker } from "~/services/apiTracking";
-import samuMockData from "~/data/samu-mock-data.json";
 
 const fetchSamu = createServerFn().handler(async () => {
   const tracker = makeApiErrorTracker();
@@ -37,66 +36,59 @@ const fetchSamu = createServerFn().handler(async () => {
       }),
     ]);
 
-    let usingMockData = false;
-    let processedData;
-
-    if (summaryData && citiesData) {
-      const totalChamadas = summaryData.totalChamadas || 0;
-      const evolucaoAnual = summaryData.evolucaoAnual || [];
-      const anoMaisViolento =
-        evolucaoAnual.length > 0
-          ? evolucaoAnual.reduce((max: any, curr: any) =>
-              curr.count > max.count ? curr : max
-            )
-          : { ano: 0, count: 0 };
-
-      const cidadeMaisViolenta = summaryData.cidadeMaisViolenta || {};
-      const totalCidades = citiesData.cidades?.length || 0;
-
-      const citiesWithDetails = citiesData.cidades.map(
-        (city: any, index: number) => {
-          const municipio =
-            city.municipio_samu ||
-            city.name ||
-            city.municipio ||
-            `CIDADE_${index}`;
-          return {
-            ...city,
-            municipio,
-            name: city.name || municipio,
-            municipio_samu: city.municipio_samu || municipio,
-          };
-        }
+    if (!summaryData || !citiesData) {
+      throw new Error(
+        "Não foi possível carregar os dados do SAMU. " +
+        "Verifique se o serviço de backend está disponível e tente novamente."
       );
-
-      processedData = {
-        totalChamadas,
-        anoMaisViolento: {
-          ano: anoMaisViolento.ano || 0,
-          total: anoMaisViolento.count || 0,
-        },
-        cidadeMaisViolenta: {
-          municipio: cidadeMaisViolenta.municipio || "N/A",
-          total: cidadeMaisViolenta.totalValidas || 0,
-          percentual:
-            totalChamadas > 0
-              ? ((cidadeMaisViolenta.totalValidas || 0) / totalChamadas) * 100
-              : 0,
-        },
-        totalMunicipios: totalCidades,
-        citiesData: { ...citiesData, cidades: citiesWithDetails },
-      };
-    } else {
-      console.warn("Usando dados estaticos do SAMU");
-      usingMockData = true;
-      processedData = {
-        totalChamadas: 73667,
-        anoMaisViolento: { ano: 2024, total: 20785 },
-        cidadeMaisViolenta: { municipio: "Recife", total: 26904, percentual: 36.5 },
-        totalMunicipios: 72,
-        citiesData: samuMockData.citiesData,
-      };
     }
+
+    const totalChamadas = summaryData.totalChamadas || 0;
+    const evolucaoAnual = summaryData.evolucaoAnual || [];
+    const anoMaisViolento =
+      evolucaoAnual.length > 0
+        ? evolucaoAnual.reduce((max: any, curr: any) =>
+            curr.count > max.count ? curr : max
+          )
+        : { ano: 0, count: 0 };
+
+    const cidadeMaisViolenta = summaryData.cidadeMaisViolenta || {};
+    const totalCidades = citiesData.cidades?.length || 0;
+
+    const citiesWithDetails = citiesData.cidades.map(
+      (city: any, index: number) => {
+        const municipio =
+          city.municipio_samu ||
+          city.name ||
+          city.municipio ||
+          `CIDADE_${index}`;
+        return {
+          ...city,
+          municipio,
+          name: city.display_name || city.name || municipio,
+          municipio_samu: city.municipio_samu || municipio,
+          historico_anual: city.historico_anual,
+        };
+      }
+    );
+
+    const processedData = {
+      totalChamadas,
+      anoMaisViolento: {
+        ano: anoMaisViolento.ano || 0,
+        total: anoMaisViolento.count || 0,
+      },
+      cidadeMaisViolenta: {
+        municipio: cidadeMaisViolenta.municipio || "N/A",
+        total: cidadeMaisViolenta.totalValidas || 0,
+        percentual:
+          totalChamadas > 0
+            ? ((cidadeMaisViolenta.totalValidas || 0) / totalChamadas) * 100
+            : 0,
+      },
+      totalMunicipios: totalCidades,
+      citiesData: { ...citiesData, cidades: citiesWithDetails },
+    };
 
     const statisticsBoxes = [
       {
@@ -150,7 +142,6 @@ const fetchSamu = createServerFn().handler(async () => {
       documents,
       statisticsBoxes,
       citiesData: processedData.citiesData,
-      usingMockData,
       apiDown: summary.apiDown,
       apiErrors: summary.apiErrors,
     };
