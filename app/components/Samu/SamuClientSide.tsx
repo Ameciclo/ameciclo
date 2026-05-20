@@ -66,6 +66,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       .map((city, index) => ({
         id: city.id || `cidade-${index}`,
         label: city.display_name || city.name || city.municipio_samu || "N/A",
+        municipio_samu: city.municipio_samu,
         value: parseInt(String(city.count)) || 0,
         unit: "chamadas",
         ranking: index + 1,
@@ -320,6 +321,23 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     return { totalChamadas: total, allCitiesTableData: tableData };
   }, [cityStats]);
 
+  const selectedCityName = useMemo(() => {
+    if (!selectedCity || !citiesData?.cidades) return "Nenhuma cidade";
+    const match = citiesData.cidades.find(
+      (c: any) => safeNormalize(c.municipio_samu) === safeNormalize(selectedCity)
+    );
+    return match?.display_name || match?.name || match?.municipio_samu || selectedCity;
+  }, [selectedCity, citiesData]);
+
+  const getFilterSummary = (): string => {
+    const period = selectedEndYear
+      ? `${selectedYear} a ${selectedEndYear}`
+      : selectedYear
+        ? `${selectedYear}`
+        : "";
+    return period ? `${selectedCityName} - ${period}` : selectedCityName;
+  };
+
   return (
     <section className="container mx-auto my-12 space-y-12">
       <div className="mx-auto container my-12">
@@ -341,16 +359,16 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         <h2 className="text-3xl font-bold text-center mb-4">
           Ranking das Cidades Perigosas - RMR
         </h2>
-        <p className="text-xl text-center mb-8 text-gray-600">
-          Selecione uma cidade para ver os gráficos detalhados
-        </p>
+        <h3 className="text-xl text-center mb-8 text-gray-600">
+          Selecione uma cidade para ver os gráficos detalhados — {getFilterSummary()}
+        </h3>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           {cityStats.length > 0 ? (
             <div className="mt-6">
               <NumberCards
                 cards={rmrCityStats.map((city) => ({
-                  id: city.label,
+                  id: city.municipio_samu,
                   label: city.label,
                   value: city.value.toLocaleString(),
                   unit: "chamadas",
@@ -362,8 +380,8 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
                 selected={selectedCity}
                 options={{
                   type: "default",
-                  changeFunction: (cityLabel: string) => {
-                    setSelectedCity(cityLabel.toUpperCase());
+                  changeFunction: (cityId: string) => {
+                    setSelectedCity(cityId);
                   },
                   onClickFnc: () => {},
                 }}
@@ -382,8 +400,10 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       <div className="mx-auto container my-12">
         <h2 className="text-3xl font-bold text-center mb-4">
           Evolução das Chamadas ao SAMU
-          {selectedCity ? ` - ${selectedCity}` : ""}
         </h2>
+        <h3 className="text-xl text-center mb-8 text-gray-600">
+          {getFilterSummary()}
+        </h3>
         {filteredEvolutionData?.data &&
         filteredEvolutionData.data.length > 0 ? (
           <div className="shadow-2xl rounded-sm p-6 pt-4 text-center">
@@ -453,17 +473,15 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       {selectedCity && (
         <div className="mx-auto container my-12">
           <h2 className="text-3xl font-bold text-center mb-4">
-            Perfis das Chamadas - {selectedCity}
+            Perfis das Chamadas
           </h2>
+          <h3 className="text-xl text-center mb-8 text-gray-600">
+            {getFilterSummary()}
+          </h3>
 
           {availableYears.length > 0 && (
             <div className="mb-6 text-center">
-              <p className="text-sm text-gray-600 mb-3">
-                Período selecionado:{" "}
-                {selectedEndYear
-                  ? `${selectedYear} a ${selectedEndYear}`
-                  : `${selectedYear}`}
-              </p>
+
               <div className="flex flex-wrap justify-center gap-2 mb-2">
                 {availableYears.map((year) => (
                   <button
