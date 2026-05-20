@@ -3,6 +3,7 @@ import Table from "../Commom/Table/Table";
 import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
+import { SAMU_CALLS_PROFILES } from "~/servers";
 
 function normalize(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -126,14 +127,83 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   const getProfileDataFromHistory = async () => {
     if (!selectedYear || !selectedCity) return;
 
+    const startYear = Math.min(selectedYear, selectedEndYear || selectedYear);
+    const endYear = Math.max(selectedYear, selectedEndYear || selectedYear);
+    const isRange = selectedEndYear && selectedEndYear !== selectedYear;
+
+    if (isRange) {
+      try {
+        const url = `${SAMU_CALLS_PROFILES}?city=${encodeURIComponent(selectedCity)}&start_year=${startYear}&end_year=${endYear}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+
+          if (data.por_sexo) {
+            const genderTotal = Object.values(data.por_sexo).reduce((s: number, v: any) => s + v, 0);
+            setGenderData(
+              Object.entries(data.por_sexo).map(([key, value]: [string, any]) => ({
+                label: key === "masculino" ? "Masculino" : key === "feminino" ? "Feminino" : "Não Informado",
+                value: ((value / genderTotal) * 100).toFixed(1),
+                total: value,
+                color: key === "masculino" ? "#3b82f6" : key === "feminino" ? "#ec4899" : "#6b7280",
+              }))
+            );
+          }
+
+          if (data.por_faixa_etaria) {
+            const ageTotal = Object.values(data.por_faixa_etaria).reduce((s: number, v: any) => s + v, 0);
+            setAgeData(
+              Object.entries(data.por_faixa_etaria)
+                .sort(([a]: [string, any], [b]: [string, any]) => {
+                  const order = ["0_17_anos", "18_29_anos", "30_49_anos", "50_64_anos", "65_mais_anos", "nao_informado"];
+                  return order.indexOf(a) - order.indexOf(b);
+                })
+                .map(([key, value]: [string, any], index: number) => ({
+                  label: key.replace(/_/g, " ").replace("nao informado", "Não Informado"),
+                  value: ((value / ageTotal) * 100).toFixed(1),
+                  total: value,
+                  color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626", "#6b7280"][index],
+                }))
+            );
+          }
+
+          if (data.por_categoria) {
+            const categoryLabels: Record<string, string> = {
+              sinistro_moto: "Sinistro de Moto",
+              sinistro_carro: "Sinistro de Carro",
+              sinistro_bicicleta: "Sinistro de Bicicleta",
+              sinistro_onibus_caminhao: "Sinistro Ônibus/Caminhão",
+              atropelamento_carro: "Atropelamento por Carro",
+              atropelamento_moto: "Atropelamento por Moto",
+              atropelamento_onibus_caminhao: "Atropelamento por Ônibus/Caminhão",
+              atropelamento_bicicleta: "Atropelamento por Bicicleta",
+              outro: "Outro"
+            };
+            const typeTotal = Object.values(data.por_categoria).reduce((s: number, v: any) => s + v, 0);
+            setTransportData(
+              Object.entries(data.por_categoria)
+                .sort(([, a]: [string, any], [, b]: [string, any]) => (b as number) - (a as number))
+                .map(([key, value]: [string, any], index: number) => ({
+                  label: categoryLabels[key] || key,
+                  value: ((value / typeTotal) * 100).toFixed(1),
+                  total: value,
+                  color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4", "#ec4899", "#14b8a6", "#6b7280"][index],
+                }))
+            );
+          }
+
+          return;
+        }
+      } catch {
+        // API falhou, usar fallback local
+      }
+    }
+
     const cityData = citiesData?.cidades?.find(
       (city: any) => safeNormalize(city.municipio) === safeNormalize(selectedCity)
     );
 
     if (!cityData?.historico_anual) return;
-
-    const startYear = Math.min(selectedYear, selectedEndYear || selectedYear);
-    const endYear = Math.max(selectedYear, selectedEndYear || selectedYear);
 
     const yearDataList = cityData.historico_anual.filter(
       (item: any) => item.ano >= startYear && item.ano <= endYear
