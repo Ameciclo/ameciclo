@@ -3,6 +3,7 @@ import Table from "../Commom/Table/Table";
 import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
+import { SamuFilterBar } from "./SamuFilterBar";
 import { SAMU_CALLS_PROFILES } from "~/servers";
 
 function normalize(str: string): string {
@@ -338,8 +339,39 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     return period ? `${selectedCityName} - ${period}` : selectedCityName;
   };
 
+  const citiesList = useMemo(() => {
+    if (!citiesData?.cidades) return [];
+    return citiesData.cidades
+      .sort((a: any, b: any) => b.count - a.count)
+      .map((c: any) => ({
+        id: c.municipio_samu || c.name || "",
+        label: c.display_name || c.name || c.municipio_samu || "",
+      }))
+      .filter((c: any) => c.id);
+  }, [citiesData]);
+
+  const handleFilterStartYearChange = (year: number) => {
+    if (selectedEndYear && year > selectedEndYear) {
+      setSelectedYear(selectedEndYear);
+      setSelectedEndYear(year);
+    } else {
+      setSelectedYear(year);
+    }
+  };
+
+  const handleFilterEndYearChange = (year: number | null) => {
+    if (year === null) {
+      setSelectedEndYear(null);
+    } else if (year < selectedYear!) {
+      setSelectedEndYear(selectedYear);
+      setSelectedYear(year);
+    } else {
+      setSelectedEndYear(year);
+    }
+  };
+
   return (
-    <section className="container mx-auto my-12 space-y-12">
+    <section className="container mx-auto my-12 space-y-12 pb-16">
       <div className="mx-auto container my-12">
         <h2 className="text-3xl font-bold text-center mb-4">
           Mapa de Chamadas do SAMU
@@ -698,6 +730,19 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           />
         </div>
       </div>
+
+      <SamuFilterBar
+        selectedCity={selectedCity}
+        selectedCityName={selectedCityName}
+        selectedYear={selectedYear}
+        selectedEndYear={selectedEndYear}
+        availableYears={availableYears}
+        citiesList={citiesList}
+        onCityChange={(cityId: string) => setSelectedCity(cityId)}
+        onStartYearChange={handleFilterStartYearChange}
+        onEndYearChange={handleFilterEndYearChange}
+      />
+
     </section>
   );
 }
