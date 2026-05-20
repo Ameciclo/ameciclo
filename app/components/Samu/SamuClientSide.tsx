@@ -3,7 +3,14 @@ import Table from "../Commom/Table/Table";
 import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
-import { SAMU_CALLS_OUTCOMES, SAMU_CALLS_PROFILES } from "~/servers";
+
+function normalize(str: string): string {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function safeNormalize(str: string | undefined): string {
+  return str ? normalize(str) : "";
+}
 
 interface CityData {
   id?: number;
@@ -67,7 +74,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   const rmrCityStats = useMemo(() => {
     return cityStats.filter((city) => {
       const cityData = citiesData?.cidades?.find(
-        (c) => c.municipio_samu === city.label.toUpperCase()
+        (c) => safeNormalize(c.municipio_samu) === safeNormalize(city.label)
       );
       return cityData?.rmr === true;
     });
@@ -80,7 +87,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     console.log('🔍 Cidades disponíveis:', citiesData.cidades.map((c: any) => c.municipio));
 
     const cityData = citiesData.cidades.find(
-      (city: any) => city.municipio === selectedCity
+      (city: any) => safeNormalize(city.municipio) === safeNormalize(selectedCity)
     );
 
     console.log('🔍 Cidade encontrada:', cityData);
@@ -119,123 +126,103 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   const getProfileDataFromHistory = async () => {
     if (!selectedYear || !selectedCity) return;
 
-    // Primeiro tentar usar dados do histórico local
     const cityData = citiesData?.cidades?.find(
-      (city: any) => city.municipio === selectedCity
+      (city: any) => safeNormalize(city.municipio) === safeNormalize(selectedCity)
     );
 
-    if (cityData?.historico_anual) {
-      const yearData = cityData.historico_anual.find(
-        (item: any) => item.ano === selectedYear
-      );
+    if (!cityData?.historico_anual) return;
 
-      if (yearData) {
-        if (yearData.por_sexo) {
-          const genderTotal = Object.values(yearData.por_sexo).reduce((sum: number, val: any) => sum + val, 0);
-          setGenderData(
-            Object.entries(yearData.por_sexo).map(([key, value]: [string, any]) => ({
-              label: key === "masculino" ? "Masculino" : key === "feminino" ? "Feminino" : "Não Informado",
-              value: ((value / genderTotal) * 100).toFixed(1),
-              total: value,
-              color: key === "masculino" ? "#3b82f6" : key === "feminino" ? "#ec4899" : "#6b7280",
-            }))
-          );
-        }
+    const startYear = Math.min(selectedYear, selectedEndYear || selectedYear);
+    const endYear = Math.max(selectedYear, selectedEndYear || selectedYear);
 
-        if (yearData.por_faixa_etaria) {
-          const ageTotal = Object.values(yearData.por_faixa_etaria).reduce((sum: number, val: any) => sum + val, 0);
-          setAgeData(
-            Object.entries(yearData.por_faixa_etaria)
-              .sort(([a], [b]) => {
-                const order = ["0_17_anos", "18_29_anos", "30_49_anos", "50_64_anos", "65_mais_anos", "nao_informado"];
-                return order.indexOf(a) - order.indexOf(b);
-              })
-              .map(([key, value]: [string, any], index) => ({
-                label: key.replace(/_/g, " ").replace("nao informado", "Não Informado"),
-                value: ((value / ageTotal) * 100).toFixed(1),
-                total: value,
-                color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626", "#6b7280"][index],
-              }))
-          );
-        }
+    const yearDataList = cityData.historico_anual.filter(
+      (item: any) => item.ano >= startYear && item.ano <= endYear
+    );
 
-        if (yearData.por_categoria) {
-          const typeTotal = Object.values(yearData.por_categoria).reduce((sum: number, val: any) => sum + val, 0);
-          const categoryLabels: Record<string, string> = {
-            sinistro_moto: "Sinistro de Moto",
-            sinistro_carro: "Sinistro de Carro",
-            sinistro_bicicleta: "Sinistro de Bicicleta",
-            sinistro_onibus_caminhao: "Sinistro Ônibus/Caminhão",
-            atropelamento_carro: "Atropelamento por Carro",
-            atropelamento_moto: "Atropelamento por Moto",
-            atropelamento_onibus_caminhao: "Atropelamento por Ônibus/Caminhão",
-            atropelamento_bicicleta: "Atropelamento por Bicicleta",
-            outro: "Outro"
-          };
-          setTransportData(
-            Object.entries(yearData.por_categoria)
-              .sort(([, a]: any, [, b]: any) => b - a)
-              .map(([key, value]: [string, any], index) => ({
-                label: categoryLabels[key] || key,
-                value: ((value / typeTotal) * 100).toFixed(1),
-                total: value,
-                color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4", "#ec4899", "#14b8a6", "#6b7280"][index],
-              }))
-          );
+    if (yearDataList.length === 0) return;
+
+    const sexoAcc: Record<string, number> = {};
+    let hasSexo = false;
+    for (const item of yearDataList) {
+      if (item.por_sexo) {
+        hasSexo = true;
+        for (const [k, v] of Object.entries(item.por_sexo)) {
+          sexoAcc[k] = (sexoAcc[k] || 0) + (v as number);
         }
-        return;
       }
     }
+    if (hasSexo) {
+      const genderTotal = Object.values(sexoAcc).reduce((s, v) => s + v, 0);
+      setGenderData(
+        Object.entries(sexoAcc).map(([key, value]) => ({
+          label: key === "masculino" ? "Masculino" : key === "feminino" ? "Feminino" : "Não Informado",
+          value: ((value / genderTotal) * 100).toFixed(1),
+          total: value,
+          color: key === "masculino" ? "#3b82f6" : key === "feminino" ? "#ec4899" : "#6b7280",
+        }))
+      );
+    }
 
-    // Se não tiver dados locais, buscar da API
-    try {
-      const endYear = selectedEndYear || selectedYear;
-      const profilesUrl = `${SAMU_CALLS_PROFILES}?city=${encodeURIComponent(selectedCity)}&start_year=${selectedYear}&end_year=${endYear}`;
-      const response = await fetch(profilesUrl);
-      
-      if (!response.ok) return;
-      
-      const data = await response.json();
-      
-      if (data.by_gender) {
-        const genderTotal = Object.values(data.by_gender).reduce((sum: number, val: any) => sum + val, 0);
-        setGenderData(
-          Object.entries(data.by_gender).map(([key, value]: [string, any]) => ({
-            label: key === "M" ? "Masculino" : key === "F" ? "Feminino" : "Não Informado",
-            value: ((value as number / genderTotal) * 100).toFixed(1),
+    const ageAcc: Record<string, number> = {};
+    let hasAge = false;
+    for (const item of yearDataList) {
+      if (item.por_faixa_etaria) {
+        hasAge = true;
+        for (const [k, v] of Object.entries(item.por_faixa_etaria)) {
+          ageAcc[k] = (ageAcc[k] || 0) + (v as number);
+        }
+      }
+    }
+    if (hasAge) {
+      const ageTotal = Object.values(ageAcc).reduce((s, v) => s + v, 0);
+      setAgeData(
+        Object.entries(ageAcc)
+          .sort(([a], [b]) => {
+            const order = ["0_17_anos", "18_29_anos", "30_49_anos", "50_64_anos", "65_mais_anos", "nao_informado"];
+            return order.indexOf(a) - order.indexOf(b);
+          })
+          .map(([key, value], index) => ({
+            label: key.replace(/_/g, " ").replace("nao informado", "Não Informado"),
+            value: ((value / ageTotal) * 100).toFixed(1),
             total: value,
-            color: key === "M" ? "#3b82f6" : key === "F" ? "#ec4899" : "#6b7280",
+            color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626", "#6b7280"][index],
           }))
-        );
-      }
+      );
+    }
 
-      if (data.by_age_group) {
-        const ageTotal = Object.values(data.by_age_group).reduce((sum: number, val: any) => sum + val, 0);
-        setAgeData(
-          Object.entries(data.by_age_group).map(([key, value]: [string, any], index) => ({
-            label: key.replace(/_/g, " "),
-            value: ((value as number / ageTotal) * 100).toFixed(1),
+    const catAcc: Record<string, number> = {};
+    let hasCat = false;
+    for (const item of yearDataList) {
+      if (item.por_categoria) {
+        hasCat = true;
+        for (const [k, v] of Object.entries(item.por_categoria)) {
+          catAcc[k] = (catAcc[k] || 0) + (v as number);
+        }
+      }
+    }
+    if (hasCat) {
+      const categoryLabels: Record<string, string> = {
+        sinistro_moto: "Sinistro de Moto",
+        sinistro_carro: "Sinistro de Carro",
+        sinistro_bicicleta: "Sinistro de Bicicleta",
+        sinistro_onibus_caminhao: "Sinistro Ônibus/Caminhão",
+        atropelamento_carro: "Atropelamento por Carro",
+        atropelamento_moto: "Atropelamento por Moto",
+        atropelamento_onibus_caminhao: "Atropelamento por Ônibus/Caminhão",
+        atropelamento_bicicleta: "Atropelamento por Bicicleta",
+        outro: "Outro"
+      };
+      const typeTotal = Object.values(catAcc).reduce((s, v) => s + v, 0);
+      setTransportData(
+        Object.entries(catAcc)
+          .sort(([, a], [, b]) => (b as number) - (a as number))
+          .map(([key, value], index) => ({
+            label: categoryLabels[key] || key,
+            value: ((value / typeTotal) * 100).toFixed(1),
             total: value,
-            color: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#dc2626"][index % 5],
+            color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4", "#ec4899", "#14b8a6", "#6b7280"][index],
           }))
-        );
-      }
-
-      if (data.by_type) {
-        const typeTotal = Object.values(data.by_type).reduce((sum: number, val: any) => sum + val, 0);
-        setTransportData(
-          Object.entries(data.by_type)
-            .sort(([, a]: any, [, b]: any) => (b as number) - (a as number))
-            .map(([key, value]: [string, any], index) => ({
-              label: key,
-              value: ((value as number / typeTotal) * 100).toFixed(1),
-              total: value,
-              color: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#dc2626", "#06b6d4"][index % 6],
-            }))
-        );
-      }
-    } catch (error) {
-      console.error('Erro ao buscar perfis:', error);
+      );
     }
   };
 
