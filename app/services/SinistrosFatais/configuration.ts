@@ -15,18 +15,18 @@ type CitiesByYearData = {
 
 type SummaryData = {
   porLocalOcorrencia: {
-    ultimoAno: string;
+    ultimoAno: number;
     totalUltimoAno: number;
     crescimentoRelacaoAnoAnterior: number;
     dadosPorAno: { total: number }[];
-    anoMaisViolento: { ano: string; total: number };
+    anoMaisViolento: { ano: number; total: number };
   };
   porLocalResidencia: {
-    ultimoAno: string;
+    ultimoAno: number;
     totalUltimoAno: number;
     crescimentoRelacaoAnoAnterior: number;
     dadosPorAno: { total: number }[];
-    anoMaisViolento: { ano: string; total: number };
+    anoMaisViolento: { ano: number; total: number };
   };
 };
 
@@ -102,7 +102,7 @@ export function getGeneralStatistics(summaryData: SummaryData | null, tipoLocal 
 // Função para formatar os dados de cidades por ano
 export function getCityCardsByYear(citiesByYearData: any, selectedYear: number, tipoLocal = "ocorrencia", selectedEndYear: number | null = null) {
   if (!citiesByYearData || !selectedYear) return [];
-  if (!citiesByYearData.cities || citiesByYearData.cities.length === 0) {
+  if (!citiesByYearData.cidades || citiesByYearData.cidades.length === 0) {
     console.warn("Array de cidades vazio em getCityCardsByYear");
     return [{
       id: 0,
@@ -113,7 +113,7 @@ export function getCityCardsByYear(citiesByYearData: any, selectedYear: number, 
   }
   
   // Criar cards ordenados do maior para o menor número de mortes
-  return citiesByYearData.cities
+  return citiesByYearData.cidades
     .map((city: any) => {
       let totalMortes = 0;
       
@@ -361,23 +361,61 @@ export function formatCollisionMatrix(matrixData: MatrixData) {
     return null;
   }
 
-  // Mapeamento de nomes para exibição mais amigável
+  // Verificar se é o novo formato (array 2D + labels) ou o antigo (objeto)
+  if (Array.isArray(matrixData.matrix) && matrixData.matrix.length > 0 && Array.isArray(matrixData.matrix[0])) {
+    return formatCollisionMatrixFromArray(matrixData as any);
+  }
+
+  // Formato antigo (objeto com modos de transporte)
+  return formatCollisionMatrixFromObject(matrixData as any);
+}
+
+function formatCollisionMatrixFromArray(matrixData: { matrix: number[][], labels: { rows: string[], columns: string[] } }) {
+  const { matrix, labels } = matrixData;
+
+  // A ordem das linhas/colunas vem do backend:
+  // 0=Pedestre, 1=Ciclista, 2=Motociclista, 3=Automóvel/Caminhonete,
+  // 4=Pesados (ônibus/caminhão), 5=Objeto fixo, 6=Sem colisão, 7=Outros, 8=Não especificado
+  const modeOrder = ["pedestre", "ciclista", "motociclista", "automovel", "pesados", "objeto_fixo", "sem_colisao", "outros", "nao_especificado"];
+
+  // Construir o formato objeto usando as chaves do modeOrder para linhas e colunas
+  const result: Record<string, Record<string, number>> = { total: {} };
+
+  labels.rows.forEach((_rowName, rowIndex) => {
+    const rowKey = modeOrder[rowIndex] || `mode_${rowIndex}`;
+    result[rowKey] = { total: 0 };
+
+    labels.columns.forEach((_colName, colIndex) => {
+      const colKey = modeOrder[colIndex] || `mode_${colIndex}`;
+      const value = matrix[rowIndex]?.[colIndex] || 0;
+      result[rowKey][colKey] = value;
+      result[rowKey].total += value;
+
+      result.total[colKey] = (result.total[colKey] || 0) + value;
+      result.total.total = (result.total.total || 0) + value;
+    });
+  });
+
+  return formatCollisionMatrixFromObject({ matrix: result });
+}
+
+function formatCollisionMatrixFromObject(matrixData: { matrix: Record<string, any>; metadata?: any }) {
   const modeLabels: Record<string, string> = {
     "pedestre": "Pedestre",
     "ciclista": "Ciclista",
     "motociclista": "Motociclista",
     "automovel": "Automóvel",
-    "onibus": "Ônibus",
-    "outros": "Outros",
+    "pesados": "Pesados (ônibus/caminhão)",
     "objeto_fixo": "Objeto Fixo",
     "sem_colisao": "Sem Colisão",
+    "outros": "Outros",
     "nao_especificado": "Não Especificado",
     "total": "Total"
   };
 
   // Garantir que todas as categorias desejadas estejam presentes
   const requiredModes = ["pedestre", "ciclista", "motociclista", "automovel", 
-                         "onibus", "outros", "objeto_fixo", "sem_colisao", "nao_especificado"];
+                         "pesados", "objeto_fixo", "sem_colisao", "outros", "nao_especificado"];
   
   // Adicionar categorias ausentes à matriz
   requiredModes.forEach(mode => {
@@ -466,6 +504,14 @@ export function getPerfilSocioeconomico(filtrosData: FiltrosData, modoTransporte
       racaCor: filtrosData.resumo.porRacaCor || {},
       faixaEtaria: filtrosData.resumo.porFaixaEtaria || {}
     };
+
+    // Se faixa etária veio vazia do resumo, computar dos dados detalhados
+    if (Object.keys(dadosBrutos.faixaEtaria).length === 0 && filtrosData.dados) {
+      filtrosData.dados.forEach((item: any) => {
+        const faixa = item.faixaEtaria || "Não informado";
+        dadosBrutos.faixaEtaria[faixa] = (dadosBrutos.faixaEtaria[faixa] || 0) + (item.total || 1);
+      });
+    }
   } else {
     // Se o modo de transporte for "nao_identificado", retorna null (não temos dados)
     if (modoTransporte === "nao_identificado") {
@@ -558,6 +604,27 @@ export function getPerfilSocioeconomico(filtrosData: FiltrosData, modoTransporte
     sexo: sexoProcessado,
     racaCor: racaCorProcessado,
     faixaEtaria: faixaEtariaProcessado
+  };
+}
+
+// Normalizar dados de causas secundárias da API para o formato esperado pelo componente
+export function formatCausasSecundarias(data: any) {
+  if (!data || !data.causas) return null;
+
+  return {
+    filtrosAplicados: data.filtrosAplicados || {},
+    totalRegistros: data.total || 0,
+    causasSecundarias: {
+      linhaa: data.causas.map((c: any) => ({
+        codigo: c.codigo,
+        count: c.total,
+      })),
+      linhab: [],
+      linhac: [],
+      linhad: [],
+      linhaii: [],
+    },
+    descricao: "",
   };
 }
 

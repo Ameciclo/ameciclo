@@ -92,7 +92,7 @@ export const CollisionMatrix: React.FC<CollisionMatrixProps> = ({
     ciclista: "Ciclista",
     motociclista: "Motociclista",
     automovel: "Automóvel",
-    onibus: "Ônibus",
+    pesados: "Pesados (ônibus/caminhão)",
     outros: "Outros",
     objeto_fixo: "Objeto Fixo",
     sem_colisao: "Sem Colisão",
