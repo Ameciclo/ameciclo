@@ -13,7 +13,7 @@ import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBound
 import { viasInsegurasQueryOptions } from "~/queries/dados.vias-inseguras";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/viasinseguras/")({
+export const Route = createFileRoute("/dados/vias-inseguras/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(viasInsegurasQueryOptions()),
   head: () =>
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/dados/viasinseguras/")({
       title: "Observatório de Vias Inseguras - Ameciclo",
       description:
         "Ranking das vias com maior concentração de sinistros de trânsito no Recife, baseado nos dados do SAMU.",
-      pathname: "/dados/viasinseguras",
+      pathname: "/dados/vias-inseguras",
     }),
   component: ViasInsegurasPage,
   pendingComponent: () => <RouteLoading label="Carregando vias inseguras..." />,
@@ -55,7 +55,7 @@ function ViasInsegurasPage() {
       />
       <Breadcrumb
         label="Observatório de Vias Inseguras"
-        slug="/dados/observatorio/vias-inseguras"
+        slug="/dados/vias-inseguras"
         routes={["/", "/dados"]}
       />
       <ApiStatusHandler apiDown={apiDown} />
@@ -82,7 +82,6 @@ function ViasInsegurasPage() {
         mapData={mapData}
         historyData={historyData}
       />
-      {/* <CardsSession title={documents.title} cards={documents.cards} /> */}
     </>
   );
 }

@@ -7,7 +7,7 @@ const dataSubPages = [
   { name: "Ideciclo", url: "/dados/ideciclo", icon: "/icons/dados/ideciclo.svg" },
   { name: "Documentos", url: "/dados/documentos", icon: "/icons/dados/relatorio.svg" },
   { name: "Perfil", url: "/dados/perfil", icon: "/icons/dados/perfil.svg" },
-  { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria", icon: "/icons/dados/mapa.svg" },
+   { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria", icon: "/icons/dados/mapa.svg" },
   { name: "LOA", url: "/dados/loa", icon: "/icons/home/logo2.1d0f07c6.png" },
   { name: "DOM", url: "/dados/dom", icon: "/icons/home/header-logo.4f44929c.png" },
   { name: "SAMU", url: "/dados/samu", icon: "/icons/home/chamados_sinistros.svg" },
@@ -36,7 +36,7 @@ export function DataSubmenu() {
           {dataSubPages.map((subPage, index) => {
             const isActive = location.pathname === subPage.url || 
               location.pathname.startsWith(subPage.url + '/');
-            const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
+            const isComingSoon = subPage.name === "Ideciclo";
             
             if (isComingSoon) {
               return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;
@@ -72,7 +72,7 @@ export function DataSubmenu() {
             {dataSubPages.map((subPage, index) => {
               const isActive = location.pathname === subPage.url || 
                 location.pathname.startsWith(subPage.url + '/');
-              const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
+              const isComingSoon = subPage.name === "Ideciclo";
               
               if (isComingSoon) {
                 return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;

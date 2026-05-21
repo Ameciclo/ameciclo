@@ -109,7 +109,7 @@ export default function ViasRankingTable({
       disableFilters: false,
       Cell: ({ value, row }: any) => (
         <Link
-          to="/dados/viasinseguras/$slug"
+          to="/dados/vias-inseguras/$slug"
           params={{ slug: String(row.original.slug) }}
           className="text-left hover:text-ameciclo hover:underline transition-colors block"
         >

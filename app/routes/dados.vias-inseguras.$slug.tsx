@@ -10,7 +10,7 @@ import { PerfilSocioeconomicoSection } from "~/components/ViasInseguras/sections
 import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
 import { processProfileData } from "~/components/ViasInseguras/sections/profileDataHelper";
-import { viasInsegurasSlugQueryOptions } from "~/queries/dados.viasinseguras.$slug";
+import { viasInsegurasSlugQueryOptions } from "~/queries/dados.vias-inseguras.$slug";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
@@ -66,7 +66,7 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   return stats;
 };
 
-export const Route = createFileRoute("/dados/viasinseguras/$slug")({
+export const Route = createFileRoute("/dados/vias-inseguras/$slug")({
   loader: ({ params, context: { queryClient } }) =>
     queryClient.ensureQueryData(viasInsegurasSlugQueryOptions(params.slug)),
   head: ({ params, loaderData }) => {
@@ -81,7 +81,7 @@ export const Route = createFileRoute("/dados/viasinseguras/$slug")({
     return seo({
       title,
       description,
-      pathname: `/dados/viasinseguras/${params.slug}`,
+      pathname: `/dados/vias-inseguras/${params.slug}`,
       image: pageData?.cover?.url,
       type: "article",
     });

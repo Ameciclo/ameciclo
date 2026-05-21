@@ -9,7 +9,7 @@ const dataSubPages = [
   { name: "Ideciclo", url: "/dados/ideciclo" },
   { name: "Documentos", url: "/dados/documentos" },
   { name: "Perfil", url: "/dados/perfil" },
-  { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria" },
+  { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria" },
   { name: "LOA", url: "/dados/loa" },
   { name: "DOM", url: "/dados/dom" },
   { name: "SAMU", url: "/dados/samu" },

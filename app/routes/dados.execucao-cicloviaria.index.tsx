@@ -15,7 +15,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { execucaoCicloviariaQueryOptions } from "~/queries/dados.execucaocicloviaria";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/execucaocicloviaria/")({
+export const Route = createFileRoute("/dados/execucao-cicloviaria/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(execucaoCicloviariaQueryOptions()),
   head: () =>
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/dados/execucaocicloviaria/")({
       title: "Execução Cicloviária - Ameciclo",
       description:
         "Monitoramento das estruturas cicloviárias projetadas e executadas nas cidades da Região Metropolitana do Recife.",
-      pathname: "/dados/execucaocicloviaria",
+      pathname: "/dados/execucao-cicloviaria",
     }),
   component: ExecucaoCicloviaria,
   pendingComponent: () => <RouteLoading label="Carregando execução cicloviária..." />,
@@ -75,16 +75,10 @@ function ExecucaoCicloviaria() {
         },
     ];
 
-
-
-
-
-
-
     return (
         <>
             <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
-            <Breadcrumb label="Execução Cicloviária" slug="/dados/execucaocicloviaria" routes={["/", "/dados"]} />
+            <Breadcrumb label="Execução Cicloviária" slug="/dados/execucao-cicloviaria" routes={["/", "/dados"]} />
             <ApiStatusHandler apiDown={apiDown} />
             <StatisticsBox
                 title={"Execução Cicloviária"}
@@ -136,7 +130,6 @@ function ExecucaoCicloviaria() {
                 optionsType={optionsType}
                 sortCityAndType={sortCityAndType}
             />
-
 
             <div data-documents-section>
                 <CardsSession title={documents.title} cards={documents.cards} />

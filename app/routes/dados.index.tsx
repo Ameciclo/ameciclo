@@ -89,11 +89,10 @@ const FEATURED_PAGES = [
   {
     title: "Vias Inseguras",
     src: "/icons/home/vias-inseguras.svg",
-    url: "#",
+    url: "/dados/vias-inseguras",
     description:
       "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
     target: "",
-    comingSoon: true,
   },
   {
     title: "Sinistros Fatais",
