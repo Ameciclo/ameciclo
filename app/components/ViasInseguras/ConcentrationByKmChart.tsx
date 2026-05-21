@@ -41,6 +41,28 @@ export default function ConcentrationByKmChart({ data }: ConcentrationByKmChartP
     );
   }
 
+  const temExtensao = data.some(item => item.km_acum > 0);
+
+  if (!temExtensao) {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+          Concentração por Extensão Acumulativa
+        </h3>
+        <div className="h-64 bg-gray-50 rounded-sm flex items-center justify-center">
+          <div className="text-center max-w-md px-4">
+            <span className="text-gray-500 block mb-2">
+              Dados de extensão de vias indisponíveis
+            </span>
+            <p className="text-gray-400 text-sm">
+              O backend não forneceu a extensão (km) das vias. Este gráfico será exibido quando os dados completos estiverem disponíveis.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const chartData = data.map((item) => ({
     x: item.km_acum,
     y: item.percentual_acum,

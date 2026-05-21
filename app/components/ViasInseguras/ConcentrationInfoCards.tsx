@@ -21,7 +21,10 @@ export default function ConcentrationInfoCards({ data, summaryData }: Concentrat
   };
 
   // Função para encontrar concentração por km
+  const temExtensao = data.some(d => d.km_acum > 0);
+
   const getConcentrationByKm = (targetKm: number) => {
+    if (!temExtensao) return null;
     const item = data.find(d => d.km_acum >= targetKm);
     return item ? item.percentual_acum : 0;
   };
@@ -80,9 +83,12 @@ export default function ConcentrationInfoCards({ data, summaryData }: Concentrat
             <div key={index} className="bg-white rounded-lg shadow-lg p-6 text-center border-l-4 border-red-500">
               <h4 className="text-lg font-semibold text-gray-800 mb-2">{card.title}</h4>
               <div className="text-3xl font-bold text-red-600 mb-2">
-                {card.value.toFixed(1)}%
+                {card.value !== null ? `${card.value.toFixed(1)}%` : '—'}
               </div>
               <p className="text-sm text-gray-600">{card.subtitle}</p>
+              {card.value === null && (
+                <p className="text-xs text-gray-400 mt-1">indisponível</p>
+              )}
             </div>
           ))}
         </div>

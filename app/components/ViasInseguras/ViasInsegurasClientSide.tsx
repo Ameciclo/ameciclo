@@ -63,10 +63,14 @@ export default function ViasInsegurasClientSide({
   historyData,
 }: ViasInsegurasClientSideProps) {
 
-  // Converter dados das vias para GeoJSON
+  // Converter dados das vias para GeoJSON, filtrando geometrias vazias
+  const viasComGeometria = mapData.vias.filter(
+    via => via.geometria?.coordinates && via.geometria.coordinates.length > 0
+  );
+
   const layerData = {
     type: "FeatureCollection",
-    features: mapData.vias.map((via) => ({
+    features: viasComGeometria.map((via) => ({
       type: "Feature",
       properties: {
         id: via.id,
@@ -166,7 +170,7 @@ export default function ViasInsegurasClientSide({
           </div>
         </div>
 
-        {mapData.vias.length > 0 ? (
+        {viasComGeometria.length > 0 ? (
           <ViasInsegurasMap
             layerData={layerData}
             layersConf={layersConf}
