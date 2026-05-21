@@ -78,6 +78,12 @@ export default function SinistrosFataisClientSide({
 
   // Buscar dados quando o tipo de local ou local de ocorrência do óbito mudar
   useEffect(() => {
+    // Se já temos dados do SSR e os filtros estão nos defaults, não refetch na montagem
+    if (initialCitiesByYearData?.cidades?.length > 0 && tipoLocal === "ocorrencia" && deathLocation === "all") {
+      setCitiesByYearData(initialCitiesByYearData);
+      return;
+    }
+
     const fetchCitiesByYearData = async () => {
       try {
         let url = `${DATASUS_CITIES_BY_YEAR_DATA}?tipoLocal=${tipoLocal}`;

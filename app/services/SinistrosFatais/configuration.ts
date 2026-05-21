@@ -597,7 +597,7 @@ export function getPerfilSocioeconomico(filtrosData: FiltrosData, modoTransporte
   // Processar e formatar os dados
   const sexoProcessado = formatarParaGrafico(dadosBrutos.sexo);
   const racaCorProcessado = formatarParaGrafico(dadosBrutos.racaCor);
-  const faixaEtariaProcessado = formatarParaGrafico(ordenarFaixasEtarias(dadosBrutos.faixaEtaria));
+  const faixaEtariaProcessado = formatarParaGrafico(ordenarFaixasEtarias(agruparFaixasEtarias(dadosBrutos.faixaEtaria)));
 
   return {
     titulo: modoTransporte ? `Perfil de ${modoTransporteLabels[modoTransporte]}` : "Perfil Socioeconômico",
@@ -649,15 +649,47 @@ const formatarParaGrafico = (dados: Record<string, number>) => {
 
 // Ordenar faixas etárias
 const ordenarFaixasEtarias = (dados: Record<string, number>): Record<string, number> => {
-  const ordem = [
-    "0 a 4 anos", "5 a 9 anos", "10 a 14 anos", "15 a 19 anos",
-    "20 a 29 anos", "30 a 39 anos", "40 a 49 anos", "50 a 59 anos",
-    "60 a 69 anos", "70 a 79 anos", "80 anos ou mais", "Não informado"
-  ];
-  
+  const extrairInicio = (label: string): number => {
+    const match = label.match(/^(\d+)/);
+    return match ? parseInt(match[1], 10) : 999;
+  };
+
   return Object.fromEntries(
     Object.entries(dados).sort(([a], [b]) => {
-      return ordem.indexOf(a) - ordem.indexOf(b);
+      const aInicio = extrairInicio(a);
+      const bInicio = extrairInicio(b);
+      if (aInicio !== bInicio) return aInicio - bInicio;
+      // Para faixas com mesmo início (ex: "0 a 4 anos" vs "0 a 9 anos"), a mais curta primeiro
+      return a.length - b.length;
     })
   );
+};
+
+// Agrupar faixas etárias detalhadas (5 anos) em grupos semânticos
+const agruparFaixasEtarias = (dados: Record<string, number>): Record<string, number> => {
+  const grupos: Record<string, number> = {};
+
+  for (const [faixa, valor] of Object.entries(dados)) {
+    let grupo: string;
+
+    if (faixa === "Ignorado") {
+      grupo = "Ignorado";
+    } else if (["0 a 4 anos", "5 a 9 anos", "10 a 14 anos", "15 a 19 anos"].includes(faixa)) {
+      grupo = "0-19 anos (Crianças e Adolescentes)";
+    } else if (["20 a 24 anos", "25 a 29 anos"].includes(faixa)) {
+      grupo = "20-29 anos (Jovens)";
+    } else if (["30 a 34 anos", "35 a 39 anos", "40 a 44 anos", "45 a 49 anos"].includes(faixa)) {
+      grupo = "30-49 anos (Adultos)";
+    } else if (["50 a 54 anos", "55 a 59 anos", "60 a 64 anos"].includes(faixa)) {
+      grupo = "50-64 anos (Meia-idade)";
+    } else if (["65 a 69 anos", "70 a 74 anos", "75 a 79 anos", "80 anos ou mais"].includes(faixa)) {
+      grupo = "65+ anos (Idosos)";
+    } else {
+      grupo = faixa;
+    }
+
+    grupos[grupo] = (grupos[grupo] || 0) + valor;
+  }
+
+  return grupos;
 };
