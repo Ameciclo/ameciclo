@@ -26,11 +26,11 @@ export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.
 export const COUNTINGS_ATLAS_LOCATION = (id: string) => `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${id}`
 
 // DATASUS — Sinistros Fatais
-export const DATASUS_SUMMARY_DATA = `https://api.garfo.ameciclo.org/datasus-deaths/summary`
-export const DATASUS_CITIES_BY_YEAR_DATA = `https://api.garfo.ameciclo.org/datasus-deaths/cities-by-year`
-export const DATASUS_FILTROS_DATA = `https://api.garfo.ameciclo.org/datasus-deaths/filtros`
-export const DATASUS_MATRIX_DATA = `https://api.garfo.ameciclo.org/datasus-deaths/matrix`
-export const DATASUS_CAUSAS_SECUNDARIAS_DATA = `https://api.garfo.ameciclo.org/datasus-deaths/causas-secundarias`
+export const DATASUS_SUMMARY_DATA = `https://traffic-deaths.atlas.ameciclo.org/v1/summary`
+export const DATASUS_CITIES_BY_YEAR_DATA = `https://traffic-deaths.atlas.ameciclo.org/v1/cities-by-year`
+export const DATASUS_FILTROS_DATA = `https://traffic-deaths.atlas.ameciclo.org/v1/filtros`
+export const DATASUS_MATRIX_DATA = `https://traffic-deaths.atlas.ameciclo.org/v1/matrix`
+export const DATASUS_CAUSAS_SECUNDARIAS_DATA = `https://traffic-deaths.atlas.ameciclo.org/v1/causas-secundarias`
 
 // SAMU Atlas (Emergency Calls API)
 export const SAMU_ATLAS_BASE = `https://emergency-calls.atlas.ameciclo.org`
