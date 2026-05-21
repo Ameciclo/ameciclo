@@ -56,6 +56,11 @@ export default function SinistrosFataisClientSide({
     false
   );
   const [deathLocation, setDeathLocation] = useState<DeathLocationType>("all"); // Local de ocorrência do óbito
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Determinar o último ano disponível nos dados apenas na primeira carga
   useEffect(() => {
@@ -189,7 +194,18 @@ export default function SinistrosFataisClientSide({
         }
 
         if (modoTransporteAtivo) {
-          url += `&modoTransporte=${modoTransporteAtivo}`;
+          // Mapear código interno (CID) para label que o backend espera
+          const modoLabelMap: Record<string, string> = {
+            "V0": "pedestre",
+            "V1": "ciclista",
+            "V2": "motociclista",
+            "V4": "ocupante de automóvel",
+            "V7": "ocupante de ônibus",
+            "outros": "outros modos",
+            "nao_identificado": "não especificado",
+          };
+          const modoBackend = modoLabelMap[modoTransporteAtivo] || modoTransporteAtivo;
+          url += `&modoTransporte=${encodeURIComponent(modoBackend)}`;
         }
 
         if (deathLocation !== "all") {
@@ -469,6 +485,15 @@ export default function SinistrosFataisClientSide({
         </h3>
         
         {(() => {
+          if (!isClient) {
+            return (
+              <div className="shadow-2xl rounded-sm p-6 pt-4">
+                <h3 className="text-lg font-semibold mb-4">Evolução Anual das Mortes no Trânsito</h3>
+                <div className="h-96 bg-gray-200 animate-pulse rounded-sm"></div>
+              </div>
+            );
+          }
+
           const stackedData = getStackedTransportModeData(citiesByYearData, selectedCardCity, tipoLocal);
           
           if (!citiesByYearData || !citiesByYearData.cidades) {

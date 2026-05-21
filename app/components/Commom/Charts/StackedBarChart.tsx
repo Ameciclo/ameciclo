@@ -23,6 +23,7 @@ function StackedBarChart({
     return {
       chart: {
         type: "column",
+        height: 400,
       },
       title: {
         text: title,
@@ -34,7 +35,7 @@ function StackedBarChart({
         },
         labels: {
           style: {
-            fontWeight: "300"
+            fontWeight: "500"
           }
         },
       },
@@ -46,15 +47,15 @@ function StackedBarChart({
         labels: {
           format: isPercentage ? '{value}%' : '{value}',
           style: {
-            fontWeight: "300"
+            fontWeight: "500"
           }
         },
         stackLabels: {
           enabled: true,
           format: isPercentage ? '{total}%' : '{total}',
           style: {
-            fontWeight: "300",
-            color: "gray",
+            fontWeight: "600",
+            color: "#333",
           },
         },
       },
