@@ -686,6 +686,7 @@ export const AmecicloMap = ({
                         })}
 
                         {hoverPoint && radius && (() => {
+                            if (isNaN(hoverPoint.lat) || isNaN(hoverPoint.lng)) return null;
                             const metersPerPixel = 156543.03392 * Math.cos(hoverPoint.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = radius / metersPerPixel;
                             const circleSize = radiusInPixels * 2;
@@ -715,6 +716,7 @@ export const AmecicloMap = ({
                             );
                         })()}
                         {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
+                            if (isNaN(circle.lat) || isNaN(circle.lng)) return null;
                             const metersPerPixel = 156543.03392 * Math.cos(circle.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = circle.radius / metersPerPixel;
                             const circleSize = radiusInPixels * 2;
@@ -745,7 +747,9 @@ export const AmecicloMap = ({
                             );
                         })}
 
-                        {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => (
+                        {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => {
+                            if (isNaN(point.lat) || isNaN(point.lng)) return null;
+                            return (
                             <Marker
                                 key={point.id}
                                 latitude={point.lat}
@@ -755,9 +759,10 @@ export const AmecicloMap = ({
                                     {point.customIcon}
                                 </div>
                             </Marker>
-                        ))}
+                            );
+                        })}
 
-                        {hoveredMarker && hoveredMarker.popup && (
+                        {hoveredMarker && hoveredMarker.popup && !isNaN(hoveredMarker.latitude) && !isNaN(hoveredMarker.longitude) && (
                             <Marker
                                 latitude={hoveredMarker.latitude}
                                 longitude={hoveredMarker.longitude}
@@ -777,7 +782,7 @@ export const AmecicloMap = ({
                             </Marker>
                         )}
 
-                        {selectedMarker && (
+                        {selectedMarker && !isNaN(selectedMarker.latitude) && !isNaN(selectedMarker.longitude) && (
                             <Popup
                                 latitude={selectedMarker.latitude}
                                 longitude={selectedMarker.longitude}
