@@ -10,7 +10,6 @@ import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
-import { SINISTRO_CATEGORY_MAP } from './hooks/useCicloDadosData';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
 import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
 import { DataErrorAlert } from './DataErrorAlert';
@@ -148,7 +147,7 @@ export function MapView({
   const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
-  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined, selectedSinistro);
+  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
   const { data: perfilPoints, error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {
@@ -546,15 +545,9 @@ export function MapView({
               ) : [];
             filteredExecucaoFeatures = filterByStreetArea(filteredExecucaoFeatures);
             
-            // Filtrar sinistros por categorias selecionadas
+            // Filtrar sinistros
             let filteredSinistrosFeatures = selectedSinistro.length > 0
-              ? (sinistrosData?.features || []).filter((feature: any) =>
-                  selectedSinistro.some(option =>
-                    (SINISTRO_CATEGORY_MAP[option] || []).some(key =>
-                      (feature.properties.accidents_by_category?.[key] || 0) > 0
-                    )
-                  )
-                )
+              ? (sinistrosData?.features || [])
               : [];
             filteredSinistrosFeatures = filterByStreetArea(filteredSinistrosFeatures);
             
@@ -852,11 +845,11 @@ export function MapView({
             }
           ] : []),
 
-          // Sinistros - Vias Perigosas (apenas se não houver erro)
-          ...(!sinistrosError && sinistrosData?.features && selectedSinistro.length > 0 ? [
-            {
+          // Sinistros - Vias Perigosas
+          ...(!sinistrosError && sinistrosData?.features ? [
+            ...(selectedSinistro.some(s => s.startsWith('Alta')) ? [{
               id: 'vias-perigosas-high',
-              type: 'line',
+              type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'high'],
               paint: {
                 'line-color': '#DC2626',
@@ -867,10 +860,10 @@ export function MapView({
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            },
-            {
+            }] : []),
+            ...(selectedSinistro.some(s => s.startsWith('Média')) ? [{
               id: 'vias-perigosas-medium',
-              type: 'line',
+              type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'medium'],
               paint: {
                 'line-color': '#F59E0B',
@@ -881,10 +874,10 @@ export function MapView({
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            },
-            {
+            }] : []),
+            ...(selectedSinistro.some(s => s.startsWith('Baixa')) ? [{
               id: 'vias-perigosas-low',
-              type: 'line',
+              type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'low'],
               paint: {
                 'line-color': '#FBBF24',
@@ -895,7 +888,7 @@ export function MapView({
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            }
+            }] : [])
           ] : [])
         ]}
         pointsData={[

@@ -29,11 +29,9 @@ export function useCicloDadosData() {
   ];
 
   const sinistroOptions = [
-    "Pedestres",
-    "Ciclista",
-    "Ocupante de moto",
-    "Ocupante de carro",
-    "Outro"
+    { name: "Alta severidade (≥150 acidentes)", color: "#DC2626", pattern: "solid" },
+    { name: "Média severidade (50–149)", color: "#F59E0B", pattern: "solid" },
+    { name: "Baixa severidade (<50)", color: "#FBBF24", pattern: "solid" }
   ];
 
   const estacionamentoOptions = [
@@ -51,22 +49,11 @@ export function useCicloDadosData() {
   };
 }
 
-export const SINISTRO_CATEGORY_MAP: Record<string, string[]> = {
-  "Pedestres": ["atropelamento_carro", "atropelamento_moto", "atropelamento_onibus_caminhao", "atropelamento_bicicleta"],
-  "Ciclista": ["sinistro_bicicleta"],
-  "Ocupante de moto": ["sinistro_moto"],
-  "Ocupante de carro": ["sinistro_carro", "sinistro_onibus_caminhao"],
-  "Outro": ["outro"]
-};
-
-const ALL_SINISTRO_CATEGORY_KEYS = Object.values(SINISTRO_CATEGORY_MAP).flat();
-
 export function getSinistroTotal(properties: Record<string, any>): number {
   const cats = properties.accidents_by_category || {};
-  const fromCategories = ALL_SINISTRO_CATEGORY_KEYS.reduce((sum, key) => sum + (cats[key] || 0), 0);
-  return fromCategories > 0 ? fromCategories : (properties.accidents_count || 0);
-}
-
-export function getCategoryKeys(selectedOptions: string[]): string[] {
-  return selectedOptions.flatMap(opt => SINISTRO_CATEGORY_MAP[opt] || []);
+  const keys = Object.values(cats);
+  if (keys.length > 0) {
+    return keys.reduce((sum: number, v: any) => sum + (v || 0), 0);
+  }
+  return properties.accidents_count || 0;
 }

@@ -14,7 +14,7 @@ export { PerfilSection } from './PerfilSection';
 export { CicloDadosErrorBoundary } from './ErrorBoundary';
 export { ClientOnly, CicloDadosLoader } from './ClientOnly';
 
-export { useCicloDadosData, SINISTRO_CATEGORY_MAP } from './hooks/useCicloDadosData';
+export { useCicloDadosData } from './hooks/useCicloDadosData';
 export { useCicloDadosState } from './hooks/useCicloDadosState';
 export { useMapSelection } from './hooks/useMapSelection';
 export { usePontosContagem } from './hooks/usePontosContagem';

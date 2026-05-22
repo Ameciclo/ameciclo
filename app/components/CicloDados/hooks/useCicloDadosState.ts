@@ -10,7 +10,7 @@ export function useCicloDadosState(
   contagemOptions: string[],
   pdcOptions: Array<{ name: string; color: string; pattern: string }>,
   infracaoOptions: string[],
-  sinistroOptions: string[],
+  sinistroOptions: Array<{ name: string; color: string; pattern: string }>,
   estacionamentoOptions: string[],
   perfilOptions: string[]
 ) {
@@ -74,7 +74,7 @@ export function useCicloDadosState(
   const defaultContagem = [...contagemOptions];
   const defaultPdc = pdcOptions.map(opt => opt.name);
   const defaultInfracao = [...infracaoOptions];
-  const defaultSinistro = [...sinistroOptions];
+  const defaultSinistro = sinistroOptions.map(opt => opt.name);
   const defaultEstacionamento = [...estacionamentoOptions];
   const defaultPerfil = [...perfilOptions];
 
@@ -383,12 +383,11 @@ export function useCicloDadosState(
   };
 
   const toggleSinistroOption = (optionName: string) => {
-    setSelectedSinistro(prev => {
-      if (prev.length === 1 && prev.includes(optionName)) {
-        return [...sinistroOptions];
-      }
-      return [optionName];
-    });
+    setSelectedSinistro(prev => 
+      prev.includes(optionName) 
+        ? prev.filter(item => item !== optionName)
+        : [...prev, optionName]
+    );
   };
 
   const toggleAllSinistroOptions = (options: string[], selectAll: boolean) => {
