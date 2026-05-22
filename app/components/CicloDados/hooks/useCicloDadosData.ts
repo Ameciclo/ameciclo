@@ -29,10 +29,11 @@ export function useCicloDadosData() {
   ];
 
   const sinistroOptions = [
-    "Vítima ciclista",
-    "Vítima motociclistas", 
-    "Vítima motorista",
-    "Vítima pedestre"
+    "Pedestres",
+    "Ciclista",
+    "Ocupante de moto",
+    "Ocupante de carro",
+    "Outro"
   ];
 
   const estacionamentoOptions = [
@@ -48,4 +49,20 @@ export function useCicloDadosData() {
     sinistroOptions,
     estacionamentoOptions
   };
+}
+
+export const SINISTRO_CATEGORY_MAP: Record<string, string[]> = {
+  "Pedestres": ["atropelamento_carro", "atropelamento_moto", "atropelamento_onibus_caminhao", "atropelamento_bicicleta"],
+  "Ciclista": ["sinistro_bicicleta"],
+  "Ocupante de moto": ["sinistro_moto"],
+  "Ocupante de carro": ["sinistro_carro", "sinistro_onibus_caminhao"],
+  "Outro": ["outro"]
+};
+
+const ALL_SINISTRO_CATEGORY_KEYS = Object.values(SINISTRO_CATEGORY_MAP).flat();
+
+export function getSinistroTotal(properties: Record<string, any>): number {
+  const cats = properties.accidents_by_category || {};
+  const fromCategories = ALL_SINISTRO_CATEGORY_KEYS.reduce((sum, key) => sum + (cats[key] || 0), 0);
+  return fromCategories > 0 ? fromCategories : (properties.accidents_count || 0);
 }

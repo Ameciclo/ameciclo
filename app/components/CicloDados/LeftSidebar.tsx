@@ -111,11 +111,11 @@ export function LeftSidebar({
   onReloadGeneralData,
   loadingStates = { infra: false, pdc: false, sinistros: false, estacionamento: false }
 }: LeftSidebarProps) {
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infracao', 'rota', 'ideciclo']));
   
   const toggleSection = (sectionId: string) => {
     // Prevenir expansão de seções "em breve"
-    const comingSoonSections = ['infracao', 'sinistro', 'rota', 'ideciclo'];
+    const comingSoonSections = ['infracao', 'rota', 'ideciclo'];
     if (comingSoonSections.includes(sectionId) && collapsedSections.has(sectionId)) {
       return;
     }
@@ -137,10 +137,10 @@ export function LeftSidebar({
   
   const expandAll = () => {
     // Manter seções "em breve" sempre colapsadas
-    setCollapsedSections(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
+    setCollapsedSections(new Set(['infracao', 'rota', 'ideciclo']));
   };
   
-  const allCollapsed = collapsedSections.size >= 6; // Considera colapsado se 6 ou mais seções estão colapsadas (excluindo as 4 "em breve")
+  const allCollapsed = collapsedSections.size >= 6; // Considera colapsado se 6 ou mais seções estão colapsadas (excluindo as 3 "em breve")
   
   // Check if ALL options are selected across all sections
   const allOptionsSelected = 
@@ -442,7 +442,7 @@ export function LeftSidebar({
                 hasPattern={false}
                 isCollapsed={collapsedSections.has('sinistro')}
                 onToggleCollapse={() => toggleSection('sinistro')}
-                comingSoon={true}
+                comingSoon={false}
               />
               
               <FilterSection

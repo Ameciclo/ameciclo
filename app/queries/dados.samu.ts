@@ -45,6 +45,10 @@ const fetchSamu = createServerFn().handler(async () => {
 
     const totalChamadas = summaryData.totalChamadas || 0;
     const evolucaoAnual = summaryData.evolucaoAnual || [];
+    const yearsFromApi = evolucaoAnual.map((item: any) => item.ano).filter(Boolean) as number[];
+    const yearRange = yearsFromApi.length > 0
+      ? `${Math.min(...yearsFromApi)} - ${Math.max(...yearsFromApi)}`
+      : "";
     const anoMaisViolento =
       evolucaoAnual.length > 0
         ? evolucaoAnual.reduce((max: any, curr: any) =>
@@ -94,7 +98,7 @@ const fetchSamu = createServerFn().handler(async () => {
       {
         title: "Total de chamadas",
         value: processedData.totalChamadas.toLocaleString(),
-        unit: "2016 - 2024",
+        unit: yearRange,
       },
       {
         title: "Ano mais violento",

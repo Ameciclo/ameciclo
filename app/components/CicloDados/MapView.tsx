@@ -10,6 +10,7 @@ import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
+import { SINISTRO_CATEGORY_MAP } from './hooks/useCicloDadosData';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
 import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
 import { DataErrorAlert } from './DataErrorAlert';
@@ -545,10 +546,16 @@ export function MapView({
               ) : [];
             filteredExecucaoFeatures = filterByStreetArea(filteredExecucaoFeatures);
             
-            // Filtrar sinistros por tipos selecionados e área
-            let filteredSinistrosFeatures = sinistrosData?.features?.filter((feature: any) => 
-              selectedSinistro.includes(feature.properties.type)
-            ) || [];
+            // Filtrar sinistros por categorias selecionadas
+            let filteredSinistrosFeatures = selectedSinistro.length > 0
+              ? (sinistrosData?.features || []).filter((feature: any) =>
+                  selectedSinistro.some(option =>
+                    (SINISTRO_CATEGORY_MAP[option] || []).some(key =>
+                      (feature.properties.accidents_by_category?.[key] || 0) > 0
+                    )
+                  )
+                )
+              : [];
             filteredSinistrosFeatures = filterByStreetArea(filteredSinistrosFeatures);
             
             // Aplicar filtro de área aos dados gerados
