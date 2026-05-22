@@ -119,7 +119,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       yAxisTitle: "Número de Chamadas",
     });
 
-    const years = chartData.map((d: any) => parseInt(d.label));
+    const years = chartData.map((d: any) => parseInt(d.label)).filter((y: number) => y >= 2020);
     setAvailableYears(years);
     if (!selectedYear && years.length > 0) {
       setSelectedYear(Math.max(...years)); // Seleciona o ano mais recente

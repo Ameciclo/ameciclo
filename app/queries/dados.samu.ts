@@ -7,6 +7,8 @@ import {
 import { cmsFetch } from "~/services/cmsFetch";
 import { makeApiErrorTracker } from "~/services/apiTracking";
 
+const ANO_INICIAL = 2020;
+
 const fetchSamu = createServerFn().handler(async () => {
   const tracker = makeApiErrorTracker();
 
@@ -43,8 +45,13 @@ const fetchSamu = createServerFn().handler(async () => {
       );
     }
 
-    const totalChamadas = summaryData.totalChamadas || 0;
-    const evolucaoAnual = summaryData.evolucaoAnual || [];
+    const evolucaoAnual = (summaryData.evolucaoAnual || []).filter(
+      (item: any) => item.ano >= ANO_INICIAL
+    );
+    const totalChamadas = evolucaoAnual.reduce(
+      (sum: number, item: any) => sum + (item.count || 0),
+      0
+    );
     const yearsFromApi = evolucaoAnual.map((item: any) => item.ano).filter(Boolean) as number[];
     const yearRange = yearsFromApi.length > 0
       ? `${Math.min(...yearsFromApi)} - ${Math.max(...yearsFromApi)}`
@@ -71,7 +78,9 @@ const fetchSamu = createServerFn().handler(async () => {
           municipio,
           name: city.display_name || city.name || municipio,
           municipio_samu: city.municipio_samu || municipio,
-          historico_anual: city.historico_anual,
+          historico_anual: (city.historico_anual || []).filter(
+            (item: any) => item.ano >= ANO_INICIAL
+          ),
         };
       }
     );

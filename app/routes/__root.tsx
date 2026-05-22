@@ -133,23 +133,9 @@ function NotFoundComponent() {
 }
 
 function ConditionalNavbar() {
-  const location = useRouterState({ select: (s) => s.location });
-  const isCicloDadosPage = location.pathname === "/dados/ciclodados";
-
-  if (isCicloDadosPage) {
-    return null;
-  }
-
   return <Navbar />;
 }
 
 function ConditionalFooter() {
-  const location = useRouterState({ select: (s) => s.location });
-  const isCicloDadosPage = location.pathname === "/dados/ciclodados";
-
-  if (isCicloDadosPage) {
-    return null;
-  }
-
   return <Footer />;
 }

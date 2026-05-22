@@ -5,7 +5,6 @@ import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly
 import { useCicloDadosMap } from '~/hooks/useCicloDadosMap';
 import { useProcessedData } from '~/hooks/useProcessedData';
 import {
-  CicloDadosHeader,
   LeftSidebar,
   MapView,
   useCicloDadosData,
@@ -168,14 +167,8 @@ function CicloDados() {
   return (
     <CicloDadosErrorBoundary>
       <ClientOnly fallback={<CicloDadosLoader />}>
-        <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
-          <CicloDadosHeader
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            onZoomToStreet={handleZoomToStreet}
-          />
-
-          <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
+        <div className="flex flex-col w-full overflow-hidden" style={{height: 'calc(100vh - 56px)', maxHeight: 'calc(100vh - 56px)', maxWidth: '100vw'}}>
+          <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 56px)'}}>
             <LeftSidebar
                 isOpen={leftSidebarOpen}
                 onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
@@ -255,6 +248,7 @@ function CicloDados() {
                 perfilCiclistasData={processedPerfilData}
                 autoOpenPopup={autoOpenPopup}
                 onPopupOpened={() => setAutoOpenPopup(null)}
+                onZoomToStreet={handleZoomToStreet}
               />
             </main>
           </div>

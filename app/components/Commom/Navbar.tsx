@@ -33,8 +33,7 @@ export const Navbar = ({ pages }: any) => {
   const [hideRedNavbar, setHideRedNavbar] = useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
   const location = useRouterState({ select: (s) => s.location });
-  const isDataPage = location.pathname.startsWith('/dados') && location.pathname !== '/dados/ciclodados';
-  const isCicloDadosPage = location.pathname === '/dados/ciclodados';
+  const isDataPage = location.pathname.startsWith('/dados');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,10 +61,6 @@ export const Navbar = ({ pages }: any) => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-
-  if (isCicloDadosPage) {
-    return null;
-  }
 
   return (
     <>

@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 
-import { MapPin, Bike, UserCheck } from 'lucide-react';
+import { MapPin, Bike, UserCheck, Search } from 'lucide-react';
+import { searchStreets, type StreetMatch } from '~/services/streets.service';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
@@ -49,6 +50,7 @@ interface MapViewProps {
   perfilCiclistasData?: any;
   autoOpenPopup?: {lat: number, lng: number} | null;
   onPopupOpened?: () => void;
+  onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => void;
 }
 
 export function MapView({
@@ -77,7 +79,8 @@ export function MapView({
   selectedStreetFilter,
   perfilCiclistasData,
   autoOpenPopup,
-  onPopupOpened
+  onPopupOpened,
+  onZoomToStreet
 }: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -92,6 +95,43 @@ export function MapView({
   const [forceRender, setForceRender] = useState(0);
   const [renderedLayers, setRenderedLayers] = useState<Set<string>>(new Set());
   const [loadingLayers, setLoadingLayers] = useState<Set<string>>(new Set());
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [streetSuggestions, setStreetSuggestions] = useState<StreetMatch[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!searchTerm.trim() || searchTerm.length < 2) {
+      setStreetSuggestions([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const results = await searchStreets(searchTerm);
+        setStreetSuggestions(results);
+      } catch {
+        setStreetSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Sync with external view state
   useEffect(() => {
@@ -414,7 +454,7 @@ export function MapView({
 
   return (
     <div 
-      style={{height: 'calc(100vh - 64px)'}} 
+      style={{height: 'calc(100vh - 56px)'}} 
       className="relative flex flex-col"
       role="application"
       aria-label="Mapa interativo de dados de ciclomobilidade do Recife"
@@ -427,7 +467,7 @@ export function MapView({
         Clique em pontos do mapa para ver informações detalhadas.
       </div>
       {/* Botão no canto superior esquerdo */}
-      <div className="absolute top-4 left-4 z-60 flex flex-col gap-2">
+      <div className="absolute top-4 left-4 z-60 flex items-start gap-2">
         <button
           onClick={toggleSelectionMode}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg font-medium transition-all duration-200 ${
@@ -441,7 +481,53 @@ export function MapView({
             {isSelectionMode ? 'Cancelar seleção' : 'Selecionar ponto'}
           </span>
         </button>
-        
+
+        <div className="relative" ref={searchRef}>
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+            <input
+              type="text"
+              placeholder="Buscar rua/avenida..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              className="pl-8 pr-3 py-2 rounded-lg shadow-lg border border-gray-200 text-sm text-gray-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500 w-48 sm:w-64 bg-white"
+            />
+          </div>
+
+          {showSuggestions && searchTerm && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-9999 max-h-48 overflow-y-auto">
+              {isSearching ? (
+                <div className="px-3 py-2 text-gray-500 text-xs flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500"></div>
+                  Buscando...
+                </div>
+              ) : streetSuggestions.length > 0 ? (
+                streetSuggestions.map((street) => (
+                  <button
+                    key={street.id}
+                    onClick={() => {
+                      setSearchTerm('');
+                      setShowSuggestions(false);
+                      if (street.coordinates && street.bounds) {
+                        onZoomToStreet?.(street.bounds, street.coordinates, street.id, street.name);
+                      }
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 text-gray-700 text-xs border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="font-medium">{street.name}</div>
+                    <div className="text-gray-500 text-xs">{street.municipality}</div>
+                  </button>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-gray-500 text-xs">Nenhuma via encontrada</div>
+              )}
+            </div>
+          )}
+        </div>
 
       </div>
 
