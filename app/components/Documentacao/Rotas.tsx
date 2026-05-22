@@ -88,7 +88,7 @@ export const Route = createFileRoute("/contagens/$slug")({
     const { slug } = params;
     // Usando fetchWithTimeout para evitar timeouts
     const data = await fetchWithTimeout(
-      "http://api.garfo.ameciclo.org/cyclist-counts",
+      "https://cyclist-counts.atlas.ameciclo.org/v1/locations",
       { cache: "no-cache" },
       5000,
       { counts: [] }

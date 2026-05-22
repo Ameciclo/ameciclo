@@ -56,11 +56,10 @@ const FEATURED_PAGES = [
   {
     title: "Execução Cicloviária",
     src: "/icons/dados/mapa.svg",
-    url: "#",
+    url: "/dados/execucao-cicloviaria",
     description:
       "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
     target: "",
-    comingSoon: true,
   },
   {
     title: "Orçamento Estadual para o Clima",

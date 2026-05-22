@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
-import { CardsSession } from "~/components/Commom/CardsSession";
 import { IntlNumber } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
 import { PerfilSocioeconomicoSection } from "~/components/ViasInseguras/sections/PerfilSocioeconomicoSection";
 import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
-import { processProfileData } from "~/components/ViasInseguras/sections/profileDataHelper";
+import { processProfileData, processProfileFromSinistros } from "~/components/ViasInseguras/sections/profileDataHelper";
 import { viasInsegurasSlugQueryOptions } from "~/queries/dados.vias-inseguras.$slug";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
@@ -32,6 +32,16 @@ interface ViaHistoryData {
 
 
 const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
+  if (!data.evolucao?.length) {
+    const extensaoVia = mapData?.street_extension_km;
+    return [
+      { title: "Total de vítimas", value: IntlNumber(mapData?.total_victims || 0), unit: "dados indisponíveis" },
+      { title: "Média Anual", value: "—", unit: "dados indisponíveis" },
+      { title: "Ano Mais Perigoso", value: "—", unit: "dados indisponíveis" },
+      { title: "Extensão da Via", value: extensaoVia ? `${extensaoVia.toFixed(1)}` : "—", unit: extensaoVia ? "km" : "indisponível" }
+    ];
+  }
+
   const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);
 
   // Calcular média anual ajustada por dias com dados
@@ -54,13 +64,13 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   const ultimoAno = data.evolucao[data.evolucao.length - 1];
 
   // Extensão da via (se disponível nos dados do mapa)
-  const extensaoVia = mapData?.vias?.[0]?.km;
+  const extensaoVia = mapData?.street_extension_km;
 
   const stats = [
     { title: "Total de vítimas", value: IntlNumber(totalSinistros), unit: `${primeiroAno.ano} - ${ultimoAno.ano}` },
-    { title: "Média Anual", value: IntlNumber(Math.round(mediaAjustada)), unit: "ajustada pelas projeções" },
-    { title: "Ano Mais Perigoso", value: `${anoMaisPerigoso.ano}`, unit: `com ${anoMaisPerigoso.ano} sinsitros` },
-    { title: "Extensão da Via", value: `${extensaoVia.toFixed(1)}`, unit: "km" }
+    { title: "Média Anual", value: IntlNumber(Math.round(mediaAjustada)), unit: "por ano" },
+    { title: "Ano Mais Perigoso", value: `${anoMaisPerigoso.ano}`, unit: `${anoMaisPerigoso.ano} sinistros` },
+    { title: "Extensão da Via", value: extensaoVia ? `${extensaoVia.toFixed(1)}` : "—", unit: extensaoVia ? "km" : "indisponível" }
   ];
 
   return stats;
@@ -69,21 +79,11 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
 export const Route = createFileRoute("/dados/vias-inseguras/$slug")({
   loader: ({ params, context: { queryClient } }) =>
     queryClient.ensureQueryData(viasInsegurasSlugQueryOptions(params.slug)),
-  head: ({ params, loaderData }) => {
-    const via = loaderData?.data?.via;
-    const pageData = loaderData?.pageData;
-    const title = via
-      ? `${via} - Vias Inseguras - Ameciclo`
-      : "Via Insegura - Ameciclo";
-    const description = via
-      ? `Histórico e análise de sinistros de trânsito na via ${via} no Recife.`
-      : "Análise de vias com maior concentração de sinistros de trânsito no Recife.";
+  head: ({ params }) => {
     return seo({
-      title,
-      description,
+      title: "Via Insegura - Ameciclo",
+      description: "Análise individual de vias com maior concentração de sinistros de trânsito no Recife.",
       pathname: `/dados/vias-inseguras/${params.slug}`,
-      image: pageData?.cover?.url,
-      type: "article",
     });
   },
   component: ViaInsegura,
@@ -95,7 +95,18 @@ export const Route = createFileRoute("/dados/vias-inseguras/$slug")({
 
 function ViaInsegura() {
   const { slug } = Route.useParams();
-  const { data: { data, mapData, sinistrosData, pageData } } = useSuspenseQuery(viasInsegurasSlugQueryOptions(slug));
+  const { data: { data, mapData, sinistrosData } } = useSuspenseQuery(viasInsegurasSlugQueryOptions(slug));
+
+  useEffect(() => {
+    console.log("[slug page] data.via:", data?.via);
+    console.log("[slug page] data.evolucao?.length:", data?.evolucao?.length);
+    if (data?.evolucao?.[0]) {
+      console.log("[slug page] first year keys:", Object.keys(data.evolucao[0]));
+      console.log("[slug page] first year por_sexo:", JSON.stringify(data.evolucao[0].por_sexo));
+    }
+    console.log("[slug page] sinistrosData?.sinistros?.length:", sinistrosData?.sinistros?.length);
+    console.log("[slug page] mapData:", mapData ? "present" : "null");
+  }, [data, mapData, sinistrosData]);
 
   const categoryLabels = {
     "Acidente de Moto": "Sinistro de Moto",
@@ -118,10 +129,12 @@ function ViaInsegura() {
     'Óbito no Local/Atendimento'
   ];
 
+  const [showFilters, setShowFilters] = useState(false);
+
   return (
     <main className="flex-auto">
       <Banner
-        image={pageData?.cover?.url || "/pages_covers/vias-inseguras.png"}
+        image="/pages_covers/vias-inseguras.png"
         alt="Capa das vias inseguras"
       />
 
@@ -155,23 +168,36 @@ function ViaInsegura() {
             />
 
             {data.evolucao?.length > 0 && (() => {
-              const { genderData, ageData, categoryData } = processProfileData(data.evolucao);
+              let profileResult = processProfileData(data.evolucao);
+              const usefulGender = profileResult.genderData.filter(
+                (g) => g.label !== "Não Informado" && g.total > 0
+              );
+
+              if (!usefulGender.length && sinistrosData?.sinistros?.length) {
+                profileResult = processProfileFromSinistros(sinistrosData.sinistros);
+              }
+
               return (
                 <PerfilSocioeconomicoSection
-                  genderData={genderData}
-                  ageData={ageData}
-                  categoryData={categoryData}
+                  genderData={profileResult.genderData}
+                  ageData={profileResult.ageData}
+                  categoryData={profileResult.categoryData}
                 />
               );
             })()}
 
             {(() => {
-              const totalSinistros = data.evolucao.reduce((sum: number, year: any) => sum + year.sinistros, 0);
+              const totalSinistros = (data.evolucao || []).reduce((sum: number, year: any) => sum + year.sinistros, 0);
               let geoJsonData = null;
 
               if (mapData?.vias?.length > 0) {
                 const via = mapData.vias[0];
-                if (via.geometria?.coordinates) {
+                const hasValidGeometry = (g: any) => {
+                  if (!g) return false;
+                  if (g.type === "GeometryCollection") return g.geometries?.length > 0;
+                  return g.coordinates?.length > 0;
+                };
+                if (hasValidGeometry(via.geometria)) {
                   geoJsonData = {
                     type: "FeatureCollection",
                     features: [{
@@ -203,11 +229,13 @@ function ViaInsegura() {
 
             {/* Tabela de Sinistros */}
             {sinistrosData?.sinistros?.length > 0 && (() => {
-              const tableData = sinistrosData.sinistros
+              const rawFiltered = sinistrosData.sinistros
                 .filter((sinistro: any) => {
                   const desfecho = sinistro.motivo_desf_cat || '';
                   return allowedDesfechos.includes(desfecho);
-                })
+                });
+
+              const tableData = rawFiltered
                 .map((sinistro: any) => {
                   const mappedCategoria = categoryLabels[sinistro.categoria as keyof typeof categoryLabels] || sinistro.categoria || '-';
                   return {
@@ -221,12 +249,30 @@ function ViaInsegura() {
                 })
                 .sort((a: any, b: any) => b._sortDate.getTime() - a._sortDate.getTime());
 
+              const categoriaValues = [...new Set(tableData.map(r => r.categoria))].sort();
+              const sexoValues = [...new Set(tableData.map(r => r.sexo))].sort();
+              const desfechoValues = [...new Set(tableData.map(r => r.desfecho))].sort();
+
+              const selectFilter = (options: string[], placeholder: string) =>
+                ({ column: { filterValue, setFilter } }: any) => (
+                  <select
+                    value={filterValue || ""}
+                    onChange={e => setFilter(e.target.value || undefined)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  >
+                    <option value="">{placeholder}</option>
+                    {options.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                );
+
               const columns = [
                 { Header: "Data e Hora", accessor: "data_hora", disableFilters: false },
-                { Header: "Categoria", accessor: "categoria", disableFilters: false },
-                { Header: "Sexo", accessor: "sexo", disableFilters: false },
+                { Header: "Categoria", accessor: "categoria", disableFilters: false, Filter: selectFilter(categoriaValues, "Todas as categorias") },
+                { Header: "Sexo", accessor: "sexo", disableFilters: false, Filter: selectFilter(sexoValues, "Todos os sexos") },
                 { Header: "Idade", accessor: "idade", disableFilters: false },
-                { Header: "Desfecho", accessor: "desfecho", disableFilters: false },
+                { Header: "Desfecho", accessor: "desfecho", disableFilters: false, Filter: selectFilter(desfechoValues, "Todos os desfechos") },
               ];
 
               return (
@@ -239,7 +285,8 @@ function ViaInsegura() {
                       title={`${tableData.length} sinistros registrados`}
                       data={tableData}
                       columns={columns}
-                      showFilters={true}
+                      showFilters={showFilters}
+                      setShowFilters={setShowFilters}
                     />
                   </div>
                 </section>
@@ -249,22 +296,7 @@ function ViaInsegura() {
         )}
       </section>
 
-      {/* Documentos */}
-      {pageData?.archives?.length > 0 && (() => {
-        const docs = pageData.archives.map((a: any) => ({
-          title: a.filename,
-          description: a.description,
-          src: a.image?.url,
-          url: a.file.url,
-        }));
 
-        return (
-          <CardsSession
-            title="Documentos sobre Vias Inseguras"
-            cards={docs}
-          />
-        );
-      })()}
     </main>
   );
 }

@@ -36,21 +36,22 @@ export default function ViaSearch({ onSearch, onViaSelect, isLoading = false }: 
     setSearchLoading(true);
     try {
       const response = await fetch(
-        `https://api.garfo.ameciclo.org/samu-calls/streets/search?street=${encodeURIComponent(searchQuery)}&limit=10`
+        `http://localhost:3010/v1/streets/top?limit=200`
       );
       
       if (response.ok) {
         const data = await response.json();
-        // Simular estrutura de resposta baseada na API
-        const mockResults: SearchResult[] = [
-          { nome: "Avenida Boa Viagem", sinistros: 287, id: 1 },
-          { nome: "Avenida Recife", sinistros: 245, id: 2 },
-          { nome: "Avenida Norte Miguel Arraes", sinistros: 198, id: 3 },
-        ].filter(via => 
-          via.nome.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        const query = searchQuery.toLowerCase();
+        const results: SearchResult[] = (data.dados || [])
+          .filter((via: any) => via.nome && via.nome.toLowerCase().includes(query))
+          .slice(0, 10)
+          .map((via: any, index: number) => ({
+            nome: via.nome,
+            sinistros: via.sinistros,
+            id: index + 1,
+          }));
         
-        setResults(mockResults);
+        setResults(results.length > 0 ? results : []);
         setShowResults(true);
       }
     } catch (error) {

@@ -42,31 +42,23 @@ interface ViasInsegurasClientSideProps {
       geometria: GeoJSON.LineString | GeoJSON.MultiLineString;
     }>;
   };
-  historyData: {
-    evolucao: Array<{
-      ano: number;
-      sinistros: number;
-      meses: Record<string, number>;
-      dias_semana: Record<string, number>;
-      horarios: Record<string, number>;
-      dias_com_dados: number;
-      dias_com_sinistros: number;
-    }>;
-    via?: string;
-  };
 }
 
 export default function ViasInsegurasClientSide({
   summaryData,
   topViasData,
   mapData,
-  historyData,
 }: ViasInsegurasClientSideProps) {
 
   // Converter dados das vias para GeoJSON, filtrando geometrias vazias
-  const viasComGeometria = mapData.vias.filter(
-    via => via.geometria?.coordinates && via.geometria.coordinates.length > 0
-  );
+  const hasValidGeometry = (g: any) => {
+    if (!g) return false;
+    if (g.type === "GeometryCollection") {
+      return g.geometries?.length > 0;
+    }
+    return g.coordinates?.length > 0;
+  };
+  const viasComGeometria = mapData.vias.filter(via => hasValidGeometry(via.geometria));
 
   const layerData = {
     type: "FeatureCollection",
@@ -162,12 +154,6 @@ export default function ViasInsegurasClientSide({
             Visualização geoespacial das vias com maior concentração de
             sinistros com vítima.
           </p>
-          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 max-w-2xl mx-auto">
-            <p className="text-sm text-blue-800">
-              ℹ️ As geometrias exibidas são simplificadas para melhor performance. 
-              Os dados de localização e estatísticas são precisos.
-            </p>
-          </div>
         </div>
 
         {viasComGeometria.length > 0 ? (

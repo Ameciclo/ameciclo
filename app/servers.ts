@@ -13,6 +13,10 @@ export const OBSERVATORIO_SINISTROS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas
 // LOA Atlas (RMR; PE variant was a stub that was never used).
 export const LOA_RMR_ATLAS_API = `https://loa-rmr.atlas.ameciclo.org/`
 
+// Budget APIs (local)
+export const STATE_BUDGET_API = "http://localhost:3017/v1/budget/state"
+export const RECIFE_BUDGET_API = "http://localhost:3018/v1/budget/recife"
+
 // Ideciclo Atlas
 export const IDECICLO_DATA = `https://api.ideciclo.ameciclo.org/reviews`
 export const IDECICLO_STRUCTURES_DATA = `https://api.ideciclo.ameciclo.org/structures`

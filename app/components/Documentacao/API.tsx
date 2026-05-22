@@ -17,10 +17,10 @@ export default function API({ darkMode = true, fontSize = 16 }: DocumentationCom
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>APIs Externas</h3>
             <div className="space-y-4">
               <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
-                <div className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>API Garfo - Contagens de Ciclistas</div>
-                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block mb-2`} style={{ fontSize: fontSize - 2 }}>GET http://api.garfo.ameciclo.org/cyclist-counts</code>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`} style={{ fontSize: fontSize - 2 }}>Retorna lista de contagens realizadas</p>
-                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block`} style={{ fontSize: fontSize - 2 }}>GET http://api.garfo.ameciclo.org/cyclist-counts/edition/:id</code>
+                <div className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>API cyclist-counts - Contagens de Ciclistas</div>
+                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block mb-2`} style={{ fontSize: fontSize - 2 }}>GET https://cyclist-counts.atlas.ameciclo.org/v1/locations</code>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`} style={{ fontSize: fontSize - 2 }}>Retorna lista de locais de contagem</p>
+                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block`} style={{ fontSize: fontSize - 2 }}>GET https://cyclist-counts.atlas.ameciclo.org/v1/locations/:id</code>
                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontSize: fontSize - 2 }}>Detalhes de uma contagem específica</p>
               </div>
               

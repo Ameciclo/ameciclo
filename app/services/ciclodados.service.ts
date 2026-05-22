@@ -35,7 +35,7 @@ export interface DataAvailability {
 }
 
 export class CicloDadosService {
-  private baseUrl = `https://api.garfo.ameciclo.org/ciclodados`;
+  private baseUrl = `https://ciclodados.atlas.ameciclo.org/v1`;
 
   async checkDataAvailability(coords: {lat: number, lng: number, radius: number, street?: string}): Promise<DataAvailability> {
     const params = new URLSearchParams({

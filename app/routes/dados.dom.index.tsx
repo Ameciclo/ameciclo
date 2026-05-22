@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { domQueryOptions } from "~/queries/dados.dom";
 import Chart from "react-google-charts";
-import DevelopingComponent from "~/components/Commom/DevelopingComponent";
+import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
+import { formatLargeValue } from "~/utils/formatCurrency";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
@@ -28,14 +30,79 @@ export const Route = createFileRoute("/dados/dom/")({
 });
 
 function Dom() {
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
+
     const { data: {
         cover,
         description,
         chartData,
+        totalGoodActions,
+        totalBadActions,
         sustainableTotal,
         unsustainableTotal,
         carbonValue
     } } = useSuspenseQuery(domQueryOptions());
+
+    const allActions = [
+        ...(totalGoodActions || []).map((a: any) => ({
+            ...a,
+            type: 'good' as const,
+            acaoNome: `${a.cod} - ${a.name}`,
+            subacaoNome: a.subcod ? `${a.subcod} - ${a.subname || '-'}` : a.subname || '-',
+        })),
+        ...(totalBadActions || []).map((a: any) => ({
+            ...a,
+            type: 'bad' as const,
+            acaoNome: `${a.cod} - ${a.name}`,
+            subacaoNome: a.subcod ? `${a.subcod} - ${a.subname || '-'}` : a.subname || '-',
+        })),
+    ];
+
+    let filteredActions = allActions;
+    if (filterType === 'good') {
+        filteredActions = allActions.filter((a: any) => a.type === 'good');
+    } else if (filterType === 'bad') {
+        filteredActions = allActions.filter((a: any) => a.type === 'bad');
+    }
+
+    const columns = [
+        {
+            Header: "Ação",
+            accessor: "acaoNome",
+        },
+        {
+            Header: "Sub-ação",
+            accessor: "subacaoNome",
+        },
+        {
+            Header: "Total",
+            accessor: "total",
+            Cell: ({ value }: any) => formatLargeValue(value),
+            Filter: NumberRangeColumnFilter,
+            filter: 'numberRange',
+        },
+    ];
+
+    const allColumns = [
+        {
+            Header: "Ação",
+            accessor: "acaoNome",
+        },
+        {
+            Header: "Sub-ação",
+            accessor: "subacaoNome",
+        },
+        {
+            Header: "Total",
+            accessor: "total",
+            Cell: ({ value }: any) => formatLargeValue(value),
+            Filter: NumberRangeColumnFilter,
+            filter: 'numberRange',
+        },
+    ];
+
+    const classifyAction = (action: any) => action.type;
 
     return (
         <>
@@ -242,7 +309,17 @@ function Dom() {
                     )}
 
                     <section>
-                        <DevelopingComponent title="Componente Tabela de Ações e Programas" />
+                        <Table
+                            title="Ações e Programas do DOM"
+                            data={filteredActions}
+                            columns={columns}
+                            allColumns={allColumns}
+                            showFilters={showFilters}
+                            setShowFilters={setShowFilters}
+                            filterType={filterType}
+                            setFilterType={setFilterType}
+                            classifyAction={classifyAction}
+                        />
                     </section>
 
                     <section className="bg-gray-50 rounded-lg p-4">
