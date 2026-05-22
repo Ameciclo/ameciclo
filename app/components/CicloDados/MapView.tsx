@@ -310,8 +310,8 @@ export function MapView({
     }
     
     if (event?.lngLat) {
-      const lng = event.lngLat[0];
-      const lat = event.lngLat[1];
+      const lng = event.lngLat.lng;
+      const lat = event.lngLat.lat;
       setHoverPoint({ lat, lng });
     }
   };
@@ -342,8 +342,8 @@ export function MapView({
     
     if (!isSelectionMode) return;
     
-    const lng = event.lngLat[0];
-    const lat = event.lngLat[1];
+    const lng = event.lngLat.lng;
+    const lat = event.lngLat.lat;
     
     const newPoint = {
       lat,
