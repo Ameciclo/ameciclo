@@ -435,10 +435,18 @@ export function LeftSidebar({
               />
               
               <FilterSection
-                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Sinistro com vítima</div>}
+                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Sinistro com vítima
+                  <div className="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer relative group ml-1">
+                    <span className="text-[10px] text-gray-500 font-medium">i</span>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-white border rounded-lg shadow-lg text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 leading-relaxed">
+                      Ao selecionar uma categoria, as cores das vias refletem a <strong>proporção</strong> (%) daquele tipo de vítima nos acidentes da rua. Com todas as categorias ativas, as cores mostram o <strong>volume total</strong> de acidentes.
+                    </div>
+                  </div>
+                </div>}
                 options={sinistroOptions.map(opt => ({ name: opt }))}
                 selectedOptions={selectedSinistro}
                 onToggle={onSinistroToggle}
+                onToggleAll={onSinistroToggleAll}
                 hasPattern={false}
                 isCollapsed={collapsedSections.has('sinistro')}
                 onToggleCollapse={() => toggleSection('sinistro')}

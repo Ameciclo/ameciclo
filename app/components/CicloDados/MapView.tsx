@@ -148,7 +148,7 @@ export function MapView({
   const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
-  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
+  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined, selectedSinistro);
   const { data: perfilPoints, error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {

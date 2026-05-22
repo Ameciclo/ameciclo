@@ -383,11 +383,12 @@ export function useCicloDadosState(
   };
 
   const toggleSinistroOption = (optionName: string) => {
-    setSelectedSinistro(prev => 
-      prev.includes(optionName) 
-        ? prev.filter(item => item !== optionName)
-        : [...prev, optionName]
-    );
+    setSelectedSinistro(prev => {
+      if (prev.length === 1 && prev.includes(optionName)) {
+        return [...sinistroOptions];
+      }
+      return [optionName];
+    });
   };
 
   const toggleAllSinistroOptions = (options: string[], selectAll: boolean) => {

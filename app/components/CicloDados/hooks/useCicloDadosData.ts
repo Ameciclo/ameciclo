@@ -66,3 +66,7 @@ export function getSinistroTotal(properties: Record<string, any>): number {
   const fromCategories = ALL_SINISTRO_CATEGORY_KEYS.reduce((sum, key) => sum + (cats[key] || 0), 0);
   return fromCategories > 0 ? fromCategories : (properties.accidents_count || 0);
 }
+
+export function getCategoryKeys(selectedOptions: string[]): string[] {
+  return selectedOptions.flatMap(opt => SINISTRO_CATEGORY_MAP[opt] || []);
+}
