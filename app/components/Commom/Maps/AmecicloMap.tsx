@@ -623,7 +623,9 @@ export const AmecicloMap = ({
                         )}
                         {pointsData?.map((point) => {
                             const { key, latitude, longitude, size, color, customIcon } = point;
-                            
+
+                            if (isNaN(latitude) || isNaN(longitude)) return null;
+
                             const zoomAdjustedSize = size;
                             
                             return (
