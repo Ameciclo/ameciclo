@@ -32,7 +32,8 @@ function VerticalBarChart({
       name: key === "atendimento_concluido" ? "Atendimento Concluído" :
             key === "removido_particulares" ? "Removido por Particulares" :
             key === "removido_bombeiros" ? "Removido pelos Bombeiros" :
-            key === "obito_local" ? "Óbito no Local" : key,
+            key === "obito_local" ? "Óbito no Local" :
+            key === "count" ? "Infrações" : key,
       data: data.map(item => item[key] || 0),
       color: colors && colors[index] ? colors[index] : undefined
     }));

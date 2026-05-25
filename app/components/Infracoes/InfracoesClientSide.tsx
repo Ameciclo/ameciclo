@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
 import Table from "~/components/Commom/Table/Table";
@@ -43,6 +44,32 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Administrativas/documentais": "#6b7280",
   "Outras/não classificadas": "#9ca3af",
 };
+
+export function categoryColor(name: string): string {
+  return CATEGORY_COLORS[name] ?? "#9ca3af";
+}
+
+const CATEGORY_SLUG_MAP: Record<string, string> = {
+  "Segurança viária": "seguranca-viaria",
+  "Pedestres": "pedestres",
+  "Ciclistas": "ciclistas",
+  "Transporte coletivo": "transporte-coletivo",
+  "Fluidez do trânsito": "fluidez-do-transito",
+  "Estacionamento/uso da via": "estacionamento-uso-da-via",
+  "Administrativas/documentais": "administrativas-documentais",
+  "Outras/não classificadas": "outras-nao-classificadas",
+};
+
+function categoryToSlug(name: string): string {
+  return CATEGORY_SLUG_MAP[name] ?? name.toLowerCase().replace(/\s+/g, "-");
+}
+
+export function slugToCategory(slug: string): string {
+  for (const [name, s] of Object.entries(CATEGORY_SLUG_MAP)) {
+    if (s === slug) return name;
+  }
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 interface ViolationCode {
   code: string;
@@ -272,62 +299,6 @@ export default function InfracoesClientSide({
       .finally(() => { if (!cancelled) setLoadingCategories(false); });
     return () => { cancelled = true; };
   }, [categories, selectedYear, dateParams]);
-
-  // ─── Bloco 5: Pedestres ──────────────────────────────────────────
-  const [pedestresData, setPedestresData] = useState<any>(null);
-  const [loadingPedestres, setLoadingPedestres] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    const dp = dateParams();
-    setLoadingPedestres(true);
-    Promise.all([
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...dp, category: "Pedestres", limit: "10" })).catch(() => ({ violations: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: "Pedestres", limit: "10" })).catch(() => ({ streets: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, { ...dp, category: "Pedestres" })).catch(() => ({})),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, { ...dp, category: "Pedestres" })).catch(() => ({ agents: [] })),
-    ])
-      .then(([topV, topS, temporal, agents]) => {
-        if (cancelled) return;
-        setPedestresData({
-          topViolations: topV.violations ?? [],
-          topStreets: topS.streets ?? [],
-          temporal: temporal ?? {},
-          agentAnalysis: agents.agents ?? [],
-        });
-      })
-      .catch((err) => console.error("Erro pedestres:", err))
-      .finally(() => { if (!cancelled) setLoadingPedestres(false); });
-    return () => { cancelled = true; };
-  }, [selectedYear, dateParams]);
-
-  // ─── Bloco 6: Ciclistas ──────────────────────────────────────────
-  const [ciclistasData, setCiclistasData] = useState<any>(null);
-  const [loadingCiclistas, setLoadingCiclistas] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    const dp = dateParams();
-    setLoadingCiclistas(true);
-    Promise.all([
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...dp, category: "Ciclistas", limit: "10" })).catch(() => ({ violations: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: "Ciclistas", limit: "10" })).catch(() => ({ streets: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, { ...dp, category: "Ciclistas" })).catch(() => ({})),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, { ...dp, category: "Ciclistas" })).catch(() => ({ agents: [] })),
-    ])
-      .then(([topV, topS, temporal, agents]) => {
-        if (cancelled) return;
-        setCiclistasData({
-          topViolations: topV.violations ?? [],
-          topStreets: topS.streets ?? [],
-          temporal: temporal ?? {},
-          agentAnalysis: agents.agents ?? [],
-        });
-      })
-      .catch((err) => console.error("Erro ciclistas:", err))
-      .finally(() => { if (!cancelled) setLoadingCiclistas(false); });
-    return () => { cancelled = true; };
-  }, [selectedYear, dateParams]);
 
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetTableData = streetsData.map((s: any, i: number) => {
@@ -619,8 +590,8 @@ export default function InfracoesClientSide({
           BLOCO 4 — Categorias de Segurança
           ═══════════════════════════════════════════════════════════════ */}
       <Section
-        title="Segurança Viária × Fluidez × Estacionamento"
-        subtitle="Classificação das infrações por categoria, respondendo: quantas estão ligadas à segurança da vida e quantas são mais ligadas a fluidez ou estacionamento?"
+        title="Infrações por classificação"
+        subtitle="As infrações são agrupadas por classificação temática. Clique em um card para ver a análise aprofundada de cada categoria."
       >
         {categories.length === 0 ? (
           <Skeleton className="h-60 w-full" />
@@ -632,7 +603,12 @@ export default function InfracoesClientSide({
                 const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
                 const topCodes = categoryTopViolations[cat.name] ?? [];
                 return (
-                  <div key={cat.name} className="bg-white rounded-lg shadow-lg p-6 flex flex-col">
+                  <Link
+                    key={cat.name}
+                    to="/dados/infracoes/$category"
+                    params={{ category: categoryToSlug(cat.name) }}
+                    className="bg-white rounded-lg shadow-lg p-6 flex flex-col hover:shadow-xl transition-shadow"
+                  >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />
                       <h3 className="text-lg font-bold text-gray-800">{cat.name}</h3>
@@ -661,7 +637,7 @@ export default function InfracoesClientSide({
                     ) : (
                       <p className="text-xs text-gray-400 mt-auto">Nenhuma infração registrada</p>
                     )}
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -705,49 +681,7 @@ export default function InfracoesClientSide({
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════
-          BLOCO 5 — Pedestres
-          ═══════════════════════════════════════════════════════════════ */}
-      <Section
-        title="Pedestres"
-        subtitle="Infrações que protegem quem anda a pé. Esses dados aparecem na fiscalização ou são invisíveis?"
-      >
-        {loadingPedestres ? (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
-            </div>
-            <Skeleton className="h-80" />
-          </div>
-        ) : pedestresData ? (
-          <ViolationsCategorySection data={pedestresData} totalViolations={totalViolations} color="#f59e0b" label="pedestres" />
-        ) : (
-          <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">Dados de pedestres não disponíveis.</div>
-        )}
-      </Section>
-
-      {/* ═══════════════════════════════════════════════════════════════
-          BLOCO 6 — Ciclistas
-          ═══════════════════════════════════════════════════════════════ */}
-      <Section
-        title="Ciclistas"
-        subtitle="Infrações que protegem quem usa bicicleta. A fiscalização registra essas violações?"
-      >
-        {loadingCiclistas ? (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
-            </div>
-            <Skeleton className="h-80" />
-          </div>
-        ) : ciclistasData ? (
-          <ViolationsCategorySection data={ciclistasData} totalViolations={totalViolations} color="#06b6d4" label="ciclistas" />
-        ) : (
-          <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">Dados de ciclistas não disponíveis.</div>
-        )}
-      </Section>
-
-      {/* ═══════════════════════════════════════════════════════════════
-          BLOCO 7 — Tabela Completa
+          BLOCO 5 — Tabela Completa
           ═══════════════════════════════════════════════════════════════ */}
       <Section
         title="Lista Completa de Infrações"
@@ -768,90 +702,6 @@ export default function InfracoesClientSide({
           />
         </div>
       </Section>
-    </div>
-  );
-}
-
-function ViolationsCategorySection({
-  data, totalViolations, color, label,
-}: {
-  data: any; totalViolations: number; color: string; label: string;
-}) {
-  const categoryTotal = data.topViolations.reduce((s: number, v: any) => s + v.count, 0);
-  const pct = totalViolations > 0 ? ((categoryTotal / totalViolations) * 100).toFixed(1) : "0.0";
-  const mainAgent = data.agentAnalysis.length > 0 ? data.agentAnalysis[0] : null;
-
-  return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow-lg p-6 text-center" style={{ borderTop: `4px solid ${color}` }}>
-          <p className="text-sm uppercase tracking-wider text-gray-500">Total</p>
-          <p className="text-4xl font-bold mt-2" style={{ color }}>{categoryTotal.toLocaleString("pt-BR")}</p>
-          <p className="text-xs mt-1 text-gray-500">{pct}% da base</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-          <p className="text-sm uppercase tracking-wider text-gray-500">Artigos do CTB</p>
-          <p className="text-4xl font-bold mt-2 text-ameciclo">{data.topViolations.length}</p>
-          <p className="text-xs mt-1 text-gray-500">no top 10</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-          <p className="text-sm uppercase tracking-wider text-gray-500">Ruas (top 10)</p>
-          <p className="text-4xl font-bold mt-2 text-ameciclo">{data.topStreets.filter((s: any) => s.total_violations > 0).length}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-          <p className="text-sm uppercase tracking-wider text-gray-500">Agente principal</p>
-          {mainAgent ? (
-            <>
-              <p className="text-xl font-bold mt-2 text-ameciclo leading-tight">{mainAgent.description}</p>
-              <p className="text-xs mt-1 text-gray-500">{mainAgent.total?.toLocaleString("pt-BR")} autuações</p>
-            </>
-          ) : (
-            <p className="text-4xl font-bold mt-2 text-gray-300">-</p>
-          )}
-        </div>
-      </div>
-
-      {data.topViolations.length > 0 && (
-        <HorizontalBarChart
-          title={`Top 10 — Infrações relacionadas a ${label}`}
-          yAxisTitle="Infrações"
-          series={[{
-            name: "Infrações",
-            data: data.topViolations.map((v: any) => ({ name: `${v.law_code} — ${v.description}`, y: v.count })),
-            color,
-          }]}
-        />
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Ruas com mais registros</h3>
-          {data.topStreets.length > 0 ? (
-            <ul className="space-y-3">
-              {data.topStreets.map((s: any, i: number) => (
-                <li key={i} className="flex justify-between text-sm">
-                  <span className="text-gray-700 truncate mr-2">{s.official_name}</span>
-                  <span className="font-semibold text-gray-900 shrink-0">{s.total_violations?.toLocaleString("pt-BR")}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-400 text-sm">Nenhum dado disponível</p>
-          )}
-        </div>
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Evolução mensal</h3>
-          {data.temporal?.by_month ? (
-            <VerticalBarChart
-              title="" xAxisTitle="" yAxisTitle=""
-              data={getAllMonthsData(data.temporal.by_month)}
-              xKey="label" yKeys={["count"]} colors={[color]}
-            />
-          ) : (
-            <Skeleton className="h-60 w-full" />
-          )}
-        </div>
-      </div>
     </div>
   );
 }

@@ -1,0 +1,476 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "@tanstack/react-router";
+import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
+import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
+import Table from "~/components/Commom/Table/Table";
+import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
+import type { LayerProps } from "react-map-gl/maplibre";
+import {
+  TRAFFIC_VIOLATIONS_TOP,
+  TRAFFIC_VIOLATIONS_TOP_STREETS,
+  TRAFFIC_VIOLATIONS_TEMPORAL,
+  TRAFFIC_VIOLATIONS_AGENT_ANALYSIS,
+  TRAFFIC_VIOLATIONS_GEOJSON,
+} from "~/servers";
+import { slugToCategory } from "./InfracoesClientSide";
+
+const MONTH_LABELS: Record<string, string> = {
+  "01": "Jan", "02": "Fev", "03": "Mar", "04": "Abr",
+  "05": "Mai", "06": "Jun", "07": "Jul", "08": "Ago",
+  "09": "Set", "10": "Out", "11": "Nov", "12": "Dez",
+};
+
+function getAllMonthsData(byMonth: Record<string, number>): Array<{ label: string; count: number }> {
+  return Array.from({ length: 12 }, (_, i) => {
+    const month = String(i + 1).padStart(2, "0");
+    return { label: MONTH_LABELS[month], count: byMonth[month] ?? 0 };
+  });
+}
+
+const WEEKDAY_LABELS: Record<string, string> = {
+  monday: "Seg", tuesday: "Ter", wednesday: "Qua",
+  thursday: "Qui", friday: "Sex", saturday: "Sáb", sunday: "Dom",
+};
+
+function buildUrl(base: string, params: Record<string, string>): string {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value) searchParams.set(key, value);
+  }
+  const qs = searchParams.toString();
+  return qs ? `${base}?${qs}` : base;
+}
+
+async function fetchJson(url: string) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse bg-gray-200 rounded-sm ${className}`} />;
+}
+
+interface OverviewData {
+  totalViolations: number;
+  periodStart: string;
+  periodEnd: string;
+}
+
+interface Props {
+  categorySlug: string;
+  overview: OverviewData;
+  color: string;
+}
+
+export default function InfracoesCategoryClientSide({ categorySlug, overview, color }: Props) {
+  const categoryName = slugToCategory(categorySlug);
+  const totalViolations = overview.totalViolations;
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
+  const dateParams = useCallback((): Record<string, string> => {
+    if (selectedYear === null) return {};
+    return {
+      start_date: `${selectedYear}-01-01`,
+      end_date: `${selectedYear}-12-31`,
+    };
+  }, [selectedYear]);
+
+  const availableYears: number[] = [];
+  const startYear = parseInt(overview.periodStart?.slice(0, 4));
+  const endYear = parseInt(overview.periodEnd?.slice(0, 4));
+  if (startYear && endYear) {
+    for (let y = startYear; y <= endYear; y++) availableYears.push(y);
+  }
+
+  // ─── Category data fetch ─────────────────────────────────────────
+  const [categoryData, setCategoryData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const dp = dateParams();
+    setLoading(true);
+    Promise.all([
+      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...dp, category: categoryName, limit: "20" }))
+        .catch(() => ({ violations: [] })),
+      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: categoryName, limit: "20" }))
+        .catch(() => ({ streets: [] })),
+      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, { ...dp, category: categoryName }))
+        .catch(() => ({})),
+      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, { ...dp, category: categoryName }))
+        .catch(() => ({ agents: [] })),
+      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, category: categoryName, limit: "1000" }))
+        .catch(() => null),
+    ])
+      .then(([topV, topS, temporal, agents, geo]) => {
+        if (cancelled) return;
+        setCategoryData({
+          topViolations: topV.violations ?? [],
+          topStreets: topS.streets ?? [],
+          temporal: temporal ?? {},
+          agentAnalysis: agents.agents ?? [],
+          geojson: geo,
+        });
+      })
+      .catch((err) => console.error("Erro categoria:", err))
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [categoryName, selectedYear, dateParams]);
+
+  // ─── Derived data ────────────────────────────────────────────────
+  const categoryTotal = categoryData
+    ? categoryData.topViolations.reduce((s: number, v: any) => s + v.count, 0)
+    : 0;
+  const pct = totalViolations > 0 ? ((categoryTotal / totalViolations) * 100).toFixed(1) : "0.0";
+  const mainAgent = categoryData?.agentAnalysis?.length > 0 ? categoryData.agentAnalysis[0] : null;
+
+  const streetTableData = (categoryData?.topStreets ?? []).map((s: any, i: number) => {
+    const tv = s.top_violation;
+    return {
+      ranking: i + 1,
+      rua: s.official_name,
+      bairro: s.neighborhood_name,
+      total: s.total_violations?.toLocaleString("pt-BR"),
+      total_raw: s.total_violations ?? 0,
+      extensao_km: s.extension_km?.toFixed(1),
+      infracoes_por_km: s.violations_per_km?.toFixed(0),
+      mais_comum: tv ? `${tv.law_code} — ${tv.description}` : "—",
+      pct_mais_comum: tv ? `${tv.percentage?.toFixed(1)}%` : "—",
+    };
+  });
+
+  const layersConf: LayerProps[] = categoryData?.geojson?.features?.length > 0 ? [{
+    id: `infracoes-${categorySlug}`,
+    type: "circle" as const,
+    paint: {
+      "circle-color": color,
+      "circle-opacity": 0.5,
+      "circle-radius": 3.5,
+      "circle-stroke-color": "#ffffff",
+      "circle-stroke-width": 0.5,
+    },
+    layout: {},
+  }] : [];
+
+  if (loading) {
+    return (
+      <div className="pb-16">
+        <div className="space-y-6 container mx-auto my-12">
+          <Skeleton className="h-10 w-48 mx-auto" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
+          </div>
+          <Skeleton className="h-80 w-full" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <Skeleton className="h-60" />
+            <Skeleton className="h-60" />
+            <Skeleton className="h-60" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!categoryData) {
+    return (
+      <div className="pb-16">
+        <div className="bg-white rounded-lg shadow p-8 text-center my-12">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Dados não disponíveis</h3>
+          <p className="text-sm text-gray-500">
+            Não foi possível carregar os dados para a categoria "{categoryName}".
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pb-16">
+      {/* Year selector */}
+      {availableYears.length > 0 && (
+        <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 -mx-4 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <span className="text-sm font-medium text-gray-600">Filtrar por ano:</span>
+            <button
+              onClick={() => setSelectedYear(null)}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                selectedYear === null
+                  ? "bg-ameciclo text-white"
+                  : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              Todo o período
+            </button>
+            {availableYears.map((year) => (
+              <button
+                key={year}
+                onClick={() => setSelectedYear(year)}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  selectedYear === year
+                    ? "bg-ameciclo text-white"
+                    : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {year}
+              </button>
+            ))}
+          </div>
+          {selectedYear && (
+            <p className="text-center text-xs text-gray-400 mt-2">
+              Mostrando dados de {selectedYear}. Selecione "Todo o período" para ver dados agregados.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="container mx-auto">
+        {/* Navigation back */}
+        <Link
+          to="/dados/infracoes"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-ameciclo mb-8"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Voltar para visão geral
+        </Link>
+
+        {/* ─── Statistics Cards ─────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow-lg p-6 text-center" style={{ borderTop: `4px solid ${color}` }}>
+            <p className="text-sm uppercase tracking-wider text-gray-500">Total na categoria</p>
+            <p className="text-4xl font-bold mt-2" style={{ color }}>{categoryTotal.toLocaleString("pt-BR")}</p>
+            <p className="text-xs mt-1 text-gray-500">{pct}% da base total</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+            <p className="text-sm uppercase tracking-wider text-gray-500">Artigos do CTB</p>
+            <p className="text-4xl font-bold mt-2 text-ameciclo">{categoryData.topViolations.length}</p>
+            <p className="text-xs mt-1 text-gray-500">tipos de infração</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+            <p className="text-sm uppercase tracking-wider text-gray-500">Ruas com registros</p>
+            <p className="text-4xl font-bold mt-2 text-ameciclo">
+              {categoryData.topStreets.filter((s: any) => s.total_violations > 0).length}
+            </p>
+            <p className="text-xs mt-1 text-gray-500">no top 20</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+            <p className="text-sm uppercase tracking-wider text-gray-500">Agente principal</p>
+            {mainAgent ? (
+              <>
+                <p className="text-xl font-bold mt-2 text-ameciclo leading-tight">{mainAgent.description}</p>
+                <p className="text-xs mt-1 text-gray-500">{mainAgent.total?.toLocaleString("pt-BR")} autuações</p>
+              </>
+            ) : (
+              <p className="text-4xl font-bold mt-2 text-gray-300">-</p>
+            )}
+          </div>
+        </div>
+
+        {/* ─── Top Infrações ────────────────────────────────────── */}
+        {categoryData.topViolations.length > 0 && (
+          <div className="mb-8">
+            <HorizontalBarChart
+              title={`Infrações mais comuns — ${categoryName}`}
+              yAxisTitle="Quantidade"
+              series={[{
+                name: "Infrações",
+                data: categoryData.topViolations.map((v: any) => ({
+                  name: `${v.law_code} — ${v.description}`,
+                  y: v.count,
+                })),
+                color,
+              }]}
+            />
+          </div>
+        )}
+
+        {/* ─── Temporal Analysis ────────────────────────────────── */}
+        {categoryData.temporal && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Quando Acontecem</h2>
+
+            {categoryData.temporal.by_year && Object.keys(categoryData.temporal.by_year).length > 0 && (
+              <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Evolução Anual</h3>
+                <VerticalBarChart
+                  title=""
+                  xAxisTitle=""
+                  yAxisTitle="Infrações"
+                  data={Object.entries(categoryData.temporal.by_year)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([year, count]) => ({ label: year, count: count as number }))}
+                  xKey="label"
+                  yKeys={["count"]}
+                  colors={[color]}
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {categoryData.temporal.by_month && (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Por mês</h4>
+                  <VerticalBarChart
+                    title="" xAxisTitle="" yAxisTitle=""
+                    data={getAllMonthsData(categoryData.temporal.by_month)}
+                    xKey="label" yKeys={["count"]} colors={[color]}
+                  />
+                </div>
+              )}
+              {categoryData.temporal.by_weekday && (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Por dia da semana</h4>
+                  <VerticalBarChart
+                    title="" xAxisTitle="" yAxisTitle=""
+                    data={Object.entries(categoryData.temporal.by_weekday).map(
+                      ([day, count]) => ({ label: WEEKDAY_LABELS[day] ?? day, count: count as number })
+                    )}
+                    xKey="label" yKeys={["count"]} colors={["#10b981"]}
+                  />
+                </div>
+              )}
+              {categoryData.temporal.by_hour && (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Por hora do dia</h4>
+                  <VerticalBarChart
+                    title="" xAxisTitle="" yAxisTitle=""
+                    data={Object.entries(categoryData.temporal.by_hour)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([hour, count]) => ({ label: `${hour}h`, count: count as number }))}
+                    xKey="label" yKeys={["count"]} colors={["#8b5cf6"]}
+                  />
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ─── Agent Analysis ───────────────────────────────────── */}
+        {categoryData.agentAnalysis.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Quem Fiscaliza</h2>
+            <div className="mb-8">
+              <HorizontalBarChart
+                title="Percentual por tipo de agente"
+                yAxisTitle="% das autuações"
+                series={[{
+                  name: "Percentual",
+                  data: categoryData.agentAnalysis.map((a: any) => ({
+                    name: a.description,
+                    y: a.percentage,
+                  })),
+                  color,
+                }]}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {categoryData.agentAnalysis.map((agent: any) => (
+                <div key={agent.agent_id} className="bg-white rounded-lg shadow-lg p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-3 h-3 rounded-full shrink-0 ${agent.category === "eletronico" ? "bg-blue-500" : "bg-amber-500"}`} />
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-800">{agent.description}</h3>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {agent.category === "eletronico" ? "Fiscalização eletrônica" : "Agente humano"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <p className="text-3xl font-bold text-ameciclo">{agent.total?.toLocaleString("pt-BR")}</p>
+                    <p className="text-sm text-gray-500">{agent.percentage?.toFixed(1)}% das autuações</p>
+                  </div>
+                  {agent.top_violations?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
+                      <ul className="space-y-1">
+                        {agent.top_violations.slice(0, 5).map((v: any) => (
+                          <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
+                            <span className="truncate mr-2">{v.law_code} — {v.description}</span>
+                            <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ─── Map ──────────────────────────────────────────────── */}
+        {categoryData.geojson?.features?.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Mapa de Infrações</h2>
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-bold text-gray-800">
+                  Infrações — {categoryName}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Cada ponto representa uma infração registrada.{selectedYear ? ` Ano: ${selectedYear}` : ""}
+                </p>
+              </div>
+              <AmecicloMap
+                layerData={categoryData.geojson}
+                layersConf={layersConf}
+                height="450px"
+                showLayersPanel={false}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ─── Ruas com mais registros ─────────────────────────────────── */}
+        {categoryData.topStreets.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Ruas com Mais Registros</h2>
+            <div className="bg-white rounded-lg shadow-lg">
+              <Table
+                title=""
+                data={streetTableData}
+                columns={[
+                  { Header: "#", accessor: "ranking", disableFilters: true },
+                  { Header: "Rua", accessor: "rua", disableFilters: true },
+                  { Header: "Bairro", accessor: "bairro", disableFilters: true },
+                  { Header: "Total", accessor: "total", disableFilters: true },
+                  { Header: "Extensão (km)", accessor: "extensao_km", disableFilters: true },
+                  { Header: "Infrações/km", accessor: "infracoes_por_km", disableFilters: true },
+                  { Header: "Infração mais comum", accessor: "mais_comum", disableFilters: true },
+                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true },
+                ]}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ─── Violation codes table ────────────────────────────── */}
+        {categoryData.topViolations.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Artigos do CTB nesta Categoria</h2>
+            <div className="bg-white rounded-lg shadow-lg">
+              <Table
+                title=""
+                data={categoryData.topViolations.map((v: any) => ({
+                  base_legal: v.law_code,
+                  descricao: v.description,
+                  quantidade: v.count.toLocaleString("pt-BR"),
+                  count_raw: v.count,
+                }))}
+                columns={[
+                  { Header: "Base Legal", accessor: "base_legal" },
+                  { Header: "Descrição", accessor: "descricao" },
+                  { Header: "Quantidade", accessor: "quantidade", disableFilters: true },
+                ]}
+              />
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
