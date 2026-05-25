@@ -223,20 +223,50 @@ export default function InfracoesClientSide({
     let cancelled = false;
     const dp = dateParams();
     setLoadingStreets(true);
+
+    const streetFetches = categories.length > 0
+      ? categories
+          .filter((c) => c.name !== "Outras/não classificadas")
+          .map((cat) =>
+            fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: cat.name, limit: "25" }))
+              .catch((e) => { console.error(`Falha top-streets (${cat.name}):`, e); return { streets: [] }; })
+          )
+      : [fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, limit: "100" }))
+          .catch((e) => { console.error("Falha top-streets:", e); return { streets: [] }; })];
+
     Promise.all([
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, limit: "100" })).catch((e) => { console.error("Falha top-streets:", e); return { streets: [] }; }),
+      ...streetFetches,
       fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, limit: "500" })).catch((e) => { console.error("Falha geojson:", e); return null; }),
     ])
-      .then(([streets, geo]) => {
+      .then((results) => {
         if (cancelled) return;
-        setStreetsData(streets.streets ?? []);
+        const geo = results[results.length - 1];
+        const streetResults = results.slice(0, -1) as Array<{ streets: any[] }>;
+
+        const streetMap = new Map<string, any>();
+        for (const r of streetResults) {
+          for (const s of r.streets ?? []) {
+            const key = s.official_name;
+            const existing = streetMap.get(key);
+            if (existing) {
+              existing.total_violations += s.total_violations ?? 0;
+            } else {
+              streetMap.set(key, { ...s });
+            }
+          }
+        }
+        const merged = Array.from(streetMap.values())
+          .sort((a, b) => (b.total_violations ?? 0) - (a.total_violations ?? 0))
+          .slice(0, 100);
+
+        setStreetsData(merged);
         setGeojsonData(geo ?? null);
-        setStreetsError(!streets.streets?.length && !geo);
+        setStreetsError(merged.length === 0 && !geo);
       })
       .catch((err) => console.error("Erro ruas/mapa:", err))
       .finally(() => { if (!cancelled) setLoadingStreets(false); });
     return () => { cancelled = true; };
-  }, [selectedYear, dateParams]);
+  }, [selectedYear, dateParams, categories]);
 
   // ─── Bloco 2: Quando Acontecem (temporal) ────────────────────────
   const [temporalData, setTemporalData] = useState<any>(null);
@@ -325,14 +355,12 @@ export default function InfracoesClientSide({
   }));
 
   const layersConf: LayerProps[] = geojsonData?.features?.length > 0 ? [{
-    id: "infracoes-pontos",
-    type: "circle" as const,
+    id: "infracoes-linhas",
+    type: "line" as const,
     paint: {
-      "circle-color": "#dc2626",
-      "circle-opacity": 0.4,
-      "circle-radius": 3,
-      "circle-stroke-color": "#ffffff",
-      "circle-stroke-width": 0.5,
+      "line-color": "#dc2626",
+      "line-opacity": 0.4,
+      "line-width": 2,
     },
     layout: {},
   }] : [];
@@ -381,7 +409,7 @@ export default function InfracoesClientSide({
                     Mapa de Infrações
                   </h3>
                   <p className="text-sm text-gray-500">
-                    Cada ponto representa uma infração registrada.{selectedYear ? ` Ano: ${selectedYear}` : ""}
+                    Cada linha representa o trecho de via com infrações registradas.{selectedYear ? ` Ano: ${selectedYear}` : ""}
                   </p>
                 </div>
                 <AmecicloMap
@@ -607,7 +635,7 @@ export default function InfracoesClientSide({
                     key={cat.name}
                     to="/dados/infracoes/$category"
                     params={{ category: categoryToSlug(cat.name) }}
-                    className="bg-white rounded-lg shadow-lg p-6 flex flex-col hover:shadow-xl transition-shadow"
+                    className="bg-white rounded-lg shadow-lg p-6 flex flex-col hover:shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-200 cursor-pointer"
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />

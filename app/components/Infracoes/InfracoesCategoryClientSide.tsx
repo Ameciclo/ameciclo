@@ -144,13 +144,11 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
 
   const layersConf: LayerProps[] = categoryData?.geojson?.features?.length > 0 ? [{
     id: `infracoes-${categorySlug}`,
-    type: "circle" as const,
+    type: "line" as const,
     paint: {
-      "circle-color": color,
-      "circle-opacity": 0.5,
-      "circle-radius": 3.5,
-      "circle-stroke-color": "#ffffff",
-      "circle-stroke-width": 0.5,
+      "line-color": color,
+      "line-opacity": 0.5,
+      "line-width": 2,
     },
     layout: {},
   }] : [];
@@ -412,7 +410,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                   Infrações — {categoryName}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Cada ponto representa uma infração registrada.{selectedYear ? ` Ano: ${selectedYear}` : ""}
+                  Cada linha representa o trecho de via com infrações registradas.{selectedYear ? ` Ano: ${selectedYear}` : ""}
                 </p>
               </div>
               <AmecicloMap
