@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
 import Table from "~/components/Commom/Table/Table";
+import { SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import type { LayerProps } from "react-map-gl/maplibre";
 import {
@@ -69,14 +70,18 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   const categoryName = slugToCategory(categorySlug);
   const totalViolations = overview.totalViolations;
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [showStreetFilters, setShowStreetFilters] = useState(false);
 
   const dateParams = useCallback((): Record<string, string> => {
-    if (selectedYear === null) return {};
+    if (selectedYear === null) return {
+      start_date: overview.periodStart,
+      end_date: overview.periodEnd,
+    };
     return {
       start_date: `${selectedYear}-01-01`,
       end_date: `${selectedYear}-12-31`,
     };
-  }, [selectedYear]);
+  }, [selectedYear, overview.periodStart, overview.periodEnd]);
 
   const availableYears: number[] = [];
   const startYear = parseInt(overview.periodStart?.slice(0, 4));
@@ -102,7 +107,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
         .catch(() => ({})),
       fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, { ...dp, category: categoryName }))
         .catch(() => ({ agents: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, category: categoryName, limit: "1000" }))
+      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, category: categoryName, limit: "100" }))
         .catch(() => null),
     ])
       .then(([topV, topS, temporal, agents, geo]) => {
@@ -431,15 +436,14 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
               <Table
                 title=""
                 data={streetTableData}
+                showFilters={showStreetFilters}
+                setShowFilters={setShowStreetFilters}
                 columns={[
-                  { Header: "#", accessor: "ranking", disableFilters: true },
-                  { Header: "Rua", accessor: "rua", disableFilters: true },
-                  { Header: "Bairro", accessor: "bairro", disableFilters: true },
-                  { Header: "Total", accessor: "total", disableFilters: true },
-                  { Header: "Extensão (km)", accessor: "extensao_km", disableFilters: true },
-                  { Header: "Infrações/km", accessor: "infracoes_por_km", disableFilters: true },
-                  { Header: "Infração mais comum", accessor: "mais_comum", disableFilters: true },
-                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true },
+                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                  { Header: "Rua", accessor: "rua", width: '25%' },
+                  { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
+                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
                 ]}
               />
             </div>

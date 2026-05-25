@@ -204,14 +204,18 @@ export default function InfracoesClientSide({
 
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showViolationFilters, setShowViolationFilters] = useState(false);
+  const [showStreetFilters, setShowStreetFilters] = useState(false);
 
   const dateParams = useCallback((): Record<string, string> => {
-    if (selectedYear === null) return {};
+    if (selectedYear === null) return {
+      start_date: overview.periodStart,
+      end_date: overview.periodEnd,
+    };
     return {
       start_date: `${selectedYear}-01-01`,
       end_date: `${selectedYear}-12-31`,
     };
-  }, [selectedYear]);
+  }, [selectedYear, overview.periodStart, overview.periodEnd]);
 
   // ─── Bloco 1: Onde Acontecem (ruas + mapa) ──────────────────────
   const [streetsData, setStreetsData] = useState<any[]>([]);
@@ -236,7 +240,7 @@ export default function InfracoesClientSide({
 
     Promise.all([
       ...streetFetches,
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, limit: "500" })).catch((e) => { console.error("Falha geojson:", e); return null; }),
+      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, limit: "100" })).catch((e) => { console.error("Falha geojson:", e); return null; }),
     ])
       .then((results) => {
         if (cancelled) return;
@@ -436,17 +440,16 @@ export default function InfracoesClientSide({
 
             <div className="bg-white rounded-lg shadow-lg">
               <Table
-                title={`Top ${streetsData.length} Ruas com Mais Infrações`}
+                title="Ruas com mais infrações"
                 data={streetTableData}
-                columns={[
-                  { Header: "#", accessor: "ranking", disableFilters: true },
-                  { Header: "Rua", accessor: "rua", disableFilters: true },
-                  { Header: "Bairro", accessor: "bairro", disableFilters: true },
-                  { Header: "Total", accessor: "total", disableFilters: true },
-                  { Header: "Extensão (km)", accessor: "extensao_km", disableFilters: true },
-                  { Header: "Infrações/km", accessor: "infracoes_por_km", disableFilters: true },
-                  { Header: "Infração mais comum", accessor: "mais_comum", disableFilters: true },
-                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true },
+                showFilters={showStreetFilters}
+                setShowFilters={setShowStreetFilters}
+                  columns={[
+                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                  { Header: "Rua", accessor: "rua", width: '25%' },
+                  { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
+                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
                 ]}
               />
             </div>
@@ -711,25 +714,20 @@ export default function InfracoesClientSide({
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 5 — Tabela Completa
           ═══════════════════════════════════════════════════════════════ */}
-      <Section
-        title="Lista Completa de Infrações"
-        subtitle={`Todos os ${violationCodes.length} artigos do CTB registrados no Recife, com base legal, descrição, categoria e quantidade.`}
-      >
-        <div className="bg-white rounded-lg shadow-lg">
-          <Table
-            title=""
-            data={violationTableData}
-            showFilters={showViolationFilters}
-            setShowFilters={setShowViolationFilters}
-            columns={[
-              { Header: "Base Legal", accessor: "base_legal" },
-              { Header: "Descrição", accessor: "descricao" },
-              { Header: "Categoria", accessor: "categoria", Filter: SelectColumnFilter },
-              { Header: "Quantidade", accessor: "quantidade", disableFilters: true },
-            ]}
-          />
-        </div>
-      </Section>
+      <div className="bg-white rounded-lg shadow-lg">
+        <Table
+          title="Infrações registradas"
+          data={violationTableData}
+          showFilters={showViolationFilters}
+          setShowFilters={setShowViolationFilters}
+          columns={[
+            { Header: "Base Legal", accessor: "base_legal", width: '15%' },
+            { Header: "Descrição", accessor: "descricao", width: '45%' },
+            { Header: "Categoria", accessor: "categoria", Filter: SelectColumnFilter, width: '25%' },
+            { Header: "Quantidade", accessor: "quantidade", disableFilters: true, width: '15%' },
+          ]}
+        />
+      </div>
     </div>
   );
 }

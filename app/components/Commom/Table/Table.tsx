@@ -286,6 +286,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     key={column.id || index}
                                     {...(({ key, ...props }) => props)(column.getHeaderProps())}
                                     className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
+                                    style={{ width: (column as any).width ?? '20%' }}
                                 >
                                     <button
                                         {...column.getSortByToggleProps()}
@@ -386,7 +387,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                             key={cell.column.id || cellIndex}
                                             {...(({ key, ...props }) => props)(cell.getCellProps())}
                                             className={`px-6 py-4 text-sm leading-5 wrap-break-word ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : 'text-gray-700'}`}
-                                            style={{ width: '20%' }}
+                                            style={{ width: (cell.column as any).width ?? '20%' }}
                                         >
                                             {cell.render("Cell")}
                                         </td>

@@ -63,7 +63,7 @@ export const TRAFFIC_VIOLATIONS_TEMPORAL = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashbo
 export const TRAFFIC_VIOLATIONS_AGENT_ANALYSIS = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/agent-analysis`
 export const TRAFFIC_VIOLATIONS_CODES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/violation-codes`
 export const TRAFFIC_VIOLATIONS_CATEGORIES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/categories`
-export const TRAFFIC_VIOLATIONS_GEOJSON = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/geojson`
+export const TRAFFIC_VIOLATIONS_GEOJSON = `${TRAFFIC_VIOLATIONS_BASE}/v1/streets/geojson`
 
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
 export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
