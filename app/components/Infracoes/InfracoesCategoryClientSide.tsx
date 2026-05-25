@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
@@ -147,16 +147,49 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
     };
   });
 
-  const layersConf: LayerProps[] = categoryData?.geojson?.features?.length > 0 ? [{
-    id: `infracoes-${categorySlug}`,
-    type: "line" as const,
-    paint: {
-      "line-color": color,
-      "line-opacity": 0.5,
-      "line-width": 2,
-    },
-    layout: {},
-  }] : [];
+  const layersConf: LayerProps[] = useMemo(() => {
+    const features = categoryData?.geojson?.features;
+    if (!features?.length) return [];
+
+    const values = features
+      .map((f: any) => f.properties?.total_violations ?? 0)
+      .filter((v: number) => v > 0)
+      .sort((a: number, b: number) => a - b);
+
+    const n = values.length;
+    if (n === 0) return [];
+
+    const q1 = values[Math.floor(n * 0.25)];
+    const q2 = values[Math.floor(n * 0.50)];
+    const q3 = values[Math.floor(n * 0.75)];
+
+    return [{
+      id: `infracoes-${categorySlug}`,
+      type: "line" as const,
+      paint: {
+        "line-color": [
+          "interpolate",
+          ["linear"],
+          ["get", "total_violations"],
+          0,    "#FEF3C7",
+          q1,   "#F59E0B",
+          q2,   "#DC2626",
+          q3,   "#7F1D1D",
+        ],
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["get", "total_violations"],
+          0,  2,
+          q1, 3,
+          q2, 5,
+          q3, 8,
+        ],
+        "line-opacity": 0.7,
+      },
+      layout: {},
+    }];
+  }, [categoryData, categorySlug]);
 
   if (loading) {
     return (
