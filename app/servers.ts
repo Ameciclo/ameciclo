@@ -54,6 +54,17 @@ export const VIAS_INSEGURAS_LIST = `${SAMU_ATLAS_BASE}/v1/streets/top`
 export const VIAS_INSEGURAS_HISTORY_V2 = `${SAMU_ATLAS_BASE}/v2/streets/history`
 export const VIAS_INSEGURAS_STREET_SUMMARY = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets`
 
+// Traffic Violations — Observatório de Infrações de Trânsito
+export const TRAFFIC_VIOLATIONS_BASE = "http://localhost:3013"
+export const TRAFFIC_VIOLATIONS_OVERVIEW = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/overview`
+export const TRAFFIC_VIOLATIONS_TOP = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-violations`
+export const TRAFFIC_VIOLATIONS_TOP_STREETS = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-streets`
+export const TRAFFIC_VIOLATIONS_TEMPORAL = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/temporal`
+export const TRAFFIC_VIOLATIONS_AGENT_ANALYSIS = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/agent-analysis`
+export const TRAFFIC_VIOLATIONS_CODES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/violation-codes`
+export const TRAFFIC_VIOLATIONS_CATEGORIES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/categories`
+export const TRAFFIC_VIOLATIONS_GEOJSON = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/geojson`
+
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
 export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
 export const BIKE_PE_STATIONS_DATA = `https://shared-bike.atlas.ameciclo.org/v1/stations`
