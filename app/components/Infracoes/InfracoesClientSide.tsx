@@ -163,11 +163,10 @@ function YearSelector({
         <span className="text-sm font-medium text-gray-600">Filtrar por ano:</span>
         <button
           onClick={() => onChange(null)}
-          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            selectedYear === null
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === null
               ? "bg-ameciclo text-white"
               : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-          }`}
+            }`}
         >
           Todo o período
         </button>
@@ -175,11 +174,10 @@ function YearSelector({
           <button
             key={year}
             onClick={() => onChange(year)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              selectedYear === year
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === year
                 ? "bg-ameciclo text-white"
                 : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-            }`}
+              }`}
           >
             {year}
           </button>
@@ -230,13 +228,13 @@ export default function InfracoesClientSide({
 
     const streetFetches = categories.length > 0
       ? categories
-          .filter((c) => c.name !== "Outras/não classificadas")
-          .map((cat) =>
-            fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: cat.name, limit: "25" }))
-              .catch((e) => { console.error(`Falha top-streets (${cat.name}):`, e); return { streets: [] }; })
-          )
+        .filter((c) => c.name !== "Outras/não classificadas")
+        .map((cat) =>
+          fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: cat.name, limit: "25" }))
+            .catch((e) => { console.error(`Falha top-streets (${cat.name}):`, e); return { streets: [] }; })
+        )
       : [fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, limit: "100" }))
-          .catch((e) => { console.error("Falha top-streets:", e); return { streets: [] }; })];
+        .catch((e) => { console.error("Falha top-streets:", e); return { streets: [] }; })];
 
     Promise.all([
       ...streetFetches,
@@ -382,16 +380,16 @@ export default function InfracoesClientSide({
           "interpolate",
           ["linear"],
           ["get", "total_violations"],
-          0,    "#FEF3C7",
-          q1,   "#F59E0B",
-          q2,   "#DC2626",
-          q3,   "#7F1D1D",
+          0, "#FEF3C7",
+          q1, "#F59E0B",
+          q2, "#DC2626",
+          q3, "#7F1D1D",
         ],
         "line-width": [
           "interpolate",
           ["linear"],
           ["get", "total_violations"],
-          0,  2,
+          0, 2,
           q1, 3,
           q2, 5,
           q3, 8,
@@ -441,14 +439,6 @@ export default function InfracoesClientSide({
           <>
             {geojsonData?.features?.length > 0 ? (
               <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-                <div className="p-4 border-b">
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Mapa de Infrações
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Cada linha representa o trecho de via com infrações registradas.{selectedYear ? ` Ano: ${selectedYear}` : ""}
-                  </p>
-                </div>
                 <AmecicloMap
                   layerData={geojsonData}
                   layersConf={layersConf}
@@ -477,7 +467,7 @@ export default function InfracoesClientSide({
                 data={streetTableData}
                 showFilters={showStreetFilters}
                 setShowFilters={setShowStreetFilters}
-                  columns={[
+                columns={[
                   { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
                   { Header: "Rua", accessor: "rua", width: '25%' },
                   { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
