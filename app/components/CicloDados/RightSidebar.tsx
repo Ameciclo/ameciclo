@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart, MiniVelocidadeChart, MiniFluxoChart, MiniGeneroChart, MiniCaracteristicasChart, MiniInfraestruturaChart, MiniAcessibilidadeChart } from './utils/chartData';
 import { StreetSelectionModal } from './StreetSelectionModal';
-import { fetchContagemData } from '~/services/contagem.service';
 
 
 interface Street {
@@ -27,21 +27,37 @@ interface CardData {
   metrics?: Array<{label: string, value: string, trend?: 'up'|'down'}>;
 }
 
-function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelection?: {lat: number, lng: number, radius: number, street?: string, streets?: Street[], clickPosition?: {x: number, y: number}}, collapsedCards: Set<string>, toggleCard: (cardId: string) => void }) {
+function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelection?: {lat: number, lng: number, radius: number, street?: string, streets?: Street[], clickPosition?: {x: number, y: number}, pointData?: any}, collapsedCards: Set<string>, toggleCard: (cardId: string) => void }) {
   const [infraPercentage, setInfraPercentage] = useState(100);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [dataAvailability, setDataAvailability] = useState<any>(null);
   const [cardData, setCardData] = useState<Record<string, any>>({});
-  
-  // Fetch counting data when mapSelection changes
+
+  const hasPointData = Boolean(mapSelection?.pointData?.totalCyclists !== undefined && mapSelection?.lat && mapSelection?.lng);
+  const lat = mapSelection?.lat;
+  const lng = mapSelection?.lng;
+
+  const { data: contagemQueryData, isLoading: loading, error: queryError } = useQuery({
+    queryKey: ["ciclodados", "contagem", lat, lng],
+    queryFn: async () => {
+      const response = await fetch("https://cyclist-counts.atlas.ameciclo.org/v1/locations", {
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    },
+    enabled: Boolean(lat && lng) && !hasPointData,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const error = queryError ? 'Erro ao carregar dados de contagem' : null;
+
+  // Process pointData or queried data into cardData
   useEffect(() => {
     if (mapSelection?.lat && mapSelection?.lng) {
-      // Se temos dados do ponto clicado, usar diretamente
+      // Use directly provided pointData
       if (mapSelection.pointData?.totalCyclists !== undefined) {
-        
-        // Calcular percentual de mulheres se disponível
-        let womenPercentage = '12%'; // fallback
+        let womenPercentage = '12%';
         if (mapSelection.pointData.counts && mapSelection.pointData.counts.length > 0) {
           const latestCount = mapSelection.pointData.counts[0];
           if (latestCount.characteristics?.women && latestCount.total_cyclists > 0) {
@@ -49,17 +65,15 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
             womenPercentage = `${percentage}%`;
           }
         }
-        
-        // Calcular valor do card baseado no total de todos os anos
+
         let cardValue = mapSelection.pointData.totalCyclists.toString();
         if (mapSelection.pointData.counts && mapSelection.pointData.counts.length > 0) {
-          // Somar todos os ciclistas de todas as contagens
           const totalAllYears = mapSelection.pointData.counts.reduce((sum: number, count: any) => {
             return sum + (count.total_cyclists || 0);
           }, 0);
           cardValue = totalAllYears.toString();
         }
-        
+
         setCardData({
           contagens: {
             title: mapSelection.street || 'Ponto selecionado',
@@ -89,52 +103,39 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
           },
           street: mapSelection.street || 'Ponto selecionado'
         });
-        setLoading(false);
         return;
       }
-      
-      // Caso contrário, buscar dados da API
-      setLoading(true);
-      setError(null);
-      
-      fetchContagemData(mapSelection.lat, mapSelection.lng)
-        .then(data => {
-          
-          setCardData({
-            contagens: {
-              title: mapSelection.street || 'Ponto selecionado',
-              value: '0',
-              details: data,
-              coordinates: { lat: mapSelection.lat, lng: mapSelection.lng }
-            }
-          });
-          setDataAvailability({
-            available: {
-              contagens: true,
-              sinistros: true,
-              infraestrutura: true,
-              sinistrosTotais: true,
-              velocidade: true,
-              fluxo: true,
-              genero: true,
-              participacaoFeminina: false,
-              caracteristicas: true,
-              infraestruturaInfo: true,
-              acessibilidade: true
-            },
-            street: mapSelection.street || 'Ponto selecionado'
-          });
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error('❌ RightSidebar: Erro ao buscar dados de contagem:', err);
-          setError('Erro ao carregar dados de contagem');
-          setLoading(false);
+
+      // Use queried data
+      if (contagemQueryData) {
+        setCardData({
+          contagens: {
+            title: mapSelection.street || 'Ponto selecionado',
+            value: '0',
+            details: contagemQueryData,
+            coordinates: { lat: mapSelection.lat, lng: mapSelection.lng }
+          }
         });
-    } else {
+        setDataAvailability({
+          available: {
+            contagens: true,
+            sinistros: true,
+            infraestrutura: true,
+            sinistrosTotais: true,
+            velocidade: true,
+            fluxo: true,
+            genero: true,
+            participacaoFeminina: false,
+            caracteristicas: true,
+            infraestruturaInfo: true,
+            acessibilidade: true
+          },
+          street: mapSelection.street || 'Ponto selecionado'
+        });
+      }
     }
-  }, [mapSelection]);
-  
+  }, [mapSelection, contagemQueryData]);
+
   const getCardData = (cardId: string) => cardData[cardId] || null;
   
   // Use real data availability or fallback to mock data

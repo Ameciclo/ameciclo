@@ -1,8 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import Table from "../Commom/Table/Table";
 import { slugify } from "~/utils/slugify";
-import { fetchAvailableYears, fetchRankingTableData } from "~/queries/dados.vias-inseguras";
+import {
+  viasInsegurasAvailableYearsQueryOptions,
+  viasInsegurasRankingTableQueryOptions,
+} from "~/queries/dados.vias-inseguras";
 import RankingYearFilter from "./RankingYearFilter";
 
 interface ViaRanking {
@@ -34,56 +38,33 @@ export default function ViasRankingTable({
   const [densityFilter, setDensityFilter] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [startYear, setStartYear] = useState("");
   const [endYear, setEndYear] = useState("");
-  const [tableData, setTableData] = useState(initialData);
-  const [tableTotal, setTableTotal] = useState(initialTotal);
-  const [tablePeriodo, setTablePeriodo] = useState(initialPeriodo);
-  const [loading, setLoading] = useState(false);
 
-  const fetchIdRef = useRef(0);
+  const { data: availableYears = [] } = useQuery(viasInsegurasAvailableYearsQueryOptions());
 
-  const updateFilteredData = useCallback(async (s: string, e: string) => {
-    if (!s) return;
-    const fetchId = ++fetchIdRef.current;
-    setLoading(true);
-    try {
-      const result = await fetchRankingTableData({ data: { start_year: s, end_year: e || s } });
-      if (fetchId !== fetchIdRef.current) return;
-      if (result) {
-        setTableData(result.dados);
-        setTableTotal(result.totalSinistros);
-        setTablePeriodo(result.periodo);
-      }
-    } catch {
-      if (fetchId !== fetchIdRef.current) return;
-    } finally {
-      if (fetchId === fetchIdRef.current) {
-        setLoading(false);
-      }
-    }
-  }, []);
-
+  // Initialize years when availableYears loads
   useEffect(() => {
-    fetchAvailableYears().then((years) => {
-      const filteredYears = years.filter((y) => Number(y) >= 2020);
-      setAvailableYears(filteredYears);
-      const end = filteredYears.includes("2025")
-        ? "2024"
-        : filteredYears[filteredYears.length - 1] || "";
-      const start = filteredYears[0] || "2020";
-      setStartYear(start);
-      setEndYear(end);
-      updateFilteredData(start, end);
-    });
-  }, []);
+    if (availableYears.length === 0) return;
+    const filtered = availableYears.filter((y: string) => Number(y) >= 2020);
+    const end = filtered.includes("2025") ? "2024" : filtered[filtered.length - 1] || "";
+    const start = filtered[0] || "2020";
+    setStartYear(start);
+    setEndYear(end);
+  }, [availableYears]);
+
+  const { data: rankingResult, isLoading: loading } = useQuery({
+    ...viasInsegurasRankingTableQueryOptions(startYear, endYear),
+    enabled: !!startYear,
+  });
+  const tableData: ViaRanking[] = rankingResult?.dados ?? initialData;
+  const tableTotal = rankingResult?.totalSinistros ?? initialTotal;
+  const tablePeriodo = rankingResult?.periodo ?? initialPeriodo;
 
   const handleYearChange = useCallback((s: string, e: string) => {
     setStartYear(s);
     setEndYear(e);
-    updateFilteredData(s, e);
-  }, [updateFilteredData]);
+  }, []);
 
   const tableRows = (tableData || [])
     .filter((via) => {

@@ -270,3 +270,21 @@ export const viasInsegurasQueryOptions = () =>
     queryKey: ["dados", "vias-inseguras"],
     queryFn: () => fetchViasInseguras(),
   });
+
+export const viasInsegurasAvailableYearsQueryOptions = () =>
+  queryOptions({
+    queryKey: ["dados", "vias-inseguras", "available-years"],
+    queryFn: () => fetchAvailableYears(),
+    staleTime: 10 * 60 * 1000,
+  });
+
+export const viasInsegurasRankingTableQueryOptions = (
+  startYear: string,
+  endYear: string,
+) =>
+  queryOptions({
+    queryKey: ["dados", "vias-inseguras", "ranking-table", startYear, endYear],
+    queryFn: () =>
+      fetchRankingTableData({ data: { start_year: startYear, end_year: endYear } }),
+    staleTime: 5 * 60 * 1000,
+  });

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
@@ -9,12 +10,11 @@ import { SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import type { LayerProps } from "react-map-gl/maplibre";
 import {
-  TRAFFIC_VIOLATIONS_TOP,
-  TRAFFIC_VIOLATIONS_TOP_STREETS,
-  TRAFFIC_VIOLATIONS_TEMPORAL,
-  TRAFFIC_VIOLATIONS_AGENT_ANALYSIS,
-  TRAFFIC_VIOLATIONS_GEOJSON,
-} from "~/servers";
+  infracoesStreetsAndGeoQueryOptions,
+  infracoesTemporalQueryOptions,
+  infracoesAgentsQueryOptions,
+  infracoesCategoryTopQueryOptions,
+} from "~/queries/dados.infracoes";
 
 const MONTH_LABELS: Record<string, string> = {
   "01": "Jan", "02": "Fev", "03": "Mar", "04": "Abr",
@@ -102,21 +102,6 @@ interface InfracoesClientSideProps {
   overview: OverviewData;
   violationCodes: ViolationCode[];
   categories: CategoryItem[];
-}
-
-function buildUrl(base: string, params: Record<string, string>): string {
-  const searchParams = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value) searchParams.set(key, value);
-  }
-  const qs = searchParams.toString();
-  return qs ? `${base}?${qs}` : base;
-}
-
-async function fetchJson(url: string) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
@@ -216,121 +201,36 @@ export default function InfracoesClientSide({
   }, [selectedYear, overview.periodStart, overview.periodEnd]);
 
   // ─── Bloco 1: Onde Acontecem (ruas + mapa) ──────────────────────
-  const [streetsData, setStreetsData] = useState<any[]>([]);
-  const [geojsonData, setGeojsonData] = useState<any>(null);
-  const [loadingStreets, setLoadingStreets] = useState(true);
-  const [streetsError, setStreetsError] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const dp = dateParams();
-    setLoadingStreets(true);
-
-    const streetFetches = categories.length > 0
-      ? categories
-        .filter((c) => c.name !== "Outras/não classificadas")
-        .map((cat) =>
-          fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: cat.name, limit: "25" }))
-            .catch((e) => { console.error(`Falha top-streets (${cat.name}):`, e); return { streets: [] }; })
-        )
-      : [fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, limit: "100" }))
-        .catch((e) => { console.error("Falha top-streets:", e); return { streets: [] }; })];
-
-    Promise.all([
-      ...streetFetches,
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, limit: "100" })).catch((e) => { console.error("Falha geojson:", e); return null; }),
-    ])
-      .then((results) => {
-        if (cancelled) return;
-        const geo = results[results.length - 1];
-        const streetResults = results.slice(0, -1) as Array<{ streets: any[] }>;
-
-        const streetMap = new Map<string, any>();
-        for (const r of streetResults) {
-          for (const s of r.streets ?? []) {
-            const key = s.official_name;
-            const existing = streetMap.get(key);
-            if (existing) {
-              existing.total_violations += s.total_violations ?? 0;
-            } else {
-              streetMap.set(key, { ...s });
-            }
-          }
-        }
-        const merged = Array.from(streetMap.values())
-          .sort((a, b) => (b.total_violations ?? 0) - (a.total_violations ?? 0))
-          .slice(0, 100);
-
-        setStreetsData(merged);
-        setGeojsonData(geo ?? null);
-        setStreetsError(merged.length === 0 && !geo);
-      })
-      .catch((err) => console.error("Erro ruas/mapa:", err))
-      .finally(() => { if (!cancelled) setLoadingStreets(false); });
-    return () => { cancelled = true; };
-  }, [selectedYear, dateParams, categories]);
+  const dp = dateParams();
+  const {
+    data: streetsGeo,
+    isLoading: loadingStreets,
+    isError: streetsQueryError,
+  } = useQuery(infracoesStreetsAndGeoQueryOptions(dp, categories));
+  const streetsData = streetsGeo?.streetsData ?? [];
+  const geojsonData = streetsGeo?.geojsonData ?? null;
+  const streetsError = streetsQueryError || (!loadingStreets && streetsData.length === 0 && !geojsonData);
 
   // ─── Bloco 2: Quando Acontecem (temporal) ────────────────────────
-  const [temporalData, setTemporalData] = useState<any>(null);
-  const [loadingTemporal, setLoadingTemporal] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    const dp = dateParams();
-    setLoadingTemporal(true);
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, dp))
-      .then((data) => { if (!cancelled) setTemporalData(data); })
-      .catch((err) => console.error("Erro temporal:", err))
-      .finally(() => { if (!cancelled) setLoadingTemporal(false); });
-    return () => { cancelled = true; };
-  }, [selectedYear, dateParams]);
+  const {
+    data: temporalData,
+    isLoading: loadingTemporal,
+  } = useQuery(infracoesTemporalQueryOptions(dp));
 
   // ─── Bloco 3: Quem Fiscaliza ─────────────────────────────────────
-  const [agentData, setAgentData] = useState<any[]>([]);
-  const [loadingAgents, setLoadingAgents] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    const dp = dateParams();
-    setLoadingAgents(true);
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, dp))
-      .then((data) => { if (!cancelled) setAgentData(data.agents ?? []); })
-      .catch((err) => console.error("Erro agentes:", err))
-      .finally(() => { if (!cancelled) setLoadingAgents(false); });
-    return () => { cancelled = true; };
-  }, [selectedYear, dateParams]);
+  const {
+    data: agentData = [],
+    isLoading: loadingAgents,
+  } = useQuery(infracoesAgentsQueryOptions(dp));
 
   // ─── Bloco 4: Categorias top violations ──────────────────────────
-  const [categoryTopViolations, setCategoryTopViolations] = useState<Record<string, any[]>>({});
-  const [loadingCategories, setLoadingCategories] = useState(true);
-
-  useEffect(() => {
-    if (categories.length === 0) return;
-    let cancelled = false;
-    const dp = dateParams();
-    setLoadingCategories(true);
-    Promise.all(
-      categories
-        .filter((c) => c.name !== "Outras/não classificadas")
-        .map(async (cat) => {
-          try {
-            const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...dp, category: cat.name, limit: "5" }));
-            return { key: cat.name, violations: data.violations ?? [] };
-          } catch {
-            return { key: cat.name, violations: [] };
-          }
-        })
-    )
-      .then((results) => {
-        if (cancelled) return;
-        const map: Record<string, any[]> = {};
-        for (const r of results) map[r.key] = r.violations;
-        setCategoryTopViolations(map);
-      })
-      .catch((err) => console.error("Erro categorias:", err))
-      .finally(() => { if (!cancelled) setLoadingCategories(false); });
-    return () => { cancelled = true; };
-  }, [categories, selectedYear, dateParams]);
+  const {
+    data: categoryTopViolations = {},
+    isLoading: loadingCategories,
+  } = useQuery({
+    ...infracoesCategoryTopQueryOptions(dp, categories),
+    enabled: categories.length > 0,
+  });
 
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetTableData = streetsData.map((s: any, i: number) => {

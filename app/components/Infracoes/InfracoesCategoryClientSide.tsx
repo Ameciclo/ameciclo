@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
@@ -8,13 +9,7 @@ import Table from "~/components/Commom/Table/Table";
 import { SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import type { LayerProps } from "react-map-gl/maplibre";
-import {
-  TRAFFIC_VIOLATIONS_TOP,
-  TRAFFIC_VIOLATIONS_TOP_STREETS,
-  TRAFFIC_VIOLATIONS_TEMPORAL,
-  TRAFFIC_VIOLATIONS_AGENT_ANALYSIS,
-  TRAFFIC_VIOLATIONS_GEOJSON,
-} from "~/servers";
+import { infracoesCategoryPageQueryOptions } from "~/queries/dados.infracoes";
 import { slugToCategory } from "./InfracoesClientSide";
 
 const MONTH_LABELS: Record<string, string> = {
@@ -34,21 +29,6 @@ const WEEKDAY_LABELS: Record<string, string> = {
   monday: "Seg", tuesday: "Ter", wednesday: "Qua",
   thursday: "Qui", friday: "Sex", saturday: "Sáb", sunday: "Dom",
 };
-
-function buildUrl(base: string, params: Record<string, string>): string {
-  const searchParams = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value) searchParams.set(key, value);
-  }
-  const qs = searchParams.toString();
-  return qs ? `${base}?${qs}` : base;
-}
-
-async function fetchJson(url: string) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
 
 function Skeleton({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse bg-gray-200 rounded-sm ${className}`} />;
@@ -90,47 +70,19 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
     for (let y = startYear; y <= endYear; y++) availableYears.push(y);
   }
 
-  // ─── Category data fetch ─────────────────────────────────────────
-  const [categoryData, setCategoryData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    const dp = dateParams();
-    setLoading(true);
-    Promise.all([
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...dp, category: categoryName, limit: "20" }))
-        .catch(() => ({ violations: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...dp, category: categoryName, limit: "20" }))
-        .catch(() => ({ streets: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, { ...dp, category: categoryName }))
-        .catch(() => ({})),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, { ...dp, category: categoryName }))
-        .catch(() => ({ agents: [] })),
-      fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...dp, category: categoryName, limit: "100" }))
-        .catch(() => null),
-    ])
-      .then(([topV, topS, temporal, agents, geo]) => {
-        if (cancelled) return;
-        setCategoryData({
-          topViolations: topV.violations ?? [],
-          topStreets: topS.streets ?? [],
-          temporal: temporal ?? {},
-          agentAnalysis: agents.agents ?? [],
-          geojson: geo,
-        });
-      })
-      .catch((err) => console.error("Erro categoria:", err))
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [categoryName, selectedYear, dateParams]);
+  // ─── Category data fetch (via TanStack Query) ────────────────────
+  const dp = dateParams();
+  const {
+    data: categoryData,
+    isLoading: loading,
+  } = useQuery(infracoesCategoryPageQueryOptions(dp, categoryName));
 
   // ─── Derived data ────────────────────────────────────────────────
   const categoryTotal = categoryData
     ? categoryData.topViolations.reduce((s: number, v: any) => s + v.count, 0)
     : 0;
   const pct = totalViolations > 0 ? ((categoryTotal / totalViolations) * 100).toFixed(1) : "0.0";
-  const mainAgent = categoryData?.agentAnalysis?.length > 0 ? categoryData.agentAnalysis[0] : null;
+  const mainAgent = categoryData?.agentAnalysis?.length ? categoryData.agentAnalysis[0] : null;
 
   const streetTableData = (categoryData?.topStreets ?? []).map((s: any, i: number) => {
     const tv = s.top_violation;
