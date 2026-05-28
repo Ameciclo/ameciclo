@@ -120,6 +120,19 @@ const fetchContagens = createServerFn().handler(async () => {
 
   countsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  const groupedCountsData: any[] = [];
+  const seen = new Map<number, any>();
+  for (const count of countsData) {
+    if (!seen.has(count.id)) {
+      const parent = { ...count, subRows: [], count_total: 1 };
+      seen.set(count.id, parent);
+      groupedCountsData.push(parent);
+    } else {
+      seen.get(count.id)!.subRows.push(count);
+      seen.get(count.id)!.count_total++;
+    }
+  }
+
   const summaryData = {
     total_cyclists: totalCyclists,
     number_counts: totalCounts,
@@ -153,7 +166,7 @@ const fetchContagens = createServerFn().handler(async () => {
 
   return {
     page,
-    summaryData: { summaryData, countsData, cards },
+    summaryData: { summaryData, countsData: groupedCountsData, cards },
     pcrCounts,
     amecicloData: atlasData,
     atlasApiDown: atlasData == null,

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import type { ContagemData } from "~/services/contagens.service";
 import { IntlDateStr } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
@@ -46,6 +46,33 @@ const RangeValueFilter = ({ column }: any) => {
 export function CountsTable({ data }: ContagensTableProps) {
   const [showFilters, setShowFilters] = useState(false);
 
+  const stateReducer = useCallback(
+    (newState: any, action: any) => {
+      switch (action.type) {
+        case 'setFilter':
+        case 'setAllFilters':
+        case 'setColumnFilters':
+        case 'columnFiltering': {
+          for (const row of data) {
+            if (row.count_total! > 1 && row.subRows?.length) {
+              const lower = (action.filterValue || '').toLowerCase();
+              if (!lower) break;
+              const hasMatch = row.subRows.some(
+                (child: any) => String(child.date || '').toLowerCase().includes(lower),
+              );
+              if (hasMatch) {
+                newState.expanded = { ...newState.expanded, [row.name]: true };
+              }
+            }
+          }
+          break;
+        }
+      }
+      return newState;
+    },
+    [data],
+  );
+
   const columns = useMemo(
     () => [
       {
@@ -53,13 +80,27 @@ export function CountsTable({ data }: ContagensTableProps) {
         accessor: "name",
         Cell: ({ row }: any) => {
           return (
-            <Link
-              className="text-ameciclo hover:underline"
-              to="/dados/contagens/$slug"
-              params={{ slug: row.original.slug }}
-            >
-              {row.original.name}
-            </Link>
+            <div className="flex items-center gap-2" style={{ paddingLeft: (row.depth || 0) * 18 }}>
+              {row.canExpand ? (
+                <button {...row.getToggleRowExpandedProps()} className="text-gray-400 hover:text-gray-600 w-4 shrink-0 text-xs leading-none">
+                  {row.isExpanded ? '\u25BE' : '\u25B8'}
+                </button>
+              ) : (
+                <span className="w-4 shrink-0" />
+              )}
+              <Link
+                className="text-ameciclo hover:underline"
+                to="/dados/contagens/$slug"
+                params={{ slug: row.original.slug }}
+              >
+                {row.original.name}
+              </Link>
+              {row.original.count_total! > 1 && !row.depth && (
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-medium bg-gray-200 text-gray-600 rounded-full">
+                  {row.original.count_total}
+                </span>
+              )}
+            </div>
           );
         },
         Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" />,
@@ -69,6 +110,17 @@ export function CountsTable({ data }: ContagensTableProps) {
         accessor: "date",
         Cell: ({ value }: any) => IntlDateStr(value),
         Filter: (props: any) => <ColumnFilter {...props} placeholder="Filtrar por data" />,
+        filter: (rows: any[], id: string, filterValue: string) => {
+          if (!filterValue) return rows;
+          const lower = filterValue.toLowerCase();
+          return rows.filter((row) => {
+            if (String(row.values[id] || '').toLowerCase().includes(lower)) return true;
+            for (const child of row.subRows || []) {
+              if (String(child.values[id] || '').toLowerCase().includes(lower)) return true;
+            }
+            return false;
+          });
+        },
       },
       {
         Header: "Total de Ciclistas",
@@ -115,6 +167,8 @@ export function CountsTable({ data }: ContagensTableProps) {
       columns={columns}
       showFilters={showFilters}
       setShowFilters={setShowFilters}
+      expandMode="subrows"
+      stateReducer={stateReducer}
     />
   );
 }

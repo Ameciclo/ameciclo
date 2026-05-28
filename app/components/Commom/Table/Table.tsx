@@ -69,7 +69,7 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction, customHeader }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction, customHeader, expandMode, stateReducer }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -227,6 +227,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             initialState: { pageIndex: 0, pageSize: 5 },
             filterTypes,
             defaultColumn,
+            ...(stateReducer ? { stateReducer } : {}),
         },
         useFilters,
         useSortBy,
@@ -354,7 +355,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     </div>
                                 </td>
                             </tr>
-                            {row.isExpanded ? (
+                            {row.isExpanded && expandMode !== 'subrows' ? (
                                 <tr>
                                     <td colSpan={columns.length}>
                                         <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">
@@ -394,7 +395,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     );
                                 })}
                             </tr>
-                            {row.isExpanded ? (
+                            {row.isExpanded && expandMode !== 'subrows' ? (
                                 <tr>
                                     <td colSpan={columns.length}>
                                         <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">
