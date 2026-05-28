@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import {
   SAMU_SUMMARY_API,
   SAMU_CITIES_LIST,
+  EMERGENCY_CALLS_ATLAS_URL,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
 import { makeApiErrorTracker } from "~/services/apiTracking";
@@ -138,7 +139,7 @@ const fetchSamu = createServerFn().handler(async () => {
         {
           title: "Dados abertos",
           description: "Acesse os dados brutos das chamadas do SAMU",
-          url: "https://emergency-calls.atlas.ameciclo.org",
+          url: EMERGENCY_CALLS_ATLAS_URL,
           target: "_blank",
         },
       ],

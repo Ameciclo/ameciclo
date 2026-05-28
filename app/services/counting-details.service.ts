@@ -1,4 +1,5 @@
 import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
+import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
 
 type pointData = {
   key: string;
@@ -61,7 +62,7 @@ export function getCountingStatistics(location: any, count: any) {
     {
       type: "LinksBox",
       title: "Dados",
-      value: [{ label: "JSON", url: `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${location.id}` }],
+      value: [{ label: "JSON", url: COUNTINGS_ATLAS_LOCATION(location.id) }],
     },
   ];
 }

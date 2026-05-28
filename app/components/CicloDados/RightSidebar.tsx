@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart, MiniVelocidadeChart, MiniFluxoChart, MiniGeneroChart, MiniCaracteristicasChart, MiniInfraestruturaChart, MiniAcessibilidadeChart } from './utils/chartData';
 import { StreetSelectionModal } from './StreetSelectionModal';
+import { COUNTINGS_ATLAS_LOCATIONS } from '~/servers';
 
 
 interface Street {
@@ -39,7 +40,7 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
   const { data: contagemQueryData, isLoading: loading, error: queryError } = useQuery({
     queryKey: ["ciclodados", "contagem", lat, lng],
     queryFn: async () => {
-      const response = await fetch("https://cyclist-counts.atlas.ameciclo.org/v1/locations", {
+      const response = await fetch(COUNTINGS_ATLAS_LOCATIONS, {
         headers: { Accept: "application/json" },
         signal: AbortSignal.timeout(5000),
       });

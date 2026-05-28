@@ -24,10 +24,12 @@ export const IDECICLO_FORMS_DATA = `https://api.ideciclo.ameciclo.org/forms`
 
 // Cyclist-profile Atlas (Perfil page)
 export const PERFIL_API_URL = `https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/nearby?lat=-8.05&lon=-34.9&radius=100000&limit=1000`
+export const PERFIL_SURVEY_LOCATIONS = `https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations`
 
 // Cyclist-counts Atlas (Contagens)
-export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`
-export const COUNTINGS_ATLAS_LOCATION = (id: string) => `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${id}`
+export const COUNTINGS_LOCAL_BASE = "http://localhost:3002"
+export const COUNTINGS_ATLAS_LOCATIONS = `${COUNTINGS_LOCAL_BASE}/v1/locations`
+export const COUNTINGS_ATLAS_LOCATION = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/locations/${id}`
 
 // DATASUS — Sinistros Fatais
 export const DATASUS_SUMMARY_DATA = `http://localhost:3003/v1/summary`
@@ -65,14 +67,24 @@ export const TRAFFIC_VIOLATIONS_CODES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard
 export const TRAFFIC_VIOLATIONS_CATEGORIES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/categories`
 export const TRAFFIC_VIOLATIONS_GEOJSON = `${TRAFFIC_VIOLATIONS_BASE}/v1/streets/geojson`
 
+// OpenRouteService — external routing API
+export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2/directions/cycling-regular`
+
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
+export const CICLODADOS_BASE = `https://ciclodados.atlas.ameciclo.org/v1`
 export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
 export const BIKE_PE_STATIONS_DATA = `https://shared-bike.atlas.ameciclo.org/v1/stations`
 export const INFRA_CICLOVIARIA_DATA = `https://cycling-infra.atlas.ameciclo.org/v1/infrastructure-geojson?city=2611606&limit=10000`
 export const EXECUCAO_CICLOVIARIA_DATA = `http://localhost:3020/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
 export const EXECUCAO_CICLOVIARIA_SUMMARY = `http://localhost:3020/v1/ways/summary`
 export const EXECUCAO_CICLOVIARIA_RELATIONS = `http://localhost:3020/relations/by-city`
-export const POINT_CICLO_NEARBY = (lat: number, lng: number, radius = 200) => `https://ciclodados.atlas.ameciclo.org/v1/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
+export const POINT_CICLO_NEARBY = (lat: number, lng: number, radius = 200) => `${CICLODADOS_BASE}/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
+
+// Static data files hosted on ameciclo.org
+export const AMECICLO_SITE_URL = `https://ameciclo.org`
+export const AMECICLO_DBS_URL = `${AMECICLO_SITE_URL}/dbs`
+export const PCR_CONTAGENS_URL = `${AMECICLO_DBS_URL}/PCR_CONTAGENS.json`
+export const MALHA_CICLOVIARIA_URL = `${AMECICLO_DBS_URL}/malhacicloviariapermanente_mar2021.json`
 
 // PDC reference URLs surfaced on the Execução Cicloviária page.
 export const PDC_VOL1_URL = `https://drive.google.com/file/d/0BxR5Ri6g5X_ZaldIY2tZS1pYRUU/view?usp=share_link&resourcekey=0-qVT9rlnlNOAdE-cs1-fn9A`
@@ -81,3 +93,6 @@ export const PDC_PASTA_URL = `https://pdc.ameciclo.org`
 export const CICLOMAPA_URL = `https://ciclomapa.org.br/`
 export const PDC_PODCAST_URL = `https://www.youtube.com/watch?v=LEQlGK-FWnI`
 export const PDC_WIKI_URL = `https://wiki.openstreetmap.org/w/index.php?title=Plano_Diretor_Ciclovi%C3%A1rio_da_Regi%C3%A3o_Metropolitana_do_Recife`
+
+// Emergency Calls Atlas (documentation link on SAMU page)
+export const EMERGENCY_CALLS_ATLAS_URL = `https://emergency-calls.atlas.ameciclo.org`

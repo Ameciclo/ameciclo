@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PERFIL_SURVEY_LOCATIONS } from '~/servers';
 
 interface CyclistProfileLocation {
   coordinates: {
@@ -42,7 +43,7 @@ export function usePerfilCiclistas() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations');
+        const response = await fetch(PERFIL_SURVEY_LOCATIONS);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

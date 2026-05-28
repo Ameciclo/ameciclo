@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { VIAS_INSEGURAS_LIST } from "~/servers";
 
 interface ViaSearchProps {
   onSearch: (query: string) => void;
@@ -36,7 +37,7 @@ export default function ViaSearch({ onSearch, onViaSelect, isLoading = false }: 
     setSearchLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:3010/v1/streets/top?limit=200`
+        `${VIAS_INSEGURAS_LIST}?limit=200`
       );
       
       if (response.ok) {

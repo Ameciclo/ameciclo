@@ -4,6 +4,7 @@ import type { ContagemData } from "~/services/contagens.service";
 import { IntlDateStr } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
 import { ColumnFilter } from "~/components/Commom/Table/TableFilters";
+import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
 
 interface ContagensTableProps {
   data: ContagemData[];
@@ -93,7 +94,7 @@ export function CountsTable({ data }: ContagensTableProps) {
           return (
             <a
               className="text-ameciclo hover:underline"
-              href={`https://cyclist-counts.atlas.ameciclo.org/v1/locations/${locationId}`}
+              href={COUNTINGS_ATLAS_LOCATION(String(locationId))}
               target="_blank"
               rel="noopener noreferrer"
             >

@@ -4,9 +4,7 @@ import { z } from "zod";
 import { IntlPercentil } from "~/services/utils";
 import { strapiClient } from "~/lib/strapi";
 import { cmsFetch } from "~/services/cmsFetch";
-import { COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
-
-const PCR_CONTAGENS_URL = "https://ameciclo.org/dbs/PCR_CONTAGENS.json";
+import { COUNTINGS_ATLAS_LOCATIONS, PCR_CONTAGENS_URL } from "~/servers";
 
 const MediaSchema = z.object({
   id: z.number().nullish(),
