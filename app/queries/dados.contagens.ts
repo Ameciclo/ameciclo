@@ -5,6 +5,7 @@ import { IntlPercentil } from "~/services/utils";
 import { strapiClient } from "~/lib/strapi";
 import { cmsFetch } from "~/services/cmsFetch";
 import { COUNTINGS_ATLAS_LOCATIONS, PCR_CONTAGENS_URL } from "~/servers";
+import { slugifyCount } from "~/services/slug";
 
 const MediaSchema = z.object({
   id: z.number().nullish(),
@@ -108,7 +109,7 @@ const fetchContagens = createServerFn().handler(async () => {
           countsData.push({
             id: location.id,
             name: location.name,
-            slug: String(location.id),
+            slug: slugifyCount(location, count),
             date: count.date,
             total_cyclists: cyclists,
           });
@@ -116,6 +117,8 @@ const fetchContagens = createServerFn().handler(async () => {
       }
     });
   }
+
+  countsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const summaryData = {
     total_cyclists: totalCyclists,

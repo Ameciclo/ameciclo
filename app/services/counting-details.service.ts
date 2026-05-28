@@ -1,5 +1,6 @@
 import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
 import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
+import { slugifyCount } from "~/services/slug";
 
 type pointData = {
   key: string;
@@ -74,7 +75,7 @@ export function transformOtherCountsForComparison(otherCounts: any[], currentLoc
       (loc.counts || []).map((count: any) => ({
         id: loc.id,
         name: loc.name,
-        slug: loc.id.toString(),
+        slug: slugifyCount(loc, count),
         date: count.date,
         total_cyclists: count.total_cyclists,
       }))

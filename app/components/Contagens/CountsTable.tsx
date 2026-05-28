@@ -5,6 +5,7 @@ import { IntlDateStr } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
 import { ColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
+import { parseCountIdFromSlug } from "~/services/slug";
 
 interface ContagensTableProps {
   data: ContagemData[];
@@ -51,13 +52,11 @@ export function CountsTable({ data }: ContagensTableProps) {
         Header: "Nome",
         accessor: "name",
         Cell: ({ row }: any) => {
-          // Generate slug from ID and name if slug doesn't exist
-          const slug = row.original.id || `${row.original.id}`;
           return (
             <Link
               className="text-ameciclo hover:underline"
               to="/dados/contagens/$slug"
-              params={{ slug: String(slug) }}
+              params={{ slug: row.original.slug }}
             >
               {row.original.name}
             </Link>
@@ -90,11 +89,11 @@ export function CountsTable({ data }: ContagensTableProps) {
         Header: "Dados",
         accessor: "id",
         Cell: ({ row }: any) => {
-          const locationId = row.original.slug?.split('-')[0] || row.original.id;
+          const countId = parseCountIdFromSlug(row.original.slug);
           return (
             <a
               className="text-ameciclo hover:underline"
-              href={COUNTINGS_ATLAS_LOCATION(String(locationId))}
+              href={COUNTINGS_ATLAS_LOCATION(countId)}
               target="_blank"
               rel="noopener noreferrer"
             >

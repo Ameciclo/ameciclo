@@ -30,6 +30,7 @@ export const PERFIL_SURVEY_LOCATIONS = `https://cyclist-profile.atlas.ameciclo.o
 export const COUNTINGS_LOCAL_BASE = "http://localhost:3002"
 export const COUNTINGS_ATLAS_LOCATIONS = `${COUNTINGS_LOCAL_BASE}/v1/locations`
 export const COUNTINGS_ATLAS_LOCATION = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/locations/${id}`
+export const COUNTINGS_ATLAS_EVENT = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/events/${id}`
 
 // DATASUS — Sinistros Fatais
 export const DATASUS_SUMMARY_DATA = `http://localhost:3003/v1/summary`
