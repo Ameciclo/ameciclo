@@ -472,7 +472,7 @@ function Compare() {
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    {String(h).padStart(2, "0")}h
+                    {String(h).padStart(2, "0")}-{String(h + 1).padStart(2, "0")}
                   </button>
                 ))}
                 <span className="w-2" />
