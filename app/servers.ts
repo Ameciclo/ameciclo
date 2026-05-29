@@ -31,6 +31,8 @@ export const COUNTINGS_LOCAL_BASE = "http://localhost:3002"
 export const COUNTINGS_ATLAS_LOCATIONS = `${COUNTINGS_LOCAL_BASE}/v1/locations`
 export const COUNTINGS_ATLAS_LOCATION = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/locations/${id}`
 export const COUNTINGS_ATLAS_EVENT = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/events/${id}`
+export const COUNTINGS_ATLAS_EVENT_SESSIONS = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/events/${id}/sessions`
+export const COUNTINGS_ATLAS_EVENT_DETAILS = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/events/${id}/details`
 
 // DATASUS — Sinistros Fatais
 export const DATASUS_SUMMARY_DATA = `http://localhost:3003/v1/summary`

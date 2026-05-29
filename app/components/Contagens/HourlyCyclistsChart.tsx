@@ -1,6 +1,10 @@
 import React from "react";
-import { Series } from "~/typings";
-import { colors } from "~/components/Charts/FlowChart/FlowContainer"
+import { Series } from "typings";
+
+const COLORS = [
+  "#008888", "#E02F31", "#24CBE5", "#6AF9C4", "#8B5CF6",
+  "#F97316", "#EC4899", "#6366F1", "#14B8A6", "#EAB308", "#06B6D4",
+];
 
 let Highcharts: any;
 let HighchartsReact: any;
@@ -33,17 +37,30 @@ export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps)
     chart: {
       type: "line",
     },
-    colors: colors,
+    colors: COLORS,
+    legend: {
+      enabled: true,
+      align: "center",
+      verticalAlign: "bottom",
+      layout: "horizontal",
+      itemStyle: { fontSize: "12px", fontWeight: "normal" },
+    },
     plotOptions: {
-      column: {
-        dataLabels: {
-          enabled: true,
+      line: {
+        marker: { enabled: false },
+      },
+      series: {
+        events: {
+          legendItemClick: function (this: any) {
+            return true;
+          },
         },
       },
     },
     tooltip: {
+      shared: true,
       headerFormat: "<b>{point.x}h</b><br/>",
-      pointFormat: "{series.name}: {point.y}<br/>",
+      pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>',
     },
     title: {
       text: "Fluxo horário de ciclistas",

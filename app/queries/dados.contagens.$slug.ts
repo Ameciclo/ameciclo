@@ -1,6 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import {
+  COUNTINGS_ATLAS_EVENT_DETAILS,
+  COUNTINGS_ATLAS_EVENT_SESSIONS,
   COUNTINGS_ATLAS_LOCATIONS,
   COUNTINGS_PAGE_DATA,
 } from "~/servers";
@@ -32,7 +34,20 @@ const fetchContagemSlug = createServerFn()
   .inputValidator((input: { slug: string }) => input)
   .handler(async ({ data }) => {
     const countId = parseCountIdFromSlug(data.slug);
-    const pageData = await fetchPageData();
+
+    const [pageData, sessions, details] = await Promise.all([
+      fetchPageData(),
+      cmsFetch<any[]>(COUNTINGS_ATLAS_EVENT_SESSIONS(countId), {
+        ttl: 120,
+        timeout: 5000,
+        fallback: [],
+      }),
+      cmsFetch<any>(COUNTINGS_ATLAS_EVENT_DETAILS(countId), {
+        ttl: 120,
+        timeout: 5000,
+        fallback: null,
+      }),
+    ]);
 
     let locationData = null;
     for (const loc of pageData.otherCounts || []) {
@@ -47,7 +62,7 @@ const fetchContagemSlug = createServerFn()
       }
     }
 
-    return { data: locationData, pageData };
+    return { data: locationData, pageData, sessions, details };
   });
 
 export const contagemSlugQueryOptions = (slug: string) =>
