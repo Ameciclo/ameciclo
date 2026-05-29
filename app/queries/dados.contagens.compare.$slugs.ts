@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import {
+  COUNTINGS_ATLAS_EVENT_DETAILS,
   COUNTINGS_ATLAS_EVENT_SESSIONS,
   COUNTINGS_ATLAS_LOCATIONS,
   COUNTINGS_PAGE_DATA,
@@ -86,6 +87,31 @@ const fetchCompare = createServerFn()
       }),
     );
 
+    const detailsBySlug = await Promise.all(
+      countIds.map(async (id, i) => {
+        const d = await cmsFetch<any>(COUNTINGS_ATLAS_EVENT_DETAILS(id), {
+          ttl: 120,
+          timeout: 5000,
+          fallback: null,
+        });
+        return { slug: slugs[i], countId: id, details: d };
+      }),
+    );
+
+    const rawDetails = detailsBySlug
+      .filter((d) => d.details)
+      .map((d) => {
+        const loc = locations.find((l: any) =>
+          l.counts?.some((c: any) => c.id.toString() === d.countId),
+        );
+        const year = d.details?.date ? d.details.date.slice(0, 4) : "";
+        return {
+          slug: d.slug,
+          name: `${loc?.name || `Contagem ${d.slug}`}${year ? ` (${year})` : ""}`,
+          sessions: d.details?.sessions || {},
+        };
+      });
+
     return {
       data: locations,
       pageData: {
@@ -96,6 +122,7 @@ const fetchCompare = createServerFn()
       toCompare: slugs,
       slugs,
       sessionsBySlug,
+      rawDetails,
     };
   });
 

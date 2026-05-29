@@ -5,6 +5,7 @@ import React from "react";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
 import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
+import { RadarChart } from "~/components/Charts/RadarChart";
 import { Tooltip } from "~/components/Commom/Tooltip";
 import { contagemCompareQueryOptions } from "~/queries/dados.contagens.compare.$slugs";
 import { transformOtherCountsForComparison } from "~/services/counting-details.service";
@@ -133,8 +134,10 @@ function Compare() {
 
   const chartSeries = sessionsBySlug.map((entry: any, i: number) => {
     const cat = CATEGORIES.find((c) => c.key === selectedCategory)!;
+    const date = data[i]?.selectedCount?.date || "";
+    const year = date ? date.slice(0, 4) : "";
     return {
-      name: data[i]?.name || `Contagem ${i + 1}`,
+      name: `${data[i]?.name || `Contagem ${i + 1}`}${year ? ` (${year})` : ""}`,
       data: chartHours.map((h) => {
         const session = entry.sessions.find((s: any) => {
           const match = s.session_label?.match(/^(\d+)/);
@@ -357,6 +360,152 @@ function Compare() {
             />
           </section>
         )}
+
+        {(() => {
+          const rawDetails = loaderData.rawDetails || [];
+          if (rawDetails.length < 2) return null;
+
+          const FLOW_ORIGIN_DIRS = [
+            "north_south", "north_east",
+            "east_north", "east_west", "east_south",
+            "south_east", "south_north", "south_west",
+            "west_south", "west_east", "west_north",
+            "north_west",
+          ];
+          const DESTIN_MAP: Record<string, string[]> = {
+            north: ["south_north", "east_north", "west_north"],
+            east: ["north_east", "south_east", "west_east"],
+            south: ["north_south", "east_south", "west_south"],
+            west: ["north_west", "south_west", "east_west"],
+          };
+          const FLOW_DESTIN_DIRS = ["north", "east", "south", "west"];
+          const ORIGIN_LABELS = [
+            "N→S", "N→L", "L→N", "L→O", "L→S",
+            "S→L", "S→N", "S→O", "O→S", "O→L", "O→N", "N→O",
+          ];
+          const DESTIN_LABELS = ["Norte", "Leste", "Sul", "Oeste"];
+
+          function brtHour(utcStr: string): number {
+            return (new Date(utcStr).getUTCHours() - 3 + 24) % 24;
+          }
+
+          const allHours = new Set<number>();
+          rawDetails.forEach((d) => {
+            Object.values(d.sessions as Record<string, any>).forEach((s: any) => {
+              if (s.start_time) allHours.add(brtHour(s.start_time));
+            });
+          });
+          const sortedHours = Array.from(allHours).sort((a, b) => a - b);
+
+          const [hourStart, setHourStart] = React.useState<number | null>(null);
+          const [hourEnd, setHourEnd] = React.useState<number | null>(null);
+          const [showPercent, setShowPercent] = React.useState(false);
+
+          function handleHourClick(h: number) {
+            if (hourStart == null) {
+              setHourStart(h);
+            } else if (hourEnd == null) {
+              setHourEnd(h);
+            } else {
+              setHourStart(h);
+              setHourEnd(null);
+            }
+          }
+
+          function isHourSelected(h: number) {
+            if (hourStart == null) return false;
+            if (hourEnd == null) return h === hourStart;
+            const lo = Math.min(hourStart, hourEnd);
+            const hi = Math.max(hourStart, hourEnd);
+            return h >= lo && h <= hi;
+          }
+
+          function buildSeries(dirs: string[], destMode: boolean) {
+            const filterFn = (s: any) => {
+              if (hourStart == null) return true;
+              const h = s.start_time ? brtHour(s.start_time) : -1;
+              if (hourEnd == null) return h === hourStart;
+              const lo = Math.min(hourStart, hourEnd);
+              const hi = Math.max(hourStart, hourEnd);
+              return h >= lo && h <= hi;
+            };
+            return rawDetails.map((d) => {
+              const agg: Record<string, number> = {};
+              for (const dir of dirs) agg[dir] = 0;
+              for (const s of Object.values(d.sessions) as any[]) {
+                if (!filterFn(s) || !s.quantitative) continue;
+                if (destMode) {
+                  for (const dir of dirs) {
+                    for (const src of DESTIN_MAP[dir]) {
+                      agg[dir] += s.quantitative[src] || 0;
+                    }
+                  }
+                } else {
+                  for (const dir of dirs) {
+                    agg[dir] += s.quantitative[dir] || 0;
+                  }
+                }
+              }
+              const values = dirs.map((dir) => agg[dir]);
+              if (showPercent) {
+                const total = values.reduce((a, b) => a + b, 0) || 1;
+                return { name: d.name, data: values.map((v) => (v / total) * 100) };
+              }
+              return { name: d.name, data: values };
+            });
+          }
+
+          const flowRadarOrigin = buildSeries(FLOW_ORIGIN_DIRS, false);
+          const flowRadarDestin = buildSeries(FLOW_DESTIN_DIRS, true);
+
+          return (
+            <section className="mb-8">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span className="text-sm font-medium text-gray-600 mr-2">Hora:</span>
+                {sortedHours.map((h) => (
+                  <button
+                    key={h}
+                    onClick={() => handleHourClick(h)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      isHourSelected(h)
+                        ? "bg-ameciclo text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {String(h).padStart(2, "0")}h
+                  </button>
+                ))}
+                <span className="w-2" />
+                <button
+                  onClick={() => setShowPercent(!showPercent)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    showPercent ? "bg-ameciclo text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  %
+                </button>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <RadarChart
+                    series={flowRadarOrigin}
+                    categories={ORIGIN_LABELS}
+                    title="Fluxo por Origem"
+                    subtitle={showPercent ? "Percentual de ciclistas por direção de origem" : "De onde os ciclistas estão saindo"}
+                  />
+                </div>
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <RadarChart
+                    series={flowRadarDestin}
+                    categories={DESTIN_LABELS}
+                    title="Fluxo por Destino"
+                    subtitle={showPercent ? "Percentual de ciclistas por destino" : "Para onde os ciclistas estão indo"}
+                  />
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {(() => {
           const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], 0);
