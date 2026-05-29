@@ -11,6 +11,7 @@ import { colors } from "~/components/Charts/FlowChart/FlowContainer";
 import { VerticalStatisticsBoxes } from "~/components/Contagens/VerticalStatisticsBoxes";
 import { Tooltip } from "~/components/Commom/Tooltip";
 import { contagemCompareQueryOptions } from "~/queries/dados.contagens.$slug.compare.$compareSlug";
+import { transformOtherCountsForComparison } from "~/services/counting-details.service";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
@@ -336,12 +337,11 @@ function Compare() {
         )}
 
         {(() => {
-          const excludeIds = data.map((d: any) => d?.id).filter(Boolean);
-          const filteredData = pageData.otherCounts.filter((d: any) => !excludeIds.includes(d.id));
+          const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], 0);
           return (
             <CountingComparisionTable
-              data={filteredData}
-              firstSlug={toCompare[0]}
+              data={allCounts}
+              compareSlugs={[slug, compareSlug]}
             />
           );
         })()}

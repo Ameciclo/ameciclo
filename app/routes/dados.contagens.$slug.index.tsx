@@ -168,7 +168,7 @@ function Contagem() {
                 return (
                     <CountingComparisionTable
                         data={allCounts}
-                        firstSlug={slug}
+                        compareSlugs={[slug]}
                     />
                 );
             })()}

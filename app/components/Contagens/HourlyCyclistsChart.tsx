@@ -12,9 +12,10 @@ let HighchartsReact: any;
 interface HourlyCyclistsChartProps {
   series: Series[];
   hours: number[];
+  colors?: string[];
 }
 
-export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps) {
+export function HourlyCyclistsChart({ series, hours, colors }: HourlyCyclistsChartProps) {
   const [chartsLoaded, setChartsLoaded] = React.useState(false);
 
   React.useEffect(() => {
@@ -37,7 +38,7 @@ export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps)
     chart: {
       type: "line",
     },
-    colors: COLORS,
+    colors: colors || COLORS,
     legend: {
       enabled: true,
       align: "center",

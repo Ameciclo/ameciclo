@@ -1,7 +1,8 @@
 export type Series = {
   name: string | undefined;
   data: number[];
-  visible?: boolean
+  visible?: boolean;
+  color?: string;
 };
 
 export type footerColumnContent = {

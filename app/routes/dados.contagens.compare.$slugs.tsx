@@ -4,27 +4,47 @@ import Banner from "~/components/Commom/Banner";
 import React from "react";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
+import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
 import { Tooltip } from "~/components/Commom/Tooltip";
 import { contagemCompareQueryOptions } from "~/queries/dados.contagens.compare.$slugs";
+import { transformOtherCountsForComparison } from "~/services/counting-details.service";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
 const POINT_COLORS = [
-  "#008888", "#10b981", "#6366f1", "#f59e0b", "#ef4444",
-  "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16", "#f97316",
+  "#14b8a6", "#ef4444", "#6366f1", "#eab308", "#a855f7",
+  "#06b6d4", "#ec4899", "#f97316", "#3b82f6", "#f43f5e",
+];
+
+const CHART_COLORS = [
+  "#14b8a6", "#ef4444", "#6366f1", "#eab308", "#a855f7",
+  "#06b6d4", "#ec4899", "#f97316", "#3b82f6", "#f43f5e",
 ];
 
 const BOX_PALETTE = [
   { bg: "bg-teal-50", border: "border-teal-200", text: "text-teal-700", accent: "bg-teal-500" },
-  { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", accent: "bg-emerald-500" },
+  { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", accent: "bg-red-500" },
   { bg: "bg-indigo-50", border: "border-indigo-200", text: "text-indigo-700", accent: "bg-indigo-500" },
-  { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", accent: "bg-amber-500" },
-  { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", accent: "bg-rose-500" },
-  { bg: "bg-violet-50", border: "border-violet-200", text: "text-violet-700", accent: "bg-violet-500" },
-  { bg: "bg-pink-50", border: "border-pink-200", text: "text-pink-700", accent: "bg-pink-500" },
+  { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-700", accent: "bg-yellow-500" },
+  { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700", accent: "bg-purple-500" },
   { bg: "bg-cyan-50", border: "border-cyan-200", text: "text-cyan-700", accent: "bg-cyan-500" },
-  { bg: "bg-lime-50", border: "border-lime-200", text: "text-lime-700", accent: "bg-lime-500" },
+  { bg: "bg-pink-50", border: "border-pink-200", text: "text-pink-700", accent: "bg-pink-500" },
   { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700", accent: "bg-orange-500" },
+  { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", accent: "bg-blue-500" },
+  { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", accent: "bg-rose-500" },
+];
+
+const CATEGORIES = [
+  { key: "total_cyclists", label: "Total", field: "total_cyclists" },
+  { key: "women", label: "Mulheres", field: "characteristics" },
+  { key: "helmet", label: "Capacete", field: "characteristics" },
+  { key: "cargo", label: "Cargueira", field: "characteristics" },
+  { key: "ride", label: "Carona", field: "characteristics" },
+  { key: "juveniles", label: "Crianças e Jovens", field: "characteristics" },
+  { key: "sidewalk", label: "Calçada", field: "characteristics" },
+  { key: "wrong_way", label: "Contramão", field: "characteristics" },
+  { key: "service", label: "Serviço", field: "characteristics" },
+  { key: "shared_bike", label: "Compartilhada", field: "characteristics" },
 ];
 
 function getPointsData(locations: any[]) {
@@ -97,7 +117,37 @@ function Compare() {
   const data = loaderData.data;
   const pageData = loaderData.pageData;
   const boxes = loaderData.boxes.boxes;
+  const sessionsBySlug = loaderData.sessionsBySlug || [];
   const pointsData = getPointsData(data);
+
+  const [selectedCategory, setSelectedCategory] = React.useState("total_cyclists");
+
+  const allHoursSet = new Set<number>();
+  sessionsBySlug.forEach((entry: any) => {
+    entry.sessions.forEach((s: any) => {
+      const match = s.session_label?.match(/^(\d+)/);
+      if (match) allHoursSet.add(parseInt(match[1]));
+    });
+  });
+  const chartHours = Array.from(allHoursSet).sort((a, b) => a - b);
+
+  const chartSeries = sessionsBySlug.map((entry: any, i: number) => {
+    const cat = CATEGORIES.find((c) => c.key === selectedCategory)!;
+    return {
+      name: data[i]?.name || `Contagem ${i + 1}`,
+      data: chartHours.map((h) => {
+        const session = entry.sessions.find((s: any) => {
+          const match = s.session_label?.match(/^(\d+)/);
+          return match && parseInt(match[1]) === h;
+        });
+        if (!session) return 0;
+        return cat.field === "total_cyclists"
+          ? session.total_cyclists || 0
+          : session.characteristics?.[cat.key] || 0;
+      }),
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    };
+  });
 
   return (
     <main className="flex-auto overflow-x-hidden">
@@ -282,13 +332,38 @@ function Compare() {
           </div>
         )}
 
+        {sessionsBySlug.length > 0 && sessionsBySlug.some((e: any) => e.sessions.length > 0) && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Quantidade de ciclistas por hora</h2>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    selectedCategory === cat.key
+                      ? "bg-ameciclo text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+            <HourlyCyclistsChart
+              series={chartSeries as any}
+              hours={chartHours}
+              colors={CHART_COLORS}
+            />
+          </section>
+        )}
+
         {(() => {
-          const excludeIds = data.map((d: any) => d?.id).filter(Boolean);
-          const filteredData = (pageData.otherCounts || []).filter((d: any) => !excludeIds.includes(d.id));
+          const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], 0);
           return slugList.length > 0 ? (
             <CountingComparisionTable
-              data={filteredData}
-              firstSlug={slugList[0]}
+              data={allCounts}
+              compareSlugs={slugList}
             />
           ) : null;
         })()}
