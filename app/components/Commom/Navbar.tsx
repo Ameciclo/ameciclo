@@ -6,12 +6,12 @@ import { DataSubmenu } from "./NavBar/DataSubmenu";
 
 const dataSubPages = [
   { name: "Contagens", url: "/dados/contagens" },
-  { name: "Ideciclo", url: "/dados/ideciclo" },
   { name: "Documentos", url: "/dados/documentos" },
   { name: "Perfil", url: "/dados/perfil" },
   { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria" },
   { name: "LOA", url: "/dados/loa" },
   { name: "DOM", url: "/dados/dom" },
+  { name: "Infrações", url: "/dados/infracoes" },
   { name: "SAMU", url: "/dados/samu" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
@@ -61,6 +61,10 @@ export const Navbar = ({ pages }: any) => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    setIsSubmenuVisible(false);
+  }, [location.pathname]);
 
   return (
     <>
