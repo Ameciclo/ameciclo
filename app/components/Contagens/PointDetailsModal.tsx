@@ -87,11 +87,11 @@ export function PointDetailsModal({ point, onClose }: PointDetailsModalProps) {
             {isAmeciclo && counts.length > 1 && (
               <div className="text-center pt-1">
                 <Link
-                  to="/dados/contagens/$slug"
-                  params={{ slug: point.popup?.slug || '#' }}
+                  to="/dados/contagens/compare/$slugs"
+                  params={{ slugs: counts.map((c: any) => c.slug).join("&") }}
                   className="text-sm text-ameciclo hover:underline font-medium"
                 >
-                  Ver página completa de todas as contagens →
+                  Comparar todas as contagens deste ponto →
                 </Link>
               </div>
             )}
