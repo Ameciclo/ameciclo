@@ -9,6 +9,7 @@ import { parseCountIdFromSlug } from "~/services/slug";
 
 interface ContagensTableProps {
   data: ContagemData[];
+  onCoordinateClick?: (lat: number, lng: number) => void;
 }
 
 // Componente de filtro de valor aproximado adaptado para a tabela de contagens
@@ -43,7 +44,7 @@ const RangeValueFilter = ({ column }: any) => {
   );
 };
 
-export function CountsTable({ data }: ContagensTableProps) {
+export function CountsTable({ data, onCoordinateClick }: ContagensTableProps) {
   const [showFilters, setShowFilters] = useState(false);
 
   const stateReducer = useCallback(
@@ -136,7 +137,26 @@ export function CountsTable({ data }: ContagensTableProps) {
           });
         },
       },
-
+      {
+        Header: "Coord.",
+        accessor: "latitude",
+        Cell: ({ row }: any) => {
+          const lat = parseFloat(row.original.latitude);
+          const lng = parseFloat(row.original.longitude);
+          if (isNaN(lat) || isNaN(lng)) return <span className="text-gray-300">—</span>;
+          return (
+            <button
+              onClick={() => onCoordinateClick?.(lat, lng)}
+              className="text-ameciclo hover:underline text-xs cursor-pointer"
+              title="Centralizar mapa neste ponto"
+            >
+              {lat.toFixed(4)}, {lng.toFixed(4)}
+            </button>
+          );
+        },
+        disableFilters: true,
+        disableSortBy: true,
+      },
       {
         Header: "Dados",
         accessor: "id",

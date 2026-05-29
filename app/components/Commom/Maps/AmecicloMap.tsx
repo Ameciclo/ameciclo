@@ -379,6 +379,7 @@ export const AmecicloMap = ({
     initialViewState,
     onViewStateChange,
     onPointClick,
+    flyTo,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -405,6 +406,7 @@ export const AmecicloMap = ({
     initialViewState?: { latitude: number; longitude: number; zoom: number };
     onViewStateChange?: (viewState: any) => void;
     onPointClick?: (point: any) => void;
+    flyTo?: { latitude: number; longitude: number; zoom?: number } | null;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -517,6 +519,18 @@ export const AmecicloMap = ({
             });
         }
     }, [initialViewState?.latitude, initialViewState?.longitude, initialViewState?.zoom, hasSetInitialViewport]);
+
+    useEffect(() => {
+        if (flyTo && hasSetInitialViewport) {
+            setViewport({
+                latitude: flyTo.latitude,
+                longitude: flyTo.longitude,
+                zoom: flyTo.zoom ?? 16,
+                bearing: 0,
+                pitch: 0,
+            });
+        }
+    }, [flyTo?.latitude, flyTo?.longitude, hasSetInitialViewport]);
     const [settings, setsettings] = useState(() => ({
         dragPan: dragPanEnabled ?? defaultDragPan,
         dragRotate: true,

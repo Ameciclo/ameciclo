@@ -112,6 +112,8 @@ const fetchContagens = createServerFn().handler(async () => {
             slug: slugifyCount(location, count),
             date: count.date,
             total_cyclists: cyclists,
+            latitude: location.latitude,
+            longitude: location.longitude,
           });
         });
       }
