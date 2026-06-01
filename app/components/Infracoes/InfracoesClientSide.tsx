@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
 import Table from "~/components/Commom/Table/Table";
+import { CollapsibleTable } from "~/components/Commom/Table/CollapsibleTable";
 import { SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import type { LayerProps } from "react-map-gl/maplibre";
@@ -351,9 +352,9 @@ export default function InfracoesClientSide({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <>
               {geojsonData?.features?.length > 0 ? (
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
                   <AmecicloMap
                     layerData={geojsonData}
                     layersConf={layersConf}
@@ -362,7 +363,7 @@ export default function InfracoesClientSide({
                   />
                 </div>
               ) : (geojsonData || streetsData.length > 0) ? (
-                <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
                   <div className="text-gray-400 mb-4">
                     <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
@@ -377,23 +378,22 @@ export default function InfracoesClientSide({
               ) : null}
 
               {streetsData.length > 0 && (
-                <div className="bg-white rounded-lg shadow-lg">
-                  <Table
-                    title="Ruas com mais infrações"
-                    data={streetTableData}
-                    showFilters={showStreetFilters}
-                    setShowFilters={setShowStreetFilters}
-                    columns={[
-                      { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                      { Header: "Rua", accessor: "rua", width: '25%' },
-                      { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
-                      { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                      { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
-                    ]}
-                  />
-                </div>
+                <CollapsibleTable
+                  title="Ruas com mais infrações"
+                  subtitle={`${streetsData.length} vias encontradas`}
+                  data={streetTableData}
+                  showFilters={showStreetFilters}
+                  setShowFilters={setShowStreetFilters}
+                  columns={[
+                    { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                    { Header: "Rua", accessor: "rua", width: '25%' },
+                    { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
+                    { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                    { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
+                  ]}
+                />
               )}
-            </div>
+            </>
           )}
         </div>
       </Section>
