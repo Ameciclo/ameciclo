@@ -91,7 +91,7 @@ function VerticalBarChart({
         shared: true,
         useHTML: true,
         formatter: function() {
-          let tooltip = '<b>' + this.x + '</b><br/>';
+          let tooltip = '<b>' + this.points[0].key + '</b><br/>';
           let total = 0;
           this.points.forEach(function(point) {
             tooltip += '<span style="color:' + point.color + '">●</span> ' + 
