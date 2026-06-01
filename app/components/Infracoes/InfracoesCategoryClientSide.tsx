@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
@@ -48,6 +48,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showStreetFilters, setShowStreetFilters] = useState(false);
   const [selectedViolations, setSelectedViolations] = useState<Set<string>>(new Set());
+  const [allTopViolations, setAllTopViolations] = useState<any[]>([]);
 
   const toggleViolation = useCallback((code: string) => {
     setSelectedViolations(prev => {
@@ -100,6 +101,12 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   const { data: fullTemporalData } = useQuery(
     infracoesTemporalCategoryQueryOptions(fullRangeParams, categoryName)
   );
+
+  useEffect(() => {
+    if (categoryData?.topViolations && selectedViolations.size === 0) {
+      setAllTopViolations(categoryData.topViolations);
+    }
+  }, [categoryData?.topViolations, selectedViolations.size]);
 
   // ─── Derived data ────────────────────────────────────────────────
   const categoryTotal = categoryData
@@ -473,7 +480,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
             <div className="bg-white rounded-lg shadow-lg">
               <Table
                 title=""
-                data={categoryData.topViolations.map((v: any) => ({
+                data={(selectedViolations.size > 0 && allTopViolations.length > 0 ? allTopViolations : categoryData.topViolations).map((v: any) => ({
                   violation_code: v.violation_code,
                   base_legal: v.law_code,
                   descricao: v.description,
