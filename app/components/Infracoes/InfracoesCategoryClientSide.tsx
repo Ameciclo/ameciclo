@@ -191,7 +191,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
     <div className={`pb-16 transition-opacity duration-150 ${loading ? 'opacity-60' : ''}`}>
       {/* Year selector */}
       {availableYears.length > 0 && (
-        <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 -mx-4 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
           <div className="flex flex-wrap items-center justify-center gap-3">
             <span className="text-sm font-medium text-gray-600">Filtrar por ano:</span>
             <button
