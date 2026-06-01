@@ -246,23 +246,65 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
           </div>
         </div>
 
-        {/* ─── Top Infrações ────────────────────────────────────── */}
-        {categoryData.topViolations.length > 0 && (
-          <div className="mb-8">
-            <HorizontalBarChart
-              title={`Infrações mais comuns — ${categoryName}`}
-              yAxisTitle="Quantidade"
-              series={[{
-                name: "Infrações",
-                data: categoryData.topViolations.map((v: any) => ({
-                  name: `${v.law_code} — ${v.description}`,
-                  y: v.count,
-                })),
-                color,
-              }]}
-            />
-          </div>
-        )}
+        {/* ─── Onde Acontecem: Mapa + Ruas ──────────────────────── */}
+        {categoryData.geojson?.features?.length > 0 ? (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Onde Acontecem</h2>
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-bold text-gray-800">
+                  Infrações — {categoryName}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Cada linha representa o trecho de via com infrações registradas.{selectedYear ? ` Ano: ${selectedYear}` : ""}
+                </p>
+              </div>
+              <AmecicloMap
+                layerData={categoryData.geojson}
+                layersConf={layersConf}
+                height="450px"
+                showLayersPanel={false}
+              />
+            </div>
+
+            {categoryData.topStreets.length > 0 && (
+              <div className="bg-white rounded-lg shadow-lg">
+                <Table
+                  title=""
+                  data={streetTableData}
+                  showFilters={showStreetFilters}
+                  setShowFilters={setShowStreetFilters}
+                  columns={[
+                    { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                    { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                    { Header: "Rua", accessor: "rua", width: '25%' },
+                    { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
+                    { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
+                  ]}
+                />
+              </div>
+            )}
+          </section>
+        ) : categoryData.topStreets.length > 0 ? (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Onde Acontecem</h2>
+            <div className="bg-white rounded-lg shadow-lg">
+              <Table
+                title=""
+                data={streetTableData}
+                showFilters={showStreetFilters}
+                setShowFilters={setShowStreetFilters}
+                columns={[
+                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                  { Header: "Rua", accessor: "rua", width: '25%' },
+                  { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
+                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
+                ]}
+              />
+            </div>
+          </section>
+        ) : null}
 
         {/* ─── Temporal Analysis ────────────────────────────────── */}
         {categoryData.temporal && (
@@ -381,49 +423,22 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
           </section>
         )}
 
-        {/* ─── Map ──────────────────────────────────────────────── */}
-        {categoryData.geojson?.features?.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Mapa de Infrações</h2>
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-4 border-b">
-                <h3 className="text-lg font-bold text-gray-800">
-                  Infrações — {categoryName}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Cada linha representa o trecho de via com infrações registradas.{selectedYear ? ` Ano: ${selectedYear}` : ""}
-                </p>
-              </div>
-              <AmecicloMap
-                layerData={categoryData.geojson}
-                layersConf={layersConf}
-                height="450px"
-                showLayersPanel={false}
-              />
-            </div>
-          </section>
-        )}
-
-        {/* ─── Ruas com mais registros ─────────────────────────────────── */}
-        {categoryData.topStreets.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Ruas com Mais Registros</h2>
-            <div className="bg-white rounded-lg shadow-lg">
-              <Table
-                title=""
-                data={streetTableData}
-                showFilters={showStreetFilters}
-                setShowFilters={setShowStreetFilters}
-                columns={[
-                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                  { Header: "Rua", accessor: "rua", width: '25%' },
-                  { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
-                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
-                ]}
-              />
-            </div>
-          </section>
+        {/* ─── Top Infrações ────────────────────────────────────── */}
+        {categoryData.topViolations.length > 0 && (
+          <div className="mb-8">
+            <HorizontalBarChart
+              title={`Infrações mais comuns — ${categoryName}`}
+              yAxisTitle="Quantidade"
+              series={[{
+                name: "Infrações",
+                data: categoryData.topViolations.map((v: any) => ({
+                  name: `${v.law_code} — ${v.description}`,
+                  y: v.count,
+                })),
+                color,
+              }]}
+            />
+          </div>
         )}
 
         {/* ─── Violation codes table ────────────────────────────── */}
