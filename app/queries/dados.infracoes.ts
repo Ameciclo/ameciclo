@@ -268,6 +268,25 @@ export const infracoesCategoryTopQueryOptions = (
     placeholderData: (prev: any) => prev,
   });
 
+// ─── Categories Filtered (client-side, with date params) ─────────
+
+async function fetchInfracoesCategories(params: Record<string, string>) {
+  const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_CATEGORIES, params));
+  return (data.categories ?? []).map((c: any) => ({
+    name: c.category ?? "",
+    codeCount: c.code_count ?? 0,
+    totalViolations: c.total_violations ?? 0,
+  }));
+}
+
+export const infracoesCategoriesQueryOptions = (params: Record<string, string>) =>
+  queryOptions({
+    queryKey: ["infracoes", "categories", params],
+    queryFn: () => fetchInfracoesCategories(params),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
+
 // ─── Category Page Data (single category) ─────────────────────────
 
 interface CategoryPageData {

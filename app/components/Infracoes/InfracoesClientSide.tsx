@@ -14,6 +14,7 @@ import {
   infracoesTemporalQueryOptions,
   infracoesAgentsQueryOptions,
   infracoesCategoryTopQueryOptions,
+  infracoesCategoriesQueryOptions,
 } from "~/queries/dados.infracoes";
 
 const MONTH_LABELS: Record<string, string> = {
@@ -234,6 +235,25 @@ export default function InfracoesClientSide({
     ...infracoesCategoryTopQueryOptions(dp, categories),
     enabled: categories.length > 0,
   });
+
+  const { data: filteredCategories } = useQuery({
+    ...infracoesCategoriesQueryOptions(dp),
+    enabled: selectedYear !== null,
+  }) as { data: CategoryItem[] | undefined };
+
+  const effectiveCategories: CategoryItem[] = useMemo(() => {
+    if (!filteredCategories || filteredCategories.length === 0) return categories;
+    const map = new Map(filteredCategories.map((c) => [c.name, c]));
+    return categories.map((cat) => {
+      const filtered = map.get(cat.name);
+      return filtered ?? cat;
+    });
+  }, [categories, filteredCategories]);
+
+  const effectiveTotalViolations = useMemo(() => {
+    if (selectedYear === null) return totalViolations;
+    return effectiveCategories.reduce((sum, cat) => sum + cat.totalViolations, 0);
+  }, [selectedYear, effectiveCategories, totalViolations]);
 
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetTableData = streetsData.map((s: any, i: number) => {
@@ -541,11 +561,11 @@ export default function InfracoesClientSide({
         subtitle="As infrações são agrupadas por classificação temática. Clique em um card para ver a análise aprofundada de cada categoria."
       >
         <div className={`transition-opacity duration-150 ${loadingCategories ? 'opacity-60' : ''}`}>
-          {categories.length > 0 && (
+          {effectiveCategories.length > 0 && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-                {categories.map((cat) => {
-                  const pct = totalViolations > 0 ? ((cat.totalViolations / totalViolations) * 100).toFixed(1) : "0.0";
+                {effectiveCategories.map((cat) => {
+                  const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";
                   const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
                   const topCodes = categoryTopViolations[cat.name] ?? [];
                   return (
@@ -586,8 +606,8 @@ export default function InfracoesClientSide({
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Distribuição por Categoria</h3>
                 <div className="flex flex-wrap gap-3 justify-center mb-4">
-                  {categories.map((cat) => {
-                    const pct = totalViolations > 0 ? ((cat.totalViolations / totalViolations) * 100).toFixed(1) : "0.0";
+                  {effectiveCategories.map((cat) => {
+                    const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";
                     const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
                     return (
                       <div key={cat.name} className="flex items-center gap-2 text-sm">
@@ -599,8 +619,8 @@ export default function InfracoesClientSide({
                   })}
                 </div>
                 <div className="flex h-6 rounded-md overflow-hidden">
-                  {categories.map((cat) => {
-                    const pct = totalViolations > 0 ? (cat.totalViolations / totalViolations) * 100 : 0;
+                  {effectiveCategories.map((cat) => {
+                    const pct = effectiveTotalViolations > 0 ? (cat.totalViolations / effectiveTotalViolations) * 100 : 0;
                     if (pct < 0.5) return null;
                     return (
                       <div key={cat.name} className="h-full flex items-center justify-center text-white text-xs font-bold"
