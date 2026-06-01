@@ -208,6 +208,17 @@ export const infracoesTemporalQueryOptions = (params: Record<string, string>) =>
     placeholderData: (prev: any) => prev,
   });
 
+export const infracoesTemporalCategoryQueryOptions = (
+  params: Record<string, string>,
+  categoryName: string,
+) =>
+  queryOptions({
+    queryKey: ["infracoes", "temporal-category", categoryName, params],
+    queryFn: () => fetchInfracoesTemporal({ ...params, category: categoryName }),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
+
 // ─── Agent Analysis ─────────────────────────────────────────────────
 
 async function fetchInfracoesAgents(params: Record<string, string>) {

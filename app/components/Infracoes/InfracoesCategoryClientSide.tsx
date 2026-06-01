@@ -9,7 +9,7 @@ import Table from "~/components/Commom/Table/Table";
 import { SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import type { LayerProps } from "react-map-gl/maplibre";
-import { infracoesCategoryPageQueryOptions } from "~/queries/dados.infracoes";
+import { infracoesCategoryPageQueryOptions, infracoesTemporalCategoryQueryOptions } from "~/queries/dados.infracoes";
 import { slugToCategory } from "./InfracoesClientSide";
 
 const MONTH_LABELS: Record<string, string> = {
@@ -59,6 +59,11 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
     };
   }, [selectedYear, overview.periodStart, overview.periodEnd]);
 
+  const fullRangeParams = useMemo((): Record<string, string> => ({
+    start_date: overview.periodStart,
+    end_date: overview.periodEnd,
+  }), [overview.periodStart, overview.periodEnd]);
+
   const availableYears: number[] = [];
   const startYear = parseInt(overview.periodStart?.slice(0, 4));
   const endYear = parseInt(overview.periodEnd?.slice(0, 4));
@@ -72,6 +77,10 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
     data: categoryData,
     isFetching: loading,
   } = useQuery(infracoesCategoryPageQueryOptions(dp, categoryName));
+
+  const { data: fullTemporalData } = useQuery(
+    infracoesTemporalCategoryQueryOptions(fullRangeParams, categoryName)
+  );
 
   // ─── Derived data ────────────────────────────────────────────────
   const categoryTotal = categoryData
@@ -260,14 +269,14 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Quando Acontecem</h2>
 
-            {categoryData.temporal.by_year && Object.keys(categoryData.temporal.by_year).length > 0 && (
+            {fullTemporalData?.by_year && Object.keys(fullTemporalData.by_year).length > 0 && (
               <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
                 <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Evolução Anual</h3>
                 <VerticalBarChart
                   title=""
                   xAxisTitle=""
                   yAxisTitle="Infrações"
-                  data={Object.entries(categoryData.temporal.by_year)
+                  data={Object.entries(fullTemporalData.by_year)
                     .sort(([a], [b]) => a.localeCompare(b))
                     .map(([year, count]) => ({ label: year, count: count as number }))}
                   xKey="label"

@@ -196,6 +196,11 @@ export default function InfracoesClientSide({
     };
   }, [selectedYear, overview.periodStart, overview.periodEnd]);
 
+  const fullRangeParams = useMemo((): Record<string, string> => ({
+    start_date: overview.periodStart,
+    end_date: overview.periodEnd,
+  }), [overview.periodStart, overview.periodEnd]);
+
   // ─── Bloco 1: Onde Acontecem (ruas + mapa) ──────────────────────
   const dp = useMemo(() => dateParams(), [dateParams]);
   const {
@@ -212,6 +217,8 @@ export default function InfracoesClientSide({
     data: temporalData,
     isLoading: loadingTemporal,
   } = useQuery(infracoesTemporalQueryOptions(dp));
+
+  const { data: fullTemporalData } = useQuery(infracoesTemporalQueryOptions(fullRangeParams));
 
   // ─── Bloco 3: Quem Fiscaliza ─────────────────────────────────────
   const {
@@ -383,30 +390,30 @@ export default function InfracoesClientSide({
         subtitle="Distribuição temporal das infrações ao longo dos anos, meses, dias da semana e horas do dia."
       >
         <div className={`transition-opacity duration-150 ${loadingTemporal ? 'opacity-60' : ''}`}>
+          {fullTemporalData?.by_year && Object.keys(fullTemporalData.by_year).length > 0 && (
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+              <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                Evolução Anual{selectedYear ? ` — ${selectedYear}` : ""}
+              </h3>
+              <VerticalBarChart
+                title=""
+                xAxisTitle=""
+                yAxisTitle="Infrações"
+                data={Object.entries(fullTemporalData.by_year)
+                  .sort(([a], [b]) => a.localeCompare(b))
+                  .map(([year, count]) => ({ label: year, count: count as number }))}
+                xKey="label"
+                yKeys={["count"]}
+                {...(selectedYear
+                  ? { colorByLabel: (label: string) => label === String(selectedYear) ? '#0d9488' : '#d1d5db' }
+                  : { colors: ['#dc2626'] }
+                )}
+              />
+            </div>
+          )}
+
           {temporalData ? (
             <>
-              {temporalData.by_year && Object.keys(temporalData.by_year).length > 0 && (
-                <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
-                    Evolução Anual{selectedYear ? ` — ${selectedYear}` : ""}
-                  </h3>
-                  <VerticalBarChart
-                    title=""
-                    xAxisTitle=""
-                    yAxisTitle="Infrações"
-                    data={Object.entries(temporalData.by_year)
-                      .sort(([a], [b]) => a.localeCompare(b))
-                      .map(([year, count]) => ({ label: year, count: count as number }))}
-                    xKey="label"
-                    yKeys={["count"]}
-                    {...(selectedYear
-                      ? { colorByLabel: (label: string) => label === String(selectedYear) ? '#0d9488' : '#d1d5db' }
-                      : { colors: ['#dc2626'] }
-                    )}
-                  />
-                </div>
-              )}
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {temporalData.by_month && (
                   <div className="bg-white rounded-lg shadow-lg p-6">
