@@ -104,10 +104,6 @@ interface InfracoesClientSideProps {
   categories: CategoryItem[];
 }
 
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse bg-gray-200 rounded-sm ${className}`} />;
-}
-
 function Section({ title, subtitle, children }: {
   title: string;
   subtitle?: string;
@@ -201,10 +197,10 @@ export default function InfracoesClientSide({
   }, [selectedYear, overview.periodStart, overview.periodEnd]);
 
   // ─── Bloco 1: Onde Acontecem (ruas + mapa) ──────────────────────
-  const dp = dateParams();
+  const dp = useMemo(() => dateParams(), [dateParams]);
   const {
     data: streetsGeo,
-    isLoading: loadingStreets,
+    isFetching: loadingStreets,
     isError: streetsQueryError,
   } = useQuery(infracoesStreetsAndGeoQueryOptions(dp, categories));
   const streetsData = streetsGeo?.streetsData ?? [];
@@ -317,67 +313,66 @@ export default function InfracoesClientSide({
         title="Onde Acontecem"
         subtitle="As ruas com maior concentração de infrações no Recife, com a infração mais comum em cada via."
       >
-        {loadingStreets ? (
-          <div className="space-y-6">
-            <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-96 w-full" />
-          </div>
-        ) : streetsError ? (
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="text-red-400 mb-4">
-              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">API de infrações indisponível</h3>
-            <p className="text-sm text-gray-500 max-w-md mx-auto">
-              Verifique se o serviço em <code className="bg-gray-100 px-1 rounded">localhost:3013</code> está rodando.
-            </p>
-          </div>
-        ) : (
-          <>
-            {geojsonData?.features?.length > 0 ? (
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-                <AmecicloMap
-                  layerData={geojsonData}
-                  layersConf={layersConf}
-                  height="450px"
-                  showLayersPanel={false}
-                />
+        <div className={`transition-opacity duration-150 ${loadingStreets ? 'opacity-60' : ''}`}>
+          {streetsError ? (
+            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+              <div className="text-red-400 mb-4">
+                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
               </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
-                <div className="text-gray-400 mb-4">
-                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">API de infrações indisponível</h3>
+              <p className="text-sm text-gray-500 max-w-md mx-auto">
+                Verifique se o serviço em <code className="bg-gray-100 px-1 rounded">localhost:3013</code> está rodando.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {geojsonData?.features?.length > 0 ? (
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                  <AmecicloMap
+                    layerData={geojsonData}
+                    layersConf={layersConf}
+                    height="450px"
+                    showLayersPanel={false}
+                  />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Mapa não disponível</h3>
-                <p className="text-sm text-gray-500 max-w-md mx-auto">
-                  Os dados geoespaciais não estão disponíveis para o período selecionado.
-                </p>
-              </div>
-            )}
+              ) : (geojsonData || streetsData.length > 0) ? (
+                <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                  <div className="text-gray-400 mb-4">
+                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                        d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Mapa não disponível</h3>
+                  <p className="text-sm text-gray-500 max-w-md mx-auto">
+                    Os dados geoespaciais não estão disponíveis para o período selecionado.
+                  </p>
+                </div>
+              ) : null}
 
-            <div className="bg-white rounded-lg shadow-lg">
-              <Table
-                title="Ruas com mais infrações"
-                data={streetTableData}
-                showFilters={showStreetFilters}
-                setShowFilters={setShowStreetFilters}
-                columns={[
-                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                  { Header: "Rua", accessor: "rua", width: '25%' },
-                  { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
-                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
-                ]}
-              />
+              {streetsData.length > 0 && (
+                <div className="bg-white rounded-lg shadow-lg">
+                  <Table
+                    title="Ruas com mais infrações"
+                    data={streetTableData}
+                    showFilters={showStreetFilters}
+                    setShowFilters={setShowStreetFilters}
+                    columns={[
+                      { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                      { Header: "Rua", accessor: "rua", width: '25%' },
+                      { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
+                      { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                      { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
+                    ]}
+                  />
+                </div>
+              )}
             </div>
-          </>
-        )}
+          )}
+        </div>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════
@@ -387,90 +382,83 @@ export default function InfracoesClientSide({
         title="Quando Acontecem"
         subtitle="Distribuição temporal das infrações ao longo dos anos, meses, dias da semana e horas do dia."
       >
-        {loadingTemporal ? (
-          <div className="space-y-6">
-            <Skeleton className="h-80 w-full" />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <Skeleton className="h-60" />
-              <Skeleton className="h-60" />
-              <Skeleton className="h-60" />
-            </div>
-          </div>
-        ) : temporalData ? (
-          <>
-            {temporalData.by_year && Object.keys(temporalData.by_year).length > 0 && (
-              <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
-                  Evolução Anual{selectedYear ? ` — ${selectedYear}` : ""}
-                </h3>
-                <VerticalBarChart
-                  title=""
-                  xAxisTitle=""
-                  yAxisTitle="Infrações"
-                  data={Object.entries(temporalData.by_year)
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([year, count]) => ({ label: year, count: count as number }))}
-                  xKey="label"
-                  yKeys={["count"]}
-                  colors={["#dc2626"]}
-                />
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {temporalData.by_month && (
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Por mês</h4>
+        <div className={`transition-opacity duration-150 ${loadingTemporal ? 'opacity-60' : ''}`}>
+          {temporalData ? (
+            <>
+              {temporalData.by_year && Object.keys(temporalData.by_year).length > 0 && (
+                <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                    Evolução Anual{selectedYear ? ` — ${selectedYear}` : ""}
+                  </h3>
                   <VerticalBarChart
                     title=""
                     xAxisTitle=""
-                    yAxisTitle=""
-                    data={getAllMonthsData(temporalData.by_month)}
-                    xKey="label"
-                    yKeys={["count"]}
-                    colors={["#3b82f6"]}
-                  />
-                </div>
-              )}
-              {temporalData.by_weekday && (
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Por dia da semana</h4>
-                  <VerticalBarChart
-                    title=""
-                    xAxisTitle=""
-                    yAxisTitle=""
-                    data={Object.entries(temporalData.by_weekday).map(
-                      ([day, count]) => ({ label: WEEKDAY_LABELS[day] ?? day, count: count as number })
-                    )}
-                    xKey="label"
-                    yKeys={["count"]}
-                    colors={["#10b981"]}
-                  />
-                </div>
-              )}
-              {temporalData.by_hour && (
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Por hora do dia</h4>
-                  <VerticalBarChart
-                    title=""
-                    xAxisTitle=""
-                    yAxisTitle=""
-                    data={Object.entries(temporalData.by_hour)
+                    yAxisTitle="Infrações"
+                    data={Object.entries(temporalData.by_year)
                       .sort(([a], [b]) => a.localeCompare(b))
-                      .map(([hour, count]) => ({ label: `${hour}h`, count: count as number }))}
+                      .map(([year, count]) => ({ label: year, count: count as number }))}
                     xKey="label"
                     yKeys={["count"]}
-                    colors={["#8b5cf6"]}
+                    colors={["#dc2626"]}
                   />
                 </div>
               )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {temporalData.by_month && (
+                  <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Por mês</h4>
+                    <VerticalBarChart
+                      title=""
+                      xAxisTitle=""
+                      yAxisTitle=""
+                      data={getAllMonthsData(temporalData.by_month)}
+                      xKey="label"
+                      yKeys={["count"]}
+                      colors={["#3b82f6"]}
+                    />
+                  </div>
+                )}
+                {temporalData.by_weekday && (
+                  <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Por dia da semana</h4>
+                    <VerticalBarChart
+                      title=""
+                      xAxisTitle=""
+                      yAxisTitle=""
+                      data={Object.entries(temporalData.by_weekday).map(
+                        ([day, count]) => ({ label: WEEKDAY_LABELS[day] ?? day, count: count as number })
+                      )}
+                      xKey="label"
+                      yKeys={["count"]}
+                      colors={["#10b981"]}
+                    />
+                  </div>
+                )}
+                {temporalData.by_hour && (
+                  <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Por hora do dia</h4>
+                    <VerticalBarChart
+                      title=""
+                      xAxisTitle=""
+                      yAxisTitle=""
+                      data={Object.entries(temporalData.by_hour)
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([hour, count]) => ({ label: `${hour}h`, count: count as number }))}
+                      xKey="label"
+                      yKeys={["count"]}
+                      colors={["#8b5cf6"]}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+              Dados temporais não disponíveis.
             </div>
-          </>
-        ) : (
-          <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-            Dados temporais não disponíveis.
-          </div>
-        )}
+          )}
+        </div>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════
@@ -480,64 +468,59 @@ export default function InfracoesClientSide({
         title="Quem Fiscaliza o Quê"
         subtitle="Os dados mostram o que foi fiscalizado, não necessariamente tudo que aconteceu. O perfil do agente revela o viés da base."
       >
-        {loadingAgents ? (
-          <div className="space-y-6">
-            <Skeleton className="h-80 w-full" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-60" />)}
-            </div>
-          </div>
-        ) : agentData.length > 0 ? (
-          <>
-            <div className="mb-8">
-              <HorizontalBarChart
-                title="Percentual por tipo de agente"
-                yAxisTitle="% das autuações"
-                series={[{
-                  name: "Percentual",
-                  data: agentData.map((a: any) => ({ name: a.description, y: a.percentage })),
-                  color: "#dc2626",
-                }]}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {agentData.map((agent: any) => (
-                <div key={agent.agent_id} className="bg-white rounded-lg shadow-lg p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-3 h-3 rounded-full shrink-0 ${agent.category === "eletronico" ? "bg-blue-500" : "bg-amber-500"}`} />
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-800">{agent.description}</h3>
-                      <p className="text-xs text-gray-500 capitalize">
-                        {agent.category === "eletronico" ? "Fiscalização eletrônica" : "Agente humano"}
-                      </p>
+        <div className={`transition-opacity duration-150 ${loadingAgents ? 'opacity-60' : ''}`}>
+          {agentData.length > 0 ? (
+            <>
+              <div className="mb-8">
+                <HorizontalBarChart
+                  title="Percentual por tipo de agente"
+                  yAxisTitle="% das autuações"
+                  series={[{
+                    name: "Percentual",
+                    data: agentData.map((a: any) => ({ name: a.description, y: a.percentage })),
+                    color: "#dc2626",
+                  }]}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {agentData.map((agent: any) => (
+                  <div key={agent.agent_id} className="bg-white rounded-lg shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className={`w-3 h-3 rounded-full shrink-0 ${agent.category === "eletronico" ? "bg-blue-500" : "bg-amber-500"}`} />
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800">{agent.description}</h3>
+                        <p className="text-xs text-gray-500 capitalize">
+                          {agent.category === "eletronico" ? "Fiscalização eletrônica" : "Agente humano"}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-3xl font-bold text-ameciclo">{agent.total?.toLocaleString("pt-BR")}</p>
-                    <p className="text-sm text-gray-500">{agent.percentage?.toFixed(1)}% das autuações</p>
-                  </div>
-                  {agent.top_violations?.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
-                      <ul className="space-y-1">
-                        {agent.top_violations.slice(0, 5).map((v: any) => (
-                          <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
-                            <span className="truncate mr-2">{v.law_code} — {v.description}</span>
-                            <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="mb-4">
+                      <p className="text-3xl font-bold text-ameciclo">{agent.total?.toLocaleString("pt-BR")}</p>
+                      <p className="text-sm text-gray-500">{agent.percentage?.toFixed(1)}% das autuações</p>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {agent.top_violations?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
+                        <ul className="space-y-1">
+                          {agent.top_violations.slice(0, 5).map((v: any) => (
+                            <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
+                              <span className="truncate mr-2">{v.law_code} — {v.description}</span>
+                              <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+              Dados de agentes não disponíveis.
             </div>
-          </>
-        ) : (
-          <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-            Dados de agentes não disponíveis.
-          </div>
-        )}
+          )}
+        </div>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════
@@ -547,91 +530,86 @@ export default function InfracoesClientSide({
         title="Infrações por classificação"
         subtitle="As infrações são agrupadas por classificação temática. Clique em um card para ver a análise aprofundada de cada categoria."
       >
-        {categories.length === 0 ? (
-          <Skeleton className="h-60 w-full" />
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-              {categories.map((cat) => {
-                const pct = totalViolations > 0 ? ((cat.totalViolations / totalViolations) * 100).toFixed(1) : "0.0";
-                const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
-                const topCodes = categoryTopViolations[cat.name] ?? [];
-                return (
-                  <Link
-                    key={cat.name}
-                    to="/dados/infracoes/$category"
-                    params={{ category: categoryToSlug(cat.name) }}
-                    className="bg-white rounded-lg shadow-lg p-6 flex flex-col hover:shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-200 cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                      <h3 className="text-lg font-bold text-gray-800">{cat.name}</h3>
-                    </div>
-                    <div className="mb-4">
-                      <p className="text-3xl font-bold" style={{ color }}>{cat.totalViolations.toLocaleString("pt-BR")}</p>
-                      <p className="text-sm text-gray-500">{pct}% da base — {cat.codeCount} artigos</p>
-                    </div>
-                    {loadingCategories ? (
-                      <div className="space-y-2 mt-auto">
-                        <Skeleton className="h-3 w-full" />
-                        <Skeleton className="h-3 w-3/4" />
-                      </div>
-                    ) : topCodes.length > 0 ? (
-                      <div className="mt-auto">
-                        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
-                        <ul className="space-y-1">
-                          {topCodes.slice(0, 5).map((v: any) => (
-                            <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
-                              <span className="truncate mr-2">{v.law_code} — {v.description}</span>
-                              <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-gray-400 mt-auto">Nenhuma infração registrada</p>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Distribuição por Categoria</h3>
-              <div className="flex flex-wrap gap-3 justify-center mb-4">
+        <div className={`transition-opacity duration-150 ${loadingCategories ? 'opacity-60' : ''}`}>
+          {categories.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 {categories.map((cat) => {
                   const pct = totalViolations > 0 ? ((cat.totalViolations / totalViolations) * 100).toFixed(1) : "0.0";
                   const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
+                  const topCodes = categoryTopViolations[cat.name] ?? [];
                   return (
-                    <div key={cat.name} className="flex items-center gap-2 text-sm">
-                      <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: color }} />
-                      <span className="text-gray-600">{cat.name}</span>
-                      <span className="font-semibold">{pct}%</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex h-6 rounded-md overflow-hidden">
-                {categories.map((cat) => {
-                  const pct = totalViolations > 0 ? (cat.totalViolations / totalViolations) * 100 : 0;
-                  if (pct < 0.5) return null;
-                  return (
-                    <div key={cat.name} className="h-full flex items-center justify-center text-white text-xs font-bold"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: CATEGORY_COLORS[cat.name] ?? "#9ca3af",
-                        minWidth: pct > 1 ? "auto" : "0",
-                      }}
-                      title={`${cat.name}: ${cat.totalViolations.toLocaleString("pt-BR")}`}
+                    <Link
+                      key={cat.name}
+                      to="/dados/infracoes/$category"
+                      params={{ category: categoryToSlug(cat.name) }}
+                      className="bg-white rounded-lg shadow-lg p-6 flex flex-col hover:shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-200 cursor-pointer"
                     >
-                      {pct > 5 ? `${Math.round(pct)}%` : ""}
-                    </div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                        <h3 className="text-lg font-bold text-gray-800">{cat.name}</h3>
+                      </div>
+                      <div className="mb-4">
+                        <p className="text-3xl font-bold" style={{ color }}>{cat.totalViolations.toLocaleString("pt-BR")}</p>
+                        <p className="text-sm text-gray-500">{pct}% da base — {cat.codeCount} artigos</p>
+                      </div>
+                      {topCodes.length > 0 ? (
+                        <div className="mt-auto">
+                          <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
+                          <ul className="space-y-1">
+                            {topCodes.slice(0, 5).map((v: any) => (
+                              <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
+                                <span className="truncate mr-2">{v.law_code} — {v.description}</span>
+                                <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-auto">Nenhuma infração registrada</p>
+                      )}
+                    </Link>
                   );
                 })}
               </div>
-            </div>
-          </>
-        )}
+
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Distribuição por Categoria</h3>
+                <div className="flex flex-wrap gap-3 justify-center mb-4">
+                  {categories.map((cat) => {
+                    const pct = totalViolations > 0 ? ((cat.totalViolations / totalViolations) * 100).toFixed(1) : "0.0";
+                    const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
+                    return (
+                      <div key={cat.name} className="flex items-center gap-2 text-sm">
+                        <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: color }} />
+                        <span className="text-gray-600">{cat.name}</span>
+                        <span className="font-semibold">{pct}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex h-6 rounded-md overflow-hidden">
+                  {categories.map((cat) => {
+                    const pct = totalViolations > 0 ? (cat.totalViolations / totalViolations) * 100 : 0;
+                    if (pct < 0.5) return null;
+                    return (
+                      <div key={cat.name} className="h-full flex items-center justify-center text-white text-xs font-bold"
+                        style={{
+                          width: `${pct}%`,
+                          backgroundColor: CATEGORY_COLORS[cat.name] ?? "#9ca3af",
+                          minWidth: pct > 1 ? "auto" : "0",
+                        }}
+                        title={`${cat.name}: ${cat.totalViolations.toLocaleString("pt-BR")}`}
+                      >
+                        {pct > 5 ? `${Math.round(pct)}%` : ""}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════

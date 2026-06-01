@@ -151,7 +151,8 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
     participacaoFeminina: false,
     caracteristicas: true,
     infraestruturaInfo: true,
-    acessibilidade: true
+    acessibilidade: true,
+    infracoes: true
   };
   
   const availability = dataAvailability?.available || mockDataAvailability;
@@ -356,6 +357,17 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
         {label: "Aumento nos não fatais", value: "11%", trend: "down"}
       ],
       description: "Fonte: <a href='/dados/sinistros' class='text-blue-600 underline'>página de sinistros</a>"
+    },
+    {
+      id: 'infracoes',
+      title: "Infrações de Trânsito",
+      value: getCardValue('infracoes', "12.470"),
+      hasData: availability.infracoes,
+      metrics: [
+        {label: "Top infração", value: "Estacionar sobre ciclovia"},
+        {label: "Período", value: "2019-2025"}
+      ],
+      description: "Fonte: <a href='/dados/infracoes' class='text-blue-600 underline'>observatório de infrações</a>"
     },
 
     {

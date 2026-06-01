@@ -191,6 +191,7 @@ export const infracoesStreetsAndGeoQueryOptions = (
     queryKey: ["infracoes", "streets-geo", params],
     queryFn: () => fetchInfracoesStreetsAndGeo(params, categories),
     staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
   });
 
 // ─── Temporal ───────────────────────────────────────────────────────
@@ -204,6 +205,7 @@ export const infracoesTemporalQueryOptions = (params: Record<string, string>) =>
     queryKey: ["infracoes", "temporal", params],
     queryFn: () => fetchInfracoesTemporal(params),
     staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
   });
 
 // ─── Agent Analysis ─────────────────────────────────────────────────
@@ -218,6 +220,7 @@ export const infracoesAgentsQueryOptions = (params: Record<string, string>) =>
     queryKey: ["infracoes", "agents", params],
     queryFn: () => fetchInfracoesAgents(params),
     staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
   });
 
 // ─── Category Top Violations ────────────────────────────────────────
@@ -251,6 +254,7 @@ export const infracoesCategoryTopQueryOptions = (
     queryKey: ["infracoes", "category-top", params],
     queryFn: () => fetchInfracoesCategoryTop(params, categories),
     staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
   });
 
 // ─── Category Page Data (single category) ─────────────────────────
@@ -297,4 +301,5 @@ export const infracoesCategoryPageQueryOptions = (
     queryKey: ["infracoes", "category-page", categoryName, params],
     queryFn: () => fetchInfracoesCategoryPage(params, categoryName),
     staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
   });

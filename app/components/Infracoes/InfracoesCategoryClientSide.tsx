@@ -30,10 +30,6 @@ const WEEKDAY_LABELS: Record<string, string> = {
   thursday: "Qui", friday: "Sex", saturday: "Sáb", sunday: "Dom",
 };
 
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse bg-gray-200 rounded-sm ${className}`} />;
-}
-
 interface OverviewData {
   totalViolations: number;
   periodStart: string;
@@ -74,7 +70,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   const dp = dateParams();
   const {
     data: categoryData,
-    isLoading: loading,
+    isFetching: loading,
   } = useQuery(infracoesCategoryPageQueryOptions(dp, categoryName));
 
   // ─── Derived data ────────────────────────────────────────────────
@@ -143,26 +139,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
     }];
   }, [categoryData, categorySlug]);
 
-  if (loading) {
-    return (
-      <div className="pb-16">
-        <div className="space-y-6 container mx-auto my-12">
-          <Skeleton className="h-10 w-48 mx-auto" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
-          </div>
-          <Skeleton className="h-80 w-full" />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <Skeleton className="h-60" />
-            <Skeleton className="h-60" />
-            <Skeleton className="h-60" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!categoryData) {
+  if (!categoryData && !loading) {
     return (
       <div className="pb-16">
         <div className="bg-white rounded-lg shadow p-8 text-center my-12">
@@ -176,7 +153,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   }
 
   return (
-    <div className="pb-16">
+    <div className={`pb-16 transition-opacity duration-150 ${loading ? 'opacity-60' : ''}`}>
       {/* Year selector */}
       {availableYears.length > 0 && (
         <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 -mx-4 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
@@ -227,7 +204,9 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
         </Link>
 
         {/* ─── Statistics Cards ─────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {categoryData && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow-lg p-6 text-center" style={{ borderTop: `4px solid ${color}` }}>
             <p className="text-sm uppercase tracking-wider text-gray-500">Total na categoria</p>
             <p className="text-4xl font-bold mt-2" style={{ color }}>{categoryTotal.toLocaleString("pt-BR")}</p>
@@ -456,6 +435,8 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
               />
             </div>
           </section>
+        )}
+          </>
         )}
       </div>
     </div>

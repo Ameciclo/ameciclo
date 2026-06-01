@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { TODAS_INFRACOES } from './useCicloDadosData';
 
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
@@ -73,7 +74,7 @@ export function useCicloDadosState(
   const defaultInfra = infraOptions.map(opt => opt.name);
   const defaultContagem = [...contagemOptions];
   const defaultPdc = pdcOptions.map(opt => opt.name);
-  const defaultInfracao = [...infracaoOptions];
+  const defaultInfracao = [TODAS_INFRACOES];
   const defaultSinistro = sinistroOptions.map(opt => opt.name);
   const defaultEstacionamento = [...estacionamentoOptions];
   const defaultPerfil = [...perfilOptions];
@@ -371,11 +372,15 @@ export function useCicloDadosState(
   };
 
   const toggleInfracaoOption = (optionName: string) => {
-    setSelectedInfracao(prev => 
-      prev.includes(optionName) 
-        ? prev.filter(item => item !== optionName)
-        : [...prev, optionName]
-    );
+    setSelectedInfracao(prev => {
+      if (optionName === TODAS_INFRACOES) {
+        return prev.includes(TODAS_INFRACOES) ? [] : [TODAS_INFRACOES];
+      }
+      if (prev.includes(optionName)) {
+        return prev.filter(item => item !== optionName);
+      }
+      return [...prev.filter(item => item !== TODAS_INFRACOES), optionName];
+    });
   };
 
   const toggleAllInfracaoOptions = (options: string[], selectAll: boolean) => {

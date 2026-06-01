@@ -227,6 +227,7 @@ function CicloDados() {
                 selectedContagem={selectedContagem}
                 selectedEstacionamento={selectedEstacionamento}
                 selectedSinistro={selectedSinistro}
+                selectedInfracao={selectedInfracao}
                 selectedPerfil={selectedPerfil}
                 selectedGenero={selectedGenero}
                 selectedAno={selectedAno}

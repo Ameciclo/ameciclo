@@ -1,3 +1,5 @@
+export const TODAS_INFRACOES = "Todas infrações";
+
 export function useCicloDadosData() {
   const infraOptions = [
     { name: "Ciclovia", color: "#EF4444", pattern: "solid" },
@@ -19,13 +21,12 @@ export function useCicloDadosData() {
   ];
 
   const infracaoOptions = [
-    "Ultrapassar ciclista sem guardar a distância lateral mínima de 1,5 metro",
-    "Deixar de dar preferência de passagem a pedestre e a ciclista",
-    "Estacionar o veículo sobre ciclovia ou ciclofaixa",
-    "Parar o veículo sobre ciclovia ou ciclofaixa",
-    "Abrir a porta do veículo sem se certificar de que não causará perigo a outros usuários da via (incluindo ciclistas)",
-    "Transitar com o veículo em ciclovias ou ciclofaixas",
-    "Conduzir o veículo ameaçando os ciclistas (direção perigosa)"
+    "Ultrapassar ciclista sem guardar distância de 1,5m",
+    "Estacionar sobre ciclovia ou ciclofaixa",
+    "Parar sobre ciclovia ou ciclofaixa",
+    "Transitar com veículo em ciclovia ou ciclofaixa",
+    "Abrir porta com perigo a ciclistas",
+    "Conduzir veículo ameaçando ciclistas"
   ];
 
   const sinistroOptions = [
