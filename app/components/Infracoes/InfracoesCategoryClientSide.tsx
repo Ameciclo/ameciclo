@@ -47,22 +47,41 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   const totalViolations = overview.totalViolations;
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showStreetFilters, setShowStreetFilters] = useState(false);
+  const [selectedViolations, setSelectedViolations] = useState<Set<string>>(new Set());
+
+  const toggleViolation = useCallback((code: string) => {
+    setSelectedViolations(prev => {
+      const next = new Set(prev);
+      if (next.has(code)) next.delete(code);
+      else next.add(code);
+      return next;
+    });
+  }, []);
 
   const dateParams = useCallback((): Record<string, string> => {
-    if (selectedYear === null) return {
+    const params: Record<string, string> = selectedYear === null ? {
       start_date: overview.periodStart,
       end_date: overview.periodEnd,
-    };
-    return {
+    } : {
       start_date: `${selectedYear}-01-01`,
       end_date: `${selectedYear}-12-31`,
     };
-  }, [selectedYear, overview.periodStart, overview.periodEnd]);
+    if (selectedViolations.size > 0) {
+      params.violation_codes = Array.from(selectedViolations).join(',');
+    }
+    return params;
+  }, [selectedYear, selectedViolations, overview.periodStart, overview.periodEnd]);
 
-  const fullRangeParams = useMemo((): Record<string, string> => ({
-    start_date: overview.periodStart,
-    end_date: overview.periodEnd,
-  }), [overview.periodStart, overview.periodEnd]);
+  const fullRangeParams = useMemo((): Record<string, string> => {
+    const params: Record<string, string> = {
+      start_date: overview.periodStart,
+      end_date: overview.periodEnd,
+    };
+    if (selectedViolations.size > 0) {
+      params.violation_codes = Array.from(selectedViolations).join(',');
+    }
+    return params;
+  }, [selectedViolations, overview.periodStart, overview.periodEnd]);
 
   const availableYears: number[] = [];
   const startYear = parseInt(overview.periodStart?.slice(0, 4));
@@ -195,6 +214,11 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
           {selectedYear && (
             <p className="text-center text-xs text-gray-400 mt-2">
               Mostrando dados de {selectedYear}. Selecione "Todo o período" para ver dados agregados.
+            </p>
+          )}
+          {selectedViolations.size > 0 && (
+            <p className="text-center text-xs text-teal-600 mt-2">
+              Filtrando por {selectedViolations.size} infraç{selectedViolations.size === 1 ? 'ão' : 'ões'} selecionada{selectedViolations.size === 1 ? '' : 's'}.
             </p>
           )}
         </div>
@@ -434,8 +458,9 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                 data: categoryData.topViolations.map((v: any) => ({
                   name: `${v.law_code} — ${v.description}`,
                   y: v.count,
+                  ...(selectedViolations.size > 0 ? { color: selectedViolations.has(v.violation_code) ? '#0d9488' : '#d1d5db' } : {}),
                 })),
-                color,
+                color: selectedViolations.size > 0 ? undefined : color,
               }]}
             />
           </div>
@@ -449,12 +474,36 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
               <Table
                 title=""
                 data={categoryData.topViolations.map((v: any) => ({
+                  violation_code: v.violation_code,
                   base_legal: v.law_code,
                   descricao: v.description,
-                  quantidade: v.count.toLocaleString("pt-BR"),
                   count_raw: v.count,
                 }))}
                 columns={[
+                  {
+                    Header: "",
+                    accessor: "violation_code",
+                    disableFilters: true,
+                    disableSortBy: true,
+                    width: '4%',
+                    Cell: ({ value }: { value: string }) => (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleViolation(value); }}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                          selectedViolations.has(value)
+                            ? 'bg-teal-600 border-teal-600 text-white'
+                            : 'border-gray-300 hover:border-teal-400'
+                        }`}
+                        title={selectedViolations.has(value) ? "Remover filtro" : "Filtrar por esta infração"}
+                      >
+                        {selectedViolations.has(value) && (
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                    ),
+                  },
                   { Header: "Base Legal", accessor: "base_legal" },
                   { Header: "Descrição", accessor: "descricao" },
                   { Header: "Quantidade", accessor: "count_raw", disableFilters: true, Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
