@@ -236,25 +236,42 @@ export const infracoesAgentsQueryOptions = (params: Record<string, string>) =>
 
 // ─── Category Top Violations ────────────────────────────────────────
 
+interface CategoryTopResult {
+  topViolations: Record<string, any[]>;
+  categoryTotals: Record<string, { totalViolations: number; codeCount: number }>;
+}
+
 async function fetchInfracoesCategoryTop(
   params: Record<string, string>,
   categories: CategoryItem[],
-): Promise<Record<string, any[]>> {
+): Promise<CategoryTopResult> {
   const results = await Promise.all(
     categories
       .filter((c) => c.name !== "Outras/não classificadas")
       .map(async (cat) => {
         try {
           const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...params, category: cat.name, limit: "5" }));
-          return { key: cat.name, violations: data.violations ?? [] };
+          return {
+            key: cat.name,
+            violations: data.violations ?? [],
+            total: data.total ?? 0,
+            violationsCount: data.violations_count ?? 0,
+          };
         } catch {
-          return { key: cat.name, violations: [] };
+          return { key: cat.name, violations: [], total: 0, violationsCount: 0 };
         }
       })
   );
-  const map: Record<string, any[]> = {};
-  for (const r of results) map[r.key] = r.violations;
-  return map;
+
+  const topViolations: Record<string, any[]> = {};
+  const categoryTotals: Record<string, { totalViolations: number; codeCount: number }> = {};
+
+  for (const r of results) {
+    topViolations[r.key] = r.violations;
+    categoryTotals[r.key] = { totalViolations: r.total, codeCount: r.violationsCount };
+  }
+
+  return { topViolations, categoryTotals };
 }
 
 export const infracoesCategoryTopQueryOptions = (
@@ -264,25 +281,6 @@ export const infracoesCategoryTopQueryOptions = (
   queryOptions({
     queryKey: ["infracoes", "category-top", params],
     queryFn: () => fetchInfracoesCategoryTop(params, categories),
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (prev: any) => prev,
-  });
-
-// ─── Categories Filtered (client-side, with date params) ─────────
-
-async function fetchInfracoesCategories(params: Record<string, string>) {
-  const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_CATEGORIES, params));
-  return (data.categories ?? []).map((c: any) => ({
-    name: c.category ?? "",
-    codeCount: c.code_count ?? 0,
-    totalViolations: c.total_violations ?? 0,
-  }));
-}
-
-export const infracoesCategoriesQueryOptions = (params: Record<string, string>) =>
-  queryOptions({
-    queryKey: ["infracoes", "categories", params],
-    queryFn: () => fetchInfracoesCategories(params),
     staleTime: 5 * 60 * 1000,
     placeholderData: (prev: any) => prev,
   });

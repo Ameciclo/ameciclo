@@ -14,7 +14,6 @@ import {
   infracoesTemporalQueryOptions,
   infracoesAgentsQueryOptions,
   infracoesCategoryTopQueryOptions,
-  infracoesCategoriesQueryOptions,
 } from "~/queries/dados.infracoes";
 
 const MONTH_LABELS: Record<string, string> = {
@@ -229,31 +228,28 @@ export default function InfracoesClientSide({
 
   // ─── Bloco 4: Categorias top violations ──────────────────────────
   const {
-    data: categoryTopViolations = {},
+    data: categoryTopData,
     isLoading: loadingCategories,
   } = useQuery({
     ...infracoesCategoryTopQueryOptions(dp, categories),
     enabled: categories.length > 0,
   });
 
-  const { data: filteredCategories } = useQuery({
-    ...infracoesCategoriesQueryOptions(dp),
-    enabled: selectedYear !== null,
-  }) as { data: CategoryItem[] | undefined };
+  const categoryTopViolations = categoryTopData?.topViolations ?? {};
+  const categoryTotals = categoryTopData?.categoryTotals ?? {};
 
   const effectiveCategories: CategoryItem[] = useMemo(() => {
-    if (!filteredCategories || filteredCategories.length === 0) return categories;
-    const map = new Map(filteredCategories.map((c) => [c.name, c]));
+    if (Object.keys(categoryTotals).length === 0) return categories;
     return categories.map((cat) => {
-      const filtered = map.get(cat.name);
-      return filtered ?? cat;
+      const totals = categoryTotals[cat.name];
+      if (!totals) return cat;
+      return { ...cat, totalViolations: totals.totalViolations, codeCount: totals.codeCount };
     });
-  }, [categories, filteredCategories]);
+  }, [categories, categoryTotals]);
 
   const effectiveTotalViolations = useMemo(() => {
-    if (selectedYear === null) return totalViolations;
     return effectiveCategories.reduce((sum, cat) => sum + cat.totalViolations, 0);
-  }, [selectedYear, effectiveCategories, totalViolations]);
+  }, [effectiveCategories]);
 
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetTableData = streetsData.map((s: any, i: number) => {
