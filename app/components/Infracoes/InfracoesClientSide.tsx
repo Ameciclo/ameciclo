@@ -134,14 +134,17 @@ function YearSelector({
   years,
   selectedYear,
   onChange,
+  children,
 }: {
   years: number[];
   selectedYear: number | null;
   onChange: (year: number | null) => void;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      {/* Desktop: pill buttons */}
+      <div className="hidden sm:flex flex-wrap items-center justify-center gap-3">
         <span className="text-sm font-medium text-gray-600">Filtrar por ano:</span>
         <button
           onClick={() => onChange(null)}
@@ -165,11 +168,23 @@ function YearSelector({
           </button>
         ))}
       </div>
-      {selectedYear && (
-        <p className="text-center text-xs text-gray-400 mt-2">
-          Mostrando dados de {selectedYear}. Selecione "Todo o período" para ver dados agregados.
-        </p>
-      )}
+
+      {/* Mobile: dropdown */}
+      <div className="sm:hidden flex items-center justify-center gap-2">
+        <label className="text-sm font-medium text-gray-600 shrink-0">Ano:</label>
+        <select
+          value={selectedYear ?? ""}
+          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
+          className="w-full max-w-48 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-ameciclo"
+        >
+          <option value="">Todo o período</option>
+          {years.map((year) => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+      </div>
+
+      {children}
     </div>
   );
 }
@@ -327,7 +342,13 @@ export default function InfracoesClientSide({
           years={availableYears}
           selectedYear={selectedYear}
           onChange={setSelectedYear}
-        />
+        >
+          {selectedYear && (
+            <p className="text-center text-xs text-gray-400 mt-2">
+              Mostrando dados de {selectedYear}. Selecione "Todo o período" para ver dados agregados.
+            </p>
+          )}
+        </YearSelector>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════
