@@ -272,7 +272,10 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                     .map(([year, count]) => ({ label: year, count: count as number }))}
                   xKey="label"
                   yKeys={["count"]}
-                  colors={[color]}
+                  {...(selectedYear
+                    ? { colorByLabel: (label: string) => label === String(selectedYear) ? '#0d9488' : '#d1d5db' }
+                    : { colors: [color] }
+                  )}
                 />
               </div>
             )}

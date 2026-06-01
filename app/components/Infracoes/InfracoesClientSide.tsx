@@ -399,7 +399,10 @@ export default function InfracoesClientSide({
                       .map(([year, count]) => ({ label: year, count: count as number }))}
                     xKey="label"
                     yKeys={["count"]}
-                    colors={["#dc2626"]}
+                    {...(selectedYear
+                      ? { colorByLabel: (label: string) => label === String(selectedYear) ? '#0d9488' : '#d1d5db' }
+                      : { colors: ['#dc2626'] }
+                    )}
                   />
                 </div>
               )}
