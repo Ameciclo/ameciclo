@@ -384,13 +384,13 @@ export default function InfracoesClientSide({
                   data={streetTableData}
                   showFilters={showStreetFilters}
                   setShowFilters={setShowStreetFilters}
-                  columns={[
-                    { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                    { Header: "Rua", accessor: "rua", width: '25%' },
-                    { Header: "Total", accessor: "total", disableFilters: true, width: '15%' },
-                    { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                    { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
-                  ]}
+                    columns={[
+                      { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                      { Header: "Rua", accessor: "rua", width: '25%' },
+                      { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
+                      { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                      { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
+                    ]}
                 />
               )}
             </>
@@ -651,7 +651,7 @@ export default function InfracoesClientSide({
             { Header: "Base Legal", accessor: "base_legal", width: '15%' },
             { Header: "Descrição", accessor: "descricao", width: '45%' },
             { Header: "Categoria", accessor: "categoria", Filter: SelectColumnFilter, width: '25%' },
-            { Header: "Quantidade", accessor: "quantidade", disableFilters: true, width: '15%' },
+            { Header: "Quantidade", accessor: "count_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
           ]}
         />
       </div>
