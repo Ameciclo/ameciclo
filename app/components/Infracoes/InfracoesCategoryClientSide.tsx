@@ -120,7 +120,6 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
     return {
       ranking: i + 1,
       rua: s.official_name,
-      bairro: s.neighborhood_name,
       total: s.total_violations?.toLocaleString("pt-BR"),
       total_raw: s.total_violations ?? 0,
       extensao_km: s.extension_km?.toFixed(1),
