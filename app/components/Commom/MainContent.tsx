@@ -6,10 +6,12 @@ interface MainContentProps {
 
 export function MainContent({ children }: MainContentProps) {
   const location = useRouterState({ select: (s) => s.location });
-  const isCicloDadosPage = location.pathname === '/dados/ciclodados';
-  
+  const path = location.pathname;
+  const isFullBleed =
+    path === '/dados/ciclodados' || path === '/admin' || path.startsWith('/admin/');
+
   return (
-    <main className={isCicloDadosPage ? '' : 'pt-14'}>
+    <main className={isFullBleed ? '' : 'pt-14'}>
       {children}
     </main>
   );

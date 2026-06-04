@@ -132,24 +132,23 @@ function NotFoundComponent() {
   );
 }
 
+function shouldHidePublicChrome(pathname: string): boolean {
+  // Routes that bring their own chrome and shouldn't render the public Navbar/Footer.
+  return (
+    pathname === "/dados/ciclodados" ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/")
+  );
+}
+
 function ConditionalNavbar() {
   const location = useRouterState({ select: (s) => s.location });
-  const isCicloDadosPage = location.pathname === "/dados/ciclodados";
-
-  if (isCicloDadosPage) {
-    return null;
-  }
-
+  if (shouldHidePublicChrome(location.pathname)) return null;
   return <Navbar />;
 }
 
 function ConditionalFooter() {
   const location = useRouterState({ select: (s) => s.location });
-  const isCicloDadosPage = location.pathname === "/dados/ciclodados";
-
-  if (isCicloDadosPage) {
-    return null;
-  }
-
+  if (shouldHidePublicChrome(location.pathname)) return null;
   return <Footer />;
 }
