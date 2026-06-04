@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "@remix-run/react";
-import { Mail, MessageCircle, Check, X } from "lucide-react";
+import { MessageCircle, Check, X } from "lucide-react";
 
 interface FormData {
   nome: string;
@@ -30,9 +30,7 @@ export function ContactForm() {
     const newErrors: {[key: string]: string} = {};
     
     if (!data.nome) newErrors.nome = 'Nome é obrigatório';
-    if (!data.email) {
-      newErrors.email = 'Email é obrigatório';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       newErrors.email = 'Email inválido';
     }
     if (data.telefone && !/^\d{10,11}$/.test(data.telefone.replace(/\D/g, ''))) {
@@ -44,7 +42,7 @@ export function ContactForm() {
     return newErrors;
   };
 
-  const handleFormSubmit = (callback: (data: FormData) => void) => {
+  const handleWhatsApp = () => {
     const data = getFormData();
     const validationErrors = validateForm(data);
     
@@ -55,7 +53,14 @@ export function ContactForm() {
     }
     
     setErrors({});
-    callback(data);
+
+    const parts = [`*Nome:* ${data.nome}`];
+    if (data.email) parts.push(`*Email:* ${data.email}`);
+    if (data.telefone) parts.push(`*Telefone:* ${data.ddi}${data.telefone}`);
+    parts.push('', data.mensagem);
+
+    const whatsappMsg = parts.join('\n');
+    window.open(`https://wa.me/5581994586830?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
   };
 
   return (
@@ -85,22 +90,22 @@ export function ContactForm() {
         </div>
         
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <div className="relative">
             <input
               type="email"
               id="email"
-              required
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent ${errors.email ? 'border-red-500 bg-red-50' : success.email ? 'border-green-500' : 'border-gray-300'}`}
-              placeholder="seu@email.com"
+              placeholder="seu@email.com (opcional)"
               onChange={(e) => {
                 const value = e.target.value;
-                const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-                setSuccess(prev => ({...prev, email: isValid}));
-                if (value.length > 0 && !isValid) {
-                  setErrors(prev => ({...prev, email: 'Email inválido'}));
-                } else {
+                if (value.length === 0) {
                   setErrors(prev => ({...prev, email: ''}));
+                  setSuccess(prev => ({...prev, email: false}));
+                } else {
+                  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                  setSuccess(prev => ({...prev, email: isValid}));
+                  setErrors(prev => ({...prev, email: isValid ? '' : 'Email inválido'}));
                 }
               }}
             />
@@ -198,33 +203,17 @@ export function ContactForm() {
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            onClick={() => handleFormSubmit((data) => {
-              const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
-              const customSubject = searchParams.get('subject');
-              const subject = customSubject || `Contato via página de contato - ${data.nome}`;
-              const body = `Email: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
-              window.location.href = `mailto:contato@ameciclo.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            })}
-            className="flex-1 bg-[#008080] text-white px-4 py-2 rounded-md hover:bg-[#006666] transition-colors font-medium flex items-center justify-center gap-2"
-          >
-            <Mail size={18} /> Enviar E-mail
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => handleFormSubmit((data) => {
-              const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
-              const whatsappMsg = `Olá! Me chamo ${data.nome}!\\n\\nEmail: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
-              window.open(`https://wa.me/5581994586830?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
-            })}
-            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
-          >
-            <MessageCircle size={18} /> WhatsApp
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleWhatsApp}
+          className="w-full bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2 text-lg"
+        >
+          <MessageCircle size={20} /> Enviar via WhatsApp
+        </button>
+
+        <p className="text-center text-xs text-gray-500">
+          ou <a href="mailto:contato@ameciclo.org" className="underline hover:text-[#008080]">enviar e-mail</a>
+        </p>
       </form>
     </div>
   );

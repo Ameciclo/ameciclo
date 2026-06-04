@@ -1,15 +1,34 @@
+import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
+
+const AmecicloMarker = () => (
+  <div className="flex flex-col items-center">
+    <div className="w-10 h-10 bg-white rounded-full border-3 border-[#008080] shadow-lg flex items-center justify-center overflow-hidden">
+      <img src="/miniatura-ameciclo-logo.webp" alt="Ameciclo" className="w-7 h-7 object-contain" />
+    </div>
+    <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-[#008080] -mt-[1px]" />
+  </div>
+);
+
 export function ContactMap() {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3950.2847!2d-34.8823!3d-8.0593!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7ab18a59c7b4b0b%3A0x123456789!2sR.%20da%20Aurora%2C%20529%20-%20Santo%20Amaro%2C%20Recife%20-%20PE!5e0!3m2!1spt-BR!2sbr!4v1234567890"
-        width="100%"
+      <AmecicloMap
         height="100%"
-        style={{ border: 0 }}
-        allowFullScreen
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        title="Localização da Sede da Ameciclo"
+        width="100%"
+        pointsData={[
+          {
+            key: "sede-ameciclo",
+            latitude: -8.059349,
+            longitude: -34.880116,
+            size: 30,
+            color: "#008080",
+            type: "sede",
+            popup: { name: "Sede da Ameciclo" },
+            customIcon: <AmecicloMarker />,
+          },
+        ]}
+        initialViewState={{ latitude: -8.059349, longitude: -34.880116, zoom: 15 }}
+        showLayersPanel={false}
       />
     </div>
   );
