@@ -10,6 +10,7 @@ interface VerticalBarChartProps {
   xKey?: string;
   yKeys?: string[];
   colors?: string[];
+  colorByLabel?: (label: string) => string;
 }
 
 function VerticalBarChart({
@@ -20,7 +21,8 @@ function VerticalBarChart({
   data,
   xKey,
   yKeys,
-  colors
+  colors,
+  colorByLabel
 }: VerticalBarChartProps) {
   // Se data, xKey e yKeys são fornecidos, transformar os dados
   let chartSeries = series;
@@ -32,9 +34,12 @@ function VerticalBarChart({
       name: key === "atendimento_concluido" ? "Atendimento Concluído" :
             key === "removido_particulares" ? "Removido por Particulares" :
             key === "removido_bombeiros" ? "Removido pelos Bombeiros" :
-            key === "obito_local" ? "Óbito no Local" : key,
-      data: data.map(item => item[key] || 0),
-      color: colors && colors[index] ? colors[index] : undefined
+            key === "obito_local" ? "Óbito no Local" :
+            key === "count" ? "Infrações" : key,
+      data: colorByLabel
+        ? data.map(item => ({ y: item[key] || 0, color: colorByLabel(item[xKey]) }))
+        : data.map(item => item[key] || 0),
+      color: !colorByLabel && colors && colors[index] ? colors[index] : undefined
     }));
     
     const options = {
@@ -60,7 +65,7 @@ function VerticalBarChart({
         enabled: false,
       },
       legend: {
-        enabled: true
+        enabled: !colorByLabel
       },
       plotOptions: {
         column: {
@@ -90,7 +95,7 @@ function VerticalBarChart({
         shared: true,
         useHTML: true,
         formatter: function() {
-          let tooltip = '<b>' + this.x + '</b><br/>';
+          let tooltip = '<b>' + this.points[0].key + '</b><br/>';
           let total = 0;
           this.points.forEach(function(point) {
             tooltip += '<span style="color:' + point.color + '">●</span> ' + 

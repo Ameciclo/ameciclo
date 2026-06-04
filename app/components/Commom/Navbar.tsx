@@ -6,12 +6,12 @@ import { DataSubmenu } from "./NavBar/DataSubmenu";
 
 const dataSubPages = [
   { name: "Contagens", url: "/dados/contagens" },
-  { name: "Ideciclo", url: "/dados/ideciclo" },
   { name: "Documentos", url: "/dados/documentos" },
   { name: "Perfil", url: "/dados/perfil" },
-  { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria" },
+  { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria" },
   { name: "LOA", url: "/dados/loa" },
   { name: "DOM", url: "/dados/dom" },
+
   { name: "SAMU", url: "/dados/samu" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
@@ -33,8 +33,7 @@ export const Navbar = ({ pages }: any) => {
   const [hideRedNavbar, setHideRedNavbar] = useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
   const location = useRouterState({ select: (s) => s.location });
-  const isDataPage = location.pathname.startsWith('/dados') && location.pathname !== '/dados/ciclodados';
-  const isCicloDadosPage = location.pathname === '/dados/ciclodados';
+  const isDataPage = location.pathname.startsWith('/dados');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,9 +62,9 @@ export const Navbar = ({ pages }: any) => {
     };
   }, []);
 
-  if (isCicloDadosPage) {
-    return null;
-  }
+  useEffect(() => {
+    setIsSubmenuVisible(false);
+  }, [location.pathname]);
 
   return (
     <>

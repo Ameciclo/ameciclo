@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { slugifyCount } from "~/services/slug";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
+import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
+import { FlowContainer } from "~/components/Charts/FlowChart/FlowContainer";
 import { contagemSlugQueryOptions } from "~/queries/dados.contagens.$slug";
 import {
   getCountingCards,
@@ -48,10 +51,50 @@ function Contagem() {
     const { data: loaderData } = useSuspenseQuery(contagemSlugQueryOptions(slug));
     const data = loaderData.data;
     const pageData = loaderData.pageData;
+    const sessions = loaderData.sessions || [];
+    const details = loaderData.details;
 
     if (!data) throw new Response("Not Found", { status: 404 });
 
+    const allLocationCounts = (data.counts || []).sort(
+      (a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+    const hasMultipleCounts = allLocationCounts.length > 1;
+    const evolutionSlugs = allLocationCounts
+      .map((c: any) => slugifyCount(data, c))
+      .join("&");
+
     const pointsData = getPointsData(data, data.selectedCount);
+
+    const chartHours = sessions.map((s: any) => {
+      const match = s.session_label?.match(/^(\d+)/);
+      return match ? parseInt(match[1]) : 0;
+    });
+
+    const CHART_SERIES = [
+      { key: "total_cyclists", label: "Total", field: "total_cyclists" },
+      { key: "women", label: "Mulheres", field: "characteristics" },
+      { key: "helmet", label: "Capacete", field: "characteristics" },
+      { key: "cargo", label: "Cargueira", field: "characteristics" },
+      { key: "ride", label: "Carona", field: "characteristics" },
+      { key: "juveniles", label: "Crianças e Jovens", field: "characteristics" },
+      { key: "sidewalk", label: "Calçada", field: "characteristics" },
+      { key: "wrong_way", label: "Contramão", field: "characteristics" },
+      { key: "service", label: "Serviço", field: "characteristics" },
+      { key: "shared_bike", label: "Compartilhada", field: "characteristics" },
+    ];
+
+    const chartSeries = sessions.length > 0
+      ? CHART_SERIES.map(({ key, label, field }) => ({
+          name: label,
+          data: sessions.map((s: any) =>
+            field === "total_cyclists"
+              ? s.total_cyclists || 0
+              : s.characteristics?.[key] || 0,
+          ),
+          visible: key === "total_cyclists",
+        }))
+      : [];
 
     return (
         <main className="flex-auto">
@@ -69,40 +112,63 @@ function Contagem() {
             />
 
             <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
-                <div className="bg-green-200 rounded-sm shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
+                <div className="rounded-sm shadow-2xl lg:col-span-2 col-span-3 h-[400px]">
                     {pointsData.length > 0 ? (
-                        <AmecicloMap pointsData={pointsData} height="400px" />
+                        <AmecicloMap pointsData={pointsData} height="100%" width="100%" />
                     ) : (
                         <div className="flex items-center justify-center h-full">
                             <p className="text-gray-500">Carregando mapa...</p>
                         </div>
                     )}
                 </div>
-                <div className="rounded-sm shadow-2xl lg:col-span-1 col-span-3 flex flex-col justify-center items-center p-8">
+                <div className="rounded-sm shadow-2xl lg:col-span-1 col-span-3 flex flex-col items-center p-4">
                     <h3 className="text-gray-800 text-xl font-bold mb-4 text-center">Fluxo de Ciclistas por Direção</h3>
-                    <div className="text-center text-gray-500">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>
-                        <p className="text-sm">Estamos resolvendo um problema nessa sessão</p>
-                    </div>
+                    {details ? (
+                      <FlowContainer data={details} />
+                    ) : (
+                      <div className="flex flex-col justify-center items-center p-8 text-center text-gray-500">
+                        <p className="text-sm">Dados de direção indisponíveis para esta contagem.</p>
+                      </div>
+                    )}
                 </div>
             </section>
 
             <InfoCards cards={getCountingCards(data.selectedCount)} />
 
             <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
-                <h2 className="text-gray-800 text-2xl font-bold mb-6">Gráfico de Ciclistas por Hora</h2>
-                <div className="text-center text-gray-500 py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>
-                    <p className="text-sm">Estamos resolvendo um problema nessa sessão</p>
-                </div>
+                {chartSeries.length > 0 ? (
+                  <HourlyCyclistsChart series={chartSeries as any} hours={chartHours} />
+                ) : (
+                  <>
+                    <h2 className="text-gray-800 text-2xl font-bold mb-6">Gráfico de Ciclistas por Hora</h2>
+                    <div className="text-center text-gray-500 py-12">
+                      <p className="text-sm">Dados por hora indisponíveis para esta contagem.</p>
+                    </div>
+                  </>
+                )}
             </section>
+
+             {hasMultipleCounts && (
+              <section className="container mx-auto mt-6 mb-2 text-center">
+                <Link
+                  to="/dados/contagens/compare/$slugs"
+                  params={{ slugs: evolutionSlugs }}
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-ameciclo text-white rounded-lg hover:bg-ameciclo/90 transition-colors font-medium shadow-md"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  Ver evolução deste ponto ({allLocationCounts.length} contagens)
+                </Link>
+              </section>
+            )}
 
             {(() => {
                 const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], data.id);
                 return (
                     <CountingComparisionTable
                         data={allCounts}
-                        firstSlug={data.id.toString()}
+                        compareSlugs={[slug]}
                     />
                 );
             })()}

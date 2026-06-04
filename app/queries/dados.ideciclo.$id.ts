@@ -5,9 +5,9 @@ import {
   IDECICLO_FORMS_DATA,
   IDECICLO_PAGE_DATA,
   IDECICLO_STRUCTURES_DATA,
+  MALHA_CICLOVIARIA_URL,
 } from "~/servers";
 
-const MAP_DATA_URL = "https://ameciclo.org/dbs/malhacicloviariapermanente_mar2021.json";
 
 async function getStructureMap(structure: any) {
   const geoJsonMap: any = {
@@ -21,7 +21,7 @@ async function getStructureMap(structure: any) {
   };
 
   try {
-    const response = await fetch(MAP_DATA_URL);
+    const response = await fetch(MALHA_CICLOVIARIA_URL);
     if (!response.ok) {
       throw new Error("Failed to fetch map data");
     }

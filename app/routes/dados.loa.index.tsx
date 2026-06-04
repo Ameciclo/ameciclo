@@ -38,25 +38,9 @@ function Loa() {
     const [showFilters, setShowFilters] = useState(false);
     const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
 
-    const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-
-    const goodActionsTags = ["0398", "3308", "3378", "3382", "3389", "3786", "3891", "3906", "4122", "4123", "4165", "4167", "4185", "4294", "4313", "4482", "4648", "3198", "3340", "4202", "4642", "4646", "4176", "4483", "4166", "4074", "4055", "3721", "3725", "2755", "2796", "2286", "0569", "3877", "4131", "4235", "4679", "4682", "1313", "2967", "2730", "2733", "4650", "4669", "1537", "3178", "3187", "4116", "4440", "1896"];
-
-    const badActionsTags = [
-        "4067", "4218", "1045", "3882", "4096", "4134", "4186", "4227"
-    ];
-
-    const getActionCode = (action: any) => {
-        const match = action.cd_nm_acao.match(/^(\d+)/);
-        return match ? match[1] : '';
-    };
-
     const classifyAction = (action: any) => {
-        const actionCode = getActionCode(action);
-        if (goodActionsTags.includes(actionCode)) {
-            return 'good';
-        } else if (badActionsTags.includes(actionCode)) {
-            return 'bad';
+        if (action.classification === 'good' || action.classification === 'bad') {
+            return action.classification;
         }
         return undefined;
     };
@@ -64,13 +48,7 @@ function Loa() {
     const actions2025 = data?.actions2025 || [];
     const hasData = actions2025.length > 0 && !data?.apiDown;
     const climateActions = actions2025.filter((action: any) => {
-        try {
-            const actionCode = getActionCode(action);
-            return goodActionsTags.includes(actionCode);
-        } catch (error) {
-            console.warn('Error processing action:', action, error);
-            return false;
-        }
+        return action.classification === 'good';
     });
 
     const totalClimateBudgeted = climateActions.reduce((sum: number, action: any) => {
@@ -112,17 +90,17 @@ function Loa() {
         {
             Header: "Dotação Atualizada",
             accessor: "vlrdotatualizada",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            Cell: ({ value }: any) => `R$ ${(value ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
         },
         {
             Header: "Valor Empenhado",
             accessor: "vlrempenhado",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            Cell: ({ value }: any) => `R$ ${(value ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
         },
         {
             Header: "Valor Liquidado",
             accessor: "vlrliquidado",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            Cell: ({ value }: any) => `R$ ${(value ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
         },
         {
             Header: "Total Pago",

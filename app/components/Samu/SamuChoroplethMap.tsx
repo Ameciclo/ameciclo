@@ -4,12 +4,18 @@ import ReactMapGL, { Source, Layer, LayerProps, NavigationControl, FullscreenCon
 
 const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
+function normalize(str: string): string {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 interface CityData {
   municipio_samu?: string;
   name?: string;
+  display_name?: string;
   count: number;
-  id?: number;
-  historico_anual?: Array<{ ano: number; total_chamados: number }>;
+  ranking?: number;
+  rmr?: boolean;
+  historico_anual?: Array<{ ano: number; total_chamados?: number }>;
 }
 
 interface SamuChoroplethMapProps {
@@ -75,19 +81,15 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
               feature.properties.name ||
               feature.properties.NAME ||
               feature.properties.NM_MUN;
+            const normCityName = normalize(cityName);
             const cityData = validCities.find(
-              (city) =>
-                (city.name &&
-                  city.name.toLowerCase().includes(cityName.toLowerCase())) ||
-                (city.municipio_samu &&
-                  city.municipio_samu
-                    .toLowerCase()
-                    .includes(cityName.toLowerCase())) ||
-                cityName
-                  .toLowerCase()
-                  .includes(
-                    (city.name || city.municipio_samu || "").toLowerCase()
-                  )
+              (city) => {
+                const cityLabel = normalize(
+                  city.name || city.municipio_samu || ""
+                );
+                return cityLabel.includes(normCityName) ||
+                  normCityName.includes(cityLabel);
+              }
             );
 
             const calls = cityData ? cityData.count : 0;

@@ -69,7 +69,7 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction, customHeader }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction, customHeader, expandMode, stateReducer }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -227,6 +227,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             initialState: { pageIndex: 0, pageSize: 5 },
             filterTypes,
             defaultColumn,
+            ...(stateReducer ? { stateReducer } : {}),
         },
         useFilters,
         useSortBy,
@@ -286,6 +287,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     key={column.id || index}
                                     {...(({ key, ...props }) => props)(column.getHeaderProps())}
                                     className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
+                                    style={{ width: (column as any).width ?? '20%' }}
                                 >
                                     <button
                                         {...column.getSortByToggleProps()}
@@ -353,7 +355,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     </div>
                                 </td>
                             </tr>
-                            {row.isExpanded ? (
+                            {row.isExpanded && expandMode !== 'subrows' ? (
                                 <tr>
                                     <td colSpan={columns.length}>
                                         <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">
@@ -386,14 +388,14 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                             key={cell.column.id || cellIndex}
                                             {...(({ key, ...props }) => props)(cell.getCellProps())}
                                             className={`px-6 py-4 text-sm leading-5 wrap-break-word ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : 'text-gray-700'}`}
-                                            style={{ width: '20%' }}
+                                            style={{ width: (cell.column as any).width ?? '20%' }}
                                         >
                                             {cell.render("Cell")}
                                         </td>
                                     );
                                 })}
                             </tr>
-                            {row.isExpanded ? (
+                            {row.isExpanded && expandMode !== 'subrows' ? (
                                 <tr>
                                     <td colSpan={columns.length}>
                                         <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">

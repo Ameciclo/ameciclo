@@ -88,7 +88,7 @@ export function CityContent({
 
   const cityCycleStats = useMemo(() => {
     if (!localSelectedCity) return [];
-    const { pdc_feito, pdc_total, percent, total } = localSelectedCity;
+    const { pdc_feito, pdc_total, percent, total, pdc_designado = 0, pdc_nao_designado = 0 } = localSelectedCity;
 
     const getPercentageColor = (value: number) => {
       if (value >= 98) return "text-green-600";
@@ -114,6 +114,16 @@ export function CityContent({
         title: "implantados no plano cicloviário",
         unit: "km",
         value: IntlNumberMax1Digit(pdc_feito),
+      },
+      {
+        title: "tipologia designada",
+        unit: "km",
+        value: IntlNumberMax1Digit(pdc_designado),
+      },
+      {
+        title: "tipologia não designada",
+        unit: "km",
+        value: IntlNumberMax1Digit(pdc_nao_designado),
       },
       {
         title: "cobertos do plano cicloviário",

@@ -17,8 +17,8 @@ export default function Configuracao({ darkMode = true, fontSize = 16 }: Documen
           <div>
             <div className={`${darkMode ? "bg-gray-900 border-gray-600" : "bg-gray-100 border-gray-300"} p-3 rounded-sm border`}>
               <code className={`${darkMode ? "text-green-300" : "text-green-700"}`} style={{ fontSize: fontSize - 2 }}>
-                # APIs Externas<br />
-                API_GARFO_URL=http://api.garfo.ameciclo.org<br />
+                # APIs Externas (Atlas)<br />
+                EMERGENCY_CALLS_API=https://emergency-calls.atlas.ameciclo.org<br />
                 CMS_BASE_URL=http://do.strapi.ameciclo.org<br /><br />
                 # Mapbox<br />
                 MAPBOX_ACCESS_TOKEN=pk.seu_token_aqui<br /><br />

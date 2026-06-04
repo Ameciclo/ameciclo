@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { POINT_CICLO_NEARBY } from '~/servers';
 
 function calculateFilteredTotal(profileData: any, filters?: PerfilFilters): number {
   if (!profileData || !profileData.total_profiles) return 0;
@@ -91,7 +92,7 @@ export function usePerfilPoints(
       
       for (const coord of knownProfileCoordinates) {
         try {
-          const response = await fetch(`https://ciclodados.atlas.ameciclo.org/v1/nearby?lat=${coord.lat}&lng=${coord.lng}&radius=200`);
+          const response = await fetch(POINT_CICLO_NEARBY(coord.lat, coord.lng));
           
           if (response.ok) {
             const profileData = await response.json();

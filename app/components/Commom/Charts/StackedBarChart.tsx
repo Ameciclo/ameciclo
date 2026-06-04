@@ -1,6 +1,6 @@
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import React, { useState } from "react";
+import React from "react";
 
 interface StackedBarChartProps {
   title: string;
@@ -17,12 +17,11 @@ function StackedBarChart({
   categories,
   series,
 }: StackedBarChartProps): React.ReactElement {
-  const [isPercentage, setIsPercentage] = useState<boolean>(false);
-  
   const getOptions = (): Highcharts.Options => {
     return {
       chart: {
         type: "column",
+        height: 400,
       },
       title: {
         text: title,
@@ -34,27 +33,26 @@ function StackedBarChart({
         },
         labels: {
           style: {
-            fontWeight: "300"
+            fontWeight: "500"
           }
         },
       },
       yAxis: {
         min: 0,
         title: {
-          text: isPercentage ? "Percentual (%)" : yAxisTitle,
+          text: yAxisTitle,
         },
         labels: {
-          format: isPercentage ? '{value}%' : '{value}',
           style: {
-            fontWeight: "300"
+            fontWeight: "500"
           }
         },
         stackLabels: {
           enabled: true,
-          format: isPercentage ? '{total}%' : '{total}',
+          format: '{total}',
           style: {
-            fontWeight: "300",
-            color: "gray",
+            fontWeight: "600",
+            color: "#333",
           },
         },
       },
@@ -68,13 +66,10 @@ function StackedBarChart({
       },
       tooltip: {
         headerFormat: "<b>{point.x}</b><br/>",
-        pointFormat: isPercentage 
-          ? "{series.name}: {point.percentage:.1f}%<br/>Total: {point.stackTotal}%"
-          : "{series.name}: {point.y}<br/>Total: {point.stackTotal}",
+        pointFormat: "{series.name}: {point.y}<br/>Total: {point.stackTotal}",
       },
       plotOptions: {
         column: {
-          stacking: isPercentage ? "percent" : "normal",
           dataLabels: {
             enabled: false,
           },
@@ -89,32 +84,6 @@ function StackedBarChart({
 
   return (
     <div className="shadow-2xl rounded-sm p-6 pt-4 text-center">
-      <div className="mb-4 flex justify-end">
-        <div className="inline-flex rounded-md shadow-xs" role="group">
-          <button
-            type="button"
-            className={`px-4 py-2 text-sm font-medium rounded-l-lg ${
-              !isPercentage
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-            onClick={() => setIsPercentage(false)}
-          >
-            Valores Absolutos
-          </button>
-          <button
-            type="button"
-            className={`px-4 py-2 text-sm font-medium rounded-r-lg ${
-              isPercentage
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-            onClick={() => setIsPercentage(true)}
-          >
-            Percentual
-          </button>
-        </div>
-      </div>
       <HighchartsReact highcharts={Highcharts} options={getOptions()} />
     </div>
   );

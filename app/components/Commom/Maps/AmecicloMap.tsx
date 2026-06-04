@@ -379,6 +379,7 @@ export const AmecicloMap = ({
     initialViewState,
     onViewStateChange,
     onPointClick,
+    flyTo,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -405,6 +406,7 @@ export const AmecicloMap = ({
     initialViewState?: { latitude: number; longitude: number; zoom: number };
     onViewStateChange?: (viewState: any) => void;
     onPointClick?: (point: any) => void;
+    flyTo?: { latitude: number; longitude: number; zoom?: number } | null;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -517,6 +519,18 @@ export const AmecicloMap = ({
             });
         }
     }, [initialViewState?.latitude, initialViewState?.longitude, initialViewState?.zoom, hasSetInitialViewport]);
+
+    useEffect(() => {
+        if (flyTo && hasSetInitialViewport) {
+            setViewport({
+                latitude: flyTo.latitude,
+                longitude: flyTo.longitude,
+                zoom: flyTo.zoom ?? 16,
+                bearing: 0,
+                pitch: 0,
+            });
+        }
+    }, [flyTo?.latitude, flyTo?.longitude, hasSetInitialViewport]);
     const [settings, setsettings] = useState(() => ({
         dragPan: dragPanEnabled ?? defaultDragPan,
         dragRotate: true,
@@ -623,7 +637,9 @@ export const AmecicloMap = ({
                         )}
                         {pointsData?.map((point) => {
                             const { key, latitude, longitude, size, color, customIcon } = point;
-                            
+
+                            if (isNaN(latitude) || isNaN(longitude)) return null;
+
                             const zoomAdjustedSize = size;
                             
                             return (
@@ -684,6 +700,7 @@ export const AmecicloMap = ({
                         })}
 
                         {hoverPoint && radius && (() => {
+                            if (isNaN(hoverPoint.lat) || isNaN(hoverPoint.lng)) return null;
                             const metersPerPixel = 156543.03392 * Math.cos(hoverPoint.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = radius / metersPerPixel;
                             const circleSize = radiusInPixels * 2;
@@ -713,6 +730,7 @@ export const AmecicloMap = ({
                             );
                         })()}
                         {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
+                            if (isNaN(circle.lat) || isNaN(circle.lng)) return null;
                             const metersPerPixel = 156543.03392 * Math.cos(circle.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = circle.radius / metersPerPixel;
                             const circleSize = radiusInPixels * 2;
@@ -743,7 +761,9 @@ export const AmecicloMap = ({
                             );
                         })}
 
-                        {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => (
+                        {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => {
+                            if (isNaN(point.lat) || isNaN(point.lng)) return null;
+                            return (
                             <Marker
                                 key={point.id}
                                 latitude={point.lat}
@@ -753,9 +773,10 @@ export const AmecicloMap = ({
                                     {point.customIcon}
                                 </div>
                             </Marker>
-                        ))}
+                            );
+                        })}
 
-                        {hoveredMarker && hoveredMarker.popup && (
+                        {hoveredMarker && hoveredMarker.popup && !isNaN(hoveredMarker.latitude) && !isNaN(hoveredMarker.longitude) && (
                             <Marker
                                 latitude={hoveredMarker.latitude}
                                 longitude={hoveredMarker.longitude}
@@ -775,7 +796,7 @@ export const AmecicloMap = ({
                             </Marker>
                         )}
 
-                        {selectedMarker && (
+                        {selectedMarker && !isNaN(selectedMarker.latitude) && !isNaN(selectedMarker.longitude) && (
                             <Popup
                                 latitude={selectedMarker.latitude}
                                 longitude={selectedMarker.longitude}

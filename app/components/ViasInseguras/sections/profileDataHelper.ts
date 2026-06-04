@@ -5,11 +5,15 @@ export function processProfileData(evolucao: any[]) {
     por_categoria: {} as Record<string, number>,
   };
 
+  console.log("[processProfileData] evolucao.length:", evolucao?.length);
   evolucao.forEach((year) => {
     if (year.por_sexo) {
+      console.log(`[processProfileData] year=${year.ano} por_sexo=`, JSON.stringify(year.por_sexo));
       aggregatedData.por_sexo.masculino += year.por_sexo.masculino || 0;
       aggregatedData.por_sexo.feminino += year.por_sexo.feminino || 0;
       aggregatedData.por_sexo.nao_informado += year.por_sexo.nao_informado || 0;
+    } else {
+      console.log(`[processProfileData] year=${year.ano} NO por_sexo`);
     }
 
     if (year.por_faixa_etaria) {
@@ -25,6 +29,15 @@ export function processProfileData(evolucao: any[]) {
     }
   });
 
+  console.log("[processProfileData] aggregated por_sexo:", JSON.stringify(aggregatedData.por_sexo));
+  return buildProfileOutput(aggregatedData);
+}
+
+function buildProfileOutput(aggregatedData: {
+  por_sexo: { masculino: number; feminino: number; nao_informado: number };
+  por_faixa_etaria: Record<string, number>;
+  por_categoria: Record<string, number>;
+}) {
   const genderTotal = aggregatedData.por_sexo.masculino + aggregatedData.por_sexo.feminino + aggregatedData.por_sexo.nao_informado;
   const genderData = genderTotal > 0 ? [
     {
@@ -79,4 +92,62 @@ export function processProfileData(evolucao: any[]) {
     })) : [];
 
   return { genderData, ageData, categoryData };
+}
+
+export function processProfileFromSinistros(sinistros: any[]) {
+  const aggregated = {
+    por_sexo: { masculino: 0, feminino: 0, nao_informado: 0 },
+    por_faixa_etaria: {} as Record<string, number>,
+    por_categoria: {} as Record<string, number>,
+  };
+
+  const categoryMap: Record<string, string> = {
+    "Acidente de Moto": "sinistro_moto",
+    "Acidente de Carro": "sinistro_carro",
+    "Atropelamento por Carro": "atropelamento_carro",
+    "Atropelamento por Moto": "atropelamento_moto",
+    "Acidente de Bicicleta": "sinistro_bicicleta",
+    "Acidente de Ônibus/Caminhão": "sinistro_onibus_caminhao",
+    "Atropelamento por Ônibus/Caminhão": "atropelamento_onibus_caminhao",
+    "Atropelamento de Bicicleta": "atropelamento_bicicleta",
+    "Outro": "outro",
+    "Não Informado": "nao_informado",
+  };
+
+  const allowedDesfechos = [
+    'Atendimento Concluído com Êxito',
+    'Removido por Particulares',
+    'Removido pelos Bombeiros/CIODS',
+    'Óbito no Local/Atendimento'
+  ];
+
+  sinistros.forEach((sinistro) => {
+    const desfecho = sinistro.motivo_desf_cat || '';
+    if (!allowedDesfechos.includes(desfecho)) return;
+
+    if (sinistro.sexo) {
+      const s = sinistro.sexo.toLowerCase();
+      if (s === 'masculino') aggregated.por_sexo.masculino++;
+      else if (s === 'feminino') aggregated.por_sexo.feminino++;
+      else aggregated.por_sexo.nao_informado++;
+    } else {
+      aggregated.por_sexo.nao_informado++;
+    }
+
+    if (sinistro.idade_faixa_etaria) {
+      const key = sinistro.idade_faixa_etaria;
+      aggregated.por_faixa_etaria[key] = (aggregated.por_faixa_etaria[key] || 0) + 1;
+    } else {
+      aggregated.por_faixa_etaria['nao_informado'] = (aggregated.por_faixa_etaria['nao_informado'] || 0) + 1;
+    }
+
+    if (sinistro.categoria) {
+      const mappedKey = categoryMap[sinistro.categoria] || 'nao_informado';
+      aggregated.por_categoria[mappedKey] = (aggregated.por_categoria[mappedKey] || 0) + 1;
+    } else {
+      aggregated.por_categoria['nao_informado'] = (aggregated.por_categoria['nao_informado'] || 0) + 1;
+    }
+  });
+
+  return buildProfileOutput(aggregated);
 }

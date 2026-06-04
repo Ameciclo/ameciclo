@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { OPENROUTESERVICE_CYCLING_URL } from '~/servers';
 
 interface RoutePoint {
   lat: number;
@@ -32,11 +33,10 @@ export function useRouting() {
     try {
       // Usando OpenRouteService API (gratuita)
       const response = await fetch(
-        `https://api.openrouteservice.org/v2/directions/cycling-regular?` +
-        `start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`,
+        `${OPENROUTESERVICE_CYCLING_URL}?start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`,
         {
           headers: {
-            'Authorization': '5b3ce3597851110001cf6248a1b2c8c7c4e04c7bb4b8b4e4c8f8c8c8' // API key pública de exemplo
+            'Authorization': '5b3ce3597851110001cf6248a1b2c8c7c4e04c7bb4b8b4e4c8f8c8c8'
           }
         }
       );

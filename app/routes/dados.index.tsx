@@ -56,11 +56,10 @@ const FEATURED_PAGES = [
   {
     title: "Execução Cicloviária",
     src: "/icons/dados/mapa.svg",
-    url: "#",
+    url: "/dados/execucao-cicloviaria",
     description:
       "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
     target: "",
-    comingSoon: true,
   },
   {
     title: "Orçamento Estadual para o Clima",
@@ -79,6 +78,15 @@ const FEATURED_PAGES = [
     target: "",
   },
   {
+    title: "Observatório de Infrações",
+    src: "/icons/home/vias-inseguras.svg",
+    url: "#",
+    description:
+      "Dados de infrações de trânsito no Recife: principais vias, categorias, temporalidade e agentes autuadores.",
+    target: "",
+    comingSoon: true,
+  },
+  {
     title: "Chamados de Sinistros",
     src: "/icons/home/chamados_sinistros.svg",
     url: "/dados/samu",
@@ -89,11 +97,10 @@ const FEATURED_PAGES = [
   {
     title: "Vias Inseguras",
     src: "/icons/home/vias-inseguras.svg",
-    url: "#",
+    url: "/dados/vias-inseguras",
     description:
       "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
     target: "",
-    comingSoon: true,
   },
   {
     title: "Sinistros Fatais",
