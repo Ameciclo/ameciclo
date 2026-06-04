@@ -80,10 +80,11 @@ const FEATURED_PAGES = [
   {
     title: "Observatório de Infrações",
     src: "/icons/home/vias-inseguras.svg",
-    url: "/dados/infracoes",
+    url: "#",
     description:
       "Dados de infrações de trânsito no Recife: principais vias, categorias, temporalidade e agentes autuadores.",
     target: "",
+    comingSoon: true,
   },
   {
     title: "Chamados de Sinistros",

@@ -367,7 +367,7 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
         {label: "Top infração", value: "Estacionar sobre ciclovia"},
         {label: "Período", value: "2019-2025"}
       ],
-      description: "Fonte: <a href='/dados/infracoes' class='text-blue-600 underline'>observatório de infrações</a>"
+      description: "Fonte: observatório de infrações (em breve)"
     },
 
     {

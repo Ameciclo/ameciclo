@@ -60,7 +60,7 @@ export const VIAS_INSEGURAS_HISTORY_V2 = `${SAMU_ATLAS_BASE}/v2/streets/history`
 export const VIAS_INSEGURAS_STREET_SUMMARY = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets`
 
 // Traffic Violations — Observatório de Infrações de Trânsito
-export const TRAFFIC_VIOLATIONS_BASE = "http://localhost:3013"
+export const TRAFFIC_VIOLATIONS_BASE = "https://traffic-violations.atlas.ameciclo.org"
 export const TRAFFIC_VIOLATIONS_OVERVIEW = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/overview`
 export const TRAFFIC_VIOLATIONS_TOP = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-violations`
 export const TRAFFIC_VIOLATIONS_TOP_STREETS = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-streets`

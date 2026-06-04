@@ -116,7 +116,7 @@ export function LeftSidebar({
   
   const toggleSection = (sectionId: string) => {
     // Prevenir expansão de seções "em breve"
-    const comingSoonSections = ['ideciclo'];
+    const comingSoonSections = ['ideciclo', 'infracao'];
     if (comingSoonSections.includes(sectionId) && collapsedSections.has(sectionId)) {
       return;
     }
@@ -349,82 +349,16 @@ export function LeftSidebar({
                 onToggleCollapse={() => toggleSection('sinistro')}
               />
               
-              <div className="bg-white rounded-sm border" role="region" aria-labelledby="infracoes-heading">
-                <div className="p-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => onInfracaoToggle(TODAS_INFRACOES)}
-                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                        title={selectedInfracao.includes(TODAS_INFRACOES) ? 'Ocultar todas as infrações' : 'Exibir todas as infrações'}
-                        aria-label={selectedInfracao.includes(TODAS_INFRACOES) ? 'Ocultar todas as infrações' : 'Exibir todas as infrações'}
-                      >
-                        {selectedInfracao.includes(TODAS_INFRACOES) || selectedInfracao.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                      </button>
-                      <span id="infracoes-heading" className="font-medium">Infrações de Trânsito</span>
-                    </div>
-                    <button 
-                      onClick={() => toggleSection('infracao')}
-                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                      title={collapsedSections.has('infracao') ? 'Expandir seção de infrações' : 'Minimizar seção de infrações'}
-                      aria-label={collapsedSections.has('infracao') ? 'Expandir seção de infrações' : 'Minimizar seção de infrações'}
-                      aria-expanded={!collapsedSections.has('infracao')}
-                    >
-                      <svg 
-                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('infracao') ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                {!collapsedSections.has('infracao') && (
-                  <div className="px-2 pb-2 space-y-2">
-                    <button
-                      onClick={() => onInfracaoToggle(TODAS_INFRACOES)}
-                      className={`w-full flex items-center gap-2 p-2 rounded transition-all duration-200 text-left ${
-                        selectedInfracao.includes(TODAS_INFRACOES)
-                          ? 'bg-teal-50 border border-teal-200 shadow-xs'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
-                      title={selectedInfracao.includes(TODAS_INFRACOES) ? 'Ocultar todas as infrações' : 'Exibir todas as infrações'}
-                      aria-label={selectedInfracao.includes(TODAS_INFRACOES) ? 'Ocultar todas as infrações' : 'Exibir todas as infrações'}
-                      aria-pressed={selectedInfracao.includes(TODAS_INFRACOES)}
-                    >
-                      <div className="shrink-0">
-                        {selectedInfracao.includes(TODAS_INFRACOES) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                      </div>
-                      <span className={`text-sm transition-colors ${selectedInfracao.includes(TODAS_INFRACOES) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Todas infrações</span>
-                    </button>
-                    <div className="border-t border-gray-100 pt-2">
-                      <p className="text-xs text-gray-400 mb-2 px-2">Infrações com ciclistas</p>
-                      {infracaoOptions.map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => onInfracaoToggle(option)}
-                          className={`w-full flex items-center gap-2 p-2 rounded transition-all duration-200 text-left ${
-                            selectedInfracao.includes(option)
-                              ? 'bg-teal-50 border border-teal-200 shadow-xs'
-                              : 'hover:bg-gray-50 border border-transparent'
-                          }`}
-                          title={selectedInfracao.includes(option) ? `Ocultar ${option.toLowerCase()}` : `Exibir ${option.toLowerCase()}`}
-                          aria-label={selectedInfracao.includes(option) ? `Ocultar ${option}` : `Exibir ${option}`}
-                          aria-pressed={selectedInfracao.includes(option)}
-                        >
-                          <div className="shrink-0">
-                            {selectedInfracao.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                          </div>
-                          <span className={`text-sm transition-colors ${selectedInfracao.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{option}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <FilterSection
+                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Infrações de Trânsito</div>}
+                options={[{ name: "Em breve" }]}
+                selectedOptions={[]}
+                onToggle={() => {}}
+                hasPattern={false}
+                isCollapsed={collapsedSections.has('infracao')}
+                onToggleCollapse={() => toggleSection('infracao')}
+                comingSoon={true}
+              />
               
               <FilterSection
                 title={<div className="flex items-center gap-2"><Route className="w-4 h-4" />Infraestrutura cicloviária</div>}

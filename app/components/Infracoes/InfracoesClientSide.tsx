@@ -392,7 +392,7 @@ export default function InfracoesClientSide({
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">API de infrações indisponível</h3>
               <p className="text-sm text-gray-500 max-w-md mx-auto">
-                Verifique se o serviço em <code className="bg-gray-100 px-1 rounded">localhost:3013</code> está rodando.
+                Verifique se o serviço em <code className="bg-gray-100 px-1 rounded">traffic-violations.atlas.ameciclo.org</code> está disponível.
               </p>
             </div>
           ) : (
