@@ -1,3 +1,8 @@
+// Set to false to point all services to production Atlas hosts.
+const IS_DEV = true
+const api = (port: number, prod: string) =>
+  IS_DEV ? `http://localhost:${port}` : prod
+
 export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
 
 // Strapi single-types still consumed by unmigrated dados routes.
@@ -14,8 +19,8 @@ export const OBSERVATORIO_SINISTROS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas
 export const LOA_RMR_ATLAS_API = `https://loa-rmr.atlas.ameciclo.org/`
 
 // Budget APIs (local)
-export const STATE_BUDGET_API = "http://localhost:3017/v1/budget/state"
-export const RECIFE_BUDGET_API = "http://localhost:3018/v1/budget/recife"
+export const STATE_BUDGET_API = `${api(3017, "https://state-budget.atlas.ameciclo.org")}/v1/budget/state`
+export const RECIFE_BUDGET_API = `${api(3018, "https://recife-budget.atlas.ameciclo.org")}/v1/budget/recife`
 
 // Ideciclo Atlas
 export const IDECICLO_DATA = `https://api.ideciclo.ameciclo.org/reviews`
@@ -60,7 +65,7 @@ export const VIAS_INSEGURAS_HISTORY_V2 = `${SAMU_ATLAS_BASE}/v2/streets/history`
 export const VIAS_INSEGURAS_STREET_SUMMARY = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets`
 
 // Traffic Violations — Observatório de Infrações de Trânsito
-export const TRAFFIC_VIOLATIONS_BASE = "https://traffic-violations.atlas.ameciclo.org"
+export const TRAFFIC_VIOLATIONS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
 export const TRAFFIC_VIOLATIONS_OVERVIEW = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/overview`
 export const TRAFFIC_VIOLATIONS_TOP = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-violations`
 export const TRAFFIC_VIOLATIONS_TOP_STREETS = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-streets`
@@ -69,6 +74,13 @@ export const TRAFFIC_VIOLATIONS_AGENT_ANALYSIS = `${TRAFFIC_VIOLATIONS_BASE}/v1/
 export const TRAFFIC_VIOLATIONS_CODES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/violation-codes`
 export const TRAFFIC_VIOLATIONS_CATEGORIES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/categories`
 export const TRAFFIC_VIOLATIONS_GEOJSON = `${TRAFFIC_VIOLATIONS_BASE}/v1/streets/geojson`
+export const TRAFFIC_VIOLATIONS_CATEGORIES_DETAIL = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/categories-detail`
+export const TRAFFIC_VIOLATIONS_CATEGORY_PAGE = (slug: string) =>
+  `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/category/${encodeURIComponent(slug)}`
+export const TRAFFIC_VIOLATIONS_LAW = (article: string) =>
+  `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/law/${encodeURIComponent(article)}`
+export const TRAFFIC_VIOLATIONS_STREET = (identifier: string) =>
+  `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/street/${encodeURIComponent(identifier)}`
 
 // OpenRouteService — external routing API
 export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2/directions/cycling-regular`

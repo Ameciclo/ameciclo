@@ -13,18 +13,18 @@ import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBound
 import { samuQueryOptions } from "~/queries/dados.samu";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/samu/")({
+export const Route = createFileRoute("/dados/chamados-emergencia/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(samuQueryOptions()),
   head: () =>
     seo({
-      title: "Observatório SAMU - Chamados de Sinistros - Ameciclo",
+      title: "Chamados de Emergência - Ameciclo",
       description:
-        "Detalhamento dos chamados de sinistros de trânsito atendidos pelo SAMU na Região Metropolitana do Recife.",
-      pathname: "/dados/samu",
+        "Detalhamento dos chamados de emergência relacionados a sinistros de trânsito na Região Metropolitana do Recife.",
+      pathname: "/dados/chamados-emergencia",
     }),
   component: SamuPage,
-  pendingComponent: () => <RouteLoading label="Carregando dados do SAMU..." />,
+  pendingComponent: () => <RouteLoading label="Carregando dados de chamados de emergência..." />,
   pendingMs: 500,
   pendingMinMs: 800,
   errorComponent: RouteErrorBoundary,
@@ -50,16 +50,16 @@ function SamuPage() {
     <>
       <Banner
         image={cover}
-        alt="Capa da página do Observatório de Chamadas do SAMU"
+        alt="Capa da página de Chamados de Emergência"
       />
       <Breadcrumb
-        label="Observatório de Chamadas do SAMU"
-        slug="/dados/observatorio/samu"
+        label="Chamados de Emergência"
+        slug="/dados/chamados-emergencia"
         routes={["/", "/dados"]}
       />
       <ApiStatusHandler apiDown={apiDown} />
       <StatisticsBox
-        title="Observatório de Chamadas do SAMU"
+        title="Chamados de Emergência"
         subtitle="Estatísticas gerais dos sinistros de trânsito"
         boxes={statisticsBoxes}
       />

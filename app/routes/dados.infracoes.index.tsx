@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dados/infracoes/")({
     seo({
       title: "Observatório de Infrações de Trânsito - Ameciclo",
       description:
-        "Análise das infrações de trânsito registradas no Recife. Entenda o perfil das autuações, quais infrações são mais comuns, onde e quando acontecem e quem fiscaliza.",
+        "Análise das infrações de trânsito registradas no Recife.",
       pathname: "/dados/infracoes",
     }),
   component: InfracoesPage,
@@ -30,33 +30,14 @@ export const Route = createFileRoute("/dados/infracoes/")({
 
 function InfracoesPage() {
   const { data } = useSuspenseQuery(infracoesQueryOptions());
-  const {
-    overview,
-    violationCodes,
-    categories,
-    statisticsBoxes,
-    apiDown,
-  } = data;
-
+  const { overview, violationCodes, categories, statisticsBoxes, apiDown, temporal, categoryBreakdown, agentBreakdownByYear, categoryBreakdownByYear } = data;
   useReportApiErrors(data);
-
   return (
     <>
-      <Banner
-        image="/pages_covers/infracoes.png"
-        alt="Capa da página do Observatório de Infrações de Trânsito"
-      />
-      <Breadcrumb
-        label="Observatório de Infrações de Trânsito"
-        slug="/dados/infracoes"
-        routes={["/", "/dados"]}
-      />
+      <Banner image="/pages_covers/infracoes.png" alt="Infrações" />
+      <Breadcrumb label="Observatório de Infrações" slug="/dados/infracoes" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={apiDown} />
-      <StatisticsBox
-        title="Observatório de Infrações de Trânsito"
-        subtitle="Visão geral das autuações de trânsito no Recife"
-        boxes={statisticsBoxes}
-      />
+      <StatisticsBox title="Observatório" subtitle="Visão geral" boxes={statisticsBoxes} />
       <ExplanationBoxes
         boxes={[
           {
@@ -75,6 +56,10 @@ function InfracoesPage() {
         overview={overview}
         violationCodes={violationCodes}
         categories={categories}
+        temporal={temporal}
+        categoryBreakdown={categoryBreakdown}
+        agentBreakdownByYear={agentBreakdownByYear}
+        categoryBreakdownByYear={categoryBreakdownByYear}
       />
     </>
   );

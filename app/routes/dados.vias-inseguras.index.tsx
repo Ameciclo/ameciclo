@@ -17,7 +17,7 @@ export const Route = createFileRoute("/dados/vias-inseguras/")({
     seo({
       title: "Observatório de Vias Inseguras - Ameciclo",
       description:
-        "Ranking das vias com maior concentração de sinistros de trânsito no Recife, baseado nos dados do SAMU.",
+        "Ranking das vias com maior concentração de sinistros de trânsito no Recife, baseado nos dados de chamados de emergência.",
       pathname: "/dados/vias-inseguras",
     }),
   component: ViasInsegurasPage,

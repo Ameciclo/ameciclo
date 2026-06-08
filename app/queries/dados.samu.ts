@@ -17,10 +17,10 @@ const fetchSamu = createServerFn().handler(async () => {
     const cover = "/pages_covers/chamadosdosamu.png";
     const title1 = "O que são chamadas de sinistro?";
     const description1 =
-      "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.";
+      "Analisamos os chamados de emergência relacionados a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.";
     const title2 = "Como utilizamos os dados?";
     const description2 =
-      "Processamos dados reais de chamadas do SAMU para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.";
+      "Processamos dados reais de chamados de emergência para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.";
 
     const [summaryData, citiesData] = await Promise.all([
       cmsFetch<any>(SAMU_SUMMARY_API, {
@@ -41,7 +41,7 @@ const fetchSamu = createServerFn().handler(async () => {
 
     if (!summaryData || !citiesData) {
       throw new Error(
-        "Não foi possível carregar os dados do SAMU. " +
+        "Não foi possível carregar os dados de chamados de emergência. " +
         "Verifique se o serviço de backend está disponível e tente novamente."
       );
     }
@@ -132,13 +132,13 @@ const fetchSamu = createServerFn().handler(async () => {
       cards: [
         {
           title: "Metodologia",
-          description: "Como analisamos os dados das chamadas do SAMU",
+          description: "Como analisamos os dados dos chamados de emergência",
           url: "#metodologia",
           target: "_self",
         },
         {
           title: "Dados abertos",
-          description: "Acesse os dados brutos das chamadas do SAMU",
+          description: "Acesse os dados brutos dos chamados de emergência",
           url: EMERGENCY_CALLS_ATLAS_URL,
           target: "_blank",
         },

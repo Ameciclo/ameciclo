@@ -200,7 +200,7 @@ export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
     <div className="w-full">
       <div className="mb-4">
         <h3 className="text-lg font-bold mb-2">
-          Mapa de Chamadas do SAMU por Município
+          Mapa de Chamados de Emergência por Município
         </h3>
         <div className="flex items-center space-x-4 text-sm">
           <span>Menos chamadas</span>

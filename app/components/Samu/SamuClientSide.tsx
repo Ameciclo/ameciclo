@@ -114,7 +114,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
 
     setFilteredEvolutionData({
       data: chartData,
-      title: `Evolução das Chamadas SAMU - ${selectedCity}`,
+      title: `Evolução das Chamadas de Emergência - ${selectedCity}`,
       xAxisTitle: "Ano",
       yAxisTitle: "Número de Chamadas",
     });
@@ -374,7 +374,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
     <section className="container mx-auto my-12 space-y-12 pb-16">
       <div className="mx-auto container my-12">
         <h2 className="text-3xl font-bold text-center mb-4">
-          Mapa de Chamadas do SAMU
+          Mapa de Chamados de Emergência
         </h2>
         <div className="mb-8">
           <SamuChoroplethMap
@@ -431,7 +431,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
 
       <div className="mx-auto container my-12">
         <h2 className="text-3xl font-bold text-center mb-4">
-          Evolução das Chamadas ao SAMU
+          Evolução das Chamadas de Emergência
         </h2>
         <h3 className="text-xl text-center mb-8 text-gray-600">
           {getFilterSummary()}
@@ -441,7 +441,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           <div className="shadow-2xl rounded-sm p-6 pt-4 text-center">
             <div className="mb-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Evolução Anual das Chamadas SAMU
+                Evolução Anual das Chamadas de Emergência
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 Distribuição por tipo de desfecho dos atendimentos

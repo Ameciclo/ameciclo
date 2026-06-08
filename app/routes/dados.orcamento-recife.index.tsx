@@ -12,18 +12,18 @@ import { formatLargeValue } from "~/utils/formatCurrency";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/dom/")({
+export const Route = createFileRoute("/dados/orcamento-recife/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(domQueryOptions()),
   head: () =>
     seo({
-      title: "DOM - Diagnóstico Orçamentário Municipal - Ameciclo",
+      title: "Orçamento do Recife - Ameciclo",
       description:
         "Diagnóstico do orçamento municipal do Recife sob a ótica climática — sustentabilidade, emissões e ações executadas.",
-      pathname: "/dados/dom",
+      pathname: "/dados/orcamento-recife",
     }),
   component: Dom,
-  pendingComponent: () => <RouteLoading label="Carregando dados do DOM..." />,
+  pendingComponent: () => <RouteLoading label="Carregando dados do Orçamento do Recife..." />,
   pendingMs: 500,
   pendingMinMs: 800,
   errorComponent: RouteErrorBoundary,
@@ -106,8 +106,8 @@ function Dom() {
 
     return (
         <>
-            <Banner image={cover?.url} alt="Capa da página do Diágnóstico Orçamentário Municipal" />
-            <Breadcrumb label="DOM" slug="/dados/dom" routes={["/", "/dados"]} />
+            <Banner image={cover?.url} alt="Capa da página do Orçamento do Recife" />
+            <Breadcrumb label="Orçamento do Recife" slug="/dados/orcamento-recife" routes={["/", "/dados"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
 
             <div className="container mx-auto px-4 py-6">
@@ -310,7 +310,7 @@ function Dom() {
 
                     <section>
                         <Table
-                            title="Ações e Programas do DOM"
+                            title="Ações e Programas do Orçamento do Recife"
                             data={filteredActions}
                             columns={columns}
                             allColumns={allColumns}

@@ -15,18 +15,18 @@ import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetCompariso
 import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/loa/")({
+export const Route = createFileRoute("/dados/orcamento-pernambuco/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(loaQueryOptions()),
   head: () =>
     seo({
-      title: "LOA - Orçamento Estadual para o Clima - Ameciclo",
+      title: "Orçamento Pernambuco - Ameciclo",
       description:
-        "Monitoramento da Lei Orçamentária Anual (LOA) de Pernambuco sob a ótica climática — ações sustentáveis, execução e comparativos.",
-      pathname: "/dados/loa",
+        "Monitoramento do orçamento de Pernambuco sob a ótica climática — ações sustentáveis, execução e comparativos.",
+      pathname: "/dados/orcamento-pernambuco",
     }),
   component: Loa,
-  pendingComponent: () => <RouteLoading label="Carregando dados do LOA..." />,
+  pendingComponent: () => <RouteLoading label="Carregando dados do Orçamento Pernambuco..." />,
   pendingMs: 500,
   pendingMinMs: 800,
   errorComponent: RouteErrorBoundary,
@@ -140,8 +140,8 @@ function Loa() {
 
     return (
         <>
-            <Banner image="/images/banners/faq.png" alt="Capa da página do Loaclima" />
-            <Breadcrumb label="LOA" slug="/dados/loa" routes={["/", "/dados"]} />
+            <Banner image="/images/banners/faq.png" alt="Capa da página de Orçamento Pernambuco" />
+            <Breadcrumb label="Orçamento Pernambuco" slug="/dados/orcamento-pernambuco" routes={["/", "/dados"]} />
             <ApiStatusHandler apiDown={data?.apiDown} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: data?.description || "Carregando..." }]} />
 
@@ -196,7 +196,7 @@ function Loa() {
 
                                     return (
                                         <Table
-                                            title="Ações e Programas da LOA"
+                                            title="Ações e Programas do Orçamento Pernambuco"
                                             data={filteredActions}
                                             columns={columns}
                                             allColumns={allColumns}

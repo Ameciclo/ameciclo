@@ -12,7 +12,7 @@ const API_SERVICES = [
   { key: 'infraestrutura', name: 'Infraestrutura Cicloviária', endpoint: 'infrastructure' },
   { key: 'pontos-contagem', name: 'Pontos de Contagem', endpoint: 'counting-points' },
   { key: 'execucao-cicloviaria', name: 'Plano Diretor Cicloviário', endpoint: 'execution-data' },
-  { key: 'sinistros', name: 'Sinistros com Vítima (SAMU)', endpoint: 'samu/v2/unsafe-streets' },
+  { key: 'sinistros', name: 'Chamados de Emergência', endpoint: 'samu/v2/unsafe-streets' },
   { key: 'infracoes', name: 'Infrações de Trânsito', endpoint: 'traffic-violations/v1/streets' },
   { key: 'perfil', name: 'Perfil de Ciclistas (Mapa)', endpoint: 'cyclist-profiles/v1' },
   { key: 'perfil-ciclistas', name: 'Perfil de Ciclistas', endpoint: 'cyclist-profiles/v1/survey' }

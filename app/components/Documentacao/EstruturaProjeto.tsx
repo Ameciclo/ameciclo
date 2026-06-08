@@ -31,7 +31,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   │   ├── PaginaInicial/  # Componentes da home
 │   │   ├── Projetos/       # Projetos da organização
 │   │   ├── QuemSomos/      # Sobre a Ameciclo
-│   │   ├── Samu/           # Dados de chamados do SAMU
+│   │   ├── ChamadosEmergencia/ # Dados de chamados de emergência
 │   │   ├── SinistrosFatais/ # Análise de sinistros fatais
 │   │   └── ViasInseguras/  # Ranking de vias perigosas
 │   ├── routes/             # 27 rotas (file-based routing do Remix)
@@ -40,7 +40,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   │   ├── dados._index.tsx, dados.ciclodados._index.tsx
 │   │   ├── dados.contagens.$slug.tsx, dados.via.$slug.tsx
 │   │   ├── dados.ideciclo.$id.tsx, dados.sinistros-fatais.tsx
-│   │   ├── dados.vias-inseguras.tsx, dados.samu.tsx
+│   │   ├── dados.vias-inseguras.tsx, dados.chamados-emergencia.tsx
 │   │   ├── projetos.$projeto.tsx, quemsomos.tsx
 │   │   └── documentacao._index.tsx # Esta página
 │   ├── loader/             # Loaders para SSR e data fetching
@@ -123,7 +123,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
               <li>• <strong>dados.sinistros-fatais.tsx</strong> - Análise de sinistros</li>
               <li>• <strong>dados.vias-inseguras.tsx</strong> - Ranking de vias</li>
               <li>• <strong>dados.via.$slug.tsx</strong> - Detalhes de via individual</li>
-              <li>• <strong>dados.samu.tsx</strong> - Chamados SAMU com mapa coroplético</li>
+              <li>• <strong>dados.chamados-emergencia.tsx</strong> - Chamados de Emergência com mapa coroplético</li>
               <li>• <strong>projetos.$projeto.tsx</strong> - Projeto individual do CMS</li>
               <li>• <strong>biciclopedia.$question.tsx</strong> - FAQ individual</li>
             </ul>
@@ -142,7 +142,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
               <li>• <strong>dados.ideciclo.ts</strong> - Dados do índice de ciclabilidade</li>
               <li>• <strong>dados.sinistros-fatais.ts</strong> - Dados de sinistros</li>
               <li>• <strong>dados.vias-inseguras.ts</strong> - Ranking de vias</li>
-              <li>• <strong>dados.samu.ts</strong> - Chamados do SAMU</li>
+              <li>• <strong>dados.chamados-emergencia.ts</strong> - Chamados de Emergência</li>
               <li>• <strong>projetos.ts</strong> - Projetos do CMS Strapi</li>
               <li>• <strong>agenda.ts</strong> - Google Calendar API</li>
               <li>• <strong>quemsomos.ts</strong> - Dados da página institucional</li>

@@ -9,10 +9,10 @@ const dataSubPages = [
   { name: "Documentos", url: "/dados/documentos" },
   { name: "Perfil", url: "/dados/perfil" },
   { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria" },
-  { name: "LOA", url: "/dados/loa" },
-  { name: "DOM", url: "/dados/dom" },
+  { name: "Orçamento PE", url: "/dados/orcamento-pernambuco" },
+  { name: "Orçamento Recife", url: "/dados/orcamento-recife" },
 
-  { name: "SAMU", url: "/dados/samu" },
+  { name: "Emergências", url: "/dados/chamados-emergencia" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
   { name: "CicloDados", url: "/dados/ciclodados" },

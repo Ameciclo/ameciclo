@@ -33,7 +33,7 @@ function InfracoesCategoryPage() {
   const { category } = Route.useParams();
   const { data } = useSuspenseQuery(infracoesQueryOptions());
   const { overview, categories, apiDown } = data;
-  const categoryName = slugToCategory(category);
+  const categoryName = slugToCategory(category, categories.map((c: any) => c.name));
   const categoryData = categories.find((c: any) => c.name === categoryName);
   const color = categoryColor(categoryName);
 

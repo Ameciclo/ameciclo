@@ -60,12 +60,12 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   }, []);
 
   const dateParams = useCallback((): Record<string, string> => {
-    const params: Record<string, string> = selectedYear === null ? {
-      start_date: overview.periodStart,
-      end_date: overview.periodEnd,
-    } : {
+    const params: Record<string, string> = selectedYear !== null ? {
       start_date: `${selectedYear}-01-01`,
       end_date: `${selectedYear}-12-31`,
+    } : {
+      start_date: overview.periodStart.slice(0, 10),
+      end_date: overview.periodEnd.slice(0, 10),
     };
     if (selectedViolations.size > 0) {
       params.violation_codes = Array.from(selectedViolations).join(',');
@@ -75,8 +75,8 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
 
   const fullRangeParams = useMemo((): Record<string, string> => {
     const params: Record<string, string> = {
-      start_date: overview.periodStart,
-      end_date: overview.periodEnd,
+      start_date: overview.periodStart.slice(0, 10),
+      end_date: overview.periodEnd.slice(0, 10),
     };
     if (selectedViolations.size > 0) {
       params.violation_codes = Array.from(selectedViolations).join(',');
@@ -117,9 +117,13 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
 
   const streetTableData = (categoryData?.topStreets ?? []).map((s: any, i: number) => {
     const tv = s.top_violation;
+    const ruaSlug = (s.official_name ?? "")
+      .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return {
       ranking: i + 1,
       rua: s.official_name,
+      rua_slug: ruaSlug,
       total: s.total_violations?.toLocaleString("pt-BR"),
       total_raw: s.total_violations ?? 0,
       extensao_km: s.extension_km?.toFixed(1),
@@ -323,7 +327,9 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                   columns={[
                     { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
                     { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                    { Header: "Rua", accessor: "rua", width: '25%' },
+                    { Header: "Rua", accessor: "rua", width: '25%', Cell: ({ value, row }: any) => (
+                      <a href={`/dados/infracoes/rua/${encodeURIComponent(row.original.rua_slug || value)}`} className="text-teal-600 hover:underline">{value}</a>
+                    )},
                     { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
                     { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
                   ]}
@@ -369,10 +375,9 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                     .map(([year, count]) => ({ label: year, count: count as number }))}
                   xKey="label"
                   yKeys={["count"]}
-                  {...(selectedYear
-                    ? { colorByLabel: (label: string) => label === String(selectedYear) ? '#0d9488' : '#d1d5db' }
-                    : { colors: [color] }
-                  )}
+                  colorByLabel={selectedYear
+                    ? (label: string) => label === String(selectedYear) ? '#dc2626' : '#d1d5db'
+                    : () => color}
                 />
               </div>
             )}
@@ -526,7 +531,9 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                       </button>
                     ),
                   },
-                  { Header: "Base Legal", accessor: "base_legal" },
+                  { Header: "Base Legal", accessor: "base_legal", Cell: ({ value }: { value: string }) => value ? (
+                    <a href={`/dados/infracoes/lei/${encodeURIComponent(value)}`} className="text-teal-600 hover:underline">{value}</a>
+                  ) : "—" },
                   { Header: "Descrição", accessor: "descricao" },
                   { Header: "Quantidade", accessor: "count_raw", disableFilters: true, Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
                 ]}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
@@ -11,10 +11,7 @@ import { SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import type { LayerProps } from "react-map-gl/maplibre";
 import {
-  infracoesStreetsAndGeoQueryOptions,
-  infracoesTemporalQueryOptions,
-  infracoesAgentsQueryOptions,
-  infracoesCategoryTopQueryOptions,
+  infracoesGeoJSONQueryOptions,
 } from "~/queries/dados.infracoes";
 
 const MONTH_LABELS: Record<string, string> = {
@@ -35,41 +32,42 @@ const WEEKDAY_LABELS: Record<string, string> = {
   thursday: "Qui", friday: "Sex", saturday: "Sáb", sunday: "Dom",
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "Segurança viária": "#dc2626",
-  "Pedestres": "#f59e0b",
-  "Ciclistas": "#06b6d4",
-  "Transporte coletivo": "#8b5cf6",
-  "Fluidez do trânsito": "#3b82f6",
-  "Estacionamento/uso da via": "#10b981",
-  "Administrativas/documentais": "#6b7280",
-  "Outras/não classificadas": "#9ca3af",
-};
+const CATEGORY_COLOR_PALETTE = [
+  "#dc2626", "#f59e0b", "#06b6d4", "#8b5cf6",
+  "#3b82f6", "#10b981", "#6b7280", "#ec4899",
+  "#f97316", "#14b8a6", "#6366f1", "#84cc16",
+];
+
+function getCategoryColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+    hash |= 0;
+  }
+  return CATEGORY_COLOR_PALETTE[Math.abs(hash) % CATEGORY_COLOR_PALETTE.length];
+}
 
 export function categoryColor(name: string): string {
-  return CATEGORY_COLORS[name] ?? "#9ca3af";
+  return getCategoryColor(name);
 }
 
-const CATEGORY_SLUG_MAP: Record<string, string> = {
-  "Segurança viária": "seguranca-viaria",
-  "Pedestres": "pedestres",
-  "Ciclistas": "ciclistas",
-  "Transporte coletivo": "transporte-coletivo",
-  "Fluidez do trânsito": "fluidez-do-transito",
-  "Estacionamento/uso da via": "estacionamento-uso-da-via",
-  "Administrativas/documentais": "administrativas-documentais",
-  "Outras/não classificadas": "outras-nao-classificadas",
-};
-
-function categoryToSlug(name: string): string {
-  return CATEGORY_SLUG_MAP[name] ?? name.toLowerCase().replace(/\s+/g, "-");
+export function categoryToSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
-export function slugToCategory(slug: string): string {
-  for (const [name, s] of Object.entries(CATEGORY_SLUG_MAP)) {
-    if (s === slug) return name;
+export function slugToCategory(slug: string, categories?: string[]): string {
+  if (categories?.length) {
+    const match = categories.find((c) => categoryToSlug(c) === slug);
+    if (match) return match;
   }
-  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return slug
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 interface ViolationCode {
@@ -103,6 +101,10 @@ interface InfracoesClientSideProps {
   overview: OverviewData;
   violationCodes: ViolationCode[];
   categories: CategoryItem[];
+  temporal: { by_year: Record<string, number>; by_month_raw: any[]; by_weekday_raw: any[]; by_hour_raw: any[] };
+  categoryBreakdown: Array<{ category: string; total: number; percentage: number; topViolations: any[] }>;
+  agentBreakdownByYear: any[];
+  categoryBreakdownByYear: any[];
 }
 
 function Section({ title, subtitle, children }: {
@@ -193,111 +195,136 @@ export default function InfracoesClientSide({
   overview,
   violationCodes,
   categories,
+  temporal = { by_year: {}, by_month_raw: [], by_weekday_raw: [], by_hour_raw: [] },
+  categoryBreakdown = [],
+  agentBreakdownByYear = [],
+  categoryBreakdownByYear = [],
 }: InfracoesClientSideProps) {
-  const totalViolations = overview.totalViolations;
   const availableYears = getAvailableYears(overview);
 
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showViolationFilters, setShowViolationFilters] = useState(false);
   const [showStreetFilters, setShowStreetFilters] = useState(false);
-  const [selectedViolations, setSelectedViolations] = useState<Set<string>>(new Set());
 
-  const toggleViolation = useCallback((code: string) => {
-    setSelectedViolations(prev => {
-      const next = new Set(prev);
-      if (next.has(code)) next.delete(code);
-      else next.add(code);
-      return next;
-    });
-  }, []);
-
-  const dateParams = useCallback((): Record<string, string> => {
-    const params: Record<string, string> = selectedYear === null ? {
-      start_date: overview.periodStart,
-      end_date: overview.periodEnd,
-    } : {
-      start_date: `${selectedYear}-01-01`,
-      end_date: `${selectedYear}-12-31`,
-    };
-    if (selectedViolations.size > 0) {
-      params.violation_codes = Array.from(selectedViolations).join(',');
-    }
-    return params;
-  }, [selectedYear, selectedViolations, overview.periodStart, overview.periodEnd]);
-
-  const fullRangeParams = useMemo((): Record<string, string> => {
-    const params: Record<string, string> = {
-      start_date: overview.periodStart,
-      end_date: overview.periodEnd,
-    };
-    if (selectedViolations.size > 0) {
-      params.violation_codes = Array.from(selectedViolations).join(',');
-    }
-    return params;
-  }, [selectedViolations, overview.periodStart, overview.periodEnd]);
+  const dp = useMemo((): Record<string, string> =>
+    selectedYear !== null
+      ? { start_date: `${selectedYear}-01-01`, end_date: `${selectedYear}-12-31` }
+      : { start_date: overview.periodStart.slice(0, 10), end_date: overview.periodEnd.slice(0, 10) },
+  [selectedYear, overview.periodStart, overview.periodEnd]);
 
   // ─── Bloco 1: Onde Acontecem (ruas + mapa) ──────────────────────
-  const dp = useMemo(() => dateParams(), [dateParams]);
   const {
-    data: streetsGeo,
-    isFetching: loadingStreets,
-    isError: streetsQueryError,
-  } = useQuery(infracoesStreetsAndGeoQueryOptions(dp, categories));
-  const streetsData = streetsGeo?.streetsData ?? [];
-  const geojsonData = streetsGeo?.geojsonData ?? null;
-  const streetsError = streetsQueryError || (!loadingStreets && streetsData.length === 0 && !geojsonData);
+    data: geoData,
+    isFetching: loadingGeo,
+  } = useQuery(infracoesGeoJSONQueryOptions(dp));
+  const geojsonData = geoData;
+  const streetsData: any[] = (geoData?.features ?? []).map((f: any) => f.properties ?? {});
 
-  // ─── Bloco 2: Quando Acontecem (temporal) ────────────────────────
-  const {
-    data: temporalData,
-    isLoading: loadingTemporal,
-  } = useQuery(infracoesTemporalQueryOptions(dp));
+  // ─── Bloco 2: Temporal ── by_year pre-aggregated, detail filtered client-side
+  const temporalData = useMemo(() => {
+    const year = selectedYear;
+    const monthFilter = year !== null
+      ? (temporal.by_month_raw ?? []).filter((m: any) => m.year === year)
+      : (temporal.by_month_raw ?? []);
+    const byMonth: Record<string, number> = {};
+    for (const m of monthFilter) {
+      const key = String(m.month).padStart(2, "0");
+      byMonth[key] = (byMonth[key] ?? 0) + (m.count ?? 0);
+    }
 
-  const { data: fullTemporalData } = useQuery(infracoesTemporalQueryOptions(fullRangeParams));
+    const weekdayFilter = year !== null
+      ? (temporal.by_weekday_raw ?? []).filter((w: any) => w.year === year)
+      : (temporal.by_weekday_raw ?? []);
+    const wl = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+    const byWeekday: Record<string, number> = {};
+    for (const w of weekdayFilter) {
+      const c = w.counts ?? [];
+      for (let i = 0; i < Math.min(c.length, 7); i++) {
+        byWeekday[wl[i]] = (byWeekday[wl[i]] ?? 0) + (c[i] ?? 0);
+      }
+    }
 
-  // ─── Bloco 3: Quem Fiscaliza ─────────────────────────────────────
-  const {
-    data: agentData = [],
-    isLoading: loadingAgents,
-  } = useQuery(infracoesAgentsQueryOptions(dp));
+    const hourFilter = year !== null
+      ? (temporal.by_hour_raw ?? []).filter((h: any) => h.year === year)
+      : (temporal.by_hour_raw ?? []);
+    const byHour: Record<string, number> = {};
+    for (const h of hourFilter) {
+      const c = h.counts ?? [];
+      for (let i = 0; i < Math.min(c.length, 24); i++) {
+        byHour[String(i)] = (byHour[String(i)] ?? 0) + (c[i] ?? 0);
+      }
+    }
 
-  // ─── Bloco 4: Categorias top violations ──────────────────────────
-  const {
-    data: categoryTopData,
-    isLoading: loadingCategories,
-  } = useQuery({
-    ...infracoesCategoryTopQueryOptions(dp, categories),
-    enabled: categories.length > 0,
-  });
+    return {
+      by_year: temporal?.by_year ?? {},
+      by_month: byMonth,
+      by_weekday: byWeekday,
+      by_hour: byHour,
+    };
+  }, [temporal, selectedYear]);
 
-  const categoryTopViolations = categoryTopData?.topViolations ?? {};
-  const categoryTotals = categoryTopData?.categoryTotals ?? {};
+  // ─── Bloco 3: Agentes ─── full range or filtered by year
+  const agentData = useMemo(() => {
+    if (selectedYear === null) return overview.agentBreakdown ?? [];
+    const yearEntry = agentBreakdownByYear.find((e: any) => e.year === selectedYear);
+    return yearEntry?.agents ?? overview.agentBreakdown ?? [];
+  }, [selectedYear, overview.agentBreakdown, agentBreakdownByYear]);
 
-  const effectiveCategories: CategoryItem[] = useMemo(() => {
-    if (Object.keys(categoryTotals).length === 0) return categories;
-    return categories.map((cat) => {
-      const totals = categoryTotals[cat.name];
-      if (!totals) return cat;
-      return { ...cat, totalViolations: totals.totalViolations, codeCount: totals.codeCount };
-    });
-  }, [categories, categoryTotals]);
+  // ─── Bloco 4: Categories ─── full range or filtered by year
+  const { categoryTopViolations, effectiveCategories } = useMemo(() => {
+    const topViolations: Record<string, any[]> = {};
+    const totals: Record<string, { totalViolations: number }> = {};
+
+    if (selectedYear === null) {
+      for (const cat of categoryBreakdown) {
+        topViolations[cat.category] = cat.topViolations ?? [];
+        totals[cat.category] = { totalViolations: cat.total };
+      }
+    } else {
+      const yearEntry = categoryBreakdownByYear.find((e: any) => e.year === selectedYear);
+      const cats = yearEntry?.categories ?? categoryBreakdown;
+      for (const cat of cats) {
+        topViolations[cat.category] = cat.top_violations ?? [];
+        totals[cat.category] = { totalViolations: cat.count ?? 0 };
+      }
+    }
+
+    const effCats = Object.keys(totals).length > 0
+      ? categories.map((cat) => {
+          const t = totals[cat.name];
+          return t ? { ...cat, totalViolations: t.totalViolations } : cat;
+        })
+      : categories;
+
+    return { categoryTopViolations: topViolations, effectiveCategories: effCats };
+  }, [selectedYear, categoryBreakdown, categoryBreakdownByYear, categories]);
 
   const effectiveTotalViolations = useMemo(() => {
     return effectiveCategories.reduce((sum, cat) => sum + cat.totalViolations, 0);
   }, [effectiveCategories]);
 
   // ─── Dados de tabelas ────────────────────────────────────────────
-  const streetTableData = streetsData.map((s: any, i: number) => {
+  const streetsSorted = [...streetsData]
+    .filter((s: any) => s.total_violations > 0)
+    .sort((a: any, b: any) => (b.total_violations ?? 0) - (a.total_violations ?? 0))
+    .slice(0, 100);
+
+  const streetTableData = streetsSorted.map((s: any, i: number) => {
     const tv = s.top_violation;
+    const name = s.street_name ?? s.official_name ?? "";
+    const ruaSlug = name
+      .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return {
       ranking: i + 1,
-      rua: s.official_name,
-      total: s.total_violations?.toLocaleString("pt-BR"),
+      rua: name,
+      rua_slug: ruaSlug,
+      street_code: s.street_code,
+      total: (s.total_violations ?? 0).toLocaleString("pt-BR"),
       total_raw: s.total_violations ?? 0,
-      extensao_km: s.extension_km?.toFixed(1),
-      infracoes_por_km: s.violations_per_km?.toFixed(0),
+      extensao_km: s.extension_km?.toFixed(1) ?? "—",
+      infracoes_por_km: s.violations_per_km?.toFixed(0) ?? "—",
       mais_comum: tv ? `${tv.law_code} — ${tv.description}` : "—",
-      pct_mais_comum: tv ? `${tv.percentage?.toFixed(1)}%` : "—",
     };
   });
 
@@ -366,11 +393,6 @@ export default function InfracoesClientSide({
               Mostrando dados de {selectedYear}. Selecione "Todo o período" para ver dados agregados.
             </p>
           )}
-          {selectedViolations.size > 0 && (
-            <p className="text-center text-xs text-teal-600 mt-2">
-              Filtrando por {selectedViolations.size} infraç{selectedViolations.size === 1 ? 'ão' : 'ões'} selecionada{selectedViolations.size === 1 ? '' : 's'}.
-            </p>
-          )}
         </YearSelector>
       )}
 
@@ -381,63 +403,49 @@ export default function InfracoesClientSide({
         title="Onde Acontecem"
         subtitle="As ruas com maior concentração de infrações no Recife, com a infração mais comum em cada via."
       >
-        <div className={`transition-opacity duration-150 ${loadingStreets ? 'opacity-60' : ''}`}>
-          {streetsError ? (
-            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-              <div className="text-red-400 mb-4">
-                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        <div className={`transition-opacity duration-150 ${loadingGeo ? 'opacity-60' : ''}`}>
+          {geojsonData?.features?.length > 0 ? (
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+              <AmecicloMap
+                layerData={geojsonData}
+                layersConf={layersConf}
+                height="450px"
+                showLayersPanel={false}
+              />
+            </div>
+          ) : (geoData && !loadingGeo) ? (
+            <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
+              <div className="text-gray-400 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">API de infrações indisponível</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Mapa não disponível</h3>
               <p className="text-sm text-gray-500 max-w-md mx-auto">
-                Verifique se o serviço em <code className="bg-gray-100 px-1 rounded">traffic-violations.atlas.ameciclo.org</code> está disponível.
+                Os dados geoespaciais não estão disponíveis para o período selecionado.
               </p>
             </div>
-          ) : (
-            <>
-              {geojsonData?.features?.length > 0 ? (
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-                  <AmecicloMap
-                    layerData={geojsonData}
-                    layersConf={layersConf}
-                    height="450px"
-                    showLayersPanel={false}
-                  />
-                </div>
-              ) : (geojsonData || streetsData.length > 0) ? (
-                <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
-                  <div className="text-gray-400 mb-4">
-                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                        d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Mapa não disponível</h3>
-                  <p className="text-sm text-gray-500 max-w-md mx-auto">
-                    Os dados geoespaciais não estão disponíveis para o período selecionado.
-                  </p>
-                </div>
-              ) : null}
+          ) : null}
 
-              {streetsData.length > 0 && (
-                <CollapsibleTable
-                  title="Ruas com mais infrações"
-                  subtitle={`${streetsData.length} vias encontradas`}
-                  data={streetTableData}
-                  showFilters={showStreetFilters}
-                  setShowFilters={setShowStreetFilters}
-                    columns={[
-                      { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                      { Header: "Rua", accessor: "rua", width: '25%' },
-                      { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
-                      { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                      { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
-                    ]}
-                />
-              )}
-            </>
+          {streetsData.length > 0 && (
+            <CollapsibleTable
+              title="Ruas com mais infrações"
+              subtitle={`${streetsData.length} vias encontradas`}
+              data={streetTableData}
+              showFilters={showStreetFilters}
+              setShowFilters={setShowStreetFilters}
+                columns={[
+                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
+                  { Header: "Rua", accessor: "rua", width: '25%', Cell: ({ value, row }: any) => (
+                    <a href={`/dados/infracoes/rua/${row.original.street_code || row.original.rua_slug || ''}`} className="text-teal-600 hover:underline">{value}</a>
+                  )},
+                  { Header: "Total", accessor: "total_raw", disableFilters: true, width: '10%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
+                  { Header: "Extensão", accessor: "extensao_km", disableFilters: true, width: '10%' },
+                  { Header: "Infrações/km", accessor: "infracoes_por_km", disableFilters: true, width: '10%' },
+                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                ]}
+            />
           )}
         </div>
       </Section>
@@ -449,8 +457,8 @@ export default function InfracoesClientSide({
         title="Quando Acontecem"
         subtitle="Distribuição temporal das infrações ao longo dos anos, meses, dias da semana e horas do dia."
       >
-        <div className={`transition-opacity duration-150 ${loadingTemporal ? 'opacity-60' : ''}`}>
-          {fullTemporalData?.by_year && Object.keys(fullTemporalData.by_year).length > 0 && (
+        <div className="transition-opacity duration-150">
+          {temporalData?.by_year && Object.keys(temporalData.by_year).length > 0 && (
             <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
               <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
                 Evolução Anual{selectedYear ? ` — ${selectedYear}` : ""}
@@ -459,15 +467,14 @@ export default function InfracoesClientSide({
                 title=""
                 xAxisTitle=""
                 yAxisTitle="Infrações"
-                data={Object.entries(fullTemporalData.by_year)
+                data={Object.entries(temporalData.by_year)
                   .sort(([a], [b]) => a.localeCompare(b))
-                  .map(([year, count]) => ({ label: year, count: count as number }))}
+                  .map(([year, count]) => ({ label: year, count }))}
                 xKey="label"
                 yKeys={["count"]}
-                {...(selectedYear
-                  ? { colorByLabel: (label: string) => label === String(selectedYear) ? '#0d9488' : '#d1d5db' }
-                  : { colors: ['#dc2626'] }
-                )}
+                colorByLabel={selectedYear
+                  ? (label: string) => label === String(selectedYear) ? '#dc2626' : '#d1d5db'
+                  : () => '#dc2626'}
               />
             </div>
           )}
@@ -538,7 +545,7 @@ export default function InfracoesClientSide({
         title="Quem Fiscaliza o Quê"
         subtitle="Os dados mostram o que foi fiscalizado, não necessariamente tudo que aconteceu. O perfil do agente revela o viés da base."
       >
-        <div className={`transition-opacity duration-150 ${loadingAgents ? 'opacity-60' : ''}`}>
+        <div className="transition-opacity duration-150">
           {agentData.length > 0 ? (
             <>
               <div className="mb-8">
@@ -600,13 +607,13 @@ export default function InfracoesClientSide({
         title="Infrações por classificação"
         subtitle="As infrações são agrupadas por classificação temática. Clique em um card para ver a análise aprofundada de cada categoria."
       >
-        <div className={`transition-opacity duration-150 ${loadingCategories ? 'opacity-60' : ''}`}>
+        <div className="transition-opacity duration-150">
           {effectiveCategories.length > 0 && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 {effectiveCategories.map((cat) => {
                   const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";
-                  const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
+                  const color = getCategoryColor(cat.name);
                   const topCodes = categoryTopViolations[cat.name] ?? [];
                   return (
                     <Link
@@ -648,7 +655,7 @@ export default function InfracoesClientSide({
                 <div className="flex flex-wrap gap-3 justify-center mb-4">
                   {effectiveCategories.map((cat) => {
                     const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";
-                    const color = CATEGORY_COLORS[cat.name] ?? "#9ca3af";
+                    const color = getCategoryColor(cat.name);
                     return (
                       <div key={cat.name} className="flex items-center gap-2 text-sm">
                         <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: color }} />
@@ -666,7 +673,7 @@ export default function InfracoesClientSide({
                       <div key={cat.name} className="h-full flex items-center justify-center text-white text-xs font-bold"
                         style={{
                           width: `${pct}%`,
-                          backgroundColor: CATEGORY_COLORS[cat.name] ?? "#9ca3af",
+                          backgroundColor: getCategoryColor(cat.name),
                           minWidth: pct > 1 ? "auto" : "0",
                         }}
                         title={`${cat.name}: ${cat.totalViolations.toLocaleString("pt-BR")}`}
@@ -692,31 +699,9 @@ export default function InfracoesClientSide({
           showFilters={showViolationFilters}
           setShowFilters={setShowViolationFilters}
           columns={[
-            {
-              Header: "",
-              accessor: "violation_code",
-              disableFilters: true,
-              disableSortBy: true,
-              width: '4%',
-              Cell: ({ value }: { value: string }) => (
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleViolation(value); }}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                    selectedViolations.has(value)
-                      ? 'bg-teal-600 border-teal-600 text-white'
-                      : 'border-gray-300 hover:border-teal-400'
-                  }`}
-                  title={selectedViolations.has(value) ? "Remover filtro" : "Filtrar por esta infração"}
-                >
-                  {selectedViolations.has(value) && (
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </button>
-              ),
-            },
-            { Header: "Base Legal", accessor: "base_legal", width: '15%' },
+            { Header: "Base Legal", accessor: "base_legal", width: '15%', Cell: ({ value }: { value: string }) => value ? (
+              <a href={`/dados/infracoes/lei/${encodeURIComponent(value)}`} className="text-teal-600 hover:underline">{value}</a>
+            ) : "—" },
             { Header: "Descrição", accessor: "descricao", width: '40%' },
             { Header: "Categoria", accessor: "categoria", Filter: SelectColumnFilter, width: '25%' },
             { Header: "Quantidade", accessor: "count_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },

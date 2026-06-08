@@ -62,17 +62,17 @@ const FEATURED_PAGES = [
     target: "",
   },
   {
-    title: "Orçamento Estadual para o Clima",
+    title: "Orçamento Pernambuco",
     src: "/icons/home/logo2.1d0f07c6.png",
-    url: "/dados/loa",
+    url: "/dados/orcamento-pernambuco",
     description:
-      "Monitoramento do orçamento estadual conforme sua contribuição climática.",
+      "Monitoramento do orçamento de Pernambuco conforme sua contribuição climática.",
     target: "",
   },
   {
-    title: "Orçamento Municipal para o Clima",
+    title: "Orçamento do Recife",
     src: "/icons/home/header-logo.4f44929c.png",
-    url: "/dados/dom",
+    url: "/dados/orcamento-recife",
     description:
       "Monitoramento do orçamento municipal conforme sua contribuição climática.",
     target: "",
@@ -87,11 +87,11 @@ const FEATURED_PAGES = [
     comingSoon: true,
   },
   {
-    title: "Chamados de Sinistros",
+    title: "Chamados de Emergência",
     src: "/icons/home/chamados_sinistros.svg",
-    url: "/dados/samu",
+    url: "/dados/chamados-emergencia",
     description:
-      "Detalhamento dos dados de chamados de sinistros pela SAMU.",
+      "Detalhamento dos chamados de emergência relacionados a sinistros de trânsito na Região Metropolitana do Recife.",
     target: "",
   },
   {
@@ -99,7 +99,7 @@ const FEATURED_PAGES = [
     src: "/icons/home/vias-inseguras.svg",
     url: "/dados/vias-inseguras",
     description:
-      "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+      "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados de chamados de emergência.",
     target: "",
   },
   {

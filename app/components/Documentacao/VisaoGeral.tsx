@@ -38,7 +38,7 @@ export default function VisaoGeral({ searchTerm, setSearchTerm, searchResults, s
         <p className="mb-4" style={{ fontSize: fontSize }}>
           A plataforma integra múltiplas fontes de dados (APIs externas, CMS Strapi, dados estáticos) e oferece:
           visualizações interativas com mapas (Mapbox), gráficos (Highcharts), calendários (FullCalendar),
-          observatórios especializados (Ideciclo, Sinistros Fatais, Vias Inseguras, SAMU, CicloDados),
+          observatórios especializados (Ideciclo, Sinistros Fatais, Vias Inseguras, Chamados de Emergência, CicloDados),
           sistema de contagens de ciclistas, documentos públicos, projetos da organização e ferramentas de acessibilidade.
         </p>
         <div className={`${darkMode ? 'bg-blue-900/30 border-blue-500/30' : 'bg-blue-50 border-blue-200'} border rounded-lg p-4 mb-6`}>

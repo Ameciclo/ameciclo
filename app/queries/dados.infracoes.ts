@@ -9,106 +9,169 @@ import {
   TRAFFIC_VIOLATIONS_TEMPORAL,
   TRAFFIC_VIOLATIONS_AGENT_ANALYSIS,
   TRAFFIC_VIOLATIONS_GEOJSON,
+  TRAFFIC_VIOLATIONS_CATEGORIES_DETAIL,
+  TRAFFIC_VIOLATIONS_CATEGORY_PAGE,
+  TRAFFIC_VIOLATIONS_LAW,
+  TRAFFIC_VIOLATIONS_STREET,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
 import { makeApiErrorTracker } from "~/services/apiTracking";
 
 const fetchInfracoesInitial = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
+  try {
+    const tracker = makeApiErrorTracker();
 
-  const [overviewRaw, codesRaw, categoriesRaw] = await Promise.all([
-    cmsFetch<any>(TRAFFIC_VIOLATIONS_OVERVIEW, {
-      ttl: 300,
-      timeout: 10000,
-      fallback: null,
-      onError: tracker.at(TRAFFIC_VIOLATIONS_OVERVIEW),
-    }),
-    cmsFetch<any>(TRAFFIC_VIOLATIONS_CODES, {
-      ttl: 600,
-      timeout: 10000,
-      fallback: null,
-      onError: tracker.at(TRAFFIC_VIOLATIONS_CODES),
-    }),
-    cmsFetch<any>(TRAFFIC_VIOLATIONS_CATEGORIES, {
-      ttl: 600,
-      timeout: 10000,
-      fallback: null,
-      onError: tracker.at(TRAFFIC_VIOLATIONS_CATEGORIES),
-    }),
-  ]);
+    const [overviewRaw, codesRaw, categoriesRaw] = await Promise.all([
+      cmsFetch<any>(TRAFFIC_VIOLATIONS_OVERVIEW, {
+        ttl: 300,
+        timeout: 10000,
+        fallback: null,
+        onError: tracker.at(TRAFFIC_VIOLATIONS_OVERVIEW),
+      }),
+      cmsFetch<any>(TRAFFIC_VIOLATIONS_CODES, {
+        ttl: 600,
+        timeout: 10000,
+        fallback: null,
+        onError: tracker.at(TRAFFIC_VIOLATIONS_CODES),
+      }),
+      cmsFetch<any>(TRAFFIC_VIOLATIONS_CATEGORIES, {
+        ttl: 600,
+        timeout: 10000,
+        fallback: null,
+        onError: tracker.at(TRAFFIC_VIOLATIONS_CATEGORIES),
+      }),
+    ]);
 
-  if (!overviewRaw || !codesRaw) {
-    throw new Error(
-      "Não foi possível carregar os dados de infrações de trânsito. " +
-      "Verifique se o serviço de backend está disponível e tente novamente."
-    );
-  }
+    const safeOverview = overviewRaw ?? {};
+    const safeCodes = codesRaw ?? {};
+    const safeCategories = categoriesRaw ?? {};
 
-  const overview = {
-    totalViolations: overviewRaw.total_violations ?? 0,
-    periodStart: overviewRaw.period_start ?? "",
-    periodEnd: overviewRaw.period_end ?? "",
-    violationTypesCount: overviewRaw.violation_types_count ?? 0,
-    lawCodesCount: overviewRaw.law_codes_count ?? 0,
-    streetsCount: overviewRaw.streets_count ?? 0,
-    neighborhoodsCount: overviewRaw.neighborhoods_count ?? 0,
-    agentBreakdown: (overviewRaw.agent_breakdown ?? []).map((a: any) => ({
+    const agentBreakdown = (safeOverview.agent_breakdown ?? []).map((a: any) => ({
       agentId: a.agent_id,
       description: a.description ?? "",
       count: a.count ?? 0,
       percentage: a.percentage ?? 0,
       category: a.category ?? "manual",
-    })),
-  };
+      top_violations: (a.top_violations ?? []).map((v: any) => ({
+        violation_code: v.violation_code ?? "",
+        law_code: v.law_code ?? "",
+        description: v.description ?? "",
+        count: v.count ?? 0,
+      })),
+    }));
+    const overview = {
+      totalViolations: safeOverview.total_violations ?? 0,
+      periodStart: safeOverview.period_start ?? "",
+      periodEnd: safeOverview.period_end ?? "",
+      violationTypesCount: safeOverview.violation_types_count ?? 0,
+      lawCodesCount: safeOverview.law_codes_count ?? 0,
+      streetsCount: safeOverview.streets_count ?? 0,
+      neighborhoodsCount: safeOverview.neighborhoods_count ?? 0,
+      agentBreakdown,
+    };
 
-  const electronicPct = overview.agentBreakdown
-    .filter((a: any) => a.category === "eletronico")
-    .reduce((sum: number, a: any) => sum + a.percentage, 0);
+    const electronicPct = agentBreakdown
+      .filter((a: any) => a.category === "eletronico")
+      .reduce((sum: number, a: any) => sum + a.percentage, 0);
 
-  const violationCodes = (codesRaw.codes ?? []).map((c: any) => ({
-    code: c.violation_code ?? "",
-    lawCode: c.law_code ?? "",
-    description: c.description ?? "",
-    count: c.count ?? 0,
-    category: c.category ?? "",
-  }));
+    const violationCodes = (safeCodes.codes ?? []).map((c: any) => ({
+      code: c.violation_code ?? "",
+      lawCode: c.law_code ?? "",
+      description: c.description ?? "",
+      count: c.count ?? 0,
+      category: c.category ?? "",
+    }));
 
-  const categories = (categoriesRaw?.categories ?? []).map((c: any) => ({
-    name: c.category ?? "",
-    codeCount: c.code_count ?? 0,
-    totalViolations: c.total_violations ?? 0,
-  }));
+    const categories = (safeCategories.categories ?? []).map((c: any) => ({
+      name: c.category ?? "",
+      codeCount: c.code_count ?? 0,
+      totalViolations: c.total_violations ?? 0,
+    }));
 
-  const statisticsBoxes = [
-    {
-      title: "Total de infrações",
-      value: overview.totalViolations.toLocaleString("pt-BR"),
-      unit: `${overview.periodStart} a ${overview.periodEnd}`,
-    },
-    {
-      title: "Tipos de infração",
-      value: overview.violationTypesCount.toLocaleString("pt-BR"),
-      unit: `${overview.lawCodesCount} artigos do CTB`,
-    },
-    {
-      title: "Ruas com registros",
-      value: overview.streetsCount.toLocaleString("pt-BR"),
-      unit: "logradouros",
-    },
-    {
-      title: "Fiscalização eletrônica",
-      value: `${electronicPct.toFixed(1)}%`,
-      unit: "das autuações",
-    },
-  ];
+    // Temporal from overview.evolution — by_year pre-aggregated, others raw for client-side filtering
+    const evo = safeOverview.evolution ?? {};
+    const byYear: Record<string, number> = {};
+    for (const item of evo.by_year ?? []) {
+      if (item.year) byYear[String(item.year)] = item.count ?? 0;
+    }
+    const temporal = {
+      by_year: byYear,
+      by_month_raw: evo.by_month ?? [],
+      by_weekday_raw: evo.by_weekday ?? [],
+      by_hour_raw: evo.by_hour ?? [],
+    };
 
-  return {
-    overview,
-    violationCodes,
-    categories,
-    statisticsBoxes,
-    ...tracker.summary(),
-  };
+    // Category breakdown from overview (replaces client-side /categories-detail)
+    const categoryBreakdown = (safeOverview.category_breakdown ?? []).map((c: any) => ({
+      category: c.category ?? "",
+      total: c.count ?? 0,
+      percentage: c.percentage ?? 0,
+      topViolations: (c.top_violations ?? []).map((v: any) => ({
+        violation_code: v.violation_code ?? "",
+        law_code: v.law_code ?? "",
+        description: v.description ?? "",
+        count: v.count ?? 0,
+      })),
+    }));
+
+    const fmtDate = (d: string) => {
+      const parts = (d ?? "").slice(0, 10).split("-");
+      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
+    };
+
+    const statisticsBoxes = [
+      {
+        title: "Total de infrações",
+        value: overview.totalViolations.toLocaleString("pt-BR"),
+        unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
+      },
+      {
+        title: "Tipos de infração",
+        value: overview.violationTypesCount.toLocaleString("pt-BR"),
+        unit: `${overview.lawCodesCount} artigos do CTB`,
+      },
+      {
+        title: "Ruas com registros",
+        value: overview.streetsCount.toLocaleString("pt-BR"),
+        unit: "logradouros",
+      },
+      {
+        title: "Fiscalização eletrônica",
+        value: `${electronicPct.toFixed(1)}%`,
+        unit: "das autuações",
+      },
+    ];
+
+    return {
+      overview,
+      violationCodes,
+      categories,
+      statisticsBoxes,
+      temporal,
+      categoryBreakdown,
+      agentBreakdownByYear: safeOverview.agent_breakdown_by_year ?? [],
+      categoryBreakdownByYear: safeOverview.category_breakdown_by_year ?? [],
+      ...tracker.summary(),
+    };
+  } catch (e) {
+    console.error("fetchInfracoesInitial failed:", e);
+    return {
+      overview: {
+        totalViolations: 0, periodStart: "", periodEnd: "",
+        violationTypesCount: 0, lawCodesCount: 0, streetsCount: 0, neighborhoodsCount: 0,
+        agentBreakdown: [],
+      },
+      violationCodes: [],
+      categories: [],
+      statisticsBoxes: [],
+      temporal: { by_year: {}, by_month_raw: [], by_weekday_raw: [], by_hour_raw: [] },
+      categoryBreakdown: [],
+      agentBreakdownByYear: [],
+      categoryBreakdownByYear: [],
+      apiDown: true,
+      apiErrors: [{ url: "SSR", error: String(e) }],
+    };
+  }
 });
 
 export const infracoesQueryOptions = () =>
@@ -129,9 +192,15 @@ function buildUrl(base: string, params: Record<string, string>): string {
 }
 
 async function fetchJson(url: string) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 20000);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } finally {
+    clearTimeout(id);
+  }
 }
 
 interface CategoryItem {
@@ -140,56 +209,47 @@ interface CategoryItem {
   totalViolations: number;
 }
 
-// ─── Streets + GeoJSON ──────────────────────────────────────────────
+// ─── Top streets (single call, no per-category) ──────────────────────
 
-async function fetchInfracoesStreetsAndGeo(
-  params: Record<string, string>,
-  categories: CategoryItem[],
-) {
-  const streetFetches = categories.length > 0
-    ? categories
-      .filter((c) => c.name !== "Outras/não classificadas")
-      .map((cat) =>
-        fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...params, category: cat.name, limit: "25" }))
-          .catch((e) => { console.error(`Falha top-streets (${cat.name}):`, e); return { streets: [] }; })
-      )
-    : [fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...params, limit: "100" }))
-        .catch((e) => { console.error("Falha top-streets:", e); return { streets: [] }; })];
-
-  const results = await Promise.all([
-    ...streetFetches,
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...params, limit: "100" })).catch((e) => { console.error("Falha geojson:", e); return null; }),
-  ]);
-
-  const geo = results[results.length - 1];
-  const streetResults = results.slice(0, -1) as Array<{ streets: any[] }>;
-
-  const streetMap = new Map<string, any>();
-  for (const r of streetResults) {
-    for (const s of r.streets ?? []) {
-      const key = s.official_name;
-      const existing = streetMap.get(key);
-      if (existing) {
-        existing.total_violations += s.total_violations ?? 0;
-      } else {
-        streetMap.set(key, { ...s });
-      }
-    }
-  }
-  const merged = Array.from(streetMap.values())
-    .sort((a, b) => (b.total_violations ?? 0) - (a.total_violations ?? 0))
-    .slice(0, 100);
-
-  return { streetsData: merged, geojsonData: geo ?? null };
+async function fetchTopStreets(params: Record<string, string>) {
+  const url = buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...params, limit: "100" });
+  return fetchJson(url).catch(() => ({ streets: [] }));
 }
 
-export const infracoesStreetsAndGeoQueryOptions = (
-  params: Record<string, string>,
-  categories: CategoryItem[],
-) =>
+export const infracoesTopStreetsQueryOptions = (params: Record<string, string>) =>
   queryOptions({
-    queryKey: ["infracoes", "streets-geo", params],
-    queryFn: () => fetchInfracoesStreetsAndGeo(params, categories),
+    queryKey: ["infracoes", "top-streets", params],
+    queryFn: () => fetchTopStreets(params),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
+
+// ─── GeoJSON (single call) ────────────────────────────────────────────
+
+async function fetchGeoJSON(params: Record<string, string>) {
+  const url = buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...params, limit: "100", simplify_tolerance: "0.0005" });
+  return fetchJson(url).catch(() => null);
+}
+
+export const infracoesGeoJSONQueryOptions = (params: Record<string, string>) =>
+  queryOptions({
+    queryKey: ["infracoes", "geojson", params],
+    queryFn: () => fetchGeoJSON(params),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
+
+// ─── Categories detail (replaces per-category top-violations) ────────
+
+async function fetchCategoriesDetail(params: Record<string, string>) {
+  const url = buildUrl(TRAFFIC_VIOLATIONS_CATEGORIES_DETAIL, { ...params, violation_limit: "5" });
+  return fetchJson(url).catch(() => null);
+}
+
+export const infracoesCategoriesDetailQueryOptions = (params: Record<string, string>) =>
+  queryOptions({
+    queryKey: ["infracoes", "categories-detail", params],
+    queryFn: () => fetchCategoriesDetail(params),
     staleTime: 5 * 60 * 1000,
     placeholderData: (prev: any) => prev,
   });
@@ -197,7 +257,7 @@ export const infracoesStreetsAndGeoQueryOptions = (
 // ─── Temporal ───────────────────────────────────────────────────────
 
 async function fetchInfracoesTemporal(params: Record<string, string>) {
-  return fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, params));
+  return fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, params)).catch(() => null);
 }
 
 export const infracoesTemporalQueryOptions = (params: Record<string, string>) =>
@@ -222,8 +282,8 @@ export const infracoesTemporalCategoryQueryOptions = (
 // ─── Agent Analysis ─────────────────────────────────────────────────
 
 async function fetchInfracoesAgents(params: Record<string, string>) {
-  const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, params));
-  return data.agents ?? [];
+  const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, params)).catch(() => null);
+  return data?.agents ?? [];
 }
 
 export const infracoesAgentsQueryOptions = (params: Record<string, string>) =>
@@ -234,89 +294,31 @@ export const infracoesAgentsQueryOptions = (params: Record<string, string>) =>
     placeholderData: (prev: any) => prev,
   });
 
-// ─── Category Top Violations ────────────────────────────────────────
+// ─── Category Page Data (single endpoint) ──────────────────────────
 
-interface CategoryTopResult {
-  topViolations: Record<string, any[]>;
-  categoryTotals: Record<string, { totalViolations: number; codeCount: number }>;
-}
-
-async function fetchInfracoesCategoryTop(
-  params: Record<string, string>,
-  categories: CategoryItem[],
-): Promise<CategoryTopResult> {
-  const results = await Promise.all(
-    categories
-      .filter((c) => c.name !== "Outras/não classificadas")
-      .map(async (cat) => {
-        try {
-          const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...params, category: cat.name, limit: "5" }));
-          return {
-            key: cat.name,
-            violations: data.violations ?? [],
-            total: data.total ?? 0,
-            violationsCount: data.violations_count ?? 0,
-          };
-        } catch {
-          return { key: cat.name, violations: [], total: 0, violationsCount: 0 };
-        }
-      })
-  );
-
-  const topViolations: Record<string, any[]> = {};
-  const categoryTotals: Record<string, { totalViolations: number; codeCount: number }> = {};
-
-  for (const r of results) {
-    topViolations[r.key] = r.violations;
-    categoryTotals[r.key] = { totalViolations: r.total, codeCount: r.violationsCount };
-  }
-
-  return { topViolations, categoryTotals };
-}
-
-export const infracoesCategoryTopQueryOptions = (
-  params: Record<string, string>,
-  categories: CategoryItem[],
-) =>
-  queryOptions({
-    queryKey: ["infracoes", "category-top", params],
-    queryFn: () => fetchInfracoesCategoryTop(params, categories),
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (prev: any) => prev,
-  });
-
-// ─── Category Page Data (single category) ─────────────────────────
-
-interface CategoryPageData {
-  topViolations: any[];
-  topStreets: any[];
-  temporal: any;
-  agentAnalysis: any[];
-  geojson: any;
-}
-
-async function fetchInfracoesCategoryPage(
+async function fetchCategoryPage(
   params: Record<string, string>,
   categoryName: string,
-): Promise<CategoryPageData> {
-  const [topV, topS, temporal, agents, geo] = await Promise.all([
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP, { ...params, category: categoryName, limit: "20" }))
-      .catch(() => ({ violations: [] })),
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...params, category: categoryName, limit: "20" }))
-      .catch(() => ({ streets: [] })),
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, { ...params, category: categoryName }))
-      .catch(() => ({})),
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, { ...params, category: categoryName }))
-      .catch(() => ({ agents: [] })),
-    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...params, category: categoryName, limit: "100" }))
+) {
+  const slug = categoryName
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  const [categoryData, geo] = await Promise.all([
+    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_CATEGORY_PAGE(slug), { ...params, limit: "20" }))
+      .catch(() => null),
+    fetchJson(buildUrl(TRAFFIC_VIOLATIONS_GEOJSON, { ...params, category: categoryName, limit: "100", simplify_tolerance: "0.0005" }))
       .catch(() => null),
   ]);
 
   return {
-    topViolations: (topV as any).violations ?? [],
-    topStreets: (topS as any).streets ?? [],
-    temporal: temporal ?? {},
-    agentAnalysis: (agents as any).agents ?? [],
+    topViolations: categoryData?.top_violations ?? [],
+    topStreets: categoryData?.top_streets ?? [],
+    temporal: categoryData?.temporal ?? {},
+    agentAnalysis: categoryData?.agents ?? [],
     geojson: geo,
   };
 }
@@ -327,7 +329,7 @@ export const infracoesCategoryPageQueryOptions = (
 ) =>
   queryOptions({
     queryKey: ["infracoes", "category-page", categoryName, params],
-    queryFn: () => fetchInfracoesCategoryPage(params, categoryName),
+    queryFn: () => fetchCategoryPage(params, categoryName),
     staleTime: 5 * 60 * 1000,
     placeholderData: (prev: any) => prev,
   });
