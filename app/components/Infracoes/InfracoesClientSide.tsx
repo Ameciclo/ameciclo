@@ -566,7 +566,7 @@ export default function InfracoesClientSide({
                       xAxisTitle=""
                       yAxisTitle=""
                       data={Object.entries(temporalData.by_hour)
-                        .sort(([a], [b]) => a.localeCompare(b))
+                        .sort(([a], [b]) => Number(a) - Number(b))
                         .map(([hour, count]) => ({ label: `${hour}h`, count: count as number }))}
                       xKey="label"
                       yKeys={["count"]}
