@@ -37,7 +37,7 @@ function InfracoesPage() {
       <Banner image="/pages_covers/infracoes.png" alt="Infrações" />
       <Breadcrumb label="Observatório de Infrações" slug="/dados/infracoes" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={apiDown} />
-      <StatisticsBox title="Observatório" subtitle="Visão geral" boxes={statisticsBoxes} />
+      <StatisticsBox title="Observatório de Infrações de Trânsito" subtitle="Estatísticas gerais" boxes={statisticsBoxes} />
       <ExplanationBoxes
         boxes={[
           {

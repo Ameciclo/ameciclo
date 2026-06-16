@@ -5,7 +5,6 @@ import { cmsFetch } from "~/services/cmsFetch";
 import {
   VIAS_INSEGURAS_HISTORY_V2,
   VIAS_INSEGURAS_MAP,
-  VIAS_INSEGURAS_SEARCH,
   VIAS_INSEGURAS_STREET_SUMMARY,
 } from "~/servers";
 
@@ -84,13 +83,13 @@ const fetchViaSinistrosData = async (viaName: string) => {
   const names = tryNames(viaName);
   const aliases = STREET_NAME_ALIASES[viaName] || [];
   for (const name of [...names, ...aliases]) {
-    const url = `${VIAS_INSEGURAS_SEARCH}?street=${encodeURIComponent(name)}&limit=9999&includeGeom=false`;
+    const url = `${VIAS_INSEGURAS_STREET_SUMMARY}/${encodeURIComponent(name)}/records?limit=1000`;
     const data = await cmsFetch<any>(url, {
       ttl: 300,
       timeout: 15000,
       fallback: null,
     });
-    if (data?.sinistros?.length > 0) return data;
+    if (data?.records?.length > 0) return data;
   }
   return null;
 };

@@ -66,21 +66,17 @@ export const VIAS_INSEGURAS_STREET_SUMMARY = `${SAMU_ATLAS_BASE}/v2/unsafe-stree
 
 // Traffic Violations — Observatório de Infrações de Trânsito
 export const TRAFFIC_VIOLATIONS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
-export const TRAFFIC_VIOLATIONS_OVERVIEW = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/overview`
-export const TRAFFIC_VIOLATIONS_TOP = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-violations`
-export const TRAFFIC_VIOLATIONS_TOP_STREETS = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/top-streets`
-export const TRAFFIC_VIOLATIONS_TEMPORAL = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/temporal`
-export const TRAFFIC_VIOLATIONS_AGENT_ANALYSIS = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/agent-analysis`
-export const TRAFFIC_VIOLATIONS_CODES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/violation-codes`
-export const TRAFFIC_VIOLATIONS_CATEGORIES = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/categories`
+export const TRAFFIC_VIOLATIONS_OVERVIEW = `${TRAFFIC_VIOLATIONS_BASE}/v1/overview`
+export const TRAFFIC_VIOLATIONS_TEMPORAL = `${TRAFFIC_VIOLATIONS_BASE}/v1/temporal`
+export const TRAFFIC_VIOLATIONS_CODES = `${TRAFFIC_VIOLATIONS_BASE}/v1/violation-codes`
+export const TRAFFIC_VIOLATIONS_CATEGORIES = `${TRAFFIC_VIOLATIONS_BASE}/v1/categories`
 export const TRAFFIC_VIOLATIONS_GEOJSON = `${TRAFFIC_VIOLATIONS_BASE}/v1/streets/geojson`
-export const TRAFFIC_VIOLATIONS_CATEGORIES_DETAIL = `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/categories-detail`
 export const TRAFFIC_VIOLATIONS_CATEGORY_PAGE = (slug: string) =>
-  `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/category/${encodeURIComponent(slug)}`
+  `${TRAFFIC_VIOLATIONS_BASE}/v1/category/${encodeURIComponent(slug)}`
 export const TRAFFIC_VIOLATIONS_LAW = (article: string) =>
-  `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/law/${encodeURIComponent(article)}`
+  `${TRAFFIC_VIOLATIONS_BASE}/v1/law/${encodeURIComponent(article)}`
 export const TRAFFIC_VIOLATIONS_STREET = (identifier: string) =>
-  `${TRAFFIC_VIOLATIONS_BASE}/v1/dashboard/street/${encodeURIComponent(identifier)}`
+  `${TRAFFIC_VIOLATIONS_BASE}/v1/street/${encodeURIComponent(identifier)}`
 
 // OpenRouteService — external routing API
 export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2/directions/cycling-regular`

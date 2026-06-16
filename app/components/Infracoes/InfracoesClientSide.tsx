@@ -206,19 +206,40 @@ export default function InfracoesClientSide({
   const [showViolationFilters, setShowViolationFilters] = useState(false);
   const [showStreetFilters, setShowStreetFilters] = useState(false);
 
-  const dp = useMemo((): Record<string, string> =>
-    selectedYear !== null
-      ? { start_date: `${selectedYear}-01-01`, end_date: `${selectedYear}-12-31` }
-      : { start_date: overview.periodStart.slice(0, 10), end_date: overview.periodEnd.slice(0, 10) },
-  [selectedYear, overview.periodStart, overview.periodEnd]);
-
   // ─── Bloco 1: Onde Acontecem (ruas + mapa) ──────────────────────
   const {
     data: geoData,
     isFetching: loadingGeo,
-  } = useQuery(infracoesGeoJSONQueryOptions(dp));
-  const geojsonData = geoData;
-  const streetsData: any[] = (geoData?.features ?? []).map((f: any) => f.properties ?? {});
+  } = useQuery(infracoesGeoJSONQueryOptions({}));
+
+  const { geojsonData, streetsData } = useMemo(() => {
+    const features = geoData?.features ?? [];
+    if (selectedYear === null) {
+      return {
+        geojsonData: geoData,
+        streetsData: features.map((f: any) => f.properties ?? {}),
+      };
+    }
+    const yearStr = String(selectedYear);
+    const mapped = features
+      .map((f: any) => {
+        const props = f.properties ?? {};
+        const yearCount = props.by_year?.[yearStr] ?? 0;
+        return {
+          ...f,
+          properties: {
+            ...props,
+            total_violations: yearCount,
+            violations_per_km: props.extension_km ? yearCount / props.extension_km : 0,
+          },
+        };
+      })
+      .filter((f: any) => f.properties.total_violations > 0);
+    return {
+      geojsonData: mapped.length > 0 ? { ...geoData, features: mapped } : null,
+      streetsData: mapped.map((f: any) => f.properties),
+    };
+  }, [geoData, selectedYear]);
 
   // ─── Bloco 2: Temporal ── by_year pre-aggregated, detail filtered client-side
   const temporalData = useMemo(() => {
@@ -309,48 +330,39 @@ export default function InfracoesClientSide({
     .sort((a: any, b: any) => (b.total_violations ?? 0) - (a.total_violations ?? 0))
     .slice(0, 100);
 
+  const totalStreetViolations = streetsSorted.reduce((sum: number, s: any) => sum + (s.total_violations ?? 0), 0);
+
   const streetTableData = streetsSorted.map((s: any, i: number) => {
-    const tv = s.top_violation;
     const name = s.street_name ?? s.official_name ?? "";
     const ruaSlug = name
       .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const total = s.total_violations ?? 0;
+    const tv = s.top_violation;
     return {
       ranking: i + 1,
       rua: name,
       rua_slug: ruaSlug,
       street_code: s.street_code,
-      total: (s.total_violations ?? 0).toLocaleString("pt-BR"),
-      total_raw: s.total_violations ?? 0,
+      total_raw: total,
       extensao_km: s.extension_km?.toFixed(1) ?? "—",
-      infracoes_por_km: s.violations_per_km?.toFixed(0) ?? "—",
-      mais_comum: tv ? `${tv.law_code} — ${tv.description}` : "—",
+      pct_total: totalStreetViolations > 0 ? `${((total / totalStreetViolations) * 100).toFixed(1)}%` : "—",
+      principal_infracao: tv?.description ?? "—",
+      pct_via: tv?.percentage != null ? `${tv.percentage.toFixed(1)}%` : "—",
     };
   });
 
   const violationTableData = violationCodes.map((v) => ({
-    violation_code: v.code,
     base_legal: v.lawCode,
     descricao: v.description,
     categoria: v.category || "Não classificada",
     count_raw: v.count,
   }));
 
+  const colorBreakpoints = { r1: 5000, r2: 10000, r3: 15000 };
+
   const layersConf: LayerProps[] = useMemo(() => {
-    const features = geojsonData?.features;
-    if (!features?.length) return [];
-
-    const values = features
-      .map((f: any) => f.properties?.total_violations ?? 0)
-      .filter((v: number) => v > 0)
-      .sort((a: number, b: number) => a - b);
-
-    const n = values.length;
-    if (n === 0) return [];
-
-    const q1 = values[Math.floor(n * 0.25)];
-    const q2 = values[Math.floor(n * 0.50)];
-    const q3 = values[Math.floor(n * 0.75)];
+    const { r1, r2, r3 } = colorBreakpoints;
 
     return [{
       id: "infracoes-linhas",
@@ -361,24 +373,56 @@ export default function InfracoesClientSide({
           ["linear"],
           ["get", "total_violations"],
           0, "#FEF3C7",
-          q1, "#F59E0B",
-          q2, "#DC2626",
-          q3, "#7F1D1D",
+          r1, "#F59E0B",
+          r2, "#DC2626",
+          r3, "#7F1D1D",
         ],
         "line-width": [
           "interpolate",
           ["linear"],
           ["get", "total_violations"],
           0, 2,
-          q1, 3,
-          q2, 5,
-          q3, 8,
+          r1, 3,
+          r2, 5,
+          r3, 8,
         ],
         "line-opacity": 0.7,
       },
       layout: {},
     }];
-  }, [geojsonData]);
+  }, []);
+
+  function fmt(n: number): string {
+    return n.toLocaleString("pt-BR");
+  }
+
+  const mapLegend = useMemo(() => {
+    const { r1, r2, r3 } = colorBreakpoints;
+
+    const bands = [
+      { color: "#FEF3C7", label: `0 – ${fmt(r1)}` },
+      { color: "#F59E0B", label: `${fmt(r1)} – ${fmt(r2)}` },
+      { color: "#DC2626", label: `${fmt(r2)} – ${fmt(r3)}` },
+      { color: "#7F1D1D", label: `${fmt(r3)}+` },
+    ];
+
+    return (
+      <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-3 z-10 max-w-[180px]">
+        <h3 className="text-xs font-bold text-gray-700 mb-2 text-center">Infrações por via</h3>
+        <div className="flex flex-col gap-1.5">
+          {bands.map((band, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div
+                className="w-6 h-1.5 rounded-sm shrink-0"
+                style={{ backgroundColor: band.color }}
+              />
+              <span className="text-xs text-gray-600">{band.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }, []);
 
   return (
     <div className="pb-16">
@@ -400,18 +444,19 @@ export default function InfracoesClientSide({
           BLOCO 1 — Onde Acontecem
           ═══════════════════════════════════════════════════════════════ */}
       <Section
-        title="Onde Acontecem"
+        title={`Onde Acontecem${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="As ruas com maior concentração de infrações no Recife, com a infração mais comum em cada via."
       >
         <div className={`transition-opacity duration-150 ${loadingGeo ? 'opacity-60' : ''}`}>
           {geojsonData?.features?.length > 0 ? (
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8 relative">
               <AmecicloMap
                 layerData={geojsonData}
                 layersConf={layersConf}
                 height="450px"
                 showLayersPanel={false}
               />
+              {mapLegend}
             </div>
           ) : (geoData && !loadingGeo) ? (
             <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
@@ -431,19 +476,20 @@ export default function InfracoesClientSide({
           {streetsData.length > 0 && (
             <CollapsibleTable
               title="Ruas com mais infrações"
-              subtitle={`${streetsData.length} vias encontradas`}
+              subtitle={`Top ${streetTableData.length} vias${selectedYear ? ` em ${selectedYear}` : ""}`}
               data={streetTableData}
               showFilters={showStreetFilters}
               setShowFilters={setShowStreetFilters}
                 columns={[
-                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                  { Header: "Rua", accessor: "rua", width: '25%', Cell: ({ value, row }: any) => (
-                    <a href={`/dados/infracoes/rua/${row.original.street_code || row.original.rua_slug || ''}`} className="text-teal-600 hover:underline">{value}</a>
+                  { Header: "#", accessor: "ranking", disableFilters: true, width: '4%' },
+                  { Header: "Rua", accessor: "rua", width: '28%', Cell: ({ value, row }: any) => (
+                    <a href={`/dados/infracoes/rua/${row.original.street_code || ''}-${row.original.rua_slug || ''}`} className="text-teal-600 hover:underline">{value}</a>
                   )},
-                  { Header: "Total", accessor: "total_raw", disableFilters: true, width: '10%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
                   { Header: "Extensão", accessor: "extensao_km", disableFilters: true, width: '10%' },
-                  { Header: "Infrações/km", accessor: "infracoes_por_km", disableFilters: true, width: '10%' },
-                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
+                  { Header: "Total", accessor: "total_raw", disableFilters: true, width: '10%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
+                  { Header: "% do Total", accessor: "pct_total", disableFilters: true, width: '10%' },
+                  { Header: "Principal Infração", accessor: "principal_infracao", width: '28%' },
+                  { Header: "% da Via", accessor: "pct_via", disableFilters: true, width: '10%' },
                 ]}
             />
           )}
@@ -454,7 +500,7 @@ export default function InfracoesClientSide({
           BLOCO 2 — Quando Acontecem
           ═══════════════════════════════════════════════════════════════ */}
       <Section
-        title="Quando Acontecem"
+        title={`Quando Acontecem${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="Distribuição temporal das infrações ao longo dos anos, meses, dias da semana e horas do dia."
       >
         <div className="transition-opacity duration-150">
@@ -542,7 +588,7 @@ export default function InfracoesClientSide({
           BLOCO 3 — Quem Fiscaliza o Quê
           ═══════════════════════════════════════════════════════════════ */}
       <Section
-        title="Quem Fiscaliza o Quê"
+        title={`Quem Fiscaliza o Quê${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="Os dados mostram o que foi fiscalizado, não necessariamente tudo que aconteceu. O perfil do agente revela o viés da base."
       >
         <div className="transition-opacity duration-150">
@@ -572,16 +618,16 @@ export default function InfracoesClientSide({
                       </div>
                     </div>
                     <div className="mb-4">
-                      <p className="text-3xl font-bold text-ameciclo">{agent.total?.toLocaleString("pt-BR")}</p>
+                      <p className="text-3xl font-bold text-ameciclo">{agent.count?.toLocaleString("pt-BR")}</p>
                       <p className="text-sm text-gray-500">{agent.percentage?.toFixed(1)}% das autuações</p>
                     </div>
                     {agent.top_violations?.length > 0 && (
                       <div>
                         <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
                         <ul className="space-y-1">
-                          {agent.top_violations.slice(0, 5).map((v: any) => (
-                            <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
-                              <span className="truncate mr-2">{v.law_code} — {v.description}</span>
+                          {agent.top_violations.slice(0, 5).map((v: any, i: number) => (
+                            <li key={`${v.law_code}-${i}`} className="text-sm text-gray-700 flex justify-between">
+                              <span className="truncate mr-2">{v.law_code ? `${v.law_code} — ` : ""}{v.description}</span>
                               <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
                             </li>
                           ))}
@@ -604,7 +650,7 @@ export default function InfracoesClientSide({
           BLOCO 4 — Categorias de Segurança
           ═══════════════════════════════════════════════════════════════ */}
       <Section
-        title="Infrações por classificação"
+        title={`Infrações por classificação${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="As infrações são agrupadas por classificação temática. Clique em um card para ver a análise aprofundada de cada categoria."
       >
         <div className="transition-opacity duration-150">
@@ -634,9 +680,9 @@ export default function InfracoesClientSide({
                         <div className="mt-auto">
                           <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
                           <ul className="space-y-1">
-                            {topCodes.slice(0, 5).map((v: any) => (
-                              <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
-                                <span className="truncate mr-2">{v.law_code} — {v.description}</span>
+                            {topCodes.slice(0, 5).map((v: any, i: number) => (
+                              <li key={`${v.law_code}-${i}`} className="text-sm text-gray-700 flex justify-between">
+                                <span className="truncate mr-2">{v.law_code ? `${v.law_code} — ` : ""}{v.description}</span>
                                 <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
                               </li>
                             ))}
@@ -651,7 +697,7 @@ export default function InfracoesClientSide({
               </div>
 
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Distribuição por Categoria</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">{`Distribuição por Categoria${selectedYear ? ` — ${selectedYear}` : ""}`}</h3>
                 <div className="flex flex-wrap gap-3 justify-center mb-4">
                   {effectiveCategories.map((cat) => {
                     const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";

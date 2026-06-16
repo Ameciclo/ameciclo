@@ -4,12 +4,8 @@ import {
   TRAFFIC_VIOLATIONS_OVERVIEW,
   TRAFFIC_VIOLATIONS_CODES,
   TRAFFIC_VIOLATIONS_CATEGORIES,
-  TRAFFIC_VIOLATIONS_TOP,
-  TRAFFIC_VIOLATIONS_TOP_STREETS,
   TRAFFIC_VIOLATIONS_TEMPORAL,
-  TRAFFIC_VIOLATIONS_AGENT_ANALYSIS,
   TRAFFIC_VIOLATIONS_GEOJSON,
-  TRAFFIC_VIOLATIONS_CATEGORIES_DETAIL,
   TRAFFIC_VIOLATIONS_CATEGORY_PAGE,
   TRAFFIC_VIOLATIONS_LAW,
   TRAFFIC_VIOLATIONS_STREET,
@@ -53,7 +49,6 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
       percentage: a.percentage ?? 0,
       category: a.category ?? "manual",
       top_violations: (a.top_violations ?? []).map((v: any) => ({
-        violation_code: v.violation_code ?? "",
         law_code: v.law_code ?? "",
         description: v.description ?? "",
         count: v.count ?? 0,
@@ -107,7 +102,6 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
       total: c.count ?? 0,
       percentage: c.percentage ?? 0,
       topViolations: (c.top_violations ?? []).map((v: any) => ({
-        violation_code: v.violation_code ?? "",
         law_code: v.law_code ?? "",
         description: v.description ?? "",
         count: v.count ?? 0,
@@ -118,6 +112,17 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
       const parts = (d ?? "").slice(0, 10).split("-");
       return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
     };
+
+    const monthCount = (() => {
+      const s = overview.periodStart?.slice(0, 10);
+      const e = overview.periodEnd?.slice(0, 10);
+      if (!s || !e) return 1;
+      const [sy, sm] = s.split("-").map(Number);
+      const [ey, em] = e.split("-").map(Number);
+      if (!sy || !ey) return 1;
+      return Math.max(1, (ey - sy) * 12 + (em - sm) + 1);
+    })();
+    const monthlyAverage = Math.round(overview.totalViolations / monthCount);
 
     const statisticsBoxes = [
       {
@@ -131,9 +136,9 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
         unit: `${overview.lawCodesCount} artigos do CTB`,
       },
       {
-        title: "Ruas com registros",
-        value: overview.streetsCount.toLocaleString("pt-BR"),
-        unit: "logradouros",
+        title: "Média mensal",
+        value: monthlyAverage.toLocaleString("pt-BR"),
+        unit: `infrações/mês em ${monthCount} meses`,
       },
       {
         title: "Fiscalização eletrônica",
@@ -203,27 +208,6 @@ async function fetchJson(url: string) {
   }
 }
 
-interface CategoryItem {
-  name: string;
-  codeCount: number;
-  totalViolations: number;
-}
-
-// ─── Top streets (single call, no per-category) ──────────────────────
-
-async function fetchTopStreets(params: Record<string, string>) {
-  const url = buildUrl(TRAFFIC_VIOLATIONS_TOP_STREETS, { ...params, limit: "100" });
-  return fetchJson(url).catch(() => ({ streets: [] }));
-}
-
-export const infracoesTopStreetsQueryOptions = (params: Record<string, string>) =>
-  queryOptions({
-    queryKey: ["infracoes", "top-streets", params],
-    queryFn: () => fetchTopStreets(params),
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (prev: any) => prev,
-  });
-
 // ─── GeoJSON (single call) ────────────────────────────────────────────
 
 async function fetchGeoJSON(params: Record<string, string>) {
@@ -239,34 +223,11 @@ export const infracoesGeoJSONQueryOptions = (params: Record<string, string>) =>
     placeholderData: (prev: any) => prev,
   });
 
-// ─── Categories detail (replaces per-category top-violations) ────────
-
-async function fetchCategoriesDetail(params: Record<string, string>) {
-  const url = buildUrl(TRAFFIC_VIOLATIONS_CATEGORIES_DETAIL, { ...params, violation_limit: "5" });
-  return fetchJson(url).catch(() => null);
-}
-
-export const infracoesCategoriesDetailQueryOptions = (params: Record<string, string>) =>
-  queryOptions({
-    queryKey: ["infracoes", "categories-detail", params],
-    queryFn: () => fetchCategoriesDetail(params),
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (prev: any) => prev,
-  });
-
 // ─── Temporal ───────────────────────────────────────────────────────
 
 async function fetchInfracoesTemporal(params: Record<string, string>) {
   return fetchJson(buildUrl(TRAFFIC_VIOLATIONS_TEMPORAL, params)).catch(() => null);
 }
-
-export const infracoesTemporalQueryOptions = (params: Record<string, string>) =>
-  queryOptions({
-    queryKey: ["infracoes", "temporal", params],
-    queryFn: () => fetchInfracoesTemporal(params),
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (prev: any) => prev,
-  });
 
 export const infracoesTemporalCategoryQueryOptions = (
   params: Record<string, string>,
@@ -275,21 +236,6 @@ export const infracoesTemporalCategoryQueryOptions = (
   queryOptions({
     queryKey: ["infracoes", "temporal-category", categoryName, params],
     queryFn: () => fetchInfracoesTemporal({ ...params, category: categoryName }),
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (prev: any) => prev,
-  });
-
-// ─── Agent Analysis ─────────────────────────────────────────────────
-
-async function fetchInfracoesAgents(params: Record<string, string>) {
-  const data = await fetchJson(buildUrl(TRAFFIC_VIOLATIONS_AGENT_ANALYSIS, params)).catch(() => null);
-  return data?.agents ?? [];
-}
-
-export const infracoesAgentsQueryOptions = (params: Record<string, string>) =>
-  queryOptions({
-    queryKey: ["infracoes", "agents", params],
-    queryFn: () => fetchInfracoesAgents(params),
     staleTime: 5 * 60 * 1000,
     placeholderData: (prev: any) => prev,
   });
@@ -330,6 +276,48 @@ export const infracoesCategoryPageQueryOptions = (
   queryOptions({
     queryKey: ["infracoes", "category-page", categoryName, params],
     queryFn: () => fetchCategoryPage(params, categoryName),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
+
+// ─── Law (article) detail page ────────────────────────────────────────
+
+async function fetchLawDetail(
+  params: Record<string, string>,
+  article: string,
+) {
+  const url = buildUrl(TRAFFIC_VIOLATIONS_LAW(article), { ...params, limit: "10" });
+  return fetchJson(url).catch(() => null);
+}
+
+export const infracoesLawQueryOptions = (
+  params: Record<string, string>,
+  article: string,
+) =>
+  queryOptions({
+    queryKey: ["infracoes", "law", article, params],
+    queryFn: () => fetchLawDetail(params, article),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
+
+// ─── Street detail page ───────────────────────────────────────────────
+
+async function fetchStreetDetail(
+  params: Record<string, string>,
+  identifier: string,
+) {
+  const url = buildUrl(TRAFFIC_VIOLATIONS_STREET(identifier), { ...params, limit: "20" });
+  return fetchJson(url).catch(() => null);
+}
+
+export const infracoesStreetQueryOptions = (
+  params: Record<string, string>,
+  identifier: string,
+) =>
+  queryOptions({
+    queryKey: ["infracoes", "street", identifier, params],
+    queryFn: () => fetchStreetDetail(params, identifier),
     staleTime: 5 * 60 * 1000,
     placeholderData: (prev: any) => prev,
   });

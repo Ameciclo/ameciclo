@@ -35,8 +35,8 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   if (!data.evolucao?.length) {
     const extensaoVia = mapData?.street_extension_km;
     return [
-      { title: "Total de vítimas", value: IntlNumber(mapData?.total_victims || 0), unit: "dados indisponíveis" },
-      { title: "Média Anual", value: "—", unit: "dados indisponíveis" },
+      { title: "Total de vítimas", value: "—", unit: "dados indisponíveis" },
+      { title: "Média Mensal", value: "—", unit: "dados indisponíveis" },
       { title: "Ano Mais Perigoso", value: "—", unit: "dados indisponíveis" },
       { title: "Extensão da Via", value: extensaoVia ? `${extensaoVia.toFixed(1)}` : "—", unit: extensaoVia ? "km" : "indisponível" }
     ];
@@ -44,32 +44,35 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
 
   const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);
 
-  // Calcular média anual ajustada por dias com dados
-  const mediaAjustada = data.evolucao.reduce((sum, year) => {
-    const diasComDados = year.dias_com_dados || 365;
-    const sinistrosPorDia = year.sinistros / diasComDados;
-    return sum + (sinistrosPorDia * 365);
-  }, 0) / data.evolucao.length;
+  const firstDate = mapData?.first_record_date ? new Date(mapData.first_record_date) : null;
+  const lastDate = mapData?.last_record_date ? new Date(mapData.last_record_date) : null;
 
-  // Encontrar ano mais perigoso
-  const anoMaisPerigoso = data.evolucao.reduce((max, year) => {
-    const diasComDados = year.dias_com_dados || 365;
-    const sinistrosPorDia = year.sinistros / diasComDados;
-    const maxDiasComDados = max.dias_com_dados || 365;
-    const maxSinistrosPorDia = max.sinistros / maxDiasComDados;
-    return sinistrosPorDia > maxSinistrosPorDia ? year : max;
-  });
+  let mediaMensal = 0;
+  let periodoLabel = "";
 
-  const primeiroAno = data.evolucao[0];
-  const ultimoAno = data.evolucao[data.evolucao.length - 1];
+  if (firstDate && lastDate) {
+    const totalMeses = (lastDate.getFullYear() - firstDate.getFullYear()) * 12 + (lastDate.getMonth() - firstDate.getMonth()) + 1;
+    mediaMensal = totalMeses > 0 ? totalSinistros / totalMeses : 0;
+    const fmt = (d: Date) => `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    periodoLabel = `${fmt(firstDate)} - ${fmt(lastDate)}`;
+  } else {
+    const primeiroAno = data.evolucao[0];
+    const ultimoAno = data.evolucao[data.evolucao.length - 1];
+    const totalMeses = data.evolucao.length * 12;
+    mediaMensal = totalSinistros / totalMeses;
+    periodoLabel = `${primeiroAno.ano} - ${ultimoAno.ano}`;
+  }
 
-  // Extensão da via (se disponível nos dados do mapa)
+  const anoMaisPerigoso = data.evolucao.reduce((max, year) =>
+    year.sinistros > max.sinistros ? year : max
+  );
+
   const extensaoVia = mapData?.street_extension_km;
 
   const stats = [
-    { title: "Total de vítimas", value: IntlNumber(totalSinistros), unit: `${primeiroAno.ano} - ${ultimoAno.ano}` },
-    { title: "Média Anual", value: IntlNumber(Math.round(mediaAjustada)), unit: "por ano" },
-    { title: "Ano Mais Perigoso", value: `${anoMaisPerigoso.ano}`, unit: `${anoMaisPerigoso.ano} sinistros` },
+    { title: "Total de vítimas", value: IntlNumber(totalSinistros), unit: periodoLabel },
+    { title: "Média Mensal", value: IntlNumber(Math.round(mediaMensal)), unit: "por mês" },
+    { title: "Ano Mais Perigoso", value: `${anoMaisPerigoso.ano}`, unit: `${anoMaisPerigoso.sinistros} sinistros` },
     { title: "Extensão da Via", value: extensaoVia ? `${extensaoVia.toFixed(1)}` : "—", unit: extensaoVia ? "km" : "indisponível" }
   ];
 
@@ -104,21 +107,21 @@ function ViaInsegura() {
       console.log("[slug page] first year keys:", Object.keys(data.evolucao[0]));
       console.log("[slug page] first year por_sexo:", JSON.stringify(data.evolucao[0].por_sexo));
     }
-    console.log("[slug page] sinistrosData?.sinistros?.length:", sinistrosData?.sinistros?.length);
+    console.log("[slug page] sinistrosData?.records?.length:", sinistrosData?.records?.length);
     console.log("[slug page] mapData:", mapData ? "present" : "null");
   }, [data, mapData, sinistrosData]);
 
-  const categoryLabels = {
-    "Acidente de Moto": "Sinistro de Moto",
-    "Acidente de Carro": "Sinistro de Carro",
-    "Atropelamento por Carro": "Atropelamento por Carro",
-    "Atropelamento por Moto": "Atropelamento por Moto",
-    "Acidente de Bicicleta": "Sinistro de Bicicleta",
-    "Acidente de Ônibus/Caminhão": "Sinistro Ônibus/Caminhão",
-    "Atropelamento por Ônibus/Caminhão": "Atropelamento Ônibus/Caminhão",
-    "Atropelamento de Bicicleta": "Sinistro de Bicicleta",
-    "Outro": "Outro",
-    "Não Informado": "Não Informado",
+  const categoryLabels: Record<string, string> = {
+    sinistro_moto: "Sinistro de Moto",
+    sinistro_carro: "Sinistro de Carro",
+    atropelamento_carro: "Atropelamento por Carro",
+    atropelamento_moto: "Atropelamento por Moto",
+    sinistro_bicicleta: "Sinistro de Bicicleta",
+    sinistro_onibus_caminhao: "Sinistro Ônibus/Caminhão",
+    atropelamento_onibus_caminhao: "Atropelamento Ônibus/Caminhão",
+    atropelamento_bicicleta: "Atropelamento de Bicicleta",
+    outro: "Outro",
+    nao_informado: "Não Informado",
   };
 
   // Filtrar apenas as categorias de desfecho permitidas
@@ -173,8 +176,8 @@ function ViaInsegura() {
                 (g) => g.label !== "Não Informado" && g.total > 0
               );
 
-              if (!usefulGender.length && sinistrosData?.sinistros?.length) {
-                profileResult = processProfileFromSinistros(sinistrosData.sinistros);
+              if (!usefulGender.length && sinistrosData?.records?.length) {
+                profileResult = processProfileFromSinistros(sinistrosData.records);
               }
 
               return (
@@ -228,30 +231,31 @@ function ViaInsegura() {
             )}
 
             {/* Tabela de Sinistros */}
-            {sinistrosData?.sinistros?.length > 0 && (() => {
-              const rawFiltered = sinistrosData.sinistros
-                .filter((sinistro: any) => {
-                  const desfecho = sinistro.motivo_desf_cat || '';
+            {sinistrosData?.records?.length > 0 && (() => {
+              const rawFiltered = sinistrosData.records
+                .filter((record: any) => {
+                  const desfecho = record.outcome || '';
                   return allowedDesfechos.includes(desfecho);
                 });
 
               const tableData = rawFiltered
-                .map((sinistro: any) => {
-                  const mappedCategoria = categoryLabels[sinistro.categoria as keyof typeof categoryLabels] || sinistro.categoria || '-';
+                .map((record: any) => {
+                  const dt = new Date(record.datetime);
+                  const mappedCategoria = categoryLabels[record.category] || record.category || '-';
                   return {
-                    data_hora: `${new Date(sinistro.data).toLocaleDateString('pt-BR')} ${sinistro.hora_minuto?.substring(0, 5) || ''}`.trim(),
+                    data_hora: `${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`.trim(),
                     categoria: mappedCategoria,
-                    sexo: sinistro.sexo || '-',
-                    idade: sinistro.idade || '-',
-                    desfecho: sinistro.motivo_desf_cat || '-',
-                    _sortDate: new Date(sinistro.data + ' ' + (sinistro.hora_minuto || '00:00')),
+                    sexo: record.gender || '-',
+                    idade: record.age || '-',
+                    desfecho: record.outcome || '-',
+                    _sortDate: dt,
                   };
                 })
                 .sort((a: any, b: any) => b._sortDate.getTime() - a._sortDate.getTime());
 
-              const categoriaValues = [...new Set(tableData.map(r => r.categoria))].sort();
-              const sexoValues = [...new Set(tableData.map(r => r.sexo))].sort();
-              const desfechoValues = [...new Set(tableData.map(r => r.desfecho))].sort();
+              const categoriaValues = [...new Set<string>(tableData.map((r: any) => r.categoria))].sort();
+              const sexoValues = [...new Set<string>(tableData.map((r: any) => r.sexo))].sort();
+              const desfechoValues = [...new Set<string>(tableData.map((r: any) => r.desfecho))].sort();
 
               const selectFilter = (options: string[], placeholder: string) =>
                 ({ column: { filterValue, setFilter } }: any) => (

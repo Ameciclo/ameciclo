@@ -94,7 +94,17 @@ function buildProfileOutput(aggregatedData: {
   return { genderData, ageData, categoryData };
 }
 
-export function processProfileFromSinistros(sinistros: any[]) {
+const getAgeBracket = (age: number | null | undefined): string => {
+  if (age == null || age < 0) return "nao_informado";
+  if (age <= 17) return "0-17";
+  if (age <= 29) return "18-29";
+  if (age <= 39) return "30-39";
+  if (age <= 49) return "40-49";
+  if (age <= 59) return "50-59";
+  return "60+";
+};
+
+export function processProfileFromSinistros(records: any[]) {
   const aggregated = {
     por_sexo: { masculino: 0, feminino: 0, nao_informado: 0 },
     por_faixa_etaria: {} as Record<string, number>,
@@ -121,12 +131,12 @@ export function processProfileFromSinistros(sinistros: any[]) {
     'Óbito no Local/Atendimento'
   ];
 
-  sinistros.forEach((sinistro) => {
-    const desfecho = sinistro.motivo_desf_cat || '';
+  records.forEach((record) => {
+    const desfecho = record.outcome || '';
     if (!allowedDesfechos.includes(desfecho)) return;
 
-    if (sinistro.sexo) {
-      const s = sinistro.sexo.toLowerCase();
+    if (record.gender) {
+      const s = record.gender.toLowerCase();
       if (s === 'masculino') aggregated.por_sexo.masculino++;
       else if (s === 'feminino') aggregated.por_sexo.feminino++;
       else aggregated.por_sexo.nao_informado++;
@@ -134,15 +144,11 @@ export function processProfileFromSinistros(sinistros: any[]) {
       aggregated.por_sexo.nao_informado++;
     }
 
-    if (sinistro.idade_faixa_etaria) {
-      const key = sinistro.idade_faixa_etaria;
-      aggregated.por_faixa_etaria[key] = (aggregated.por_faixa_etaria[key] || 0) + 1;
-    } else {
-      aggregated.por_faixa_etaria['nao_informado'] = (aggregated.por_faixa_etaria['nao_informado'] || 0) + 1;
-    }
+    const bracket = getAgeBracket(record.age);
+    aggregated.por_faixa_etaria[bracket] = (aggregated.por_faixa_etaria[bracket] || 0) + 1;
 
-    if (sinistro.categoria) {
-      const mappedKey = categoryMap[sinistro.categoria] || 'nao_informado';
+    if (record.category) {
+      const mappedKey = categoryMap[record.category] || 'nao_informado';
       aggregated.por_categoria[mappedKey] = (aggregated.por_categoria[mappedKey] || 0) + 1;
     } else {
       aggregated.por_categoria['nao_informado'] = (aggregated.por_categoria['nao_informado'] || 0) + 1;

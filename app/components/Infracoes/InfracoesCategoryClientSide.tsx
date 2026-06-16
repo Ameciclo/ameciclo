@@ -6,7 +6,7 @@ import { Link } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
 import Table from "~/components/Commom/Table/Table";
-import { SelectColumnFilter } from "~/components/Commom/Table/TableFilters";
+
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import type { LayerProps } from "react-map-gl/maplibre";
 import { infracoesCategoryPageQueryOptions, infracoesTemporalCategoryQueryOptions } from "~/queries/dados.infracoes";
@@ -115,39 +115,32 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
   const pct = totalViolations > 0 ? ((categoryTotal / totalViolations) * 100).toFixed(1) : "0.0";
   const mainAgent = categoryData?.agentAnalysis?.length ? categoryData.agentAnalysis[0] : null;
 
-  const streetTableData = (categoryData?.topStreets ?? []).map((s: any, i: number) => {
+  const topStreetsList = (categoryData?.topStreets ?? []).filter((s: any) => (s.total_violations ?? 0) > 0);
+  const totalStreetViolations = topStreetsList.reduce((sum: number, s: any) => sum + (s.total_violations ?? 0), 0);
+
+  const streetTableData = topStreetsList.map((s: any, i: number) => {
     const tv = s.top_violation;
     const ruaSlug = (s.official_name ?? "")
       .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const total = s.total_violations ?? 0;
     return {
       ranking: i + 1,
       rua: s.official_name,
       rua_slug: ruaSlug,
-      total: s.total_violations?.toLocaleString("pt-BR"),
-      total_raw: s.total_violations ?? 0,
-      extensao_km: s.extension_km?.toFixed(1),
-      infracoes_por_km: s.violations_per_km?.toFixed(0),
-      mais_comum: tv ? `${tv.law_code} — ${tv.description}` : "—",
-      pct_mais_comum: tv ? `${tv.percentage?.toFixed(1)}%` : "—",
+      street_code: s.street_code,
+      total_raw: total,
+      extensao_km: s.extension_km?.toFixed(1) ?? "—",
+      pct_total: totalStreetViolations > 0 ? `${((total / totalStreetViolations) * 100).toFixed(1)}%` : "—",
+      principal_infracao: tv?.description ?? "—",
+      pct_via: tv?.percentage != null ? `${tv.percentage.toFixed(1)}%` : "—",
     };
   });
 
+  const colorBreakpoints = { r1: 5000, r2: 10000, r3: 15000 };
+
   const layersConf: LayerProps[] = useMemo(() => {
-    const features = categoryData?.geojson?.features;
-    if (!features?.length) return [];
-
-    const values = features
-      .map((f: any) => f.properties?.total_violations ?? 0)
-      .filter((v: number) => v > 0)
-      .sort((a: number, b: number) => a - b);
-
-    const n = values.length;
-    if (n === 0) return [];
-
-    const q1 = values[Math.floor(n * 0.25)];
-    const q2 = values[Math.floor(n * 0.50)];
-    const q3 = values[Math.floor(n * 0.75)];
+    const { r1, r2, r3 } = colorBreakpoints;
 
     return [{
       id: `infracoes-${categorySlug}`,
@@ -158,24 +151,56 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
           ["linear"],
           ["get", "total_violations"],
           0,    "#FEF3C7",
-          q1,   "#F59E0B",
-          q2,   "#DC2626",
-          q3,   "#7F1D1D",
+          r1,   "#F59E0B",
+          r2,   "#DC2626",
+          r3,   "#7F1D1D",
         ],
         "line-width": [
           "interpolate",
           ["linear"],
           ["get", "total_violations"],
           0,  2,
-          q1, 3,
-          q2, 5,
-          q3, 8,
+          r1, 3,
+          r2, 5,
+          r3, 8,
         ],
         "line-opacity": 0.7,
       },
       layout: {},
     }];
-  }, [categoryData, categorySlug]);
+  }, [categorySlug]);
+
+  function fmt(n: number): string {
+    return n.toLocaleString("pt-BR");
+  }
+
+  const mapLegend = useMemo(() => {
+    const { r1, r2, r3 } = colorBreakpoints;
+
+    const bands = [
+      { color: "#FEF3C7", label: `0 – ${fmt(r1)}` },
+      { color: "#F59E0B", label: `${fmt(r1)} – ${fmt(r2)}` },
+      { color: "#DC2626", label: `${fmt(r2)} – ${fmt(r3)}` },
+      { color: "#7F1D1D", label: `${fmt(r3)}+` },
+    ];
+
+    return (
+      <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-3 z-10 max-w-[180px]">
+        <h3 className="text-xs font-bold text-gray-700 mb-2 text-center">Infrações por via</h3>
+        <div className="flex flex-col gap-1.5">
+          {bands.map((band, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div
+                className="w-6 h-1.5 rounded-sm shrink-0"
+                style={{ backgroundColor: band.color }}
+              />
+              <span className="text-xs text-gray-600">{band.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }, []);
 
   if (!categoryData && !loading) {
     return (
@@ -300,7 +325,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
         {categoryData.geojson?.features?.length > 0 ? (
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Onde Acontecem</h2>
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8 relative">
               <div className="p-4 border-b">
                 <h3 className="text-lg font-bold text-gray-800">
                   Infrações — {categoryName}
@@ -315,9 +340,10 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                 height="450px"
                 showLayersPanel={false}
               />
+              {mapLegend}
             </div>
 
-            {categoryData.topStreets.length > 0 && (
+            {streetTableData.length > 0 && (
               <div className="bg-white rounded-lg shadow-lg">
                 <Table
                   title=""
@@ -325,19 +351,21 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                   showFilters={showStreetFilters}
                   setShowFilters={setShowStreetFilters}
                   columns={[
-                    { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                    { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                    { Header: "Rua", accessor: "rua", width: '25%', Cell: ({ value, row }: any) => (
-                      <a href={`/dados/infracoes/rua/${encodeURIComponent(row.original.rua_slug || value)}`} className="text-teal-600 hover:underline">{value}</a>
+                    { Header: "#", accessor: "ranking", disableFilters: true, width: '4%' },
+                    { Header: "Rua", accessor: "rua", width: '28%', Cell: ({ value, row }: any) => (
+                      <a href={`/dados/infracoes/rua/${row.original.street_code || ''}-${row.original.rua_slug || ''}`} className="text-teal-600 hover:underline">{value}</a>
                     )},
-                    { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
-                    { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
+                    { Header: "Extensão", accessor: "extensao_km", disableFilters: true, width: '10%' },
+                    { Header: "Total", accessor: "total_raw", disableFilters: true, width: '10%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
+                    { Header: "% do Total", accessor: "pct_total", disableFilters: true, width: '10%' },
+                    { Header: "Principal Infração", accessor: "principal_infracao", width: '28%' },
+                    { Header: "% da Via", accessor: "pct_via", disableFilters: true, width: '10%' },
                   ]}
                 />
               </div>
             )}
           </section>
-        ) : categoryData.topStreets.length > 0 ? (
+        ) : streetTableData.length > 0 ? (
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Onde Acontecem</h2>
             <div className="bg-white rounded-lg shadow-lg">
@@ -347,11 +375,15 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                 showFilters={showStreetFilters}
                 setShowFilters={setShowStreetFilters}
                 columns={[
-                  { Header: "#", accessor: "ranking", disableFilters: true, width: '5%' },
-                  { Header: "Infração mais comum", accessor: "mais_comum", Filter: SelectColumnFilter, width: '40%' },
-                  { Header: "Rua", accessor: "rua", width: '25%' },
-                  { Header: "Total", accessor: "total_raw", disableFilters: true, width: '15%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
-                  { Header: "% da via", accessor: "pct_mais_comum", disableFilters: true, width: '15%' },
+                  { Header: "#", accessor: "ranking", disableFilters: true, width: '4%' },
+                  { Header: "Rua", accessor: "rua", width: '28%', Cell: ({ value, row }: any) => (
+                    <a href={`/dados/infracoes/rua/${row.original.street_code || ''}-${row.original.rua_slug || ''}`} className="text-teal-600 hover:underline">{value}</a>
+                  )},
+                  { Header: "Extensão", accessor: "extensao_km", disableFilters: true, width: '10%' },
+                  { Header: "Total", accessor: "total_raw", disableFilters: true, width: '10%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
+                  { Header: "% do Total", accessor: "pct_total", disableFilters: true, width: '10%' },
+                  { Header: "Principal Infração", accessor: "principal_infracao", width: '28%' },
+                  { Header: "% da Via", accessor: "pct_via", disableFilters: true, width: '10%' },
                 ]}
               />
             </div>
@@ -459,9 +491,9 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                     <div>
                       <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
                       <ul className="space-y-1">
-                        {agent.top_violations.slice(0, 5).map((v: any) => (
-                          <li key={v.violation_code} className="text-sm text-gray-700 flex justify-between">
-                            <span className="truncate mr-2">{v.law_code} — {v.description}</span>
+                        {agent.top_violations.slice(0, 5).map((v: any, i: number) => (
+                          <li key={`${v.law_code}-${i}`} className="text-sm text-gray-700 flex justify-between">
+                            <span className="truncate mr-2">{v.law_code ? `${v.law_code} — ` : ""}{v.description}</span>
                             <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
                           </li>
                         ))}
@@ -483,7 +515,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
               series={[{
                 name: "Infrações",
                 data: categoryData.topViolations.map((v: any) => ({
-                  name: `${v.law_code} — ${v.description}`,
+                  name: v.law_code ? `${v.law_code} — ${v.description}` : v.description,
                   y: v.count,
                   ...(selectedViolations.size > 0 ? { color: selectedViolations.has(v.violation_code) ? '#0d9488' : '#d1d5db' } : {}),
                 })),
