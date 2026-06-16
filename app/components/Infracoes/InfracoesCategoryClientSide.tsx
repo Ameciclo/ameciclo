@@ -30,6 +30,8 @@ const WEEKDAY_LABELS: Record<string, string> = {
   thursday: "Qui", friday: "Sex", saturday: "Sáb", sunday: "Dom",
 };
 
+const WEEKDAY_ORDER = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+
 interface OverviewData {
   totalViolations: number;
   periodStart: string;
@@ -430,9 +432,7 @@ export default function InfracoesCategoryClientSide({ categorySlug, overview, co
                   <h4 className="text-sm font-semibold text-gray-600 mb-2">Por dia da semana</h4>
                   <VerticalBarChart
                     title="" xAxisTitle="" yAxisTitle=""
-                    data={Object.entries(categoryData.temporal.by_weekday).map(
-                      ([day, count]) => ({ label: WEEKDAY_LABELS[day] ?? day, count: count as number })
-                    )}
+                    data={WEEKDAY_ORDER.map((day) => ({ label: WEEKDAY_LABELS[day], count: categoryData.temporal.by_weekday[day] ?? 0 }))}
                     xKey="label" yKeys={["count"]} colors={["#10b981"]}
                   />
                 </div>

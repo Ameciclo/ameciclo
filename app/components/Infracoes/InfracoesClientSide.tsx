@@ -32,6 +32,8 @@ const WEEKDAY_LABELS: Record<string, string> = {
   thursday: "Qui", friday: "Sex", saturday: "Sáb", sunday: "Dom",
 };
 
+const WEEKDAY_ORDER = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+
 const CATEGORY_COLOR_PALETTE = [
   "#dc2626", "#f59e0b", "#06b6d4", "#8b5cf6",
   "#3b82f6", "#10b981", "#6b7280", "#ec4899",
@@ -256,7 +258,7 @@ export default function InfracoesClientSide({
     const weekdayFilter = year !== null
       ? (temporal.by_weekday_raw ?? []).filter((w: any) => w.year === year)
       : (temporal.by_weekday_raw ?? []);
-    const wl = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+    const wl = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
     const byWeekday: Record<string, number> = {};
     for (const w of weekdayFilter) {
       const c = w.counts ?? [];
@@ -549,9 +551,7 @@ export default function InfracoesClientSide({
                       title=""
                       xAxisTitle=""
                       yAxisTitle=""
-                      data={Object.entries(temporalData.by_weekday).map(
-                        ([day, count]) => ({ label: WEEKDAY_LABELS[day] ?? day, count: count as number })
-                      )}
+                      data={WEEKDAY_ORDER.map((day) => ({ label: WEEKDAY_LABELS[day], count: temporalData.by_weekday[day] ?? 0 }))}
                       xKey="label"
                       yKeys={["count"]}
                       colors={["#10b981"]}
