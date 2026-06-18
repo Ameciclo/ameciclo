@@ -32,18 +32,23 @@ export const Route = createFileRoute("/dados/infracoes/$category")({
 function InfracoesCategoryPage() {
   const { category } = Route.useParams();
   const { data } = useSuspenseQuery(infracoesQueryOptions());
-  const { overview, categories, apiDown } = data;
+  const { overview, categories, categoryBreakdown, apiDown } = data;
   const categoryName = slugToCategory(category, categories.map((c: any) => c.name));
-  const categoryData = categories.find((c: any) => c.name === categoryName);
+  const categoryStats = categoryBreakdown.find((c: any) => c.category === categoryName);
   const color = categoryColor(categoryName);
 
   useReportApiErrors(data);
+
+  const fmtDate = (d: string) => {
+    const parts = (d ?? "").slice(0, 10).split("-");
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
+  };
 
   return (
     <>
       <Banner
         image="/pages_covers/infracoes.png"
-        alt="Capa da página do Observatório de Infrações de Trânsito"
+        alt="Infrações"
       />
       <Breadcrumb
         label={categoryName}
@@ -57,23 +62,23 @@ function InfracoesCategoryPage() {
         boxes={[
           {
             title: "Total de infrações",
-            value: categoryData ? categoryData.totalViolations.toLocaleString("pt-BR") : "—",
-            unit: `${overview.periodStart} a ${overview.periodEnd}`,
+            value: categoryStats ? categoryStats.total.toLocaleString("pt-BR") : "—",
+            unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
           },
           {
             title: "Artigos do CTB",
-            value: categoryData ? categoryData.codeCount.toLocaleString("pt-BR") : "—",
+            value: categoryStats ? categoryStats.topViolations.length.toLocaleString("pt-BR") : "—",
             unit: "tipos de infração",
           },
           {
             title: "% da base total",
-            value: categoryData ? `${((categoryData.totalViolations / overview.totalViolations) * 100).toFixed(1)}%` : "—",
+            value: categoryStats ? `${categoryStats.percentage.toFixed(1)}%` : "—",
             unit: "das autuações",
           },
           {
             title: "Total geral",
             value: overview.totalViolations.toLocaleString("pt-BR"),
-            unit: `${overview.periodStart} a ${overview.periodEnd}`,
+            unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
           },
         ]}
       />

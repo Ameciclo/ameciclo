@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
@@ -36,30 +35,13 @@ function StreetPage() {
 
   useReportApiErrors(data);
 
-  const availableYears = useMemo(() => {
-    const start = parseInt(overview.periodStart?.slice(0, 4));
-    const end = parseInt(overview.periodEnd?.slice(0, 4));
-    if (!start || !end) return [];
-    const years: number[] = [];
-    for (let y = start; y <= end; y++) years.push(y);
-    return years;
-  }, [overview.periodStart, overview.periodEnd]);
-
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-
-  const dateParams = useMemo((): Record<string, string> => {
-    return selectedYear === null
-      ? { start_date: overview.periodStart.slice(0, 10), end_date: overview.periodEnd.slice(0, 10) }
-      : { start_date: `${selectedYear}-01-01`, end_date: `${selectedYear}-12-31` };
-  }, [selectedYear, overview.periodStart, overview.periodEnd]);
-
   const { data: streetData, isFetching: loading } = useQuery(
-    infracoesStreetQueryOptions(dateParams, streetCode)
+    infracoesStreetQueryOptions({}, streetCode)
   );
 
   return (
     <>
-      <Banner image="/pages_covers/infracoes.png" alt="Infrações de Trânsito" />
+      <Banner image="/pages_covers/infracoes.png" alt="Infrações" />
       <Breadcrumb
         label={streetData?.official_name ?? `Rua #${streetCode}`}
         slug={`/dados/infracoes/rua/${identifierParam}`}
@@ -69,9 +51,7 @@ function StreetPage() {
       <InfracoesStreetClientSide
         streetData={streetData}
         overview={overview}
-        availableYears={availableYears}
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
+        streetCode={streetCode}
         loading={loading}
       />
     </>

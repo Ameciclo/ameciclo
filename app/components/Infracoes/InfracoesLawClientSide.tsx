@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
@@ -21,14 +22,11 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
 interface Props {
   article: string;
   lawData: any;
-  overview: { totalViolations: number };
-  availableYears: number[];
-  selectedYear: number | null;
-  onYearChange: (year: number | null) => void;
+  overview: { totalViolations: number; periodStart: string; periodEnd: string };
   loading: boolean;
 }
 
-export default function InfracoesLawClientSide({ article, lawData, overview, availableYears, selectedYear, onYearChange, loading }: Props) {
+export default function InfracoesLawClientSide({ article, lawData, overview, loading }: Props) {
   if (!lawData && !loading) {
     return (
       <div className="pb-16">
@@ -47,21 +45,53 @@ export default function InfracoesLawClientSide({ article, lawData, overview, ava
   const agents = lawData?.agents ?? [];
   const pct = overview.totalViolations > 0 ? ((total / overview.totalViolations) * 100).toFixed(1) : "0.0";
 
+  const availableYears = useMemo(() => {
+    return Object.keys(temporal.by_year ?? {}).map(Number).sort((a, b) => a - b);
+  }, [temporal.by_year]);
+
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
+  const fmtDate = (d: string) => {
+    const parts = (d ?? "").slice(0, 10).split("-");
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
+  };
+
   return (
     <div className={`pb-16 transition-opacity duration-150 ${loading ? 'opacity-60' : ''}`}>
       <StatisticsBox
         title={`Infrações: ${article}`}
-        subtitle={`${total.toLocaleString("pt-BR")} infrações · ${pct}% da base · ${lawCodes.length} incisos`}
-        boxes={[]}
+        subtitle={`${total.toLocaleString("pt-BR")} infrações registradas`}
+        boxes={[
+          {
+            title: "Total de infrações",
+            value: lawData ? total.toLocaleString("pt-BR") : "—",
+            unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
+          },
+          {
+            title: "Artigos do CTB",
+            value: lawData ? lawCodes.length.toLocaleString("pt-BR") : "—",
+            unit: "incisos e variações",
+          },
+          {
+            title: "% da base total",
+            value: lawData ? `${pct}%` : "—",
+            unit: "das autuações",
+          },
+          {
+            title: "Total geral",
+            value: overview.totalViolations.toLocaleString("pt-BR"),
+            unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
+          },
+        ]}
       />
 
       {availableYears.length > 0 && (
         <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
           <div className="hidden sm:flex flex-wrap items-center justify-center gap-3">
             <span className="text-sm font-medium text-gray-600">Filtrar por ano:</span>
-            <button onClick={() => onYearChange(null)} className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === null ? "bg-ameciclo text-white" : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"}`}>Todo o período</button>
+                          <button onClick={() => setSelectedYear(null)} className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === null ? "bg-ameciclo text-white" : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"}`}>Todo o período</button>
             {availableYears.map((year) => (
-              <button key={year} onClick={() => onYearChange(year)} className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === year ? "bg-ameciclo text-white" : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"}`}>{year}</button>
+              <button key={year} onClick={() => setSelectedYear(year)} className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === year ? "bg-ameciclo text-white" : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"}`}>{year}</button>
             ))}
           </div>
         </div>
