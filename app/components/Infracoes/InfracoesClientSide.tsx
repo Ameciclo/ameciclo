@@ -445,7 +445,7 @@ export default function InfracoesClientSide({
               <span className="inline-flex items-center gap-1.5 bg-ameciclo text-white text-xs font-medium px-3 py-1 rounded-full">
                 {filter.type === "law" ? "Lei" : filter.type === "street_code" ? "Rua" : "Categoria"}: {filter.label}
                 <button
-                  onClick={() => navigate({ to: "/dados/infracoes" })}
+                  onClick={() => navigate({ to: "/dados/infracoes", search: {} as any })}
                   className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
                   aria-label="Remover filtro"
                 >
@@ -464,7 +464,7 @@ export default function InfracoesClientSide({
 
       {filter && (
         <div className="container mx-auto mb-4">
-          <Link to="/dados/infracoes" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-ameciclo">
+          <Link to="/dados/infracoes" search={{} as any} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-ameciclo">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             Voltar para visão geral
           </Link>
@@ -514,7 +514,7 @@ export default function InfracoesClientSide({
                 columns={[
                   { Header: "#", accessor: "ranking", disableFilters: true, width: '4%' },
                   { Header: "Rua", accessor: "rua", width: '28%', Cell: ({ value, row }: any) => (
-                    <a href={`/dados/infracoes/rua/${row.original.street_code || ''}-${row.original.rua_slug || ''}`} className="text-teal-600 hover:underline">{value}</a>
+                    <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: undefined, street_code: row.original.street_code })} className="text-teal-600 hover:underline">{value}</Link>
                   )},
                   { Header: "Extensão", accessor: "extensao_km", disableFilters: true, width: '10%' },
                   { Header: "Total", accessor: "total_raw", disableFilters: true, width: '10%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
@@ -693,8 +693,8 @@ export default function InfracoesClientSide({
                   return (
                     <Link
                       key={cat.name}
-                      to="/dados/infracoes/$category"
-                      params={{ category: categoryToSlug(cat.name) }}
+                      to="/dados/infracoes"
+                      search={(prev: any) => ({ ...prev, category: categoryToSlug(cat.name), law: undefined, street_code: undefined })}
                       className="bg-white rounded-lg shadow-lg p-6 flex flex-col hover:shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-200 cursor-pointer"
                     >
                       <div className="flex items-center gap-3 mb-4">
@@ -775,7 +775,7 @@ export default function InfracoesClientSide({
           setShowFilters={setShowViolationFilters}
           columns={[
             { Header: "Base Legal", accessor: "base_legal", width: '15%', Cell: ({ value }: { value: string }) => value ? (
-              <a href={`/dados/infracoes/lei/${encodeURIComponent(value)}`} className="text-teal-600 hover:underline">{value}</a>
+              <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: encodeURIComponent(value), street_code: undefined })} className="text-teal-600 hover:underline">{value}</Link>
             ) : "—" },
             { Header: "Descrição", accessor: "descricao", width: '40%' },
             { Header: "Categoria", accessor: "categoria", Filter: SelectColumnFilter, width: '25%' },
