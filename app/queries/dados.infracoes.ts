@@ -13,6 +13,12 @@ import {
 import { cmsFetch } from "~/services/cmsFetch";
 import { makeApiErrorTracker } from "~/services/apiTracking";
 
+export type InfracoesFilter = {
+  type: "category" | "law" | "street_code";
+  value: string;
+  label: string;
+}
+
 const fetchInfracoesInitial = createServerFn().handler(async () => {
   try {
     const tracker = makeApiErrorTracker();
@@ -207,6 +213,135 @@ async function fetchJson(url: string) {
     clearTimeout(id);
   }
 }
+
+// ─── Filtered overview (client-side, uses /v1/overview?filter=) ──────
+
+async function fetchFilteredOverview(filter: InfracoesFilter) {
+  const url = buildUrl(TRAFFIC_VIOLATIONS_OVERVIEW, { [filter.type]: filter.value });
+  const raw = await fetchJson(url).catch(() => null);
+  if (!raw) return null;
+
+  const fmtDate = (d: string) => {
+    const parts = (d ?? "").slice(0, 10).split("-");
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
+  };
+
+  const agentBreakdown = (raw.agent_breakdown ?? []).map((a: any) => ({
+    agentId: a.agent_id,
+    description: a.description ?? "",
+    count: a.count ?? 0,
+    percentage: a.percentage ?? 0,
+    category: a.category ?? "manual",
+    top_violations: (a.top_violations ?? []).map((v: any) => ({
+      law_code: v.law_code ?? "",
+      description: v.description ?? "",
+      count: v.count ?? 0,
+    })),
+  }));
+
+  const overview = {
+    totalViolations: raw.total_violations ?? 0,
+    periodStart: raw.period_start ?? "",
+    periodEnd: raw.period_end ?? "",
+    violationTypesCount: raw.violation_types_count ?? 0,
+    lawCodesCount: raw.law_codes_count ?? 0,
+    streetsCount: raw.streets_count ?? 0,
+    neighborhoodsCount: raw.neighborhoods_count ?? 0,
+    agentBreakdown,
+  };
+
+  const evo = raw.evolution ?? {};
+  const byYear: Record<string, number> = {};
+  for (const item of evo.by_year ?? []) {
+    if (item.year) byYear[String(item.year)] = item.count ?? 0;
+  }
+  const temporal = {
+    by_year: byYear,
+    by_month_raw: evo.by_month ?? [],
+    by_weekday_raw: evo.by_weekday ?? [],
+    by_hour_raw: evo.by_hour ?? [],
+  };
+
+  const categoryBreakdown = (raw.category_breakdown ?? []).map((c: any) => ({
+    category: c.category ?? "",
+    total: c.count ?? 0,
+    percentage: c.percentage ?? 0,
+    topViolations: (c.top_violations ?? []).map((v: any) => ({
+      law_code: v.law_code ?? "",
+      description: v.description ?? "",
+      count: v.count ?? 0,
+    })),
+  }));
+
+  const electronicPct = agentBreakdown
+    .filter((a: any) => a.category === "eletronico")
+    .reduce((sum: number, a: any) => sum + a.percentage, 0);
+
+  const monthCount = (() => {
+    const s = overview.periodStart?.slice(0, 10);
+    const e = overview.periodEnd?.slice(0, 10);
+    if (!s || !e) return 1;
+    const [sy, sm] = s.split("-").map(Number);
+    const [ey, em] = e.split("-").map(Number);
+    if (!sy || !ey) return 1;
+    return Math.max(1, (ey - sy) * 12 + (em - sm) + 1);
+  })();
+  const monthlyAverage = Math.round(overview.totalViolations / monthCount);
+
+  const statisticsBoxes = [
+    {
+      title: "Total de infrações",
+      value: overview.totalViolations.toLocaleString("pt-BR"),
+      unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
+    },
+    {
+      title: "Tipos de infração",
+      value: overview.violationTypesCount.toLocaleString("pt-BR"),
+      unit: `${overview.lawCodesCount} artigos do CTB`,
+    },
+    {
+      title: "Média mensal",
+      value: monthlyAverage.toLocaleString("pt-BR"),
+      unit: `infrações/mês em ${monthCount} meses`,
+    },
+    {
+      title: "Fiscalização eletrônica",
+      value: `${electronicPct.toFixed(1)}%`,
+      unit: "das autuações",
+    },
+  ];
+
+  return {
+    overview,
+    violationCodes: [], // unfiltered codes come from the main query
+    categories: [],     // unfiltered categories come from the main query
+    statisticsBoxes,
+    temporal,
+    categoryBreakdown,
+    agentBreakdownByYear: raw.agent_breakdown_by_year ?? [],
+    categoryBreakdownByYear: raw.category_breakdown_by_year ?? [],
+    // law filter specifics
+    lawCodes: (raw.law_codes ?? []).map((c: any) => ({
+      code: c.law_code ?? "",
+      lawCode: c.law_code ?? "",
+      description: c.description ?? "",
+      count: c.count ?? 0,
+      category: "",
+    })),
+    topStreets: raw.top_streets ?? [],
+    // street filter specifics
+    streetOfficialName: raw.official_name ?? "",
+    streetExtensionKm: raw.extension_km ?? 0,
+  };
+}
+
+export const infracoesFilteredQueryOptions = (filter: InfracoesFilter) =>
+  queryOptions({
+    queryKey: ["infracoes", "filtered", filter],
+    queryFn: () => fetchFilteredOverview(filter),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
 
 // ─── GeoJSON (single call) ────────────────────────────────────────────
 

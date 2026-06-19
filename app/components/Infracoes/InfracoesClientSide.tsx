@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
 import Table from "~/components/Commom/Table/Table";
@@ -107,6 +107,8 @@ interface InfracoesClientSideProps {
   categoryBreakdown: Array<{ category: string; total: number; percentage: number; topViolations: any[] }>;
   agentBreakdownByYear: any[];
   categoryBreakdownByYear: any[];
+  filter?: { type: string; value: string; label: string } | null;
+  lawCodes?: ViolationCode[];
 }
 
 function Section({ title, subtitle, children }: {
@@ -201,7 +203,10 @@ export default function InfracoesClientSide({
   categoryBreakdown = [],
   agentBreakdownByYear = [],
   categoryBreakdownByYear = [],
+  filter = null,
+  lawCodes,
 }: InfracoesClientSideProps) {
+  const navigate = useNavigate();
   const availableYears = getAvailableYears(overview);
 
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -354,7 +359,8 @@ export default function InfracoesClientSide({
     };
   });
 
-  const violationTableData = violationCodes.map((v) => ({
+  const activeViolationCodes = filter?.type === "law" && lawCodes ? lawCodes : violationCodes;
+  const violationTableData = activeViolationCodes.map((v) => ({
     base_legal: v.lawCode,
     descricao: v.description,
     categoria: v.category || "Não classificada",
@@ -434,12 +440,35 @@ export default function InfracoesClientSide({
           selectedYear={selectedYear}
           onChange={setSelectedYear}
         >
+          {filter && (
+            <div className="flex items-center justify-center gap-2 mt-3 sm:mt-2">
+              <span className="inline-flex items-center gap-1.5 bg-ameciclo text-white text-xs font-medium px-3 py-1 rounded-full">
+                {filter.type === "law" ? "Lei" : filter.type === "street_code" ? "Rua" : "Categoria"}: {filter.label}
+                <button
+                  onClick={() => navigate({ to: "/dados/infracoes" })}
+                  className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                  aria-label="Remover filtro"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </span>
+            </div>
+          )}
           {selectedYear && (
             <p className="text-center text-xs text-gray-400 mt-2">
               Mostrando dados de {selectedYear}. Selecione "Todo o período" para ver dados agregados.
             </p>
           )}
         </YearSelector>
+      )}
+
+      {filter && (
+        <div className="container mx-auto mb-4">
+          <Link to="/dados/infracoes" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-ameciclo">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            Voltar para visão geral
+          </Link>
+        </div>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════

@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
-import { infracoesQueryOptions } from "~/queries/dados.infracoes";
+import { infracoesQueryOptions, infracoesFilteredQueryOptions, type InfracoesFilter } from "~/queries/dados.infracoes";
 import { seo } from "~/utils/seo";
-import { slugToCategory, categoryColor } from "~/components/Infracoes/InfracoesClientSide";
-import InfracoesCategoryClientSide from "~/components/Infracoes/InfracoesCategoryClientSide";
+import { slugToCategory } from "~/components/Infracoes/InfracoesClientSide";
+import InfracoesClientSide from "~/components/Infracoes/InfracoesClientSide";
 
 export const Route = createFileRoute("/dados/infracoes/$category")({
   loader: ({ context: { queryClient } }) =>
@@ -32,24 +32,26 @@ export const Route = createFileRoute("/dados/infracoes/$category")({
 function InfracoesCategoryPage() {
   const { category } = Route.useParams();
   const { data } = useSuspenseQuery(infracoesQueryOptions());
-  const { overview, categories, categoryBreakdown, apiDown } = data;
+  const { overview, categories, apiDown } = data;
   const categoryName = slugToCategory(category, categories.map((c: any) => c.name));
-  const categoryStats = categoryBreakdown.find((c: any) => c.category === categoryName);
-  const color = categoryColor(categoryName);
+
+  const filter: InfracoesFilter = { type: "category", value: categoryName, label: categoryName };
+
+  const { data: filteredData } = useQuery(infracoesFilteredQueryOptions(filter));
 
   useReportApiErrors(data);
+  const display = filteredData ?? data;
 
   const fmtDate = (d: string) => {
     const parts = (d ?? "").slice(0, 10).split("-");
     return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
   };
 
+  const categoryStats = display.categoryBreakdown.find((c: any) => c.category === categoryName);
+
   return (
     <>
-      <Banner
-        image="/pages_covers/infracoes.png"
-        alt="Infrações"
-      />
+      <Banner image="/pages_covers/infracoes.png" alt="Infrações" />
       <Breadcrumb
         label={categoryName}
         slug={`/dados/infracoes/${category}`}
@@ -63,7 +65,7 @@ function InfracoesCategoryPage() {
           {
             title: "Total de infrações",
             value: categoryStats ? categoryStats.total.toLocaleString("pt-BR") : "—",
-            unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
+            unit: `${fmtDate(display.overview.periodStart)} a ${fmtDate(display.overview.periodEnd)}`,
           },
           {
             title: "Artigos do CTB",
@@ -78,14 +80,19 @@ function InfracoesCategoryPage() {
           {
             title: "Total geral",
             value: overview.totalViolations.toLocaleString("pt-BR"),
-            unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
+            unit: `${fmtDate(display.overview.periodStart)} a ${fmtDate(display.overview.periodEnd)}`,
           },
         ]}
       />
-      <InfracoesCategoryClientSide
-        categorySlug={category}
-        overview={overview}
-        color={color}
+      <InfracoesClientSide
+        overview={display.overview}
+        violationCodes={display.violationCodes}
+        categories={categories}
+        temporal={display.temporal}
+        categoryBreakdown={display.categoryBreakdown}
+        agentBreakdownByYear={display.agentBreakdownByYear}
+        categoryBreakdownByYear={display.categoryBreakdownByYear}
+        filter={filter}
       />
     </>
   );
