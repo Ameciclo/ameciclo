@@ -218,7 +218,7 @@ export function ContactForm() {
             onClick={() => handleFormSubmit((data) => {
               const telefoneFormatted = data.telefone ? `${data.ddi}${data.telefone}` : 'Não informado';
               const whatsappMsg = `Olá! Me chamo ${data.nome}!\\n\\nEmail: ${data.email}\\nTelefone: ${telefoneFormatted}\\n\\n${data.mensagem}`;
-              window.open(`https://wa.me/5581994586830?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
+              window.open(`https://wa.me/5581997860060?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
             })}
             className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
           >
