@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
@@ -51,6 +52,15 @@ function InfracoesPage() {
     filter ? infracoesFilteredQueryOptions(filter) : ({ queryKey: ["skip"], queryFn: () => null, enabled: false } as any)
   );
 
+  const displayFilter = useMemo(() => {
+    if (!filter) return undefined;
+    const fd = filteredData as any;
+    if (filter.type === "street_code" && fd?.streetOfficialName) {
+      return { ...filter, label: fd.streetOfficialName };
+    }
+    return filter;
+  }, [filter, filteredData]);
+
   const display: any = filteredData ?? data;
 
   return (
@@ -58,8 +68,8 @@ function InfracoesPage() {
       <Banner image="/pages_covers/infracoes.png" alt="Infrações" />
       <Breadcrumb label="Observatório de Infrações" slug="/dados/infracoes" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={apiDown} />
-      {filter ? (
-        <FilteredStatisticsBox filter={filter} filteredData={filteredData as any} overview={overview} unfilteredStats={display} />
+      {displayFilter ? (
+        <FilteredStatisticsBox filter={displayFilter} filteredData={filteredData as any} overview={overview} unfilteredStats={display} />
       ) : (
         <>
           <StatisticsBox title="Observatório de Infrações de Trânsito" subtitle="Estatísticas gerais" boxes={statisticsBoxes} />
@@ -79,13 +89,13 @@ function InfracoesPage() {
       )}
       <InfracoesClientSide
         overview={display.overview}
-        violationCodes={filter?.type === "law" && filteredData ? (filteredData as any).lawCodes ?? display.violationCodes : display.violationCodes}
+        violationCodes={displayFilter?.type === "law" && filteredData ? (filteredData as any).lawCodes ?? display.violationCodes : display.violationCodes}
         categories={categories}
         temporal={display.temporal}
         categoryBreakdown={display.categoryBreakdown}
         agentBreakdownByYear={display.agentBreakdownByYear}
         categoryBreakdownByYear={display.categoryBreakdownByYear}
-        filter={filter}
+        filter={displayFilter ?? null}
         lawCodes={(filteredData as any)?.lawCodes}
       />
     </>

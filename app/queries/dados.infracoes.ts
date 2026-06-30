@@ -3,7 +3,6 @@ import { createServerFn } from "@tanstack/react-start";
 import {
   TRAFFIC_VIOLATIONS_OVERVIEW,
   TRAFFIC_VIOLATIONS_CODES,
-  TRAFFIC_VIOLATIONS_CATEGORIES,
   TRAFFIC_VIOLATIONS_TEMPORAL,
   TRAFFIC_VIOLATIONS_GEOJSON,
   TRAFFIC_VIOLATIONS_CATEGORY_PAGE,
@@ -23,32 +22,25 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
   try {
     const tracker = makeApiErrorTracker();
 
-    const [overviewRaw, codesRaw, categoriesRaw] = await Promise.all([
+    const [overviewRaw, codesRaw] = await Promise.all([
       cmsFetch<any>(TRAFFIC_VIOLATIONS_OVERVIEW, {
         ttl: 300,
         timeout: 10000,
         fallback: null,
         onError: tracker.at(TRAFFIC_VIOLATIONS_OVERVIEW),
       }),
-      cmsFetch<any>(TRAFFIC_VIOLATIONS_CODES, {
+      cmsFetch<any>(`${TRAFFIC_VIOLATIONS_CODES}?include_by_year=true`, {
         ttl: 600,
         timeout: 10000,
         fallback: null,
         onError: tracker.at(TRAFFIC_VIOLATIONS_CODES),
       }),
-      cmsFetch<any>(TRAFFIC_VIOLATIONS_CATEGORIES, {
-        ttl: 600,
-        timeout: 10000,
-        fallback: null,
-        onError: tracker.at(TRAFFIC_VIOLATIONS_CATEGORIES),
-      }),
     ]);
 
     const safeOverview = overviewRaw ?? {};
     const safeCodes = codesRaw ?? {};
-    const safeCategories = categoriesRaw ?? {};
 
-    const agentBreakdown = (safeOverview.agent_breakdown ?? []).map((a: any) => ({
+    const agentBreakdown = (safeOverview.agents ?? []).map((a: any) => ({
       agentId: a.agent_id,
       description: a.description ?? "",
       count: a.count ?? 0,
@@ -81,12 +73,7 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
       description: c.description ?? "",
       count: c.count ?? 0,
       category: c.category ?? "",
-    }));
-
-    const categories = (safeCategories.categories ?? []).map((c: any) => ({
-      name: c.category ?? "",
-      codeCount: c.code_count ?? 0,
-      totalViolations: c.total_violations ?? 0,
+      by_year: c.by_year ?? {},
     }));
 
     // Temporal from overview.evolution — by_year pre-aggregated, others raw for client-side filtering
@@ -103,7 +90,7 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
     };
 
     // Category breakdown from overview (replaces client-side /categories-detail)
-    const categoryBreakdown = (safeOverview.category_breakdown ?? []).map((c: any) => ({
+    const categoryBreakdown = (safeOverview.category ?? []).map((c: any) => ({
       category: c.category ?? "",
       total: c.count ?? 0,
       percentage: c.percentage ?? 0,
@@ -112,6 +99,55 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
         description: v.description ?? "",
         count: v.count ?? 0,
       })),
+    }));
+
+    const categories = (safeOverview.category ?? []).map((c: any) => ({
+      name: c.category ?? "",
+      codeCount: c.law_codes_count ?? 0,
+      totalViolations: c.count ?? 0,
+    }));
+
+    const agentBreakdownByYearMap: Record<number, any[]> = {};
+    for (const a of (safeOverview.agents ?? [])) {
+      for (const y of (a.by_year ?? [])) {
+        if (!agentBreakdownByYearMap[y.year]) agentBreakdownByYearMap[y.year] = [];
+        agentBreakdownByYearMap[y.year].push({
+          agentId: a.agent_id,
+          description: y.description ?? a.description ?? "",
+          count: y.count ?? 0,
+          percentage: y.percentage ?? 0,
+          category: a.category ?? "manual",
+          top_violations: (y.top_violations ?? []).map((v: any) => ({
+            law_code: v.law_code ?? "",
+            description: v.description ?? "",
+            count: v.count ?? 0,
+          })),
+        });
+      }
+    }
+    const agentBreakdownByYear = Object.entries(agentBreakdownByYearMap).map(([year, agents]) => ({
+      year: Number(year),
+      agents,
+    }));
+
+    const categoryBreakdownByYearMap: Record<number, any[]> = {};
+    for (const c of (safeOverview.category ?? [])) {
+      for (const y of (c.by_year ?? [])) {
+        if (!categoryBreakdownByYearMap[y.year]) categoryBreakdownByYearMap[y.year] = [];
+        categoryBreakdownByYearMap[y.year].push({
+          category: c.category ?? "",
+          count: y.count ?? 0,
+          top_violations: (y.top_violations ?? []).map((v: any) => ({
+            law_code: v.law_code ?? "",
+            description: v.description ?? "",
+            count: v.count ?? 0,
+          })),
+        });
+      }
+    }
+    const categoryBreakdownByYear = Object.entries(categoryBreakdownByYearMap).map(([year, categories]) => ({
+      year: Number(year),
+      categories,
     }));
 
     const fmtDate = (d: string) => {
@@ -160,8 +196,8 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
       statisticsBoxes,
       temporal,
       categoryBreakdown,
-      agentBreakdownByYear: safeOverview.agent_breakdown_by_year ?? [],
-      categoryBreakdownByYear: safeOverview.category_breakdown_by_year ?? [],
+      agentBreakdownByYear,
+      categoryBreakdownByYear,
       ...tracker.summary(),
     };
   } catch (e) {
@@ -218,7 +254,10 @@ async function fetchJson(url: string) {
 
 async function fetchFilteredOverview(filter: InfracoesFilter) {
   const url = buildUrl(TRAFFIC_VIOLATIONS_OVERVIEW, { [filter.type]: filter.value });
-  const raw = await fetchJson(url).catch(() => null);
+  const raw = await fetchJson(url).catch((err) => {
+    console.warn("fetchFilteredOverview failed:", url, err);
+    return null;
+  });
   if (!raw) return null;
 
   const fmtDate = (d: string) => {
@@ -226,7 +265,7 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
     return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
   };
 
-  const agentBreakdown = (raw.agent_breakdown ?? []).map((a: any) => ({
+  const agentBreakdown = (raw.agents ?? []).map((a: any) => ({
     agentId: a.agent_id,
     description: a.description ?? "",
     count: a.count ?? 0,
@@ -262,7 +301,7 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
     by_hour_raw: evo.by_hour ?? [],
   };
 
-  const categoryBreakdown = (raw.category_breakdown ?? []).map((c: any) => ({
+  const categoryBreakdown = (raw.category ?? []).map((c: any) => ({
     category: c.category ?? "",
     total: c.count ?? 0,
     percentage: c.percentage ?? 0,
@@ -311,6 +350,49 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
     },
   ];
 
+  const agentBreakdownByYearMap2: Record<number, any[]> = {};
+  for (const a of (raw.agents ?? [])) {
+    for (const y of (a.by_year ?? [])) {
+      if (!agentBreakdownByYearMap2[y.year]) agentBreakdownByYearMap2[y.year] = [];
+      agentBreakdownByYearMap2[y.year].push({
+        agentId: a.agent_id,
+        description: y.description ?? a.description ?? "",
+        count: y.count ?? 0,
+        percentage: y.percentage ?? 0,
+        category: a.category ?? "manual",
+        top_violations: (y.top_violations ?? []).map((v: any) => ({
+          law_code: v.law_code ?? "",
+          description: v.description ?? "",
+          count: v.count ?? 0,
+        })),
+      });
+    }
+  }
+  const agentBreakdownByYear = Object.entries(agentBreakdownByYearMap2).map(([year, agents]) => ({
+    year: Number(year),
+    agents,
+  }));
+
+  const categoryBreakdownByYearMap2: Record<number, any[]> = {};
+  for (const c of (raw.category ?? [])) {
+    for (const y of (c.by_year ?? [])) {
+      if (!categoryBreakdownByYearMap2[y.year]) categoryBreakdownByYearMap2[y.year] = [];
+      categoryBreakdownByYearMap2[y.year].push({
+        category: c.category ?? "",
+        count: y.count ?? 0,
+        top_violations: (y.top_violations ?? []).map((v: any) => ({
+          law_code: v.law_code ?? "",
+          description: v.description ?? "",
+          count: v.count ?? 0,
+        })),
+      });
+    }
+  }
+  const categoryBreakdownByYear = Object.entries(categoryBreakdownByYearMap2).map(([year, categories]) => ({
+    year: Number(year),
+    categories,
+  }));
+
   return {
     overview,
     violationCodes: [], // unfiltered codes come from the main query
@@ -318,8 +400,8 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
     statisticsBoxes,
     temporal,
     categoryBreakdown,
-    agentBreakdownByYear: raw.agent_breakdown_by_year ?? [],
-    categoryBreakdownByYear: raw.category_breakdown_by_year ?? [],
+    agentBreakdownByYear,
+    categoryBreakdownByYear,
     // law filter specifics
     lawCodes: (raw.law_codes ?? []).map((c: any) => ({
       code: c.law_code ?? "",

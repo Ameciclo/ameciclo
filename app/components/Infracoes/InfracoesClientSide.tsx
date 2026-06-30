@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import bbox from "@turf/bbox";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
 import Table from "~/components/Commom/Table/Table";
@@ -78,6 +79,7 @@ interface ViolationCode {
   description: string;
   count: number;
   category: string;
+  by_year?: Record<string, number>;
 }
 
 interface CategoryItem {
@@ -127,74 +129,6 @@ function Section({ title, subtitle, children }: {
   );
 }
 
-function getAvailableYears(overview: OverviewData): number[] {
-  const start = parseInt(overview.periodStart.slice(0, 4));
-  const end = parseInt(overview.periodEnd.slice(0, 4));
-  if (!start || !end) return [];
-  const years: number[] = [];
-  for (let y = start; y <= end; y++) years.push(y);
-  return years;
-}
-
-function YearSelector({
-  years,
-  selectedYear,
-  onChange,
-  children,
-}: {
-  years: number[];
-  selectedYear: number | null;
-  onChange: (year: number | null) => void;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
-      {/* Desktop: pill buttons */}
-      <div className="hidden sm:flex flex-wrap items-center justify-center gap-3">
-        <span className="text-sm font-medium text-gray-600">Filtrar por ano:</span>
-        <button
-          onClick={() => onChange(null)}
-          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === null
-              ? "bg-ameciclo text-white"
-              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-            }`}
-        >
-          Todo o período
-        </button>
-        {years.map((year) => (
-          <button
-            key={year}
-            onClick={() => onChange(year)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedYear === year
-                ? "bg-ameciclo text-white"
-                : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-              }`}
-          >
-            {year}
-          </button>
-        ))}
-      </div>
-
-      {/* Mobile: dropdown */}
-      <div className="sm:hidden flex items-center justify-center gap-2">
-        <label className="text-sm font-medium text-gray-600 shrink-0">Ano:</label>
-        <select
-          value={selectedYear ?? ""}
-          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
-          className="w-full max-w-48 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-ameciclo"
-        >
-          <option value="">Todo o período</option>
-          {years.map((year) => (
-            <option key={year} value={year}>{year}</option>
-          ))}
-        </select>
-      </div>
-
-      {children}
-    </div>
-  );
-}
-
 export default function InfracoesClientSide({
   overview,
   violationCodes,
@@ -207,7 +141,10 @@ export default function InfracoesClientSide({
   lawCodes,
 }: InfracoesClientSideProps) {
   const navigate = useNavigate();
-  const availableYears = getAvailableYears(overview);
+  const availableYears = Object.keys(temporal.by_year ?? {})
+    .map(Number)
+    .filter((y) => !isNaN(y) && (temporal.by_year[y] ?? 0) > 0)
+    .sort((a, b) => b - a);
 
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showViolationFilters, setShowViolationFilters] = useState(false);
@@ -247,6 +184,22 @@ export default function InfracoesClientSide({
       streetsData: mapped.map((f: any) => f.properties),
     };
   }, [geoData, selectedYear]);
+
+  const flyTo = useMemo(() => {
+    if (filter?.type !== "street_code") return null;
+    const code = Number(filter.value);
+    const feature = geoData?.features?.find((f: any) => f.properties?.street_code === code);
+    if (!feature?.geometry) return null;
+    try {
+      const [minX, minY, maxX, maxY] = bbox(feature);
+      const centerLng = (minX + maxX) / 2;
+      const centerLat = (minY + maxY) / 2;
+      if (Number.isNaN(centerLng) || Number.isNaN(centerLat)) return null;
+      return { latitude: centerLat, longitude: centerLng, zoom: 15 };
+    } catch {
+      return null;
+    }
+  }, [filter, geoData]);
 
   // ─── Bloco 2: Temporal ── by_year pre-aggregated, detail filtered client-side
   const temporalData = useMemo(() => {
@@ -334,7 +287,13 @@ export default function InfracoesClientSide({
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetsSorted = [...streetsData]
     .filter((s: any) => s.total_violations > 0)
-    .sort((a: any, b: any) => (b.total_violations ?? 0) - (a.total_violations ?? 0))
+    .sort((a: any, b: any) => {
+      const isSelectedA = filter?.type === "street_code" && a.street_code === Number(filter.value);
+      const isSelectedB = filter?.type === "street_code" && b.street_code === Number(filter.value);
+      if (isSelectedA && !isSelectedB) return -1;
+      if (!isSelectedA && isSelectedB) return 1;
+      return (b.total_violations ?? 0) - (a.total_violations ?? 0);
+    })
     .slice(0, 100);
 
   const totalStreetViolations = streetsSorted.reduce((sum: number, s: any) => sum + (s.total_violations ?? 0), 0);
@@ -346,6 +305,7 @@ export default function InfracoesClientSide({
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     const total = s.total_violations ?? 0;
     const tv = s.top_violation;
+    const isHighlighted = filter?.type === "street_code" && s.street_code === Number(filter.value);
     return {
       ranking: i + 1,
       rua: name,
@@ -356,16 +316,31 @@ export default function InfracoesClientSide({
       pct_total: totalStreetViolations > 0 ? `${((total / totalStreetViolations) * 100).toFixed(1)}%` : "—",
       principal_infracao: tv?.description ?? "—",
       pct_via: tv?.percentage != null ? `${tv.percentage.toFixed(1)}%` : "—",
+      isHighlighted,
     };
   });
 
   const activeViolationCodes = filter?.type === "law" && lawCodes ? lawCodes : violationCodes;
-  const violationTableData = activeViolationCodes.map((v) => ({
-    base_legal: v.lawCode,
-    descricao: v.description,
-    categoria: v.category || "Não classificada",
-    count_raw: v.count,
-  }));
+
+  const filteredCodes = selectedYear !== null
+    ? activeViolationCodes
+        .map((v) => ({ ...v, count: v.by_year?.[String(selectedYear)] ?? 0 }))
+        .filter((v) => v.count > 0)
+    : activeViolationCodes;
+
+  const violationTableData = filteredCodes
+    .map((v) => ({
+      base_legal: v.lawCode,
+      descricao: v.description,
+      categoria: v.category || "Não classificada",
+      count_raw: v.count,
+      isHighlighted: filter?.type === "law" && filter.value === v.lawCode,
+    }))
+    .sort((a: any, b: any) => {
+      if (a.isHighlighted && !b.isHighlighted) return -1;
+      if (!a.isHighlighted && b.isHighlighted) return 1;
+      return (b.count_raw ?? 0) - (a.count_raw ?? 0);
+    });
 
   const colorBreakpoints = { r1: 5000, r2: 10000, r3: 15000 };
 
@@ -432,18 +407,60 @@ export default function InfracoesClientSide({
     );
   }, []);
 
+  const filterDisplayLabel = useMemo(() => {
+    if (!filter) return null;
+    if (filter.type !== "street_code") return filter.label;
+    const code = Number(filter.value);
+    const street = streetsData.find((s: any) => s.street_code === code);
+    return street?.street_name || street?.official_name || filter.label;
+  }, [filter, streetsData]);
+
   return (
     <div className="pb-16">
       {availableYears.length > 0 && (
-        <YearSelector
-          years={availableYears}
-          selectedYear={selectedYear}
-          onChange={setSelectedYear}
-        >
-          {filter && (
-            <div className="flex items-center justify-center gap-2 mt-3 sm:mt-2">
+        <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label htmlFor="year-select" className="text-sm font-medium text-gray-600 shrink-0">Ano:</label>
+              <select
+                id="year-select"
+                value={selectedYear ?? ""}
+                onChange={(e) => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-ameciclo"
+              >
+                <option value="">Todo o período</option>
+                {availableYears.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+
+            {filter?.type === "category" && (
+              <div className="flex items-center gap-2">
+                <label htmlFor="category-select" className="text-sm font-medium text-gray-600 shrink-0">Categoria:</label>
+                <select
+                  id="category-select"
+                  value={filter.label}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      navigate({ to: "/dados/infracoes", search: { category: categoryToSlug(e.target.value) } as any });
+                    } else {
+                      navigate({ to: "/dados/infracoes", search: {} as any });
+                    }
+                  }}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-ameciclo"
+                >
+                  <option value="">Todas as categorias</option>
+                  {categories.map((cat) => (
+                    <option key={cat.name} value={cat.name}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {filter && filter.type !== "category" && (
               <span className="inline-flex items-center gap-1.5 bg-ameciclo text-white text-xs font-medium px-3 py-1 rounded-full">
-                {filter.type === "law" ? "Lei" : filter.type === "street_code" ? "Rua" : "Categoria"}: {filter.label}
+                {filter.type === "law" ? "Lei" : "Rua"}: {filterDisplayLabel}
                 <button
                   onClick={() => navigate({ to: "/dados/infracoes", search: {} as any })}
                   className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
@@ -452,14 +469,15 @@ export default function InfracoesClientSide({
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </span>
-            </div>
-          )}
+            )}
+          </div>
+
           {selectedYear && (
             <p className="text-center text-xs text-gray-400 mt-2">
               Mostrando dados de {selectedYear}. Selecione "Todo o período" para ver dados agregados.
             </p>
           )}
-        </YearSelector>
+        </div>
       )}
 
       {filter && (
@@ -474,6 +492,7 @@ export default function InfracoesClientSide({
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 1 — Onde Acontecem
           ═══════════════════════════════════════════════════════════════ */}
+      {(!filter || filter.type === "street_code") && (
       <Section
         title={`Onde Acontecem${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="As ruas com maior concentração de infrações no Recife, com a infração mais comum em cada via."
@@ -486,6 +505,7 @@ export default function InfracoesClientSide({
                 layersConf={layersConf}
                 height="450px"
                 showLayersPanel={false}
+                flyTo={flyTo}
               />
               {mapLegend}
             </div>
@@ -512,9 +532,22 @@ export default function InfracoesClientSide({
               showFilters={showStreetFilters}
               setShowFilters={setShowStreetFilters}
                 columns={[
-                  { Header: "#", accessor: "ranking", disableFilters: true, width: '4%' },
+                  { Header: "#", accessor: "ranking", disableFilters: true, width: '4%', Cell: ({ value, row }: any) => (
+                    <span className={row.original.isHighlighted ? "font-bold text-ameciclo" : ""}>{value}</span>
+                  )},
                   { Header: "Rua", accessor: "rua", width: '28%', Cell: ({ value, row }: any) => (
-                    <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: undefined, street_code: row.original.street_code })} className="text-teal-600 hover:underline">{value}</Link>
+                    <div className={`flex items-center gap-2 ${row.original.isHighlighted ? "bg-ameciclo/10 -mx-3 px-3 py-1 rounded" : ""}`}>
+                      <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: undefined, street_code: row.original.street_code })} className="text-teal-600 hover:underline">{value}</Link>
+                      {row.original.isHighlighted && (
+                        <button
+                          onClick={(e) => { e.preventDefault(); navigate({ to: "/dados/infracoes", search: {} as any }); }}
+                          className="ml-auto shrink-0 hover:bg-ameciclo/20 rounded-full p-0.5 transition-colors"
+                          aria-label="Remover filtro"
+                        >
+                          <svg className="w-3.5 h-3.5 text-ameciclo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      )}
+                    </div>
                   )},
                   { Header: "Extensão", accessor: "extensao_km", disableFilters: true, width: '10%' },
                   { Header: "Total", accessor: "total_raw", disableFilters: true, width: '10%', Cell: ({ value }: { value: number }) => value.toLocaleString("pt-BR") },
@@ -526,6 +559,7 @@ export default function InfracoesClientSide({
           )}
         </div>
       </Section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 2 — Quando Acontecem
@@ -686,20 +720,35 @@ export default function InfracoesClientSide({
           {effectiveCategories.length > 0 && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-                {effectiveCategories.map((cat) => {
+                {(filter?.type === "category"
+                  ? effectiveCategories.filter((cat) => cat.name === filter.label)
+                  : effectiveCategories
+                ).map((cat) => {
                   const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";
                   const color = getCategoryColor(cat.name);
                   const topCodes = categoryTopViolations[cat.name] ?? [];
+                  const isSelected = filter?.type === "category" && cat.name === filter.label;
                   return (
-                    <Link
+                    <div
                       key={cat.name}
-                      to="/dados/infracoes"
-                      search={(prev: any) => ({ ...prev, category: categoryToSlug(cat.name), law: undefined, street_code: undefined })}
-                      className="bg-white rounded-lg shadow-lg p-6 flex flex-col hover:shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-200 cursor-pointer"
+                      role="button"
+                      tabIndex={isSelected ? -1 : 0}
+                      className={`bg-white rounded-lg shadow-lg p-6 flex flex-col transition-all duration-200 ${isSelected ? "ring-2 ring-ameciclo shadow-xl scale-[1.02]" : "hover:shadow-xl hover:bg-gray-100 hover:scale-[1.02] cursor-pointer"}`}
+                      onClick={isSelected ? undefined : () => navigate({ to: "/dados/infracoes", search: { category: categoryToSlug(cat.name) } as any })}
+                      onKeyDown={isSelected ? undefined : (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate({ to: "/dados/infracoes", search: { category: categoryToSlug(cat.name) } as any }); } }}
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                        <h3 className="text-lg font-bold text-gray-800">{cat.name}</h3>
+                        <h3 className="text-lg font-bold text-gray-800 flex-1">{cat.name}</h3>
+                        {isSelected && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); navigate({ to: "/dados/infracoes", search: {} as any }); }}
+                            className="shrink-0 hover:bg-red-50 rounded-full p-1 transition-colors"
+                            aria-label="Remover filtro"
+                          >
+                            <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        )}
                       </div>
                       <div className="mb-4">
                         <p className="text-3xl font-bold" style={{ color }}>{cat.totalViolations.toLocaleString("pt-BR")}</p>
@@ -720,11 +769,12 @@ export default function InfracoesClientSide({
                       ) : (
                         <p className="text-xs text-gray-400 mt-auto">Nenhuma infração registrada</p>
                       )}
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
 
+              {filter?.type !== "category" && (
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">{`Distribuição por Categoria${selectedYear ? ` — ${selectedYear}` : ""}`}</h3>
                 <div className="flex flex-wrap gap-3 justify-center mb-4">
@@ -759,6 +809,7 @@ export default function InfracoesClientSide({
                   })}
                 </div>
               </div>
+              )}
             </>
           )}
         </div>
@@ -774,8 +825,19 @@ export default function InfracoesClientSide({
           showFilters={showViolationFilters}
           setShowFilters={setShowViolationFilters}
           columns={[
-            { Header: "Base Legal", accessor: "base_legal", width: '15%', Cell: ({ value }: { value: string }) => value ? (
-              <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: encodeURIComponent(value), street_code: undefined })} className="text-teal-600 hover:underline">{value}</Link>
+            { Header: "Base Legal", accessor: "base_legal", width: '15%', Cell: ({ value, row }: { value: string; row: any }) => value ? (
+              <div className={`flex items-center gap-2 ${row.original.isHighlighted ? "bg-ameciclo/10 -mx-3 px-3 py-1 rounded" : ""}`}>
+                <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: encodeURIComponent(value), street_code: undefined })} className="text-teal-600 hover:underline">{value}</Link>
+                {row.original.isHighlighted && (
+                  <button
+                    onClick={(e) => { e.preventDefault(); navigate({ to: "/dados/infracoes", search: {} as any }); }}
+                    className="ml-auto shrink-0 hover:bg-ameciclo/20 rounded-full p-0.5 transition-colors"
+                    aria-label="Remover filtro"
+                  >
+                    <svg className="w-3.5 h-3.5 text-ameciclo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                )}
+              </div>
             ) : "—" },
             { Header: "Descrição", accessor: "descricao", width: '40%' },
             { Header: "Categoria", accessor: "categoria", Filter: SelectColumnFilter, width: '25%' },
