@@ -41,6 +41,12 @@ const CATEGORY_COLOR_PALETTE = [
   "#f97316", "#14b8a6", "#6366f1", "#84cc16",
 ];
 
+const AGENT_COLOR_PALETTE = [
+  "#dc2626", "#3b82f6", "#10b981", "#f59e0b",
+  "#8b5cf6", "#ec4899", "#06b6d4", "#f97316",
+  "#6b7280", "#84cc16", "#14b8a6", "#6366f1",
+];
+
 function getCategoryColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -48,6 +54,15 @@ function getCategoryColor(name: string): string {
     hash |= 0;
   }
   return CATEGORY_COLOR_PALETTE[Math.abs(hash) % CATEGORY_COLOR_PALETTE.length];
+}
+
+function getAgentColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+    hash |= 0;
+  }
+  return AGENT_COLOR_PALETTE[Math.abs(hash) % AGENT_COLOR_PALETTE.length];
 }
 
 export function categoryColor(name: string): string {
@@ -111,6 +126,7 @@ interface InfracoesClientSideProps {
   categoryBreakdownByYear: any[];
   filter?: { type: string; value: string; label: string } | null;
   lawCodes?: ViolationCode[];
+  filterLoading?: boolean;
 }
 
 function Section({ title, subtitle, children }: {
@@ -139,6 +155,7 @@ export default function InfracoesClientSide({
   categoryBreakdownByYear = [],
   filter = null,
   lawCodes,
+  filterLoading = false,
 }: InfracoesClientSideProps) {
   const navigate = useNavigate();
   const availableYears = Object.keys(temporal.by_year ?? {})
@@ -147,6 +164,7 @@ export default function InfracoesClientSide({
     .sort((a, b) => b - a);
 
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [stackMode, setStackMode] = useState<'total' | 'category' | 'agent'>('total');
   const [showViolationFilters, setShowViolationFilters] = useState(false);
   const [showStreetFilters, setShowStreetFilters] = useState(false);
 
@@ -284,6 +302,50 @@ export default function InfracoesClientSide({
     return effectiveCategories.reduce((sum, cat) => sum + cat.totalViolations, 0);
   }, [effectiveCategories]);
 
+  // ─── Dados para gráfico de evolução anual empilhado ──────────────
+
+  const categoryStackedData = useMemo(() => {
+    if (categoryBreakdownByYear.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCats = [...new Set(categoryBreakdownByYear.flatMap((y: any) => y.categories.map((c: any) => c.category)))].sort();
+
+    const data = categoryBreakdownByYear
+      .map((y: any) => {
+        const row: any = { label: String(y.year) };
+        for (const cat of y.categories) {
+          row[cat.category] = cat.count;
+        }
+        for (const cat of allCats) {
+          if (row[cat] === undefined) row[cat] = 0;
+        }
+        return row;
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    return { data, yKeys: allCats, colors: allCats.map(getCategoryColor) };
+  }, [categoryBreakdownByYear]);
+
+  const agentStackedData = useMemo(() => {
+    if (agentBreakdownByYear.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allAgents = [...new Set(agentBreakdownByYear.flatMap((y: any) => y.agents.map((a: any) => a.description)))].sort();
+
+    const data = agentBreakdownByYear
+      .map((y: any) => {
+        const row: any = { label: String(y.year) };
+        for (const a of y.agents) {
+          row[a.description] = a.count;
+        }
+        for (const a of allAgents) {
+          if (row[a] === undefined) row[a] = 0;
+        }
+        return row;
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    return { data, yKeys: allAgents, colors: allAgents.map(getAgentColor) };
+  }, [agentBreakdownByYear]);
+
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetsSorted = [...streetsData]
     .filter((s: any) => s.total_violations > 0)
@@ -322,11 +384,21 @@ export default function InfracoesClientSide({
 
   const activeViolationCodes = filter?.type === "law" && lawCodes ? lawCodes : violationCodes;
 
-  const filteredCodes = selectedYear !== null
-    ? activeViolationCodes
+  const filteredCodes = (() => {
+    let codes = activeViolationCodes;
+
+    if (filter?.type === "category") {
+      codes = codes.filter((v) => v.category === filter.value);
+    }
+
+    if (selectedYear !== null) {
+      codes = codes
         .map((v) => ({ ...v, count: v.by_year?.[String(selectedYear)] ?? 0 }))
-        .filter((v) => v.count > 0)
-    : activeViolationCodes;
+        .filter((v) => v.count > 0);
+    }
+
+    return codes;
+  })();
 
   const violationTableData = filteredCodes
     .map((v) => ({
@@ -416,7 +488,7 @@ export default function InfracoesClientSide({
   }, [filter, streetsData]);
 
   return (
-    <div className="pb-16">
+    <div className={`pb-16 transition-opacity duration-150 ${filterLoading ? 'opacity-60' : ''}`}>
       {availableYears.length > 0 && (
         <div className="container mx-auto mb-6 sticky top-16 z-30 bg-gray-50/95 backdrop-blur-sm py-3 px-4 rounded-b-lg border-b border-gray-200 shadow-sm">
           <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -435,32 +507,9 @@ export default function InfracoesClientSide({
               </select>
             </div>
 
-            {filter?.type === "category" && (
-              <div className="flex items-center gap-2">
-                <label htmlFor="category-select" className="text-sm font-medium text-gray-600 shrink-0">Categoria:</label>
-                <select
-                  id="category-select"
-                  value={filter.label}
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      navigate({ to: "/dados/infracoes", search: { category: categoryToSlug(e.target.value) } as any });
-                    } else {
-                      navigate({ to: "/dados/infracoes", search: {} as any });
-                    }
-                  }}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-ameciclo"
-                >
-                  <option value="">Todas as categorias</option>
-                  {categories.map((cat) => (
-                    <option key={cat.name} value={cat.name}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {filter && filter.type !== "category" && (
+            {filter && (
               <span className="inline-flex items-center gap-1.5 bg-ameciclo text-white text-xs font-medium px-3 py-1 rounded-full">
-                {filter.type === "law" ? "Lei" : "Rua"}: {filterDisplayLabel}
+                {filter.type === "category" ? "Categoria" : filter.type === "law" ? "Lei" : "Rua"}: {filterDisplayLabel}
                 <button
                   onClick={() => navigate({ to: "/dados/infracoes", search: {} as any })}
                   className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
@@ -574,19 +623,79 @@ export default function InfracoesClientSide({
               <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
                 Evolução Anual{selectedYear ? ` — ${selectedYear}` : ""}
               </h3>
-              <VerticalBarChart
-                title=""
-                xAxisTitle=""
-                yAxisTitle="Infrações"
-                data={Object.entries(temporalData.by_year)
-                  .sort(([a], [b]) => a.localeCompare(b))
-                  .map(([year, count]) => ({ label: year, count }))}
-                xKey="label"
-                yKeys={["count"]}
-                colorByLabel={selectedYear
-                  ? (label: string) => label === String(selectedYear) ? '#dc2626' : '#d1d5db'
-                  : () => '#dc2626'}
-              />
+              <div className="flex items-center justify-center gap-1 mb-4">
+                <button
+                  onClick={() => setStackMode('total')}
+                  className={`px-4 py-1.5 text-sm font-medium rounded-l-lg transition-colors ${
+                    stackMode === 'total'
+                      ? 'bg-ameciclo text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Total
+                </button>
+                {categoryStackedData.data.length > 0 && (
+                  <button
+                    onClick={() => setStackMode('category')}
+                    className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                      stackMode === 'category'
+                        ? 'bg-ameciclo text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Por Categoria
+                  </button>
+                )}
+                {agentStackedData.data.length > 0 && (
+                  <button
+                    onClick={() => setStackMode('agent')}
+                    className={`px-4 py-1.5 text-sm font-medium rounded-r-lg transition-colors ${
+                      stackMode === 'agent'
+                        ? 'bg-ameciclo text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Por Agente
+                  </button>
+                )}
+              </div>
+              {stackMode === 'total' ? (
+                <VerticalBarChart
+                  title=""
+                  xAxisTitle=""
+                  yAxisTitle="Infrações"
+                  data={Object.entries(temporalData.by_year)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([year, count]) => ({ label: year, count }))}
+                  xKey="label"
+                  yKeys={["count"]}
+                  colorByLabel={selectedYear
+                    ? (label: string) => label === String(selectedYear) ? '#dc2626' : '#d1d5db'
+                    : () => '#dc2626'}
+                />
+              ) : stackMode === 'category' ? (
+                <VerticalBarChart
+                  title=""
+                  xAxisTitle=""
+                  yAxisTitle="Infrações"
+                  data={categoryStackedData.data}
+                  xKey="label"
+                  yKeys={categoryStackedData.yKeys}
+                  colors={categoryStackedData.colors}
+                  selectedLabel={selectedYear ? String(selectedYear) : undefined}
+                />
+              ) : (
+                <VerticalBarChart
+                  title=""
+                  xAxisTitle=""
+                  yAxisTitle="Infrações"
+                  data={agentStackedData.data}
+                  xKey="label"
+                  yKeys={agentStackedData.yKeys}
+                  colors={agentStackedData.colors}
+                  selectedLabel={selectedYear ? String(selectedYear) : undefined}
+                />
+              )}
             </div>
           )}
 
@@ -668,6 +777,7 @@ export default function InfracoesClientSide({
                   }]}
                 />
               </div>
+              {filter?.type !== "category" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {agentData.map((agent: any) => (
                   <div key={agent.agent_id} className="bg-white rounded-lg shadow-lg p-6">
@@ -700,6 +810,7 @@ export default function InfracoesClientSide({
                   </div>
                 ))}
               </div>
+              )}
             </>
           ) : (
             <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
@@ -712,6 +823,7 @@ export default function InfracoesClientSide({
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 4 — Categorias de Segurança
           ═══════════════════════════════════════════════════════════════ */}
+      {filter?.type !== "category" && (
       <Section
         title={`Infrações por classificação${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="As infrações são agrupadas por classificação temática. Clique em um card para ver a análise aprofundada de cada categoria."
@@ -814,6 +926,7 @@ export default function InfracoesClientSide({
           )}
         </div>
       </Section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 5 — Tabela Completa
