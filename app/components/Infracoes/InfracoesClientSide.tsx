@@ -118,6 +118,18 @@ interface InfracoesClientSideProps {
   filter?: { type: string; value: string; label: string } | null;
   lawCodes?: ViolationCode[];
   filterLoading?: boolean;
+  lawStats?: Array<{
+    lawCode: string;
+    description: string;
+    count: number;
+    by_year: Record<string, number>;
+    evolution: {
+      by_year_raw: Array<{ year: number; count: number }>;
+      by_month_raw: Array<{ year: number; month: number; count: number }>;
+      by_weekday_raw: Array<{ year: number; counts: number[] }>;
+      by_hour_raw: Array<{ year: number; counts: number[] }>;
+    };
+  }>;
 }
 
 function Section({ title, subtitle, children }: {
@@ -147,6 +159,7 @@ export default function InfracoesClientSide({
   filter = null,
   lawCodes,
   filterLoading = false,
+  lawStats,
 }: InfracoesClientSideProps) {
   const navigate = useNavigate();
   const availableYears = Object.keys(temporal.by_year ?? {})
@@ -454,6 +467,146 @@ export default function InfracoesClientSide({
     return { data, yKeys, colors };
   }, [categoryBreakdown, selectedYear, temporalData?.by_hour]);
 
+  // ─── Dados para gráficos temporais empilhados por law_code ──────
+
+  const lawCodeAnnualStackedData = useMemo(() => {
+    if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCodes = lawStats.map(lc => lc.lawCode);
+    const allYears = [...new Set(lawStats.flatMap(lc => Object.keys(lc.by_year)))].sort();
+
+    const data = allYears.map(year => {
+      const row: any = { label: year };
+      let catTotal = 0;
+      for (const lc of lawStats) {
+        const count = lc.by_year[year] ?? 0;
+        row[lc.lawCode] = count;
+        catTotal += count;
+      }
+      const globalTotal = temporalData?.by_year?.[year] ?? 0;
+      const diff = globalTotal - catTotal;
+      if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
+      return row;
+    });
+
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCodes, UNCLASSIFIED_LABEL] : allCodes;
+    const colors = hasUnclassified
+      ? [...allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR]
+      : allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]);
+
+    return { data, yKeys, colors };
+  }, [lawStats, temporalData?.by_year]);
+
+  const lawCodeMonthlyStackedData = useMemo(() => {
+    if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCodes = lawStats.map(lc => lc.lawCode);
+
+    const data = Array.from({ length: 12 }, (_, i) => {
+      const month = String(i + 1).padStart(2, "0");
+      const row: any = { label: MONTH_LABELS[month] };
+      let catTotal = 0;
+      for (const lc of lawStats) {
+        const raw = lc.evolution.by_month_raw ?? [];
+        const filtered = selectedYear !== null
+          ? raw.filter((m: any) => m.year === selectedYear)
+          : raw;
+        const count = filtered
+          .filter((m: any) => String(m.month).padStart(2, "0") === month)
+          .reduce((sum: number, m: any) => sum + (m.count ?? 0), 0);
+        row[lc.lawCode] = count;
+        catTotal += count;
+      }
+      const globalTotal = temporalData?.by_month?.[month] ?? 0;
+      const diff = globalTotal - catTotal;
+      if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
+      return row;
+    });
+
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCodes, UNCLASSIFIED_LABEL] : allCodes;
+    const colors = hasUnclassified
+      ? [...allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR]
+      : allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]);
+
+    return { data, yKeys, colors };
+  }, [lawStats, selectedYear, temporalData?.by_month]);
+
+  const lawCodeWeekdayStackedData = useMemo(() => {
+    if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCodes = lawStats.map(lc => lc.lawCode);
+    const wl = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+
+    const data = wl.map(day => {
+      const row: any = { label: WEEKDAY_LABELS[day] };
+      let catTotal = 0;
+      const idx = wl.indexOf(day);
+      for (const lc of lawStats) {
+        const raw = lc.evolution.by_weekday_raw ?? [];
+        const filtered = selectedYear !== null
+          ? raw.filter((w: any) => w.year === selectedYear)
+          : raw;
+        let count = 0;
+        for (const w of filtered) {
+          const c = w.counts ?? [];
+          if (idx >= 0 && idx < c.length) count += (c[idx] ?? 0);
+        }
+        row[lc.lawCode] = count;
+        catTotal += count;
+      }
+      const globalTotal = temporalData?.by_weekday?.[day] ?? 0;
+      const diff = globalTotal - catTotal;
+      if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
+      return row;
+    });
+
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCodes, UNCLASSIFIED_LABEL] : allCodes;
+    const colors = hasUnclassified
+      ? [...allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR]
+      : allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]);
+
+    return { data, yKeys, colors };
+  }, [lawStats, selectedYear, temporalData?.by_weekday]);
+
+  const lawCodeHourlyStackedData = useMemo(() => {
+    if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCodes = lawStats.map(lc => lc.lawCode);
+
+    const data = Array.from({ length: 24 }, (_, i) => {
+      const row: any = { label: `${i}h` };
+      let catTotal = 0;
+      for (const lc of lawStats) {
+        const raw = lc.evolution.by_hour_raw ?? [];
+        const filtered = selectedYear !== null
+          ? raw.filter((h: any) => h.year === selectedYear)
+          : raw;
+        let count = 0;
+        for (const h of filtered) {
+          const c = h.counts ?? [];
+          if (i < c.length) count += (c[i] ?? 0);
+        }
+        row[lc.lawCode] = count;
+        catTotal += count;
+      }
+      const globalTotal = temporalData?.by_hour?.[String(i)] ?? 0;
+      const diff = globalTotal - catTotal;
+      if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
+      return row;
+    });
+
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCodes, UNCLASSIFIED_LABEL] : allCodes;
+    const colors = hasUnclassified
+      ? [...allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR]
+      : allCodes.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]);
+
+    return { data, yKeys, colors };
+  }, [lawStats, selectedYear, temporalData?.by_hour]);
+
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetsSorted = [...streetsData]
     .filter((s: any) => s.total_violations > 0)
@@ -731,78 +884,93 @@ export default function InfracoesClientSide({
               <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
                 Evolução Anual{selectedYear ? ` — ${selectedYear}` : ""}
               </h3>
-              <div className="flex items-center justify-center gap-1 mb-4">
-                <button
-                  onClick={() => { setStackMode('total'); setSelectedYear(null); }}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-l-lg transition-colors ${
-                    stackMode === 'total'
-                      ? 'bg-ameciclo text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  Total
-                </button>
-                {categoryStackedData.data.length > 0 && (
-                  <button
-                    onClick={() => { setStackMode('category'); setSelectedYear(null); }}
-                    className={`px-4 py-1.5 text-sm font-medium transition-colors ${
-                      stackMode === 'category'
-                        ? 'bg-ameciclo text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Por Categoria
-                  </button>
-                )}
-                {agentStackedData.data.length > 0 && (
-                  <button
-                    onClick={() => { setStackMode('agent'); setSelectedYear(null); }}
-                    className={`px-4 py-1.5 text-sm font-medium rounded-r-lg transition-colors ${
-                      stackMode === 'agent'
-                        ? 'bg-ameciclo text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Por Agente
-                  </button>
-                )}
-              </div>
-              {stackMode === 'total' ? (
+              {filter?.type === 'law' ? (
                 <VerticalBarChart
                   title=""
                   xAxisTitle=""
                   yAxisTitle="Infrações"
-                  data={Object.entries(temporalData.by_year)
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([year, count]) => ({ label: year, count }))}
+                  data={lawCodeAnnualStackedData.data}
                   xKey="label"
-                  yKeys={["count"]}
-                  colorByLabel={selectedYear
-                    ? (label: string) => label === String(selectedYear) ? '#dc2626' : '#d1d5db'
-                    : () => '#dc2626'}
-                />
-              ) : stackMode === 'category' ? (
-                <VerticalBarChart
-                  title=""
-                  xAxisTitle=""
-                  yAxisTitle="Infrações"
-                  data={categoryStackedData.data}
-                  xKey="label"
-                  yKeys={categoryStackedData.yKeys}
-                  colors={categoryStackedData.colors}
+                  yKeys={lawCodeAnnualStackedData.yKeys}
+                  colors={lawCodeAnnualStackedData.colors}
                   selectedLabel={selectedYear ? String(selectedYear) : undefined}
                 />
               ) : (
-                <VerticalBarChart
-                  title=""
-                  xAxisTitle=""
-                  yAxisTitle="Infrações"
-                  data={agentStackedData.data}
-                  xKey="label"
-                  yKeys={agentStackedData.yKeys}
-                  colors={agentStackedData.colors}
-                  selectedLabel={selectedYear ? String(selectedYear) : undefined}
-                />
+                <>
+                  <div className="flex items-center justify-center gap-1 mb-4">
+                    <button
+                      onClick={() => { setStackMode('total'); setSelectedYear(null); }}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-l-lg transition-colors ${
+                        stackMode === 'total'
+                          ? 'bg-ameciclo text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      Total
+                    </button>
+                    {categoryStackedData.data.length > 0 && (
+                      <button
+                        onClick={() => { setStackMode('category'); setSelectedYear(null); }}
+                        className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                          stackMode === 'category'
+                            ? 'bg-ameciclo text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Por Categoria
+                      </button>
+                    )}
+                    {agentStackedData.data.length > 0 && (
+                      <button
+                        onClick={() => { setStackMode('agent'); setSelectedYear(null); }}
+                        className={`px-4 py-1.5 text-sm font-medium rounded-r-lg transition-colors ${
+                          stackMode === 'agent'
+                            ? 'bg-ameciclo text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Por Agente
+                      </button>
+                    )}
+                  </div>
+                  {stackMode === 'total' ? (
+                    <VerticalBarChart
+                      title=""
+                      xAxisTitle=""
+                      yAxisTitle="Infrações"
+                      data={Object.entries(temporalData.by_year)
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([year, count]) => ({ label: year, count }))}
+                      xKey="label"
+                      yKeys={["count"]}
+                      colorByLabel={selectedYear
+                        ? (label: string) => label === String(selectedYear) ? '#dc2626' : '#d1d5db'
+                        : () => '#dc2626'}
+                    />
+                  ) : stackMode === 'category' ? (
+                    <VerticalBarChart
+                      title=""
+                      xAxisTitle=""
+                      yAxisTitle="Infrações"
+                      data={categoryStackedData.data}
+                      xKey="label"
+                      yKeys={categoryStackedData.yKeys}
+                      colors={categoryStackedData.colors}
+                      selectedLabel={selectedYear ? String(selectedYear) : undefined}
+                    />
+                  ) : (
+                    <VerticalBarChart
+                      title=""
+                      xAxisTitle=""
+                      yAxisTitle="Infrações"
+                      data={agentStackedData.data}
+                      xKey="label"
+                      yKeys={agentStackedData.yKeys}
+                      colors={agentStackedData.colors}
+                      selectedLabel={selectedYear ? String(selectedYear) : undefined}
+                    />
+                  )}
+                </>
               )}
             </div>
           )}
@@ -813,7 +981,17 @@ export default function InfracoesClientSide({
                 {temporalData.by_month && (
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <h4 className="text-sm font-semibold text-gray-600 mb-2">Por mês</h4>
-                    {stackMode === 'category' ? (
+                    {filter?.type === 'law' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={lawCodeMonthlyStackedData.data}
+                        xKey="label"
+                        yKeys={lawCodeMonthlyStackedData.yKeys}
+                        colors={lawCodeMonthlyStackedData.colors}
+                      />
+                    ) : stackMode === 'category' ? (
                       <VerticalBarChart
                         title=""
                         xAxisTitle=""
@@ -839,7 +1017,17 @@ export default function InfracoesClientSide({
                 {temporalData.by_weekday && (
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <h4 className="text-sm font-semibold text-gray-600 mb-2">Por dia da semana</h4>
-                    {stackMode === 'category' ? (
+                    {filter?.type === 'law' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={lawCodeWeekdayStackedData.data}
+                        xKey="label"
+                        yKeys={lawCodeWeekdayStackedData.yKeys}
+                        colors={lawCodeWeekdayStackedData.colors}
+                      />
+                    ) : stackMode === 'category' ? (
                       <VerticalBarChart
                         title=""
                         xAxisTitle=""
@@ -865,7 +1053,17 @@ export default function InfracoesClientSide({
                 {temporalData.by_hour && (
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <h4 className="text-sm font-semibold text-gray-600 mb-2">Por hora do dia</h4>
-                    {stackMode === 'category' ? (
+                    {filter?.type === 'law' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={lawCodeHourlyStackedData.data}
+                        xKey="label"
+                        yKeys={lawCodeHourlyStackedData.yKeys}
+                        colors={lawCodeHourlyStackedData.colors}
+                      />
+                    ) : stackMode === 'category' ? (
                       <VerticalBarChart
                         title=""
                         xAxisTitle=""
@@ -903,6 +1101,7 @@ export default function InfracoesClientSide({
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 3 — Quem Fiscaliza o Quê
           ═══════════════════════════════════════════════════════════════ */}
+      {filter?.type !== "law" && (
       <Section
         title={`Quem Fiscaliza o Quê${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="Os dados mostram o que foi fiscalizado, não necessariamente tudo que aconteceu. O perfil do agente revela o viés da base."
@@ -963,11 +1162,12 @@ export default function InfracoesClientSide({
           )}
         </div>
       </Section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 4 — Categorias de Segurança
           ═══════════════════════════════════════════════════════════════ */}
-      {filter?.type !== "category" && (
+      {filter?.type !== "category" && filter?.type !== "law" && (
       <Section
         title={`Infrações por classificação${selectedYear ? ` — ${selectedYear}` : ""}`}
         subtitle="As infrações são agrupadas por classificação temática. Clique em um card para ver a análise aprofundada de cada categoria."

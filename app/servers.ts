@@ -77,6 +77,7 @@ export const TRAFFIC_VIOLATIONS_LAW = (article: string) =>
   `${TRAFFIC_VIOLATIONS_BASE}/v1/law/${encodeURIComponent(article)}`
 export const TRAFFIC_VIOLATIONS_STREET = (identifier: string) =>
   `${TRAFFIC_VIOLATIONS_BASE}/v1/street/${encodeURIComponent(identifier)}`
+export const TRAFFIC_VIOLATIONS_LAW_STATS = `${TRAFFIC_VIOLATIONS_BASE}/v1/law-stats`
 
 // OpenRouteService — external routing API
 export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2/directions/cycling-regular`

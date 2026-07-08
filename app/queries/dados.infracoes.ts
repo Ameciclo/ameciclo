@@ -8,6 +8,7 @@ import {
   TRAFFIC_VIOLATIONS_CATEGORY_PAGE,
   TRAFFIC_VIOLATIONS_LAW,
   TRAFFIC_VIOLATIONS_STREET,
+  TRAFFIC_VIOLATIONS_LAW_STATS,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
 import { makeApiErrorTracker } from "~/services/apiTracking";
@@ -89,8 +90,10 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
       by_hour_raw: evo.by_hour ?? [],
     };
 
+    const rawCategories = safeOverview.category_breakdown ?? safeOverview.category ?? [];
+
     // Category breakdown from overview (replaces client-side /categories-detail)
-    const categoryBreakdown = (safeOverview.category ?? []).map((c: any) => ({
+    const categoryBreakdown = rawCategories.map((c: any) => ({
       category: c.category ?? "",
       total: c.count ?? 0,
       percentage: c.percentage ?? 0,
@@ -99,9 +102,13 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
         description: v.description ?? "",
         count: v.count ?? 0,
       })),
+      by_year: c.by_year ?? [],
+      by_month_raw: c.by_month ?? [],
+      by_weekday_raw: c.by_weekday ?? [],
+      by_hour_raw: c.by_hour ?? [],
     }));
 
-    const categories = (safeOverview.category ?? []).map((c: any) => ({
+    const categories = rawCategories.map((c: any) => ({
       name: c.category ?? "",
       codeCount: c.law_codes_count ?? 0,
       totalViolations: c.count ?? 0,
@@ -131,12 +138,13 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
     }));
 
     const categoryBreakdownByYearMap: Record<number, any[]> = {};
-    for (const c of (safeOverview.category ?? [])) {
+    for (const c of rawCategories) {
       for (const y of (c.by_year ?? [])) {
         if (!categoryBreakdownByYearMap[y.year]) categoryBreakdownByYearMap[y.year] = [];
         categoryBreakdownByYearMap[y.year].push({
           category: c.category ?? "",
           count: y.count ?? 0,
+          percentage: y.percentage ?? 0,
           top_violations: (y.top_violations ?? []).map((v: any) => ({
             law_code: v.law_code ?? "",
             description: v.description ?? "",
@@ -169,17 +177,17 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
     const statisticsBoxes = [
       {
         title: "Total de infrações",
-        value: overview.totalViolations.toLocaleString("pt-BR"),
+        value: overview.totalViolations,
         unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
       },
       {
         title: "Tipos de infração",
-        value: overview.violationTypesCount.toLocaleString("pt-BR"),
+        value: overview.violationTypesCount,
         unit: `${overview.lawCodesCount} artigos do CTB`,
       },
       {
         title: "Média mensal",
-        value: monthlyAverage.toLocaleString("pt-BR"),
+        value: monthlyAverage,
         unit: `infrações/mês em ${monthCount} meses`,
       },
       {
@@ -301,7 +309,9 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
     by_hour_raw: evo.by_hour ?? [],
   };
 
-  const categoryBreakdown = (raw.category ?? []).map((c: any) => ({
+  const rawFilteredCategories = raw.category_breakdown ?? raw.category ?? [];
+
+  const categoryBreakdown = rawFilteredCategories.map((c: any) => ({
     category: c.category ?? "",
     total: c.count ?? 0,
     percentage: c.percentage ?? 0,
@@ -310,6 +320,10 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
       description: v.description ?? "",
       count: v.count ?? 0,
     })),
+    by_year: c.by_year ?? [],
+    by_month_raw: c.by_month ?? [],
+    by_weekday_raw: c.by_weekday ?? [],
+    by_hour_raw: c.by_hour ?? [],
   }));
 
   const electronicPct = agentBreakdown
@@ -330,17 +344,17 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
   const statisticsBoxes = [
     {
       title: "Total de infrações",
-      value: overview.totalViolations.toLocaleString("pt-BR"),
+      value: overview.totalViolations,
       unit: `${fmtDate(overview.periodStart)} a ${fmtDate(overview.periodEnd)}`,
     },
     {
       title: "Tipos de infração",
-      value: overview.violationTypesCount.toLocaleString("pt-BR"),
+      value: overview.violationTypesCount,
       unit: `${overview.lawCodesCount} artigos do CTB`,
     },
     {
       title: "Média mensal",
-      value: monthlyAverage.toLocaleString("pt-BR"),
+      value: monthlyAverage,
       unit: `infrações/mês em ${monthCount} meses`,
     },
     {
@@ -374,12 +388,13 @@ async function fetchFilteredOverview(filter: InfracoesFilter) {
   }));
 
   const categoryBreakdownByYearMap2: Record<number, any[]> = {};
-  for (const c of (raw.category ?? [])) {
+  for (const c of rawFilteredCategories) {
     for (const y of (c.by_year ?? [])) {
       if (!categoryBreakdownByYearMap2[y.year]) categoryBreakdownByYearMap2[y.year] = [];
       categoryBreakdownByYearMap2[y.year].push({
         category: c.category ?? "",
         count: y.count ?? 0,
+        percentage: y.percentage ?? 0,
         top_violations: (y.top_violations ?? []).map((v: any) => ({
           law_code: v.law_code ?? "",
           description: v.description ?? "",
@@ -421,6 +436,96 @@ export const infracoesFilteredQueryOptions = (filter: InfracoesFilter) =>
   queryOptions({
     queryKey: ["infracoes", "filtered", filter],
     queryFn: () => fetchFilteredOverview(filter),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev: any) => prev,
+  });
+
+// ─── Law stats (replaces /v1/overview?law= for law filter) ──────────
+
+async function fetchLawStats(filter: InfracoesFilter) {
+  const url = buildUrl(TRAFFIC_VIOLATIONS_LAW_STATS, { law: filter.value });
+  const raw = await fetchJson(url).catch((err) => {
+    console.warn("fetchLawStats failed:", url, err);
+    return null;
+  });
+  if (!raw) return null;
+
+  const fmtDate = (d: string) => {
+    const parts = (d ?? "").slice(0, 10).split("-");
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
+  };
+
+  const lawCodeBreakdown = (raw.law_code_breakdown ?? []).map((c: any) => {
+    const byYear: Record<string, number> = {};
+    for (const item of c.evolution?.by_year ?? []) {
+      if (item.year) byYear[String(item.year)] = item.count ?? 0;
+    }
+
+    return {
+      lawCode: c.law_code ?? "",
+      description: c.description ?? "",
+      count: c.count ?? 0,
+      by_year: byYear,
+      evolution: {
+        by_year_raw: c.evolution?.by_year ?? [],
+        by_month_raw: c.evolution?.by_month ?? [],
+        by_weekday_raw: c.evolution?.by_weekday ?? [],
+        by_hour_raw: c.evolution?.by_hour ?? [],
+      },
+    };
+  });
+
+  const byYearAll: Record<string, number> = {};
+  const byMonthAll: any[] = [];
+  const byWeekdayAll: any[] = [];
+  const byHourAll: any[] = [];
+
+  for (const lc of lawCodeBreakdown) {
+    for (const item of lc.evolution.by_year_raw) {
+      byYearAll[String(item.year)] = (byYearAll[String(item.year)] ?? 0) + (item.count ?? 0);
+    }
+    byMonthAll.push(...lc.evolution.by_month_raw);
+    byWeekdayAll.push(...lc.evolution.by_weekday_raw);
+    byHourAll.push(...lc.evolution.by_hour_raw);
+  }
+
+  const lawCodes = lawCodeBreakdown.map((c: any) => ({
+    code: c.lawCode,
+    lawCode: c.lawCode,
+    description: c.description,
+    count: c.count,
+    category: "",
+    by_year: c.by_year,
+  }));
+
+  return {
+    overview: {
+      totalViolations: raw.total_violations ?? 0,
+      periodStart: fmtDate(raw.period_start ?? ""),
+      periodEnd: fmtDate(raw.period_end ?? ""),
+      agentBreakdown: [] as any[],
+    },
+    lawCodes,
+    lawStats: lawCodeBreakdown,
+    temporal: {
+      by_year: byYearAll,
+      by_month_raw: byMonthAll,
+      by_weekday_raw: byWeekdayAll,
+      by_hour_raw: byHourAll,
+    },
+    violationCodes: [],
+    categories: [] as any[],
+    categoryBreakdown: [] as any[],
+    agentBreakdownByYear: [] as any[],
+    categoryBreakdownByYear: [] as any[],
+    statisticsBoxes: [] as any[],
+  };
+}
+
+export const infracoesLawStatsQueryOptions = (filter: InfracoesFilter) =>
+  queryOptions({
+    queryKey: ["infracoes", "law-stats", filter],
+    queryFn: () => fetchLawStats(filter),
     staleTime: 5 * 60 * 1000,
     placeholderData: (prev: any) => prev,
   });
