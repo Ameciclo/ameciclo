@@ -42,9 +42,9 @@ const CATEGORY_COLOR_PALETTE = [
 ];
 
 const AGENT_COLOR_PALETTE = [
-  "#dc2626", "#3b82f6", "#10b981", "#f59e0b",
-  "#8b5cf6", "#ec4899", "#06b6d4", "#f97316",
-  "#6b7280", "#84cc16", "#14b8a6", "#6366f1",
+  "#dc2626", "#2563eb", "#16a34a", "#ea580c",
+  "#7c3aed", "#0891b2", "#be185d", "#ca8a04",
+  "#4b5563", "#84cc16", "#ec4899", "#14b8a6",
 ];
 
 function getCategoryColor(name: string): string {
@@ -54,15 +54,6 @@ function getCategoryColor(name: string): string {
     hash |= 0;
   }
   return CATEGORY_COLOR_PALETTE[Math.abs(hash) % CATEGORY_COLOR_PALETTE.length];
-}
-
-function getAgentColor(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash) + name.charCodeAt(i);
-    hash |= 0;
-  }
-  return AGENT_COLOR_PALETTE[Math.abs(hash) % AGENT_COLOR_PALETTE.length];
 }
 
 export function categoryColor(name: string): string {
@@ -304,6 +295,9 @@ export default function InfracoesClientSide({
 
   // ─── Dados para gráfico de evolução anual empilhado ──────────────
 
+  const UNCLASSIFIED_LABEL = "Não classificado";
+  const UNCLASSIFIED_COLOR = "#9ca3af";
+
   const categoryStackedData = useMemo(() => {
     if (categoryBreakdownByYear.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
 
@@ -312,18 +306,27 @@ export default function InfracoesClientSide({
     const data = categoryBreakdownByYear
       .map((y: any) => {
         const row: any = { label: String(y.year) };
+        let catTotal = 0;
         for (const cat of y.categories) {
           row[cat.category] = cat.count;
+          catTotal += cat.count;
         }
         for (const cat of allCats) {
           if (row[cat] === undefined) row[cat] = 0;
         }
+        const globalTotal = temporalData?.by_year?.[String(y.year)] ?? 0;
+        const diff = globalTotal - catTotal;
+        if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
         return row;
       })
       .sort((a, b) => a.label.localeCompare(b.label));
 
-    return { data, yKeys: allCats, colors: allCats.map(getCategoryColor) };
-  }, [categoryBreakdownByYear]);
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
+    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+
+    return { data, yKeys, colors };
+  }, [categoryBreakdownByYear, temporalData?.by_year]);
 
   const agentStackedData = useMemo(() => {
     if (agentBreakdownByYear.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
@@ -343,8 +346,113 @@ export default function InfracoesClientSide({
       })
       .sort((a, b) => a.label.localeCompare(b.label));
 
-    return { data, yKeys: allAgents, colors: allAgents.map(getAgentColor) };
+    return { data, yKeys: allAgents, colors: allAgents.map((_, i) => AGENT_COLOR_PALETTE[i % AGENT_COLOR_PALETTE.length]) };
   }, [agentBreakdownByYear]);
+
+  // ─── Dados para gráficos temporais empilhados por categoria ─────
+
+  const categoryMonthlyStackedData = useMemo(() => {
+    if (categoryBreakdown.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCats = categoryBreakdown.map(c => c.category).sort();
+
+    const data = Array.from({ length: 12 }, (_, i) => {
+      const month = String(i + 1).padStart(2, "0");
+      const row: any = { label: MONTH_LABELS[month] };
+      let catTotal = 0;
+      for (const cat of categoryBreakdown) {
+        const raw = (cat as any).by_month_raw ?? [];
+        const filtered = selectedYear !== null
+          ? raw.filter((m: any) => m.year === selectedYear)
+          : raw;
+        const count = filtered
+          .filter((m: any) => String(m.month).padStart(2, "0") === month)
+          .reduce((sum: number, m: any) => sum + (m.count ?? 0), 0);
+        row[cat.category] = count;
+        catTotal += count;
+      }
+      const globalTotal = temporalData?.by_month?.[month] ?? 0;
+      const diff = globalTotal - catTotal;
+      if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
+      return row;
+    });
+
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
+    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+
+    return { data, yKeys, colors };
+  }, [categoryBreakdown, selectedYear, temporalData?.by_month]);
+
+  const categoryWeekdayStackedData = useMemo(() => {
+    if (categoryBreakdown.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCats = categoryBreakdown.map(c => c.category).sort();
+    const wl = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+
+    const data = wl.map(day => {
+      const row: any = { label: WEEKDAY_LABELS[day] };
+      let catTotal = 0;
+      const idx = wl.indexOf(day);
+      for (const cat of categoryBreakdown) {
+        const raw = (cat as any).by_weekday_raw ?? [];
+        const filtered = selectedYear !== null
+          ? raw.filter((w: any) => w.year === selectedYear)
+          : raw;
+        let count = 0;
+        for (const w of filtered) {
+          const c = w.counts ?? [];
+          if (idx >= 0 && idx < c.length) count += (c[idx] ?? 0);
+        }
+        row[cat.category] = count;
+        catTotal += count;
+      }
+      const globalTotal = temporalData?.by_weekday?.[day] ?? 0;
+      const diff = globalTotal - catTotal;
+      if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
+      return row;
+    });
+
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
+    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+
+    return { data, yKeys, colors };
+  }, [categoryBreakdown, selectedYear, temporalData?.by_weekday]);
+
+  const categoryHourlyStackedData = useMemo(() => {
+    if (categoryBreakdown.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
+
+    const allCats = categoryBreakdown.map(c => c.category).sort();
+
+    const data = Array.from({ length: 24 }, (_, i) => {
+      const row: any = { label: `${i}h` };
+      let catTotal = 0;
+      for (const cat of categoryBreakdown) {
+        const raw = (cat as any).by_hour_raw ?? [];
+        const filtered = selectedYear !== null
+          ? raw.filter((h: any) => h.year === selectedYear)
+          : raw;
+        let count = 0;
+        for (const h of filtered) {
+          const c = h.counts ?? [];
+          if (i < c.length) count += (c[i] ?? 0);
+        }
+        row[cat.category] = count;
+        catTotal += count;
+      }
+      const globalTotal = temporalData?.by_hour?.[String(i)] ?? 0;
+      const diff = globalTotal - catTotal;
+      if (diff > 0) row[UNCLASSIFIED_LABEL] = diff;
+      return row;
+    });
+
+    const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
+    const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
+    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+
+    return { data, yKeys, colors };
+  }, [categoryBreakdown, selectedYear, temporalData?.by_hour]);
 
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetsSorted = [...streetsData]
@@ -625,7 +733,7 @@ export default function InfracoesClientSide({
               </h3>
               <div className="flex items-center justify-center gap-1 mb-4">
                 <button
-                  onClick={() => setStackMode('total')}
+                  onClick={() => { setStackMode('total'); setSelectedYear(null); }}
                   className={`px-4 py-1.5 text-sm font-medium rounded-l-lg transition-colors ${
                     stackMode === 'total'
                       ? 'bg-ameciclo text-white'
@@ -636,7 +744,7 @@ export default function InfracoesClientSide({
                 </button>
                 {categoryStackedData.data.length > 0 && (
                   <button
-                    onClick={() => setStackMode('category')}
+                    onClick={() => { setStackMode('category'); setSelectedYear(null); }}
                     className={`px-4 py-1.5 text-sm font-medium transition-colors ${
                       stackMode === 'category'
                         ? 'bg-ameciclo text-white'
@@ -648,7 +756,7 @@ export default function InfracoesClientSide({
                 )}
                 {agentStackedData.data.length > 0 && (
                   <button
-                    onClick={() => setStackMode('agent')}
+                    onClick={() => { setStackMode('agent'); setSelectedYear(null); }}
                     className={`px-4 py-1.5 text-sm font-medium rounded-r-lg transition-colors ${
                       stackMode === 'agent'
                         ? 'bg-ameciclo text-white'
@@ -705,45 +813,81 @@ export default function InfracoesClientSide({
                 {temporalData.by_month && (
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <h4 className="text-sm font-semibold text-gray-600 mb-2">Por mês</h4>
-                    <VerticalBarChart
-                      title=""
-                      xAxisTitle=""
-                      yAxisTitle=""
-                      data={getAllMonthsData(temporalData.by_month)}
-                      xKey="label"
-                      yKeys={["count"]}
-                      colors={["#3b82f6"]}
-                    />
+                    {stackMode === 'category' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={categoryMonthlyStackedData.data}
+                        xKey="label"
+                        yKeys={categoryMonthlyStackedData.yKeys}
+                        colors={categoryMonthlyStackedData.colors}
+                      />
+                    ) : (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={getAllMonthsData(temporalData.by_month)}
+                        xKey="label"
+                        yKeys={["count"]}
+                        colors={["#3b82f6"]}
+                      />
+                    )}
                   </div>
                 )}
                 {temporalData.by_weekday && (
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <h4 className="text-sm font-semibold text-gray-600 mb-2">Por dia da semana</h4>
-                    <VerticalBarChart
-                      title=""
-                      xAxisTitle=""
-                      yAxisTitle=""
-                      data={WEEKDAY_ORDER.map((day) => ({ label: WEEKDAY_LABELS[day], count: temporalData.by_weekday[day] ?? 0 }))}
-                      xKey="label"
-                      yKeys={["count"]}
-                      colors={["#10b981"]}
-                    />
+                    {stackMode === 'category' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={categoryWeekdayStackedData.data}
+                        xKey="label"
+                        yKeys={categoryWeekdayStackedData.yKeys}
+                        colors={categoryWeekdayStackedData.colors}
+                      />
+                    ) : (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={WEEKDAY_ORDER.map((day) => ({ label: WEEKDAY_LABELS[day], count: temporalData.by_weekday[day] ?? 0 }))}
+                        xKey="label"
+                        yKeys={["count"]}
+                        colors={["#10b981"]}
+                      />
+                    )}
                   </div>
                 )}
                 {temporalData.by_hour && (
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <h4 className="text-sm font-semibold text-gray-600 mb-2">Por hora do dia</h4>
-                    <VerticalBarChart
-                      title=""
-                      xAxisTitle=""
-                      yAxisTitle=""
-                      data={Object.entries(temporalData.by_hour)
-                        .sort(([a], [b]) => Number(a) - Number(b))
-                        .map(([hour, count]) => ({ label: `${hour}h`, count: count as number }))}
-                      xKey="label"
-                      yKeys={["count"]}
-                      colors={["#8b5cf6"]}
-                    />
+                    {stackMode === 'category' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={categoryHourlyStackedData.data}
+                        xKey="label"
+                        yKeys={categoryHourlyStackedData.yKeys}
+                        colors={categoryHourlyStackedData.colors}
+                      />
+                    ) : (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={Object.entries(temporalData.by_hour)
+                          .sort(([a], [b]) => Number(a) - Number(b))
+                          .map(([hour, count]) => ({ label: `${hour}h`, count: count as number }))}
+                        xKey="label"
+                        yKeys={["count"]}
+                        colors={["#8b5cf6"]}
+                      />
+                    )}
                   </div>
                 )}
               </div>

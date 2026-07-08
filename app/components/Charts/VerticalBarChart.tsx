@@ -39,6 +39,8 @@ function VerticalBarChart({
   if (data && xKey && yKeys) {
     const categories = data.map(item => item[xKey]);
     
+    const isMultiSeries = yKeys.length > 1;
+
     chartSeries = yKeys.map((key, index) => {
       const seriesColor = !colorByLabel && colors && colors[index] ? colors[index] : undefined;
       return {
@@ -55,7 +57,9 @@ function VerticalBarChart({
             })
           : colorByLabel
             ? data.map(item => ({ y: item[key] || 0, color: colorByLabel(item[xKey]) }))
-            : data.map(item => item[key] || 0),
+            : isMultiSeries && seriesColor
+              ? data.map(item => ({ y: item[key] || 0, color: seriesColor }))
+              : data.map(item => item[key] || 0),
         color: seriesColor,
       };
     });
