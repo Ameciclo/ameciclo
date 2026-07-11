@@ -45,7 +45,7 @@ function NumberBox({ title, value, unit, suffix, color }: BoxItem) {
   const displayValue = isStringValue ? value : IntlNumber(value);
 
   return (
-    <div className="flex flex-col justify-between w-full p-6 text-center uppercase tracking-widest h-full">
+    <div className="flex flex-col justify-between w-full p-6 text-center uppercase tracking-widest h-full min-w-0 overflow-hidden">
       <h3 className={isLoading ? "text-gray-400" : ""}>{title}</h3>
       <div>
         {isLoading ? (
@@ -59,7 +59,7 @@ function NumberBox({ title, value, unit, suffix, color }: BoxItem) {
               {displayValue}
               {suffix ? <span className="text-sm sm:text-base font-semibold align-baseline">&nbsp;{suffix}</span> : null}
             </h3>
-            {unit && <p className={`normal-case whitespace-nowrap ${color || ""}`}>{unit}</p>}
+            {unit && <p className={`normal-case ${color || ""}`}>{unit}</p>}
           </>
         )}
       </div>

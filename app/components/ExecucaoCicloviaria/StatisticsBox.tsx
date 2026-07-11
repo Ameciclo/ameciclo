@@ -26,11 +26,11 @@ export const StatisticsBox = ({ title, boxes, subtitle = "" }: any) => {
   );
 };
 
-function NumberBox({ title, value, unit = undefined, color }: any) {
+function NumberBox({ title, value, unit = undefined, suffix = "", color }: any) {
   const isLoading = value === "-" || value === "Carregando...";
   
   return (
-    <div className="flex flex-col justify-between w-full p-6 text-center uppercase tracking-widest h-full">
+    <div className="flex flex-col justify-between w-full p-6 text-center uppercase tracking-widest h-full min-w-0 overflow-hidden">
       <h3 className={isLoading ? "text-gray-400" : ""}>{title}</h3>
       <div>
         {isLoading ? (
@@ -40,8 +40,11 @@ function NumberBox({ title, value, unit = undefined, color }: any) {
           </div>
         ) : (
           <>
-            <h3 className={`text-4xl sm:text-5xl font-bold ${color || ''}`}>{value}</h3>
-            {unit && <p className={color || ''}>{unit}</p>}
+            <h3 className={`text-3xl sm:text-4xl lg:text-5xl font-bold ${color || ''}`}>
+              {value}
+              {suffix ? <span className="text-sm sm:text-base font-semibold align-baseline">&nbsp;{suffix}</span> : null}
+            </h3>
+            {unit && <p className={`normal-case ${color || ''}`}>{unit}</p>}
           </>
         )}
       </div>

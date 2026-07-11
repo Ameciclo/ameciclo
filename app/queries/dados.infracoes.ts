@@ -311,11 +311,59 @@ async function fetchStreetStats(filter: InfracoesFilter) {
     category: c.category ?? "",
     total: c.count ?? 0,
     percentage: c.percentage ?? 0,
-    topViolations: [] as any[],
-    by_year: [] as any[],
-    by_month_raw: [] as any[],
-    by_weekday_raw: [] as any[],
-    by_hour_raw: [] as any[],
+    topViolations: (c.top_violations ?? []).map((v: any) => ({
+      law_code: v.law_code ?? "",
+      description: v.description ?? "",
+      count: v.count ?? 0,
+    })),
+    by_year: c.by_year ?? [],
+    by_month_raw: c.by_month ?? [],
+    by_weekday_raw: c.by_weekday ?? [],
+    by_hour_raw: c.by_hour ?? [],
+  }));
+
+  const agentBreakdownByYearMap: Record<number, any[]> = {};
+  for (const a of (raw.agents ?? [])) {
+    for (const y of (a.by_year ?? [])) {
+      if (!agentBreakdownByYearMap[y.year]) agentBreakdownByYearMap[y.year] = [];
+      agentBreakdownByYearMap[y.year].push({
+        agentId: a.agent_id,
+        description: y.description ?? a.description ?? "",
+        count: y.count ?? 0,
+        percentage: y.percentage ?? 0,
+        category: a.category ?? "manual",
+        top_violations: (y.top_violations ?? []).map((v: any) => ({
+          law_code: v.law_code ?? "",
+          description: v.description ?? "",
+          count: v.count ?? 0,
+        })),
+      });
+    }
+  }
+  const agentBreakdownByYearComputed = Object.entries(agentBreakdownByYearMap).map(([year, agents]) => ({
+    year: Number(year),
+    agents,
+  }));
+
+  const categoryBreakdownByYearMap: Record<number, any[]> = {};
+  for (const c of rawCategories) {
+    for (const y of (c.by_year ?? [])) {
+      if (!categoryBreakdownByYearMap[y.year]) categoryBreakdownByYearMap[y.year] = [];
+      categoryBreakdownByYearMap[y.year].push({
+        category: c.category ?? "",
+        count: y.count ?? 0,
+        percentage: y.percentage ?? 0,
+        top_violations: (y.top_violations ?? []).map((v: any) => ({
+          law_code: v.law_code ?? "",
+          description: v.description ?? "",
+          count: v.count ?? 0,
+        })),
+      });
+    }
+  }
+  const categoryBreakdownByYearComputed = Object.entries(categoryBreakdownByYearMap).map(([year, categories]) => ({
+    year: Number(year),
+    categories,
   }));
 
   const electronicPct = agentBreakdown
@@ -386,8 +434,8 @@ async function fetchStreetStats(filter: InfracoesFilter) {
     statisticsBoxes,
     temporal,
     categoryBreakdown,
-    agentBreakdownByYear: [] as any[],
-    categoryBreakdownByYear: [] as any[],
+    agentBreakdownByYear: agentBreakdownByYearComputed,
+    categoryBreakdownByYear: categoryBreakdownByYearComputed,
     lawCodes,
     topStreets: [] as any[],
     streetOfficialName: si.official_name ?? "",
