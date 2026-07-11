@@ -8,7 +8,7 @@ import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
-import { infracoesQueryOptions, infracoesFilteredQueryOptions, infracoesLawStatsQueryOptions, type InfracoesFilter } from "~/queries/dados.infracoes";
+import { infracoesQueryOptions, infracoesLawStatsQueryOptions, infracoesStreetStatsQueryOptions, type InfracoesFilter } from "~/queries/dados.infracoes";
 import { seo } from "~/utils/seo";
 import { formatCompactParts, formatCompactNumber, formatFullNumber } from "~/utils/formatNumber";
 import { slugToCategory } from "~/components/Infracoes/InfracoesClientSide";
@@ -61,7 +61,7 @@ function InfracoesPage() {
   const isCategoryFilter = filter?.type === "category";
 
   const { data: filteredData, isFetching: filterLoading } = useQuery(
-    filter?.type === "street_code" ? infracoesFilteredQueryOptions(filter) : ({ queryKey: ["skip"], queryFn: () => null, enabled: false } as any)
+    filter?.type === "street_code" ? infracoesStreetStatsQueryOptions(filter) : ({ queryKey: ["skip"], queryFn: () => null, enabled: false } as any)
   );
 
   const { data: lawStatsData, isFetching: lawStatsLoading } = useQuery(

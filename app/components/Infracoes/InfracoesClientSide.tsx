@@ -36,9 +36,9 @@ const WEEKDAY_LABELS: Record<string, string> = {
 const WEEKDAY_ORDER = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 
 const CATEGORY_COLOR_PALETTE = [
-  "#dc2626", "#f59e0b", "#06b6d4", "#8b5cf6",
-  "#3b82f6", "#10b981", "#6b7280", "#ec4899",
-  "#f97316", "#14b8a6", "#6366f1", "#84cc16",
+  "#dc2626", "#2563eb", "#16a34a", "#ea580c",
+  "#7c3aed", "#0891b2", "#be185d", "#ca8a04",
+  "#4b5563", "#84cc16", "#ec4899", "#14b8a6",
 ];
 
 const AGENT_COLOR_PALETTE = [
@@ -47,18 +47,14 @@ const AGENT_COLOR_PALETTE = [
   "#4b5563", "#84cc16", "#ec4899", "#14b8a6",
 ];
 
-function getCategoryColor(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash) + name.charCodeAt(i);
-    hash |= 0;
-  }
-  return CATEGORY_COLOR_PALETTE[Math.abs(hash) % CATEGORY_COLOR_PALETTE.length];
-}
-
-export function categoryColor(name: string): string {
-  return getCategoryColor(name);
-}
+const categoryColorMap = (categories: { name: string }[]) => {
+  const sorted = [...new Set(categories.map(c => c.name))].sort();
+  const map: Record<string, string> = {};
+  sorted.forEach((name, i) => {
+    map[name] = CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length];
+  });
+  return map;
+};
 
 export function categoryToSlug(name: string): string {
   return name
@@ -119,6 +115,7 @@ interface InfracoesClientSideProps {
   lawCodes?: ViolationCode[];
   filterLoading?: boolean;
   lawStats?: Array<{
+    label: string;
     lawCode: string;
     description: string;
     count: number;
@@ -306,6 +303,8 @@ export default function InfracoesClientSide({
     return effectiveCategories.reduce((sum, cat) => sum + cat.totalViolations, 0);
   }, [effectiveCategories]);
 
+  const catColorMap = useMemo(() => categoryColorMap(categories), [categories]);
+
   // ─── Dados para gráfico de evolução anual empilhado ──────────────
 
   const UNCLASSIFIED_LABEL = "Não classificado";
@@ -336,7 +335,7 @@ export default function InfracoesClientSide({
 
     const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
     const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
-    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+    const colors = hasUnclassified ? [...allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR] : allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]);
 
     return { data, yKeys, colors };
   }, [categoryBreakdownByYear, temporalData?.by_year]);
@@ -392,7 +391,7 @@ export default function InfracoesClientSide({
 
     const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
     const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
-    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+    const colors = hasUnclassified ? [...allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR] : allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]);
 
     return { data, yKeys, colors };
   }, [categoryBreakdown, selectedYear, temporalData?.by_month]);
@@ -428,7 +427,7 @@ export default function InfracoesClientSide({
 
     const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
     const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
-    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+    const colors = hasUnclassified ? [...allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR] : allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]);
 
     return { data, yKeys, colors };
   }, [categoryBreakdown, selectedYear, temporalData?.by_weekday]);
@@ -462,7 +461,7 @@ export default function InfracoesClientSide({
 
     const hasUnclassified = data.some(row => (row[UNCLASSIFIED_LABEL] ?? 0) > 0);
     const yKeys = hasUnclassified ? [...allCats, UNCLASSIFIED_LABEL] : allCats;
-    const colors = hasUnclassified ? [...allCats.map(getCategoryColor), UNCLASSIFIED_COLOR] : allCats.map(getCategoryColor);
+    const colors = hasUnclassified ? [...allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]), UNCLASSIFIED_COLOR] : allCats.map((_, i) => CATEGORY_COLOR_PALETTE[i % CATEGORY_COLOR_PALETTE.length]);
 
     return { data, yKeys, colors };
   }, [categoryBreakdown, selectedYear, temporalData?.by_hour]);
@@ -472,7 +471,7 @@ export default function InfracoesClientSide({
   const lawCodeAnnualStackedData = useMemo(() => {
     if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
 
-    const allCodes = lawStats.map(lc => lc.lawCode);
+    const allCodes = lawStats.map(lc => lc.label);
     const allYears = [...new Set(lawStats.flatMap(lc => Object.keys(lc.by_year)))].sort();
 
     const data = allYears.map(year => {
@@ -480,7 +479,7 @@ export default function InfracoesClientSide({
       let catTotal = 0;
       for (const lc of lawStats) {
         const count = lc.by_year[year] ?? 0;
-        row[lc.lawCode] = count;
+        row[lc.label] = count;
         catTotal += count;
       }
       const globalTotal = temporalData?.by_year?.[year] ?? 0;
@@ -501,7 +500,7 @@ export default function InfracoesClientSide({
   const lawCodeMonthlyStackedData = useMemo(() => {
     if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
 
-    const allCodes = lawStats.map(lc => lc.lawCode);
+    const allCodes = lawStats.map(lc => lc.label);
 
     const data = Array.from({ length: 12 }, (_, i) => {
       const month = String(i + 1).padStart(2, "0");
@@ -515,7 +514,7 @@ export default function InfracoesClientSide({
         const count = filtered
           .filter((m: any) => String(m.month).padStart(2, "0") === month)
           .reduce((sum: number, m: any) => sum + (m.count ?? 0), 0);
-        row[lc.lawCode] = count;
+        row[lc.label] = count;
         catTotal += count;
       }
       const globalTotal = temporalData?.by_month?.[month] ?? 0;
@@ -536,7 +535,7 @@ export default function InfracoesClientSide({
   const lawCodeWeekdayStackedData = useMemo(() => {
     if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
 
-    const allCodes = lawStats.map(lc => lc.lawCode);
+    const allCodes = lawStats.map(lc => lc.label);
     const wl = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 
     const data = wl.map(day => {
@@ -553,7 +552,7 @@ export default function InfracoesClientSide({
           const c = w.counts ?? [];
           if (idx >= 0 && idx < c.length) count += (c[idx] ?? 0);
         }
-        row[lc.lawCode] = count;
+        row[lc.label] = count;
         catTotal += count;
       }
       const globalTotal = temporalData?.by_weekday?.[day] ?? 0;
@@ -574,7 +573,7 @@ export default function InfracoesClientSide({
   const lawCodeHourlyStackedData = useMemo(() => {
     if (!lawStats || lawStats.length === 0) return { data: [], yKeys: [], colors: [] as string[] };
 
-    const allCodes = lawStats.map(lc => lc.lawCode);
+    const allCodes = lawStats.map(lc => lc.label);
 
     const data = Array.from({ length: 24 }, (_, i) => {
       const row: any = { label: `${i}h` };
@@ -589,7 +588,7 @@ export default function InfracoesClientSide({
           const c = h.counts ?? [];
           if (i < c.length) count += (c[i] ?? 0);
         }
-        row[lc.lawCode] = count;
+        row[lc.label] = count;
         catTotal += count;
       }
       const globalTotal = temporalData?.by_hour?.[String(i)] ?? 0;
@@ -1098,6 +1097,30 @@ export default function InfracoesClientSide({
         </div>
       </Section>
 
+      {filter?.type === 'law' && lawStats && lawStats.length > 0 && (
+        <div className="container mx-auto mb-8">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h4 className="text-sm font-semibold text-gray-600 mb-3 text-center">Legenda</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {lawStats.map((lc) => {
+                const idx = lawStats.indexOf(lc);
+                return (
+                  <div key={lc.label} className="flex items-start gap-2">
+                    <span
+                      className="shrink-0 w-3 h-3 mt-1 rounded-full"
+                      style={{ backgroundColor: AGENT_COLOR_PALETTE[idx % AGENT_COLOR_PALETTE.length] }}
+                    />
+                    <span className="text-sm text-gray-700">
+                      <strong>{lc.label}:</strong> {lc.description.length > 70 ? lc.description.slice(0, 70) + "..." : lc.description}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 3 — Quem Fiscaliza o Quê
           ═══════════════════════════════════════════════════════════════ */}
@@ -1181,7 +1204,7 @@ export default function InfracoesClientSide({
                   : effectiveCategories
                 ).map((cat) => {
                   const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";
-                  const color = getCategoryColor(cat.name);
+                  const color = catColorMap[cat.name];
                   const topCodes = categoryTopViolations[cat.name] ?? [];
                   const isSelected = filter?.type === "category" && cat.name === filter.label;
                   return (
@@ -1236,7 +1259,7 @@ export default function InfracoesClientSide({
                 <div className="flex flex-wrap gap-3 justify-center mb-4">
                   {effectiveCategories.map((cat) => {
                     const pct = effectiveTotalViolations > 0 ? ((cat.totalViolations / effectiveTotalViolations) * 100).toFixed(1) : "0.0";
-                    const color = getCategoryColor(cat.name);
+                    const color = catColorMap[cat.name];
                     return (
                       <div key={cat.name} className="flex items-center gap-2 text-sm">
                         <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: color }} />
@@ -1254,7 +1277,7 @@ export default function InfracoesClientSide({
                       <div key={cat.name} className="h-full flex items-center justify-center text-white text-xs font-bold"
                         style={{
                           width: `${pct}%`,
-                          backgroundColor: getCategoryColor(cat.name),
+                          backgroundColor: catColorMap[cat.name],
                           minWidth: pct > 1 ? "auto" : "0",
                         }}
                         title={`${cat.name}: ${cat.totalViolations.toLocaleString("pt-BR")}`}
