@@ -666,13 +666,8 @@ export default function InfracoesClientSide({
       descricao: v.description,
       categoria: v.category || "Não classificada",
       count_raw: v.count,
-      isHighlighted: filter?.type === "law" && filter.value === v.lawCode,
     }))
-    .sort((a: any, b: any) => {
-      if (a.isHighlighted && !b.isHighlighted) return -1;
-      if (!a.isHighlighted && b.isHighlighted) return 1;
-      return (b.count_raw ?? 0) - (a.count_raw ?? 0);
-    });
+    .sort((a: any, b: any) => (b.count_raw ?? 0) - (a.count_raw ?? 0));
 
   const colorBreakpoints = { r1: 5000, r2: 10000, r3: 15000 };
 
@@ -974,6 +969,30 @@ export default function InfracoesClientSide({
             </div>
           )}
 
+          {filter?.type === 'law' && lawStats && lawStats.length > 0 && (
+            <div className="container mx-auto mb-8">
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h4 className="text-sm font-semibold text-gray-600 mb-3 text-center">Legenda</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {lawStats.map((lc) => {
+                    const idx = lawStats.indexOf(lc);
+                    return (
+                      <div key={lc.label} className="flex items-start gap-2">
+                        <span
+                          className="shrink-0 w-3 h-3 mt-1 rounded-full"
+                          style={{ backgroundColor: AGENT_COLOR_PALETTE[idx % AGENT_COLOR_PALETTE.length] }}
+                        />
+                        <span className="text-sm text-gray-700">
+                          <strong>{lc.label}:</strong> {lc.description.length > 70 ? lc.description.slice(0, 70) + "..." : lc.description}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
           {temporalData ? (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1096,30 +1115,6 @@ export default function InfracoesClientSide({
           )}
         </div>
       </Section>
-
-      {filter?.type === 'law' && lawStats && lawStats.length > 0 && (
-        <div className="container mx-auto mb-8">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h4 className="text-sm font-semibold text-gray-600 mb-3 text-center">Legenda</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {lawStats.map((lc) => {
-                const idx = lawStats.indexOf(lc);
-                return (
-                  <div key={lc.label} className="flex items-start gap-2">
-                    <span
-                      className="shrink-0 w-3 h-3 mt-1 rounded-full"
-                      style={{ backgroundColor: AGENT_COLOR_PALETTE[idx % AGENT_COLOR_PALETTE.length] }}
-                    />
-                    <span className="text-sm text-gray-700">
-                      <strong>{lc.label}:</strong> {lc.description.length > 70 ? lc.description.slice(0, 70) + "..." : lc.description}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ═══════════════════════════════════════════════════════════════
           BLOCO 3 — Quem Fiscaliza o Quê
@@ -1305,19 +1300,8 @@ export default function InfracoesClientSide({
           showFilters={showViolationFilters}
           setShowFilters={setShowViolationFilters}
           columns={[
-            { Header: "Base Legal", accessor: "base_legal", width: '15%', Cell: ({ value, row }: { value: string; row: any }) => value ? (
-              <div className={`flex items-center gap-2 ${row.original.isHighlighted ? "bg-ameciclo/10 -mx-3 px-3 py-1 rounded" : ""}`}>
-                <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: encodeURIComponent(value), street_code: undefined })} className="text-teal-600 hover:underline">{value}</Link>
-                {row.original.isHighlighted && (
-                  <button
-                    onClick={(e) => { e.preventDefault(); navigate({ to: "/dados/infracoes", search: {} as any }); }}
-                    className="ml-auto shrink-0 hover:bg-ameciclo/20 rounded-full p-0.5 transition-colors"
-                    aria-label="Remover filtro"
-                  >
-                    <svg className="w-3.5 h-3.5 text-ameciclo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                )}
-              </div>
+            { Header: "Base Legal", accessor: "base_legal", width: '15%', Cell: ({ value }: { value: string }) => value ? (
+              <Link to="/dados/infracoes" search={(prev: any) => ({ ...prev, category: undefined, law: encodeURIComponent(value), street_code: undefined })} className="text-teal-600 hover:underline">{value}</Link>
             ) : "—" },
             { Header: "Descrição", accessor: "descricao", width: '40%' },
             { Header: "Categoria", accessor: "categoria", Filter: SelectColumnFilter, width: '25%' },

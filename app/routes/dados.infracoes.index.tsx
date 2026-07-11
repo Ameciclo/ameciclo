@@ -53,7 +53,7 @@ function InfracoesPage() {
   const filter: InfracoesFilter | undefined = category
     ? { type: "category", value: slugToCategory(category, categories.map((c: any) => c.name)), label: slugToCategory(category, categories.map((c: any) => c.name)) }
     : law
-      ? { type: "law", value: decodeURIComponent(law), label: decodeURIComponent(law) }
+      ? { type: "law", value: decodeURIComponent(law), label: decodeURIComponent(law).split(",")[0].trim() }
       : streetCode
         ? { type: "street_code", value: streetCode, label: `Rua #${streetCode}` }
         : undefined;
