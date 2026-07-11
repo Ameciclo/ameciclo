@@ -56,44 +56,51 @@ const FEATURED_PAGES = [
   {
     title: "Execução Cicloviária",
     src: "/icons/dados/mapa.svg",
-    url: "#",
+    url: "/dados/execucao-cicloviaria",
     description:
       "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
     target: "",
-    comingSoon: true,
   },
   {
-    title: "Orçamento Estadual para o Clima",
+    title: "Orçamento Pernambuco",
     src: "/icons/home/logo2.1d0f07c6.png",
-    url: "/dados/loa",
+    url: "/dados/orcamento-pernambuco",
     description:
-      "Monitoramento do orçamento estadual conforme sua contribuição climática.",
+      "Monitoramento do orçamento de Pernambuco conforme sua contribuição climática.",
     target: "",
   },
   {
-    title: "Orçamento Municipal para o Clima",
+    title: "Orçamento do Recife",
     src: "/icons/home/header-logo.4f44929c.png",
-    url: "/dados/dom",
+    url: "/dados/orcamento-recife",
     description:
       "Monitoramento do orçamento municipal conforme sua contribuição climática.",
     target: "",
   },
   {
-    title: "Chamados de Sinistros",
-    src: "/icons/home/chamados_sinistros.svg",
-    url: "/dados/samu",
+    title: "Observatório de Infrações",
+    src: "/icons/home/vias-inseguras.svg",
+    url: "#",
     description:
-      "Detalhamento dos dados de chamados de sinistros pela SAMU.",
+      "Dados de infrações de trânsito no Recife: principais vias, categorias, temporalidade e agentes autuadores.",
+    target: "",
+    comingSoon: true,
+  },
+  {
+    title: "Chamados de Emergência",
+    src: "/icons/home/chamados_sinistros.svg",
+    url: "/dados/chamados-emergencia",
+    description:
+      "Detalhamento dos chamados de emergência relacionados a sinistros de trânsito na Região Metropolitana do Recife.",
     target: "",
   },
   {
     title: "Vias Inseguras",
     src: "/icons/home/vias-inseguras.svg",
-    url: "#",
+    url: "/dados/vias-inseguras",
     description:
-      "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
+      "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados de chamados de emergência.",
     target: "",
-    comingSoon: true,
   },
   {
     title: "Sinistros Fatais",

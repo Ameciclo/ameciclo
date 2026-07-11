@@ -9,7 +9,7 @@ import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBound
 import { sinistrosFataisQueryOptions } from "~/queries/dados.sinistros-fatais";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/sinistrosfatais/")({
+export const Route = createFileRoute("/dados/sinistros-fatais/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(sinistrosFataisQueryOptions()),
   head: () =>
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/dados/sinistrosfatais/")({
       title: "Sinistros Fatais - Observatório de Segurança Viária - Ameciclo",
       description:
         "Dados de mortalidade no trânsito extraídos do DATASUS para análise de segurança viária no Recife e Região Metropolitana.",
-      pathname: "/dados/sinistrosfatais",
+      pathname: "/dados/sinistros-fatais",
     }),
   component: SinistrosFataisPage,
   pendingComponent: () => <RouteLoading label="Carregando sinistros fatais..." />,

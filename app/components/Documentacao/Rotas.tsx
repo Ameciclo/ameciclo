@@ -34,17 +34,17 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
               <br />/dados.contagens._index.tsx         → /dados/contagens
               <br />/dados.contagens.$slug._index.tsx   → /dados/contagens/:slug
               <br />/dados.contagens.$slug.$compareSlug.tsx → /dados/contagens/:slug/:compareSlug
+              <br />/dados.chamados-emergencia.tsx             → /dados/chamados-emergencia
               <br />/dados.documentos.tsx                → /dados/documentos
-              <br />/dados.dom.tsx                       → /dados/dom
-              <br />/dados.loa.tsx                       → /dados/loa
-              <br />/dados.execucaocicloviaria.tsx      → /dados/execucaocicloviaria
+              <br />/dados.execucao-cicloviaria.tsx      → /dados/execucao-cicloviaria
               <br />/dados.ideciclo._index.tsx          → /dados/ideciclo
               <br />/dados.ideciclo.$id.tsx             → /dados/ideciclo/:id
+              <br />/dados.orcamento-pernambuco.tsx             → /dados/orcamento-pernambuco
+              <br />/dados.orcamento-recife.tsx               → /dados/orcamento-recife
               <br />/dados.perfil.tsx                    → /dados/perfil
-              <br />/dados.samu.tsx                      → /dados/samu
               <br />/dados.sinistros-fatais.tsx         → /dados/sinistros-fatais
               <br />/dados.vias-inseguras.tsx           → /dados/vias-inseguras
-              <br />/dados.viasinseguras.$slug.tsx      → /dados/vias-inseguras/:slug
+              <br />/dados.vias-inseguras.$slug.tsx     → /dados/vias-inseguras/:slug
             </code>
           </div>
 
@@ -88,7 +88,7 @@ export const Route = createFileRoute("/contagens/$slug")({
     const { slug } = params;
     // Usando fetchWithTimeout para evitar timeouts
     const data = await fetchWithTimeout(
-      "http://api.garfo.ameciclo.org/cyclist-counts",
+      "https://cyclist-counts.atlas.ameciclo.org/v1/locations",
       { cache: "no-cache" },
       5000,
       { counts: [] }

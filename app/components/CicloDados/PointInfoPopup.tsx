@@ -1378,7 +1378,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     <div className="flex items-center justify-between mb-3">
                       <h5 className="text-sm font-semibold text-gray-800">Infraestrutura Cicloviária Próxima</h5>
                       <a 
-                        href="/dados/execucaocicloviaria" 
+                        href="/dados/execucao-cicloviaria" 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"

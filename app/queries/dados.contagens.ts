@@ -4,9 +4,8 @@ import { z } from "zod";
 import { IntlPercentil } from "~/services/utils";
 import { strapiClient } from "~/lib/strapi";
 import { cmsFetch } from "~/services/cmsFetch";
-import { COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
-
-const PCR_CONTAGENS_URL = "https://ameciclo.org/dbs/PCR_CONTAGENS.json";
+import { COUNTINGS_ATLAS_LOCATIONS, PCR_CONTAGENS_URL } from "~/servers";
+import { slugifyCount } from "~/services/slug";
 
 const MediaSchema = z.object({
   id: z.number().nullish(),
@@ -110,13 +109,30 @@ const fetchContagens = createServerFn().handler(async () => {
           countsData.push({
             id: location.id,
             name: location.name,
-            slug: String(location.id),
+            slug: slugifyCount(location, count),
             date: count.date,
             total_cyclists: cyclists,
+            latitude: location.latitude,
+            longitude: location.longitude,
           });
         });
       }
     });
+  }
+
+  countsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const groupedCountsData: any[] = [];
+  const seen = new Map<number, any>();
+  for (const count of countsData) {
+    if (!seen.has(count.id)) {
+      const parent = { ...count, subRows: [], count_total: 1 };
+      seen.set(count.id, parent);
+      groupedCountsData.push(parent);
+    } else {
+      seen.get(count.id)!.subRows.push(count);
+      seen.get(count.id)!.count_total++;
+    }
   }
 
   const summaryData = {
@@ -152,7 +168,7 @@ const fetchContagens = createServerFn().handler(async () => {
 
   return {
     page,
-    summaryData: { summaryData, countsData, cards },
+    summaryData: { summaryData, countsData: groupedCountsData, cards },
     pcrCounts,
     amecicloData: atlasData,
     atlasApiDown: atlasData == null,

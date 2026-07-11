@@ -40,6 +40,7 @@ function Contagens() {
     useSuspenseQuery(contagensQueryOptions());
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
+  const [flyTo, setFlyTo] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const statistics = useCountsStatistics(summaryData.summaryData);
   const { pointsData, controlPanel } = useCountsMapData(amecicloData, pcrCounts);
@@ -70,14 +71,22 @@ function Contagens() {
         onPointClick={(point) => {
           setSelectedPoint(point);
         }}
+        flyTo={flyTo}
       />
 
       <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
-      <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
-      <CardsSession
-        title={"Documentos para realizar contagens de ciclistas."}
-        cards={docs}
+      <CountsTable
+        data={summaryData.countsData}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        onCoordinateClick={(lat, lng) => setFlyTo({ latitude: lat, longitude: lng })}
       />
+      {docs.length > 0 && (
+        <CardsSession
+          title={"Documentos para realizar contagens de ciclistas."}
+          cards={docs}
+        />
+      )}
     </>
   );
 }

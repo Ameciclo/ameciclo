@@ -3,7 +3,8 @@
  * @param value Valor numérico
  * @returns String formatada (ex: "26 Bi", "1.5 Mi", "R$ 1.390,25")
  */
-export function formatLargeValue(value: number): string {
+export function formatLargeValue(value: number | null): string {
+  if (value == null) return "R$ 0,00";
   if (value >= 1_000_000_000) {
     const billions = value / 1_000_000_000;
     return `R$ ${billions.toFixed(1).replace('.0', '')} Bi`;

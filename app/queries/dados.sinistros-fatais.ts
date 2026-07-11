@@ -5,10 +5,9 @@ import { makeApiErrorTracker } from "~/services/apiTracking";
 import {
   DATASUS_SUMMARY_DATA,
   DATASUS_CITIES_BY_YEAR_DATA,
-  OBSERVATORIO_SINISTROS_PAGE_DATA,
 } from "~/servers";
 
-const MOCK_PAGE_DATA = {
+const PAGE_DATA = {
   id: 4,
   title: "Observatório de Sinistros Fatais",
   coverImage: "/pages_covers/sinistros-fatais.png",
@@ -30,7 +29,7 @@ const MOCK_PAGE_DATA = {
 const fetchSinistrosFatais = createServerFn().handler(async () => {
   const tracker = makeApiErrorTracker();
 
-  const [summary, citiesByYear, pageData] = await Promise.all([
+  const [summary, citiesByYear] = await Promise.all([
     cmsFetch<any>(DATASUS_SUMMARY_DATA, {
       ttl: 300,
       timeout: 10000,
@@ -45,19 +44,12 @@ const fetchSinistrosFatais = createServerFn().handler(async () => {
       onError: tracker.at(DATASUS_CITIES_BY_YEAR_DATA),
       retries: 2,
     }),
-    cmsFetch<any>(OBSERVATORIO_SINISTROS_PAGE_DATA, {
-      ttl: 600,
-      timeout: 10000,
-      fallback: MOCK_PAGE_DATA,
-      onError: tracker.at(OBSERVATORIO_SINISTROS_PAGE_DATA),
-      retries: 2,
-    }),
   ]);
 
   return {
     summary,
     citiesByYear,
-    pageData,
+    pageData: PAGE_DATA,
     ...tracker.summary(),
   };
 });

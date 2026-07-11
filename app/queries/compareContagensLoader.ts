@@ -1,7 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
+import {
+  COUNTINGS_ATLAS_LOCATIONS,
+  COUNTINGS_PAGE_DATA,
+} from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parseCountIdFromSlug } from "~/services/slug";
 
 function getBoxesForCountingComparision(data: any[]) {
   const boxes = data.map((location) => {
@@ -33,39 +37,43 @@ function getBoxesForCountingComparision(data: any[]) {
   return boxes;
 }
 
-const fetchLocationData = async (locationId: string) => {
-  try {
-    const data = await cmsFetch<any>(COUNTINGS_ATLAS_LOCATION(locationId), {
-      ttl: 60,
-      timeout: 5000,
-    });
-    if (!data) return null;
-
-    if (data.counts && data.counts.length > 0) {
-      return { ...data, selectedCount: data.counts[0] };
+function findLocationByCountId(locations: any[], countId: string) {
+  for (const loc of locations || []) {
+    if (loc.counts) {
+      const match = loc.counts.find(
+        (c: any) => c.id.toString() === countId,
+      );
+      if (match) {
+        return { ...loc, selectedCount: match };
+      }
     }
-    return data;
-  } catch (error) {
-    console.error('Error fetching location data:', error);
-    return null;
   }
-};
+  return null;
+}
 
 export const fetchCompareContagens = createServerFn()
   .inputValidator((input: { slug: string; compareSlug: string }) => input)
   .handler(async ({ data }) => {
-    const slugParam = data.slug || "";
-    const compareSlugParam = data.compareSlug || "";
-    const toCompare = [slugParam, compareSlugParam].filter(Boolean);
+    const countA = parseCountIdFromSlug(data.slug || "");
+    const countB = parseCountIdFromSlug(data.compareSlug || "");
 
-    const result = await Promise.all(
-      toCompare.map(async (locationId) => {
-        const r = await fetchLocationData(locationId);
-        return r;
-      })
-    );
+    const [pageDataRes, locationsRes] = await Promise.all([
+      cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 }),
+      cmsFetch<any>(COUNTINGS_ATLAS_LOCATIONS, {
+        ttl: 300,
+        timeout: 5000,
+        fallback: [],
+      }),
+    ]);
 
-    const boxes = getBoxesForCountingComparision(result.filter(Boolean));
+    const otherCounts = locationsRes || [];
+
+    const results = [countA, countB]
+      .filter(Boolean)
+      .map((id) => findLocationByCountId(otherCounts, id))
+      .filter(Boolean);
+
+    const boxes = getBoxesForCountingComparision(results);
 
     return { boxes };
   });

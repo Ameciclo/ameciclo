@@ -1,46 +1,113 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { domQueryOptions } from "~/queries/dados.dom";
 import Chart from "react-google-charts";
-import DevelopingComponent from "~/components/Commom/DevelopingComponent";
+import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
+import { formatLargeValue } from "~/utils/formatCurrency";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/dom/")({
+export const Route = createFileRoute("/dados/orcamento-recife/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(domQueryOptions()),
   head: () =>
     seo({
-      title: "DOM - Diagnóstico Orçamentário Municipal - Ameciclo",
+      title: "Orçamento do Recife - Ameciclo",
       description:
         "Diagnóstico do orçamento municipal do Recife sob a ótica climática — sustentabilidade, emissões e ações executadas.",
-      pathname: "/dados/dom",
+      pathname: "/dados/orcamento-recife",
     }),
   component: Dom,
-  pendingComponent: () => <RouteLoading label="Carregando dados do DOM..." />,
+  pendingComponent: () => <RouteLoading label="Carregando dados do Orçamento do Recife..." />,
   pendingMs: 500,
   pendingMinMs: 800,
   errorComponent: RouteErrorBoundary,
 });
 
 function Dom() {
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
+
     const { data: {
         cover,
         description,
         chartData,
+        totalGoodActions,
+        totalBadActions,
         sustainableTotal,
         unsustainableTotal,
         carbonValue
     } } = useSuspenseQuery(domQueryOptions());
 
+    const allActions = [
+        ...(totalGoodActions || []).map((a: any) => ({
+            ...a,
+            type: 'good' as const,
+            acaoNome: `${a.cod} - ${a.name}`,
+            subacaoNome: a.subcod ? `${a.subcod} - ${a.subname || '-'}` : a.subname || '-',
+        })),
+        ...(totalBadActions || []).map((a: any) => ({
+            ...a,
+            type: 'bad' as const,
+            acaoNome: `${a.cod} - ${a.name}`,
+            subacaoNome: a.subcod ? `${a.subcod} - ${a.subname || '-'}` : a.subname || '-',
+        })),
+    ];
+
+    let filteredActions = allActions;
+    if (filterType === 'good') {
+        filteredActions = allActions.filter((a: any) => a.type === 'good');
+    } else if (filterType === 'bad') {
+        filteredActions = allActions.filter((a: any) => a.type === 'bad');
+    }
+
+    const columns = [
+        {
+            Header: "Ação",
+            accessor: "acaoNome",
+        },
+        {
+            Header: "Sub-ação",
+            accessor: "subacaoNome",
+        },
+        {
+            Header: "Total",
+            accessor: "total",
+            Cell: ({ value }: any) => formatLargeValue(value),
+            Filter: NumberRangeColumnFilter,
+            filter: 'numberRange',
+        },
+    ];
+
+    const allColumns = [
+        {
+            Header: "Ação",
+            accessor: "acaoNome",
+        },
+        {
+            Header: "Sub-ação",
+            accessor: "subacaoNome",
+        },
+        {
+            Header: "Total",
+            accessor: "total",
+            Cell: ({ value }: any) => formatLargeValue(value),
+            Filter: NumberRangeColumnFilter,
+            filter: 'numberRange',
+        },
+    ];
+
+    const classifyAction = (action: any) => action.type;
+
     return (
         <>
-            <Banner image={cover?.url} alt="Capa da página do Diágnóstico Orçamentário Municipal" />
-            <Breadcrumb label="DOM" slug="/dados/dom" routes={["/", "/dados"]} />
+            <Banner image={cover?.url} alt="Capa da página do Orçamento do Recife" />
+            <Breadcrumb label="Orçamento do Recife" slug="/dados/orcamento-recife" routes={["/", "/dados"]} />
             <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
 
             <div className="container mx-auto px-4 py-6">
@@ -242,7 +309,17 @@ function Dom() {
                     )}
 
                     <section>
-                        <DevelopingComponent title="Componente Tabela de Ações e Programas" />
+                        <Table
+                            title="Ações e Programas do Orçamento do Recife"
+                            data={filteredActions}
+                            columns={columns}
+                            allColumns={allColumns}
+                            showFilters={showFilters}
+                            setShowFilters={setShowFilters}
+                            filterType={filterType}
+                            setFilterType={setFilterType}
+                            classifyAction={classifyAction}
+                        />
                     </section>
 
                     <section className="bg-gray-50 rounded-lg p-4">

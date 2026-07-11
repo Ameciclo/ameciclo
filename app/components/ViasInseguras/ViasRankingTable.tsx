@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import Table from "../Commom/Table/Table";
 import { slugify } from "~/utils/slugify";
+import {
+  viasInsegurasAvailableYearsQueryOptions,
+  viasInsegurasRankingTableQueryOptions,
+} from "~/queries/dados.vias-inseguras";
+import RankingYearFilter from "./RankingYearFilter";
 
 interface ViaRanking {
   top: number;
@@ -20,9 +26,9 @@ interface ViasRankingTableProps {
 }
 
 export default function ViasRankingTable({ 
-  data, 
-  totalSinistros, 
-  periodo, 
+  data: initialData, 
+  totalSinistros: initialTotal, 
+  periodo: initialPeriodo, 
   onViaClick 
 }: ViasRankingTableProps) {
   const [sortConfig, setSortConfig] = useState<{
@@ -32,8 +38,35 @@ export default function ViasRankingTable({
   const [densityFilter, setDensityFilter] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Processar dados para a tabela
-  const tableData = (data || [])
+  const [startYear, setStartYear] = useState("");
+  const [endYear, setEndYear] = useState("");
+
+  const { data: availableYears = [] } = useQuery(viasInsegurasAvailableYearsQueryOptions());
+
+  // Initialize years when availableYears loads
+  useEffect(() => {
+    if (availableYears.length === 0) return;
+    const filtered = availableYears.filter((y: string) => Number(y) >= 2020);
+    const end = filtered.includes("2025") ? "2024" : filtered[filtered.length - 1] || "";
+    const start = filtered[0] || "2020";
+    setStartYear(start);
+    setEndYear(end);
+  }, [availableYears]);
+
+  const { data: rankingResult, isLoading: loading } = useQuery({
+    ...viasInsegurasRankingTableQueryOptions(startYear, endYear),
+    enabled: !!startYear,
+  });
+  const tableData: ViaRanking[] = rankingResult?.dados ?? initialData;
+  const tableTotal = rankingResult?.totalSinistros ?? initialTotal;
+  const tablePeriodo = rankingResult?.periodo ?? initialPeriodo;
+
+  const handleYearChange = useCallback((s: string, e: string) => {
+    setStartYear(s);
+    setEndYear(e);
+  }, []);
+
+  const tableRows = (tableData || [])
     .filter((via) => {
       if (!densityFilter) return true;
       return getDensityCategory(via.sinistros_por_km || 0) === densityFilter;
@@ -47,7 +80,6 @@ export default function ViasRankingTable({
       sinistros_por_km: (via.sinistros_por_km || 0).toFixed(1),
       percentual_total: `${(via.percentual_total || 0).toFixed(2)}%`,
       densidade_categoria: getDensityCategory(via.sinistros_por_km || 0),
-      // Dados brutos para ordenação
       _sinistros: via.sinistros || 0,
       _km: via.km || 0,
       _densidade: via.sinistros_por_km || 0,
@@ -109,7 +141,7 @@ export default function ViasRankingTable({
       disableFilters: false,
       Cell: ({ value, row }: any) => (
         <Link
-          to="/dados/viasinseguras/$slug"
+          to="/dados/vias-inseguras/$slug"
           params={{ slug: String(row.original.slug) }}
           className="text-left hover:text-ameciclo hover:underline transition-colors block"
         >
@@ -156,7 +188,7 @@ export default function ViasRankingTable({
         <div className="text-right">
           <div className="font-semibold text-lg">{value}</div>
           <div className="text-sm text-gray-500">
-            {row.original.percentual_total} do total
+            {row.original.percentual_total} deste total
           </div>
         </div>
       ),
@@ -234,9 +266,9 @@ export default function ViasRankingTable({
       <div className="mt-4 md:mt-0">
         <div className="text-right">
           <div className="text-2xl font-bold text-ameciclo">
-            {(totalSinistros || 0).toLocaleString()}
+            {(tableTotal || 0).toLocaleString()}
           </div>
-          <div className="text-sm text-gray-600">Total de sinistros</div>
+           <div className="text-sm text-gray-600">Total de sinistros (vias identificadas)</div>
         </div>
       </div>
     </div>
@@ -277,11 +309,23 @@ export default function ViasRankingTable({
 
   return (
     <div className="space-y-6">
-      {(data || []).length > 0 ? (
+      {(tableData || []).length > 0 ? (
         <>
+          <RankingYearFilter
+            years={availableYears}
+            startYear={startYear}
+            endYear={endYear}
+            onChange={handleYearChange}
+          />
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-[#008888] rounded-full animate-spin" />
+              <span>Atualizando ranking...</span>
+            </div>
+          )}
           <Table
             title=""
-            data={tableData}
+            data={tableRows}
             columns={columns}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
@@ -313,7 +357,7 @@ export default function ViasRankingTable({
       )
 
       {/* Insights */}
-      {(data || []).length > 0 && (
+      {(tableData || []).length > 0 && (
         <div className="bg-blue-50 rounded-lg p-6">
           <h4 className="font-semibold text-blue-900 mb-3">Análise do Ranking</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
@@ -321,14 +365,14 @@ export default function ViasRankingTable({
               <p className="mb-2">
                 <strong>Top 10 vias</strong> concentram{" "}
                 <span className="font-semibold">
-                  {(data || []).slice(0, 10).reduce((sum, via) => sum + via.percentual_total, 0).toFixed(1)}%
+                  {(tableData || []).slice(0, 10).reduce((sum, via) => sum + via.percentual_total, 0).toFixed(1)}%
                 </span>{" "}
                 de todos os sinistros.
               </p>
               <p>
                 <strong>Via mais perigosa</strong> tem densidade de{" "}
                 <span className="font-semibold">
-                  {((data || [])[0]?.sinistros_por_km || 0).toFixed(1)} sinistros/km
+                  {((tableData || [])[0]?.sinistros_por_km || 0).toFixed(1)} sinistros/km
                 </span>.
               </p>
             </div>
@@ -336,13 +380,13 @@ export default function ViasRankingTable({
               <p className="mb-2">
                 <strong>Densidade média</strong> das top 10:{" "}
                 <span className="font-semibold">
-                  {((data || []).slice(0, 10).reduce((sum, via) => sum + (via.sinistros_por_km || 0), 0) / Math.max(1, (data || []).slice(0, 10).length)).toFixed(1)} sinistros/km
+                  {((tableData || []).slice(0, 10).reduce((sum, via) => sum + (via.sinistros_por_km || 0), 0) / Math.max(1, (tableData || []).slice(0, 10).length)).toFixed(1)} sinistros/km
                 </span>.
               </p>
               <p>
                 <strong>Extensão total</strong> analisada:{" "}
                 <span className="font-semibold">
-                  {(data || []).reduce((sum, via) => sum + (via.km || 0), 0).toFixed(1)} km
+                  {(tableData || []).reduce((sum, via) => sum + (via.km || 0), 0).toFixed(1)} km
                 </span>.
               </p>
             </div>

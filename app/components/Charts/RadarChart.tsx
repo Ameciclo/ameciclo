@@ -48,6 +48,7 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
             },
             pane: {
               size: "70%",
+              startAngle: 0,
             },
             xAxis: {
               categories: categories,
@@ -56,7 +57,6 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
             yAxis: {
               gridLineInterpolation: "polygon",
               min: 0,
-              max: 10,
             },
             tooltip: {
               shared: true,
@@ -64,15 +64,8 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
                 '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>',
             },
             colors: [
-              "#008080",
-              "#E02F31",
-              "#000000",
-              "#DDDF00",
-              "#24CBE5",
-              "#64E572",
-              "#FF9655",
-              "#FFF263",
-              "#6AF9C4",
+              "#14b8a6", "#ef4444", "#6366f1", "#eab308", "#a855f7",
+              "#06b6d4", "#ec4899", "#f97316", "#3b82f6", "#f43f5e",
             ],
             series: series,
           };

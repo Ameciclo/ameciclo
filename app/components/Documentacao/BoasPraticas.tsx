@@ -21,7 +21,7 @@ export default function BoasPraticas({ darkMode = true, fontSize = 16 }: Documen
 {`// app/loader/minha-pagina.ts
 export async function loader() {
   const data = await fetchWithTimeout(
-    "http://api.garfo.ameciclo.org/endpoint",
+    "http://localhost:3010/v1/summary",
     { cache: "no-cache" },
     5000,
     { fallback: [] }
@@ -38,10 +38,10 @@ export async function loader() {
               <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-200'} p-3 rounded-sm`}>
                 <code className={`${darkMode ? 'text-green-300' : 'text-green-700'} text-sm`} style={{ fontSize: fontSize - 2 }}>
 {`// app/services/contagens.service.ts
-const API_BASE = "http://api.garfo.ameciclo.org";
+const API_BASE = "https://cyclist-counts.atlas.ameciclo.org/v1";
 
 export async function getContagens() {
-  return fetchWithTimeout(\`\${API_BASE}/cyclist-counts\`);
+  return fetchWithTimeout(\`\${API_BASE}/locations\`);
 }`}
                 </code>
               </div>

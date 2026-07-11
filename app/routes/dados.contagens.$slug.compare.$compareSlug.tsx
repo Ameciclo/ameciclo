@@ -11,6 +11,7 @@ import { colors } from "~/components/Charts/FlowChart/FlowContainer";
 import { VerticalStatisticsBoxes } from "~/components/Contagens/VerticalStatisticsBoxes";
 import { Tooltip } from "~/components/Commom/Tooltip";
 import { contagemCompareQueryOptions } from "~/queries/dados.contagens.$slug.compare.$compareSlug";
+import { transformOtherCountsForComparison } from "~/services/counting-details.service";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
@@ -148,7 +149,7 @@ function Compare() {
               </li>
               {data.map((location: any, index: number) => (
                 <li key={index} className="flex items-center">
-                  <Link to="/dados/contagens/$slug" params={{ slug: String(location?.id || '') }} className="text-white">{location?.name || 'Contagem'}</Link>
+                  <Link to="/dados/contagens/$slug" params={{ slug: index === 0 ? slug : compareSlug }} className="text-white">{location?.name || 'Contagem'}</Link>
                   <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
                     <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
                     </svg>
@@ -336,12 +337,11 @@ function Compare() {
         )}
 
         {(() => {
-          const excludeIds = data.map((d: any) => d?.id).filter(Boolean);
-          const filteredData = pageData.otherCounts.filter((d: any) => !excludeIds.includes(d.id));
+          const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], 0);
           return (
             <CountingComparisionTable
-              data={filteredData}
-              firstSlug={toCompare[0]}
+              data={allCounts}
+              compareSlugs={[slug, compareSlug]}
             />
           );
         })()}

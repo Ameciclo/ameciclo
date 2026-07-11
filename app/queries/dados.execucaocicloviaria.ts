@@ -32,7 +32,7 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
     },
   };
 
-  const cycleStructureExecutionStatistics = (d: any) => {
+  const cycleStructureExecutionStatistics = (d: any, designado: number = 0) => {
     const { pdc_feito, out_pdc, pdc_total, percent } = { ...d };
 
     return [
@@ -50,6 +50,11 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
         title: "implantados no plano cicloviário",
         unit: "km",
         value: IntlNumberMax1Digit(pdc_feito),
+      },
+      {
+        title: "tipologia designada",
+        unit: "km",
+        value: IntlNumberMax1Digit(designado),
       },
       {
         title: "cobertos do plano cicloviário",
@@ -70,19 +75,25 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
     filter: ["==", "status_type", "pdc_nao_realizado"],
   };
 
-  const PDCDoneLayer = {
-    id: "Executados dentro do PDC",
+  const PDCDesignadoLayer = {
+    id: "Executado no PDC (designado)",
     type: "line",
     paint: {
       "line-color": "#008080",
       "line-width": 3,
     },
-    filter: [
-      "in",
-      "status_type",
-      "pdc_realizado_designado",
-      "pdc_realizado_nao_designado",
-    ],
+    filter: ["==", "status_type", "pdc_realizado_designado"],
+  };
+
+  const PDCNaoDesignadoLayer = {
+    id: "Executado no PDC (não designado)",
+    type: "line",
+    paint: {
+      "line-color": "#66BBAA",
+      "line-width": 2,
+      "line-opacity": 0.8,
+    },
+    filter: ["==", "status_type", "pdc_realizado_nao_designado"],
   };
 
   const NotPDC = {
@@ -96,7 +107,7 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
     filter: ["==", "status_type", "realizado_fora_pdc"],
   };
 
-  const layersConf = [PDCLayer, PDCDoneLayer, NotPDC];
+  const layersConf = [PDCLayer, PDCDesignadoLayer, PDCNaoDesignadoLayer, NotPDC];
 
   const fallbackData = {
     type: "FeatureCollection",
@@ -154,8 +165,33 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
   ]);
 
   const allWaysData = apiData || fallbackData;
+
+  const pdcDesignado = { total: 0, byCity: {} as Record<string, number> };
+  const pdcNaoDesignado = { total: 0, byCity: {} as Record<string, number> };
+
+  if (allWaysData?.features) {
+    for (const feature of allWaysData.features) {
+      const props = feature.properties;
+      if (!props) continue;
+      const cityKey = props.city_id ? String(props.city_id) : null;
+
+      if (props.status_type === 'pdc_realizado_designado') {
+        pdcDesignado.total += props.length || 0;
+        if (cityKey && rmrCityIds.has(cityKey)) {
+          pdcDesignado.byCity[cityKey] = (pdcDesignado.byCity[cityKey] || 0) + (props.length || 0);
+        }
+      } else if (props.status_type === 'pdc_realizado_nao_designado') {
+        pdcNaoDesignado.total += props.length || 0;
+        if (cityKey && rmrCityIds.has(cityKey)) {
+          pdcNaoDesignado.byCity[cityKey] = (pdcNaoDesignado.byCity[cityKey] || 0) + (props.length || 0);
+        }
+      }
+    }
+  }
+
   const statsData = cycleStructureExecutionStatistics(
-    summaryData?.all || fallbackStats
+    summaryData?.all || fallbackStats,
+    pdcDesignado.total
   );
 
   const citiesData: any = {};
@@ -172,6 +208,8 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
             pdc_total: cityData.pdc_total || 0,
             percent: cityData.percent || 0,
             total: (cityData.pdc_feito || 0) + (cityData.out_pdc || 0),
+            pdc_designado: pdcDesignado.byCity[cityId] || 0,
+            pdc_nao_designado: pdcNaoDesignado.byCity[cityId] || 0,
             relations: cityRelations,
           };
         }
