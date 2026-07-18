@@ -9,8 +9,8 @@ const dataSubPages = [
   { name: "Documentos", url: "/dados/documentos" },
   { name: "Perfil", url: "/dados/perfil" },
   { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria" },
-  { name: "Orçamento PE", url: "/dados/orcamento-pernambuco" },
-  { name: "Orçamento Recife", url: "/dados/orcamento-recife" },
+  { name: "Orçamento PE", url: "/dados/orcamento-pernambuco", comingSoon: true },
+  { name: "Orçamento Recife", url: "/dados/orcamento-recife", comingSoon: true },
 
   { name: "Emergências", url: "/dados/chamados-emergencia" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
@@ -275,7 +275,10 @@ function SmallMenu({ pages, closeMenu }: any) {
                                   onClick={handleLinkClick}
                                   prefetch="intent"
                                 >
-                                  {subPage.name}
+                                  <span>{subPage.name}</span>
+                                  {subPage.comingSoon && (
+                                    <span className="text-[8px] bg-yellow-400 text-black px-1 py-0.5 rounded font-bold ml-1 leading-none">BREVE</span>
+                                  )}
                                 </Link>
                               );
                             })}

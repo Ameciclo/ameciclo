@@ -7,8 +7,8 @@ export function getRouter() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000, // 5 minutos
-        gcTime: 10 * 60 * 1000, // 10 minutos
+        staleTime: import.meta.env.DEV ? 10 * 1000 : 5 * 60 * 1000,
+        gcTime: import.meta.env.DEV ? 30 * 1000 : 10 * 60 * 1000,
         retry: 2,
         refetchOnWindowFocus: false,
       },

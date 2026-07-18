@@ -73,7 +73,7 @@ export const CausasSecundarias: React.FC<CausasSecundariasProps> = ({
 
       <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
         <h4 className="text-lg font-semibold mb-2">
-          Linha A - Causa direta da morte
+          Linha A - Causa secundária da morte
         </h4>
         
         {causas.length > 0 ? (
@@ -112,7 +112,7 @@ export const CausasSecundarias: React.FC<CausasSecundariasProps> = ({
       <div className="text-center text-sm text-gray-600 mt-4">
         <p>Total de registros: {data.totalRegistros}</p>
         <p className="mt-2">
-          As causas secundárias são extraídas da linha A da Declaração de Óbito.
+          As causas secundárias são extraídas da Declaração de Óbito.
         </p>
       </div>
     </div>

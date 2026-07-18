@@ -68,6 +68,7 @@ const FEATURED_PAGES = [
     description:
       "Monitoramento do orçamento de Pernambuco conforme sua contribuição climática.",
     target: "",
+    comingSoon: true,
   },
   {
     title: "Orçamento do Recife",
@@ -76,6 +77,7 @@ const FEATURED_PAGES = [
     description:
       "Monitoramento do orçamento municipal conforme sua contribuição climática.",
     target: "",
+    comingSoon: true,
   },
   {
     title: "Observatório de Infrações",

@@ -6,8 +6,8 @@ const dataSubPages = [
   { name: "Documentos", url: "/dados/documentos", icon: "/icons/dados/relatorio.svg" },
   { name: "Perfil", url: "/dados/perfil", icon: "/icons/dados/perfil.svg" },
    { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria", icon: "/icons/dados/mapa.svg" },
-  { name: "Orçamento PE", url: "/dados/orcamento-pernambuco", icon: "/icons/home/logo2.1d0f07c6.png" },
-  { name: "Orçamento Recife", url: "/dados/orcamento-recife", icon: "/icons/home/header-logo.4f44929c.png" },
+  { name: "Orçamento PE", url: "/dados/orcamento-pernambuco", icon: "/icons/home/logo2.1d0f07c6.png", comingSoon: true },
+  { name: "Orçamento Recife", url: "/dados/orcamento-recife", icon: "/icons/home/header-logo.4f44929c.png", comingSoon: true },
 
   { name: "Emergências", url: "/dados/chamados-emergencia", icon: "/icons/home/chamados_sinistros.svg" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras", icon: "/icons/home/vias-inseguras.svg" },
@@ -48,6 +48,9 @@ export function DataSubmenu() {
                   <img src={subPage.icon} alt="" className="w-6 h-6 object-contain brightness-0 invert" aria-hidden="true" />
                 )}
                 <span className="relative z-10">{subPage.name}</span>
+                {subPage.comingSoon && (
+                  <span className="text-[8px] bg-yellow-400 text-black px-1 py-0.5 rounded font-bold ml-1 leading-none">BREVE</span>
+                )}
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
@@ -79,6 +82,9 @@ export function DataSubmenu() {
                     <img src={subPage.icon} alt="" className="w-6 h-6 object-contain brightness-0 invert" aria-hidden="true" />
                   )}
                   <span className="relative z-10">{subPage.name}</span>
+                  {subPage.comingSoon && (
+                    <span className="text-[8px] bg-yellow-400 text-black px-1 py-0.5 rounded font-bold ml-1 leading-none">BREVE</span>
+                  )}
                   {isActive && (
                     <motion.div
                       layoutId="activeTabMobile"
