@@ -613,13 +613,7 @@ export default function InfracoesClientSide({
   // ─── Dados de tabelas ────────────────────────────────────────────
   const streetsSorted = [...streetsData]
     .filter((s: any) => s.total_violations > 0)
-    .sort((a: any, b: any) => {
-      const isSelectedA = filter?.type === "street_code" && a.street_code === Number(filter.value);
-      const isSelectedB = filter?.type === "street_code" && b.street_code === Number(filter.value);
-      if (isSelectedA && !isSelectedB) return -1;
-      if (!isSelectedA && isSelectedB) return 1;
-      return (b.total_violations ?? 0) - (a.total_violations ?? 0);
-    })
+    .sort((a: any, b: any) => (b.total_violations ?? 0) - (a.total_violations ?? 0))
     .slice(0, 100);
 
   const totalStreetViolations = streetsSorted.reduce((sum: number, s: any) => sum + (s.total_violations ?? 0), 0);
