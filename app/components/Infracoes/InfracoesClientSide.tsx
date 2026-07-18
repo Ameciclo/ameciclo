@@ -893,6 +893,20 @@ export default function InfracoesClientSide({
                   colors={lawCodeAnnualStackedData.colors}
                   selectedLabel={selectedYear ? String(selectedYear) : undefined}
                 />
+              ) : filter?.type === 'category' ? (
+                <VerticalBarChart
+                  title=""
+                  xAxisTitle=""
+                  yAxisTitle="Infrações"
+                  data={Object.entries(temporalData.by_year)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([year, count]) => ({ label: year, count }))}
+                  xKey="label"
+                  yKeys={["count"]}
+                  colorByLabel={selectedYear
+                    ? (label: string) => label === String(selectedYear) ? '#dc2626' : '#d1d5db'
+                    : () => '#dc2626'}
+                />
               ) : (
                 <>
                   <div className="flex items-center justify-center gap-1 mb-4">
@@ -1013,6 +1027,16 @@ export default function InfracoesClientSide({
                         yKeys={lawCodeMonthlyStackedData.yKeys}
                         colors={lawCodeMonthlyStackedData.colors}
                       />
+                    ) : filter?.type === 'category' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={getAllMonthsData(temporalData.by_month)}
+                        xKey="label"
+                        yKeys={["count"]}
+                        colors={["#3b82f6"]}
+                      />
                     ) : stackMode === 'category' ? (
                       <VerticalBarChart
                         title=""
@@ -1049,6 +1073,16 @@ export default function InfracoesClientSide({
                         yKeys={lawCodeWeekdayStackedData.yKeys}
                         colors={lawCodeWeekdayStackedData.colors}
                       />
+                    ) : filter?.type === 'category' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={WEEKDAY_ORDER.map((day) => ({ label: WEEKDAY_LABELS[day], count: temporalData.by_weekday[day] ?? 0 }))}
+                        xKey="label"
+                        yKeys={["count"]}
+                        colors={["#10b981"]}
+                      />
                     ) : stackMode === 'category' ? (
                       <VerticalBarChart
                         title=""
@@ -1084,6 +1118,18 @@ export default function InfracoesClientSide({
                         xKey="label"
                         yKeys={lawCodeHourlyStackedData.yKeys}
                         colors={lawCodeHourlyStackedData.colors}
+                      />
+                    ) : filter?.type === 'category' ? (
+                      <VerticalBarChart
+                        title=""
+                        xAxisTitle=""
+                        yAxisTitle=""
+                        data={Object.entries(temporalData.by_hour)
+                          .sort(([a], [b]) => Number(a) - Number(b))
+                          .map(([hour, count]) => ({ label: `${hour}h`, count: count as number }))}
+                        xKey="label"
+                        yKeys={["count"]}
+                        colors={["#8b5cf6"]}
                       />
                     ) : stackMode === 'category' ? (
                       <VerticalBarChart
