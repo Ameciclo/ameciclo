@@ -39,7 +39,8 @@ export default function SinistrosFataisClientSide({
   pageData,
 }: any) {
   const [tipoLocal, setTipoLocal] = useState("ocorrencia");
-  const [selectedYear, setSelectedYear] = useState(2023); // Ano inicial
+  const lastYear = initialCitiesByYearData?.anos?.[initialCitiesByYearData.anos.length - 1] ?? 2023;
+  const [selectedYear, setSelectedYear] = useState(lastYear);
   const [selectedEndYear, setSelectedEndYear] = useState<number | null>(null); // Ano final
   const [selectedCity, setSelectedCity] = useState(2611606); // Mostrar Recife por padrão no gráfico
   const [selectedCardCity, setSelectedCardCity] = useState(2611606); // ID do Recife para os cards
@@ -62,24 +63,15 @@ export default function SinistrosFataisClientSide({
     setIsClient(true);
   }, []);
 
-  // Determinar o último ano disponível nos dados apenas na primeira carga
+  // Atualizar ano selecionado quando dados mudam (ex: filtro de local)
   useEffect(() => {
     if (
-      citiesByYearData &&
-      citiesByYearData.anos &&
-      citiesByYearData.anos.length > 0 &&
-      !selectedYear // Apenas se não houver ano selecionado
+      citiesByYearData?.anos?.length > 0 &&
+      citiesByYearData.anos !== initialCitiesByYearData?.anos
     ) {
-      // Verificar se 2023 está disponível, caso contrário usar o último ano
-      if (citiesByYearData.anos.includes(2023)) {
-        setSelectedYear(2023);
-      } else {
-        setSelectedYear(
-          citiesByYearData.anos[citiesByYearData.anos.length - 1]
-        );
-      }
+      setSelectedYear(citiesByYearData.anos[citiesByYearData.anos.length - 1]);
     }
-  }, [citiesByYearData, selectedYear]);
+  }, [citiesByYearData]);
 
   // Buscar dados quando o tipo de local ou local de ocorrência do óbito mudar
   useEffect(() => {
