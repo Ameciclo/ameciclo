@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import bbox from "@turf/bbox";
+import { WebMercatorViewport } from "@math.gl/web-mercator";
 import HorizontalBarChart from "~/components/Commom/Charts/HorizontalBarChart";
 import { VerticalBarChart } from "~/components/Charts/VerticalBarChart";
 import Table from "~/components/Commom/Table/Table";
@@ -211,10 +212,13 @@ export default function InfracoesClientSide({
     if (!feature?.geometry) return null;
     try {
       const [minX, minY, maxX, maxY] = bbox(feature);
-      const centerLng = (minX + maxX) / 2;
-      const centerLat = (minY + maxY) / 2;
-      if (Number.isNaN(centerLng) || Number.isNaN(centerLat)) return null;
-      return { latitude: centerLat, longitude: centerLng, zoom: 15 };
+      const vp = new WebMercatorViewport({ width: 400, height: 400 });
+      const { longitude, latitude, zoom } = vp.fitBounds(
+        [[minX, minY], [maxX, maxY]],
+        { padding: 60 },
+      );
+      if (Number.isNaN(longitude) || Number.isNaN(latitude)) return null;
+      return { latitude, longitude, zoom: Math.min(zoom, 16) };
     } catch {
       return null;
     }
@@ -1126,53 +1130,24 @@ export default function InfracoesClientSide({
       >
         <div className="transition-opacity duration-150">
           {agentData.length > 0 ? (
-            <>
-              <div className="mb-8">
-                <HorizontalBarChart
-                  title="Percentual por tipo de agente"
-                  yAxisTitle="% das autuações"
-                  series={[{
-                    name: "Percentual",
-                    data: agentData.map((a: any) => ({ name: a.description, y: a.percentage })),
-                    color: "#dc2626",
-                  }]}
-                />
-              </div>
-              {filter?.type !== "category" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {agentData.map((agent: any) => (
-                  <div key={agent.agent_id} className="bg-white rounded-lg shadow-lg p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`w-3 h-3 rounded-full shrink-0 ${agent.category === "eletronico" ? "bg-blue-500" : "bg-amber-500"}`} />
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-800">{agent.description}</h3>
-                        <p className="text-xs text-gray-500 capitalize">
-                          {agent.category === "eletronico" ? "Fiscalização eletrônica" : "Agente humano"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <p className="text-3xl font-bold text-ameciclo">{agent.count?.toLocaleString("pt-BR")}</p>
-                      <p className="text-sm text-gray-500">{agent.percentage?.toFixed(1)}% das autuações</p>
-                    </div>
-                    {agent.top_violations?.length > 0 && (
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Top infrações</p>
-                        <ul className="space-y-1">
-                          {agent.top_violations.slice(0, 5).map((v: any, i: number) => (
-                            <li key={`${v.law_code}-${i}`} className="text-sm text-gray-700 flex justify-between">
-                              <span className="truncate mr-2">{v.law_code ? `${v.law_code} — ` : ""}{v.description}</span>
-                              <span className="font-semibold shrink-0">{v.count?.toLocaleString("pt-BR")}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              )}
-            </>
+            <div className="mb-8">
+              <HorizontalBarChart
+                key={selectedYear ?? "all"}
+                title="Percentual por tipo de agente"
+                yAxisTitle="% das autuações"
+                series={[{
+                  name: "Percentual",
+                  data: (() => {
+                    const totalAgents = agentData.reduce((sum: number, a: any) => sum + a.count, 0);
+                    return agentData.map((a: any) => ({
+                      name: a.description,
+                      y: totalAgents > 0 ? (a.count / totalAgents) * 100 : 0,
+                    }));
+                  })(),
+                  color: "#dc2626",
+                }]}
+              />
+            </div>
           ) : (
             <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
               Dados de agentes não disponíveis.
