@@ -1,6 +1,10 @@
+import { MarkdownModal } from "~/components/Commom/MarkdownModal";
+
 type box = {
   title: string;
   description: string | null;
+  methodology?: string | null;
+  results?: string | null;
 };
 
 export const ExplanationBoxes = ({ boxes }: { boxes: box[] }) => {
@@ -8,6 +12,9 @@ export const ExplanationBoxes = ({ boxes }: { boxes: box[] }) => {
     <section className="container mx-auto my-5 md:my-6 shadow-2xl rounded-sm px-6 py-12 overflow-auto bg-gray-100">
       <div className="flex flex-col sm:flex-row justify-between">
         {boxes.map((box : box, index) => {
+          const hasMethodology = box.methodology && box.methodology.trim().length > 0;
+          const hasResults = box.results && box.results.trim().length > 0;
+
           return (
             <div key={index} className="text-gray-800 p-6 sm:w-2/3 lg:w-5/6 sm:max-w-2xl mx-auto">
               <h2 className="text-4xl font-bold mb-2">{box.title}</h2>
@@ -19,6 +26,24 @@ export const ExplanationBoxes = ({ boxes }: { boxes: box[] }) => {
                   <div className="h-4 bg-gray-300 rounded-sm w-full"></div>
                   <div className="h-4 bg-gray-300 rounded-sm w-5/6"></div>
                   <div className="h-4 bg-gray-300 rounded-sm w-4/6"></div>
+                </div>
+              )}
+              {(hasMethodology || hasResults) && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {hasMethodology && (
+                    <MarkdownModal
+                      title="Metodologia"
+                      content={box.methodology!}
+                      trigger="Metodologia"
+                    />
+                  )}
+                  {hasResults && (
+                    <MarkdownModal
+                      title="Resultados"
+                      content={box.results!}
+                      trigger="Resultados"
+                    />
+                  )}
                 </div>
               )}
             </div>

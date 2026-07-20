@@ -1,25 +1,38 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { cmsFetch } from "~/services/cmsFetch";
-import { LOA_PAGE_DATA, STATE_BUDGET_API } from "~/servers";
+import { parsePageData } from "~/services/parsePageData";
+import { PLATAFORMA_DADOS_PAGE_DATA, STATE_BUDGET_API } from "~/servers";
+
+const FALLBACK_PAGE_DATA = {
+  title: "Orçamento Pernambuco",
+  coverImage: "/images/banners/faq.png",
+  explanationBoxes: [
+    {
+      title: "O que temos aqui?",
+      description:
+        "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas.",
+    },
+  ],
+};
 
 const fetchLoa = createServerFn().handler(async () => {
   const errors: Array<{ url: string; error: string }> = [];
 
-  let loaDescription =
-    "O LOA Clima é um projeto de Incidência Política nas Leis Orçamentárias do Governo do Estado de Pernambuco. O projeto abarca a análise da aplicação de recursos do último Plano Plurianual do Governo do Estado de Pernambuco, bem como a proposição de um arcabouço orçamentário que promova justiça climática. Serão realizadas atividades de formação e alinhamento de propostas com a sociedade civil organizada, de articulação com secretarias estaduais para proposição de itens orçamentários e de articulação com a Assembleia Legislativa Estadual para a proposição de emendas.";
+  let pageData;
 
   try {
-    const cmsData = await cmsFetch<any>(LOA_PAGE_DATA, {
-      ttl: 600,
-      timeout: 3000,
-      fallback: null,
-    });
-    if (cmsData?.description) {
-      loaDescription = cmsData.description;
-    }
+    const pageDataResponse = await cmsFetch<any>(
+      PLATAFORMA_DADOS_PAGE_DATA("orcamento-pernambuco"),
+      {
+        ttl: 600,
+        timeout: 3000,
+        fallback: null,
+      }
+    );
+    pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
   } catch {
-    // Silenciosamente usar fallback
+    pageData = parsePageData(null, FALLBACK_PAGE_DATA);
   }
 
   const fetchJson = async (url: string, timeout = 15000) => {
@@ -109,8 +122,7 @@ const fetchLoa = createServerFn().handler(async () => {
   const getState = (year: number) => summaryByYear[year] || statePerYear[year] || 0;
 
   return {
-    cover: { url: "" },
-    description: loaDescription,
+    pageData,
     totalValueEmissions: 0,
     totalValueBudgeted2020: getClimate(2020).budgeted,
     totalValueExecuted2020: getClimate(2020).executed,

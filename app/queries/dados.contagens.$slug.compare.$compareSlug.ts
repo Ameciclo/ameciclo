@@ -3,9 +3,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { fetchCompareContagens } from "~/queries/compareContagensLoader";
 import {
   COUNTINGS_ATLAS_LOCATIONS,
-  COUNTINGS_PAGE_DATA,
+  PLATAFORMA_DADOS_PAGE_DATA,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import { parseCountIdFromSlug } from "~/services/slug";
 
 function findLocationByCountId(locations: any[], countId: string) {
@@ -25,7 +26,7 @@ function findLocationByCountId(locations: any[], countId: string) {
 const fetchPageData = async () => {
   try {
     const [pageDataRes, locationsRes] = await Promise.all([
-      cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 }),
+      cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("contagens"), { ttl: 300, timeout: 5000 }),
       cmsFetch<any>(COUNTINGS_ATLAS_LOCATIONS, {
         ttl: 300,
         timeout: 5000,
@@ -34,12 +35,16 @@ const fetchPageData = async () => {
     ]);
 
     return {
-      pageCover: pageDataRes?.data || null,
+      parentPage: parsePageData(pageDataRes, {
+        title: "Contagens de Ciclistas",
+        coverImage: "/pages_covers/contagens.png",
+        explanationBoxes: [],
+      }),
       otherCounts: locationsRes || [],
     };
   } catch (error) {
     console.error("Error fetching page data:", error);
-    return { pageCover: null, otherCounts: [] };
+    return { parentPage: null, otherCounts: [] };
   }
 };
 

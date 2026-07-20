@@ -30,7 +30,7 @@ export const Route = createFileRoute("/dados/ideciclo/$id")({
       title,
       description,
       pathname: `/dados/ideciclo/${params.id}`,
-      image: pageData?.cover?.url,
+      image: pageData?.coverImage,
       type: "article",
     });
   },
@@ -47,7 +47,7 @@ function IdecicloDetail() {
 
   const info = getRatesSummary(structure, forms);
   const GeneralStatistics = structureStatistics(structure, info);
-  const coverImage = pageData?.cover?.url || "/pages_covers/ideciclo-navcover.png";
+  const coverImage = pageData.coverImage || "/pages_covers/ideciclo-navcover.png";
 
   return (
     <>

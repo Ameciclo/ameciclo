@@ -13,6 +13,7 @@ import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBound
 import { InvestmentCards } from "~/components/Loa/sections/InvestmentCards";
 import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetComparisonCards";
 import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
+import { CardsSession } from "~/components/Commom/CardsSession";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/orcamento-pernambuco/")({
@@ -136,14 +137,14 @@ function Loa() {
         },
     ];
 
-
+    const { pageData } = data;
 
     return (
         <>
-            <Banner image="/images/banners/faq.png" alt="Capa da página de Orçamento Pernambuco" />
+            <Banner image={pageData.coverImage} alt="Capa da página de Orçamento Pernambuco" />
             <Breadcrumb label="Orçamento Pernambuco" slug="/dados/orcamento-pernambuco" routes={["/", "/dados"]} />
             <ApiStatusHandler apiDown={data?.apiDown} />
-            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description: data?.description || "Carregando..." }]} />
+            <ExplanationBoxes boxes={pageData.explanationBoxes} />
 
 
             <div className="container mx-auto px-4 py-6">
@@ -241,6 +242,13 @@ function Loa() {
                         </div>
                     </div>
                 </section>
+
+                {pageData.supportFiles.length > 0 && (
+                    <CardsSession
+                        title="Documentos"
+                        cards={pageData.supportFiles}
+                    />
+                )}
 
                 <div className="text-right text-sm text-gray-500 mb-2">
                     {actions2025.length > 0 ? `ATUALIZADO: ${new Date().toLocaleDateString('pt-BR')}` : 'Dados não disponíveis'}

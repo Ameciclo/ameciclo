@@ -98,7 +98,7 @@ export const Route = createFileRoute("/dados/vias-inseguras/$slug")({
 
 function ViaInsegura() {
   const { slug } = Route.useParams();
-  const { data: { data, mapData, sinistrosData } } = useSuspenseQuery(viasInsegurasSlugQueryOptions(slug));
+  const { data: { data, mapData, sinistrosData, pageData } } = useSuspenseQuery(viasInsegurasSlugQueryOptions(slug));
 
   useEffect(() => {
     console.log("[slug page] data.via:", data?.via);
@@ -136,10 +136,7 @@ function ViaInsegura() {
 
   return (
     <main className="flex-auto">
-      <Banner
-        image="/pages_covers/vias-inseguras.png"
-        alt="Capa das vias inseguras"
-      />
+      <Banner image={pageData.coverImage} alt="Capa das vias inseguras" />
 
       <Breadcrumb
         label={data?.via || "Via"}

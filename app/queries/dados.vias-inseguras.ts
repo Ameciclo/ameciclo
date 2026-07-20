@@ -4,9 +4,28 @@ import {
   VIAS_INSEGURAS_SUMMARY,
   VIAS_INSEGURAS_TOP,
   VIAS_INSEGURAS_MAP,
+  PLATAFORMA_DADOS_PAGE_DATA,
 } from "../servers";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import { makeApiErrorTracker } from "~/services/apiTracking";
+
+const FALLBACK_PAGE_DATA = {
+  title: "Vias Inseguras",
+  coverImage: "/pages_covers/vias-inseguras.png",
+  explanationBoxes: [
+    {
+      title: "O que são vias inseguras?",
+      description:
+        "Mapeamento das vias com maior concentração de sinistros de trânsito no Recife, baseado nos dados de chamados de emergência. Identificamos as vias onde há maior risco para traçar políticas de segurança viária.",
+    },
+    {
+      title: "Como usar esses dados?",
+      description:
+        "Identifique rotas mais seguras para seus deslocamentos diários, visualize a distribuição geográfica dos sinistros e acompanhe a evolução da segurança viária na cidade ao longo do tempo.",
+    },
+  ],
+};
 
 const getPeriodFromRaw = (raw: any): { inicio: string; fim: string } => {
   const years = raw.accidents_per_year
@@ -34,7 +53,7 @@ const getMostDangerousYear = (raw: any): { ano: string; total: number } | null =
 const fetchViasInseguras = createServerFn().handler(async () => {
   const tracker = makeApiErrorTracker();
 
-  const [summaryDataRaw, topViasDataRaw, mapDataRaw] = await Promise.all([
+  const [summaryDataRaw, topViasDataRaw, mapDataRaw, pageDataResponse] = await Promise.all([
     cmsFetch<any>(VIAS_INSEGURAS_SUMMARY, {
       ttl: 300,
       timeout: 5000,
@@ -50,7 +69,15 @@ const fetchViasInseguras = createServerFn().handler(async () => {
       timeout: 5000,
       onError: tracker.at(VIAS_INSEGURAS_MAP),
     }),
+    cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("vias-inseguras"), {
+      ttl: 600,
+      timeout: 5000,
+      fallback: null,
+      onError: tracker.at("plataformas-de-dados"),
+    }),
   ]);
+
+  const pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
 
   const period = getPeriodFromRaw(summaryDataRaw);
   const mostDangerousYear = getMostDangerousYear(summaryDataRaw);
@@ -187,6 +214,7 @@ const fetchViasInseguras = createServerFn().handler(async () => {
   ];
 
   return {
+    pageData,
     summaryData,
     topViasData,
     mapData,

@@ -5,6 +5,7 @@ import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { InfracoesStatisticsBox } from "~/components/Infracoes/InfracoesStatisticsBox";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
+import { CardsSession } from "~/components/Commom/CardsSession";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/dados/infracoes/")({
 function InfracoesPage() {
   const { category, law, street_code: streetCode } = Route.useSearch();
   const { data } = useSuspenseQuery(infracoesQueryOptions());
-  const { overview, violationCodes, categories, statisticsBoxes, apiDown, temporal, categoryBreakdown, agentBreakdownByYear, categoryBreakdownByYear } = data;
+  const { pageData, overview, violationCodes, categories, statisticsBoxes, apiDown, temporal, categoryBreakdown, agentBreakdownByYear, categoryBreakdownByYear } = data;
   useReportApiErrors(data);
 
   const compactBoxes = useMemo(() =>
@@ -123,7 +124,7 @@ function InfracoesPage() {
 
   return (
     <>
-      <Banner image="/pages_covers/infracoes.png" alt="Infrações" />
+      <Banner image={pageData.coverImage} alt="Infrações" />
       <Breadcrumb label="Observatório de Infrações" slug="/dados/infracoes" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={apiDown} />
       {displayFilter ? (
@@ -137,16 +138,7 @@ function InfracoesPage() {
         <>
           <InfracoesStatisticsBox title="Observatório de Infrações de Trânsito" subtitle="Estatísticas gerais" boxes={compactBoxes} />
           <ExplanationBoxes
-            boxes={[
-              {
-                title: "O que mostram esses dados?",
-                description: "Analisamos a base de infrações de trânsito registradas no Recife para entender o perfil das autuações. Os dados revelam o que está sendo fiscalizado, não necessariamente tudo o que acontece nas ruas — a presença de fiscalização eletrônica influencia fortemente os números.",
-              },
-              {
-                title: "Por que isso importa?",
-                description: "Entender quais infrações são mais registradas, onde e quando ocorrem, e quem as fiscaliza é essencial para avaliar se a política de fiscalização prioriza a segurança de quem anda a pé e de bicicleta ou está concentrada em fluidez e estacionamento.",
-              },
-            ]}
+            boxes={pageData.explanationBoxes}
           />
         </>
       )}
@@ -163,6 +155,17 @@ function InfracoesPage() {
         lawStats={(lawStatsData as any)?.lawStats}
         filterLoading={!isCategoryFilter && isLoading}
       />
+      {pageData.supportFiles.length > 0 && (
+        <CardsSession
+          title="Documentos"
+          cards={pageData.supportFiles.map((f) => ({
+            title: f.title,
+            description: f.description,
+            src: f.src,
+            url: f.url,
+          }))}
+        />
+      )}
     </>
   );
 }

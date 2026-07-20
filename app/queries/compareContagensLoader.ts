@@ -2,9 +2,10 @@ import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import {
   COUNTINGS_ATLAS_LOCATIONS,
-  COUNTINGS_PAGE_DATA,
+  PLATAFORMA_DADOS_PAGE_DATA,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import { parseCountIdFromSlug } from "~/services/slug";
 
 function getBoxesForCountingComparision(data: any[]) {
@@ -58,7 +59,7 @@ export const fetchCompareContagens = createServerFn()
     const countB = parseCountIdFromSlug(data.compareSlug || "");
 
     const [pageDataRes, locationsRes] = await Promise.all([
-      cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 }),
+      cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("contagens"), { ttl: 300, timeout: 5000 }),
       cmsFetch<any>(COUNTINGS_ATLAS_LOCATIONS, {
         ttl: 300,
         timeout: 5000,
@@ -74,8 +75,13 @@ export const fetchCompareContagens = createServerFn()
       .filter(Boolean);
 
     const boxes = getBoxesForCountingComparision(results);
+    const parsedPageData = parsePageData(pageDataRes, {
+      title: "Contagens de Ciclistas",
+      coverImage: "/pages_covers/contagens.png",
+      explanationBoxes: [],
+    });
 
-    return { boxes };
+    return { boxes, pageData: parsedPageData };
   });
 
 export const compareContagensQueryOptions = (slug: string, compareSlug: string) =>

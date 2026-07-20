@@ -24,7 +24,7 @@ export const Route = createFileRoute("/dados/contagens/$slug/")({
     queryClient.ensureQueryData(contagemSlugQueryOptions(slug)),
   head: ({ params, loaderData }) => {
     const data = loaderData?.data;
-    const pageData = loaderData?.pageData;
+    const parentPage = loaderData?.pageData?.parentPage;
     const title = data?.name
       ? `Contagem ${data.name} - Ameciclo`
       : "Contagem - Ameciclo";
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/dados/contagens/$slug/")({
       title,
       description,
       pathname: `/dados/contagens/${params.slug}`,
-      image: pageData?.pageCover?.cover?.url,
+      image: parentPage?.coverImage,
       type: "article",
     });
   },
@@ -50,7 +50,8 @@ function Contagem() {
     const { slug } = Route.useParams();
     const { data: loaderData } = useSuspenseQuery(contagemSlugQueryOptions(slug));
     const data = loaderData.data;
-    const pageData = loaderData.pageData;
+    const parentPage = loaderData.pageData?.parentPage;
+    const otherCounts = loaderData.pageData?.otherCounts;
     const sessions = loaderData.sessions || [];
     const details = loaderData.details;
 
@@ -98,7 +99,7 @@ function Contagem() {
 
     return (
         <main className="flex-auto">
-            <Banner image={pageData.pageCover?.cover?.url} alt="Capa da contagem" />
+            <Banner image={parentPage?.coverImage} alt="Capa da contagem" />
 
             <Breadcrumb
                 label={["Contagens", data?.name || ""]}
@@ -164,7 +165,7 @@ function Contagem() {
             )}
 
             {(() => {
-                const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], data.id);
+                const allCounts = transformOtherCountsForComparison(otherCounts || [], data.id);
                 return (
                     <CountingComparisionTable
                         data={allCounts}

@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
+import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
+import { CardsSession } from "~/components/Commom/CardsSession";
 import ViasInsegurasClientSide from "~/components/ViasInseguras/ViasInsegurasClientSide";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useReportApiErrors } from "~/hooks/useReportApiErrors";
@@ -30,6 +32,7 @@ export const Route = createFileRoute("/dados/vias-inseguras/")({
 function ViasInsegurasPage() {
   const { data } = useSuspenseQuery(viasInsegurasQueryOptions());
   const {
+    pageData,
     statisticsBoxes,
     summaryData,
     topViasData,
@@ -42,7 +45,7 @@ function ViasInsegurasPage() {
   return (
     <>
       <Banner
-        image="/pages_covers/vias-inseguras.png"
+        image={pageData.coverImage}
         alt="Capa da página do Observatório de Vias Inseguras"
       />
       <Breadcrumb
@@ -56,11 +59,25 @@ function ViasInsegurasPage() {
         subtitle="Estatísticas gerais dos sinistros por via no Recife"
         boxes={statisticsBoxes}
       />
+      <ExplanationBoxes
+        boxes={pageData.explanationBoxes}
+      />
       <ViasInsegurasClientSide
         summaryData={summaryData}
         topViasData={topViasData}
         mapData={mapData}
       />
+      {pageData.supportFiles.length > 0 && (
+        <CardsSession
+          title="Documentos"
+          cards={pageData.supportFiles.map((f) => ({
+            title: f.title,
+            description: f.description,
+            src: f.src,
+            url: f.url,
+          }))}
+        />
+      )}
     </>
   );
 }

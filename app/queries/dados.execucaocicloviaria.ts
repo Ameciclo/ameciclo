@@ -2,11 +2,13 @@ import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import { makeApiErrorTracker } from "~/services/apiTracking";
 import {
   EXECUCAO_CICLOVIARIA_DATA,
   EXECUCAO_CICLOVIARIA_SUMMARY,
   EXECUCAO_CICLOVIARIA_RELATIONS,
+  PLATAFORMA_DADOS_PAGE_DATA,
   PDC_VOL1_URL,
   PDC_VOL2_URL,
   PDC_PASTA_URL,
@@ -15,22 +17,26 @@ import {
   PDC_WIKI_URL,
 } from "~/servers";
 
-const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
-
-  const page_data = {
-    title: "Observatório Cicloviário",
-    cover_image_url: "/execucaocicloviaria.png",
-    ExplanationBoxData: {
-      title_1: "O que é?",
-      text_1: `O Observatório Cicloviário é uma central de monitoramento que acompanha a evolução da estrutura cicloviária da Região Metropolitana do Recife, comparando a estrutura projetada pelo Plano Diretor Cicloviário frente à estrutura executada.
+const FALLBACK_PAGE_DATA = {
+  title: "Observatório Cicloviário",
+  coverImage: "/execucaocicloviaria.png",
+  explanationBoxes: [
+    {
+      title: "O que é?",
+      description: `O Observatório Cicloviário é uma central de monitoramento que acompanha a evolução da estrutura cicloviária da Região Metropolitana do Recife, comparando a estrutura projetada pelo Plano Diretor Cicloviário frente à estrutura executada.
             Para facilitar a demonstração dos dados, considera-se EXECUTADA o local onde havia previsão de estrutura e foi implatado algo lá, não necessariamente da mesma tipologia.`,
-      title_2: "Por que o PDC?",
-      text_2: `Em 4 de fevereiro de 2014 o Governo do Estado de Pernambuco, junto com as prefeituras da Região Metropolitana do Recife, lançou o Plano Diretor Cicloviário (PDC).
+    },
+    {
+      title: "Por que o PDC?",
+      description: `Em 4 de fevereiro de 2014 o Governo do Estado de Pernambuco, junto com as prefeituras da Região Metropolitana do Recife, lançou o Plano Diretor Cicloviário (PDC).
             O Plano integra os diversos municípios da RMR com uma ampla rede cicloviária, priorizando as principais avenidas e pontos de conexão das cidades. Sua construção teve participação não só dos entes públicos, mas também da sociedade civil, como nós, da Ameciclo.
             Com metas estipuladas em fases,  o PDC precisa ser concluído em 2024.`,
     },
-  };
+  ],
+};
+
+const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
+  const tracker = makeApiErrorTracker();
 
   const cycleStructureExecutionStatistics = (d: any, designado: number = 0) => {
     const { pdc_feito, out_pdc, pdc_total, percent } = { ...d };
@@ -140,7 +146,7 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
 
   const rmrCityIds = new Set(Object.keys(cityNamesMap));
 
-  const [apiData, summaryData, relationsData] = await Promise.all([
+  const [apiData, summaryData, relationsData, pageDataResponse] = await Promise.all([
     cmsFetch<any>(EXECUCAO_CICLOVIARIA_DATA, {
       ttl: 300,
       timeout: 15000,
@@ -162,7 +168,15 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
       onError: tracker.at(EXECUCAO_CICLOVIARIA_RELATIONS),
       retries: 2,
     }),
+    cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("execucao-cicloviaria"), {
+      ttl: 600,
+      timeout: 5000,
+      fallback: null,
+      onError: tracker.at("plataformas-de-dados"),
+    }),
   ]);
+
+  const pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
 
   const allWaysData = apiData || fallbackData;
 
@@ -272,11 +286,7 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
   };
 
   return {
-    cover: page_data.cover_image_url,
-    title1: page_data.ExplanationBoxData.title_1,
-    title2: page_data.ExplanationBoxData.title_2,
-    description1: page_data.ExplanationBoxData.text_1,
-    description2: page_data.ExplanationBoxData.text_2,
+    pageData,
     documents,
     layersConf,
     allWaysData,

@@ -35,11 +35,7 @@ export const Route = createFileRoute("/dados/execucao-cicloviaria/")({
 function ExecucaoCicloviaria() {
     const { data } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
     const {
-        cover,
-        title1,
-        title2,
-        description1,
-        description2,
+        pageData,
         documents,
         allWaysData,
         layersConf,
@@ -77,7 +73,7 @@ function ExecucaoCicloviaria() {
 
     return (
         <>
-            <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
+            <Banner image={pageData.coverImage} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
             <Breadcrumb label="Execução Cicloviária" slug="/dados/execucao-cicloviaria" routes={["/", "/dados"]} />
             <ApiStatusHandler apiDown={apiDown} />
             <StatisticsBox
@@ -86,19 +82,10 @@ function ExecucaoCicloviaria() {
                 boxes={statsData}
             />
             <ExplanationBoxes
-                boxes={[
-                    {
-                        title: title1,
-                        description: description1,
-                    },
-                    {
-                        title: title2,
-                        description: description2,
-                    },
-                ]}
+                boxes={pageData.explanationBoxes}
             />
             <div className="relative">
-                {apiDown && (
+                {(!allWaysData?.features || allWaysData.features.length === 0) && (
                     <div className="absolute inset-0 bg-white/90 z-10 flex items-center justify-center">
                         <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-8 max-w-md mx-4">
                             <div className="text-center">
@@ -132,6 +119,14 @@ function ExecucaoCicloviaria() {
             />
 
             <div data-documents-section>
+                {pageData.supportFiles.length > 0 && (
+                    <CardsSession title="Documentos" cards={pageData.supportFiles.map((f) => ({
+                        title: f.title,
+                        description: f.description,
+                        src: f.src,
+                        url: f.url,
+                    }))} />
+                )}
                 <CardsSession title={documents.title} cards={documents.cards} />
             </div>
         </>

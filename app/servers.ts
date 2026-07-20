@@ -5,15 +5,13 @@ const api = (port: number, prod: string) =>
 
 export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
 
-// Strapi single-types still consumed by unmigrated dados routes.
-export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagem?populate=*`
-export const IDECICLO_PAGE_DATA = `${CMS_BASE_URL}/api/ideciclo?populate=*`
-export const LOA_PAGE_DATA = `${CMS_BASE_URL}/api/loa?populate=*`
-export const DOM_PAGE_DATA = `${CMS_BASE_URL}/api/dom?populate=*`
+// Strapi single-types — legacy endpoints kept as documentation reference.
+// Page metadata now comes from the `plataformas-de-dados` collection (PLATAFORMA_DADOS_PAGE_DATA below).
 export const PROJECTS_LIST_DATA = `${CMS_BASE_URL}/api/projects?pagination[pageSize]=100&populate=media`
 
-// Strapi `plataformas-de-dados` collection filtered for the Sinistros Fatais page.
-export const OBSERVATORIO_SINISTROS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas-de-dados?filters[title][$eq]=Observatório de Sinistros Fatais&populate[0]=supportfiles&populate[1]=supportfiles.file&populate[2]=supportfiles.cover&populate[3]=cover&populate[4]=explanationbox`
+// Strapi `plataformas-de-dados` collection — pages lookup by slug
+export const PLATAFORMA_DADOS_PAGE_DATA = (slug: string) =>
+  `${CMS_BASE_URL}/api/plataformas-de-dados?filters[slug][$eq]=${slug}&populate[0]=supportfiles&populate[1]=supportfiles.file&populate[2]=supportfiles.cover&populate[3]=cover&populate[4]=explanationbox&populate[5]=methodology&populate[6]=results`
 
 // LOA Atlas (RMR; PE variant was a stub that was never used).
 export const LOA_RMR_ATLAS_API = `https://loa-rmr.atlas.ameciclo.org/`

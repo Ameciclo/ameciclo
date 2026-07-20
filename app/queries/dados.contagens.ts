@@ -1,49 +1,34 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { IntlPercentil } from "~/services/utils";
-import { strapiClient } from "~/lib/strapi";
 import { cmsFetch } from "~/services/cmsFetch";
-import { COUNTINGS_ATLAS_LOCATIONS, PCR_CONTAGENS_URL } from "~/servers";
+import { parsePageData } from "~/services/parsePageData";
+import { COUNTINGS_ATLAS_LOCATIONS, PCR_CONTAGENS_URL, PLATAFORMA_DADOS_PAGE_DATA } from "~/servers";
 import { slugifyCount } from "~/services/slug";
 
-const MediaSchema = z.object({
-  id: z.number().nullish(),
-  url: z.string().nullish(),
-  alternativeText: z.string().nullish(),
-});
-
-const ArchiveSchema = z.object({
-  id: z.number().nullish(),
-  filename: z.string().nullish(),
-  description: z.string().nullish(),
-  image: MediaSchema.nullish(),
-  file: MediaSchema.nullish(),
-});
-
-const ContagemPageSchema = z.object({
-  id: z.number(),
-  documentId: z.string().nullish(),
-  description: z.string().nullish(),
-  objective: z.string().nullish(),
-  methodology: z.string().nullish(),
-  overal_report: z.string().nullish(),
-  cover: MediaSchema.nullish(),
-  archives: z.array(ArchiveSchema).nullish(),
-});
-
-export type ContagemPage = z.infer<typeof ContagemPageSchema>;
-export type ContagemArchive = z.infer<typeof ArchiveSchema>;
+const FALLBACK_PAGE_DATA = {
+  title: "Contagens de Ciclistas",
+  coverImage: "/pages_covers/contagens.png",
+  explanationBoxes: [
+    {
+      title: "O que é?",
+      description:
+        "Contagens de ciclistas realizadas pela Ameciclo na Região Metropolitana do Recife, registrando o número de pessoas pedalando e suas características (gênero, idade, uso de capacete, tipo de bicicleta, etc).",
+    },
+    {
+      title: "E o que mais?",
+      description:
+        "Além das contagens, disponibilizamos documentos e materiais de apoio para quem deseja realizar suas próprias contagens de ciclistas.",
+    },
+  ],
+};
 
 const fetchContagens = createServerFn().handler(async () => {
-  // Strapi page metadata: migrated to strapiClient + Zod.
-  // Atlas + PCR feeds: still on cmsFetch / native fetch — their
-  // domains don't resolve outside the deployed Worker, so the runtime
-  // shape can't be verified locally. Atlas-side schemas are a follow-up
-  // (see PR #154's body for the same constraint on dados/perfil).
-  const [pageRes, pcrCounts, atlasData] = await Promise.all([
-    strapiClient.single("contagem").find({
-      populate: ["cover", "archives", "archives.image", "archives.file"],
+  const [pageDataResponse, pcrCounts, atlasData] = await Promise.all([
+    cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("contagens"), {
+      ttl: 600,
+      timeout: 5000,
+      fallback: null,
     }),
     fetch(PCR_CONTAGENS_URL)
       .then((r) => r.json())
@@ -58,7 +43,7 @@ const fetchContagens = createServerFn().handler(async () => {
     }),
   ]);
 
-  const page = ContagemPageSchema.parse(pageRes.data);
+  const pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
 
   let totalCyclists = 0;
   let totalWomen = 0;
@@ -77,10 +62,6 @@ const fetchContagens = createServerFn().handler(async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const countsData: any[] = [];
 
-  // Atlas response shape isn't verified from this dev environment yet;
-  // the aggregation loop keeps its original `any` annotations. Once the
-  // Atlas API is reachable from CI, Zod-parse the response and tighten
-  // these locals.
   if (Array.isArray(atlasData)) {
     differentPoints = atlasData.length;
 
@@ -167,7 +148,7 @@ const fetchContagens = createServerFn().handler(async () => {
       : [];
 
   return {
-    page,
+    pageData,
     summaryData: { summaryData, countsData: groupedCountsData, cards },
     pcrCounts,
     amecicloData: atlasData,

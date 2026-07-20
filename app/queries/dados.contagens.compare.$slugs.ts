@@ -4,9 +4,10 @@ import {
   COUNTINGS_ATLAS_EVENT_DETAILS,
   COUNTINGS_ATLAS_EVENT_SESSIONS,
   COUNTINGS_ATLAS_LOCATIONS,
-  COUNTINGS_PAGE_DATA,
+  PLATAFORMA_DADOS_PAGE_DATA,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import { parseCountIdFromSlug } from "~/services/slug";
 
 function findLocationByCountId(locations: any[], countId: string) {
@@ -60,7 +61,7 @@ const fetchCompare = createServerFn()
     const countIds = slugs.map((s) => parseCountIdFromSlug(s)).filter(Boolean);
 
     const [pageDataRes, locationsRes] = await Promise.all([
-      cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 }),
+      cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("contagens"), { ttl: 300, timeout: 5000 }),
       cmsFetch<any>(COUNTINGS_ATLAS_LOCATIONS, {
         ttl: 300,
         timeout: 5000,
@@ -112,12 +113,16 @@ const fetchCompare = createServerFn()
         };
       });
 
+    const parsedPageData = parsePageData(pageDataRes, {
+      title: "Contagens de Ciclistas",
+      coverImage: "/pages_covers/contagens.png",
+      explanationBoxes: [],
+    });
+
     return {
       data: locations,
-      pageData: {
-        pageCover: pageDataRes?.data || null,
-        otherCounts,
-      },
+      pageData: parsedPageData,
+      otherCounts,
       boxes: { boxes },
       toCompare: slugs,
       slugs,

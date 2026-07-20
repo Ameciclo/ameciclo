@@ -6,9 +6,28 @@ import {
   TRAFFIC_VIOLATIONS_GEOJSON,
   TRAFFIC_VIOLATIONS_LAW_STATS,
   TRAFFIC_VIOLATIONS_STREET_STATS,
+  PLATAFORMA_DADOS_PAGE_DATA,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import { makeApiErrorTracker } from "~/services/apiTracking";
+
+const FALLBACK_PAGE_DATA = {
+  title: "Infrações de Trânsito",
+  coverImage: "/pages_covers/infracoes.png",
+  explanationBoxes: [
+    {
+      title: "O que mostram esses dados?",
+      description:
+        "Analisamos a base de infrações de trânsito registradas no Recife para entender o perfil das autuações. Os dados revelam o que está sendo fiscalizado, não necessariamente tudo o que acontece nas ruas — a presença de fiscalização eletrônica influencia fortemente os números.",
+    },
+    {
+      title: "Por que isso importa?",
+      description:
+        "Entender quais infrações são mais registradas, onde e quando ocorrem, e quem as fiscaliza é essencial para avaliar se a política de fiscalização prioriza a segurança de quem anda a pé e de bicicleta ou está concentrada em fluidez e estacionamento.",
+    },
+  ],
+};
 
 export type InfracoesFilter = {
   type: "category" | "law" | "street_code";
@@ -20,7 +39,7 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
   try {
     const tracker = makeApiErrorTracker();
 
-    const [overviewRaw, codesRaw] = await Promise.all([
+    const [overviewRaw, codesRaw, pageDataResponse] = await Promise.all([
       cmsFetch<any>(TRAFFIC_VIOLATIONS_OVERVIEW, {
         ttl: 300,
         timeout: 10000,
@@ -33,7 +52,15 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
         fallback: null,
         onError: tracker.at(TRAFFIC_VIOLATIONS_CODES),
       }),
+      cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("infracoes"), {
+        ttl: 600,
+        timeout: 5000,
+        fallback: null,
+        onError: tracker.at("plataformas-de-dados"),
+      }),
     ]);
+
+    const pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
 
     const safeOverview = overviewRaw ?? {};
     const safeCodes = codesRaw ?? {};
@@ -195,6 +222,7 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
     ];
 
     return {
+      pageData,
       overview,
       violationCodes,
       categories,
@@ -208,6 +236,7 @@ const fetchInfracoesInitial = createServerFn().handler(async () => {
   } catch (e) {
     console.error("fetchInfracoesInitial failed:", e);
     return {
+      pageData: { ...FALLBACK_PAGE_DATA, supportFiles: [], methodology: null, results: null },
       overview: {
         totalViolations: 0, periodStart: "", periodEnd: "",
         violationTypesCount: 0, lawCodesCount: 0, streetsCount: 0, neighborhoodsCount: 0,
@@ -556,7 +585,3 @@ export const infracoesGeoJSONQueryOptions = (params: Record<string, string>) =>
     staleTime: 5 * 60 * 1000,
     placeholderData: (prev: any) => prev,
   });
-
-
-
-

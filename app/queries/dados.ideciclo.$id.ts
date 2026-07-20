@@ -1,13 +1,22 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import {
   IDECICLO_FORMS_DATA,
-  IDECICLO_PAGE_DATA,
   IDECICLO_STRUCTURES_DATA,
   MALHA_CICLOVIARIA_URL,
+  PLATAFORMA_DADOS_PAGE_DATA,
 } from "~/servers";
 
+const FALLBACK_PAGE_DATA = {
+  title: "Ideciclo",
+  coverImage: "/pages_covers/ideciclo-cover.png",
+  explanationBoxes: [
+    { title: "O que é?", description: "" },
+    { title: "Para que serve?", description: "" },
+  ],
+};
 
 async function getStructureMap(structure: any) {
   const geoJsonMap: any = {
@@ -69,16 +78,14 @@ const fetchIdecicloDetail = createServerFn()
       { ttl: 300, timeout: 10000 }
     );
 
-    const pageDataResponse = await cmsFetch<any>(IDECICLO_PAGE_DATA, {
-      ttl: 600,
-      timeout: 10000,
-    });
-    const pageData = pageDataResponse?.data || {
-      description: "",
-      objective: "",
-      methodology: "",
-      cover: null,
-    };
+    const pageDataResponse = await cmsFetch<any>(
+      PLATAFORMA_DADOS_PAGE_DATA("ideciclo"),
+      {
+        ttl: 600,
+        timeout: 10000,
+      }
+    );
+    const pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
 
     const mapData = await getStructureMap(structure);
 

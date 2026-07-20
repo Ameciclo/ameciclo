@@ -3,26 +3,37 @@ import { createServerFn } from "@tanstack/react-start";
 import {
   SAMU_SUMMARY_API,
   SAMU_CITIES_LIST,
+  PLATAFORMA_DADOS_PAGE_DATA,
   EMERGENCY_CALLS_ATLAS_URL,
 } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
+import { parsePageData } from "~/services/parsePageData";
 import { makeApiErrorTracker } from "~/services/apiTracking";
 
 const ANO_INICIAL = 2020;
+
+const FALLBACK_PAGE_DATA = {
+  title: "Chamados de Emergência",
+  coverImage: "/pages_covers/chamadosdosamu.png",
+  explanationBoxes: [
+    {
+      title: "O que são chamadas de sinistro?",
+      description:
+        "Analisamos os chamados de emergência relacionados a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.",
+    },
+    {
+      title: "Como utilizamos os dados?",
+      description:
+        "Processamos dados reais de chamados de emergência para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.",
+    },
+  ],
+};
 
 const fetchSamu = createServerFn().handler(async () => {
   const tracker = makeApiErrorTracker();
 
   try {
-    const cover = "/pages_covers/chamadosdosamu.png";
-    const title1 = "O que são chamadas de sinistro?";
-    const description1 =
-      "Analisamos os chamados de emergência relacionados a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.";
-    const title2 = "Como utilizamos os dados?";
-    const description2 =
-      "Processamos dados reais de chamados de emergência para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.";
-
-    const [summaryData, citiesData] = await Promise.all([
+    const [summaryData, citiesData, pageDataResponse] = await Promise.all([
       cmsFetch<any>(SAMU_SUMMARY_API, {
         ttl: 300,
         timeout: 10000,
@@ -37,7 +48,15 @@ const fetchSamu = createServerFn().handler(async () => {
         onError: tracker.at(SAMU_CITIES_LIST),
         retries: 1,
       }),
+      cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("chamados-emergencia"), {
+        ttl: 600,
+        timeout: 5000,
+        fallback: null,
+        onError: tracker.at("plataformas-de-dados"),
+      }),
     ]);
+
+    const pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
 
     if (!summaryData || !citiesData) {
       throw new Error(
@@ -148,11 +167,7 @@ const fetchSamu = createServerFn().handler(async () => {
     const summary = tracker.summary();
 
     return {
-      cover,
-      title1,
-      description1,
-      title2,
-      description2,
+      pageData,
       documents,
       statisticsBoxes,
       citiesData: processedData.citiesData,

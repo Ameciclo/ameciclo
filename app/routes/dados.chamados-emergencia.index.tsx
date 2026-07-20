@@ -33,11 +33,7 @@ export const Route = createFileRoute("/dados/chamados-emergencia/")({
 function SamuPage() {
   const { data } = useSuspenseQuery(samuQueryOptions());
   const {
-    cover,
-    title1,
-    description1,
-    title2,
-    description2,
+    pageData,
     documents,
     statisticsBoxes,
     citiesData,
@@ -49,7 +45,7 @@ function SamuPage() {
   return (
     <>
       <Banner
-        image={cover}
+        image={pageData.coverImage}
         alt="Capa da página de Chamados de Emergência"
       />
       <Breadcrumb
@@ -64,19 +60,21 @@ function SamuPage() {
         boxes={statisticsBoxes}
       />
       <ExplanationBoxes
-        boxes={[
-          {
-            title: title1,
-            description: description1,
-          },
-          {
-            title: title2,
-            description: description2,
-          },
-        ]}
+        boxes={pageData.explanationBoxes}
       />
       <SamuClientSide citiesData={citiesData || { cidades: [], total: 0 }} />
       <CardsSession title={documents.title} cards={documents.cards} />
+      {pageData.supportFiles.length > 0 && (
+        <CardsSession
+          title="Documentos"
+          cards={pageData.supportFiles.map((f) => ({
+            title: f.title,
+            description: f.description,
+            src: f.src,
+            url: f.url,
+          }))}
+        />
+      )}
     </>
   );
 }

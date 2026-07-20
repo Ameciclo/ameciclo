@@ -9,6 +9,7 @@ import Chart from "react-google-charts";
 import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
 import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
 import { formatLargeValue } from "~/utils/formatCurrency";
+import { CardsSession } from "~/components/Commom/CardsSession";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 
@@ -34,8 +35,7 @@ function Dom() {
     const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
 
     const { data: {
-        cover,
-        description,
+        pageData,
         chartData,
         totalGoodActions,
         totalBadActions,
@@ -106,9 +106,9 @@ function Dom() {
 
     return (
         <>
-            <Banner image={cover?.url} alt="Capa da página do Orçamento do Recife" />
+            <Banner image={pageData.coverImage} alt="Capa da página do Orçamento do Recife" />
             <Breadcrumb label="Orçamento do Recife" slug="/dados/orcamento-recife" routes={["/", "/dados"]} />
-            <ExplanationBoxes boxes={[{ title: "O que temos aqui?", description }]} />
+            <ExplanationBoxes boxes={pageData.explanationBoxes} />
 
             <div className="container mx-auto px-4 py-6">
                     <section>
@@ -354,6 +354,13 @@ function Dom() {
                             </div>
                         </div>
                     </section>
+
+                    {pageData.supportFiles.length > 0 && (
+                        <CardsSession
+                            title="Documentos"
+                            cards={pageData.supportFiles}
+                        />
+                    )}
             </div>
         </>
     );

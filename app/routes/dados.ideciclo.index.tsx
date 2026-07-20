@@ -5,6 +5,7 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
 import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
+import { CardsSession } from "~/components/Commom/CardsSession";
 import { calculateIdecicloStatistics } from "~/services/ideciclo-statistics.service";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { idecicloQueryOptions } from "~/queries/dados.ideciclo";
@@ -34,7 +35,7 @@ function Ideciclo() {
     const { ideciclo, structures, pageData, apiDown } = data;
     useReportApiErrors(data);
 
-    const coverImage = pageData?.cover?.url || "/pages_covers/ideciclo-cover.png";
+    const coverImage = pageData.coverImage || "/pages_covers/ideciclo-cover.png";
     const cidades = (ideciclo || []).filter((c: any) => c.reviews?.length > 0);
     const statistics = calculateIdecicloStatistics(cidades, structures || []);
 
@@ -46,9 +47,9 @@ function Ideciclo() {
             <StatisticsBoxIdeciclo title={"Estatísticas Gerais"} boxes={statistics} />
             <ExplanationBoxesIdeciclo
                 boxes={[
-                    { title: "O que é?", description: pageData?.description || "" },
-                    { title: "Para que serve?", description: pageData?.objective || "" },
-                    { title: "Metodologia", description: pageData?.methodology || "" },
+                    { title: "O que é?", description: pageData.explanationBoxes[0]?.description || "" },
+                    { title: "Para que serve?", description: pageData.explanationBoxes[1]?.description || "" },
+                    { title: "Metodologia", description: pageData.methodology || "" },
                 ]}
             />
             <IdecicloClientSide
@@ -56,6 +57,12 @@ function Ideciclo() {
                 structures={structures || []}
                 ideciclo={ideciclo || []}
             />
+            {pageData.supportFiles.length > 0 && (
+                <CardsSession
+                    title="Documentos"
+                    cards={pageData.supportFiles}
+                />
+            )}
         </>
     );
 }

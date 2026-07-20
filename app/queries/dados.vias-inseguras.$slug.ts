@@ -3,10 +3,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { unslugify } from "~/utils/slugify";
 import { cmsFetch } from "~/services/cmsFetch";
 import {
+  PLATAFORMA_DADOS_PAGE_DATA,
   VIAS_INSEGURAS_HISTORY_V2,
   VIAS_INSEGURAS_MAP,
   VIAS_INSEGURAS_STREET_SUMMARY,
 } from "~/servers";
+import { parsePageData } from "~/services/parsePageData";
 
 const STREET_NAME_ALIASES: Record<string, string[]> = {
   "Rod Br Cento E Um": ["BR-101"],
@@ -99,13 +101,24 @@ const fetchViasInsegurasSlug = createServerFn()
   .handler(async ({ data }) => {
     const viaName = fetchViaName(data.slug);
 
-    const [viaData, mapData, sinistrosData] = await Promise.all([
+    const [viaData, mapData, sinistrosData, pageDataRes] = await Promise.all([
       fetchViaData(viaName),
       fetchViaMapData(viaName),
       fetchViaSinistrosData(viaName),
+      cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("vias-inseguras"), {
+        ttl: 600,
+        timeout: 5000,
+        fallback: null,
+      }),
     ]);
 
-    return { data: { ...viaData, via: viaName }, mapData, sinistrosData };
+    const pageData = parsePageData(pageDataRes, {
+      title: "Vias Inseguras",
+      coverImage: "/pages_covers/vias-inseguras.png",
+      explanationBoxes: [],
+    });
+
+    return { data: { ...viaData, via: viaName }, mapData, sinistrosData, pageData };
   });
 
 export const viasInsegurasSlugQueryOptions = (slug: string) =>

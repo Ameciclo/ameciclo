@@ -154,7 +154,7 @@ function Compare() {
 
   return (
     <main className="flex-auto overflow-x-hidden">
-      <Banner image={pageData.pageCover?.cover?.url} alt="Comparação de contagens" />
+      <Banner image={pageData.coverImage} alt="Comparação de contagens" />
 
       <div className="bg-ameciclo text-white py-2 px-4 uppercase flex items-center text-sm md:text-base">
         <div className="container mx-auto">
@@ -508,7 +508,7 @@ function Compare() {
         })()}
 
         {(() => {
-          const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], 0);
+          const allCounts = transformOtherCountsForComparison(loaderData.otherCounts || [], 0);
           return slugList.length > 0 ? (
             <CountingComparisionTable
               data={allCounts}

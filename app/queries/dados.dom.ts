@@ -1,28 +1,38 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { cmsFetch } from "~/services/cmsFetch";
-import { DOM_PAGE_DATA, RECIFE_BUDGET_API } from "~/servers";
+import { parsePageData } from "~/services/parsePageData";
+import { PLATAFORMA_DADOS_PAGE_DATA, RECIFE_BUDGET_API } from "~/servers";
+
+const FALLBACK_PAGE_DATA = {
+  title: "Orçamento Recife",
+  coverImage: "/pages_covers/dom-cover.jpg",
+  explanationBoxes: [
+    {
+      title: "O que temos aqui?",
+      description:
+        "O Diagnóstico Orçamentário Municipal é uma iniciativa que visa integrar práticas de mobilidade sustentável nas políticas públicas por meio da análise do orçamento público. Com foco na promoção de sistemas de transporte eficientes e ecológicos, o plano busca incorporar diretrizes que fomentar a utilização de bicicletas e outros meios de transporte sustentável nas cidades. Além de estudar a alocação de recursos, o projeto propõe estratégias que envolvam a participação da sociedade civil e do poder público para a melhoria da mobilidade sustentável. Assim, o plano não apenas mapeia as necessidades atuais, mas também projeta um futuro mais sustentável e acessível, contribuindo para a melhoria da qualidade da vida urbana.",
+    },
+  ],
+};
 
 const fetchDom = createServerFn().handler(async () => {
   const errors: Array<{ url: string; error: string }> = [];
 
-  let cover = { url: "/pages_covers/dom-cover.jpg" };
-  let description = "O Diagnóstico Orçamentário Municipal é uma iniciativa que visa integrar práticas de mobilidade sustentável nas políticas públicas por meio da análise do orçamento público. Com foco na promoção de sistemas de transporte eficientes e ecológicos, o plano busca incorporar diretrizes que fomentar a utilização de bicicletas e outros meios de transporte sustentável nas cidades. Além de estudar a alocação de recursos, o projeto propõe estratégias que envolvam a participação da sociedade civil e do poder público para a melhoria da mobilidade sustentável. Assim, o plano não apenas mapeia as necessidades atuais, mas também projeta um futuro mais sustentável e acessível, contribuindo para a melhoria da qualidade da vida urbana.";
+  let pageData;
 
   try {
-    const cmsData = await cmsFetch<any>(DOM_PAGE_DATA, {
-      ttl: 600,
-      timeout: 3000,
-      fallback: null,
-    });
-    if (cmsData?.data?.cover) {
-      cover = cmsData.data.cover;
-    }
-    if (cmsData?.data?.description) {
-      description = cmsData.data.description;
-    }
+    const pageDataResponse = await cmsFetch<any>(
+      PLATAFORMA_DADOS_PAGE_DATA("orcamento-recife"),
+      {
+        ttl: 600,
+        timeout: 3000,
+        fallback: null,
+      }
+    );
+    pageData = parsePageData(pageDataResponse, FALLBACK_PAGE_DATA);
   } catch {
-    // Silenciosamente usar fallback
+    pageData = parsePageData(null, FALLBACK_PAGE_DATA);
   }
 
   const fetchJson = async (url: string, timeout = 15000) => {
@@ -101,8 +111,7 @@ const fetchDom = createServerFn().handler(async () => {
   ];
 
   return {
-    cover,
-    description,
+    pageData,
     totalGoodActions,
     totalBadActions,
     chartData: {
