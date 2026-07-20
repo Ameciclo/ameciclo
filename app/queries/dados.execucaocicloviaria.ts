@@ -231,7 +231,7 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
     );
   }
 
-  const documents = {
+  const FALLBACK_DOCUMENTS = {
     title: "Documentos e Recursos do PDC",
     cards: [
       {
@@ -284,6 +284,18 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
       },
     ],
   };
+
+  const documents = pageData.supportFiles.length > 0
+    ? {
+        title: "Documentos e Recursos do PDC",
+        cards: pageData.supportFiles.map((f) => ({
+          title: f.title || f.name,
+          description: f.description,
+          src: f.src,
+          url: f.url,
+        })),
+      }
+    : FALLBACK_DOCUMENTS;
 
   return {
     pageData,

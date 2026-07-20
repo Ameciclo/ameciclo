@@ -119,14 +119,6 @@ function ExecucaoCicloviaria() {
             />
 
             <div data-documents-section>
-                {pageData.supportFiles.length > 0 && (
-                    <CardsSession title="Documentos" cards={pageData.supportFiles.map((f) => ({
-                        title: f.title,
-                        description: f.description,
-                        src: f.src,
-                        url: f.url,
-                    }))} />
-                )}
                 <CardsSession title={documents.title} cards={documents.cards} />
             </div>
         </>
