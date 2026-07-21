@@ -21,8 +21,8 @@ export function DataSubmenu() {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0, visibility: "visible" }}
+      exit={{ opacity: 0, y: -10, visibility: "hidden" }}
       transition={{ duration: 0.15 }}
       className="submenu-container fixed top-14 left-0 right-0 z-150 shadow-lg pointer-events-auto"
       style={{backgroundColor: '#008080'}}
