@@ -116,7 +116,7 @@ export function LeftSidebar({
   
   const toggleSection = (sectionId: string) => {
     // Prevenir expansão de seções "em breve"
-    const comingSoonSections = ['ideciclo', 'infracao'];
+    const comingSoonSections = ['ideciclo'];
     if (comingSoonSections.includes(sectionId) && collapsedSections.has(sectionId)) {
       return;
     }
@@ -133,12 +133,12 @@ export function LeftSidebar({
   };
   
   const collapseAll = () => {
-    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'ideciclo']));
+    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'ideciclo', 'infracao']));
   };
   
   const expandAll = () => {
     // Manter seções "em breve" sempre colapsadas
-    setCollapsedSections(new Set(['infracao', 'ideciclo']));
+    setCollapsedSections(new Set(['ideciclo']));
   };
   
   const allCollapsed = collapsedSections.size >= 6; // Considera colapsado se 6 ou mais seções estão colapsadas (excluindo as 2 "em breve")
@@ -148,7 +148,7 @@ export function LeftSidebar({
     selectedInfra.length === infraOptions.length &&
     selectedContagem.length === contagemOptions.length &&
     selectedPdc.length === pdcOptions.length &&
-    selectedInfracao.length === infracaoOptions.length &&
+    (selectedInfracao.includes(TODAS_INFRACOES) || selectedInfracao.length === infracaoOptions.length) &&
     selectedSinistro.length === sinistroOptions.length &&
     selectedEstacionamento.length === estacionamentoOptions.length &&
     selectedPerfil.length === perfilOptions.length;
@@ -351,13 +351,13 @@ export function LeftSidebar({
               
               <FilterSection
                 title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Infrações de Trânsito</div>}
-                options={[{ name: "Em breve" }]}
-                selectedOptions={[]}
-                onToggle={() => {}}
+                options={infracaoOptions.map((opt) => ({ name: opt }))}
+                selectedOptions={selectedInfracao.includes(TODAS_INFRACOES) ? infracaoOptions : selectedInfracao}
+                onToggle={onInfracaoToggle}
+                onToggleAll={onInfracaoToggleAll}
                 hasPattern={false}
                 isCollapsed={collapsedSections.has('infracao')}
                 onToggleCollapse={() => toggleSection('infracao')}
-                comingSoon={true}
               />
               
               <FilterSection
