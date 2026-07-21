@@ -67,6 +67,11 @@ function Contagem() {
 
     const pointsData = getPointsData(data, data.selectedCount);
 
+    const singlePointViewState =
+      pointsData.length === 1
+        ? { latitude: pointsData[0].latitude, longitude: pointsData[0].longitude, zoom: 15 }
+        : undefined;
+
     const chartHours = sessions.map((s: any) => {
       const match = s.session_label?.match(/^(\d+)/);
       return match ? parseInt(match[1]) : 0;
@@ -115,7 +120,7 @@ function Contagem() {
             <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
                 <div className="rounded-sm shadow-2xl lg:col-span-2 col-span-3 h-[400px]">
                     {pointsData.length > 0 ? (
-                        <AmecicloMap pointsData={pointsData} height="100%" width="100%" />
+                        <AmecicloMap key={slug} pointsData={pointsData} height="100%" width="100%" initialViewState={singlePointViewState} />
                     ) : (
                         <div className="flex items-center justify-center h-full">
                             <p className="text-gray-500">Carregando mapa...</p>
