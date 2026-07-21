@@ -320,7 +320,7 @@ export function MapView({
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
   if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
   if (perfilError) dataErrors.push({ type: 'perfil', message: perfilError });
-  if (perfilCiclistasError) dataErrors.push({ type: 'perfil-ciclistas', message: perfilCiclistasError });
+  if (perfilCiclistasError) dataErrors.push({ type: 'perfil', message: perfilCiclistasError });
   if (infracoesError) dataErrors.push({ type: 'infracoes', message: infracoesError });
 
   const handleMapViewChange = (viewState: any) => {

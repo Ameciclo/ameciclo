@@ -75,13 +75,33 @@ export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2
 
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
 export const CICLODADOS_BASE = `https://ciclodados.atlas.ameciclo.org/v1`
-export const BICICLETARIOS_DATA = `http://localhost:3005/v1/bicycle-racks/geojson`
-export const BIKE_PE_STATIONS_DATA = `http://localhost:3015/v1/stations`
-export const INFRA_CICLOVIARIA_DATA = `http://localhost:3020/v1/infrastructure/cycleways?city=2611606`
-export const EXECUCAO_CICLOVIARIA_DATA = `http://localhost:3020/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
-export const EXECUCAO_CICLOVIARIA_SUMMARY = `http://localhost:3020/v1/ways/summary`
-export const EXECUCAO_CICLOVIARIA_RELATIONS = `http://localhost:3020/relations/by-city`
+
+const BICYCLE_RACKS_BASE = api(3005, "https://bicycle-racks.atlas.ameciclo.org")
+const SHARED_BIKE_BASE = api(3015, "https://shared-bike.atlas.ameciclo.org")
+const CYCLING_INFRA_BASE = api(3020, "https://cycling-infra.atlas.ameciclo.org")
+const CYCLIST_COUNTS_BASE = api(3002, "https://cyclist-counts.atlas.ameciclo.org")
+const EMERGENCY_CALLS_BASE = api(3010, "https://emergency-calls.atlas.ameciclo.org")
+const TRAFFIC_TICKETS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
+const CYCLIST_PROFILE_BASE = api(3000, "https://cyclist-profile.atlas.ameciclo.org")
+
+export const BICICLETARIOS_DATA = `${BICYCLE_RACKS_BASE}/v1/bicycle-racks/geojson`
+export const BIKE_PE_STATIONS_DATA = `${SHARED_BIKE_BASE}/v1/stations`
+export const INFRA_CICLOVIARIA_DATA = `${CYCLING_INFRA_BASE}/v1/infrastructure/cycleways?city=2611606`
+export const EXECUCAO_CICLOVIARIA_DATA = `${CYCLING_INFRA_BASE}/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
+export const EXECUCAO_CICLOVIARIA_SUMMARY = `${CYCLING_INFRA_BASE}/v1/ways/summary`
+export const EXECUCAO_CICLOVIARIA_RELATIONS = `${CYCLING_INFRA_BASE}/relations/by-city`
 export const POINT_CICLO_NEARBY = (lat: number, lng: number, radius = 200) => `${CICLODADOS_BASE}/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
+
+export const CICLODADOS_HEALTH_URLS: Record<string, string> = {
+  bicicletarios: `${BICYCLE_RACKS_BASE}/health`,
+  bikepe: `${SHARED_BIKE_BASE}/health`,
+  infraestrutura: `${CYCLING_INFRA_BASE}/health`,
+  "execucao-cicloviaria": `${CYCLING_INFRA_BASE}/health`,
+  "pontos-contagem": `${CYCLIST_COUNTS_BASE}/health`,
+  sinistros: `${EMERGENCY_CALLS_BASE}/health`,
+  infracoes: `${TRAFFIC_TICKETS_BASE}/health`,
+  perfil: `${CYCLIST_PROFILE_BASE}/health`,
+}
 
 // Static data files hosted on ameciclo.org
 export const AMECICLO_SITE_URL = `https://ameciclo.org`
