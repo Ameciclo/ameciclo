@@ -347,17 +347,6 @@ export function LeftSidebar({
               </div>
               
               <FilterSection
-                title={<div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />IDECiclo</div>}
-                options={[{ name: "Em breve" }]}
-                selectedOptions={[]}
-                onToggle={() => {}}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('ideciclo')}
-                onToggleCollapse={() => toggleSection('ideciclo')}
-                comingSoon={true}
-              />
-              
-              <FilterSection
                 title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Sinistros com vítima</div>}
                 options={sinistroOptions}
                 selectedOptions={selectedSinistro}
@@ -382,7 +371,7 @@ export function LeftSidebar({
                       </button>
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4" aria-hidden="true" />
-                        <span id="infracao-heading" className="font-medium text-sm">Infrações de Trânsito</span>
+                        <span id="infracao-heading" className="font-medium">Infrações de Trânsito</span>
                       </div>
                     </div>
                     <button 
@@ -577,6 +566,17 @@ export function LeftSidebar({
                 isCollapsed={collapsedSections.has('pdc')}
                 onToggleCollapse={() => toggleSection('pdc')}
                 loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
+              />
+              
+              <FilterSection
+                title={<div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />IDECiclo</div>}
+                options={[{ name: "Em breve" }]}
+                selectedOptions={[]}
+                onToggle={() => {}}
+                hasPattern={false}
+                isCollapsed={collapsedSections.has('ideciclo')}
+                onToggleCollapse={() => toggleSection('ideciclo')}
+                comingSoon={true}
               />
             </div>
           </div>

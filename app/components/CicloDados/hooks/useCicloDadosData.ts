@@ -25,7 +25,7 @@ export function useCicloDadosData() {
   ];
 
   const sinistroOptions = [
-    { name: "Alta severidade (≥150 acidentes)", color: "#DC2626", pattern: "solid" },
+    { name: "Alta severidade (≥150 chamados)", color: "#DC2626", pattern: "solid" },
     { name: "Média severidade (50–149)", color: "#F59E0B", pattern: "solid" },
     { name: "Baixa severidade (<50)", color: "#FBBF24", pattern: "solid" }
   ];
