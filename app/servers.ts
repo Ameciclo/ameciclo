@@ -75,9 +75,9 @@ export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2
 
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
 export const CICLODADOS_BASE = `https://ciclodados.atlas.ameciclo.org/v1`
-export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
-export const BIKE_PE_STATIONS_DATA = `https://shared-bike.atlas.ameciclo.org/v1/stations`
-export const INFRA_CICLOVIARIA_DATA = `https://cycling-infra.atlas.ameciclo.org/v1/infrastructure-geojson?city=2611606&limit=10000`
+export const BICICLETARIOS_DATA = `http://localhost:3005/v1/bicycle-racks/geojson`
+export const BIKE_PE_STATIONS_DATA = `http://localhost:3015/v1/stations`
+export const INFRA_CICLOVIARIA_DATA = `http://localhost:3020/v1/infrastructure/cycleways?city=2611606`
 export const EXECUCAO_CICLOVIARIA_DATA = `http://localhost:3020/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
 export const EXECUCAO_CICLOVIARIA_SUMMARY = `http://localhost:3020/v1/ways/summary`
 export const EXECUCAO_CICLOVIARIA_RELATIONS = `http://localhost:3020/relations/by-city`

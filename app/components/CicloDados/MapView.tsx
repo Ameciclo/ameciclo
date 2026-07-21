@@ -10,6 +10,7 @@ import { useBikePE } from './hooks/useBikePE';
 import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
+import { useSinistros } from './hooks/useSinistros';
 import { useInfracoes } from './hooks/useInfracoes';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
 import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
@@ -52,8 +53,6 @@ interface MapViewProps {
   autoOpenPopup?: {lat: number, lng: number} | null;
   onPopupOpened?: () => void;
   onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => void;
-  sinistrosData?: any;
-  sinistrosError?: string | null;
   infracaoStartYear?: string;
   infracaoEndYear?: string;
   infracaoSeverityHigh?: boolean;
@@ -90,8 +89,6 @@ export function MapView({
   autoOpenPopup,
   onPopupOpened,
   onZoomToStreet,
-  sinistrosData,
-  sinistrosError,
   infracaoStartYear,
   infracaoEndYear,
   infracaoSeverityHigh,
@@ -202,6 +199,7 @@ export function MapView({
   const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
+  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
   const { data: infracoesData, error: infracoesError } = useInfracoes(isClient ? viewportBounds : undefined, selectedInfracao, infracaoStartYear, infracaoEndYear);
   const { data: perfilPoints, error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
@@ -303,23 +301,12 @@ export function MapView({
       }
     }
 
-    // Sinistros loading/rendered state
-    if (selectedSinistro.length > 0) {
-      if (sinistrosError) {
-        newRenderedLayers.add('sinistros');
-      } else if (sinistrosData?.features?.length > 0) {
-        newRenderedLayers.add('sinistros');
-      } else {
-        newLoadingLayers.add('sinistros');
-      }
-    }
-
     setLoadingLayers(newLoadingLayers);
     setRenderedLayers(newRenderedLayers);
   }, [
-    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil, selectedInfracao, selectedSinistro,
-    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas, infracoesData, sinistrosData,
-    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError, sinistrosError
+    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil, selectedInfracao,
+    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas, infracoesData,
+    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError
   ]);
   
 

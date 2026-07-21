@@ -49,7 +49,7 @@ export const Route = createFileRoute("/dados/ciclodados/")({
 });
 
 function CicloDados() {
-  const { data: { contagemData, execucaoCicloviaria, perfilCiclistas, sinistrosData } } =
+  const { data: { contagemData, execucaoCicloviaria, perfilCiclistas } } =
     useSuspenseQuery(ciclodadosQueryOptions());
   const { lat, lon, zoom, modal, tab } = Route.useSearch();
 
@@ -270,8 +270,6 @@ function CicloDados() {
                 autoOpenPopup={autoOpenPopup}
                 onPopupOpened={() => setAutoOpenPopup(null)}
                 onZoomToStreet={handleZoomToStreet}
-                sinistrosData={sinistrosData}
-                sinistrosError={null}
                 infracaoStartYear={infracaoStartYear}
                 infracaoEndYear={infracaoEndYear}
                 infracaoSeverityHigh={infracaoSeverityHigh}
