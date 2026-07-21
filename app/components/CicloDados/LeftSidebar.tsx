@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, BarChart3 } from 'lucide-react';
 import { FilterSection } from './FilterSection';
+import { PatternDisplay } from './PatternDisplay';
 
 interface LeftSidebarProps {
   isOpen: boolean;
@@ -430,36 +431,51 @@ export function LeftSidebar({
                     <div className="space-y-1 pt-1">
                       <div
                         onClick={() => onInfracaoSeverityHighChange?.(!infracaoSeverityHigh)}
-                        className={`flex items-center gap-2 p-1.5 rounded transition-all duration-200 cursor-pointer ${infracaoSeverityHigh ? 'bg-red-50 border border-red-200' : 'hover:bg-gray-50 border border-transparent'}`}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInfracaoSeverityHighChange?.(!infracaoSeverityHigh); }}}
+                        className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${infracaoSeverityHigh ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
                         role="button"
                         tabIndex={0}
                         aria-pressed={infracaoSeverityHigh}
                       >
-                        <Eye className={`w-3.5 h-3.5 ${infracaoSeverityHigh ? 'text-red-600' : 'text-gray-400'}`} />
-                        <span className="w-6 h-1 bg-red-600 rounded-full" />
-                        <span className="text-xs text-gray-700">Alta</span>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="shrink-0">
+                            {infracaoSeverityHigh ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                          </div>
+                          <span className={`text-sm transition-colors ${infracaoSeverityHigh ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Alta</span>
+                        </div>
+                        <PatternDisplay pattern="solid" color="#7C3AED" name="Alta" />
                       </div>
                       <div
                         onClick={() => onInfracaoSeverityMediumChange?.(!infracaoSeverityMedium)}
-                        className={`flex items-center gap-2 p-1.5 rounded transition-all duration-200 cursor-pointer ${infracaoSeverityMedium ? 'bg-amber-50 border border-amber-200' : 'hover:bg-gray-50 border border-transparent'}`}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInfracaoSeverityMediumChange?.(!infracaoSeverityMedium); }}}
+                        className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${infracaoSeverityMedium ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
                         role="button"
                         tabIndex={0}
                         aria-pressed={infracaoSeverityMedium}
                       >
-                        <Eye className={`w-3.5 h-3.5 ${infracaoSeverityMedium ? 'text-amber-600' : 'text-gray-400'}`} />
-                        <span className="w-4 h-0.5 bg-amber-500 rounded-full" />
-                        <span className="text-xs text-gray-700">Média</span>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="shrink-0">
+                            {infracaoSeverityMedium ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                          </div>
+                          <span className={`text-sm transition-colors ${infracaoSeverityMedium ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Média</span>
+                        </div>
+                        <PatternDisplay pattern="solid" color="#3B82F6" name="Média" />
                       </div>
                       <div
                         onClick={() => onInfracaoSeverityLowChange?.(!infracaoSeverityLow)}
-                        className={`flex items-center gap-2 p-1.5 rounded transition-all duration-200 cursor-pointer ${infracaoSeverityLow ? 'bg-green-50 border border-green-200' : 'hover:bg-gray-50 border border-transparent'}`}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInfracaoSeverityLowChange?.(!infracaoSeverityLow); }}}
+                        className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${infracaoSeverityLow ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
                         role="button"
                         tabIndex={0}
                         aria-pressed={infracaoSeverityLow}
                       >
-                        <Eye className={`w-3.5 h-3.5 ${infracaoSeverityLow ? 'text-green-600' : 'text-gray-400'}`} />
-                        <span className="w-3 h-px bg-green-500 rounded-full" />
-                        <span className="text-xs text-gray-700">Baixa</span>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="shrink-0">
+                            {infracaoSeverityLow ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                          </div>
+                          <span className={`text-sm transition-colors ${infracaoSeverityLow ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Baixa</span>
+                        </div>
+                        <PatternDisplay pattern="solid" color="#14B8A6" name="Baixa" />
                       </div>
                     </div>
                   </div>

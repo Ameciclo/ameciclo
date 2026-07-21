@@ -1029,7 +1029,7 @@ export function MapView({
               type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'high'],
               paint: {
-                'line-color': '#DC2626',
+                'line-color': '#7C3AED',
                 'line-width': 4,
                 'line-opacity': 0.85
               },
@@ -1043,7 +1043,7 @@ export function MapView({
               type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'medium'],
               paint: {
-                'line-color': '#F59E0B',
+                'line-color': '#3B82F6',
                 'line-width': 3,
                 'line-opacity': 0.75
               },
@@ -1057,7 +1057,7 @@ export function MapView({
               type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'low'],
               paint: {
-                'line-color': '#10B981',
+                'line-color': '#14B8A6',
                 'line-width': 2,
                 'line-opacity': 0.65
               },
