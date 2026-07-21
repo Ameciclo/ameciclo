@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, BarChart3 } from 'lucide-react';
 import { FilterSection } from './FilterSection';
-import { PerfilSection } from './PerfilSection';
-import { TODAS_INFRACOES } from './hooks/useCicloDadosData';
 
 interface LeftSidebarProps {
   isOpen: boolean;
@@ -23,6 +21,16 @@ interface LeftSidebarProps {
   selectedInfracao: string[];
   onInfracaoToggle: (option: string) => void;
   onInfracaoToggleAll?: (options: string[], selectAll: boolean) => void;
+  infracaoStartYear?: string;
+  onInfracaoStartYearChange?: (year: string) => void;
+  infracaoEndYear?: string;
+  onInfracaoEndYearChange?: (year: string) => void;
+  infracaoSeverityHigh?: boolean;
+  onInfracaoSeverityHighChange?: (value: boolean) => void;
+  infracaoSeverityMedium?: boolean;
+  onInfracaoSeverityMediumChange?: (value: boolean) => void;
+  infracaoSeverityLow?: boolean;
+  onInfracaoSeverityLowChange?: (value: boolean) => void;
   sinistroOptions: Array<{ name: string; color: string; pattern: string }>;
   selectedSinistro: string[];
   onSinistroToggle: (option: string) => void;
@@ -80,6 +88,16 @@ export function LeftSidebar({
   selectedInfracao,
   onInfracaoToggle,
   onInfracaoToggleAll,
+  infracaoStartYear,
+  onInfracaoStartYearChange,
+  infracaoEndYear,
+  onInfracaoEndYearChange,
+  infracaoSeverityHigh,
+  onInfracaoSeverityHighChange,
+  infracaoSeverityMedium,
+  onInfracaoSeverityMediumChange,
+  infracaoSeverityLow,
+  onInfracaoSeverityLowChange,
   sinistroOptions,
   selectedSinistro,
   onSinistroToggle,
@@ -148,7 +166,7 @@ export function LeftSidebar({
     selectedInfra.length === infraOptions.length &&
     selectedContagem.length === contagemOptions.length &&
     selectedPdc.length === pdcOptions.length &&
-    (selectedInfracao.includes(TODAS_INFRACOES) || selectedInfracao.length === infracaoOptions.length) &&
+    selectedInfracao.length === infracaoOptions.length &&
     selectedSinistro.length === sinistroOptions.length &&
     selectedEstacionamento.length === estacionamentoOptions.length &&
     selectedPerfil.length === perfilOptions.length;
@@ -349,16 +367,104 @@ export function LeftSidebar({
                 onToggleCollapse={() => toggleSection('sinistro')}
               />
               
-              <FilterSection
-                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Infrações de Trânsito</div>}
-                options={infracaoOptions.map((opt) => ({ name: opt }))}
-                selectedOptions={selectedInfracao.includes(TODAS_INFRACOES) ? infracaoOptions : selectedInfracao}
-                onToggle={onInfracaoToggle}
-                onToggleAll={onInfracaoToggleAll}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('infracao')}
-                onToggleCollapse={() => toggleSection('infracao')}
-              />
+              <div className="bg-white rounded-sm border" role="region" aria-labelledby="infracao-heading">
+                <div className="p-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => onInfracaoToggleAll?.(infracaoOptions, selectedInfracao.length === 0)}
+                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
+                        title={selectedInfracao.length > 0 ? 'Ocultar infrações' : 'Exibir infrações'}
+                        aria-label={selectedInfracao.length > 0 ? 'Ocultar infrações' : 'Exibir infrações'}
+                      >
+                        {selectedInfracao.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" aria-hidden="true" />
+                        <span id="infracao-heading" className="font-medium text-sm">Infrações de Trânsito</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => toggleSection('infracao')}
+                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
+                      title={collapsedSections.has('infracao') ? 'Expandir filtros de infrações' : 'Minimizar filtros de infrações'}
+                      aria-label={collapsedSections.has('infracao') ? 'Expandir filtros de infrações' : 'Minimizar filtros de infrações'}
+                      aria-expanded={!collapsedSections.has('infracao')}
+                    >
+                      <svg 
+                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('infracao') ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {!collapsedSections.has('infracao') && (
+                  <div className="px-2 pb-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs text-gray-500 w-5">De</label>
+                      <select 
+                        value={infracaoStartYear} 
+                        onChange={(e) => onInfracaoStartYearChange?.(e.target.value)}
+                        className="flex-1 text-xs border rounded-sm px-1.5 py-1 bg-white"
+                      >
+                        {Array.from({length: 19}, (_, i) => String(2007 + i)).map(y => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                      </select>
+                      <label className="text-xs text-gray-500 w-5">Até</label>
+                      <select 
+                        value={infracaoEndYear} 
+                        onChange={(e) => onInfracaoEndYearChange?.(e.target.value)}
+                        className="flex-1 text-xs border rounded-sm px-1.5 py-1 bg-white"
+                      >
+                        {Array.from({length: 19}, (_, i) => String(2007 + i)).map(y => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1 pt-1">
+                      <div
+                        onClick={() => onInfracaoSeverityHighChange?.(!infracaoSeverityHigh)}
+                        className={`flex items-center gap-2 p-1.5 rounded transition-all duration-200 cursor-pointer ${infracaoSeverityHigh ? 'bg-red-50 border border-red-200' : 'hover:bg-gray-50 border border-transparent'}`}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={infracaoSeverityHigh}
+                      >
+                        <Eye className={`w-3.5 h-3.5 ${infracaoSeverityHigh ? 'text-red-600' : 'text-gray-400'}`} />
+                        <span className="w-6 h-1 bg-red-600 rounded-full" />
+                        <span className="text-xs text-gray-700">Alta</span>
+                      </div>
+                      <div
+                        onClick={() => onInfracaoSeverityMediumChange?.(!infracaoSeverityMedium)}
+                        className={`flex items-center gap-2 p-1.5 rounded transition-all duration-200 cursor-pointer ${infracaoSeverityMedium ? 'bg-amber-50 border border-amber-200' : 'hover:bg-gray-50 border border-transparent'}`}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={infracaoSeverityMedium}
+                      >
+                        <Eye className={`w-3.5 h-3.5 ${infracaoSeverityMedium ? 'text-amber-600' : 'text-gray-400'}`} />
+                        <span className="w-4 h-0.5 bg-amber-500 rounded-full" />
+                        <span className="text-xs text-gray-700">Média</span>
+                      </div>
+                      <div
+                        onClick={() => onInfracaoSeverityLowChange?.(!infracaoSeverityLow)}
+                        className={`flex items-center gap-2 p-1.5 rounded transition-all duration-200 cursor-pointer ${infracaoSeverityLow ? 'bg-green-50 border border-green-200' : 'hover:bg-gray-50 border border-transparent'}`}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={infracaoSeverityLow}
+                      >
+                        <Eye className={`w-3.5 h-3.5 ${infracaoSeverityLow ? 'text-green-600' : 'text-gray-400'}`} />
+                        <span className="w-3 h-px bg-green-500 rounded-full" />
+                        <span className="text-xs text-gray-700">Baixa</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               
               <FilterSection
                 title={<div className="flex items-center gap-2"><Route className="w-4 h-4" />Infraestrutura cicloviária</div>}

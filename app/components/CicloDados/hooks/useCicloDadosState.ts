@@ -74,7 +74,7 @@ export function useCicloDadosState(
   const defaultInfra = infraOptions.map(opt => opt.name);
   const defaultContagem = [...contagemOptions];
   const defaultPdc = pdcOptions.map(opt => opt.name);
-  const defaultInfracao = [TODAS_INFRACOES];
+  const defaultInfracao = ["Risco a vulneráveis"];
   const defaultSinistro = sinistroOptions.map(opt => opt.name);
   const defaultEstacionamento = [...estacionamentoOptions];
   const defaultPerfil = [...perfilOptions];
@@ -91,6 +91,11 @@ export function useCicloDadosState(
   const [selectedArea, setSelectedArea] = useState<string>("Todas");
   const [selectedIdade, setSelectedIdade] = useState<string>("Todas");
   const [selectedStreet, setSelectedStreet] = useState<string>("");
+  const [infracaoStartYear, setInfracaoStartYear] = useState<string>("2007");
+  const [infracaoEndYear, setInfracaoEndYear] = useState<string>("2025");
+  const [infracaoSeverityHigh, setInfracaoSeverityHigh] = useState(true);
+  const [infracaoSeverityMedium, setInfracaoSeverityMedium] = useState(true);
+  const [infracaoSeverityLow, setInfracaoSeverityLow] = useState(true);
   
   // Load from localStorage after hydration - ONLY ONCE
   useEffect(() => {
@@ -559,6 +564,16 @@ export function useCicloDadosState(
     setSelectedStreet,
     viewMode,
     setViewMode,
+    infracaoStartYear,
+    setInfracaoStartYear,
+    infracaoEndYear,
+    setInfracaoEndYear,
+    infracaoSeverityHigh,
+    setInfracaoSeverityHigh,
+    infracaoSeverityMedium,
+    setInfracaoSeverityMedium,
+    infracaoSeverityLow,
+    setInfracaoSeverityLow,
     clearAllSelections,
     selectAllOptions
   };

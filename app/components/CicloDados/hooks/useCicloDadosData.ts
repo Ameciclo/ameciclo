@@ -21,12 +21,7 @@ export function useCicloDadosData() {
   ];
 
   const infracaoOptions = [
-    "Ultrapassar ciclista sem guardar distância de 1,5m",
-    "Estacionar sobre ciclovia ou ciclofaixa",
-    "Parar sobre ciclovia ou ciclofaixa",
-    "Transitar com veículo em ciclovia ou ciclofaixa",
-    "Abrir porta com perigo a ciclistas",
-    "Conduzir veículo ameaçando ciclistas"
+    "Risco a vulneráveis"
   ];
 
   const sinistroOptions = [

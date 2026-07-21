@@ -49,7 +49,7 @@ export const Route = createFileRoute("/dados/ciclodados/")({
 });
 
 function CicloDados() {
-  const { data: { contagemData, execucaoCicloviaria, perfilCiclistas } } =
+  const { data: { contagemData, execucaoCicloviaria, perfilCiclistas, sinistrosData } } =
     useSuspenseQuery(ciclodadosQueryOptions());
   const { lat, lon, zoom, modal, tab } = Route.useSearch();
 
@@ -133,6 +133,16 @@ function CicloDados() {
     setSelectedIdade,
     viewMode,
     setViewMode,
+    infracaoStartYear,
+    setInfracaoStartYear,
+    infracaoEndYear,
+    setInfracaoEndYear,
+    infracaoSeverityHigh,
+    setInfracaoSeverityHigh,
+    infracaoSeverityMedium,
+    setInfracaoSeverityMedium,
+    infracaoSeverityLow,
+    setInfracaoSeverityLow,
     clearAllSelections,
     selectAllOptions
   } = useCicloDadosState(
@@ -188,6 +198,16 @@ function CicloDados() {
                 selectedInfracao={selectedInfracao}
                 onInfracaoToggle={toggleInfracaoOption}
                 onInfracaoToggleAll={toggleAllInfracaoOptions}
+                infracaoStartYear={infracaoStartYear}
+                onInfracaoStartYearChange={setInfracaoStartYear}
+                infracaoEndYear={infracaoEndYear}
+                onInfracaoEndYearChange={setInfracaoEndYear}
+                infracaoSeverityHigh={infracaoSeverityHigh}
+                onInfracaoSeverityHighChange={setInfracaoSeverityHigh}
+                infracaoSeverityMedium={infracaoSeverityMedium}
+                onInfracaoSeverityMediumChange={setInfracaoSeverityMedium}
+                infracaoSeverityLow={infracaoSeverityLow}
+                onInfracaoSeverityLowChange={setInfracaoSeverityLow}
                 sinistroOptions={sinistroOptions}
                 selectedSinistro={selectedSinistro}
                 onSinistroToggle={toggleSinistroOption}
@@ -250,6 +270,13 @@ function CicloDados() {
                 autoOpenPopup={autoOpenPopup}
                 onPopupOpened={() => setAutoOpenPopup(null)}
                 onZoomToStreet={handleZoomToStreet}
+                sinistrosData={sinistrosData}
+                sinistrosError={null}
+                infracaoStartYear={infracaoStartYear}
+                infracaoEndYear={infracaoEndYear}
+                infracaoSeverityHigh={infracaoSeverityHigh}
+                infracaoSeverityMedium={infracaoSeverityMedium}
+                infracaoSeverityLow={infracaoSeverityLow}
               />
             </main>
           </div>

@@ -10,7 +10,6 @@ import { useBikePE } from './hooks/useBikePE';
 import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
-import { useSinistros } from './hooks/useSinistros';
 import { useInfracoes } from './hooks/useInfracoes';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
 import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
@@ -53,6 +52,13 @@ interface MapViewProps {
   autoOpenPopup?: {lat: number, lng: number} | null;
   onPopupOpened?: () => void;
   onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => void;
+  sinistrosData?: any;
+  sinistrosError?: string | null;
+  infracaoStartYear?: string;
+  infracaoEndYear?: string;
+  infracaoSeverityHigh?: boolean;
+  infracaoSeverityMedium?: boolean;
+  infracaoSeverityLow?: boolean;
 }
 
 export function MapView({
@@ -83,9 +89,15 @@ export function MapView({
   perfilCiclistasData,
   autoOpenPopup,
   onPopupOpened,
-  onZoomToStreet
+  onZoomToStreet,
+  sinistrosData,
+  sinistrosError,
+  infracaoStartYear,
+  infracaoEndYear,
+  infracaoSeverityHigh,
+  infracaoSeverityMedium,
+  infracaoSeverityLow,
 }: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
-
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
   const [selectedCircles, setSelectedCircles] = useState<Array<{ lat: number; lng: number; radius: number; id: string }>>([]);
@@ -190,8 +202,7 @@ export function MapView({
   const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
-  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
-  const { data: infracoesData, error: infracoesError } = useInfracoes(isClient ? viewportBounds : undefined, selectedInfracao);
+  const { data: infracoesData, error: infracoesError } = useInfracoes(isClient ? viewportBounds : undefined, selectedInfracao, infracaoStartYear, infracaoEndYear);
   const { data: perfilPoints, error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {
@@ -292,12 +303,23 @@ export function MapView({
       }
     }
 
+    // Sinistros loading/rendered state
+    if (selectedSinistro.length > 0) {
+      if (sinistrosError) {
+        newRenderedLayers.add('sinistros');
+      } else if (sinistrosData?.features?.length > 0) {
+        newRenderedLayers.add('sinistros');
+      } else {
+        newLoadingLayers.add('sinistros');
+      }
+    }
+
     setLoadingLayers(newLoadingLayers);
     setRenderedLayers(newRenderedLayers);
   }, [
-    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil, selectedInfracao,
-    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas, infracoesData,
-    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError
+    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil, selectedInfracao, selectedSinistro,
+    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas, infracoesData, sinistrosData,
+    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError, sinistrosError
   ]);
   
 
@@ -1002,48 +1024,48 @@ export function MapView({
 
           // Infrações de Trânsito
           ...(!infracoesError && infracoesData?.features && selectedInfracao && selectedInfracao.length > 0 ? [
-            {
+            ...(infracaoSeverityHigh !== false ? [{
               id: 'infracoes-high',
               type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'high'],
               paint: {
-                'line-color': '#7C3AED',
-                'line-width': 6,
+                'line-color': '#DC2626',
+                'line-width': 4,
                 'line-opacity': 0.85
               },
               layout: {
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            },
-            {
+            }] : []),
+            ...(infracaoSeverityMedium !== false ? [{
               id: 'infracoes-medium',
               type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'medium'],
               paint: {
-                'line-color': '#A78BFA',
-                'line-width': 5,
+                'line-color': '#F59E0B',
+                'line-width': 3,
                 'line-opacity': 0.75
               },
               layout: {
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            },
-            {
+            }] : []),
+            ...(infracaoSeverityLow !== false ? [{
               id: 'infracoes-low',
               type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'low'],
               paint: {
-                'line-color': '#DDD6FE',
-                'line-width': 4,
+                'line-color': '#10B981',
+                'line-width': 2,
                 'line-opacity': 0.65
               },
               layout: {
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            }
+            }] : [])
           ] : [])
         ]}
         pointsData={[
