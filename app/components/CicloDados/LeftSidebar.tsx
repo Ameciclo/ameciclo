@@ -370,7 +370,6 @@ export function LeftSidebar({
                         {[
                           { key: 'acidentes', label: 'Sinistros', color: '#F97316' },
                           { key: 'motivacao', label: 'Motivação', color: '#8B5CF6' },
-                          { key: 'problemas', label: 'Problemas', color: '#EF4444' },
                           { key: 'idades', label: 'Idades', color: '#3B82F6' },
                           { key: 'renda', label: 'Renda', color: '#F59E0B' },
                           { key: 'escolaridade', label: 'Escolaridade', color: '#6366F1' },
@@ -398,12 +397,6 @@ export function LeftSidebar({
                             { color: '#8B5CF6', label: 'Mais barato' },
                             { color: '#3B82F6', label: 'Mais saudável' },
                             { color: '#10B981', label: 'Ambiental' },
-                          ],
-                          problemas: [
-                            { color: '#EF4444', label: 'Segurança trânsito' },
-                            { color: '#F97316', label: 'Infraestrutura' },
-                            { color: '#EAB308', label: 'Respeito motoristas' },
-                            { color: '#8B5CF6', label: 'Segurança pública' },
                           ],
                           idades: [
                             { color: '#3B82F6', label: '18-25' },
