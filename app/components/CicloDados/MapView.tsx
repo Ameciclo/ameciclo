@@ -1506,6 +1506,7 @@ export function MapView({
                   const metric = selectedPerfilMetric || 'acidentes';
                   const pointProps = item.properties.items?.[0]?.properties || {};
                   const svgSize = 72;
+                  const noDataSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}"><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="#e5e7eb" /><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="none" stroke="white" stroke-width="2" /><text x="${svgSize/2}" y="${svgSize/2}" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#9ca3af">?</text></svg>`;
                   const svgStr = (() => {
                     if (metric === 'acidentes') {
                       const pct = pointProps.accidents_percentage || 0;
@@ -1514,7 +1515,7 @@ export function MapView({
                         { label: 'Sem sinistro', value: 100 - pct },
                       ], 26, svgSize, ['#F97316', '#d1d5db']);
                     }
-                    if (metric === 'idades' && pointProps.age_ranges) {
+                    if (metric === 'idades' && pointProps.age_ranges && Object.keys(pointProps.age_ranges).length > 0) {
                       const items = Object.entries(pointProps.age_ranges as Record<string, number>)
                         .sort(([a], [b]) => {
                           const order = ['18-25','26-35','36-45','46-60','60+'];
@@ -1523,16 +1524,27 @@ export function MapView({
                         .map(([label, value]) => ({ label, value }));
                       if (items.length > 0) return pieMarker(items, 26, svgSize, ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE']);
                     }
-                    if (metric === 'motivacao' && pointProps.motivations) {
+                    if (metric === 'motivacao' && pointProps.motivations && Object.keys(pointProps.motivations).length > 0) {
                       const items = Object.entries(pointProps.motivations as Record<string, number>).map(([label, value]) => ({ label, value }));
                       if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F97316', '#8B5CF6', '#3B82F6', '#10B981', '#6B7280']);
                     }
-                    if (metric === 'problemas' && pointProps.issues) {
+                    if (metric === 'problemas' && pointProps.issues && Object.keys(pointProps.issues).length > 0) {
                       const items = Object.entries(pointProps.issues as Record<string, number>).map(([label, value]) => ({ label, value }));
                       if (items.length > 0) return pieMarker(items, 26, svgSize, ['#EF4444', '#F97316', '#EAB308', '#8B5CF6', '#6B7280', '#9CA3AF']);
                     }
-                    const color = metric === 'problemas' ? '#EF4444' : metric === 'motivacao' ? '#8B5CF6' : metric === 'idades' ? '#3B82F6' : '#F97316';
-                    return singleDonut(50, color, 26, svgSize);
+                    if (metric === 'renda' && pointProps.income_distribution && Object.keys(pointProps.income_distribution).length > 0) {
+                      const items = Object.entries(pointProps.income_distribution as Record<string, number>).map(([label, value]) => ({ label: label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F59E0B', '#F97316', '#EF4444', '#10B981']);
+                    }
+                    if (metric === 'escolaridade' && pointProps.schooling_distribution && Object.keys(pointProps.schooling_distribution).length > 0) {
+                      const items = Object.entries(pointProps.schooling_distribution as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#6366F1', '#8B5CF6', '#A78BFA', '#C4B5FD']);
+                    }
+                    if (metric === 'raca' && pointProps.color_race_distribution && Object.keys(pointProps.color_race_distribution).length > 0) {
+                      const items = Object.entries(pointProps.color_race_distribution as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#1f2937', '#78350f', '#fef3c7', '#92400e']);
+                    }
+                    return noDataSvg;
                   })();
 
                   return (
@@ -1572,6 +1584,9 @@ export function MapView({
                         motivations: point?.motivations,
                         issues: point?.issues,
                         age_ranges: point?.age_ranges,
+                        income_distribution: point?.income_distribution,
+                        schooling_distribution: point?.schooling_distribution,
+                        color_race_distribution: point?.color_race_distribution,
                       }
                     };
                     

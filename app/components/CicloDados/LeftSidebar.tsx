@@ -372,6 +372,9 @@ export function LeftSidebar({
                           { key: 'motivacao', label: 'Motivação', color: '#8B5CF6' },
                           { key: 'problemas', label: 'Problemas', color: '#EF4444' },
                           { key: 'idades', label: 'Idades', color: '#3B82F6' },
+                          { key: 'renda', label: 'Renda', color: '#F59E0B' },
+                          { key: 'escolaridade', label: 'Escolaridade', color: '#6366F1' },
+                          { key: 'raca', label: 'Raça/Cor', color: '#1f2937' },
                         ].map(m => (
                           <div key={m.key} onClick={() => onPerfilMetricChange(m.key)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onPerfilMetricChange(m.key); }}}
@@ -379,10 +382,10 @@ export function LeftSidebar({
                             role="button" tabIndex={0} aria-pressed={selectedPerfilMetric === m.key}>
                             <div className="flex items-center gap-2">
                               <div className="shrink-0">
-                                <PatternDisplay pattern="solid" color={m.color} name={m.label} />
+                                {selectedPerfilMetric === m.key ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                               </div>
+                              <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: m.color }} />
                               <span className={`text-sm ${selectedPerfilMetric === m.key ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{m.label}</span>
-                              {selectedPerfilMetric === m.key && <div className="ml-auto w-2 h-2 rounded-full bg-teal-600" />}
                             </div>
                           </div>
                         ))}
@@ -408,6 +411,24 @@ export function LeftSidebar({
                             { color: '#93C5FD', label: '36-45' },
                             { color: '#BFDBFE', label: '46-60' },
                             { color: '#DBEAFE', label: '60+' },
+                          ],
+                          renda: [
+                            { color: '#10B981', label: 'Até 1 SM' },
+                            { color: '#F59E0B', label: '1 a 2 SM' },
+                            { color: '#F97316', label: '2 a 5 SM' },
+                            { color: '#EF4444', label: '+5 SM' },
+                          ],
+                          escolaridade: [
+                            { color: '#6366F1', label: 'Fundamental' },
+                            { color: '#8B5CF6', label: 'Médio' },
+                            { color: '#A78BFA', label: 'Superior' },
+                            { color: '#C4B5FD', label: 'Pós-grad' },
+                          ],
+                          raca: [
+                            { color: '#1f2937', label: 'Preta' },
+                            { color: '#78350f', label: 'Parda' },
+                            { color: '#fef3c7', label: 'Branca' },
+                            { color: '#92400e', label: 'Indígena' },
                           ],
                         };
                         const items = colorLabels[selectedPerfilMetric] || [];

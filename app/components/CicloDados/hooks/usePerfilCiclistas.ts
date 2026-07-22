@@ -79,6 +79,9 @@ export function usePerfilCiclistas() {
               motivations: location.statistics.motivations,
               issues: location.statistics.issues,
               age_ranges: location.statistics.age_ranges,
+              income_distribution: location.statistics.income_distribution,
+              schooling_distribution: location.statistics.schooling_distribution,
+              color_race_distribution: location.statistics.color_race_distribution,
               type: 'perfil'
             }
           }))
