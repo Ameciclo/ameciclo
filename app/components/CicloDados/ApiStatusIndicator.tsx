@@ -10,7 +10,6 @@ interface ApiStatusIndicatorProps {
 const API_SERVICES = [
   { key: 'bicicletarios', name: 'Bicicletários', endpoint: 'bicycle-racks', healthUrl: CICLODADOS_HEALTH_URLS.bicicletarios },
   { key: 'bikepe', name: 'Estações Bike PE', endpoint: 'bike-pe-stations', healthUrl: CICLODADOS_HEALTH_URLS.bikepe },
-  { key: 'infraestrutura', name: 'Infraestrutura Cicloviária', endpoint: 'infrastructure', healthUrl: CICLODADOS_HEALTH_URLS.infraestrutura },
   { key: 'pontos-contagem', name: 'Pontos de Contagem', endpoint: 'counting-points', healthUrl: CICLODADOS_HEALTH_URLS['pontos-contagem'] },
   { key: 'execucao-cicloviaria', name: 'Plano Diretor Cicloviário', endpoint: 'execution-data', healthUrl: CICLODADOS_HEALTH_URLS['execucao-cicloviaria'] },
   { key: 'sinistros', name: 'Chamados de Emergência', endpoint: 'samu/v2/unsafe-streets', healthUrl: CICLODADOS_HEALTH_URLS.sinistros },

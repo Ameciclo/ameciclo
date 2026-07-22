@@ -4,6 +4,7 @@ export function useCicloDadosData() {
   const infraOptions = [
     { name: "Ciclovia", color: "#EF4444", pattern: "solid" },
     { name: "Ciclofaixa", color: "#6B7280", pattern: "bordered" },
+    { name: "Ciclofaixa Compartilhada", color: "#3B82F6", pattern: "bordered" },
     { name: "Ciclorrota", color: "#D1D5DB", pattern: "arrows" },
     { name: "Calçada compartilhada", color: "#10B981", pattern: "solid" }
   ];
@@ -25,9 +26,9 @@ export function useCicloDadosData() {
   ];
 
   const sinistroOptions = [
-    { name: "Alta severidade (≥150 chamados)", color: "#DC2626", pattern: "solid" },
-    { name: "Média severidade (50–149)", color: "#F59E0B", pattern: "solid" },
-    { name: "Baixa severidade (<50)", color: "#FBBF24", pattern: "solid" }
+    { name: "Alta periculosidade (≥150 chamados)", color: "#DC2626", pattern: "solid" },
+    { name: "Média periculosidade (50–149)", color: "#F59E0B", pattern: "solid" },
+    { name: "Baixa periculosidade (<50)", color: "#FBBF24", pattern: "solid" }
   ];
 
   const estacionamentoOptions = [

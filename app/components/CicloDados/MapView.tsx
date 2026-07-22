@@ -7,7 +7,6 @@ import { searchStreets, type StreetMatch } from '~/services/streets.service';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
-import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
 import { useContagensAmeciclo } from './hooks/useContagensAmeciclo';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
@@ -59,6 +58,7 @@ interface MapViewProps {
   infracaoSeverityHigh?: boolean;
   infracaoSeverityMedium?: boolean;
   infracaoSeverityLow?: boolean;
+  onInfracoesDataChange?: (thresholds: {low: number; medium: number}) => void;
 }
 
 export function MapView({
@@ -95,6 +95,7 @@ export function MapView({
   infracaoSeverityHigh,
   infracaoSeverityMedium,
   infracaoSeverityLow,
+  onInfracoesDataChange,
 }: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
@@ -197,12 +198,18 @@ export function MapView({
   // Usar hooks com bounds para filtrar dados apenas no cliente
   const { data: filteredBicicletarios, error: bicicletariosError } = useBicicletarios(isClient ? viewportBounds : undefined);
   const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
-  const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
-  const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: amecicloContagem, error: amecicloContagemError } = useContagensAmeciclo();
+  const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
   const { data: infracoesData, error: infracoesError } = useInfracoes(isClient ? viewportBounds : undefined, selectedInfracao, infracaoStartYear, infracaoEndYear);
+  
+  useEffect(() => {
+    if (infracoesData?.thresholds) {
+      onInfracoesDataChange?.(infracoesData.thresholds);
+    }
+  }, [infracoesData?.thresholds]);
+  
   const { data: perfilPoints, error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {
@@ -213,9 +220,7 @@ export function MapView({
     }
   );
   // Use data from props instead of hook to avoid CORS
-  const perfilCiclistas = perfilCiclistasData;
-  const perfilCiclistasError = null;
-  const perfilCiclistasLoading = false;
+  const { data: perfilCiclistas, error: perfilCiclistasError, loading: perfilCiclistasLoading } = usePerfilCiclistas();
   
 
 
@@ -226,14 +231,11 @@ export function MapView({
 
     // Infrastructure loading/rendered state
     if (selectedInfra.length > 0) {
-      if (infraError) {
-        // If there's an error, consider it "rendered" (failed)
+      if (execucaoError) {
         newRenderedLayers.add('infraestrutura');
-      } else if (infraCicloviaria?.features?.length > 0) {
-        // Data loaded successfully
+      } else if (execucaoCicloviaria?.features?.length > 0) {
         newRenderedLayers.add('infraestrutura');
       } else {
-        // Still loading
         newLoadingLayers.add('infraestrutura');
       }
     }
@@ -241,13 +243,10 @@ export function MapView({
     // PDC loading/rendered state
     if (selectedPdc.length > 0) {
       if (execucaoError) {
-        // If there's an error, consider it "rendered" (failed)
         newRenderedLayers.add('pdc');
       } else if (execucaoCicloviaria?.features?.length > 0) {
-        // Data loaded successfully
         newRenderedLayers.add('pdc');
       } else {
-        // Still loading
         newLoadingLayers.add('pdc');
       }
     }
@@ -307,8 +306,8 @@ export function MapView({
     setRenderedLayers(newRenderedLayers);
   }, [
     selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil, selectedInfracao,
-    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, amecicloContagem, contagemData, perfilCiclistas, infracoesData,
-    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, amecicloContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError
+    execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, amecicloContagem, contagemData, perfilCiclistas, infracoesData,
+    execucaoError, bicicletariosError, bikePEError, pontosContagemError, amecicloContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError
   ]);
   
 
@@ -317,7 +316,6 @@ export function MapView({
   const dataErrors = [];
   if (bicicletariosError) dataErrors.push({ type: 'bicicletarios', message: bicicletariosError });
   if (bikePEError) dataErrors.push({ type: 'bikepe', message: bikePEError });
-  if (infraError) dataErrors.push({ type: 'infraestrutura', message: infraError });
   if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
   if (amecicloContagemError) dataErrors.push({ type: 'pontos-contagem', message: amecicloContagemError });
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
@@ -641,9 +639,9 @@ export function MapView({
               return features;
             };
             
-            // Filtrar infraestrutura por tipos selecionados e área
-            let filteredInfraFeatures = infraCicloviaria?.features?.filter((feature: any) => 
-              selectedInfra.includes(feature.properties.infra_type)
+            // Filtrar infraestrutura por tipos selecionados e área (usa mesmo endpoint do PDC)
+            let filteredInfraFeatures = execucaoCicloviaria?.features?.filter((feature: any) => 
+              selectedInfra.includes(feature.properties.cycleway_typology)
             ) || [];
             filteredInfraFeatures = filterByStreetArea(filteredInfraFeatures);
             
@@ -875,11 +873,11 @@ export function MapView({
             },
           ] : []),
 
-          ...(!infraError && infraCicloviaria?.features && selectedInfra.length > 0 ? [
+          ...(!execucaoError && execucaoCicloviaria?.features && selectedInfra.length > 0 ? [
             {
               id: 'infra-ciclovia',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclovia'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclovia'],
               paint: {
                 'line-color': '#EF4444',
                 'line-width': 4,
@@ -893,7 +891,7 @@ export function MapView({
             {
               id: 'infra-ciclofaixa',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclofaixa'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclofaixa'],
               paint: {
                 'line-color': '#6B7280',
                 'line-width': 3,
@@ -905,9 +903,23 @@ export function MapView({
               }
             },
             {
+              id: 'infra-ciclofaixa-compartilhada',
+              type: 'line',
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclofaixa Compartilhada'],
+              paint: {
+                'line-color': '#3B82F6',
+                'line-width': 3,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
               id: 'infra-ciclorrota',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclorrota'],
               paint: {
                 'line-color': '#9CA3AF',
                 'line-width': [
@@ -928,7 +940,7 @@ export function MapView({
             {
               id: 'infra-ciclorrota-stripes',
               type: 'symbol',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclorrota'],
               paint: {
                 'text-color': '#EF4444',
                 'text-opacity': 0.8
@@ -953,7 +965,7 @@ export function MapView({
             {
               id: 'infra-calcada',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Calçada compartilhada'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Calçada compartilhada'],
               paint: {
                 'line-color': '#10B981',
                 'line-width': 3,
@@ -1021,7 +1033,8 @@ export function MapView({
               paint: {
                 'line-color': '#7C3AED',
                 'line-width': 4,
-                'line-opacity': 0.85
+                'line-opacity': 0.85,
+                'line-dasharray': [10, 4]
               },
               layout: {
                 'line-join': 'round',
@@ -1035,7 +1048,8 @@ export function MapView({
               paint: {
                 'line-color': '#3B82F6',
                 'line-width': 3,
-                'line-opacity': 0.75
+                'line-opacity': 0.75,
+                'line-dasharray': [8, 4]
               },
               layout: {
                 'line-join': 'round',
@@ -1049,7 +1063,8 @@ export function MapView({
               paint: {
                 'line-color': '#14B8A6',
                 'line-width': 2,
-                'line-opacity': 0.65
+                'line-opacity': 0.65,
+                'line-dasharray': [6, 4]
               },
               layout: {
                 'line-join': 'round',

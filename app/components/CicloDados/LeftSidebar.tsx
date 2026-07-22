@@ -32,6 +32,7 @@ interface LeftSidebarProps {
   onInfracaoSeverityMediumChange?: (value: boolean) => void;
   infracaoSeverityLow?: boolean;
   onInfracaoSeverityLowChange?: (value: boolean) => void;
+  infracaoThresholds?: { low: number; medium: number } | null;
   sinistroOptions: Array<{ name: string; color: string; pattern: string }>;
   selectedSinistro: string[];
   onSinistroToggle: (option: string) => void;
@@ -99,6 +100,7 @@ export function LeftSidebar({
   onInfracaoSeverityMediumChange,
   infracaoSeverityLow,
   onInfracaoSeverityLowChange,
+  infracaoThresholds,
   sinistroOptions,
   selectedSinistro,
   onSinistroToggle,
@@ -269,8 +271,8 @@ export function LeftSidebar({
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => {
-                          const allYears = ["2024", "2021", "2018", "2015"];
-                          const allSelected = selectedAno.length === 4;
+                          const allYears = ["2024", "2021", "2018"];
+                          const allSelected = selectedAno.length === allYears.length;
                           if (allSelected) {
                             allYears.forEach(year => onAnoChange(year));
                           } else {
@@ -311,7 +313,7 @@ export function LeftSidebar({
                 </div>
                 {!collapsedSections.has('perfil-pontos') && (
                   <div className="px-2 pb-2 space-y-1">
-                    {["2024", "2021", "2018", "2015"].map((option) => (
+                    {["2024", "2021", "2018"].map((option) => (
                       <div
                         key={option}
                         onClick={() => onAnoChange(option)}
@@ -395,27 +397,46 @@ export function LeftSidebar({
                 </div>
                 {!collapsedSections.has('infracao') && (
                   <div className="px-2 pb-2 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <label className="text-xs text-gray-500 w-5">De</label>
-                      <select 
-                        value={infracaoStartYear} 
-                        onChange={(e) => onInfracaoStartYearChange?.(e.target.value)}
-                        className="flex-1 text-xs border rounded-sm px-1.5 py-1 bg-white"
-                      >
-                        {Array.from({length: 19}, (_, i) => String(2007 + i)).map(y => (
-                          <option key={y} value={y}>{y}</option>
-                        ))}
-                      </select>
-                      <label className="text-xs text-gray-500 w-5">Até</label>
-                      <select 
-                        value={infracaoEndYear} 
-                        onChange={(e) => onInfracaoEndYearChange?.(e.target.value)}
-                        className="flex-1 text-xs border rounded-sm px-1.5 py-1 bg-white"
-                      >
-                        {Array.from({length: 19}, (_, i) => String(2007 + i)).map(y => (
-                          <option key={y} value={y}>{y}</option>
-                        ))}
-                      </select>
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">De: <span style={{color: '#0d9488'}} className="font-medium">{infracaoStartYear}</span></span>
+                        <span className="text-xs text-gray-500">Até: <span style={{color: '#7C3AED'}} className="font-medium">{infracaoEndYear}</span></span>
+                      </div>
+                      <div className="relative h-8 flex items-center">
+                        <div className="absolute inset-x-0 h-2 top-1/2 -translate-y-1/2 rounded-full bg-gray-200" />
+                        <div
+                          className="absolute h-2 top-1/2 -translate-y-1/2 rounded-full"
+                          style={{
+                            left: `${((Number(infracaoStartYear) - 2007) / (2025 - 2007)) * 100}%`,
+                            right: `${100 - ((Number(infracaoEndYear) - 2007) / (2025 - 2007)) * 100}%`,
+                            background: 'linear-gradient(to right, #0d9488, #7C3AED)',
+                          }}
+                        />
+                        <input
+                          type="range"
+                          min="2007"
+                          max="2025"
+                          value={infracaoStartYear}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            if (Number(v) <= Number(infracaoEndYear)) onInfracaoStartYearChange?.(v);
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-teal-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-teal-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 1 }}
+                        />
+                        <input
+                          type="range"
+                          min="2007"
+                          max="2025"
+                          value={infracaoEndYear}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            if (Number(v) >= Number(infracaoStartYear)) onInfracaoEndYearChange?.(v);
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-purple-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 2 }}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-1 pt-1">
                       <div
@@ -431,8 +452,9 @@ export function LeftSidebar({
                             {infracaoSeverityHigh ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                           </div>
                           <span className={`text-sm transition-colors ${infracaoSeverityHigh ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Alta</span>
+                          {infracaoThresholds && <span className="text-[10px] text-gray-400 ml-auto">≥{infracaoThresholds.medium}</span>}
                         </div>
-                        <PatternDisplay pattern="solid" color="#7C3AED" name="Alta" />
+                        <PatternDisplay pattern="dashed" color="#7C3AED" name="Alta" />
                       </div>
                       <div
                         onClick={() => onInfracaoSeverityMediumChange?.(!infracaoSeverityMedium)}
@@ -447,8 +469,9 @@ export function LeftSidebar({
                             {infracaoSeverityMedium ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                           </div>
                           <span className={`text-sm transition-colors ${infracaoSeverityMedium ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Média</span>
+                          {infracaoThresholds && <span className="text-[10px] text-gray-400 ml-auto">{infracaoThresholds.low}–{infracaoThresholds.medium - 1}</span>}
                         </div>
-                        <PatternDisplay pattern="solid" color="#3B82F6" name="Média" />
+                        <PatternDisplay pattern="dashed" color="#3B82F6" name="Média" />
                       </div>
                       <div
                         onClick={() => onInfracaoSeverityLowChange?.(!infracaoSeverityLow)}
@@ -463,8 +486,9 @@ export function LeftSidebar({
                             {infracaoSeverityLow ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                           </div>
                           <span className={`text-sm transition-colors ${infracaoSeverityLow ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Baixa</span>
+                          {infracaoThresholds && <span className="text-[10px] text-gray-400 ml-auto">{'<'}{infracaoThresholds.low}</span>}
                         </div>
-                        <PatternDisplay pattern="solid" color="#14B8A6" name="Baixa" />
+                        <PatternDisplay pattern="dashed" color="#14B8A6" name="Baixa" />
                       </div>
                     </div>
                   </div>

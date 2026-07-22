@@ -75,7 +75,7 @@ export function useInfracoes(bounds?: ViewportBounds, selectedFilters?: string[]
 
     return {
       ...rawData,
-      features: featuresWithTotals.map(({ feature, total }) => ({
+      features: featuresWithTotals.map(({ feature, total }: { feature: any; total: number }) => ({
         ...feature,
         properties: {
           ...feature.properties,
@@ -83,6 +83,7 @@ export function useInfracoes(bounds?: ViewportBounds, selectedFilters?: string[]
           severity: total >= p66 ? 'high' : total >= p33 ? 'medium' : 'low',
         },
       })),
+      thresholds: { low: p33, medium: p66 },
     };
   }, [rawData, startYear, endYear]);
 

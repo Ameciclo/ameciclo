@@ -3,6 +3,14 @@ const IS_DEV = true
 const api = (port: number, prod: string) =>
   IS_DEV ? `http://localhost:${port}` : prod
 
+const BICYCLE_RACKS_BASE = api(3005, "https://bicycle-racks.atlas.ameciclo.org")
+const SHARED_BIKE_BASE = api(3015, "https://shared-bike.atlas.ameciclo.org")
+const CYCLING_INFRA_BASE = api(3020, "https://cycling-infra.atlas.ameciclo.org")
+const CYCLIST_COUNTS_BASE = api(3002, "https://cyclist-counts.atlas.ameciclo.org")
+const EMERGENCY_CALLS_BASE = api(3010, "https://emergency-calls.atlas.ameciclo.org")
+const TRAFFIC_TICKETS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
+const CYCLIST_PROFILE_BASE = api(3000, "https://cyclist-profile.atlas.ameciclo.org")
+
 export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
 
 // Strapi single-types — legacy endpoints kept as documentation reference.
@@ -27,7 +35,7 @@ export const IDECICLO_FORMS_DATA = `https://api.ideciclo.ameciclo.org/forms`
 
 // Cyclist-profile Atlas (Perfil page)
 export const PERFIL_API_URL = `https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/nearby?lat=-8.05&lon=-34.9&radius=100000&limit=1000`
-export const PERFIL_SURVEY_LOCATIONS = `https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations`
+export const PERFIL_SURVEY_LOCATIONS = `${CYCLIST_PROFILE_BASE}/v1/cyclist-profiles/survey-locations`
 
 // Cyclist-counts Atlas (Contagens)
 export const COUNTINGS_LOCAL_BASE = "http://localhost:3002"
@@ -76,18 +84,10 @@ export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
 export const CICLODADOS_BASE = `https://ciclodados.atlas.ameciclo.org/v1`
 
-const BICYCLE_RACKS_BASE = api(3005, "https://bicycle-racks.atlas.ameciclo.org")
-const SHARED_BIKE_BASE = api(3015, "https://shared-bike.atlas.ameciclo.org")
-const CYCLING_INFRA_BASE = api(3020, "https://cycling-infra.atlas.ameciclo.org")
-const CYCLIST_COUNTS_BASE = api(3002, "https://cyclist-counts.atlas.ameciclo.org")
-const EMERGENCY_CALLS_BASE = api(3010, "https://emergency-calls.atlas.ameciclo.org")
-const TRAFFIC_TICKETS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
-const CYCLIST_PROFILE_BASE = api(3000, "https://cyclist-profile.atlas.ameciclo.org")
-
 export const BICICLETARIOS_DATA = `${BICYCLE_RACKS_BASE}/v1/bicycle-racks/geojson`
 export const BIKE_PE_STATIONS_DATA = `${SHARED_BIKE_BASE}/v1/stations`
 export const INFRA_CICLOVIARIA_DATA = `${CYCLING_INFRA_BASE}/v1/infrastructure/cycleways?city=2611606`
-export const EXECUCAO_CICLOVIARIA_DATA = `${CYCLING_INFRA_BASE}/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001&minimal=true`
+export const EXECUCAO_CICLOVIARIA_DATA = `${CYCLING_INFRA_BASE}/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001`
 export const EXECUCAO_CICLOVIARIA_SUMMARY = `${CYCLING_INFRA_BASE}/v1/ways/summary`
 export const EXECUCAO_CICLOVIARIA_RELATIONS = `${CYCLING_INFRA_BASE}/relations/by-city`
 export const POINT_CICLO_NEARBY = (lat: number, lng: number, radius = 200) => `${CICLODADOS_BASE}/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
@@ -95,7 +95,6 @@ export const POINT_CICLO_NEARBY = (lat: number, lng: number, radius = 200) => `$
 export const CICLODADOS_HEALTH_URLS: Record<string, string> = {
   bicicletarios: `${BICYCLE_RACKS_BASE}/health`,
   bikepe: `${SHARED_BIKE_BASE}/health`,
-  infraestrutura: `${CYCLING_INFRA_BASE}/health`,
   "execucao-cicloviaria": `${CYCLING_INFRA_BASE}/health`,
   "pontos-contagem": `${CYCLIST_COUNTS_BASE}/health`,
   sinistros: `${EMERGENCY_CALLS_BASE}/health`,

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
 import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
 import { useCicloDadosMap } from '~/hooks/useCicloDadosMap';
@@ -155,6 +156,8 @@ function CicloDados() {
     perfilOptions
   );
 
+  const [infracaoThresholds, setInfracaoThresholds] = useState<{low: number; medium: number} | null>(null);
+
   const infraData = generateInfraData(selectedInfra);
   const pdcData = generatePdcData(selectedPdc, execucaoCicloviaria);
   const contagemMapData = generateContagemData(selectedContagem, processedContagemData, {
@@ -208,6 +211,7 @@ function CicloDados() {
                 onInfracaoSeverityMediumChange={setInfracaoSeverityMedium}
                 infracaoSeverityLow={infracaoSeverityLow}
                 onInfracaoSeverityLowChange={setInfracaoSeverityLow}
+                infracaoThresholds={infracaoThresholds}
                 sinistroOptions={sinistroOptions}
                 selectedSinistro={selectedSinistro}
                 onSinistroToggle={toggleSinistroOption}
@@ -275,6 +279,7 @@ function CicloDados() {
                 infracaoSeverityHigh={infracaoSeverityHigh}
                 infracaoSeverityMedium={infracaoSeverityMedium}
                 infracaoSeverityLow={infracaoSeverityLow}
+                onInfracoesDataChange={setInfracaoThresholds}
               />
             </main>
           </div>
