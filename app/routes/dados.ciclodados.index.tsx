@@ -122,6 +122,8 @@ function CicloDados() {
     selectedPerfil,
     togglePerfilOption,
     toggleAllPerfilOptions,
+    selectedPerfilMetric,
+    setSelectedPerfilMetric,
     selectedGenero,
     setSelectedGenero,
     toggleGeneroOption,
@@ -224,6 +226,8 @@ function CicloDados() {
                 selectedPerfil={selectedPerfil}
                 onPerfilToggle={togglePerfilOption}
                 onPerfilToggleAll={toggleAllPerfilOptions}
+                selectedPerfilMetric={selectedPerfilMetric}
+                onPerfilMetricChange={setSelectedPerfilMetric}
                 selectedGenero={selectedGenero}
                 onGeneroChange={toggleGeneroOption}
                 selectedAno={selectedAno}
@@ -253,6 +257,7 @@ function CicloDados() {
                 selectedSinistro={selectedSinistro}
                 selectedInfracao={selectedInfracao}
                 selectedPerfil={selectedPerfil}
+                selectedPerfilMetric={selectedPerfilMetric}
                 selectedGenero={selectedGenero}
                 selectedAno={selectedAno}
                 selectedArea={selectedArea}

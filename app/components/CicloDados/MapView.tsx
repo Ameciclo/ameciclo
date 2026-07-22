@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 
-import { MapPin, Bike, UserCheck, Search } from 'lucide-react';
+import { MapPin, Bike, UserCheck, Search, AlertTriangle, BarChart3 } from 'lucide-react';
 import { searchStreets, type StreetMatch } from '~/services/streets.service';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
@@ -17,6 +17,7 @@ import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
 import { DataErrorAlert } from './DataErrorAlert';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
+import { pieMarker, singleDonut } from './utils/pieMarker';
 
 
 
@@ -28,6 +29,7 @@ interface MapViewProps {
   selectedSinistro: string[];
   selectedInfracao?: string[];
   selectedPerfil: string[];
+  selectedPerfilMetric?: string;
   selectedGenero: string[];
   selectedAno: string[];
   selectedArea?: string;
@@ -69,6 +71,7 @@ export function MapView({
   selectedSinistro,
   selectedInfracao,
   selectedPerfil,
+  selectedPerfilMetric,
   selectedGenero,
   selectedAno,
   selectedRaca,
@@ -1485,30 +1488,57 @@ export function MapView({
                   latitude: item.geometry.coordinates[1],
                   longitude: item.geometry.coordinates[0]
                 },
-                customIcon: (
-                  <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
-                    <div className="bg-purple-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[50px] justify-center">
-                      <UserCheck size={12} className="text-white" />
-                      <div className="flex flex-col items-center">
-                        <span className="text-xs font-bold">{totalResponses}</span>
-                        <span className="text-[10px] font-medium text-white">
-                          {item.properties.items?.[0]?.properties?.survey_year || new Date().getFullYear()}
-                        </span>
+                customIcon: (() => {
+                  if (item.isCluster) {
+                    return (
+                      <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                        <div className="bg-purple-500 text-white px-2 py-1 rounded-full shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[44px] justify-center">
+                          <UserCheck size={12} className="text-white" />
+                          <span className="text-xs font-bold">{item.properties.count}</span>
+                        </div>
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                          <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
+                        </div>
                       </div>
-                      {item.isCluster && item.properties.count > 1 && (
-                        <span className="text-[8px] bg-purple-500 text-white border border-purple-700 rounded-full px-1 ml-1">
-                          {item.properties.count}
-                        </span>
-                      )}
-                    </div>
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-                      <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
-                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-px">
-                        <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-purple-700"></div>
+                    );
+                  }
+
+                  const metric = selectedPerfilMetric || 'acidentes';
+                  const pointProps = item.properties.items?.[0]?.properties || {};
+                  const svgSize = 36;
+                  const svgStr = (() => {
+                    if (metric === 'acidentes') {
+                      return singleDonut(pointProps.accidents_percentage || 0, '#F97316', 13, svgSize);
+                    }
+                    if (metric === 'idades' && pointProps.age_ranges) {
+                      const items = Object.entries(pointProps.age_ranges as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 13, svgSize);
+                    }
+                    if (metric === 'motivacao' && pointProps.motivations) {
+                      const items = Object.entries(pointProps.motivations as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 13, svgSize);
+                    }
+                    if (metric === 'problemas' && pointProps.issues) {
+                      const items = Object.entries(pointProps.issues as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 13, svgSize);
+                    }
+                    const color = metric === 'problemas' ? '#EF4444' : metric === 'motivacao' ? '#8B5CF6' : metric === 'idades' ? '#3B82F6' : '#F97316';
+                    return singleDonut(50, color, 13, svgSize);
+                  })();
+
+                  return (
+                    <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                      <div
+                        className="rounded-full shadow-lg border-2 border-white flex items-center justify-center"
+                        style={{ width: svgSize, height: svgSize }}
+                        dangerouslySetInnerHTML={{ __html: svgStr }}
+                      />
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                        <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-gray-400"></div>
                       </div>
                     </div>
-                  </div>
-                ),
+                  );
+                })(),
                 onClick: () => {
                   if (item.isCluster) {
                     handleClusterClick(item);
@@ -1528,7 +1558,11 @@ export function MapView({
                         male_percentage: point?.male_percentage,
                         female_percentage: point?.female_percentage,
                         accidents_percentage: point?.accidents_percentage,
-                        top_motivation: point?.top_motivation
+                        top_motivation: point?.top_motivation,
+                        top_issue: point?.top_issue,
+                        motivations: point?.motivations,
+                        issues: point?.issues,
+                        age_ranges: point?.age_ranges,
                       }
                     };
                     

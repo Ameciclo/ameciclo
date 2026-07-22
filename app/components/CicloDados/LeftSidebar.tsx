@@ -45,6 +45,8 @@ interface LeftSidebarProps {
   selectedPerfil: string[];
   onPerfilToggle: (option: string) => void;
   onPerfilToggleAll?: (options: string[], selectAll: boolean) => void;
+  selectedPerfilMetric: string;
+  onPerfilMetricChange: (metric: string) => void;
   selectedGenero: string[];
   onGeneroChange: (value: string) => void;
   selectedAno: string[];
@@ -113,6 +115,8 @@ export function LeftSidebar({
   selectedPerfil,
   onPerfilToggle,
   onPerfilToggleAll,
+  selectedPerfilMetric,
+  onPerfilMetricChange,
   selectedGenero,
   onGeneroChange,
   selectedAno,
@@ -181,6 +185,12 @@ export function LeftSidebar({
       onSelectAll();
     }
   };
+
+  const allYears = ["2018", "2021", "2024"];
+  const selectedAnoSort = [...selectedAno].sort((a, b) => Number(a) - Number(b));
+  const selectedAnoStartIndex = selectedAno.length > 0 ? Math.max(0, allYears.indexOf(selectedAnoSort[0])) : 0;
+  const selectedAnoEndIndex = selectedAno.length > 0 ? Math.min(allYears.length - 1, allYears.indexOf(selectedAnoSort[selectedAnoSort.length - 1])) : 0;
+
   return (
     <aside 
       className={`bg-gray-50 border-r transition-all duration-300 shrink-0 overflow-hidden flex flex-col ${
@@ -269,13 +279,14 @@ export function LeftSidebar({
                 <div className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <button 
+                       <button 
                         onClick={() => {
-                          const allYears = ["2024", "2021", "2018"];
-                          const allSelected = selectedAno.length === allYears.length;
-                          if (allSelected) {
-                            allYears.forEach(year => onAnoChange(year));
+                          if (selectedAno.length === allYears.length) {
+                            allYears.forEach(year => { if (selectedAno.includes(year)) onAnoChange(year); });
                           } else {
+                            if (selectedPerfil.length === 0) {
+                              onPerfilToggleAll?.(perfilOptions, true);
+                            }
                             allYears.forEach(year => {
                               if (!selectedAno.includes(year)) onAnoChange(year);
                             });
@@ -312,38 +323,71 @@ export function LeftSidebar({
                   </div>
                 </div>
                 {!collapsedSections.has('perfil-pontos') && (
-                  <div className="px-2 pb-2 space-y-1">
-                    {["2024", "2021", "2018"].map((option) => (
-                      <div
-                        key={option}
-                        onClick={() => onAnoChange(option)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            onAnoChange(option);
-                          }
-                        }}
-                        className={`flex items-center gap-2 p-2 rounded transition-all duration-200 cursor-pointer ${
-                          selectedAno.includes(option)
-                            ? 'bg-teal-50 border border-teal-200 shadow-xs'
-                            : 'hover:bg-gray-50 border border-transparent'
-                        }`}
-                        role="button"
-                        tabIndex={0}
-                        title={selectedAno.includes(option) ? `Ocultar edição ${option}` : `Exibir edição ${option}`}
-                        aria-label={`${selectedAno.includes(option) ? 'Ocultar' : 'Exibir'} edição ${option}`}
-                        aria-pressed={selectedAno.includes(option)}
-                      >
-                        <div className="shrink-0">
-                          {selectedAno.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                        </div>
-                        <span className={`text-sm transition-colors ${selectedAno.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Edição {option}</span>
-                        <div className="ml-auto bg-purple-500 text-white px-2 py-0.5 rounded-sm shadow-xs border border-purple-700 flex items-center gap-1">
-                          <User className="w-2.5 h-2.5 text-white" aria-hidden="true" />
-                          <span className="text-[9px] font-medium">{option}</span>
-                        </div>
+                  <div className="px-2 pb-2 space-y-2">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">De: <span className="text-teal-700 font-medium">{selectedAnoSort[0] || '?'}</span></span>
+                        <span className="text-xs text-gray-500">Até: <span className="text-purple-700 font-medium">{selectedAnoSort[selectedAnoSort.length - 1] || '?'}</span></span>
                       </div>
-                    ))}
+                      <div className="relative h-8 flex items-center">
+                        <div className="absolute inset-x-0 h-2 top-1/2 -translate-y-1/2 rounded-full bg-gray-200" />
+                        <div className="absolute h-2 top-1/2 -translate-y-1/2 rounded-full"
+                          style={{
+                            left: `${((selectedAnoStartIndex) / (allYears.length - 1)) * 100}%`,
+                            right: `${100 - ((selectedAnoEndIndex + 1) / allYears.length) * 100}%`,
+                            background: 'linear-gradient(to right, #0d9488, #8B5CF6)',
+                          }}
+                        />
+                        {allYears.map((y, i) => (
+                          <div key={y} className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-400"
+                            style={{ left: `${(i / (allYears.length - 1)) * 100}%`, zIndex: 3 }} />
+                        ))}
+                        <input type="range" min={0} max={allYears.length - 1} step={1} value={selectedAnoStartIndex}
+                          onChange={(e) => {
+                            const i = Number(e.target.value);
+                            if (i <= selectedAnoEndIndex) {
+                              const selected = allYears.slice(i, selectedAnoEndIndex + 1);
+                              allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
+                            }
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-teal-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-teal-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 1 }} />
+                        <input type="range" min={0} max={allYears.length - 1} step={1} value={selectedAnoEndIndex}
+                          onChange={(e) => {
+                            const i = Number(e.target.value);
+                            if (i >= selectedAnoStartIndex) {
+                              const selected = allYears.slice(selectedAnoStartIndex, i + 1);
+                              allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
+                            }
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-purple-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 2 }} />
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t">
+                      <p className="text-[11px] text-gray-400 mb-1.5">Colorir por:</p>
+                      <div className="space-y-1">
+                        {[
+                          { key: 'acidentes', label: 'Sinistros', color: '#F97316' },
+                          { key: 'motivacao', label: 'Motivação', color: '#8B5CF6' },
+                          { key: 'problemas', label: 'Problemas', color: '#EF4444' },
+                          { key: 'idades', label: 'Idades', color: '#3B82F6' },
+                        ].map(m => (
+                          <div key={m.key} onClick={() => onPerfilMetricChange(m.key)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onPerfilMetricChange(m.key); }}}
+                            className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${selectedPerfilMetric === m.key ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
+                            role="button" tabIndex={0} aria-pressed={selectedPerfilMetric === m.key}>
+                            <div className="flex items-center gap-2">
+                              <div className="shrink-0">
+                                <PatternDisplay pattern="solid" color={m.color} name={m.label} />
+                              </div>
+                              <span className={`text-sm ${selectedPerfilMetric === m.key ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{m.label}</span>
+                              {selectedPerfilMetric === m.key && <div className="ml-auto w-2 h-2 rounded-full bg-teal-600" />}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -412,6 +456,10 @@ export function LeftSidebar({
                             background: 'linear-gradient(to right, #0d9488, #7C3AED)',
                           }}
                         />
+                        {[2007, 2010, 2013, 2016, 2019, 2022, 2025].map(y => (
+                          <div key={y} className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-400"
+                            style={{ left: `${((y - 2007) / (2025 - 2007)) * 100}%`, zIndex: 3 }} />
+                        ))}
                         <input
                           type="range"
                           min="2007"

@@ -76,6 +76,9 @@ export function usePerfilCiclistas() {
               accidents_percentage: location.statistics.accidents_percentage,
               top_motivation: location.statistics.top_motivation,
               top_issue: location.statistics.top_issue,
+              motivations: location.statistics.motivations,
+              issues: location.statistics.issues,
+              age_ranges: location.statistics.age_ranges,
               type: 'perfil'
             }
           }))

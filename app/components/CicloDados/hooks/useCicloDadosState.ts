@@ -86,6 +86,7 @@ export function useCicloDadosState(
   const [selectedSinistro, setSelectedSinistro] = useState<string[]>(defaultSinistro);
   const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(defaultEstacionamento);
   const [selectedPerfil, setSelectedPerfil] = useState<string[]>(defaultPerfil);
+  const [selectedPerfilMetric, setSelectedPerfilMetric] = useState<string>('acidentes');
   const [selectedGenero, setSelectedGenero] = useState<string[]>(["2024", "2021", "2018"]);
   const [selectedAno, setSelectedAno] = useState<string[]>(["2024", "2021", "2018"]);
   const [selectedArea, setSelectedArea] = useState<string>("Todas");
@@ -417,11 +418,16 @@ export function useCicloDadosState(
   };
 
   const togglePerfilOption = (optionName: string) => {
-    setSelectedPerfil(prev => 
-      prev.includes(optionName) 
-        ? prev.filter(item => item !== optionName)
-        : [...prev, optionName]
-    );
+    setSelectedPerfil(prev => {
+      const isRemoving = prev.includes(optionName);
+      if (isRemoving) {
+        setSelectedAno([]);
+        return prev.filter(item => item !== optionName);
+      } else {
+        setSelectedAno(cur => cur.length === 0 ? ["2024", "2021", "2018"] : cur);
+        return [...prev, optionName];
+      }
+    });
   };
 
   const toggleAllPerfilOptions = (options: string[], selectAll: boolean) => {
@@ -458,6 +464,7 @@ export function useCicloDadosState(
     setSelectedSinistro([]);
     setSelectedEstacionamento([]);
     setSelectedPerfil([]);
+    setSelectedPerfilMetric('acidentes');
     setSelectedGenero([]);
     setSelectedAno([]);
     setSelectedArea("Todas");
@@ -550,6 +557,8 @@ export function useCicloDadosState(
     selectedPerfil,
     togglePerfilOption,
     toggleAllPerfilOptions,
+    selectedPerfilMetric,
+    setSelectedPerfilMetric,
     selectedGenero,
     setSelectedGenero,
     toggleGeneroOption,

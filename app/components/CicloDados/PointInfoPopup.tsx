@@ -97,6 +97,7 @@ interface PointData {
 
 export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', extraData }: PointInfoPopupProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [perfilMetric, setPerfilMetric] = useState<'acidentes' | 'idade' | 'motivacao' | 'problemas'>('acidentes');
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
   const [expandedEditions, setExpandedEditions] = useState<Set<string>>(new Set());
   const [expandedCounts, setExpandedCounts] = useState<Set<string>>(new Set());
@@ -1014,6 +1015,168 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     <p className="text-3xl font-bold text-blue-600">{finalData.cyclist_profile.total_profiles}</p>
                     <p className="text-sm text-blue-600">ciclistas entrevistados na região</p>
                   </div>
+
+                  {extraData?.selectedProfileData && (
+                    <div className="bg-white border rounded-lg p-4">
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <BarChart3 size={16} />
+                        Indicadores
+                      </h4>
+                      <div className="flex gap-1 mb-4 flex-wrap">
+                        {[
+                          { key: 'acidentes' as const, label: 'Acidentes' },
+                          { key: 'idade' as const, label: 'Idade' },
+                          { key: 'motivacao' as const, label: 'Motivação' },
+                          { key: 'problemas' as const, label: 'Problemas' },
+                        ].map(m => (
+                          <button
+                            key={m.key}
+                            onClick={() => setPerfilMetric(m.key)}
+                            className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
+                              perfilMetric === m.key
+                                ? 'bg-teal-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            {m.label}
+                          </button>
+                        ))}
+                      </div>
+                      {perfilMetric === 'acidentes' && (
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-gray-600">Sinistros</span>
+                            <span className="font-medium">{extraData.selectedProfileData.accidents_percentage}%</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-3">
+                            <div
+                              className="h-3 rounded-full bg-orange-500 transition-all"
+                              style={{ width: `${Math.min(extraData.selectedProfileData.accidents_percentage || 0, 100)}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {extraData.selectedProfileData.accidents_percentage}% dos ciclistas sofreram acidente
+                          </p>
+                        </div>
+                      )}
+                      {perfilMetric === 'idade' && (
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-gray-600">Idade média</span>
+                            <span className="font-medium">{extraData.selectedProfileData.avg_age} anos</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-3">
+                            <div
+                              className="h-3 rounded-full bg-blue-500 transition-all"
+                              style={{ width: `${Math.min(((extraData.selectedProfileData.avg_age || 0) / 80) * 100, 100)}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Média de {extraData.selectedProfileData.avg_age} anos entre os entrevistados
+                          </p>
+                        </div>
+                      )}
+                      {perfilMetric === 'motivacao' && (
+                        <div>
+                          {extraData.selectedProfileData.motivations ? (
+                            <div className="space-y-2">
+                              <p className="text-xs text-gray-500">Motivações para usar bicicleta</p>
+                              {Object.entries(extraData.selectedProfileData.motivations as Record<string, number>)
+                                .sort(([,a],[,b]) => b - a)
+                                .map(([label, pct]) => (
+                                  <div key={label}>
+                                    <div className="flex justify-between text-xs mb-0.5">
+                                      <span className="text-gray-600">{label}</span>
+                                      <span className="font-medium">{pct}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                                      <div className="h-2.5 rounded-full bg-teal-500" style={{ width: `${Math.min(pct, 100)}%` }} />
+                                    </div>
+                                  </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-600">Principal motivação</span>
+                                <span className="font-medium text-teal-700">{extraData.selectedProfileData.top_motivation || 'N/A'}</span>
+                              </div>
+                              <div className="w-full bg-gray-100 rounded-full h-3">
+                                <div className="h-3 rounded-full bg-teal-500 w-full" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {perfilMetric === 'problemas' && (
+                        <div>
+                          {extraData.selectedProfileData.issues ? (
+                            <div className="space-y-2">
+                              <p className="text-xs text-gray-500">Problemas relatados pelos ciclistas</p>
+                              {Object.entries(extraData.selectedProfileData.issues as Record<string, number>)
+                                .sort(([,a],[,b]) => b - a)
+                                .map(([label, pct]) => (
+                                  <div key={label}>
+                                    <div className="flex justify-between text-xs mb-0.5">
+                                      <span className="text-gray-600">{label}</span>
+                                      <span className="font-medium">{pct}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                                      <div className="h-2.5 rounded-full bg-red-500" style={{ width: `${Math.min(pct, 100)}%` }} />
+                                    </div>
+                                  </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-600">Principal problema</span>
+                                <span className="font-medium text-red-700">{extraData.selectedProfileData.top_issue || 'N/A'}</span>
+                              </div>
+                              <div className="w-full bg-gray-100 rounded-full h-3">
+                                <div className={`h-3 rounded-full ${extraData.selectedProfileData.top_issue && extraData.selectedProfileData.top_issue !== 'N/A' ? 'bg-red-500' : 'bg-gray-300'} w-full`} />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {perfilMetric === 'idades' && (
+                        <div>
+                          {extraData.selectedProfileData.age_ranges ? (
+                            <div className="space-y-2">
+                              <p className="text-xs text-gray-500">Faixa etária dos ciclistas</p>
+                              {Object.entries(extraData.selectedProfileData.age_ranges as Record<string, number>)
+                                .sort(([a],[b]) => {
+                                  const order = ['18-25','26-35','36-45','46-60','60+'];
+                                  return order.indexOf(a) - order.indexOf(b);
+                                })
+                                .map(([label, pct]) => (
+                                  <div key={label}>
+                                    <div className="flex justify-between text-xs mb-0.5">
+                                      <span className="text-gray-600">{label} anos</span>
+                                      <span className="font-medium">{pct}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                                      <div className="h-2.5 rounded-full bg-blue-500" style={{ width: `${Math.min(pct, 100)}%` }} />
+                                    </div>
+                                  </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-600">Idade média</span>
+                                <span className="font-medium">{extraData.selectedProfileData.avg_age} anos</span>
+                              </div>
+                              <div className="w-full bg-gray-100 rounded-full h-3">
+                                <div className="h-3 rounded-full bg-blue-500" style={{ width: `${Math.min(((extraData.selectedProfileData.avg_age || 0) / 80) * 100, 100)}%` }} />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {finalData.cyclist_profile.by_edition
                     ?.sort((a, b) => parseInt(b.edition) - parseInt(a.edition))
