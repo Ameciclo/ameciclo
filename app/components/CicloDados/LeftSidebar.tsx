@@ -344,21 +344,21 @@ export function LeftSidebar({
                         ))}
                         <input type="range" min={0} max={allYears.length - 1} step={1} value={selectedAnoStartIndex}
                           onChange={(e) => {
-                            const i = Number(e.target.value);
-                            if (i <= selectedAnoEndIndex) {
-                              const selected = allYears.slice(i, selectedAnoEndIndex + 1);
-                              allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
-                            }
+                            const newStart = Number(e.target.value);
+                            const s = Math.min(newStart, selectedAnoEndIndex);
+                            const end = Math.max(newStart, selectedAnoEndIndex);
+                            const selected = allYears.slice(s, end + 1);
+                            allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
                           }}
                           className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-teal-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-teal-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
                           style={{ zIndex: 1 }} />
                         <input type="range" min={0} max={allYears.length - 1} step={1} value={selectedAnoEndIndex}
                           onChange={(e) => {
-                            const i = Number(e.target.value);
-                            if (i >= selectedAnoStartIndex) {
-                              const selected = allYears.slice(selectedAnoStartIndex, i + 1);
-                              allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
-                            }
+                            const newEnd = Number(e.target.value);
+                            const s = Math.min(selectedAnoStartIndex, newEnd);
+                            const end = Math.max(selectedAnoStartIndex, newEnd);
+                            const selected = allYears.slice(s, end + 1);
+                            allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
                           }}
                           className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-purple-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
                           style={{ zIndex: 2 }} />
@@ -387,6 +387,42 @@ export function LeftSidebar({
                           </div>
                         ))}
                       </div>
+                      {(() => {
+                        const colorLabels: Record<string, Array<{ color: string; label: string }>> = {
+                          acidentes: [{ color: '#F97316', label: 'Sinistro' }, { color: '#d1d5db', label: 'Sem sinistro' }],
+                          motivacao: [
+                            { color: '#F97316', label: 'Rápido/prático' },
+                            { color: '#8B5CF6', label: 'Mais barato' },
+                            { color: '#3B82F6', label: 'Mais saudável' },
+                            { color: '#10B981', label: 'Ambiental' },
+                          ],
+                          problemas: [
+                            { color: '#EF4444', label: 'Segurança trânsito' },
+                            { color: '#F97316', label: 'Infraestrutura' },
+                            { color: '#EAB308', label: 'Respeito motoristas' },
+                            { color: '#8B5CF6', label: 'Segurança pública' },
+                          ],
+                          idades: [
+                            { color: '#3B82F6', label: '18-25' },
+                            { color: '#60A5FA', label: '26-35' },
+                            { color: '#93C5FD', label: '36-45' },
+                            { color: '#BFDBFE', label: '46-60' },
+                            { color: '#DBEAFE', label: '60+' },
+                          ],
+                        };
+                        const items = colorLabels[selectedPerfilMetric] || [];
+                        if (items.length === 0) return null;
+                        return (
+                          <div className="flex gap-1 flex-wrap pt-1">
+                            {items.map(c => (
+                              <span key={c.label} className="text-sm text-gray-600 flex items-center gap-1">
+                                <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: c.color }} />
+                                {c.label}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 )}
@@ -467,7 +503,10 @@ export function LeftSidebar({
                           value={infracaoStartYear}
                           onChange={(e) => {
                             const v = e.target.value;
-                            if (Number(v) <= Number(infracaoEndYear)) onInfracaoStartYearChange?.(v);
+                            const s = Math.min(Number(v), Number(infracaoEndYear));
+                            const end = Math.max(Number(v), Number(infracaoEndYear));
+                            onInfracaoStartYearChange?.(String(s));
+                            if (String(end) !== infracaoEndYear) onInfracaoEndYearChange?.(String(end));
                           }}
                           className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-teal-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-teal-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
                           style={{ zIndex: 1 }}
@@ -479,7 +518,10 @@ export function LeftSidebar({
                           value={infracaoEndYear}
                           onChange={(e) => {
                             const v = e.target.value;
-                            if (Number(v) >= Number(infracaoStartYear)) onInfracaoEndYearChange?.(v);
+                            const s = Math.min(Number(infracaoStartYear), Number(v));
+                            const end = Math.max(Number(infracaoStartYear), Number(v));
+                            onInfracaoEndYearChange?.(String(end));
+                            if (String(s) !== infracaoStartYear) onInfracaoStartYearChange?.(String(s));
                           }}
                           className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-purple-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
                           style={{ zIndex: 2 }}

@@ -1505,25 +1505,34 @@ export function MapView({
 
                   const metric = selectedPerfilMetric || 'acidentes';
                   const pointProps = item.properties.items?.[0]?.properties || {};
-                  const svgSize = 36;
+                  const svgSize = 72;
                   const svgStr = (() => {
                     if (metric === 'acidentes') {
-                      return singleDonut(pointProps.accidents_percentage || 0, '#F97316', 13, svgSize);
+                      const pct = pointProps.accidents_percentage || 0;
+                      return pieMarker([
+                        { label: 'Sinistro', value: pct },
+                        { label: 'Sem sinistro', value: 100 - pct },
+                      ], 26, svgSize, ['#F97316', '#d1d5db']);
                     }
                     if (metric === 'idades' && pointProps.age_ranges) {
-                      const items = Object.entries(pointProps.age_ranges as Record<string, number>).map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 13, svgSize);
+                      const items = Object.entries(pointProps.age_ranges as Record<string, number>)
+                        .sort(([a], [b]) => {
+                          const order = ['18-25','26-35','36-45','46-60','60+'];
+                          return order.indexOf(a) - order.indexOf(b);
+                        })
+                        .map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE']);
                     }
                     if (metric === 'motivacao' && pointProps.motivations) {
                       const items = Object.entries(pointProps.motivations as Record<string, number>).map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 13, svgSize);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F97316', '#8B5CF6', '#3B82F6', '#10B981', '#6B7280']);
                     }
                     if (metric === 'problemas' && pointProps.issues) {
                       const items = Object.entries(pointProps.issues as Record<string, number>).map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 13, svgSize);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#EF4444', '#F97316', '#EAB308', '#8B5CF6', '#6B7280', '#9CA3AF']);
                     }
                     const color = metric === 'problemas' ? '#EF4444' : metric === 'motivacao' ? '#8B5CF6' : metric === 'idades' ? '#3B82F6' : '#F97316';
-                    return singleDonut(50, color, 13, svgSize);
+                    return singleDonut(50, color, 26, svgSize);
                   })();
 
                   return (

@@ -22,8 +22,9 @@ const COLOR_MAP: Record<string, string> = {
 
   "Falta de segurança no trânsito": "#EF4444",
   "Falta de infraestrutura adequada (ciclovias, bicicletários, etc)": "#F97316",
-  "Falta de segurança pública": "#EAB308",
-  "N/A": "#9CA3AF",
+  "Falta de respeito dos condutores dos motorizados": "#EAB308",
+  "Falta de segurança pública": "#8B5CF6",
+  "Sem resposta": "#9CA3AF",
 };
 
 const FALLBACK_COLORS = [
@@ -39,6 +40,7 @@ export function pieMarker(
   items: Array<{ label: string; value: number }>,
   radius = 12,
   size = 32,
+  colors?: string[],
 ) {
   const total = items.reduce((a, b) => a + b.value, 0);
   if (total === 0) return '';
@@ -47,20 +49,31 @@ export function pieMarker(
   const cy = size / 2;
   let angle = 0;
 
-  const paths = items
+  const sorted = [...items].sort((a, b) => b.value - a.value);
+  const topPct = Math.round((sorted[0].value / total) * 100);
+
+  const paths = sorted
     .filter((item) => item.value > 0)
     .map((item, i) => {
       const sliceAngle = (item.value / total) * 360;
       const path = describeArc(cx, cy, radius, angle, angle + sliceAngle);
       angle += sliceAngle;
-      return `<path d="${path}" fill="${getColor(item.label, i)}" />`;
+      const color = colors ? colors[i % colors.length] : getColor(item.label, i);
+      return `<path d="${path}" fill="${color}" />`;
     })
     .join('');
+
+  const sw = Math.round(size * 0.025);
+  const fs = Math.round(size * 0.16);
+  const bgR = Math.round(radius * 0.4);
 
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img">
       ${paths}
-      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="white" stroke-width="1.5" />
+      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="white" stroke-width="${sw}" />
+      <circle cx="${cx}" cy="${cy}" r="${bgR}" fill="white" />
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+        font-size="${fs}" font-family="sans-serif" font-weight="bold" fill="#1f2937">${topPct}%</text>
     </svg>`;
 }
 
@@ -70,12 +83,17 @@ export function singleDonut(value: number, color: string, radius = 12, size = 32
   const offset = circumference * (1 - pct / 100);
   const cx = size / 2;
   const cy = size / 2;
+  const sw = Math.max(3, Math.round(size * 0.07));
+  const fs = Math.round(size * 0.16);
+  const bgR = Math.round(radius * 0.4);
 
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${pct}%">
-      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="white" stroke="#d1d5db" stroke-width="5" />
-      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round"
+      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="white" stroke="#d1d5db" stroke-width="${sw}" />
+      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"
         stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" transform="rotate(-90 ${cx} ${cy})" />
-      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="8" font-family="sans-serif" fill="#374151">${pct}%</text>
+      <circle cx="${cx}" cy="${cy}" r="${bgR}" fill="white" />
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+        font-size="${fs}" font-family="sans-serif" font-weight="bold" fill="#374151">${pct}%</text>
     </svg>`;
 }
