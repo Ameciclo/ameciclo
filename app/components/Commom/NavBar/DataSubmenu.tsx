@@ -1,14 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 
-const dataSubPages = [
+const dataSubPages: Array<{ name: string; url: string; icon?: string; comingSoon?: boolean }> = [
   { name: "Contagens", url: "/dados/contagens", icon: "/icons/dados/contagem.svg" },
   { name: "Documentos", url: "/dados/documentos", icon: "/icons/dados/relatorio.svg" },
   { name: "Perfil", url: "/dados/perfil", icon: "/icons/dados/perfil.svg" },
    { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria", icon: "/icons/dados/mapa.svg" },
-  { name: "Orçamento PE", url: "/dados/orcamento-pernambuco", icon: "/icons/home/logo2.1d0f07c6.png", comingSoon: true },
-  { name: "Orçamento Recife", url: "/dados/orcamento-recife", icon: "/icons/home/header-logo.4f44929c.png", comingSoon: true },
-
+  // { name: "Orçamento PE", url: "/dados/orcamento-pernambuco", icon: "/icons/home/logo2.1d0f07c6.png", comingSoon: true },
+  // { name: "Orçamento Recife", url: "/dados/orcamento-recife", icon: "/icons/home/header-logo.4f44929c.png", comingSoon: true },
+  { name: "Infrações", url: "/dados/infracoes", icon: "/icons/dados/research.svg" },
   { name: "Emergências", url: "/dados/chamados-emergencia", icon: "/icons/home/chamados_sinistros.svg" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras", icon: "/icons/home/vias-inseguras.svg" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais", icon: "/icons/home/sinistrosfatais.png" },
