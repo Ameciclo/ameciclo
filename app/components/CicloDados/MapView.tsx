@@ -9,6 +9,7 @@ import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
 import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
+import { useContagensAmeciclo } from './hooks/useContagensAmeciclo';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
 import { useInfracoes } from './hooks/useInfracoes';
@@ -198,6 +199,7 @@ export function MapView({
   const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
   const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
+  const { data: amecicloContagem, error: amecicloContagemError } = useContagensAmeciclo();
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
   const { data: infracoesData, error: infracoesError } = useInfracoes(isClient ? viewportBounds : undefined, selectedInfracao, infracaoStartYear, infracaoEndYear);
@@ -267,8 +269,8 @@ export function MapView({
 
     // Contagem loading/rendered state
     if (selectedContagem.length > 0) {
-      const hasContagemData = (contagemData?.features?.length > 0) || (pontosContagem?.features?.length > 0);
-      const hasContagemError = pontosContagemError;
+      const hasContagemData = (contagemData?.features?.length > 0) || (pontosContagem?.features?.length > 0) || (amecicloContagem?.features?.length > 0);
+      const hasContagemError = pontosContagemError || amecicloContagemError;
       
       if (hasContagemError) {
         newRenderedLayers.add('contagem');
@@ -305,8 +307,8 @@ export function MapView({
     setRenderedLayers(newRenderedLayers);
   }, [
     selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil, selectedInfracao,
-    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas, infracoesData,
-    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError
+    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, amecicloContagem, contagemData, perfilCiclistas, infracoesData,
+    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, amecicloContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError
   ]);
   
 
@@ -317,6 +319,7 @@ export function MapView({
   if (bikePEError) dataErrors.push({ type: 'bikepe', message: bikePEError });
   if (infraError) dataErrors.push({ type: 'infraestrutura', message: infraError });
   if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
+  if (amecicloContagemError) dataErrors.push({ type: 'pontos-contagem', message: amecicloContagemError });
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
   if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
   if (perfilError) dataErrors.push({ type: 'perfil', message: perfilError });
@@ -1158,6 +1161,90 @@ export function MapView({
                       
                       // Add circle to show coverage area
                       setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `prefeitura-circle-${Date.now()}` }]);
+                    }
+                  }
+                };
+              }) : []),
+
+          // Contagens da Ameciclo via client-side (substitui SSR quebrado)
+          ...(isClient && selectedContagem.includes('Contagem da Ameciclo') && amecicloContagem?.features && Array.isArray(amecicloContagem.features) ? 
+            createClusters(
+              amecicloContagem.features, 
+              mapViewState.zoom, 
+              mapViewState
+            )
+              .map((item: any) => {
+                const totalContagens = item.isCluster ? 
+                  item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_cyclists || f.properties.count || 0), 0) :
+                  (item.properties.items?.[0]?.properties?.total_cyclists || item.properties.items?.[0]?.properties?.count || 0);
+                
+                const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
+                
+                return {
+                  key: `ameciclo-contagem-${item.id}`,
+                  latitude: item.geometry.coordinates[1],
+                  longitude: item.geometry.coordinates[0],
+                  type: 'Contagem',
+                  isCluster: item.isCluster,
+                  popup: {
+                    name: item.isCluster ? `${item.properties.count} Pontos de Contagem` : 
+                          (item.properties.items?.[0]?.properties?.name || 'Ponto de Contagem'),
+                    total: totalContagens,
+                    date: item.properties.items?.[0]?.properties?.last_count_date,
+                    city: item.properties.items?.[0]?.properties?.city,
+                    created_at: item.properties.items?.[0]?.properties?.last_count_date,
+                    latitude: item.geometry.coordinates[1],
+                    longitude: item.geometry.coordinates[0]
+                  },
+                  customIcon: (
+                    <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                      <div className="bg-green-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-green-700 flex items-center gap-1 min-w-[50px] justify-center">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <path d="M3 3v18h18"/>
+                          <path d="M18 17V9"/>
+                          <path d="M13 17V5"/>
+                          <path d="M8 17v-3"/>
+                        </svg>
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs font-bold">{totalContagens}</span>
+                          <span className="text-[8px] text-white">
+                            {item.properties.items?.[0]?.properties?.last_count_date?.split('/')[1] || new Date().getFullYear()}
+                          </span>
+                        </div>
+                        {item.isCluster && item.properties.count > 1 && (
+
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] px-1 rounded-full font-bold border border-red-600">
+                            +{item.properties.count - 1}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ),
+                  color: '#22C55E',
+                  size: 20,
+                  radius: 30,
+                  onClick: () => {
+                    if (!item.isCluster) {
+                      const point = item.properties.items[0];
+                      const extraData = {
+                        mulheres: point.properties.mulheres,
+                        carona: point.properties.carona,
+                        servico: point.properties.servico,
+                        cargueira: point.properties.cargueira,
+                        contramao: point.properties.contramao,
+                        calcada: point.properties.calcada,
+                        criancas: point.properties.criancas,
+                        capacete: point.properties.capacete,
+                        motor: point.properties.motor,
+                        chuva: point.properties.chuva,
+                        other_behaviors: point.properties.other_behaviors,
+                      };
+                      setShowPointInfo({
+                        lat: item.geometry.coordinates[1],
+                        lng: item.geometry.coordinates[0],
+                        initialTab: 'counts',
+                        extraData
+                      });
                     }
                   }
                 };
