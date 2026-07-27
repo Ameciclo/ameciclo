@@ -454,6 +454,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                   (finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0) ||
                   (finalData.shared_bike && finalData.shared_bike.has_stations) ||
                   (finalData.cycling_infra && (finalData.cycling_infra.existing?.length > 0 || finalData.cycling_infra.planned_pdc?.length > 0)) ||
+                  (finalData.traffic_tickets && finalData.traffic_tickets.total_violations > 0) ||
                   finalData.location;
                 
                 if (!hasData) {
@@ -535,6 +536,19 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                             {(finalData.cycling_infra.existing?.length || 0) + (finalData.cycling_infra.planned_pdc?.length || 0)}
                           </p>
                           <p className="text-sm text-gray-600">vias próximas</p>
+                        </div>
+                      )}
+
+                      {finalData.traffic_tickets && finalData.traffic_tickets.total_violations > 0 && (
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-red-50">
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle size={20} className="text-red-600" />
+                            <h4 className="font-semibold text-red-800">Infrações</h4>
+                          </div>
+                          <p className="text-2xl font-bold text-red-700">
+                            {finalData.traffic_tickets.total_violations.toLocaleString('pt-BR')}
+                          </p>
+                          <p className="text-sm text-red-600">infrações totais</p>
                         </div>
                       )}
                     </div>
