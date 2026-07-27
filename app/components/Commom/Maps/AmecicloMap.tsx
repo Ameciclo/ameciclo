@@ -700,31 +700,20 @@ export const AmecicloMap = ({
                             if (isNaN(hoverPoint.lat) || isNaN(hoverPoint.lng)) return null;
                             const metersPerPixel = 156543.03392 * Math.cos(hoverPoint.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = radius / metersPerPixel;
-                            const circleSize = radiusInPixels * 2;
-                            
+
                             return (
-                                <Marker
-                                    anchor="center"
-                                    latitude={hoverPoint.lat}
-                                    longitude={hoverPoint.lng}
-                                >
-                                    <div 
-                                        style={{
-                                            width: `${circleSize}px`,
-                                            height: `${circleSize}px`,
-                                            borderRadius: '50%',
-                                            background: `repeating-linear-gradient(
-                                                45deg,
-                                                rgba(239, 68, 68, 0.1),
-                                                rgba(239, 68, 68, 0.1) 4px,
-                                                transparent 4px,
-                                                transparent 8px
-                                            )`,
-                                            transform: 'translate(-50%, -50%)',
-                                            pointerEvents: 'none'
-                                        }}
-                                    />
-                                </Marker>
+                                <Source id="hover-circle-source" type="geojson" data={{
+                                    type: 'Feature',
+                                    geometry: { type: 'Point', coordinates: [hoverPoint.lng, hoverPoint.lat] },
+                                    properties: {}
+                                }}>
+                                    <Layer id="hover-circle-layer" type="circle" paint={{
+                                        'circle-radius': radiusInPixels,
+                                        'circle-color': 'rgba(239, 68, 68, 0.15)',
+                                        'circle-stroke-color': 'rgba(239, 68, 68, 0.5)',
+                                        'circle-stroke-width': 2,
+                                    }} />
+                                </Source>
                             );
                         })()}
                         {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
