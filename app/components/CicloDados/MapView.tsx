@@ -625,13 +625,15 @@ export function MapView({
           // Add circle to show coverage area
           setSelectedCircles([{ lat: point.latitude, lng: point.longitude, radius: 200, id: `point-circle-${Date.now()}` }]);
           
-          // Update URL
-          const url = new URL(window.location.href);
-          url.searchParams.set('lat', point.latitude.toFixed(6));
-          url.searchParams.set('lon', point.longitude.toFixed(6));
-          url.searchParams.set('zoom', mapViewState.zoom.toString());
-          window.history.pushState({}, '', url.toString());
-        }}
+           // Update URL
+           const url = new URL(window.location.href);
+           url.searchParams.set('lat', point.latitude.toFixed(6));
+           url.searchParams.set('lon', point.longitude.toFixed(6));
+           url.searchParams.set('zoom', mapViewState.zoom.toString());
+           window.history.pushState({}, '', url.toString());
+           
+           onPointClick?.(point);
+         }}
           layerData={(() => {
             // Quando há filtro de rua selecionada, mostrar todos os dados (não filtrar por área)
             const filterByStreetArea = (features: any[]) => {

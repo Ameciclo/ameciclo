@@ -8,6 +8,7 @@ import { useProcessedData } from '~/hooks/useProcessedData';
 import {
   LeftSidebar,
   MapView,
+  RightSidebar,
   useCicloDadosData,
   useCicloDadosState,
   generateInfraData,
@@ -285,6 +286,12 @@ function CicloDados() {
                 infracaoSeverityMedium={infracaoSeverityMedium}
                 infracaoSeverityLow={infracaoSeverityLow}
                 onInfracoesDataChange={setInfracaoThresholds}
+              />
+              <RightSidebar
+                isOpen={rightSidebarOpen}
+                onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
+                viewMode={viewMode || 'map'}
+                mapSelection={mapSelection || undefined}
               />
             </main>
           </div>

@@ -376,6 +376,7 @@ export const AmecicloMap = ({
     selectedPoints = [],
     hoverPoint,
     onMouseMove,
+    onMouseDown,
     initialViewState,
     onViewStateChange,
     onPointClick,
@@ -403,6 +404,7 @@ export const AmecicloMap = ({
     selectedPoints?: Array<{ lat: number; lng: number; id: string; customIcon?: React.ReactNode }>;
     hoverPoint?: { lat: number; lng: number } | null;
     onMouseMove?: (event: any) => void;
+    onMouseDown?: (event: any) => void;
     initialViewState?: { latitude: number; longitude: number; zoom: number };
     onViewStateChange?: (viewState: any) => void;
     onPointClick?: (point: any) => void;
@@ -621,7 +623,7 @@ export const AmecicloMap = ({
                             setSelectedMarker(null);
                             if (onMapClick) onMapClick(e);
                         }}
-                        onMouseDown={onMapClick}
+                        onMouseDown={onMouseDown}
                         onMouseMove={onMouseMove}
                     >
 
@@ -652,14 +654,9 @@ export const AmecicloMap = ({
                                         onClick={(e) => {
                                             e?.originalEvent?.stopPropagation?.();
                                             
-                                            // Se o ponto tem seu próprio onClick, usar ele
                                             if (point.onClick) {
                                                 point.onClick();
-                                                return;
-                                            }
-                                            
-                                            // Don't show popup for clusters
-                                            if (!point.isCluster && (point.type === 'bicicletario' || point.type === 'bikepe')) {
+                                            } else if (!point.isCluster && (point.type === 'bicicletario' || point.type === 'bikepe')) {
                                                 setSelectedMarker(point);
                                             }
                                             
