@@ -335,7 +335,7 @@ export function LeftSidebar({
                           style={{
                             left: `${((selectedAnoStartIndex) / (allYears.length - 1)) * 100}%`,
                             right: `${100 - ((selectedAnoEndIndex + 1) / allYears.length) * 100}%`,
-                            background: 'linear-gradient(to right, #0d9488, #8B5CF6)',
+                            background: 'linear-gradient(to right, #0d9488, #f97316 50%, #8B5CF6)',
                           }}
                         />
                         {allYears.map((y, i) => (

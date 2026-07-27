@@ -21,7 +21,7 @@ import { pieMarker, singleDonut } from './utils/pieMarker';
 
 const YEAR_COLORS: Record<string, string> = {
   "2018": "#0d9488",
-  "2021": "#7c3aed",
+  "2021": "#f97316",
   "2024": "#8B5CF6",
 };
 
