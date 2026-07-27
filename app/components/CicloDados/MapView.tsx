@@ -108,7 +108,6 @@ export function MapView({
 }: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
-  const [selectedCircles, setSelectedCircles] = useState<Array<{ lat: number; lng: number; radius: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
   const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
@@ -168,7 +167,6 @@ export function MapView({
     if (autoOpenPopup && !showPointInfo) {
       setShowPointInfo({ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng });
       setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
-      setSelectedCircles([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, radius: 50, id: 'url-circle' }]);
       onPopupOpened?.();
     }
   }, [autoOpenPopup, showPointInfo, onPopupOpened]);
@@ -427,7 +425,6 @@ export function MapView({
     };
     
     setSelectedPoints([newPoint]);
-    setSelectedCircles([{ lat, lng, radius: 200, id: `circle-${Date.now()}` }]);
     setShowPointInfo({ lat, lng });
     
     // Update URL
@@ -548,11 +545,19 @@ export function MapView({
                       setSearchTerm('');
                       setShowSuggestions(false);
 
+                      console.log('🔍 CLICOU:', { id: street.id, name: street.name });
+
                       let bounds = street.bounds;
                       let coords = street.coordinates;
 
                       if (!bounds || !coords) {
                         const details = await getStreetDetails(street.id);
+                        console.log('📐 DETALHES:', {
+                          id: street.id,
+                          detailName: details?.name,
+                          featureCount: details?.geometry?.features?.length,
+                          bounds: bounds ? JSON.stringify(bounds) : 'undefined',
+                        });
                         if (details) {
                           bounds = computeBoundsFromGeometry(details.geometry);
                           if (bounds) {
@@ -565,6 +570,7 @@ export function MapView({
                       }
 
                       if (bounds) {
+                        console.log('🗺️ ZOOM:', { bounds, coords, streetId: street.id, streetName: street.name });
                         onZoomToStreet?.(bounds, coords ?? null, street.id, street.name);
                       }
                     }}
@@ -585,7 +591,6 @@ export function MapView({
 
       <div className="flex-1 md:h-full">
         <AmecicloMap
-          selectedCircles={selectedCircles}
           hoverPoint={hoverPoint}
           radius={400}
           onPointClick={(point) => {
