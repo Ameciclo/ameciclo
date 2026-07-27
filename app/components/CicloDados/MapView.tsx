@@ -3,7 +3,7 @@ import { useRouter } from "@tanstack/react-router";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 
 import { MapPin, Bike, UserCheck, Search, AlertTriangle, BarChart3 } from 'lucide-react';
-import { searchStreets, type StreetMatch } from '~/services/streets.service';
+import { searchStreets, getStreetDetails, computeBoundsFromGeometry, type StreetMatch } from '~/services/streets.service';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
@@ -538,11 +538,28 @@ export function MapView({
                 streetSuggestions.map((street) => (
                   <button
                     key={street.id}
-                    onClick={() => {
+                    onClick={async () => {
                       setSearchTerm('');
                       setShowSuggestions(false);
-                      if (street.coordinates && street.bounds) {
-                        onZoomToStreet?.(street.bounds, street.coordinates, street.id, street.name);
+
+                      let bounds = street.bounds;
+                      let coords = street.coordinates;
+
+                      if (!bounds || !coords) {
+                        const details = await getStreetDetails(street.id);
+                        if (details) {
+                          bounds = computeBoundsFromGeometry(details.geometry);
+                          if (bounds) {
+                            coords = {
+                              lat: (bounds.north + bounds.south) / 2,
+                              lng: (bounds.east + bounds.west) / 2,
+                            };
+                          }
+                        }
+                      }
+
+                      if (bounds) {
+                        onZoomToStreet?.(bounds, coords ?? null, street.id, street.name);
                       }
                     }}
                     className="w-full text-left px-3 py-2 hover:bg-gray-100 text-gray-700 text-xs border-b border-gray-100 last:border-b-0"
