@@ -58,7 +58,7 @@ interface MapViewProps {
   streetData?: any;
   selectedStreetFilter?: string | null;
   perfilCiclistasData?: any;
-  autoOpenPopup?: {lat: number, lng: number} | null;
+  autoOpenPopup?: {lat: number, lng: number, streetId?: string} | null;
   onPopupOpened?: () => void;
   onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => void;
   infracaoStartYear?: string;
@@ -109,7 +109,7 @@ export function MapView({
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
-  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any } | null>(null);
+  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any; streetId?: string } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
   const [mapViewState, setMapViewState] = useState(() => externalViewState || { latitude: -8.0476, longitude: -34.8770, zoom: 11 });
@@ -165,7 +165,7 @@ export function MapView({
   // Auto-open popup from URL
   useEffect(() => {
     if (autoOpenPopup && !showPointInfo) {
-      setShowPointInfo({ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng });
+      setShowPointInfo({ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, streetId: autoOpenPopup.streetId });
       setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
       onPopupOpened?.();
     }
@@ -449,7 +449,6 @@ export function MapView({
       setDragPanEnabled(true);
       setHoverPoint(null);
       setSelectedPoints([]);
-      setSelectedCircles([]);
       setShowPointInfo(null);
     }
   };
@@ -463,7 +462,6 @@ export function MapView({
       setIsSelectionMode(false);
       setHoverPoint(null);
       setSelectedPoints([]);
-      setSelectedCircles([]);
       setShowPointInfo(null);
     }
   };
@@ -545,19 +543,11 @@ export function MapView({
                       setSearchTerm('');
                       setShowSuggestions(false);
 
-                      console.log('🔍 CLICOU:', { id: street.id, name: street.name });
-
                       let bounds = street.bounds;
                       let coords = street.coordinates;
 
                       if (!bounds || !coords) {
                         const details = await getStreetDetails(street.id);
-                        console.log('📐 DETALHES:', {
-                          id: street.id,
-                          detailName: details?.name,
-                          featureCount: details?.geometry?.features?.length,
-                          bounds: bounds ? JSON.stringify(bounds) : 'undefined',
-                        });
                         if (details) {
                           bounds = computeBoundsFromGeometry(details.geometry);
                           if (bounds) {
@@ -570,7 +560,6 @@ export function MapView({
                       }
 
                       if (bounds) {
-                        console.log('🗺️ ZOOM:', { bounds, coords, streetId: street.id, streetName: street.name });
                         onZoomToStreet?.(bounds, coords ?? null, street.id, street.name);
                       }
                     }}
@@ -649,9 +638,6 @@ export function MapView({
             initialTab,
             extraData
           });
-          
-          // Add circle to show coverage area
-          setSelectedCircles([{ lat: point.latitude, lng: point.longitude, radius: 200, id: `point-circle-${Date.now()}` }]);
           
            // Update URL
            const url = new URL(window.location.href);
@@ -1208,7 +1194,7 @@ export function MapView({
                       });
                       
                       // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `prefeitura-circle-${Date.now()}` }]);
+                      
                     }
                   }
                 };
@@ -1379,8 +1365,6 @@ export function MapView({
                         initialTab: 'counts' 
                       });
                       
-                      // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `contagem-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1429,8 +1413,6 @@ export function MapView({
                         initialTab: 'infrastructure' 
                       });
                       
-                      // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `bicicletario-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1477,8 +1459,6 @@ export function MapView({
                         initialTab: 'infrastructure' 
                       });
                       
-                      // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `bikepe-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1624,8 +1604,6 @@ export function MapView({
                     
                     setShowPointInfo({ lat, lng, initialTab: 'profile', extraData });
                     
-                    setSelectedCircles([{ lat, lng, radius: 50, id: `perfil-circle-${Date.now()}` }]);
-                    
                     const url = new URL(window.location.href);
                     url.searchParams.set('lat', lat.toFixed(6));
                     url.searchParams.set('lon', lng.toFixed(6));
@@ -1719,14 +1697,11 @@ export function MapView({
           lng={showPointInfo.lng}
           initialTab={showPointInfo.initialTab}
           extraData={showPointInfo.extraData}
+          streetId={showPointInfo.streetId}
           onClose={() => {
             setShowPointInfo(null);
-            // Keep the point and circle visible when closing popup from URL
             if (autoOpenPopup) {
               setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
-              setSelectedCircles([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, radius: 200, id: 'url-circle' }]);
-            } else {
-              setSelectedCircles([]);
             }
           }}
         />

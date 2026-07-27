@@ -372,7 +372,6 @@ export const AmecicloMap = ({
     dragPanEnabled,
     radius,
     setRadius,
-    selectedCircles = [],
     selectedPoints = [],
     hoverPoint,
     onMouseMove,
@@ -400,7 +399,6 @@ export const AmecicloMap = ({
     dragPanEnabled?: boolean;
     radius?: number;
     setRadius?: (radius: number) => void;
-    selectedCircles?: Array<{ lat: number; lng: number; radius: number; id: string }>;
     selectedPoints?: Array<{ lat: number; lng: number; id: string; customIcon?: React.ReactNode }>;
     hoverPoint?: { lat: number; lng: number } | null;
     onMouseMove?: (event: any) => void;
@@ -716,38 +714,6 @@ export const AmecicloMap = ({
                                 </Source>
                             );
                         })()}
-                        {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
-                            if (isNaN(circle.lat) || isNaN(circle.lng)) return null;
-                            const metersPerPixel = 156543.03392 * Math.cos(circle.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
-                            const radiusInPixels = circle.radius / metersPerPixel;
-                            const circleSize = radiusInPixels * 2;
-                            
-                            return (
-                                <Marker
-                                    key={circle.id}
-                                    latitude={circle.lat}
-                                    longitude={circle.lng}
-                                >
-                                    <div 
-                                        style={{
-                                            width: `${circleSize}px`,
-                                            height: `${circleSize}px`,
-                                            borderRadius: '50%',
-                                            background: `repeating-linear-gradient(
-                                                45deg,
-                                                rgba(239, 68, 68, 0.1),
-                                                rgba(239, 68, 68, 0.1) 4px,
-                                                transparent 4px,
-                                                transparent 8px
-                                            )`,
-                                            transform: 'translate(-50%, -50%)',
-                                            pointerEvents: 'none'
-                                        }}
-                                    />
-                                </Marker>
-                            );
-                        })}
-
                         {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => {
                             if (isNaN(point.lat) || isNaN(point.lng)) return null;
                             return (

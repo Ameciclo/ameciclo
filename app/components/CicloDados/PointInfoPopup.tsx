@@ -12,6 +12,7 @@ interface PointInfoPopupProps {
   onClose: () => void;
   initialTab?: string;
   extraData?: any;
+  streetId?: string;
 }
 
 interface PointData {
@@ -95,7 +96,7 @@ interface PointData {
   };
 }
 
-export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', extraData }: PointInfoPopupProps) {
+export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', extraData, streetId }: PointInfoPopupProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [perfilMetric, setPerfilMetric] = useState<'acidentes' | 'idade' | 'motivacao' | 'problemas'>('acidentes');
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
@@ -207,9 +208,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   };
 
   const { data: rawData, isLoading: loading, error } = useQuery({
-    queryKey: ['point-info', lat, lng],
+    queryKey: ['point-info', lat, lng, streetId],
     queryFn: async () => {
-      const response = await fetch(POINT_CICLO_NEARBY(lat, lng, 200));
+      const response = await fetch(POINT_CICLO_NEARBY(lat, lng, 200, streetId));
       
       if (!response.ok) {
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
