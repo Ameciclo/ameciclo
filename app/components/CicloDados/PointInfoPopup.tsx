@@ -1397,118 +1397,144 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
             </div>
           )}
 
-          {activeTab === 'violations' && finalData.traffic_tickets && (
+          {activeTab === 'violations' && (
             <div className="space-y-6">
               <h4 className="font-semibold mb-4 flex items-center gap-2 text-gray-800">
                 <AlertTriangle size={18} className="text-red-600" />
                 Infrações de Trânsito
               </h4>
 
-              {/* Total */}
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <p className="text-4xl font-bold text-red-700">
-                  {finalData.traffic_tickets.total_violations.toLocaleString('pt-BR')}
-                </p>
-                <p className="text-sm text-red-600 mt-1">Total de infrações</p>
-              </div>
+              {!finalData.traffic_tickets || finalData.traffic_tickets.total_violations === 0 ? (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                  <AlertTriangle size={40} className="mx-auto mb-3 text-gray-400" />
+                  <p className="text-sm text-gray-600">
+                    Os dados de infrações são disponibilizados apenas para as 250 vias com maior volume de registros.
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Esta via pode não estar entre as top 250 ou não possuir infrações registradas no período.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Total */}
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                    <p className="text-4xl font-bold text-red-700">
+                      {finalData.traffic_tickets.total_violations.toLocaleString('pt-BR')}
+                    </p>
+                    <p className="text-sm text-red-600 mt-1">Total de infrações</p>
+                    {finalData.traffic_tickets.by_year?.length > 0 && (() => {
+                      const years = finalData.traffic_tickets.by_year.map(y => y.year).sort((a, b) => a - b);
+                      return (
+                        <p className="text-xs text-red-500 mt-1">
+                          Período: {years[0]} a {years[years.length - 1]}
+                        </p>
+                      );
+                    })()}
+                  </div>
 
-              {/* Top infrações */}
-              {finalData.traffic_tickets.top_violations?.length > 0 && (
-                <div>
-                  <h5 className="text-sm font-semibold text-gray-700 mb-3">Top infrações</h5>
-                  <div className="space-y-3">
-                    {finalData.traffic_tickets.top_violations.slice(0, 5).map((v, i) => (
-                      <div key={i} className="bg-gray-50 border rounded-lg p-3">
-                        <div className="flex justify-between items-start mb-1">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-mono text-gray-500">{v.law_code}</p>
-                            <p className="text-sm text-gray-800 line-clamp-2">{v.description}</p>
-                          </div>
-                          <div className="text-right ml-3 shrink-0">
-                            <p className="text-lg font-bold text-gray-800">{v.percentage.toFixed(1)}%</p>
-                            <p className="text-xs text-gray-500">{v.count.toLocaleString('pt-BR')} infrações</p>
-                          </div>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-red-500 h-2 rounded-full"
-                            style={{ width: `${Math.min(v.percentage, 100)}%` }}
-                          />
+                  {/* Evolução anual */}
+                  {finalData.traffic_tickets.by_year?.length > 1 && (() => {
+                    const sorted = [...finalData.traffic_tickets.by_year].sort((a, b) => a.year - b.year);
+                    const maxVal = Math.max(...sorted.map(y => y.total));
+                    const chartHeight = 120;
+                    const barWidth = 18;
+                    const gap = 8;
+                    const chartWidth = sorted.length * (barWidth + gap) + gap;
+
+                    return (
+                      <div>
+                        <h5 className="text-sm font-semibold text-gray-700 mb-3">Evolução anual</h5>
+                        <div className="overflow-x-auto">
+                          <svg width={Math.max(chartWidth, 300)} height={chartHeight + 36} viewBox={`0 0 ${Math.max(chartWidth, 300)} ${chartHeight + 36}`} role="img" aria-label="Evolução anual de infrações">
+                            {sorted.map((item, i) => {
+                              const barH = maxVal > 0 ? (item.total / maxVal) * chartHeight : 0;
+                              const x = i * (barWidth + gap) + gap;
+                              return (
+                                <g key={item.year}>
+                                  <text x={x + barWidth / 2} y={chartHeight - barH - 4}
+                                    textAnchor="middle" fill="#6b7280" fontSize="9" fontWeight="600">
+                                    {item.total.toLocaleString('pt-BR')}
+                                  </text>
+                                  <rect
+                                    x={x} y={chartHeight - barH}
+                                    width={barWidth} height={barH}
+                                    fill="#ef4444" rx="2" opacity="0.85"
+                                  >
+                                    <title>{item.year}: {item.total.toLocaleString('pt-BR')} infrações</title>
+                                  </rect>
+                                  <text x={x + barWidth / 2} y={chartHeight + 14}
+                                    textAnchor="middle" fill="#9ca3af" fontSize="10">
+                                    {item.year}
+                                  </text>
+                                </g>
+                              );
+                            })}
+                          </svg>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                    );
+                  })()}
 
-              {/* Infrações contra ciclistas */}
-              {finalData.traffic_tickets.vulnerable_violations?.length > 0 && (
-                <div>
-                  <h5 className="text-sm font-semibold text-gray-700 mb-3">Infrações contra ciclistas</h5>
-                  <div className="space-y-2">
-                    {finalData.traffic_tickets.vulnerable_violations.map((v, i) => (
-                      <div key={i} className="flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-lg p-3">
-                        <Bike size={18} className="text-orange-500 shrink-0 mt-0.5" />
-                        <div className="min-w-0">
-                          <p className="text-xs font-mono text-orange-700">{v.law_code}</p>
-                          <p className="text-sm text-gray-800">{v.description}</p>
-                        </div>
-                        <span className="text-sm font-bold text-orange-600 shrink-0">{v.count}</span>
+                  {/* Top infrações */}
+                  {finalData.traffic_tickets.top_violations?.length > 0 && (
+                    <div>
+                      <h5 className="text-sm font-semibold text-gray-700 mb-3">Top infrações</h5>
+                      <div className="space-y-3">
+                        {finalData.traffic_tickets.top_violations.slice(0, 5).map((v, i) => (
+                          <div key={i} className="bg-gray-50 border rounded-lg p-3">
+                            <div className="flex justify-between items-start mb-1">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-mono text-gray-500">{v.law_code}</p>
+                                <p className="text-sm text-gray-800 line-clamp-2">{v.description}</p>
+                              </div>
+                              <div className="text-right ml-3 shrink-0">
+                                <p className="text-lg font-bold text-gray-800">{v.percentage.toFixed(1)}%</p>
+                                <p className="text-xs text-gray-500">{v.count.toLocaleString('pt-BR')} infrações</p>
+                              </div>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-red-500 h-2 rounded-full"
+                                style={{ width: `${Math.min(v.percentage, 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Evolução anual */}
-              {finalData.traffic_tickets.by_year?.length > 1 && (() => {
-                const sorted = [...finalData.traffic_tickets.by_year].sort((a, b) => a.year - b.year);
-                const maxVal = Math.max(...sorted.map(y => y.total));
-                const chartHeight = 120;
-                const chartWidth = sorted.length * 36;
-                const barWidth = 24;
-                const gap = 12;
-
-                return (
-                  <div>
-                    <h5 className="text-sm font-semibold text-gray-700 mb-3">Evolução anual</h5>
-                    <div className="overflow-x-auto">
-                      <svg width={Math.max(chartWidth, 280)} height={chartHeight + 30} viewBox={`0 0 ${Math.max(chartWidth, 280)} ${chartHeight + 30}`} role="img" aria-label="Evolução anual de infrações">
-                        {sorted.map((item, i) => {
-                          const barH = maxVal > 0 ? (item.total / maxVal) * chartHeight : 0;
-                          const x = i * (barWidth + gap);
-                          return (
-                            <g key={item.year}>
-                              <rect
-                                x={x} y={chartHeight - barH}
-                                width={barWidth} height={barH}
-                                fill="#ef4444" rx="2"
-                              >
-                                <title>{item.year}: {item.total.toLocaleString('pt-BR')} infrações</title>
-                              </rect>
-                              <text x={x + barWidth / 2} y={chartHeight + 14}
-                                textAnchor="middle" fill="#6b7280" fontSize="10">
-                                {String(item.year).slice(2)}
-                              </text>
-                            </g>
-                          );
-                        })}
-                      </svg>
                     </div>
-                  </div>
-                );
-              })()}
+                  )}
 
-              {/* Link para página completa */}
-              <div className="pt-2">
-                <a
-                  href="/dados/infracoes"
-                  className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium"
-                >
-                  Ver dados completos
-                  <ArrowRight size={14} />
-                </a>
-              </div>
+                  {/* Infrações contra Pedestres e ciclistas */}
+                  {finalData.traffic_tickets.vulnerable_violations?.length > 0 && (
+                    <div>
+                      <h5 className="text-sm font-semibold text-gray-700 mb-3">Infrações contra Pedestres e ciclistas</h5>
+                      <div className="space-y-2">
+                        {finalData.traffic_tickets.vulnerable_violations.map((v, i) => (
+                          <div key={i} className="flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-lg p-3">
+                            <Bike size={18} className="text-orange-500 shrink-0 mt-0.5" />
+                            <div className="min-w-0">
+                              <p className="text-xs font-mono text-orange-700">{v.law_code}</p>
+                              <p className="text-sm text-gray-800">{v.description}</p>
+                            </div>
+                            <span className="text-sm font-bold text-orange-600 shrink-0">{v.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Link para página completa */}
+                  <div className="pt-2">
+                    <a
+                      href="/dados/infracoes"
+                      className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium"
+                    >
+                      Ver dados completos
+                      <ArrowRight size={14} />
+                    </a>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
