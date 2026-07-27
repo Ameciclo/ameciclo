@@ -370,14 +370,22 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   };
 
   const tabs = [
-    { id: 'overview', label: 'Visão Geral', icon: MapPin },
-    { id: 'safety', label: 'Segurança', icon: Shield },
-    { id: 'infrastructure', label: 'Infraestrutura', icon: Route },
-    { id: 'counts', label: 'Contagens', icon: BarChart3 },
-    { id: 'profile', label: 'Perfil', icon: Users },
-    { id: 'violations', label: 'Infrações', icon: AlertTriangle },
-    { id: 'analysis', label: 'Análises', icon: TrendingUp }
+    { id: 'overview', label: 'Visão Geral', icon: MapPin, color: 'blue' },
+    { id: 'safety', label: 'Segurança', icon: Shield, color: 'red' },
+    { id: 'infrastructure', label: 'Infraestrutura', icon: Route, color: 'teal' },
+    { id: 'counts', label: 'Contagens', icon: BarChart3, color: 'green' },
+    { id: 'profile', label: 'Perfil', icon: Users, color: 'purple' },
+    { id: 'violations', label: 'Infrações', icon: AlertTriangle, color: 'red' },
+    { id: 'analysis', label: 'Análises', icon: TrendingUp, color: 'blue' }
   ];
+
+  const tabColorClasses: Record<string, { active: string; icon: string }> = {
+    blue:    { active: 'border-blue-600 text-blue-600',    icon: 'text-blue-600' },
+    red:     { active: 'border-red-600 text-red-600',       icon: 'text-red-600' },
+    teal:    { active: 'border-teal-600 text-teal-600',     icon: 'text-teal-600' },
+    green:   { active: 'border-green-600 text-green-600',   icon: 'text-green-600' },
+    purple:  { active: 'border-purple-600 text-purple-600', icon: 'text-purple-600' },
+  };
 
   const formatDistance = (meters: number) => {
     if (meters < 1000) return `${Math.round(meters)}m`;
@@ -425,17 +433,19 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
         <div className="flex border-b bg-gray-50 overflow-x-auto shrink-0">
           {tabs.map(tab => {
             const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            const colors = tabColorClasses[tab.color];
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600 bg-white'
+                  isActive
+                    ? `${colors.active} bg-white`
                     : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-100'
                 }`}
               >
-                <Icon size={16} />
+                <Icon size={16} className={isActive ? colors.icon : undefined} />
                 {tab.label}
               </button>
             );
