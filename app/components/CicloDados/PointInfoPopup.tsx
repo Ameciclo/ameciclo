@@ -1437,22 +1437,23 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     const sorted = [...finalData.traffic_tickets.by_year].sort((a, b) => a.year - b.year);
                     const maxVal = Math.max(...sorted.map(y => y.total));
                     const chartHeight = 120;
-                    const barWidth = 18;
-                    const gap = 8;
-                    const chartWidth = sorted.length * (barWidth + gap) + gap;
+                    const chartWidth = sorted.length * 40;
 
                     return (
                       <div>
                         <h5 className="text-sm font-semibold text-gray-700 mb-3">Evolução anual</h5>
-                        <div className="overflow-x-auto">
-                          <svg width={Math.max(chartWidth, 300)} height={chartHeight + 36} viewBox={`0 0 ${Math.max(chartWidth, 300)} ${chartHeight + 36}`} role="img" aria-label="Evolução anual de infrações">
+                        <div className="w-full">
+                          <svg width="100%" height={chartHeight + 36} viewBox={`0 0 ${chartWidth} ${chartHeight + 36}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Evolução anual de infrações">
                             {sorted.map((item, i) => {
                               const barH = maxVal > 0 ? (item.total / maxVal) * chartHeight : 0;
-                              const x = i * (barWidth + gap) + gap;
+                              const totalBarW = chartWidth / sorted.length;
+                              const barWidth = totalBarW * 0.6;
+                              const gap = totalBarW * 0.2;
+                              const x = i * totalBarW + gap;
                               return (
                                 <g key={item.year}>
                                   <text x={x + barWidth / 2} y={chartHeight - barH - 4}
-                                    textAnchor="middle" fill="#6b7280" fontSize="9" fontWeight="600">
+                                    textAnchor="middle" fill="#6b7280" fontSize="10" fontWeight="600">
                                     {item.total.toLocaleString('pt-BR')}
                                   </text>
                                   <rect
@@ -1463,7 +1464,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                     <title>{item.year}: {item.total.toLocaleString('pt-BR')} infrações</title>
                                   </rect>
                                   <text x={x + barWidth / 2} y={chartHeight + 14}
-                                    textAnchor="middle" fill="#9ca3af" fontSize="10">
+                                    textAnchor="middle" fill="#9ca3af" fontSize="11">
                                     {item.year}
                                   </text>
                                 </g>
