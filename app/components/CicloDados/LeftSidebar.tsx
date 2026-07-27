@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, BarChart3 } from 'lucide-react';
+import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, BarChart3, Map, LayoutGrid } from 'lucide-react';
 import { FilterSection } from './FilterSection';
 import { PatternDisplay } from './PatternDisplay';
 
 interface LeftSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  viewMode: 'map' | 'mural';
+  onViewModeChange: (mode: 'map' | 'mural') => void;
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   selectedInfra: string[];
   onInfraToggle: (option: string) => void;
@@ -76,6 +78,8 @@ interface LeftSidebarProps {
 export function LeftSidebar({
   isOpen,
   onToggle,
+  viewMode,
+  onViewModeChange,
   infraOptions,
   selectedInfra,
   onInfraToggle,
@@ -200,6 +204,36 @@ export function LeftSidebar({
       role="complementary"
       aria-label="Filtros de camadas de dados"
     >
+      {/* View mode toggle */}
+      {isOpen && (
+        <div className="px-3 pt-3 pb-1 bg-gray-50 border-b border-gray-200 shrink-0">
+          <div className="flex rounded-lg bg-gray-200 p-0.5">
+            <button
+              onClick={() => onViewModeChange('map')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+                viewMode === 'map'
+                  ? 'bg-white text-teal-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Map size={14} />
+              Mapa
+            </button>
+            <button
+              onClick={() => onViewModeChange('mural')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+                viewMode === 'mural'
+                  ? 'bg-white text-teal-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <LayoutGrid size={14} />
+              Mural
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Fixed header */}
       <div className={`items-center justify-between p-3 bg-gray-50 border-b border-gray-200 shrink-0 ${
         isOpen ? 'flex' : 'hidden md:flex flex-col gap-2'

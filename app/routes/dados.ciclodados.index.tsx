@@ -9,6 +9,8 @@ import {
   LeftSidebar,
   MapView,
   RightSidebar,
+  MuralView,
+  CicloDadosHeader,
   useCicloDadosData,
   useCicloDadosState,
   generateInfraData,
@@ -188,6 +190,8 @@ function CicloDados() {
             <LeftSidebar
                 isOpen={leftSidebarOpen}
                 onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+                viewMode={viewMode || 'map'}
+                onViewModeChange={setViewMode}
                 infraOptions={infraOptions}
                 selectedInfra={selectedInfra}
                 onInfraToggle={toggleInfraOption}
@@ -250,49 +254,58 @@ function CicloDados() {
               />
 
             <main className="flex-1 relative">
-              <MapView
-                selectedInfra={selectedInfra}
-                selectedPdc={selectedPdc}
-                selectedContagem={selectedContagem}
-                selectedEstacionamento={selectedEstacionamento}
-                selectedSinistro={selectedSinistro}
-                selectedInfracao={selectedInfracao}
-                selectedPerfil={selectedPerfil}
-                selectedPerfilMetric={selectedPerfilMetric}
-                selectedGenero={selectedGenero}
-                selectedAno={selectedAno}
-                selectedArea={selectedArea}
-                selectedIdade={selectedIdade}
-                infraOptions={infraOptions}
-                pdcOptions={pdcOptions}
-                layersConf={layersConf}
-                infraData={infraData}
-                pdcData={pdcData}
-                contagemData={contagemMapData}
-                getContagemIcon={getContagemIcon}
-                onPointClick={handlePointClick}
-                externalViewState={mapViewState}
-                onMapMove={handleMapMove}
-                highlightedStreet={selectedStreetGeometry}
-                streetData={selectedStreetData}
-                selectedStreetFilter={selectedStreetFilter}
-                perfilCiclistasData={processedPerfilData}
-                autoOpenPopup={autoOpenPopup}
-                onPopupOpened={() => setAutoOpenPopup(null)}
-                onZoomToStreet={handleZoomToStreet}
-                infracaoStartYear={infracaoStartYear}
-                infracaoEndYear={infracaoEndYear}
-                infracaoSeverityHigh={infracaoSeverityHigh}
-                infracaoSeverityMedium={infracaoSeverityMedium}
-                infracaoSeverityLow={infracaoSeverityLow}
-                onInfracoesDataChange={setInfracaoThresholds}
-              />
-              <RightSidebar
-                isOpen={rightSidebarOpen}
-                onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
-                viewMode={viewMode || 'map'}
-                mapSelection={mapSelection || undefined}
-              />
+              {viewMode === 'mural' ? (
+                <MuralView
+                  sidebarOpen={leftSidebarOpen}
+                  onSidebarToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+                />
+              ) : (
+                <>
+                  <MapView
+                    selectedInfra={selectedInfra}
+                    selectedPdc={selectedPdc}
+                    selectedContagem={selectedContagem}
+                    selectedEstacionamento={selectedEstacionamento}
+                    selectedSinistro={selectedSinistro}
+                    selectedInfracao={selectedInfracao}
+                    selectedPerfil={selectedPerfil}
+                    selectedPerfilMetric={selectedPerfilMetric}
+                    selectedGenero={selectedGenero}
+                    selectedAno={selectedAno}
+                    selectedArea={selectedArea}
+                    selectedIdade={selectedIdade}
+                    infraOptions={infraOptions}
+                    pdcOptions={pdcOptions}
+                    layersConf={layersConf}
+                    infraData={infraData}
+                    pdcData={pdcData}
+                    contagemData={contagemMapData}
+                    getContagemIcon={getContagemIcon}
+                    onPointClick={handlePointClick}
+                    externalViewState={mapViewState}
+                    onMapMove={handleMapMove}
+                    highlightedStreet={selectedStreetGeometry}
+                    streetData={selectedStreetData}
+                    selectedStreetFilter={selectedStreetFilter}
+                    perfilCiclistasData={processedPerfilData}
+                    autoOpenPopup={autoOpenPopup}
+                    onPopupOpened={() => setAutoOpenPopup(null)}
+                    onZoomToStreet={handleZoomToStreet}
+                    infracaoStartYear={infracaoStartYear}
+                    infracaoEndYear={infracaoEndYear}
+                    infracaoSeverityHigh={infracaoSeverityHigh}
+                    infracaoSeverityMedium={infracaoSeverityMedium}
+                    infracaoSeverityLow={infracaoSeverityLow}
+                    onInfracoesDataChange={setInfracaoThresholds}
+                  />
+                  <RightSidebar
+                    isOpen={rightSidebarOpen}
+                    onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
+                    viewMode={viewMode || 'map'}
+                    mapSelection={mapSelection || undefined}
+                  />
+                </>
+              )}
             </main>
           </div>
         </div>
