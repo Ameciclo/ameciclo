@@ -1437,33 +1437,36 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     const sorted = [...finalData.traffic_tickets.by_year].sort((a, b) => a.year - b.year);
                     const maxVal = Math.max(...sorted.map(y => y.total));
                     const chartHeight = 120;
+                    const topPad = 20;
+                    const totalH = chartHeight + topPad + 36;
                     const chartWidth = sorted.length * 40;
 
                     return (
                       <div>
                         <h5 className="text-sm font-semibold text-gray-700 mb-3">Evolução anual</h5>
                         <div className="w-full">
-                          <svg width="100%" height={chartHeight + 36} viewBox={`0 0 ${chartWidth} ${chartHeight + 36}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Evolução anual de infrações">
+                          <svg width="100%" height={totalH} viewBox={`0 0 ${chartWidth} ${totalH}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Evolução anual de infrações">
                             {sorted.map((item, i) => {
                               const barH = maxVal > 0 ? (item.total / maxVal) * chartHeight : 0;
                               const totalBarW = chartWidth / sorted.length;
                               const barWidth = totalBarW * 0.6;
                               const gap = totalBarW * 0.2;
                               const x = i * totalBarW + gap;
+                              const barY = topPad + chartHeight - barH;
                               return (
                                 <g key={item.year}>
-                                  <text x={x + barWidth / 2} y={chartHeight - barH - 4}
+                                  <text x={x + barWidth / 2} y={barY - 4}
                                     textAnchor="middle" fill="#6b7280" fontSize="10" fontWeight="600">
                                     {item.total.toLocaleString('pt-BR')}
                                   </text>
                                   <rect
-                                    x={x} y={chartHeight - barH}
+                                    x={x} y={barY}
                                     width={barWidth} height={barH}
                                     fill="#ef4444" rx="2" opacity="0.85"
                                   >
                                     <title>{item.year}: {item.total.toLocaleString('pt-BR')} infrações</title>
                                   </rect>
-                                  <text x={x + barWidth / 2} y={chartHeight + 14}
+                                  <text x={x + barWidth / 2} y={topPad + chartHeight + 14}
                                     textAnchor="middle" fill="#9ca3af" fontSize="11">
                                     {item.year}
                                   </text>
