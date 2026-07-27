@@ -1494,11 +1494,14 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         {finalData.traffic_tickets.vulnerable_violations.map((v, i) => (
                           <div key={i} className="flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <Bike size={18} className="text-orange-500 shrink-0 mt-0.5" />
-                            <div className="min-w-0">
+                            <div className="min-w-0 flex-1">
                               <p className="text-xs font-mono text-orange-700">{v.law_code}</p>
                               <p className="text-sm text-gray-800">{v.description}</p>
                             </div>
-                            <span className="text-sm font-bold text-orange-600 shrink-0">{v.count}</span>
+                            <div className="text-right shrink-0 ml-3">
+                              <p className="text-lg font-bold text-orange-700">{v.count.toLocaleString('pt-BR')}</p>
+                              <p className="text-xs text-orange-500">infrações</p>
+                            </div>
                           </div>
                         ))}
                       </div>
