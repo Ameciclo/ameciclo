@@ -622,9 +622,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                   href="/dados/sinistros" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium"
                 >
-                  Ver mais detalhes
+                  Ver dados completos
                   <ArrowRight size={14} />
                 </a>
               </div>
@@ -810,6 +810,18 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
           {activeTab === 'infrastructure' && (
             <div className="space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-gray-800">Infraestrutura Cicloviária</h4>
+                <a 
+                  href="/dados/execucao-cicloviaria" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  Ver dados completos
+                  <ArrowRight size={14} />
+                </a>
+              </div>
               {finalData.bike_racks && finalData.bike_racks.items?.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
@@ -916,12 +928,20 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
           {activeTab === 'counts' && (
             <div className="space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-gray-800">Contagens de Ciclistas</h4>
+                <a 
+                  href="/dados/contagens" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  Ver dados completos
+                  <ArrowRight size={14} />
+                </a>
+              </div>
               {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
                 <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <BarChart3 size={18} />
-                    Contagens de Ciclistas Próximas ({finalData.cyclist_counts.counts.length})
-                  </h4>
                   <div className="space-y-4">
                     {finalData.cyclist_counts.counts
                       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -1026,6 +1046,18 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
           {activeTab === 'profile' && (
             <div className="space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-gray-800">Perfil de Ciclistas</h4>
+                <a 
+                  href="/dados/perfil" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  Ver dados completos
+                  <ArrowRight size={14} />
+                </a>
+              </div>
               {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 ? (
                 <>
                   <div className="bg-blue-50 p-4 rounded-lg">
@@ -1551,10 +1583,18 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
           {activeTab === 'analysis' && (
             <div className="space-y-6">
-              <h4 className="font-semibold mb-4 flex items-center gap-2 text-gray-800">
-                <TrendingUp size={18} className="text-blue-600" />
-                Análises Detalhadas e Indicadores
-              </h4>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-gray-800">Análises e Indicadores</h4>
+                <a 
+                  href="/dados/ciclodados" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  Ver dados completos
+                  <ArrowRight size={14} />
+                </a>
+              </div>
               
               {/* Gráfico de Emergências ao Longo do Tempo */}
               {finalData.emergency_calls?.annual_history?.length > 1 && (() => {
