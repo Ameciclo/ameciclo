@@ -369,6 +369,23 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
     }
   };
 
+  const autoExpandedCounts = useRef(false);
+  const autoExpandedEditions = useRef(false);
+
+  useEffect(() => {
+    if (!autoExpandedCounts.current && finalData.cyclist_counts?.counts?.length > 0) {
+      const sorted = [...finalData.cyclist_counts.counts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setExpandedCounts(new Set([sorted[0].id.toString()]));
+      autoExpandedCounts.current = true;
+    }
+
+    if (!autoExpandedEditions.current && finalData.cyclist_profile?.by_edition?.length > 0) {
+      const sorted = [...finalData.cyclist_profile.by_edition].sort((a, b) => parseInt(b.edition) - parseInt(a.edition));
+      setExpandedEditions(new Set([sorted[0].edition]));
+      autoExpandedEditions.current = true;
+    }
+  }, [finalData.cyclist_counts, finalData.cyclist_profile]);
+
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: MapPin, color: 'blue' },
     { id: 'safety', label: 'Segurança', icon: Shield, color: 'red' },
