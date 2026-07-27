@@ -469,9 +469,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                   <>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {finalData.emergency_calls && (
-                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white cursor-pointer" onClick={() => setActiveTab('safety')}>
                           <div className="flex items-center gap-2 mb-2">
-                            <Ambulance size={20} className="text-gray-700" />
+                            <Ambulance size={20} className="text-red-600" />
                             <h4 className="font-semibold text-gray-800">Emergências</h4>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
@@ -482,9 +482,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       )}
 
                       {finalData.bike_racks && finalData.bike_racks.total > 0 && (
-                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white cursor-pointer" onClick={() => setActiveTab('infrastructure')}>
                           <div className="flex items-center gap-2 mb-2">
-                            <Bike size={20} className="text-gray-700" />
+                            <Bike size={20} className="text-blue-600" />
                             <h4 className="font-semibold text-gray-800">Bicicletários</h4>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">{finalData.bike_racks.total}</p>
@@ -493,9 +493,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       )}
 
                       {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
-                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white cursor-pointer" onClick={() => setActiveTab('counts')}>
                           <div className="flex items-center gap-2 mb-2">
-                            <BarChart3 size={20} className="text-gray-700" />
+                            <BarChart3 size={20} className="text-green-600" />
                             <h4 className="font-semibold text-gray-800">Contagens</h4>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">{finalData.cyclist_counts.counts.length}</p>
@@ -504,9 +504,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       )}
 
                       {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 && (
-                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white cursor-pointer" onClick={() => setActiveTab('profile')}>
                           <div className="flex items-center gap-2 mb-2">
-                            <Users size={20} className="text-gray-700" />
+                            <Users size={20} className="text-purple-600" />
                             <h4 className="font-semibold text-gray-800">Perfis</h4>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">{finalData.cyclist_profile.total_profiles}</p>
@@ -515,9 +515,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       )}
 
                       {finalData.shared_bike && finalData.shared_bike.has_stations && (
-                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white cursor-pointer" onClick={() => setActiveTab('infrastructure')}>
                           <div className="flex items-center gap-2 mb-2">
-                            <Activity size={20} className="text-gray-700" />
+                            <Activity size={20} className="text-orange-600" />
                             <h4 className="font-semibold text-gray-800">Bike PE</h4>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">{finalData.shared_bike.stations?.length || 0}</p>
@@ -526,9 +526,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       )}
 
                       {finalData.cycling_infra && (finalData.cycling_infra.existing?.length > 0 || finalData.cycling_infra.planned_pdc?.length > 0) && (
-                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white cursor-pointer" onClick={() => setActiveTab('infrastructure')}>
                           <div className="flex items-center gap-2 mb-2">
-                            <Route size={20} className="text-gray-700" />
+                            <Route size={20} className="text-teal-600" />
                             <h4 className="font-semibold text-gray-800">Infraestrutura</h4>
                           </div>
                           <p className="text-2xl font-bold text-gray-900">
@@ -539,15 +539,15 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       )}
 
                       {finalData.traffic_tickets && finalData.traffic_tickets.total_violations > 0 && (
-                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-red-50">
+                        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white cursor-pointer" onClick={() => setActiveTab('violations')}>
                           <div className="flex items-center gap-2 mb-2">
                             <AlertTriangle size={20} className="text-red-600" />
-                            <h4 className="font-semibold text-red-800">Infrações</h4>
+                            <h4 className="font-semibold text-gray-800">Infrações</h4>
                           </div>
-                          <p className="text-2xl font-bold text-red-700">
+                          <p className="text-2xl font-bold text-gray-900">
                             {finalData.traffic_tickets.total_violations.toLocaleString('pt-BR')}
                           </p>
-                          <p className="text-sm text-red-600">infrações totais</p>
+                          <p className="text-sm text-gray-600">infrações totais</p>
                         </div>
                       )}
                     </div>
