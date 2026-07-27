@@ -71,7 +71,7 @@ export function pieMarker(
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img">
       ${paths}
-      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${ringColor ?? 'white'}" stroke-width="${sw}" />
+      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="white" stroke-width="${sw}" />
       <circle cx="${cx}" cy="${cy}" r="${bgR}" fill="white" />
       <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
         font-size="${fs}" font-family="sans-serif" font-weight="bold" fill="#1f2937">${topPct}%</text>
