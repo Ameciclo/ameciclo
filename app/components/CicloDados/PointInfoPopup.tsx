@@ -371,7 +371,6 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: MapPin },
-    { id: 'location', label: 'Localização', icon: Navigation },
     { id: 'safety', label: 'Segurança', icon: Shield },
     { id: 'infrastructure', label: 'Infraestrutura', icon: Route },
     { id: 'counts', label: 'Contagens', icon: BarChart3 },
@@ -556,23 +555,29 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     {finalData.location && (
                       <div>
                         <h4 className="font-semibold mb-3 flex items-center gap-2">
-                          <Navigation size={18} />
+                          <MapPin size={18} />
                           Localização
                         </h4>
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <p className="font-medium">{finalData.location.nearest_street?.official_name || finalData.location.nearest_street?.name}</p>
-                          <p className="text-sm text-gray-600">
-                            Coordenadas: {finalData.location.lat.toFixed(6)}, {finalData.location.lng.toFixed(6)}
-                          </p>
-                          {finalData.location.nearest_street?.total_length_meters && (
-                            <p className="text-sm text-gray-600">
-                              Extensão da via: {formatDistance(finalData.location.nearest_street.total_length_meters)}
-                            </p>
-                          )}
-                          {finalData.location.nearest_street?.distance_to_point_meters !== undefined && (
-                            <p className="text-sm text-gray-600">
-                              Distância da via: {formatDistance(finalData.location.nearest_street.distance_to_point_meters)}
-                            </p>
+                        <div className="space-y-2">
+                          <div className="bg-blue-50 p-3 rounded-lg">
+                            <p className="text-xs text-gray-500 mb-1">Coordenadas</p>
+                            <p className="text-sm text-gray-700">{finalData.location.lat.toFixed(6)}, {finalData.location.lng.toFixed(6)}</p>
+                          </div>
+                          {finalData.location.nearest_street && (
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                              <p className="font-medium text-gray-800">{finalData.location.nearest_street.official_name || finalData.location.nearest_street.name}</p>
+                              {finalData.location.nearest_street.name !== finalData.location.nearest_street.official_name && (
+                                <p className="text-xs text-gray-500 mt-0.5">Nome popular: {finalData.location.nearest_street.name}</p>
+                              )}
+                              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-600">
+                                {finalData.location.nearest_street.distance_to_point_meters !== undefined && (
+                                  <span>Distância: {formatDistance(finalData.location.nearest_street.distance_to_point_meters)}</span>
+                                )}
+                                {finalData.location.nearest_street.total_length_meters && (
+                                  <span>Extensão: {formatDistance(finalData.location.nearest_street.total_length_meters)}</span>
+                                )}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -580,47 +585,6 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                   </>
                 );
               })()}
-            </div>
-          )}
-
-          {activeTab === 'location' && (
-            <div className="space-y-6">
-              {finalData.location ? (
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <MapPin size={18} />
-                    Informações Geográficas
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h5 className="font-medium mb-2">Coordenadas Exatas</h5>
-                      <p className="text-sm text-gray-600">Latitude: {finalData.location.lat.toFixed(8)}</p>
-                      <p className="text-sm text-gray-600">Longitude: {finalData.location.lng.toFixed(8)}</p>
-                    </div>
-                    
-                    {finalData.location.nearest_street && (
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <h5 className="font-medium mb-2">Via Mais Próxima</h5>
-                        <p className="font-medium">{finalData.location.nearest_street.official_name || finalData.location.nearest_street.name}</p>
-                        {finalData.location.nearest_street.name !== finalData.location.nearest_street.official_name && (
-                          <p className="text-sm text-gray-600">Nome popular: {finalData.location.nearest_street.name}</p>
-                        )}
-                        {finalData.location.nearest_street.distance_to_point_meters !== undefined && (
-                          <p className="text-sm text-gray-600">Distância: {formatDistance(finalData.location.nearest_street.distance_to_point_meters)}</p>
-                        )}
-                        {finalData.location.nearest_street.total_length_meters && (
-                          <p className="text-sm text-gray-600">Extensão total: {formatDistance(finalData.location.nearest_street.total_length_meters)}</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Navigation size={48} className="mx-auto mb-4 text-gray-300" />
-                  <p>Nenhuma informação de localização disponível para este ponto</p>
-                </div>
-              )}
             </div>
           )}
 
