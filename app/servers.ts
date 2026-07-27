@@ -38,12 +38,11 @@ export const PERFIL_API_URL = `https://cyclist-profile.atlas.ameciclo.org/v1/cyc
 export const PERFIL_SURVEY_LOCATIONS = `${CYCLIST_PROFILE_BASE}/v1/cyclist-profiles/survey-locations`
 
 // Cyclist-counts Atlas (Contagens)
-export const COUNTINGS_LOCAL_BASE = "http://localhost:3002"
-export const COUNTINGS_ATLAS_LOCATIONS = `${COUNTINGS_LOCAL_BASE}/v1/locations`
-export const COUNTINGS_ATLAS_LOCATION = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/locations/${id}`
-export const COUNTINGS_ATLAS_EVENT = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/events/${id}`
-export const COUNTINGS_ATLAS_EVENT_SESSIONS = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/events/${id}/sessions`
-export const COUNTINGS_ATLAS_EVENT_DETAILS = (id: string) => `${COUNTINGS_LOCAL_BASE}/v1/events/${id}/details`
+export const COUNTINGS_ATLAS_LOCATIONS = `${CYCLIST_COUNTS_BASE}/v1/locations`
+export const COUNTINGS_ATLAS_LOCATION = (id: string) => `${CYCLIST_COUNTS_BASE}/v1/locations/${id}`
+export const COUNTINGS_ATLAS_EVENT = (id: string) => `${CYCLIST_COUNTS_BASE}/v1/events/${id}`
+export const COUNTINGS_ATLAS_EVENT_SESSIONS = (id: string) => `${CYCLIST_COUNTS_BASE}/v1/events/${id}/sessions`
+export const COUNTINGS_ATLAS_EVENT_DETAILS = (id: string) => `${CYCLIST_COUNTS_BASE}/v1/events/${id}/details`
 
 // DATASUS — Sinistros Fatais
 export const DATASUS_SUMMARY_DATA = `http://localhost:3003/v1/summary`
@@ -53,22 +52,21 @@ export const DATASUS_MATRIX_DATA = `http://localhost:3003/v1/matrix`
 export const DATASUS_CAUSAS_SECUNDARIAS_DATA = `http://localhost:3003/v1/causas-secundarias`
 
 // SAMU Atlas (Emergency Calls API)
-export const SAMU_ATLAS_BASE = `http://localhost:3010`
-export const SAMU_CALLS_API = `${SAMU_ATLAS_BASE}/v1/calls`
-export const SAMU_CALLS_OUTCOMES = `${SAMU_ATLAS_BASE}/v1/calls/outcomes`
-export const SAMU_CALLS_PROFILES = `${SAMU_ATLAS_BASE}/v1/calls/profiles`
-export const SAMU_SUMMARY_API = `${SAMU_ATLAS_BASE}/v1/summary`
-export const SAMU_CITIES_LIST = `${SAMU_ATLAS_BASE}/v1/cities`
+export const SAMU_CALLS_API = `${EMERGENCY_CALLS_BASE}/v1/calls`
+export const SAMU_CALLS_OUTCOMES = `${EMERGENCY_CALLS_BASE}/v1/calls/outcomes`
+export const SAMU_CALLS_PROFILES = `${EMERGENCY_CALLS_BASE}/v1/calls/profiles`
+export const SAMU_SUMMARY_API = `${EMERGENCY_CALLS_BASE}/v1/summary`
+export const SAMU_CITIES_LIST = `${EMERGENCY_CALLS_BASE}/v1/cities`
 
 // Vias Inseguras — endpoints v2 of the SAMU Atlas, hardcoded to RECIFE.
-export const VIAS_INSEGURAS_SUMMARY = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/RECIFE/summary`
-export const VIAS_INSEGURAS_TOP = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/RECIFE/concentration?interval=150`
-export const VIAS_INSEGURAS_MAP = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/RECIFE/geojson?ranking_from=1&ranking_to=150`
-export const VIAS_INSEGURAS_HISTORY = `${SAMU_ATLAS_BASE}/v1/streets/history`
-export const VIAS_INSEGURAS_SEARCH = `${SAMU_ATLAS_BASE}/v1/streets/search`
-export const VIAS_INSEGURAS_LIST = `${SAMU_ATLAS_BASE}/v1/streets/top`
-export const VIAS_INSEGURAS_HISTORY_V2 = `${SAMU_ATLAS_BASE}/v2/streets/history`
-export const VIAS_INSEGURAS_STREET_SUMMARY = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/streets`
+export const VIAS_INSEGURAS_SUMMARY = `${EMERGENCY_CALLS_BASE}/v2/unsafe-streets/cities/RECIFE/summary`
+export const VIAS_INSEGURAS_TOP = `${EMERGENCY_CALLS_BASE}/v2/unsafe-streets/cities/RECIFE/concentration?interval=150`
+export const VIAS_INSEGURAS_MAP = `${EMERGENCY_CALLS_BASE}/v2/unsafe-streets/cities/RECIFE/geojson?ranking_from=1&ranking_to=150`
+export const VIAS_INSEGURAS_HISTORY = `${EMERGENCY_CALLS_BASE}/v1/streets/history`
+export const VIAS_INSEGURAS_SEARCH = `${EMERGENCY_CALLS_BASE}/v1/streets/search`
+export const VIAS_INSEGURAS_LIST = `${EMERGENCY_CALLS_BASE}/v1/streets/top`
+export const VIAS_INSEGURAS_HISTORY_V2 = `${EMERGENCY_CALLS_BASE}/v2/streets/history`
+export const VIAS_INSEGURAS_STREET_SUMMARY = `${EMERGENCY_CALLS_BASE}/v2/unsafe-streets/streets`
 
 // Traffic Violations — Observatório de Infrações de Trânsito
 export const TRAFFIC_VIOLATIONS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
@@ -82,7 +80,7 @@ export const TRAFFIC_VIOLATIONS_STREET_STATS = `${TRAFFIC_VIOLATIONS_BASE}/v1/st
 export const OPENROUTESERVICE_CYCLING_URL = `https://api.openrouteservice.org/v2/directions/cycling-regular`
 
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
-export const CICLODADOS_BASE = `https://ciclodados.atlas.ameciclo.org/v1`
+export const CICLODADOS_BASE = `${api(3050, "https://ciclodados.atlas.ameciclo.org")}/v1`
 
 export const BICICLETARIOS_DATA = `${BICYCLE_RACKS_BASE}/v1/bicycle-racks/geojson`
 export const BIKE_PE_STATIONS_DATA = `${SHARED_BIKE_BASE}/v1/stations`
