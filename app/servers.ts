@@ -11,7 +11,7 @@ const EMERGENCY_CALLS_BASE = api(3010, "https://emergency-calls.atlas.ameciclo.o
 const TRAFFIC_TICKETS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
 const CYCLIST_PROFILE_BASE = api(3000, "https://cyclist-profile.atlas.ameciclo.org")
 
-export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
+export const CMS_BASE_URL = api(1337, "https://do.strapi.ameciclo.org")
 
 // Strapi single-types — legacy endpoints kept as documentation reference.
 // Page metadata now comes from the `plataformas-de-dados` collection (PLATAFORMA_DADOS_PAGE_DATA below).
