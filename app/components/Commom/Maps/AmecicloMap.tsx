@@ -704,6 +704,7 @@ export const AmecicloMap = ({
                             
                             return (
                                 <Marker
+                                    anchor="center"
                                     latitude={hoverPoint.lat}
                                     longitude={hoverPoint.lng}
                                 >
