@@ -118,6 +118,8 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   const [expandedEditions, setExpandedEditions] = useState<Set<string>>(new Set());
   const [expandedCounts, setExpandedCounts] = useState<Set<string>>(new Set());
   const modalRef = useRef<HTMLDivElement>(null);
+  const autoExpandedCounts = useRef(false);
+  const autoExpandedEditions = useRef(false);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -313,6 +315,20 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
     }
   } : rawData;
 
+  useEffect(() => {
+    if (!autoExpandedCounts.current && data?.cyclist_counts?.counts?.length > 0) {
+      const sorted = [...data.cyclist_counts.counts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setExpandedCounts(new Set([sorted[0].id.toString()]));
+      autoExpandedCounts.current = true;
+    }
+
+    if (!autoExpandedEditions.current && data?.cyclist_profile?.by_edition?.length > 0) {
+      const sorted = [...data.cyclist_profile.by_edition].sort((a, b) => parseInt(b.edition) - parseInt(a.edition));
+      setExpandedEditions(new Set([sorted[0].edition]));
+      autoExpandedEditions.current = true;
+    }
+  }, [data?.cyclist_counts, data?.cyclist_profile]);
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100">
@@ -347,23 +363,6 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
       </div>
     );
   }
-
-  const autoExpandedCounts = useRef(false);
-  const autoExpandedEditions = useRef(false);
-
-  useEffect(() => {
-    if (!autoExpandedCounts.current && data?.cyclist_counts?.counts?.length > 0) {
-      const sorted = [...data.cyclist_counts.counts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      setExpandedCounts(new Set([sorted[0].id.toString()]));
-      autoExpandedCounts.current = true;
-    }
-
-    if (!autoExpandedEditions.current && data?.cyclist_profile?.by_edition?.length > 0) {
-      const sorted = [...data.cyclist_profile.by_edition].sort((a, b) => parseInt(b.edition) - parseInt(a.edition));
-      setExpandedEditions(new Set([sorted[0].edition]));
-      autoExpandedEditions.current = true;
-    }
-  }, [data?.cyclist_counts, data?.cyclist_profile]);
 
   if (!data && !extraData) return null;
   
