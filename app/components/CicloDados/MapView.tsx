@@ -19,6 +19,12 @@ import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
 import { pieMarker, singleDonut } from './utils/pieMarker';
 
+const YEAR_COLORS: Record<string, string> = {
+  "2018": "#0d9488",
+  "2021": "#7c3aed",
+  "2024": "#8B5CF6",
+};
+
 
 
 interface MapViewProps {
@@ -1524,15 +1530,17 @@ export function MapView({
 
                   const metric = selectedPerfilMetric || 'acidentes';
                   const pointProps = item.properties.items?.[0]?.properties || {};
+                  const surveyYear = pointProps.survey_year || '';
+                  const ringColor = YEAR_COLORS[surveyYear] || 'white';
                   const svgSize = 72;
-                  const noDataSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}"><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="#e5e7eb" /><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="none" stroke="white" stroke-width="2" /><text x="${svgSize/2}" y="${svgSize/2}" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#9ca3af">?</text></svg>`;
+                  const noDataSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}"><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="#e5e7eb" /><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="none" stroke="${ringColor}" stroke-width="2" /><text x="${svgSize/2}" y="${svgSize/2}" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#9ca3af">?</text></svg>`;
                   const svgStr = (() => {
                     if (metric === 'acidentes') {
                       const pct = pointProps.accidents_percentage || 0;
                       return pieMarker([
                         { label: 'Sinistro', value: pct },
                         { label: 'Sem sinistro', value: 100 - pct },
-                      ], 26, svgSize, ['#F97316', '#d1d5db']);
+                      ], 26, svgSize, ['#F97316', '#d1d5db'], ringColor);
                     }
                     if (metric === 'idades' && pointProps.age_ranges && Object.keys(pointProps.age_ranges).length > 0) {
                       const items = Object.entries(pointProps.age_ranges as Record<string, number>)
@@ -1541,27 +1549,27 @@ export function MapView({
                           return order.indexOf(a) - order.indexOf(b);
                         })
                         .map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE']);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE'], ringColor);
                     }
                     if (metric === 'motivacao' && pointProps.motivations && Object.keys(pointProps.motivations).length > 0) {
                       const items = Object.entries(pointProps.motivations as Record<string, number>).map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F97316', '#8B5CF6', '#3B82F6', '#10B981', '#6B7280']);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F97316', '#8B5CF6', '#3B82F6', '#10B981', '#6B7280'], ringColor);
                     }
                     if (metric === 'problemas' && pointProps.issues && Object.keys(pointProps.issues).length > 0) {
                       const items = Object.entries(pointProps.issues as Record<string, number>).map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#EF4444', '#F97316', '#EAB308', '#8B5CF6', '#6B7280', '#9CA3AF']);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#EF4444', '#F97316', '#EAB308', '#8B5CF6', '#6B7280', '#9CA3AF'], ringColor);
                     }
                     if (metric === 'renda' && pointProps.income_distribution && Object.keys(pointProps.income_distribution).length > 0) {
                       const items = Object.entries(pointProps.income_distribution as Record<string, number>).map(([label, value]) => ({ label: label, value }));
-                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F59E0B', '#F97316', '#EF4444', '#10B981']);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F59E0B', '#F97316', '#EF4444', '#10B981'], ringColor);
                     }
                     if (metric === 'escolaridade' && pointProps.schooling_distribution && Object.keys(pointProps.schooling_distribution).length > 0) {
                       const items = Object.entries(pointProps.schooling_distribution as Record<string, number>).map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#6366F1', '#8B5CF6', '#A78BFA', '#C4B5FD']);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#6366F1', '#8B5CF6', '#A78BFA', '#C4B5FD'], ringColor);
                     }
                     if (metric === 'raca' && pointProps.color_race_distribution && Object.keys(pointProps.color_race_distribution).length > 0) {
                       const items = Object.entries(pointProps.color_race_distribution as Record<string, number>).map(([label, value]) => ({ label, value }));
-                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#1f2937', '#78350f', '#fef3c7', '#92400e']);
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#1f2937', '#78350f', '#fef3c7', '#92400e'], ringColor);
                     }
                     return noDataSvg;
                   })();
@@ -1569,8 +1577,8 @@ export function MapView({
                   return (
                     <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                       <div
-                        className="rounded-full shadow-lg border-2 border-white flex items-center justify-center"
-                        style={{ width: svgSize, height: svgSize }}
+                        className="rounded-full shadow-lg border-2 flex items-center justify-center bg-white"
+                        style={{ width: svgSize, height: svgSize, borderColor: ringColor }}
                         dangerouslySetInnerHTML={{ __html: svgStr }}
                       />
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2">
