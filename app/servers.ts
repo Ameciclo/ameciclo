@@ -1,4 +1,4 @@
-export const CMS_BASE_URL = "https://do.strapi.ameciclo.org"
+export const CMS_BASE_URL = "https://strapi.ameciclo.org"
 
 // Strapi single-types still consumed by unmigrated dados routes.
 export const COUNTINGS_PAGE_DATA = `${CMS_BASE_URL}/api/contagem?populate=*`
