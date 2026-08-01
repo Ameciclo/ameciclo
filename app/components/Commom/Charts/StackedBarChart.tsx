@@ -47,14 +47,6 @@ function StackedBarChart({
             fontWeight: "500"
           }
         },
-        stackLabels: {
-          enabled: true,
-          format: '{total}',
-          style: {
-            fontWeight: "600",
-            color: "#333",
-          },
-        },
       },
       legend: {
         align: "center",
@@ -65,13 +57,19 @@ function StackedBarChart({
         shadow: false,
       },
       tooltip: {
-        headerFormat: "<b>{point.x}</b><br/>",
-        pointFormat: "{series.name}: {point.y}<br/>Total: {point.stackTotal}",
+        headerFormat: "<b>{point.category}</b><br/>",
+        pointFormat: "{series.name}: {point.y}<br/>Total RMR: {point.rmr}",
       },
       plotOptions: {
         column: {
           dataLabels: {
-            enabled: false,
+            enabled: true,
+            format: "{point.rmr}",
+            y: -8,
+            style: {
+              fontWeight: "600",
+              color: "#333",
+            },
           },
         },
       },

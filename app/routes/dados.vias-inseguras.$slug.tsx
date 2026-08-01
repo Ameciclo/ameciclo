@@ -79,6 +79,28 @@ const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   return stats;
 };
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const parseRecordDateTime = (raw: string | undefined | null): Date | null => {
+  if (!raw) return null;
+
+  const dateMatch = raw.match(/^([A-Za-z]{3}) ([A-Za-z]{3}) (\d{1,2}) (\d{4})/);
+  if (!dateMatch) return null;
+
+  const month = MONTHS.indexOf(dateMatch[2].replace(".", ""));
+  if (month === -1) return null;
+
+  const dt = new Date(Number(dateMatch[4]), month, Number(dateMatch[3]));
+  if (isNaN(dt.getTime())) return null;
+
+  const timeMatch = raw.match(/T(\d{2}):(\d{2})Z$/);
+  if (timeMatch) {
+    dt.setUTCHours(Number(timeMatch[1]), Number(timeMatch[2]), 0, 0);
+  }
+
+  return dt;
+};
+
 export const Route = createFileRoute("/dados/vias-inseguras/$slug")({
   loader: ({ params, context: { queryClient } }) =>
     queryClient.ensureQueryData(viasInsegurasSlugQueryOptions(params.slug)),
@@ -237,10 +259,12 @@ function ViaInsegura() {
 
               const tableData = rawFiltered
                 .map((record: any) => {
-                  const dt = new Date(record.datetime);
+                  const dt = parseRecordDateTime(record.datetime);
                   const mappedCategoria = categoryLabels[record.category] || record.category || '-';
                   return {
-                    data_hora: `${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`.trim(),
+                    data_hora: dt
+                      ? `${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`.trim()
+                      : '-',
                     categoria: mappedCategoria,
                     sexo: record.gender || '-',
                     idade: record.age || '-',
@@ -248,7 +272,7 @@ function ViaInsegura() {
                     _sortDate: dt,
                   };
                 })
-                .sort((a: any, b: any) => b._sortDate.getTime() - a._sortDate.getTime());
+                .sort((a: any, b: any) => (b._sortDate?.getTime() ?? 0) - (a._sortDate?.getTime() ?? 0));
 
               const categoriaValues = [...new Set<string>(tableData.map((r: any) => r.categoria))].sort();
               const sexoValues = [...new Set<string>(tableData.map((r: any) => r.sexo))].sort();

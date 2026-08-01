@@ -8,7 +8,7 @@ interface StackedChartResult {
 export function getStackedTransportModeData(
   citiesByYearData: any,
   selectedCity: number | null,
-  tipoLocal: string = "ocorrencia"
+  _tipoLocal: string = "ocorrencia"
 ): StackedChartResult {
   if (!citiesByYearData?.anos || citiesByYearData.anos.length === 0) {
     return { categories: [], series: [] };
@@ -28,13 +28,22 @@ export function getStackedTransportModeData(
     return { categories: [], series: [] };
   }
 
+  const rmrData = anosDisponiveis.map((ano: number) =>
+    (citiesByYearData.cidades || []).reduce(
+      (sum: number, c: any) => sum + (c[ano.toString()] || 0), 0
+    )
+  );
+
   if (selectedCity && cidadeSelecionada) {
     return {
       categories: anosDisponiveis.map((ano: number) => ano.toString()),
       series: [{
         name: cidadeSelecionada.name || cidadeSelecionada.nome || "Total",
         type: "column",
-        data: anosDisponiveis.map((ano: number) => cidadeSelecionada[ano.toString()] || 0),
+        data: anosDisponiveis.map((ano: number, i: number) => ({
+          y: cidadeSelecionada[ano.toString()] || 0,
+          rmr: rmrData[i],
+        })),
         color: "#008888",
       }],
     };
@@ -45,11 +54,10 @@ export function getStackedTransportModeData(
     series: [{
       name: "RMR",
       type: "column",
-      data: anosDisponiveis.map((ano: number) =>
-        (citiesByYearData.cidades || []).reduce(
-          (sum: number, c: any) => sum + (c[ano.toString()] || 0), 0
-        )
-      ),
+      data: anosDisponiveis.map((ano: number, i: number) => ({
+        y: rmrData[i],
+        rmr: rmrData[i],
+      })),
       color: "#008888",
     }],
   };

@@ -354,7 +354,6 @@ export default function ViasRankingTable({
             </div>
           </div>
         )}
-      )
 
       {/* Insights */}
       {(tableData || []).length > 0 && (
