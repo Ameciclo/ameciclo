@@ -1,5 +1,7 @@
 // Set to false to point all services to production Atlas hosts.
 const IS_DEV = true
+// Controla se o Strapi CMS é local ou de produção, independente do IS_DEV.
+const STRAPI_DEV = false
 const api = (port: number, prod: string) =>
   IS_DEV ? `http://localhost:${port}` : prod
 
@@ -11,7 +13,7 @@ const EMERGENCY_CALLS_BASE = api(3010, "https://emergency-calls.atlas.ameciclo.o
 const TRAFFIC_TICKETS_BASE = api(3013, "https://traffic-violations.atlas.ameciclo.org")
 const CYCLIST_PROFILE_BASE = api(3000, "https://cyclist-profile.atlas.ameciclo.org")
 
-export const CMS_BASE_URL = api(1337, "https://do.strapi.ameciclo.org")
+export const CMS_BASE_URL = STRAPI_DEV ? "http://localhost:1337" : "https://strapi.ameciclo.org"
 
 // Strapi single-types — legacy endpoints kept as documentation reference.
 // Page metadata now comes from the `plataformas-de-dados` collection (PLATAFORMA_DADOS_PAGE_DATA below).
