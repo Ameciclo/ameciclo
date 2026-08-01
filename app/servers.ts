@@ -88,10 +88,8 @@ export const INFRA_CICLOVIARIA_DATA = `${CYCLING_INFRA_BASE}/v1/infrastructure/c
 export const EXECUCAO_CICLOVIARIA_DATA = `${CYCLING_INFRA_BASE}/v1/ways/all-ways?only_all=true&precision=4&simplify=0.0001`
 export const EXECUCAO_CICLOVIARIA_SUMMARY = `${CYCLING_INFRA_BASE}/v1/ways/summary`
 export const EXECUCAO_CICLOVIARIA_RELATIONS = `${CYCLING_INFRA_BASE}/relations/by-city`
-export const POINT_CICLO_NEARBY = (lat: number, lng: number, radius = 200, streetId?: string) =>
-  streetId
-    ? `${CICLODADOS_BASE}/nearby?street=${streetId}`
-    : `${CICLODADOS_BASE}/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
+export const POINT_CICLO_NEARBY = (lat: number, lng: number, radius = 200, streetId?: string | number) =>
+  `${CICLODADOS_BASE}/nearby?lat=${lat}&lng=${lng}&radius=${radius}${streetId !== undefined ? `&street=${streetId}` : ''}`
 
 export const CICLODADOS_HEALTH_URLS: Record<string, string> = {
   bicicletarios: `${BICYCLE_RACKS_BASE}/health`,

@@ -1101,9 +1101,10 @@ export function MapView({
               mapViewState
             )
               .map((item: any) => {
-                const totalContagens = item.isCluster ? 
-                  item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_cyclists || f.properties.count || 0), 0) :
-                  (item.properties.items?.[0]?.properties?.total_cyclists || item.properties.items?.[0]?.properties?.count || 0);
+                const firstItem = item.properties.items?.[0]?.properties;
+                const totalContagens = item.isCluster
+                  ? (firstItem?.total_cyclists || firstItem?.count || 0)
+                  : (firstItem?.total_cyclists || firstItem?.count || 0);
                 
                 const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
                 
@@ -1115,16 +1116,16 @@ export function MapView({
                   isCluster: item.isCluster,
                   popup: {
                     name: item.isCluster ? `${item.properties.count} Pontos Prefeitura` : 
-                          (item.properties.items?.[0]?.properties?.name || 'Ponto Prefeitura'),
+                          (firstItem?.name || 'Ponto Prefeitura'),
                     total: totalContagens,
-                    date: item.properties.items?.[0]?.properties?.last_count_date,
-                    city: item.properties.items?.[0]?.properties?.city,
-                    created_at: item.properties.items?.[0]?.properties?.last_count_date,
+                    date: firstItem?.last_count_date,
+                    city: firstItem?.city,
+                    created_at: firstItem?.last_count_date,
                     latitude: item.geometry.coordinates[1],
                     longitude: item.geometry.coordinates[0]
                   },
-                  cargo_percent: item.properties.items?.[0]?.properties?.cargo_percent,
-                  wrong_way_percent: item.properties.items?.[0]?.properties?.wrong_way_percent,
+                  cargo_percent: firstItem?.cargo_percent,
+                  wrong_way_percent: firstItem?.wrong_way_percent,
                   customIcon: (
                     <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                       <div className="bg-white text-black px-2 py-1 rounded-lg shadow-lg border-2 border-black flex items-center gap-1 min-w-[50px] justify-center">
@@ -1137,25 +1138,13 @@ export function MapView({
                         <div className="flex flex-col items-center">
                           <span className="text-xs font-bold">{totalContagens}</span>
                           <span className="text-[8px] text-gray-500">
-                            {item.properties.items?.[0]?.properties?.last_count_date?.split('/')[1] || new Date().getFullYear()}
+                            {firstItem?.last_count_date?.split('/')[1] || new Date().getFullYear()}
                           </span>
                         </div>
                         {item.isCluster && item.properties.count > 1 && (
-                          <span 
-                            className="text-[8px] bg-white text-black border border-black rounded-full px-1 ml-1 cursor-help relative"
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setClusterTooltip({
-                                show: true,
-                                count: item.properties.count,
-                                x: rect.left + rect.width / 2,
-                                y: rect.top - 5
-                              });
-                            }}
-                            onMouseLeave={() => setClusterTooltip({ show: false, count: 0, x: 0, y: 0 })}
-                          >
-                            {item.properties.count}
-                          </span>
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] px-1 rounded-full font-bold border border-red-600">
+                            +{item.properties.count - 1}
+                          </div>
                         )}
                       </div>
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2">
