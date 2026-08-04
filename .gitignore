@@ -5,6 +5,7 @@ node_modules
 .env
 .gemini/
 .playwright-cli/
+.tanstack/
 
 docs
 
