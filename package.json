@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "vite build && wrangler deploy",
+    "deploy:staging": "CLOUDFLARE_ENV=staging vite build && wrangler deploy",
     "lint": "oxlint",
     "typecheck": "tsc",
     "gen:strapi-types": "openapi-typescript ./specification.json -o ./app/types/strapi-api.ts"
