@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ameciclo",
+  "account_id": "8b9af9b81476222e1a787f42f3c8076a",
   "workers_dev": true,
   "preview_urls": true,
   "routes": [
