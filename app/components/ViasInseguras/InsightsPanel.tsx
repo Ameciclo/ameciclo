@@ -6,7 +6,7 @@ interface InsightsPanelProps {
   historyData: any;
 }
 
-export default function InsightsPanel({ summaryData, topViasData, historyData }: InsightsPanelProps) {
+export default function InsightsPanel({ topViasData, historyData }: InsightsPanelProps) {
   const [activeInsight, setActiveInsight] = useState<'concentration' | 'trends' | 'recommendations'>('concentration');
 
   // Calcular insights baseados nos dados

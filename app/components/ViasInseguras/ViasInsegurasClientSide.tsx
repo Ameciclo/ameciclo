@@ -60,7 +60,6 @@ export default function ViasInsegurasClientSide({
   summaryData,
   topViasData,
   mapData,
-  historyData,
 }: ViasInsegurasClientSideProps) {
 
   // Converter dados das vias para GeoJSON

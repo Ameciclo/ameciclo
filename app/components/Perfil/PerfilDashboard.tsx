@@ -668,7 +668,7 @@ function PerfilClientSide({ apiDown, profileData }: { apiDown?: boolean, profile
     }
   };
 
-  const toggleFilter = (f: any, i: number) => {
+  const toggleFilter = (f: any, _i: number) => {
     setFilters((prevState) => {
       return prevState.map((item: any) => {
         return item.value === f.value

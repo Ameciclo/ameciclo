@@ -45,7 +45,7 @@ const characteristicsMap = new Map([
   ["total_wrong_way", { name: "Contramão" }],
 ]);
 
-function getChartData(data: any[]) {
+function getChartData(_data: any[]) {
     // API Atlas não tem dados por hora, retornar vazio
     return { series: [], hours: [] };
 }

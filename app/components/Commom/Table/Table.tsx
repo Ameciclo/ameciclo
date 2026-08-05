@@ -12,7 +12,7 @@ function fuzzyTextFilterFn(rows: any, id: any, filterValue: any) {
 
 fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
-export function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, setFilter, id } }: any) {
+export function NumberRangeColumnFilter({ column: { filterValue = [], setFilter } }: any) {
     const [min, max] = filterValue;
 
     return (
@@ -69,7 +69,7 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction, customHeader }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, customHeader }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -271,20 +271,20 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
         return () => observer.disconnect();
     }, []);
 
-    function TableHead({ headerGroups, isSmallScreen = false, showFilters, setShowFilters, rows }: any) {
+    function TableHead({ headerGroups, isSmallScreen = false, rows }: any) {
         return (
             <thead>
                 {headerGroups.map((headerGroup: any, groupIndex: number) => (
                     <tr
                         key={groupIndex}
-                        {...(({ key, ...props }) => props)(headerGroup.getHeaderGroupProps())}
+                        {...(({ key: _key, ...props }) => props)(headerGroup.getHeaderGroupProps())}
                         className="bg-gray-100 rounded-lg text-sm font-medium text-gray-700 text-left relative"
                     >
                         {headerGroup.headers.map((column: any, index: number) =>
                             isSmallScreen && index !== 0 ? null : (
                                 <th
                                     key={column.id || index}
-                                    {...(({ key, ...props }) => props)(column.getHeaderProps())}
+                                    {...(({ key: _key, ...props }) => props)(column.getHeaderProps())}
                                     className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
                                 >
                                     <button
@@ -344,7 +344,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     return isSmallScreen ? (
                         <React.Fragment key={i}>
                             <tr
-                                {...(({ key, ...props }) => props)(row.getRowProps())}
+                                {...(({ key: _key, ...props }) => props)(row.getRowProps())}
                                 className={`border-b border-gray-200 ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-200' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                             >
                                 <td className="px-6 py-4">
@@ -377,14 +377,14 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     ) : (
                         <React.Fragment key={i}>
                             <tr
-                                {...(({ key, ...props }) => props)(row.getRowProps())}
+                                {...(({ key: _key, ...props }) => props)(row.getRowProps())}
                                 className={`border-b border-gray-200 ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-700' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                             >
                                 {row.cells.map((cell: any, cellIndex: number) => {
                                     return (
                                         <td
                                             key={cell.column.id || cellIndex}
-                                            {...(({ key, ...props }) => props)(cell.getCellProps())}
+                                            {...(({ key: _key, ...props }) => props)(cell.getCellProps())}
                                             className={`px-6 py-4 text-sm leading-5 wrap-break-word ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : 'text-gray-700'}`}
                                             style={{ width: '20%' }}
                                         >
@@ -429,7 +429,6 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
         nextPage,
         pageIndex,
         gotoPage,
-        data,
     }: any) {
         const [pageNumberInput, setPageNumberInput] = useState("");
 

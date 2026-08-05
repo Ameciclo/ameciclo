@@ -10,7 +10,7 @@ interface LanguageSelectorProps {
   }>;
 }
 
-export const LanguageSelector = ({ currentSlug, availableLanguages = [] }: LanguageSelectorProps) => {
+export const LanguageSelector = ({ currentSlug }: LanguageSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

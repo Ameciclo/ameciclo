@@ -77,7 +77,7 @@ export function createClusters(features: any[], zoom: number, viewport?: { latit
   const gridSize = zoom < 10 ? 0.05 : zoom < 12 ? 0.02 : zoom < 14 ? 0.01 : 0.005;
   const clusters: any = {};
   
-  visibleFeatures.forEach((feature, index) => {
+  visibleFeatures.forEach((feature, _index) => {
     const [lng, lat] = feature.geometry.coordinates;
     const gridX = Math.floor(lng / gridSize);
     const gridY = Math.floor(lat / gridSize);

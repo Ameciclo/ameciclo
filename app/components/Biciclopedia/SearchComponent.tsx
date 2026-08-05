@@ -42,7 +42,7 @@ export const SearchComponent = (props: SearchComponentProps) => {
           onFocus={() => {
             setSearchResultsVisible(true);
           }}
-          onBlur={(e) => {
+          onBlur={(_e) => {
             // Delay para permitir clique nos resultados
             setTimeout(() => {
               setSearchResultsVisible(false);
