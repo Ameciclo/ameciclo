@@ -17,7 +17,7 @@ const BreadcrumbItem = ({ slug, label, lastItem }: BreadcrumbItemProps) => {
     <li className="flex items-center">
       {!lastItem ? (
         <Link to={slug} className="text-white">
-          {label.split("/").pop()?.replace(/[_&\/\#,+()$~%.'":*?<>{}]/g, " ") || ""}
+          {label.split("/").pop()?.replace(/[_&/#,+()$~%.'":*?<>{}]/g, " ") || ""}
         </Link>
       ) : (
         <span>{label}</span>
