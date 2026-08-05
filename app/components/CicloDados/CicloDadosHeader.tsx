@@ -11,7 +11,7 @@ interface CicloDadosHeaderProps {
 
 
 
-export function CicloDadosHeader({ viewMode, onViewModeChange, onStreetSelect, onZoomToStreet }: CicloDadosHeaderProps) {
+export function CicloDadosHeader({ onStreetSelect, onZoomToStreet }: CicloDadosHeaderProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [streetSuggestions, setStreetSuggestions] = useState<StreetMatch[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);

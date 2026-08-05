@@ -144,7 +144,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
 
   return (
     <ul className="flex space-x-6 h-full">
-      {pages.map((page: any, i: any) => {
+      {pages.map((page: any, _i: any) => {
         const isActive = isActivePage(page.url);
         const isDadosPage = page.url === '/dados';
         return (

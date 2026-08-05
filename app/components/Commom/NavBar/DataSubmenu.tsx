@@ -33,7 +33,7 @@ export function DataSubmenu() {
     >
       <div className="w-full flex items-center justify-center px-8 py-1 m-0">
         <div className="hidden xl:flex items-center justify-start flex-wrap gap-1 py-1">
-          {dataSubPages.map((subPage, index) => {
+          {dataSubPages.map((subPage, _index) => {
             const isActive = location.pathname === subPage.url || 
               location.pathname.startsWith(subPage.url + '/');
             const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
@@ -69,7 +69,7 @@ export function DataSubmenu() {
         
         <div className="xl:hidden flex items-center justify-center py-1 overflow-x-auto scrollbar-hide">
           <div className="flex items-center flex-wrap justify-start gap-1 py-1">
-            {dataSubPages.map((subPage, index) => {
+            {dataSubPages.map((subPage, _index) => {
               const isActive = location.pathname === subPage.url || 
                 location.pathname.startsWith(subPage.url + '/');
               const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";

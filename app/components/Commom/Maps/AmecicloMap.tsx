@@ -11,7 +11,7 @@ import { Move } from 'lucide-react';
 
 
 
-const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, dragPanEnabled, radius, setRadius, onViewStateChange }: any) => {
+const MapCommands = ({ viewport, setViewport, settings, setsettings, setIsFullscreen, initialViewport, toggleDragPan, dragPanEnabled, onViewStateChange }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 

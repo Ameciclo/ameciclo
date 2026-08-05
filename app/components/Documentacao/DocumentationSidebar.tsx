@@ -71,7 +71,6 @@ function DocumentationSidebar({
   activeSection,
   isSidebarCollapsed,
   isMobile,
-  isScrolled,
   onItemClick,
   darkMode = true,
   fontSize = 16

@@ -55,7 +55,7 @@ export const StatisticsBoxIdeciclo = ({ title, boxes, subtitle = "" }: any) => {
   );
 };
 
-export const StatisticsBoxIdecicloDetalhes = ({ title, boxes, subtitle = "" }: any) => {
+export const StatisticsBoxIdecicloDetalhes = ({ boxes, subtitle = "" }: any) => {
   return (
     <section className="relative z-1 mx-auto container bg-transparent">
       <div className="mx-auto text-center">

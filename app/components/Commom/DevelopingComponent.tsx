@@ -1,8 +1,7 @@
 export default function DevelopingComponent({ 
-  title, 
-  type = "default", 
-  subtitle = "Em desenvolvimento..." 
-}: { 
+  title,
+  subtitle = "Em desenvolvimento..."
+}: {
   title: any, 
   type?: "default", 
   subtitle?: string 

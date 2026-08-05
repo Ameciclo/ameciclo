@@ -126,7 +126,7 @@ export default function TemporalAnalysis({ data, selectedVia }: TemporalAnalysis
           },
           series: [{
             name: 'Sinistros',
-            data: monthlyData.map(([month, value]) => value)
+            data: monthlyData.map(([_month, value]) => value)
           }]
         };
 
