@@ -1,16 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ameciclo",
-  "account_id": "8b9af9b81476222e1a787f42f3c8076a",
-  /**
-   * `workers_dev: true` exposes the Worker on
-   * <name>.<account-subdomain>.workers.dev (ameciclo.ti-8b9.workers.dev).
-   * `preview_urls: true` lets `wrangler versions upload --preview-alias`
-   * produce per-version URLs like pr-<N>-ameciclo.ti-8b9.workers.dev,
-   * which the PR Preview workflow surfaces as a sticky comment.
-   *
-   * Production traffic still goes to the custom domains in `routes`.
-   */
   "workers_dev": true,
   "preview_urls": true,
   "routes": [
@@ -45,4 +35,17 @@
     "GOOGLE_CALENDAR_EXTERNAL_ID": "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
     "GOOGLE_CALENDAR_INTERNAL_ID": "ameciclo@gmail.com",
   },
+
+  "env": {
+    "staging": {
+      "routes": [
+        { "pattern": "staging.ameciclo.org", "custom_domain": true },
+      ],
+      "vars": {
+        "SITE_URL": "https://staging.ameciclo.org",
+        "GOOGLE_CALENDAR_EXTERNAL_ID": "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
+        "GOOGLE_CALENDAR_INTERNAL_ID": "ameciclo@gmail.com",
+      },
+    }
+  }
 }
