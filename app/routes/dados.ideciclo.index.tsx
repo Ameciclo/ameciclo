@@ -35,7 +35,7 @@ function Ideciclo() {
     const { ideciclo, structures, pageData, apiDown } = data;
     useReportApiErrors(data);
 
-    const coverImage = pageData.coverImage || "/pages_covers/ideciclo-cover.png";
+    const coverImage = pageData.coverImage;
     const cidades = (ideciclo || []).filter((c: any) => c.reviews?.length > 0);
     const statistics = calculateIdecicloStatistics(cidades, structures || []);
 

@@ -47,7 +47,7 @@ function IdecicloDetail() {
 
   const info = getRatesSummary(structure, forms);
   const GeneralStatistics = structureStatistics(structure, info);
-  const coverImage = pageData.coverImage || "/pages_covers/ideciclo-navcover.png";
+  const coverImage = pageData.coverImage;
 
   return (
     <>

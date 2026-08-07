@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp, User, ShieldCheck, UserPlus, Wrench, RotateCcw, Package, Baby, Footprints, FileText, Scale, ClipboardCheck, Search, Anchor, MoreHorizontal, Copy, Download, ExternalLink, Eye, Check } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp, User, ShieldCheck, UserPlus, Wrench, RotateCcw, Package, Baby, Footprints, FileText, Scale, ClipboardCheck, Search, Anchor, MoreHorizontal, Copy, Download, ExternalLink, Eye, Check, Database } from 'lucide-react';
 import { POINT_CICLO_NEARBY } from '~/servers';
 import promptTemplates from '~/data/ciclodados-prompt-templates.json';
 import { calculatePercentage } from '~/utils/translations';
@@ -164,6 +164,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   const [selectedStreetId, setSelectedStreetId] = useState<string | number | undefined>(streetId || undefined);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
+  const [copiedAll, setCopiedAll] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Document assistant state
@@ -836,6 +837,26 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
     URL.revokeObjectURL(url);
   };
 
+  const handleCopyAllData = async () => {
+    try {
+      const json = JSON.stringify(finalData, null, 2);
+      await navigator.clipboard.writeText(json);
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2000);
+    } catch {}
+  };
+
+  const handleDownloadAllData = () => {
+    const json = JSON.stringify(finalData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ciclodados-${lat.toFixed(4)}-${lng.toFixed(4)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleOpenChatGPT = () => {
     const encoded = encodeURIComponent(buildPrompt());
     window.open(`https://chat.openai.com/?hints=search&q=${encoded}`, '_blank');
@@ -849,7 +870,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
           <div>
             <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
               <MapPin size={22} className="text-blue-600" />
-              {finalData.location.nearest_street.official_name}
+              {finalData.location.nearest_street?.official_name || `Lat: ${lat.toFixed(4)}, Lon: ${lng.toFixed(4)}`}
             </h3>
             <p className="text-sm text-gray-500 mt-1">
               Exibe dados em um raio de 200m do ponto clicado
@@ -2089,6 +2110,24 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
           {activeTab === 'analysis' && (
             <div className="space-y-6">
+              <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <Database size={18} className="text-blue-600 shrink-0" />
+                <span className="text-sm text-blue-800 flex-1 font-medium">Dados brutos do ponto</span>
+                <button
+                  onClick={handleCopyAllData}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {copiedAll ? <Check size={14} /> : <Copy size={14} />}
+                  {copiedAll ? 'Copiado!' : 'Copiar JSON'}
+                </button>
+                <button
+                  onClick={handleDownloadAllData}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <Download size={14} />
+                  Baixar JSON
+                </button>
+              </div>
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-gray-800">Assistente de Documentos</h4>
               </div>

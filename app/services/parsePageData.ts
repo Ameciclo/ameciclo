@@ -1,3 +1,5 @@
+const PLATAFORMA_COVER = "/pages_covers/plataforma-cover.jpg";
+
 export type PageData = {
   title: string;
   coverImage: string;
@@ -20,11 +22,11 @@ export function parsePageData(
   fallback: PageDataFallback
 ): PageData {
   const entry = raw?.data?.[0]?.attributes;
-  if (!entry) return { ...fallback, supportFiles: [], methodology: null, results: null };
+  if (!entry) return { ...fallback, coverImage: PLATAFORMA_COVER, supportFiles: [], methodology: null, results: null };
 
   return {
     title: entry.title || fallback.title,
-    coverImage: entry.cover?.data?.attributes?.url || fallback.coverImage,
+    coverImage: entry.cover?.data?.attributes?.url || PLATAFORMA_COVER,
     explanationBoxes: entry.explanationbox || fallback.explanationBoxes,
     supportFiles: (entry.supportfiles || []).map((f: any) => ({
       title: f.title || f.name || "Documento",

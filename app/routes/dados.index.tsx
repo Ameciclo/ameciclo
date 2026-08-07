@@ -139,7 +139,7 @@ function Dados() {
 
   return (
     <>
-      <Banner image={page.cover?.url ?? undefined} alt="Capa da plataforma de dados" />
+      <Banner image={page.cover?.url ?? "/pages_covers/plataforma-cover.jpg"} alt="Capa da plataforma de dados" />
       <Breadcrumb label="Dados" slug="/dados" routes={["/"]} />
       <ExplanationBoxes
         boxes={[{ title: "O que temos aqui?", description: page.description ?? null }]}
