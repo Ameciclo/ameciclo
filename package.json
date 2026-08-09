@@ -11,7 +11,7 @@
     "deploy:staging": "CLOUDFLARE_ENV=staging vite build && wrangler deploy",
     "lint": "oxlint",
     "typecheck": "tsc",
-    "gen:strapi-types": "openapi-typescript ./specification.json -o ./app/types/strapi-api.ts"
+    "strapi:contract": "node scripts/check-strapi-contract.mjs"
   },
   "dependencies": {
     "@fullcalendar/core": "7.0.0-rc.2",
