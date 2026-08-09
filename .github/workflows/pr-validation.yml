@@ -63,6 +63,36 @@ jobs:
 
       - run: pnpm typecheck
 
+  # Verde por padrão: só fica vermelho quando um content type do Strapi muda e
+  # strapi-contract.json fica para trás. Informativo porque um PR sem relação
+  # com o Strapi não deveria travar por isso — mas, diferente do typecheck,
+  # aqui vermelho significa que algo aconteceu de fato.
+  strapi-contract:
+    name: Strapi contract (informational)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: jdx/mise-action@v4
+        with:
+          cache: true
+
+      - name: Resolve pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v5
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm strapi:contract --check
+
   lint:
     name: Lint (informational)
     runs-on: ubuntu-latest

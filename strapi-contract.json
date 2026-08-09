@@ -1,0 +1,1334 @@
+{
+  "ApiClippingClippingDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "link": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "date": {
+        "description": "A date field",
+        "type": "string"
+      },
+      "text": {
+        "description": "A richtext field",
+        "type": "string"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.506Z",
+        "type": "string"
+      },
+      "print": {
+        "description": "A media field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PluginUploadFileDocument"
+        }
+      },
+      "backup_media": {
+        "description": "A media field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PluginUploadFileDocument"
+        }
+      },
+      "project": {
+        "description": "A relational field",
+        "$ref": "#/components/schemas/ApiProjectProjectDocument"
+      },
+      "clipping_medias": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiClippingMediaClippingMediaDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiClippingClippingDocument"
+  },
+  "ApiClippingMediaClippingMediaDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "name": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "url": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "type": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "blog",
+          "independente",
+          "jornal",
+          "revista",
+          "podcast",
+          "portal",
+          "televisao",
+          "radio",
+          "redessociais",
+          "outros"
+        ]
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.508Z",
+        "type": "string"
+      },
+      "logo": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "clippings": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiClippingClippingDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiClippingMediaClippingMediaDocument"
+  },
+  "ApiDocumentDocumentDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "url": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "type": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "studies",
+          "books",
+          "other"
+        ]
+      },
+      "release_date": {
+        "description": "A date field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "isOurs": {
+        "description": "A boolean field",
+        "default": true,
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.644Z",
+        "type": "string"
+      },
+      "cover": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "isOurs",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiDocumentDocumentDocument"
+  },
+  "ApiFaqFaqDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "answer": {
+        "description": "A richtext field",
+        "type": "string"
+      },
+      "slug": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.594Z",
+        "type": "string"
+      },
+      "faq_tags": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiFaqTagFaqTagDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiFaqFaqDocument"
+  },
+  "ApiFaqTagFaqTagDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "slug": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.593Z",
+        "type": "string"
+      },
+      "faqs": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiFaqFaqDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiFaqTagFaqTagDocument"
+  },
+  "ApiPaginasDaPlataformaPaginasDaPlataformaDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "methodology": {
+        "description": "A richtext field",
+        "type": "string"
+      },
+      "report": {
+        "description": "A richtext field",
+        "type": "string"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.645Z",
+        "type": "string"
+      },
+      "locale": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "cover": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "titledBox": {
+        "description": "A component field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TitledBoxesExplanationBoxEntry"
+        }
+      },
+      "documentos": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiDocumentDocumentDocument"
+        }
+      },
+      "localizations": {
+        "description": "A relational field",
+        "readOnly": true,
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiPaginasDaPlataformaPaginasDaPlataformaDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "title",
+      "publishedAt",
+      "cover"
+    ],
+    "additionalProperties": false,
+    "id": "ApiPaginasDaPlataformaPaginasDaPlataformaDocument"
+  },
+  "ApiPartnerPartnerDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "name": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "url": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "sponsor": {
+        "description": "A boolean field",
+        "default": true,
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.504Z",
+        "type": "string"
+      },
+      "logo": {
+        "description": "A media field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PluginUploadFileDocument"
+        }
+      },
+      "projects": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiProjectProjectDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "sponsor",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiPartnerPartnerDocument"
+  },
+  "ApiPostPostDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "subtitle": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "category": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "LOA"
+        ]
+      },
+      "body": {
+        "description": "A richtext field",
+        "type": "string"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.688Z",
+        "type": "string"
+      },
+      "locale": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "featuredImage": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "localizations": {
+        "description": "A relational field",
+        "readOnly": true,
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiPostPostDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "title",
+      "subtitle",
+      "body",
+      "publishedAt",
+      "featuredImage"
+    ],
+    "additionalProperties": false,
+    "id": "ApiPostPostDocument"
+  },
+  "ApiProductProductDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "url": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "desc": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "units": {
+        "description": "An integer field",
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "value": {
+        "description": "A decimal field",
+        "type": "number"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.620Z",
+        "type": "string"
+      },
+      "media": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiProductProductDocument"
+  },
+  "ApiProjectProjectDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "name": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "project_status": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "ongoing",
+          "finished",
+          "paused"
+        ]
+      },
+      "startDate": {
+        "description": "A date field",
+        "type": "string"
+      },
+      "endDate": {
+        "description": "A date field",
+        "type": "string"
+      },
+      "isHighlighted": {
+        "description": "A boolean field",
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "showTitle": {
+        "description": "A boolean field",
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "bikeCulture": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "instArticulation": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "politicIncidence": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "goal": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "slug": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "long_description": {
+        "description": "A blocks field",
+        "type": "array",
+        "items": {}
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.493Z",
+        "type": "string"
+      },
+      "media": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "cover": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "gallery": {
+        "description": "A media field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PluginUploadFileDocument"
+        }
+      },
+      "products": {
+        "description": "A component field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ProductsProdutosEntry"
+        }
+      },
+      "Links": {
+        "description": "A component field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/LinksLinksEntry"
+        }
+      },
+      "steps": {
+        "description": "A component field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/StepsDestaquesEntry"
+        }
+      },
+      "workgroup": {
+        "description": "A relational field",
+        "$ref": "#/components/schemas/ApiWorkgroupWorkgroupDocument"
+      },
+      "partners": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiPartnerPartnerDocument"
+        }
+      },
+      "clippings": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiClippingClippingDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "long_description",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiProjectProjectDocument"
+  },
+  "ApiProposalProposalDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "text": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.757Z",
+        "type": "string"
+      },
+      "locale": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "localizations": {
+        "description": "A relational field",
+        "readOnly": true,
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiProposalProposalDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "title",
+      "text",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiProposalProposalDocument"
+  },
+  "ApiWorkgroupWorkgroupDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "name": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "telegram_id": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "folder_url": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "telegram_url": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "directive": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "articular",
+          "incidir",
+          "cultuar",
+          "fortalecer"
+        ]
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.501Z",
+        "type": "string"
+      },
+      "icon": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "Links": {
+        "description": "A component field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/LinksLinksEntry"
+        }
+      },
+      "projects": {
+        "description": "A relational field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApiProjectProjectDocument"
+        }
+      }
+    },
+    "required": [
+      "documentId",
+      "id",
+      "publishedAt"
+    ],
+    "additionalProperties": false,
+    "id": "ApiWorkgroupWorkgroupDocument"
+  },
+  "ArchivesArquivosDeApoioEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "filename": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "release_date": {
+        "description": "A date field",
+        "type": "string"
+      },
+      "type": {
+        "description": "An enum field",
+        "type": "string",
+        "enum": [
+          "books",
+          "studies",
+          "reports",
+          "statements",
+          "legal",
+          "others"
+        ]
+      },
+      "file": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "image": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      }
+    },
+    "additionalProperties": false,
+    "id": "ArchivesArquivosDeApoioEntry"
+  },
+  "ArchivesDocumentosDisponobilizadosEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false,
+    "id": "ArchivesDocumentosDisponobilizadosEntry"
+  },
+  "CountsContagensEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "count_id": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "place": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "date": {
+        "description": "A date field",
+        "type": "string"
+      },
+      "latitude": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "longitude": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "pictures": {
+        "description": "A media field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PluginUploadFileDocument"
+        }
+      },
+      "csv": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "report": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      },
+      "cover": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      }
+    },
+    "additionalProperties": false,
+    "id": "CountsContagensEntry"
+  },
+  "LinksLinksEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "link": {
+        "description": "A string field",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "id": "LinksLinksEntry"
+  },
+  "PartnersParceirosEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "link": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "image": {
+        "description": "A media field",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PluginUploadFileDocument"
+        }
+      }
+    },
+    "additionalProperties": false,
+    "id": "PartnersParceirosEntry"
+  },
+  "PluginUploadFileDocument": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "documentId": {
+        "description": "The document ID, represented by a UUID",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "name": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "alternativeText": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "caption": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "focalPoint": {
+        "description": "A JSON field"
+      },
+      "width": {
+        "description": "An integer field",
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "height": {
+        "description": "An integer field",
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "formats": {
+        "description": "A JSON field"
+      },
+      "hash": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "ext": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "mime": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "size": {
+        "description": "A decimal field",
+        "type": "number"
+      },
+      "url": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "previewUrl": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "provider": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "provider_metadata": {
+        "description": "A JSON field"
+      },
+      "createdAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "updatedAt": {
+        "description": "A datetime field",
+        "type": "string"
+      },
+      "publishedAt": {
+        "description": "A datetime field",
+        "default": "2026-08-08T16:36:23.468Z",
+        "type": "string"
+      },
+      "related": {}
+    },
+    "required": [
+      "documentId",
+      "id",
+      "name",
+      "hash",
+      "mime",
+      "size",
+      "url",
+      "provider",
+      "publishedAt",
+      "related"
+    ],
+    "additionalProperties": false,
+    "id": "PluginUploadFileDocument"
+  },
+  "ProductsProdutosEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "link": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "image": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      }
+    },
+    "additionalProperties": false,
+    "id": "ProductsProdutosEntry"
+  },
+  "StepsDestaquesEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A text field",
+        "type": "string"
+      },
+      "link": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "image": {
+        "description": "A media field",
+        "$ref": "#/components/schemas/PluginUploadFileDocument"
+      }
+    },
+    "additionalProperties": false,
+    "id": "StepsDestaquesEntry"
+  },
+  "TitledBoxesExplanationBoxEntry": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "description": "A string field",
+        "type": "string"
+      },
+      "description": {
+        "description": "A richtext field",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "id": "TitledBoxesExplanationBoxEntry"
+  }
+}
