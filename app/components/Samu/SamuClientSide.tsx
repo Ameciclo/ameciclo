@@ -23,6 +23,8 @@ interface CityData {
   rmr?: boolean;
   historico_anual?: Array<{
     ano: number;
+    total_chamados?: number;
+    total?: number;
     validos?: {
       atendimento_concluido?: number;
       removido_particulares?: number;
@@ -62,17 +64,33 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   const cityStats = useMemo(() => {
     if (!citiesData?.cidades || !Array.isArray(citiesData.cidades)) return [];
 
+    const startYear = selectedYear ?? null;
+    const endYear = selectedEndYear || selectedYear;
+
     return citiesData.cidades
-      .sort((a, b) => b.count - a.count)
+      .map((city) => {
+        const filteredCount =
+          startYear !== null && selectedYear !== null
+            ? (city.historico_anual || [])
+                .filter((item) => item.ano >= startYear && item.ano <= (endYear ?? startYear))
+                .reduce(
+                  (sum, item) =>
+                    sum + (item.total_chamados || item.total || 0),
+                  0
+                )
+            : city.count || 0;
+        return { ...city, _filteredCount: filteredCount };
+      })
+      .sort((a, b) => b._filteredCount - a._filteredCount)
       .map((city, index) => ({
         id: city.id || `cidade-${index}`,
         label: city.display_name || city.name || city.municipio_samu || "N/A",
         municipio_samu: city.municipio_samu,
-        value: parseInt(String(city.count)) || 0,
+        value: parseInt(String(city._filteredCount)) || 0,
         unit: "chamadas",
         ranking: index + 1,
       }));
-  }, [citiesData?.cidades]);
+  }, [citiesData?.cidades, selectedYear, selectedEndYear]);
 
   const rmrCityStats = useMemo(() => {
     return cityStats.filter((city) => {
@@ -82,6 +100,60 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       return cityData?.rmr === true;
     });
   }, [cityStats, citiesData?.cidades]);
+
+  const [rmrChartData, setRmrChartData] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    if (!citiesData?.cidades) {
+      setRmrChartData(null);
+      return;
+    }
+
+    const rmrCities = citiesData.cidades.filter((c) => c.rmr === true);
+    if (rmrCities.length === 0) {
+      setRmrChartData(null);
+      return;
+    }
+
+    const yearMap: Record<
+      number,
+      {
+        atendimento_concluido: number;
+        removido_particulares: number;
+        removido_bombeiros: number;
+        obito_local: number;
+      }
+    > = {};
+
+    for (const city of rmrCities) {
+      for (const year of city.historico_anual || []) {
+        if (!yearMap[year.ano]) {
+          yearMap[year.ano] = {
+            atendimento_concluido: 0,
+            removido_particulares: 0,
+            removido_bombeiros: 0,
+            obito_local: 0,
+          };
+        }
+        yearMap[year.ano].atendimento_concluido +=
+          year.validos?.atendimento_concluido || 0;
+        yearMap[year.ano].removido_particulares +=
+          year.validos?.removido_particulares || 0;
+        yearMap[year.ano].removido_bombeiros +=
+          year.validos?.removido_bombeiros || 0;
+        yearMap[year.ano].obito_local += year.validos?.obito_local || 0;
+      }
+    }
+
+    const chartData = Object.entries(yearMap)
+      .sort(([a], [b]) => parseInt(a) - parseInt(b))
+      .map(([year, data]) => ({
+        label: year,
+        ...data,
+      }));
+
+    setRmrChartData(chartData);
+  }, [citiesData?.cidades]);
 
   const getEvolutionDataForCity = () => {
     if (!citiesData?.cidades || !selectedCity) return;
@@ -387,13 +459,88 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
         </div>
       </div>
 
+      {rmrChartData && rmrChartData.length > 0 ? (
+        <div className="mx-auto container my-12">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            Evolução das Chamadas de Emergência - RMR
+          </h2>
+          <h3 className="text-xl text-center mb-8 text-gray-600">
+            Distribuição anual agregada por tipo de desfecho na região metropolitana
+          </h3>
+          <div className="shadow-2xl rounded-sm p-6 pt-4 text-center">
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Distribuição por tipo de desfecho dos atendimentos
+              </p>
+
+              <div className="flex justify-center mb-6 flex-wrap gap-6">
+                {[
+                  {
+                    key: "atendimento_concluido",
+                    label: "Atendimento Concluído",
+                    color: "#059669",
+                  },
+                  {
+                    key: "removido_particulares",
+                    label: "Removido por Particulares",
+                    color: "#2563eb",
+                  },
+                  {
+                    key: "removido_bombeiros",
+                    label: "Removido pelos Bombeiros",
+                    color: "#d97706",
+                  },
+                  { key: "obito_local", label: "Óbito no Local", color: "#dc2626" },
+                ].map((item) => (
+                  <div key={item.key} className="flex items-center">
+                    <div
+                      className="w-4 h-4 mr-2 rounded-xs"
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                    <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <VerticalBarChart
+              title=""
+              xAxisTitle="Ano"
+              yAxisTitle="Número de Chamadas"
+              data={rmrChartData}
+              series={[]}
+              xKey="label"
+              yKeys={[
+                "atendimento_concluido",
+                "removido_particulares",
+                "removido_bombeiros",
+                "obito_local",
+              ]}
+              colors={["#059669", "#2563eb", "#d97706", "#dc2626"]}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="mx-auto container my-12">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            Evolução das Chamadas de Emergência - RMR
+          </h2>
+          <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+            <p className="text-gray-500">Carregando dados de evolução...</p>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto container my-12">
         <h2 className="text-3xl font-bold text-center mb-4">
           Ranking das Cidades Perigosas - RMR
         </h2>
-        <h3 className="text-xl text-center mb-8 text-gray-600">
+        <h3 className="text-xl text-center mb-2 text-gray-600">
           Selecione uma cidade para ver os gráficos detalhados — {getFilterSummary()}
         </h3>
+        <p className="text-sm text-center text-gray-400 mb-6">
+          Valores referentes ao período selecionado
+        </p>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           {cityStats.length > 0 ? (
@@ -434,7 +581,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           Evolução das Chamadas de Emergência
         </h2>
         <h3 className="text-xl text-center mb-8 text-gray-600">
-          {getFilterSummary()}
+          {selectedCityName}
         </h3>
         {filteredEvolutionData?.data &&
         filteredEvolutionData.data.length > 0 ? (
@@ -707,7 +854,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
       <div className="mx-auto container my-2">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <Table
-            title="Lista completa das cidades"
+            title={`Lista completa das cidades${selectedYear ? ` — ${selectedYear}${selectedEndYear && selectedEndYear !== selectedYear ? ` a ${selectedEndYear}` : ""}` : ""}`}
             data={allCitiesTableData}
             columns={[
               { Header: "Ranking", accessor: "ranking", disableFilters: true },

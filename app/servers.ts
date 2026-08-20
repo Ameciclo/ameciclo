@@ -1,7 +1,5 @@
-// Set to false to point all services to production Atlas hosts.
-const IS_DEV = true
-// Controla se o Strapi CMS é local ou de produção, independente do IS_DEV.
-const STRAPI_DEV = false
+const IS_DEV = typeof process !== "undefined" && process.env?.NODE_ENV === "development"
+const STRAPI_DEV = typeof process !== "undefined" && process.env?.STRAPI_DEV === "true"
 const api = (port: number, prod: string) =>
   IS_DEV ? `http://localhost:${port}` : prod
 
