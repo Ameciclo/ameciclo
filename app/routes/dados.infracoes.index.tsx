@@ -1,19 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { InfracoesStatisticsBox } from "~/components/Infracoes/InfracoesStatisticsBox";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import { CardsSession } from "~/components/Commom/CardsSession";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
-import { infracoesQueryOptions, infracoesLawStatsQueryOptions, infracoesStreetStatsQueryOptions, type InfracoesFilter } from "~/queries/dados.infracoes";
+import { infracoesQueryOptions, infracoesOverviewQueryOptions, type InfracoesFilter } from "~/queries/dados.infracoes";
 import { seo } from "~/utils/seo";
-import { formatCompactParts, formatCompactNumber, formatFullNumber } from "~/utils/formatNumber";
+import { formatCompactParts } from "~/utils/formatNumber";
 import { slugToCategory } from "~/components/Infracoes/InfracoesClientSide";
-import InfracoesClientSide from "~/components/Infracoes/InfracoesClientSide";
 
 export const Route = createFileRoute("/dados/infracoes/")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -37,13 +34,24 @@ export const Route = createFileRoute("/dados/infracoes/")({
 });
 
 function InfracoesPage() {
-  const { category, law, street_code: streetCode } = Route.useSearch();
-  const { data } = useSuspenseQuery(infracoesQueryOptions());
-  const { pageData, overview, violationCodes, categories, statisticsBoxes, apiDown, temporal, categoryBreakdown, agentBreakdownByYear, categoryBreakdownByYear } = data;
-  useReportApiErrors(data);
+  const { data: ssrData } = useSuspenseQuery(infracoesQueryOptions());
+  const { data: overviewData } = useQuery(ssrData.overviewDeferred ? infracoesOverviewQueryOptions() : ({ queryKey: ["skip-overview"], queryFn: () => null, enabled: false } as any));
+
+  const overviewDataMerged = overviewData ?? {};
+  const data = ssrData;
+  const pageData = data.pageData;
+  const apiDown = data.apiDown;
+  const overview = ssrData.overviewDeferred && overviewData ? overviewDataMerged.overview ?? ssrData.overview : ssrData.overview;
+  const temporal = ssrData.overviewDeferred && overviewData ? overviewDataMerged.temporal ?? ssrData.temporal : ssrData.temporal;
+  const categoryBreakdown = ssrData.overviewDeferred && overviewData ? overviewDataMerged.categoryBreakdown ?? ssrData.categoryBreakdown : ssrData.categoryBreakdown;
+  const categories = ssrData.overviewDeferred && overviewData ? overviewDataMerged.categories ?? ssrData.categories : ssrData.categories;
+  const statisticsBoxes = ssrData.overviewDeferred && overviewData ? overviewDataMerged.statisticsBoxes ?? ssrData.statisticsBoxes : ssrData.statisticsBoxes;
+  const agentBreakdownByYear = ssrData.overviewDeferred && overviewData ? overviewDataMerged.agentBreakdownByYear ?? ssrData.agentBreakdownByYear : ssrData.agentBreakdownByYear;
+  const categoryBreakdownByYear = ssrData.overviewDeferred && overviewData ? overviewDataMerged.categoryBreakdownByYear ?? ssrData.categoryBreakdownByYear : ssrData.categoryBreakdownByYear;
+  const violationCodes = ssrData.violationCodes;
 
   const compactBoxes = useMemo(() =>
-    statisticsBoxes.map((box: any) =>
+    (statisticsBoxes || []).map((box: any) =>
       typeof box.value === "number"
         ? { ...box, ...formatCompactParts(box.value) }
         : box
@@ -51,120 +59,30 @@ function InfracoesPage() {
     [statisticsBoxes]
   );
 
-  const filter: InfracoesFilter | undefined = category
-    ? { type: "category", value: slugToCategory(category, categories.map((c: any) => c.name)), label: slugToCategory(category, categories.map((c: any) => c.name)) }
-    : law
-      ? { type: "law", value: decodeURIComponent(law), label: decodeURIComponent(law).split(",")[0].trim() }
-      : streetCode
-        ? { type: "street_code", value: streetCode, label: `Rua #${streetCode}` }
-        : undefined;
+  const [InfracoesComponent, setInfracoesComponent] = useState<any>(null);
+  useEffect(() => {
+    import("~/components/Infracoes/InfracoesClientSide").then((mod) => {
+      setInfracoesComponent(() => mod.default);
+    });
+  }, []);
 
-  const isCategoryFilter = filter?.type === "category";
-
-  const { data: filteredData, isFetching: filterLoading } = useQuery(
-    filter?.type === "street_code" ? infracoesStreetStatsQueryOptions(filter) : ({ queryKey: ["skip"], queryFn: () => null, enabled: false } as any)
-  );
-
-  const { data: lawStatsData, isFetching: lawStatsLoading } = useQuery(
-    filter?.type === "law" ? infracoesLawStatsQueryOptions(filter) : ({ queryKey: ["skip-law"], queryFn: () => null, enabled: false } as any)
-  );
-
-  const display = useMemo(() => {
-    if (filter?.type === "law") return (lawStatsData as any) ?? data;
-    if (filter?.type === "street_code") return (filteredData as any) ?? data;
-    if (!isCategoryFilter || !filter) return data;
-
-    const cat = (data as any).categoryBreakdown?.find((c: any) => c.category === filter.value);
-    if (!cat) return data;
-
-    const availableYears = Object.keys(temporal.by_year ?? {})
-      .map(Number)
-      .filter((y) => !isNaN(y) && (temporal.by_year[y] ?? 0) > 0)
-      .sort((a, b) => b - a);
-    const latestYear = availableYears[0];
-
-    const catByYear: Record<string, number> = {};
-    for (const y of (cat.by_year ?? [])) {
-      if (y.year) catByYear[String(y.year)] = y.count ?? 0;
-    }
-
-    const agentBreakdown = latestYear
-      ? (agentBreakdownByYear as any[]).find((e: any) => e.year === latestYear)?.agents ?? overview.agentBreakdown
-      : overview.agentBreakdown;
-
-    const filteredCatByYear = (categoryBreakdownByYear as any[]).map((y: any) => ({
-      ...y,
-      categories: y.categories.filter((c: any) => c.category === filter.value),
-    })).filter((y: any) => y.categories.length > 0);
-
-    return {
-      ...data,
-      overview: { ...overview, totalViolations: cat.total, agentBreakdown },
-      temporal: {
-        by_year: catByYear,
-        by_month_raw: cat.by_month_raw ?? [],
-        by_weekday_raw: cat.by_weekday_raw ?? [],
-        by_hour_raw: cat.by_hour_raw ?? [],
-      },
-      categoryBreakdown: [cat],
-      categoryBreakdownByYear: filteredCatByYear,
-    };
-  }, [filter, isCategoryFilter, data, filteredData, temporal, overview, agentBreakdownByYear, categoryBreakdownByYear]);
-
-  const displayFilter = useMemo(() => {
-    if (!filter) return undefined;
-    if (filter.type === "street_code" && (filteredData as any)?.streetOfficialName) {
-      return { ...filter, label: (filteredData as any).streetOfficialName };
-    }
-    return filter;
-  }, [filter, filteredData]);
-
-  const isLoading = filter?.type === "law" ? lawStatsLoading : filterLoading;
-  const effectiveFiltered = filter?.type === "law" ? (lawStatsData as any) : (filteredData as any);
+  const clientSideProps = {
+    overview, violationCodes, categories, temporal,
+    categoryBreakdown, agentBreakdownByYear, categoryBreakdownByYear,
+    filter: null, filterLoading: false,
+  };
 
   return (
     <>
       <Banner image={pageData.coverImage} alt="Infrações" />
       <Breadcrumb label="Observatório de Infrações" slug="/dados/infracoes" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={apiDown} />
-      {displayFilter ? (
-        <FilteredStatisticsBox
-          filter={displayFilter}
-          filteredData={isCategoryFilter ? (display as any) : effectiveFiltered}
-          overview={overview}
-          unfilteredStats={data}
-        />
+      <InfracoesStatisticsBox title="Observatório de Infrações de Trânsito" subtitle="Estatísticas gerais" boxes={compactBoxes} />
+      <ExplanationBoxes boxes={pageData.explanationBoxes} />
+      {InfracoesComponent ? (
+        <InfracoesComponent {...clientSideProps} />
       ) : (
-        <>
-          <InfracoesStatisticsBox title="Observatório de Infrações de Trânsito" subtitle="Estatísticas gerais" boxes={compactBoxes} />
-          <ExplanationBoxes
-            boxes={pageData.explanationBoxes}
-          />
-        </>
-      )}
-      <InfracoesClientSide
-        overview={display.overview}
-        violationCodes={displayFilter?.type === "law" && lawStatsData ? (lawStatsData as any).lawCodes ?? display.violationCodes : display.violationCodes}
-        categories={display.categories}
-        temporal={display.temporal}
-        categoryBreakdown={display.categoryBreakdown}
-        agentBreakdownByYear={display.agentBreakdownByYear}
-        categoryBreakdownByYear={display.categoryBreakdownByYear}
-        filter={displayFilter ?? null}
-        lawCodes={(lawStatsData as any)?.lawCodes ?? (filteredData as any)?.lawCodes}
-        lawStats={(lawStatsData as any)?.lawStats}
-        filterLoading={!isCategoryFilter && isLoading}
-      />
-      {pageData.supportFiles.length > 0 && (
-        <CardsSession
-          title="Documentos"
-          cards={pageData.supportFiles.map((f) => ({
-            title: f.title,
-            description: f.description,
-            src: f.src,
-            url: f.url,
-          }))}
-        />
+        <div className="py-12 text-center text-gray-500">Carregando visualizações...</div>
       )}
     </>
   );
