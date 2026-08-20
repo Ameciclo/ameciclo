@@ -17,6 +17,12 @@ function getInfraPatternSvg(pattern: string, color: string, name: string) {
   switch (pattern) {
     case "solid":
       return <div className="w-full h-3" style={{ backgroundColor: color }} />;
+    case "dashed":
+      return (
+        <svg className="w-full h-3" viewBox="0 0 100 12" preserveAspectRatio="none">
+          <line x1="0" y1="6" x2="100" y2="6" stroke={color} strokeWidth="3" strokeDasharray="8,4" />
+        </svg>
+      );
     case "bordered":
       return (
         <div className="w-full h-3 border border-red-500" style={{ backgroundColor: color }} />

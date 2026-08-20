@@ -1,13 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
+import { COUNTINGS_ATLAS_LOCATIONS, PERFIL_SURVEY_LOCATIONS } from "~/servers";
 
 const fetchCicloDados = createServerFn().handler(async () => {
   try {
     const [amecicloResponse, perfilResponse] = await Promise.all([
-      fetch("https://cyclist-counts.atlas.ameciclo.org/v1/locations"),
-      fetch(
-        "https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations",
-      ),
+      fetch(COUNTINGS_ATLAS_LOCATIONS),
+      fetch(PERFIL_SURVEY_LOCATIONS),
     ]);
 
     const amecicloData = amecicloResponse.ok

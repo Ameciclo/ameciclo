@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { TODAS_INFRACOES } from './useCicloDadosData';
 
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
@@ -10,7 +11,7 @@ export function useCicloDadosState(
   contagemOptions: string[],
   pdcOptions: Array<{ name: string; color: string; pattern: string }>,
   infracaoOptions: string[],
-  sinistroOptions: string[],
+  sinistroOptions: Array<{ name: string; color: string; pattern: string }>,
   estacionamentoOptions: string[],
   perfilOptions: string[]
 ) {
@@ -73,8 +74,8 @@ export function useCicloDadosState(
   const defaultInfra = infraOptions.map(opt => opt.name);
   const defaultContagem = [...contagemOptions];
   const defaultPdc = pdcOptions.map(opt => opt.name);
-  const defaultInfracao = [...infracaoOptions];
-  const defaultSinistro = [...sinistroOptions];
+  const defaultInfracao = ["Risco a vulneráveis"];
+  const defaultSinistro = sinistroOptions.map(opt => opt.name);
   const defaultEstacionamento = [...estacionamentoOptions];
   const defaultPerfil = [...perfilOptions];
 
@@ -85,11 +86,17 @@ export function useCicloDadosState(
   const [selectedSinistro, setSelectedSinistro] = useState<string[]>(defaultSinistro);
   const [selectedEstacionamento, setSelectedEstacionamento] = useState<string[]>(defaultEstacionamento);
   const [selectedPerfil, setSelectedPerfil] = useState<string[]>(defaultPerfil);
-  const [selectedGenero, setSelectedGenero] = useState<string[]>(["2024", "2021", "2018", "2015"]);
-  const [selectedAno, setSelectedAno] = useState<string[]>(["2024", "2021", "2018", "2015"]);
+  const [selectedPerfilMetric, setSelectedPerfilMetric] = useState<string>('acidentes');
+  const [selectedGenero, setSelectedGenero] = useState<string[]>(["2024", "2021", "2018"]);
+  const [selectedAno, setSelectedAno] = useState<string[]>(["2024", "2021", "2018"]);
   const [selectedArea, setSelectedArea] = useState<string>("Todas");
   const [selectedIdade, setSelectedIdade] = useState<string>("Todas");
   const [selectedStreet, setSelectedStreet] = useState<string>("");
+  const [infracaoStartYear, setInfracaoStartYear] = useState<string>("2022");
+  const [infracaoEndYear, setInfracaoEndYear] = useState<string>("2024");
+  const [infracaoSeverityHigh, setInfracaoSeverityHigh] = useState(true);
+  const [infracaoSeverityMedium, setInfracaoSeverityMedium] = useState(true);
+  const [infracaoSeverityLow, setInfracaoSeverityLow] = useState(true);
   
   // Load from localStorage after hydration - ONLY ONCE
   useEffect(() => {
@@ -131,12 +138,12 @@ export function useCicloDadosState(
       const perfilOff = urlParams.get('perfil') === 'off';
       const storedPerfil = getStoredValue('selectedPerfil', null);
       setSelectedPerfil(perfilOff ? [] : (storedPerfil !== null ? storedPerfil : defaultPerfil));
-      setSelectedGenero(getStoredValue('selectedGenero', ["2024", "2021", "2018", "2015"]));
+      setSelectedGenero(getStoredValue('selectedGenero', ["2024", "2021", "2018"]));
       
       // Read anos from URL flags - agora lê os OFF
-      const anosOffFromUrl = ['2024', '2021', '2018', '2015'].filter(ano => urlParams.get(`perfil_ano_${ano}`) === 'off');
-      const anosOn = ['2024', '2021', '2018', '2015'].filter(ano => !anosOffFromUrl.includes(ano));
-      setSelectedAno(anosOffFromUrl.length > 0 ? anosOn : getStoredValue('selectedAno', ["2024", "2021", "2018", "2015"]));
+      const anosOffFromUrl = ['2024', '2021', '2018'].filter(ano => urlParams.get(`perfil_ano_${ano}`) === 'off');
+      const anosOn = ['2024', '2021', '2018'].filter(ano => !anosOffFromUrl.includes(ano));
+      setSelectedAno(anosOffFromUrl.length > 0 ? anosOn : getStoredValue('selectedAno', ["2024", "2021", "2018"]));
       
       setSelectedArea(getStoredValue('selectedArea', "Todas"));
       setSelectedIdade(getStoredValue('selectedIdade', "Todas"));
@@ -295,7 +302,7 @@ export function useCicloDadosState(
       localStorage.setItem('ciclodados_selectedAno', JSON.stringify(selectedAno));
       
       updateUrlWithPriority((url) => {
-        ['2024', '2021', '2018', '2015'].forEach(ano => {
+        ['2024', '2021', '2018'].forEach(ano => {
           const key = `perfil_ano_${ano}`;
           if (!selectedAno.includes(ano)) {
             url.searchParams.set(key, 'off');
@@ -371,11 +378,15 @@ export function useCicloDadosState(
   };
 
   const toggleInfracaoOption = (optionName: string) => {
-    setSelectedInfracao(prev => 
-      prev.includes(optionName) 
-        ? prev.filter(item => item !== optionName)
-        : [...prev, optionName]
-    );
+    setSelectedInfracao(prev => {
+      if (optionName === TODAS_INFRACOES) {
+        return prev.includes(TODAS_INFRACOES) ? [] : [TODAS_INFRACOES];
+      }
+      if (prev.includes(optionName)) {
+        return prev.filter(item => item !== optionName);
+      }
+      return [...prev.filter(item => item !== TODAS_INFRACOES), optionName];
+    });
   };
 
   const toggleAllInfracaoOptions = (options: string[], selectAll: boolean) => {
@@ -407,11 +418,16 @@ export function useCicloDadosState(
   };
 
   const togglePerfilOption = (optionName: string) => {
-    setSelectedPerfil(prev => 
-      prev.includes(optionName) 
-        ? prev.filter(item => item !== optionName)
-        : [...prev, optionName]
-    );
+    setSelectedPerfil(prev => {
+      const isRemoving = prev.includes(optionName);
+      if (isRemoving) {
+        setSelectedAno([]);
+        return prev.filter(item => item !== optionName);
+      } else {
+        setSelectedAno(cur => cur.length === 0 ? ["2024", "2021", "2018"] : cur);
+        return [...prev, optionName];
+      }
+    });
   };
 
   const toggleAllPerfilOptions = (options: string[], selectAll: boolean) => {
@@ -420,7 +436,7 @@ export function useCicloDadosState(
     if (!selectAll) {
       setSelectedAno([]);
     } else {
-      setSelectedAno(["2024", "2021", "2018", "2015"]);
+      setSelectedAno(["2024", "2021", "2018"]);
     }
   };
 
@@ -448,6 +464,7 @@ export function useCicloDadosState(
     setSelectedSinistro([]);
     setSelectedEstacionamento([]);
     setSelectedPerfil([]);
+    setSelectedPerfilMetric('acidentes');
     setSelectedGenero([]);
     setSelectedAno([]);
     setSelectedArea("Todas");
@@ -490,8 +507,8 @@ export function useCicloDadosState(
     setSelectedSinistro(defaultSinistro);
     setSelectedEstacionamento(defaultEstacionamento);
     setSelectedPerfil(defaultPerfil);
-    setSelectedGenero(["2024", "2021", "2018", "2015"]);
-    setSelectedAno(["2024", "2021", "2018", "2015"]);
+    setSelectedGenero(["2024", "2021", "2018"]);
+    setSelectedAno(["2024", "2021", "2018"]);
     setSelectedArea("Todas");
     setSelectedIdade("Todas");
     
@@ -540,6 +557,8 @@ export function useCicloDadosState(
     selectedPerfil,
     togglePerfilOption,
     toggleAllPerfilOptions,
+    selectedPerfilMetric,
+    setSelectedPerfilMetric,
     selectedGenero,
     setSelectedGenero,
     toggleGeneroOption,
@@ -554,6 +573,16 @@ export function useCicloDadosState(
     setSelectedStreet,
     viewMode,
     setViewMode,
+    infracaoStartYear,
+    setInfracaoStartYear,
+    infracaoEndYear,
+    setInfracaoEndYear,
+    infracaoSeverityHigh,
+    setInfracaoSeverityHigh,
+    infracaoSeverityMedium,
+    setInfracaoSeverityMedium,
+    infracaoSeverityLow,
+    setInfracaoSeverityLow,
     clearAllSelections,
     selectAllOptions
   };

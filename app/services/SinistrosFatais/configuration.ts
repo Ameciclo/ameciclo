@@ -15,18 +15,18 @@ type CitiesByYearData = {
 
 type SummaryData = {
   porLocalOcorrencia: {
-    ultimoAno: string;
+    ultimoAno: number;
     totalUltimoAno: number;
     crescimentoRelacaoAnoAnterior: number;
     dadosPorAno: { total: number }[];
-    anoMaisViolento: { ano: string; total: number };
+    anoMaisViolento: { ano: number; total: number };
   };
   porLocalResidencia: {
-    ultimoAno: string;
+    ultimoAno: number;
     totalUltimoAno: number;
     crescimentoRelacaoAnoAnterior: number;
     dadosPorAno: { total: number }[];
-    anoMaisViolento: { ano: string; total: number };
+    anoMaisViolento: { ano: number; total: number };
   };
 };
 
@@ -102,7 +102,7 @@ export function getGeneralStatistics(summaryData: SummaryData | null, tipoLocal 
 // Função para formatar os dados de cidades por ano
 export function getCityCardsByYear(citiesByYearData: any, selectedYear: number, tipoLocal = "ocorrencia", selectedEndYear: number | null = null) {
   if (!citiesByYearData || !selectedYear) return [];
-  if (!citiesByYearData.cities || citiesByYearData.cities.length === 0) {
+  if (!citiesByYearData.cidades || citiesByYearData.cidades.length === 0) {
     console.warn("Array de cidades vazio em getCityCardsByYear");
     return [{
       id: 0,
@@ -113,7 +113,7 @@ export function getCityCardsByYear(citiesByYearData: any, selectedYear: number, 
   }
   
   // Criar cards ordenados do maior para o menor número de mortes
-  return citiesByYearData.cities
+  return citiesByYearData.cidades
     .map((city: any) => {
       let totalMortes = 0;
       
@@ -361,23 +361,61 @@ export function formatCollisionMatrix(matrixData: MatrixData) {
     return null;
   }
 
-  // Mapeamento de nomes para exibição mais amigável
+  // Verificar se é o novo formato (array 2D + labels) ou o antigo (objeto)
+  if (Array.isArray(matrixData.matrix) && matrixData.matrix.length > 0 && Array.isArray(matrixData.matrix[0])) {
+    return formatCollisionMatrixFromArray(matrixData as any);
+  }
+
+  // Formato antigo (objeto com modos de transporte)
+  return formatCollisionMatrixFromObject(matrixData as any);
+}
+
+function formatCollisionMatrixFromArray(matrixData: { matrix: number[][], labels: { rows: string[], columns: string[] } }) {
+  const { matrix, labels } = matrixData;
+
+  // A ordem das linhas/colunas vem do backend:
+  // 0=Pedestre, 1=Ciclista, 2=Motociclista, 3=Automóvel/Caminhonete,
+  // 4=Pesados (ônibus/caminhão), 5=Objeto fixo, 6=Sem colisão, 7=Outros, 8=Não especificado
+  const modeOrder = ["pedestre", "ciclista", "motociclista", "automovel", "pesados", "objeto_fixo", "sem_colisao", "outros", "nao_especificado"];
+
+  // Construir o formato objeto usando as chaves do modeOrder para linhas e colunas
+  const result: Record<string, Record<string, number>> = { total: {} };
+
+  labels.rows.forEach((_rowName, rowIndex) => {
+    const rowKey = modeOrder[rowIndex] || `mode_${rowIndex}`;
+    result[rowKey] = { total: 0 };
+
+    labels.columns.forEach((_colName, colIndex) => {
+      const colKey = modeOrder[colIndex] || `mode_${colIndex}`;
+      const value = matrix[rowIndex]?.[colIndex] || 0;
+      result[rowKey][colKey] = value;
+      result[rowKey].total += value;
+
+      result.total[colKey] = (result.total[colKey] || 0) + value;
+      result.total.total = (result.total.total || 0) + value;
+    });
+  });
+
+  return formatCollisionMatrixFromObject({ matrix: result });
+}
+
+function formatCollisionMatrixFromObject(matrixData: { matrix: Record<string, any>; metadata?: any }) {
   const modeLabels: Record<string, string> = {
     "pedestre": "Pedestre",
     "ciclista": "Ciclista",
     "motociclista": "Motociclista",
     "automovel": "Automóvel",
-    "onibus": "Ônibus",
-    "outros": "Outros",
+    "pesados": "Pesados (ônibus/caminhão)",
     "objeto_fixo": "Objeto Fixo",
     "sem_colisao": "Sem Colisão",
+    "outros": "Outros",
     "nao_especificado": "Não Especificado",
     "total": "Total"
   };
 
   // Garantir que todas as categorias desejadas estejam presentes
   const requiredModes = ["pedestre", "ciclista", "motociclista", "automovel", 
-                         "onibus", "outros", "objeto_fixo", "sem_colisao", "nao_especificado"];
+                         "pesados", "objeto_fixo", "sem_colisao", "outros", "nao_especificado"];
   
   // Adicionar categorias ausentes à matriz
   requiredModes.forEach(mode => {
@@ -466,6 +504,14 @@ export function getPerfilSocioeconomico(filtrosData: FiltrosData, modoTransporte
       racaCor: filtrosData.resumo.porRacaCor || {},
       faixaEtaria: filtrosData.resumo.porFaixaEtaria || {}
     };
+
+    // Se faixa etária veio vazia do resumo, computar dos dados detalhados
+    if (Object.keys(dadosBrutos.faixaEtaria).length === 0 && filtrosData.dados) {
+      filtrosData.dados.forEach((item: any) => {
+        const faixa = item.faixaEtaria || "Não informado";
+        dadosBrutos.faixaEtaria[faixa] = (dadosBrutos.faixaEtaria[faixa] || 0) + (item.total || 1);
+      });
+    }
   } else {
     // Se o modo de transporte for "nao_identificado", retorna null (não temos dados)
     if (modoTransporte === "nao_identificado") {
@@ -551,13 +597,34 @@ export function getPerfilSocioeconomico(filtrosData: FiltrosData, modoTransporte
   // Processar e formatar os dados
   const sexoProcessado = formatarParaGrafico(dadosBrutos.sexo);
   const racaCorProcessado = formatarParaGrafico(dadosBrutos.racaCor);
-  const faixaEtariaProcessado = formatarParaGrafico(ordenarFaixasEtarias(dadosBrutos.faixaEtaria));
+  const faixaEtariaProcessado = formatarParaGrafico(ordenarFaixasEtarias(agruparFaixasEtarias(dadosBrutos.faixaEtaria)));
 
   return {
     titulo: modoTransporte ? `Perfil de ${modoTransporteLabels[modoTransporte]}` : "Perfil Socioeconômico",
     sexo: sexoProcessado,
     racaCor: racaCorProcessado,
     faixaEtaria: faixaEtariaProcessado
+  };
+}
+
+// Normalizar dados de causas secundárias da API para o formato esperado pelo componente
+export function formatCausasSecundarias(data: any) {
+  if (!data || !data.causas) return null;
+
+  return {
+    filtrosAplicados: data.filtrosAplicados || {},
+    totalRegistros: data.total || 0,
+    causasSecundarias: {
+      linhaa: data.causas.map((c: any) => ({
+        codigo: c.codigo,
+        count: c.total,
+      })),
+      linhab: [],
+      linhac: [],
+      linhad: [],
+      linhaii: [],
+    },
+    descricao: "",
   };
 }
 
@@ -582,15 +649,47 @@ const formatarParaGrafico = (dados: Record<string, number>) => {
 
 // Ordenar faixas etárias
 const ordenarFaixasEtarias = (dados: Record<string, number>): Record<string, number> => {
-  const ordem = [
-    "0 a 4 anos", "5 a 9 anos", "10 a 14 anos", "15 a 19 anos",
-    "20 a 29 anos", "30 a 39 anos", "40 a 49 anos", "50 a 59 anos",
-    "60 a 69 anos", "70 a 79 anos", "80 anos ou mais", "Não informado"
-  ];
-  
+  const extrairInicio = (label: string): number => {
+    const match = label.match(/^(\d+)/);
+    return match ? parseInt(match[1], 10) : 999;
+  };
+
   return Object.fromEntries(
     Object.entries(dados).sort(([a], [b]) => {
-      return ordem.indexOf(a) - ordem.indexOf(b);
+      const aInicio = extrairInicio(a);
+      const bInicio = extrairInicio(b);
+      if (aInicio !== bInicio) return aInicio - bInicio;
+      // Para faixas com mesmo início (ex: "0 a 4 anos" vs "0 a 9 anos"), a mais curta primeiro
+      return a.length - b.length;
     })
   );
+};
+
+// Agrupar faixas etárias detalhadas (5 anos) em grupos semânticos
+const agruparFaixasEtarias = (dados: Record<string, number>): Record<string, number> => {
+  const grupos: Record<string, number> = {};
+
+  for (const [faixa, valor] of Object.entries(dados)) {
+    let grupo: string;
+
+    if (faixa === "Ignorado") {
+      grupo = "Ignorado";
+    } else if (["0 a 4 anos", "1 a 4 anos", "5 a 9 anos", "10 a 14 anos", "15 a 19 anos"].includes(faixa)) {
+      grupo = "0-19 anos (Crianças e Adolescentes)";
+    } else if (["20 a 24 anos", "25 a 29 anos"].includes(faixa)) {
+      grupo = "20-29 anos (Jovens)";
+    } else if (["30 a 34 anos", "35 a 39 anos", "40 a 44 anos", "45 a 49 anos"].includes(faixa)) {
+      grupo = "30-49 anos (Adultos)";
+    } else if (["50 a 54 anos", "55 a 59 anos", "60 a 64 anos"].includes(faixa)) {
+      grupo = "50-64 anos (Meia-idade)";
+    } else if (["65 a 69 anos", "70 a 74 anos", "75 a 79 anos", "80 anos ou mais"].includes(faixa)) {
+      grupo = "65+ anos (Idosos)";
+    } else {
+      grupo = faixa;
+    }
+
+    grupos[grupo] = (grupos[grupo] || 0) + valor;
+  }
+
+  return grupos;
 };

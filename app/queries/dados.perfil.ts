@@ -1,37 +1,33 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { strapiClient } from "~/lib/strapi";
 import { cmsFetch } from "~/services/cmsFetch";
-import { PERFIL_API_URL } from "~/servers";
+import { parsePageData } from "~/services/parsePageData";
+import { PERFIL_API_URL, PLATAFORMA_DADOS_PAGE_DATA } from "~/servers";
 
-const MediaSchema = z.object({
-  id: z.number().nullish(),
-  url: z.string().nullish(),
-  alternativeText: z.string().nullish(),
-});
-
-const PerfilPageSchema = z.object({
-  id: z.number(),
-  documentId: z.string().nullish(),
-  description: z.string().nullish(),
-  objective: z.string().nullish(),
-  methodology: z.string().nullish(),
-  overal_report: z.string().nullish(),
-  cover: MediaSchema.nullish(),
-});
-
-export type PerfilPage = z.infer<typeof PerfilPageSchema>;
+const FALLBACK_PAGE_DATA = {
+  title: "Perfil do Ciclista",
+  coverImage: "/pages_covers/perfil.png",
+  explanationBoxes: [
+    {
+      title: "O que é?",
+      description:
+        "Pesquisa de perfil do ciclista realizada pela Ameciclo para entender quem são, como e por que pedalam na Região Metropolitana do Recife.",
+    },
+    {
+      title: "Para o que serve?",
+      description:
+        "Compreender quem são os ciclistas e quais suas necessidades é fundamental para propor políticas públicas e ações que incentivem o uso da bicicleta.",
+    },
+  ],
+};
 
 const fetchPerfil = createServerFn().handler(async () => {
-  // The Strapi page metadata is fully migrated to strapiClient + Zod.
-  // The cyclist-profile Atlas API at PERFIL_API_URL still uses cmsFetch
-  // because its runtime shape can't be verified from this dev environment
-  // — it lives on a domain that doesn't resolve outside the Cloudflare
-  // Worker. Atlas-side schema is a follow-up once we have access to its
-  // sample responses (see the migration plan in PR #152's body).
-  const [pageRes, profileData] = await Promise.all([
-    strapiClient.single("perfil").find({ populate: ["cover"] }),
+  const [pageDataResponse, profileData] = await Promise.all([
+    cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("perfil"), {
+      ttl: 600,
+      timeout: 5000,
+      fallback: null,
+    }),
     cmsFetch<unknown>(PERFIL_API_URL, {
       ttl: 60,
       timeout: 10000,
@@ -39,10 +35,8 @@ const fetchPerfil = createServerFn().handler(async () => {
     }),
   ]);
 
-  const page = PerfilPageSchema.parse(pageRes.data);
-
   return {
-    page,
+    pageData: parsePageData(pageDataResponse, FALLBACK_PAGE_DATA),
     profileData,
     profileApiDown: profileData == null,
   };

@@ -87,7 +87,7 @@ export function SelectColumnFilter({
     return (
         <select
             className="my-2 w-full text-gray-600 border-2 border-gray-300 bg-white h-10 px-2 rounded-lg text-sm focus:outline-hidden"
-            value={filterValue}
+            value={filterValue ?? ""}
             onChange={(e) => {
                 setFilter(e.target.value || undefined);
             }}

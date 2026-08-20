@@ -1,0 +1,141 @@
+{
+  "documentTypes": [
+    { "id": "solicitacao_melhoria", "label": "Solicitação de melhoria viária", "icon": "FileText" },
+    { "id": "oficio", "label": "Ofício ao poder público", "icon": "FileText" },
+    { "id": "representacao_mp", "label": "Representação ao Ministério Público", "icon": "Scale" },
+    { "id": "nota_tecnica", "label": "Nota técnica", "icon": "ClipboardCheck" },
+    { "id": "diagnostico", "label": "Diagnóstico de segurança viária", "icon": "Search" },
+    { "id": "justificativa_ciclovia", "label": "Justificativa para implantação de ciclovia", "icon": "Bike" },
+    { "id": "justificativa_paraciclo", "label": "Justificativa para implantação de paraciclo", "icon": "Anchor" },
+    { "id": "relatorio_sinistros", "label": "Relatório de sinistros", "icon": "AlertTriangle" },
+    { "id": "texto_audiencia", "label": "Texto para audiência pública", "icon": "Users" },
+    { "id": "postagem_redes", "label": "Postagem para redes sociais", "icon": "Share2" },
+    { "id": "outro", "label": "Outro", "icon": "MoreHorizontal" }
+  ],
+  "quickObjectives": [
+    { "id": "solicitar", "label": "Solicitar providências" },
+    { "id": "defender", "label": "Defender uma intervenção" },
+    { "id": "denunciar", "label": "Denunciar um problema" },
+    { "id": "analisar", "label": "Analisar os dados" },
+    { "id": "comparar", "label": "Comparar períodos" },
+    { "id": "propor", "label": "Elaborar proposta" },
+    { "id": "divulgar", "label": "Divulgar os resultados" }
+  ],
+  "dataCategories": [
+    {
+      "id": "sinistros",
+      "label": "Sinistros",
+      "summaryTemplate": "{total} registros ({firstYear}-{lastYear}), {withVictims} com vítimas, {withCyclists} envolvendo ciclistas"
+    },
+    {
+      "id": "infraestrutura",
+      "label": "Infraestrutura cicloviária",
+      "summaryTemplate": "{summary}"
+    },
+    {
+      "id": "contagens",
+      "label": "Contagens de ciclistas",
+      "summaryTemplate": "{totalCounts} contagens disponíveis, média de {avgDaily} ciclistas/dia"
+    },
+    {
+      "id": "perfil",
+      "label": "Perfil das pessoas ciclistas",
+      "summaryTemplate": "{totalProfiles} perfis coletados em {editions} edições"
+    },
+    {
+      "id": "infracoes",
+      "label": "Infrações de trânsito",
+      "summaryTemplate": "{total} autuações ({firstYear}-{lastYear})"
+    },
+    {
+      "id": "bicicletarios",
+      "label": "Bicicletários",
+      "summaryTemplate": "{total} bicicletários com {capacity} vagas totais"
+    },
+    {
+      "id": "bike_share",
+      "label": "Estações de bike compartilhada",
+      "summaryTemplate": "{total} estações"
+    }
+  ],
+  "audiences": [
+    { "id": "prefeitura", "label": "Prefeitura" },
+    { "id": "orgao_transito", "label": "Órgão de trânsito" },
+    { "id": "camara", "label": "Câmara Municipal" },
+    { "id": "mp", "label": "Ministério Público" },
+    { "id": "imprensa", "label": "Imprensa" },
+    { "id": "associacao", "label": "Associação comunitária" },
+    { "id": "publico_geral", "label": "Público geral" },
+    { "id": "redes_sociais", "label": "Redes sociais" },
+    { "id": "uso_interno", "label": "Uso interno" }
+  ],
+  "tones": [
+    { "id": "tecnico", "label": "Técnico e objetivo" },
+    { "id": "juridico", "label": "Jurídico e formal" },
+    { "id": "didatico", "label": "Didático" },
+    { "id": "persuasivo", "label": "Persuasivo" },
+    { "id": "jornalistico", "label": "Jornalístico" },
+    { "id": "redes_sociais", "label": "Texto curto para redes sociais" }
+  ],
+  "docSizes": [
+    { "id": "short", "label": "Curto" },
+    { "id": "medium", "label": "Médio" },
+    { "id": "detailed", "label": "Detalhado" }
+  ],
+  "promptTemplates": {
+    "systemHeader": "Atue como especialista em mobilidade urbana, segurança viária e elaboração de documentos.\n\n",
+    "documentHeaders": {
+      "solicitacao_melhoria": "Elabore uma solicitação formal de melhoria viária para a {street}, no município de {city}, considerando os dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "oficio": "Elabore um ofício técnico sobre as condições de mobilidade e segurança viária na {street}, {city}, considerando os dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "representacao_mp": "Elabore uma representação ao Ministério Público sobre a situação de segurança viária e mobilidade na {street}, {city}, com base nos dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "nota_tecnica": "Elabore uma nota técnica sobre as condições de mobilidade e segurança viária na {street}, {city}, considerando os dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "diagnostico": "Elabore um diagnóstico de segurança viária para a {street}, {city}, com base nos dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "justificativa_ciclovia": "Elabore uma justificativa técnica para implantação de ciclovia na {street}, {city}, considerando os dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "justificativa_paraciclo": "Elabore uma justificativa técnica para implantação de paraciclo na {street}, {city}, considerando os dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "relatorio_sinistros": "Elabore um relatório de sinistros de trânsito na {street}, {city}, com base nos dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "texto_audiencia": "Elabore um texto para apresentação em audiência pública sobre a mobilidade e segurança viária na {street}, {city}, considerando os dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "postagem_redes": "Elabore uma postagem para redes sociais sobre a situação da mobilidade na {street}, {city}, com base nos dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}.",
+      "outro": "Elabore um documento sobre a mobilidade e segurança viária na {street}, {city}, considerando os dados coletados em um raio de {radius}m das coordenadas {lat}, {lng}."
+    },
+    "instructionRules": {
+      "default": [
+        "Produza um documento claro e objetivo.",
+        "Diferencie fatos registrados de interpretações.",
+        "Não estabeleça causalidade apenas com base em correlação.",
+        "Não invente dados, leis ou informações inexistentes.",
+        "Aponte eventuais limitações dos dados utilizados.",
+        "Mencione a origem e o período de cada conjunto de dados."
+      ],
+      "includeTables": "Inclua tabelas para apresentar os dados quantitativos de forma organizada.",
+      "includeRecommendations": "Apresente recomendações específicas e compatíveis com os problemas identificados.",
+      "includeLegalBasis": "Inclua fundamentação legal pertinente (Código de Trânsito Brasileiro, Política Nacional de Mobilidade Urbana, resoluções do CONTRAN).",
+      "includeLimitations": "Informe claramente as limitações dos dados utilizados na análise.",
+      "byTone": {
+        "tecnico": ["Use linguagem técnica precisa e neutra.", "Priorize dados quantitativos e evidências mensuráveis."],
+        "juridico": ["Utilize linguagem jurídica formal e precisa.", "Fundamente os argumentos com legislação e jurisprudência pertinentes."],
+        "didatico": ["Use linguagem acessível ao público não especializado.", "Inclua exemplos e comparações para facilitar a compreensão."],
+        "persuasivo": ["Use argumentação convincente e bem fundamentada.", "Destaque a urgência e a relevância das medidas propostas."],
+        "jornalistico": ["Use linguagem jornalística objetiva e envolvente.", "Inclua elementos noticiosos com lead informativo e dados de impacto."],
+        "redes_sociais": ["Seja conciso, direto e engajador.", "Use tom pessoal e chamadas para ação."]
+      },
+      "bySize": {
+        "short": "Seja conciso. Produza um texto de no máximo 3 parágrafos.",
+        "medium": "Produza um documento de tamanho moderado, com desenvolvimento adequado de cada seção.",
+        "detailed": "Elabore um documento detalhado, com desenvolvimento aprofundado de cada seção e análise minuciosa dos dados."
+      }
+    },
+    "structures": {
+      "solicitacao_melhoria": ["Assunto", "Contextualização do local", "Evidências encontradas", "Providências solicitadas", "Conclusão"],
+      "oficio": ["Assunto", "Contextualização", "Evidências encontradas", "Análise técnica", "Providências solicitadas", "Conclusão"],
+      "representacao_mp": ["Identificação do representante", "Dos fatos", "Das evidências", "Do direito", "Dos pedidos"],
+      "nota_tecnica": ["Título", "Resumo executivo", "Caracterização do local", "Evidências encontradas", "Análise", "Recomendações", "Limitações dos dados", "Fontes"],
+      "diagnostico": ["Apresentação", "Caracterização do local", "Dados coletados", "Análise dos resultados", "Conclusões", "Recomendações"],
+      "justificativa_ciclovia": ["Contexto", "Demanda existente", "Benefícios esperados", "Análise de viabilidade", "Recomendação"],
+      "justificativa_paraciclo": ["Contexto", "Demanda identificada", "Local sugerido", "Benefícios esperados", "Recomendação"],
+      "relatorio_sinistros": ["Introdução", "Metodologia", "Resultados", "Análise espacial e temporal", "Conclusões"],
+      "texto_audiencia": ["Apresentação", "Contexto local", "Dados relevantes", "Reinvindicações", "Encaminhamentos sugeridos"],
+      "postagem_redes": ["Chamada de atenção", "Dados principais", "Contexto breve", "Chamada para ação"],
+      "outro": ["Contexto", "Evidências", "Análise", "Recomendações"]
+    }
+  }
+}

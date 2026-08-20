@@ -1,7 +1,10 @@
+export const TODAS_INFRACOES = "Todas infrações";
+
 export function useCicloDadosData() {
   const infraOptions = [
     { name: "Ciclovia", color: "#EF4444", pattern: "solid" },
     { name: "Ciclofaixa", color: "#6B7280", pattern: "bordered" },
+    { name: "Ciclofaixa Compartilhada", color: "#3B82F6", pattern: "bordered" },
     { name: "Ciclorrota", color: "#D1D5DB", pattern: "arrows" },
     { name: "Calçada compartilhada", color: "#10B981", pattern: "solid" }
   ];
@@ -19,20 +22,13 @@ export function useCicloDadosData() {
   ];
 
   const infracaoOptions = [
-    "Ultrapassar ciclista sem guardar a distância lateral mínima de 1,5 metro",
-    "Deixar de dar preferência de passagem a pedestre e a ciclista",
-    "Estacionar o veículo sobre ciclovia ou ciclofaixa",
-    "Parar o veículo sobre ciclovia ou ciclofaixa",
-    "Abrir a porta do veículo sem se certificar de que não causará perigo a outros usuários da via (incluindo ciclistas)",
-    "Transitar com o veículo em ciclovias ou ciclofaixas",
-    "Conduzir o veículo ameaçando os ciclistas (direção perigosa)"
+    "Risco a vulneráveis"
   ];
 
   const sinistroOptions = [
-    "Vítima ciclista",
-    "Vítima motociclistas", 
-    "Vítima motorista",
-    "Vítima pedestre"
+    { name: "Alta periculosidade (≥150 chamados)", color: "#DC2626", pattern: "solid" },
+    { name: "Média periculosidade (50–149)", color: "#F59E0B", pattern: "solid" },
+    { name: "Baixa periculosidade (<50)", color: "#FBBF24", pattern: "solid" }
   ];
 
   const estacionamentoOptions = [
@@ -48,4 +44,13 @@ export function useCicloDadosData() {
     sinistroOptions,
     estacionamentoOptions
   };
+}
+
+export function getSinistroTotal(properties: Record<string, any>): number {
+  const cats = properties.accidents_by_category || {};
+  const keys = Object.values(cats);
+  if (keys.length > 0) {
+    return keys.reduce((sum: number, v: any) => sum + (v || 0), 0);
+  }
+  return properties.accidents_count || 0;
 }

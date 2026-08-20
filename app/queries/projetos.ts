@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { notFound } from "@tanstack/react-router";
 import { z } from "zod";
 import { strapiClient } from "~/lib/strapi";
+import { AMECICLO_SITE_URL } from "~/servers";
 
 const MediaSchema = z.object({
   id: z.number().nullish(),
@@ -111,7 +112,7 @@ export const projetosQueryOptions = () =>
 // Static JSON translation files live on ameciclo.org (same origin as app).
 async function fetchTranslationJson(slug: string) {
   try {
-    const response = await fetch(`https://ameciclo.org/data/${slug}.json`);
+    const response = await fetch(`${AMECICLO_SITE_URL}/data/${slug}.json`);
     if (response.ok) {
       return await response.json();
     }
@@ -121,7 +122,7 @@ async function fetchTranslationJson(slug: string) {
 
 async function translationExists(slug: string) {
   try {
-    const res = await fetch(`https://ameciclo.org/data/${slug}.json`, {
+    const res = await fetch(`${AMECICLO_SITE_URL}/data/${slug}.json`, {
       method: "GET",
     });
     return res.ok;

@@ -1,4 +1,6 @@
 import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
+import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
+import { slugifyCount } from "~/services/slug";
 
 type pointData = {
   key: string;
@@ -61,7 +63,7 @@ export function getCountingStatistics(location: any, count: any) {
     {
       type: "LinksBox",
       title: "Dados",
-      value: [{ label: "JSON", url: `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${location.id}` }],
+      value: [{ label: "JSON", url: COUNTINGS_ATLAS_LOCATION(location.id) }],
     },
   ];
 }
@@ -73,7 +75,7 @@ export function transformOtherCountsForComparison(otherCounts: any[], currentLoc
       (loc.counts || []).map((count: any) => ({
         id: loc.id,
         name: loc.name,
-        slug: loc.id.toString(),
+        slug: slugifyCount(loc, count),
         date: count.date,
         total_cyclists: count.total_cyclists,
       }))

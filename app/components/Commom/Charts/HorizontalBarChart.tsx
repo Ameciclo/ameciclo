@@ -77,7 +77,7 @@ const options = {
     },
     yAxis: {
       title: {
-        text: `${yAxisTitle} (${dynamicTotal})`,
+        text: yAxisTitle,
       },
     },
     plotOptions: {

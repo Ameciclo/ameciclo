@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PERFIL_SURVEY_LOCATIONS } from '~/servers';
 
 interface CyclistProfileLocation {
   coordinates: {
@@ -42,7 +43,7 @@ export function usePerfilCiclistas() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/survey-locations');
+        const response = await fetch(PERFIL_SURVEY_LOCATIONS);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -75,6 +76,12 @@ export function usePerfilCiclistas() {
               accidents_percentage: location.statistics.accidents_percentage,
               top_motivation: location.statistics.top_motivation,
               top_issue: location.statistics.top_issue,
+              motivations: location.statistics.motivations,
+              issues: location.statistics.issues,
+              age_ranges: location.statistics.age_ranges,
+              income_distribution: location.statistics.income_distribution,
+              schooling_distribution: location.statistics.schooling_distribution,
+              color_race_distribution: location.statistics.color_race_distribution,
               type: 'perfil'
             }
           }))

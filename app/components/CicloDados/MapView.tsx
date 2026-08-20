@@ -2,19 +2,28 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 
-import { MapPin, Bike, UserCheck } from 'lucide-react';
+import { MapPin, Bike, UserCheck, Search, AlertTriangle, BarChart3 } from 'lucide-react';
+import { searchStreets, getStreetDetails, computeBoundsFromGeometry, type StreetMatch } from '~/services/streets.service';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
-import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
 import { usePontosContagem } from './hooks/usePontosContagem';
+import { useContagensAmeciclo } from './hooks/useContagensAmeciclo';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
+import { useInfracoes } from './hooks/useInfracoes';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
 import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
 import { DataErrorAlert } from './DataErrorAlert';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
+import { pieMarker, singleDonut } from './utils/pieMarker';
+
+const YEAR_COLORS: Record<string, string> = {
+  "2018": "#0d9488",
+  "2021": "#f97316",
+  "2024": "#8B5CF6",
+};
 
 
 
@@ -24,7 +33,9 @@ interface MapViewProps {
   selectedContagem: string[];
   selectedEstacionamento: string[];
   selectedSinistro: string[];
+  selectedInfracao?: string[];
   selectedPerfil: string[];
+  selectedPerfilMetric?: string;
   selectedGenero: string[];
   selectedAno: string[];
   selectedArea?: string;
@@ -47,8 +58,15 @@ interface MapViewProps {
   streetData?: any;
   selectedStreetFilter?: string | null;
   perfilCiclistasData?: any;
-  autoOpenPopup?: {lat: number, lng: number} | null;
+  autoOpenPopup?: {lat: number, lng: number, streetId?: string} | null;
   onPopupOpened?: () => void;
+  onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => void;
+  infracaoStartYear?: string;
+  infracaoEndYear?: string;
+  infracaoSeverityHigh?: boolean;
+  infracaoSeverityMedium?: boolean;
+  infracaoSeverityLow?: boolean;
+  onInfracoesDataChange?: (thresholds: {low: number; medium: number}) => void;
 }
 
 export function MapView({
@@ -57,7 +75,9 @@ export function MapView({
   selectedContagem,
   selectedEstacionamento,
   selectedSinistro,
+  selectedInfracao,
   selectedPerfil,
+  selectedPerfilMetric,
   selectedGenero,
   selectedAno,
   selectedRaca,
@@ -75,14 +95,19 @@ export function MapView({
   selectedStreetFilter,
   perfilCiclistasData,
   autoOpenPopup,
-  onPopupOpened
+  onPopupOpened,
+  onZoomToStreet,
+  infracaoStartYear,
+  infracaoEndYear,
+  infracaoSeverityHigh,
+  infracaoSeverityMedium,
+  infracaoSeverityLow,
+  onInfracoesDataChange,
 }: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
-
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
-  const [selectedCircles, setSelectedCircles] = useState<Array<{ lat: number; lng: number; radius: number; id: string }>>([]);
   const [hoverPoint, setHoverPoint] = useState<{ lat: number; lng: number } | null>(null);
-  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any } | null>(null);
+  const [showPointInfo, setShowPointInfo] = useState<{ lat: number; lng: number; initialTab?: string; extraData?: any; streetId?: string } | null>(null);
   const [dragPanEnabled, setDragPanEnabled] = useState(true);
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
   const [mapViewState, setMapViewState] = useState(() => externalViewState || { latitude: -8.0476, longitude: -34.8770, zoom: 11 });
@@ -90,6 +115,43 @@ export function MapView({
   const [forceRender, setForceRender] = useState(0);
   const [renderedLayers, setRenderedLayers] = useState<Set<string>>(new Set());
   const [loadingLayers, setLoadingLayers] = useState<Set<string>>(new Set());
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [streetSuggestions, setStreetSuggestions] = useState<StreetMatch[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!searchTerm.trim() || searchTerm.length < 2) {
+      setStreetSuggestions([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const results = await searchStreets(searchTerm);
+        setStreetSuggestions(results);
+      } catch {
+        setStreetSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Sync with external view state
   useEffect(() => {
@@ -101,9 +163,8 @@ export function MapView({
   // Auto-open popup from URL
   useEffect(() => {
     if (autoOpenPopup && !showPointInfo) {
-      setShowPointInfo({ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng });
+      setShowPointInfo({ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, streetId: autoOpenPopup.streetId });
       setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
-      setSelectedCircles([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, radius: 50, id: 'url-circle' }]);
       onPopupOpened?.();
     }
   }, [autoOpenPopup, showPointInfo, onPopupOpened]);
@@ -142,10 +203,18 @@ export function MapView({
   // Usar hooks com bounds para filtrar dados apenas no cliente
   const { data: filteredBicicletarios, error: bicicletariosError } = useBicicletarios(isClient ? viewportBounds : undefined);
   const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
-  const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
+  const { data: amecicloContagem, error: amecicloContagemError } = useContagensAmeciclo();
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
+  const { data: infracoesData, error: infracoesError } = useInfracoes(isClient ? viewportBounds : undefined, selectedInfracao, infracaoStartYear, infracaoEndYear);
+  
+  useEffect(() => {
+    if (infracoesData?.thresholds) {
+      onInfracoesDataChange?.(infracoesData.thresholds);
+    }
+  }, [infracoesData?.thresholds]);
+  
   const { data: perfilPoints, error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {
@@ -156,9 +225,7 @@ export function MapView({
     }
   );
   // Use data from props instead of hook to avoid CORS
-  const perfilCiclistas = perfilCiclistasData;
-  const perfilCiclistasError = null;
-  const perfilCiclistasLoading = false;
+  const { data: perfilCiclistas, error: perfilCiclistasError, loading: perfilCiclistasLoading } = usePerfilCiclistas();
   
 
 
@@ -169,14 +236,11 @@ export function MapView({
 
     // Infrastructure loading/rendered state
     if (selectedInfra.length > 0) {
-      if (infraError) {
-        // If there's an error, consider it "rendered" (failed)
+      if (execucaoError) {
         newRenderedLayers.add('infraestrutura');
-      } else if (infraCicloviaria?.features?.length > 0) {
-        // Data loaded successfully
+      } else if (execucaoCicloviaria?.features?.length > 0) {
         newRenderedLayers.add('infraestrutura');
       } else {
-        // Still loading
         newLoadingLayers.add('infraestrutura');
       }
     }
@@ -184,13 +248,10 @@ export function MapView({
     // PDC loading/rendered state
     if (selectedPdc.length > 0) {
       if (execucaoError) {
-        // If there's an error, consider it "rendered" (failed)
         newRenderedLayers.add('pdc');
       } else if (execucaoCicloviaria?.features?.length > 0) {
-        // Data loaded successfully
         newRenderedLayers.add('pdc');
       } else {
-        // Still loading
         newLoadingLayers.add('pdc');
       }
     }
@@ -212,8 +273,8 @@ export function MapView({
 
     // Contagem loading/rendered state
     if (selectedContagem.length > 0) {
-      const hasContagemData = (contagemData?.features?.length > 0) || (pontosContagem?.features?.length > 0);
-      const hasContagemError = pontosContagemError;
+      const hasContagemData = (contagemData?.features?.length > 0) || (pontosContagem?.features?.length > 0) || (amecicloContagem?.features?.length > 0);
+      const hasContagemError = pontosContagemError || amecicloContagemError;
       
       if (hasContagemError) {
         newRenderedLayers.add('contagem');
@@ -235,12 +296,23 @@ export function MapView({
       }
     }
 
+    // Infrações loading/rendered state
+    if (selectedInfracao && selectedInfracao.length > 0) {
+      if (infracoesError) {
+        newRenderedLayers.add('infracoes');
+      } else if (infracoesData?.features?.length > 0) {
+        newRenderedLayers.add('infracoes');
+      } else {
+        newLoadingLayers.add('infracoes');
+      }
+    }
+
     setLoadingLayers(newLoadingLayers);
     setRenderedLayers(newRenderedLayers);
   }, [
-    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil,
-    infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas,
-    infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading
+    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil, selectedInfracao,
+    execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, amecicloContagem, contagemData, perfilCiclistas, infracoesData,
+    execucaoError, bicicletariosError, bikePEError, pontosContagemError, amecicloContagemError, perfilCiclistasError, perfilCiclistasLoading, infracoesError
   ]);
   
 
@@ -249,12 +321,13 @@ export function MapView({
   const dataErrors = [];
   if (bicicletariosError) dataErrors.push({ type: 'bicicletarios', message: bicicletariosError });
   if (bikePEError) dataErrors.push({ type: 'bikepe', message: bikePEError });
-  if (infraError) dataErrors.push({ type: 'infraestrutura', message: infraError });
   if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
+  if (amecicloContagemError) dataErrors.push({ type: 'pontos-contagem', message: amecicloContagemError });
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
   if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
   if (perfilError) dataErrors.push({ type: 'perfil', message: perfilError });
-  if (perfilCiclistasError) dataErrors.push({ type: 'perfil-ciclistas', message: perfilCiclistasError });
+  if (perfilCiclistasError) dataErrors.push({ type: 'perfil', message: perfilCiclistasError });
+  if (infracoesError) dataErrors.push({ type: 'infracoes', message: infracoesError });
 
   const handleMapViewChange = (viewState: any) => {
     setMapViewState(viewState);
@@ -308,8 +381,8 @@ export function MapView({
     }
     
     if (event?.lngLat) {
-      const lng = event.lngLat[0];
-      const lat = event.lngLat[1];
+      const lng = event.lngLat.lng;
+      const lat = event.lngLat.lat;
       setHoverPoint({ lat, lng });
     }
   };
@@ -340,8 +413,8 @@ export function MapView({
     
     if (!isSelectionMode) return;
     
-    const lng = event.lngLat[0];
-    const lat = event.lngLat[1];
+    const lng = event.lngLat.lng;
+    const lat = event.lngLat.lat;
     
     const newPoint = {
       lat,
@@ -350,7 +423,6 @@ export function MapView({
     };
     
     setSelectedPoints([newPoint]);
-    setSelectedCircles([{ lat, lng, radius: 200, id: `circle-${Date.now()}` }]);
     setShowPointInfo({ lat, lng });
     
     // Update URL
@@ -375,7 +447,6 @@ export function MapView({
       setDragPanEnabled(true);
       setHoverPoint(null);
       setSelectedPoints([]);
-      setSelectedCircles([]);
       setShowPointInfo(null);
     }
   };
@@ -389,7 +460,6 @@ export function MapView({
       setIsSelectionMode(false);
       setHoverPoint(null);
       setSelectedPoints([]);
-      setSelectedCircles([]);
       setShowPointInfo(null);
     }
   };
@@ -412,7 +482,7 @@ export function MapView({
 
   return (
     <div 
-      style={{height: 'calc(100vh - 64px)'}} 
+      style={{height: 'calc(100vh - 56px)'}} 
       className="relative flex flex-col"
       role="application"
       aria-label="Mapa interativo de dados de ciclomobilidade do Recife"
@@ -425,7 +495,7 @@ export function MapView({
         Clique em pontos do mapa para ver informações detalhadas.
       </div>
       {/* Botão no canto superior esquerdo */}
-      <div className="absolute top-4 left-4 z-60 flex flex-col gap-2">
+      <div className="absolute top-4 left-4 z-60 flex items-start gap-2">
         <button
           onClick={toggleSelectionMode}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg font-medium transition-all duration-200 ${
@@ -439,13 +509,75 @@ export function MapView({
             {isSelectionMode ? 'Cancelar seleção' : 'Selecionar ponto'}
           </span>
         </button>
-        
+
+        <div className="relative" ref={searchRef}>
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+            <input
+              type="text"
+              placeholder="Buscar rua/avenida..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              className="pl-8 pr-3 py-2 rounded-lg shadow-lg border border-gray-200 text-sm text-gray-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500 w-48 sm:w-64 bg-white"
+            />
+          </div>
+
+          {showSuggestions && searchTerm && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-9999 max-h-48 overflow-y-auto">
+              {isSearching ? (
+                <div className="px-3 py-2 text-gray-500 text-xs flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500"></div>
+                  Buscando...
+                </div>
+              ) : streetSuggestions.length > 0 ? (
+                streetSuggestions.map((street) => (
+                  <button
+                    key={street.id}
+                    onClick={async () => {
+                      setSearchTerm('');
+                      setShowSuggestions(false);
+
+                      let bounds = street.bounds;
+                      let coords = street.coordinates;
+
+                      if (!bounds || !coords) {
+                        const details = await getStreetDetails(street.id);
+                        if (details) {
+                          bounds = computeBoundsFromGeometry(details.geometry);
+                          if (bounds) {
+                            coords = {
+                              lat: (bounds.north + bounds.south) / 2,
+                              lng: (bounds.east + bounds.west) / 2,
+                            };
+                          }
+                        }
+                      }
+
+                      if (bounds) {
+                        onZoomToStreet?.(bounds, coords ?? null, street.id, street.name);
+                      }
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 text-gray-700 text-xs border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="font-medium">{street.name}</div>
+                    <div className="text-gray-500 text-xs">{street.municipality}</div>
+                  </button>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-gray-500 text-xs">Nenhuma via encontrada</div>
+              )}
+            </div>
+          )}
+        </div>
 
       </div>
 
       <div className="flex-1 md:h-full">
         <AmecicloMap
-          selectedCircles={selectedCircles}
           hoverPoint={hoverPoint}
           radius={400}
           onPointClick={(point) => {
@@ -505,16 +637,15 @@ export function MapView({
             extraData
           });
           
-          // Add circle to show coverage area
-          setSelectedCircles([{ lat: point.latitude, lng: point.longitude, radius: 200, id: `point-circle-${Date.now()}` }]);
-          
-          // Update URL
-          const url = new URL(window.location.href);
-          url.searchParams.set('lat', point.latitude.toFixed(6));
-          url.searchParams.set('lon', point.longitude.toFixed(6));
-          url.searchParams.set('zoom', mapViewState.zoom.toString());
-          window.history.pushState({}, '', url.toString());
-        }}
+           // Update URL
+           const url = new URL(window.location.href);
+           url.searchParams.set('lat', point.latitude.toFixed(6));
+           url.searchParams.set('lon', point.longitude.toFixed(6));
+           url.searchParams.set('zoom', mapViewState.zoom.toString());
+           window.history.pushState({}, '', url.toString());
+           
+           onPointClick?.(point);
+         }}
           layerData={(() => {
             // Quando há filtro de rua selecionada, mostrar todos os dados (não filtrar por área)
             const filterByStreetArea = (features: any[]) => {
@@ -525,9 +656,9 @@ export function MapView({
               return features;
             };
             
-            // Filtrar infraestrutura por tipos selecionados e área
-            let filteredInfraFeatures = infraCicloviaria?.features?.filter((feature: any) => 
-              selectedInfra.includes(feature.properties.infra_type)
+            // Filtrar infraestrutura por tipos selecionados e área (usa mesmo endpoint do PDC)
+            let filteredInfraFeatures = execucaoCicloviaria?.features?.filter((feature: any) => 
+              selectedInfra.includes(feature.properties.cycleway_typology)
             ) || [];
             filteredInfraFeatures = filterByStreetArea(filteredInfraFeatures);
             
@@ -543,11 +674,17 @@ export function MapView({
               ) : [];
             filteredExecucaoFeatures = filterByStreetArea(filteredExecucaoFeatures);
             
-            // Filtrar sinistros por tipos selecionados e área
-            let filteredSinistrosFeatures = sinistrosData?.features?.filter((feature: any) => 
-              selectedSinistro.includes(feature.properties.type)
-            ) || [];
+            // Filtrar sinistros
+            let filteredSinistrosFeatures = selectedSinistro.length > 0
+              ? (sinistrosData?.features || [])
+              : [];
             filteredSinistrosFeatures = filterByStreetArea(filteredSinistrosFeatures);
+            
+            // Filtrar infrações
+            let filteredInfracoesFeatures = (selectedInfracao && selectedInfracao.length > 0)
+              ? (infracoesData?.features || [])
+              : [];
+            filteredInfracoesFeatures = filterByStreetArea(filteredInfracoesFeatures);
             
             // Aplicar filtro de área aos dados gerados
             let infraDataFiltered = filterByStreetArea(infraData?.features || []);
@@ -559,7 +696,8 @@ export function MapView({
               ...(highlightedStreet?.features || []),
               ...filteredInfraFeatures,
               ...filteredExecucaoFeatures,
-              ...filteredSinistrosFeatures
+              ...filteredSinistrosFeatures,
+              ...filteredInfracoesFeatures
             ];
             
             return allFeatures.length > 0 ? {
@@ -752,11 +890,11 @@ export function MapView({
             },
           ] : []),
 
-          ...(!infraError && infraCicloviaria?.features && selectedInfra.length > 0 ? [
+          ...(!execucaoError && execucaoCicloviaria?.features && selectedInfra.length > 0 ? [
             {
               id: 'infra-ciclovia',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclovia'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclovia'],
               paint: {
                 'line-color': '#EF4444',
                 'line-width': 4,
@@ -770,7 +908,7 @@ export function MapView({
             {
               id: 'infra-ciclofaixa',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclofaixa'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclofaixa'],
               paint: {
                 'line-color': '#6B7280',
                 'line-width': 3,
@@ -782,9 +920,23 @@ export function MapView({
               }
             },
             {
+              id: 'infra-ciclofaixa-compartilhada',
+              type: 'line',
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclofaixa Compartilhada'],
+              paint: {
+                'line-color': '#3B82F6',
+                'line-width': 3,
+                'line-opacity': 0.8
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            },
+            {
               id: 'infra-ciclorrota',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclorrota'],
               paint: {
                 'line-color': '#9CA3AF',
                 'line-width': [
@@ -805,7 +957,7 @@ export function MapView({
             {
               id: 'infra-ciclorrota-stripes',
               type: 'symbol',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Ciclorrota'],
               paint: {
                 'text-color': '#EF4444',
                 'text-opacity': 0.8
@@ -830,7 +982,7 @@ export function MapView({
             {
               id: 'infra-calcada',
               type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Calçada compartilhada'],
+              filter: ['==', ['get', 'cycleway_typology'], 'Calçada compartilhada'],
               paint: {
                 'line-color': '#10B981',
                 'line-width': 3,
@@ -843,11 +995,11 @@ export function MapView({
             }
           ] : []),
 
-          // Sinistros - Vias Perigosas (apenas se não houver erro)
-          ...(!sinistrosError && sinistrosData?.features && selectedSinistro.length > 0 ? [
-            {
+          // Sinistros - Vias Perigosas
+          ...(!sinistrosError && sinistrosData?.features ? [
+            ...(selectedSinistro.some(s => s.startsWith('Alta')) ? [{
               id: 'vias-perigosas-high',
-              type: 'line',
+              type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'high'],
               paint: {
                 'line-color': '#DC2626',
@@ -858,10 +1010,10 @@ export function MapView({
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            },
-            {
+            }] : []),
+            ...(selectedSinistro.some(s => s.startsWith('Média')) ? [{
               id: 'vias-perigosas-medium',
-              type: 'line',
+              type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'medium'],
               paint: {
                 'line-color': '#F59E0B',
@@ -872,10 +1024,10 @@ export function MapView({
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            },
-            {
+            }] : []),
+            ...(selectedSinistro.some(s => s.startsWith('Baixa')) ? [{
               id: 'vias-perigosas-low',
-              type: 'line',
+              type: 'line' as const,
               filter: ['==', ['get', 'severity'], 'low'],
               paint: {
                 'line-color': '#FBBF24',
@@ -886,7 +1038,56 @@ export function MapView({
                 'line-join': 'round',
                 'line-cap': 'round'
               }
-            }
+            }] : [])
+          ] : []),
+
+          // Infrações de Trânsito
+          ...(!infracoesError && infracoesData?.features && selectedInfracao && selectedInfracao.length > 0 ? [
+            ...(infracaoSeverityHigh !== false ? [{
+              id: 'infracoes-high',
+              type: 'line' as const,
+              filter: ['==', ['get', 'severity'], 'high'],
+              paint: {
+                'line-color': '#7C3AED',
+                'line-width': 4,
+                'line-opacity': 0.85,
+                'line-dasharray': [10, 4]
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }] : []),
+            ...(infracaoSeverityMedium !== false ? [{
+              id: 'infracoes-medium',
+              type: 'line' as const,
+              filter: ['==', ['get', 'severity'], 'medium'],
+              paint: {
+                'line-color': '#3B82F6',
+                'line-width': 3,
+                'line-opacity': 0.75,
+                'line-dasharray': [8, 4]
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }] : []),
+            ...(infracaoSeverityLow !== false ? [{
+              id: 'infracoes-low',
+              type: 'line' as const,
+              filter: ['==', ['get', 'severity'], 'low'],
+              paint: {
+                'line-color': '#14B8A6',
+                'line-width': 2,
+                'line-opacity': 0.65,
+                'line-dasharray': [6, 4]
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              }
+            }] : [])
           ] : [])
         ]}
         pointsData={[
@@ -898,9 +1099,10 @@ export function MapView({
               mapViewState
             )
               .map((item: any) => {
-                const totalContagens = item.isCluster ? 
-                  item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_cyclists || f.properties.count || 0), 0) :
-                  (item.properties.items?.[0]?.properties?.total_cyclists || item.properties.items?.[0]?.properties?.count || 0);
+                const firstItem = item.properties.items?.[0]?.properties;
+                const totalContagens = item.isCluster
+                  ? (firstItem?.total_cyclists || firstItem?.count || 0)
+                  : (firstItem?.total_cyclists || firstItem?.count || 0);
                 
                 const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
                 
@@ -912,16 +1114,16 @@ export function MapView({
                   isCluster: item.isCluster,
                   popup: {
                     name: item.isCluster ? `${item.properties.count} Pontos Prefeitura` : 
-                          (item.properties.items?.[0]?.properties?.name || 'Ponto Prefeitura'),
+                          (firstItem?.name || 'Ponto Prefeitura'),
                     total: totalContagens,
-                    date: item.properties.items?.[0]?.properties?.last_count_date,
-                    city: item.properties.items?.[0]?.properties?.city,
-                    created_at: item.properties.items?.[0]?.properties?.last_count_date,
+                    date: firstItem?.last_count_date,
+                    city: firstItem?.city,
+                    created_at: firstItem?.last_count_date,
                     latitude: item.geometry.coordinates[1],
                     longitude: item.geometry.coordinates[0]
                   },
-                  cargo_percent: item.properties.items?.[0]?.properties?.cargo_percent,
-                  wrong_way_percent: item.properties.items?.[0]?.properties?.wrong_way_percent,
+                  cargo_percent: firstItem?.cargo_percent,
+                  wrong_way_percent: firstItem?.wrong_way_percent,
                   customIcon: (
                     <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
                       <div className="bg-white text-black px-2 py-1 rounded-lg shadow-lg border-2 border-black flex items-center gap-1 min-w-[50px] justify-center">
@@ -934,25 +1136,13 @@ export function MapView({
                         <div className="flex flex-col items-center">
                           <span className="text-xs font-bold">{totalContagens}</span>
                           <span className="text-[8px] text-gray-500">
-                            {item.properties.items?.[0]?.properties?.last_count_date?.split('/')[1] || new Date().getFullYear()}
+                            {firstItem?.last_count_date?.split('/')[1] || new Date().getFullYear()}
                           </span>
                         </div>
                         {item.isCluster && item.properties.count > 1 && (
-                          <span 
-                            className="text-[8px] bg-white text-black border border-black rounded-full px-1 ml-1 cursor-help relative"
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setClusterTooltip({
-                                show: true,
-                                count: item.properties.count,
-                                x: rect.left + rect.width / 2,
-                                y: rect.top - 5
-                              });
-                            }}
-                            onMouseLeave={() => setClusterTooltip({ show: false, count: 0, x: 0, y: 0 })}
-                          >
-                            {item.properties.count}
-                          </span>
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] px-1 rounded-full font-bold border border-red-600">
+                            +{item.properties.count - 1}
+                          </div>
                         )}
                       </div>
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2">
@@ -991,7 +1181,91 @@ export function MapView({
                       });
                       
                       // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `prefeitura-circle-${Date.now()}` }]);
+                      
+                    }
+                  }
+                };
+              }) : []),
+
+          // Contagens da Ameciclo via client-side (substitui SSR quebrado)
+          ...(isClient && selectedContagem.includes('Contagem da Ameciclo') && amecicloContagem?.features && Array.isArray(amecicloContagem.features) ? 
+            createClusters(
+              amecicloContagem.features, 
+              mapViewState.zoom, 
+              mapViewState
+            )
+              .map((item: any) => {
+                const totalContagens = item.isCluster ? 
+                  item.properties.items.reduce((sum: number, f: any) => sum + (f.properties.total_cyclists || f.properties.count || 0), 0) :
+                  (item.properties.items?.[0]?.properties?.total_cyclists || item.properties.items?.[0]?.properties?.count || 0);
+                
+                const scaleSize = mapViewState.zoom < 12 ? 0.7 : mapViewState.zoom < 14 ? 0.85 : 1;
+                
+                return {
+                  key: `ameciclo-contagem-${item.id}`,
+                  latitude: item.geometry.coordinates[1],
+                  longitude: item.geometry.coordinates[0],
+                  type: 'Contagem',
+                  isCluster: item.isCluster,
+                  popup: {
+                    name: item.isCluster ? `${item.properties.count} Pontos de Contagem` : 
+                          (item.properties.items?.[0]?.properties?.name || 'Ponto de Contagem'),
+                    total: totalContagens,
+                    date: item.properties.items?.[0]?.properties?.last_count_date,
+                    city: item.properties.items?.[0]?.properties?.city,
+                    created_at: item.properties.items?.[0]?.properties?.last_count_date,
+                    latitude: item.geometry.coordinates[1],
+                    longitude: item.geometry.coordinates[0]
+                  },
+                  customIcon: (
+                    <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                      <div className="bg-green-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-green-700 flex items-center gap-1 min-w-[50px] justify-center">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                          <path d="M3 3v18h18"/>
+                          <path d="M18 17V9"/>
+                          <path d="M13 17V5"/>
+                          <path d="M8 17v-3"/>
+                        </svg>
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs font-bold">{totalContagens}</span>
+                          <span className="text-[8px] text-white">
+                            {item.properties.items?.[0]?.properties?.last_count_date?.split('/')[1] || new Date().getFullYear()}
+                          </span>
+                        </div>
+                        {item.isCluster && item.properties.count > 1 && (
+
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] px-1 rounded-full font-bold border border-red-600">
+                            +{item.properties.count - 1}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ),
+                  color: '#22C55E',
+                  size: 20,
+                  radius: 30,
+                  onClick: () => {
+                    if (!item.isCluster) {
+                      const point = item.properties.items[0];
+                      const extraData = {
+                        mulheres: point.properties.mulheres,
+                        carona: point.properties.carona,
+                        servico: point.properties.servico,
+                        cargueira: point.properties.cargueira,
+                        contramao: point.properties.contramao,
+                        calcada: point.properties.calcada,
+                        criancas: point.properties.criancas,
+                        capacete: point.properties.capacete,
+                        motor: point.properties.motor,
+                        chuva: point.properties.chuva,
+                        other_behaviors: point.properties.other_behaviors,
+                      };
+                      setShowPointInfo({
+                        lat: item.geometry.coordinates[1],
+                        lng: item.geometry.coordinates[0],
+                        initialTab: 'counts',
+                        extraData
+                      });
                     }
                   }
                 };
@@ -1078,8 +1352,6 @@ export function MapView({
                         initialTab: 'counts' 
                       });
                       
-                      // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `contagem-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1128,8 +1400,6 @@ export function MapView({
                         initialTab: 'infrastructure' 
                       });
                       
-                      // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `bicicletario-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1176,8 +1446,6 @@ export function MapView({
                         initialTab: 'infrastructure' 
                       });
                       
-                      // Add circle to show coverage area
-                      setSelectedCircles([{ lat: item.geometry.coordinates[1], lng: item.geometry.coordinates[0], radius: 50, id: `bikepe-circle-${Date.now()}` }]);
                     }
                   }
                 };
@@ -1217,30 +1485,80 @@ export function MapView({
                   latitude: item.geometry.coordinates[1],
                   longitude: item.geometry.coordinates[0]
                 },
-                customIcon: (
-                  <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
-                    <div className="bg-purple-500 text-white px-2 py-1 rounded-lg shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[50px] justify-center">
-                      <UserCheck size={12} className="text-white" />
-                      <div className="flex flex-col items-center">
-                        <span className="text-xs font-bold">{totalResponses}</span>
-                        <span className="text-[10px] font-medium text-white">
-                          {item.properties.items?.[0]?.properties?.survey_year || new Date().getFullYear()}
-                        </span>
+                customIcon: (() => {
+                  if (item.isCluster) {
+                    return (
+                      <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                        <div className="bg-purple-500 text-white px-2 py-1 rounded-full shadow-lg border-2 border-purple-700 flex items-center gap-1 min-w-[44px] justify-center">
+                          <UserCheck size={12} className="text-white" />
+                          <span className="text-xs font-bold">{item.properties.count}</span>
+                        </div>
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                          <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
+                        </div>
                       </div>
-                      {item.isCluster && item.properties.count > 1 && (
-                        <span className="text-[8px] bg-purple-500 text-white border border-purple-700 rounded-full px-1 ml-1">
-                          {item.properties.count}
-                        </span>
-                      )}
-                    </div>
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-                      <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
-                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-px">
-                        <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-purple-700"></div>
+                    );
+                  }
+
+                  const metric = selectedPerfilMetric || 'acidentes';
+                  const pointProps = item.properties.items?.[0]?.properties || {};
+                  const surveyYear = pointProps.survey_year || '';
+                  const ringColor = YEAR_COLORS[surveyYear] || 'white';
+                  const svgSize = 72;
+                  const noDataSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}"><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="#e5e7eb" /><circle cx="${svgSize/2}" cy="${svgSize/2}" r="26" fill="none" stroke="${ringColor}" stroke-width="2" /><text x="${svgSize/2}" y="${svgSize/2}" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#9ca3af">?</text></svg>`;
+                  const svgStr = (() => {
+                    if (metric === 'acidentes') {
+                      const pct = pointProps.accidents_percentage || 0;
+                      return pieMarker([
+                        { label: 'Sinistro', value: pct },
+                        { label: 'Sem sinistro', value: 100 - pct },
+                      ], 26, svgSize, ['#F97316', '#d1d5db'], ringColor);
+                    }
+                    if (metric === 'idades' && pointProps.age_ranges && Object.keys(pointProps.age_ranges).length > 0) {
+                      const items = Object.entries(pointProps.age_ranges as Record<string, number>)
+                        .sort(([a], [b]) => {
+                          const order = ['18-25','26-35','36-45','46-60','60+'];
+                          return order.indexOf(a) - order.indexOf(b);
+                        })
+                        .map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE'], ringColor);
+                    }
+                    if (metric === 'motivacao' && pointProps.motivations && Object.keys(pointProps.motivations).length > 0) {
+                      const items = Object.entries(pointProps.motivations as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F97316', '#8B5CF6', '#3B82F6', '#10B981', '#6B7280'], ringColor);
+                    }
+                    if (metric === 'problemas' && pointProps.issues && Object.keys(pointProps.issues).length > 0) {
+                      const items = Object.entries(pointProps.issues as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#EF4444', '#F97316', '#EAB308', '#8B5CF6', '#6B7280', '#9CA3AF'], ringColor);
+                    }
+                    if (metric === 'renda' && pointProps.income_distribution && Object.keys(pointProps.income_distribution).length > 0) {
+                      const items = Object.entries(pointProps.income_distribution as Record<string, number>).map(([label, value]) => ({ label: label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#F59E0B', '#F97316', '#EF4444', '#10B981'], ringColor);
+                    }
+                    if (metric === 'escolaridade' && pointProps.schooling_distribution && Object.keys(pointProps.schooling_distribution).length > 0) {
+                      const items = Object.entries(pointProps.schooling_distribution as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#6366F1', '#8B5CF6', '#A78BFA', '#C4B5FD'], ringColor);
+                    }
+                    if (metric === 'raca' && pointProps.color_race_distribution && Object.keys(pointProps.color_race_distribution).length > 0) {
+                      const items = Object.entries(pointProps.color_race_distribution as Record<string, number>).map(([label, value]) => ({ label, value }));
+                      if (items.length > 0) return pieMarker(items, 26, svgSize, ['#1f2937', '#78350f', '#fef3c7', '#92400e'], ringColor);
+                    }
+                    return noDataSvg;
+                  })();
+
+                  return (
+                    <div className="relative" style={{ transform: `scale(${scaleSize})` }}>
+                      <div
+                        className="rounded-full shadow-lg border-2 flex items-center justify-center bg-white"
+                        style={{ width: svgSize, height: svgSize, borderColor: ringColor }}
+                        dangerouslySetInnerHTML={{ __html: svgStr }}
+                      />
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                        <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-gray-400"></div>
                       </div>
                     </div>
-                  </div>
-                ),
+                  );
+                })(),
                 onClick: () => {
                   if (item.isCluster) {
                     handleClusterClick(item);
@@ -1260,13 +1578,18 @@ export function MapView({
                         male_percentage: point?.male_percentage,
                         female_percentage: point?.female_percentage,
                         accidents_percentage: point?.accidents_percentage,
-                        top_motivation: point?.top_motivation
+                        top_motivation: point?.top_motivation,
+                        top_issue: point?.top_issue,
+                        motivations: point?.motivations,
+                        issues: point?.issues,
+                        age_ranges: point?.age_ranges,
+                        income_distribution: point?.income_distribution,
+                        schooling_distribution: point?.schooling_distribution,
+                        color_race_distribution: point?.color_race_distribution,
                       }
                     };
                     
                     setShowPointInfo({ lat, lng, initialTab: 'profile', extraData });
-                    
-                    setSelectedCircles([{ lat, lng, radius: 50, id: `perfil-circle-${Date.now()}` }]);
                     
                     const url = new URL(window.location.href);
                     url.searchParams.set('lat', lat.toFixed(6));
@@ -1361,14 +1684,11 @@ export function MapView({
           lng={showPointInfo.lng}
           initialTab={showPointInfo.initialTab}
           extraData={showPointInfo.extraData}
+          streetId={showPointInfo.streetId}
           onClose={() => {
             setShowPointInfo(null);
-            // Keep the point and circle visible when closing popup from URL
             if (autoOpenPopup) {
               setSelectedPoints([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, id: 'url-point' }]);
-              setSelectedCircles([{ lat: autoOpenPopup.lat, lng: autoOpenPopup.lng, radius: 200, id: 'url-circle' }]);
-            } else {
-              setSelectedCircles([]);
             }
           }}
         />

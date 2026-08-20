@@ -6,6 +6,10 @@ export interface ContagemData {
   slug: string;
   date: string;
   total_cyclists: number;
+  latitude?: number;
+  longitude?: number;
+  count_total?: number;
+  subRows?: ContagemData[];
   coordinates: {
     latitude?: number;
     longitude?: number;

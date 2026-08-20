@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect, useRef } from 'react';
 import { useRouterState } from '@tanstack/react-router';
 
 interface ApiError {
@@ -42,32 +42,34 @@ export function ApiStatusProvider({
     }
   }, [location.pathname]);
 
-  const setApiDown = (status: boolean) => {
+  const setApiDown = useCallback((status: boolean) => {
     setIsApiDown(status);
-  };
+  }, []);
 
-  const addApiError = (url: string, error: string, page: string) => {
-    const newError: ApiError = {
-      url,
-      error,
-      timestamp: new Date().toLocaleString('pt-BR'),
-      page
-    };
+  const addApiError = useCallback((url: string, error: string, page: string) => {
     setApiErrors(prev => {
-      // Remove erros duplicados da mesma URL e página
-      const filtered = prev.filter(e => !(e.url === url && e.page === page));
-      return [newError, ...filtered.slice(0, 9)];
+      const exists = prev.some(e => e.url === url && e.page === page && e.error === error);
+      if (exists) return prev;
+      const newError: ApiError = {
+        url,
+        error,
+        timestamp: new Date().toLocaleString('pt-BR'),
+        page,
+      };
+      return [newError, ...prev.slice(0, 9)];
     });
     setIsApiDown(true);
-  };
+  }, []);
 
-  const clearErrors = () => {
+  const clearErrors = useCallback(() => {
     setApiErrors([]);
     setIsApiDown(false);
-  };
+  }, []);
+
+  const value = useMemo(() => ({ isApiDown, apiErrors, setApiDown, addApiError, clearErrors }), [isApiDown, apiErrors, setApiDown, addApiError, clearErrors]);
 
   return (
-    <ApiStatusContext.Provider value={{ isApiDown, apiErrors, setApiDown, addApiError, clearErrors }}>
+    <ApiStatusContext.Provider value={value}>
       {children}
     </ApiStatusContext.Provider>
   );

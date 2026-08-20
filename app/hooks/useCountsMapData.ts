@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { pointData, PcrCounting } from "typings";
 import { IntlDateStr } from "~/services/utils";
+import { slugifyCount } from "~/services/slug";
 
 const calculateMarkerSize = (totalCyclists: number) => {
   if (totalCyclists === 0) return 8;
@@ -36,8 +37,18 @@ export function useCountsMapData(amecicloData: any[], pcrCounts: PcrCounting[]) 
       .map((ponto: any) => {
         const lat = parseFloat(ponto.latitude);
         const lng = parseFloat(ponto.longitude);
-        const latestCount = ponto.counts?.[0];
+
+        const sortedCounts = [...(ponto.counts || [])].sort(
+          (a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        const latestCount = sortedCounts[0];
         const totalCyclists = latestCount?.total_cyclists || 0;
+
+        const allCounts = sortedCounts.map((count: any) => ({
+          date: IntlDateStr(count.date),
+          total_cyclists: count.total_cyclists,
+          slug: slugifyCount(ponto, count),
+        }));
 
         return {
           key: `atlas_ameciclo_${ponto.id}`,
@@ -48,8 +59,9 @@ export function useCountsMapData(amecicloData: any[], pcrCounts: PcrCounting[]) 
             name: ponto.name || "Contagem Ameciclo",
             total: totalCyclists,
             date: latestCount?.date ? IntlDateStr(latestCount.date) : "Sem data",
-            url: `/dados/contagens/${ponto.id}`,
+            slug: latestCount ? slugifyCount(ponto, latestCount) : "",
             obs: "As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.",
+            counts: allCounts,
           },
           size: calculateMarkerSize(totalCyclists),
           color: "#008888",

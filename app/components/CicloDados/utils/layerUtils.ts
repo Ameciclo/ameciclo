@@ -58,7 +58,7 @@ export function generateLayersConf(
       allLayers.push({
         id: option.name,
         type: isArea ? "fill" : "line",
-        filter: ["==", ["get", "type"], option.name],
+        filter: ["==", ["get", "cycleway_typology"], option.name],
         paint: style
       });
       
@@ -67,7 +67,7 @@ export function generateLayersConf(
         allLayers.push({
           id: `${option.name}-border`,
           type: "line",
-          filter: ["==", ["get", "type"], option.name],
+          filter: ["==", ["get", "cycleway_typology"], option.name],
           paint: {
             "line-color": isZona30 ? "#F59E0B" : "#3B82F6",
             "line-width": 2,
@@ -80,7 +80,7 @@ export function generateLayersConf(
         allLayers.push({
           id: `${option.name}-arrows`,
           type: "symbol",
-          filter: ["==", ["get", "type"], option.name],
+          filter: ["==", ["get", "cycleway_typology"], option.name],
           layout: {
             "symbol-placement": "line",
             "symbol-spacing": 20,
@@ -104,7 +104,7 @@ export function generateLayersConf(
         allLayers.push({
           id: `${option.name}-line1`,
           type: "line",
-          filter: ["==", ["get", "type"], option.name],
+          filter: ["==", ["get", "cycleway_typology"], option.name],
           paint: {
             "line-color": option.color,
             "line-width": 3,
@@ -116,7 +116,7 @@ export function generateLayersConf(
         allLayers.push({
           id: `${option.name}-line2`,
           type: "line",
-          filter: ["==", ["get", "type"], option.name],
+          filter: ["==", ["get", "cycleway_typology"], option.name],
           paint: {
             "line-color": option.color,
             "line-width": 3,
@@ -128,7 +128,7 @@ export function generateLayersConf(
         allLayers.push({
           id: `${option.name}-base`,
           type: "line",
-          filter: ["==", ["get", "type"], option.name],
+          filter: ["==", ["get", "cycleway_typology"], option.name],
           paint: {
             "line-color": "#EC4899",
             "line-width": 6
@@ -138,7 +138,7 @@ export function generateLayersConf(
         allLayers.push({
           id: `${option.name}-stripes`,
           type: "line",
-          filter: ["==", ["get", "type"], option.name],
+          filter: ["==", ["get", "cycleway_typology"], option.name],
           paint: {
             "line-color": "#FED7AA",
             "line-width": 6,
@@ -150,7 +150,7 @@ export function generateLayersConf(
         allLayers.push({
           id: option.name,
           type: "line",
-          filter: ["==", ["get", "type"], option.name],
+          filter: ["==", ["get", "cycleway_typology"], option.name],
           paint: style
         });
       }

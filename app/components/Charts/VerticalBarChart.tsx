@@ -1,6 +1,13 @@
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 interface VerticalBarChartProps {
   title?: string;
   xAxisTitle?: string;
@@ -10,6 +17,8 @@ interface VerticalBarChartProps {
   xKey?: string;
   yKeys?: string[];
   colors?: string[];
+  colorByLabel?: (label: string) => string;
+  selectedLabel?: string;
 }
 
 function VerticalBarChart({
@@ -20,7 +29,9 @@ function VerticalBarChart({
   data,
   xKey,
   yKeys,
-  colors
+  colors,
+  colorByLabel,
+  selectedLabel,
 }: VerticalBarChartProps) {
   // Se data, xKey e yKeys são fornecidos, transformar os dados
   let chartSeries = series;
@@ -28,14 +39,30 @@ function VerticalBarChart({
   if (data && xKey && yKeys) {
     const categories = data.map(item => item[xKey]);
     
-    chartSeries = yKeys.map((key, index) => ({
-      name: key === "atendimento_concluido" ? "Atendimento Concluído" :
-            key === "removido_particulares" ? "Removido por Particulares" :
-            key === "removido_bombeiros" ? "Removido pelos Bombeiros" :
-            key === "obito_local" ? "Óbito no Local" : key,
-      data: data.map(item => item[key] || 0),
-      color: colors && colors[index] ? colors[index] : undefined
-    }));
+    const isMultiSeries = yKeys.length > 1;
+
+    chartSeries = yKeys.map((key, index) => {
+      const seriesColor = !colorByLabel && colors && colors[index] ? colors[index] : undefined;
+      return {
+        name: key === "atendimento_concluido" ? "Atendimento Concluído" :
+              key === "removido_particulares" ? "Removido por Particulares" :
+              key === "removido_bombeiros" ? "Removido pelos Bombeiros" :
+              key === "obito_local" ? "Óbito no Local" :
+              key === "count" ? "Infrações" : key,
+        data: selectedLabel
+          ? data.map(item => {
+              const value = item[key] || 0;
+              if (item[xKey] === selectedLabel) return value;
+              return { y: value, color: hexToRgba(seriesColor || "#888888", 0.15) };
+            })
+          : colorByLabel
+            ? data.map(item => ({ y: item[key] || 0, color: colorByLabel(item[xKey]) }))
+            : isMultiSeries && seriesColor
+              ? data.map(item => ({ y: item[key] || 0, color: seriesColor }))
+              : data.map(item => item[key] || 0),
+        color: seriesColor,
+      };
+    });
     
     const options = {
       chart: {
@@ -60,7 +87,7 @@ function VerticalBarChart({
         enabled: false,
       },
       legend: {
-        enabled: true
+        enabled: !colorByLabel || !!selectedLabel
       },
       plotOptions: {
         column: {
@@ -90,7 +117,7 @@ function VerticalBarChart({
         shared: true,
         useHTML: true,
         formatter: function() {
-          let tooltip = '<b>' + this.x + '</b><br/>';
+          let tooltip = '<b>' + this.points[0].key + '</b><br/>';
           let total = 0;
           this.points.forEach(function(point) {
             tooltip += '<span style="color:' + point.color + '">●</span> ' + 

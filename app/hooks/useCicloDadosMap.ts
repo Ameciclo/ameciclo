@@ -18,7 +18,7 @@ interface MapViewState {
 
 export function useCicloDadosMap(initialViewState: MapViewState | null) {
   const [mapSelection, setMapSelection] = useState<MapSelection | null>(null);
-  const [autoOpenPopup, setAutoOpenPopup] = useState<{lat: number, lng: number} | null>(null);
+  const [autoOpenPopup, setAutoOpenPopup] = useState<{lat: number, lng: number, streetId?: string} | null>(null);
   const [selectedStreetGeometry, setSelectedStreetGeometry] = useState<any>(null);
   const [selectedStreetData, setSelectedStreetData] = useState<StreetDataSummary | null>(null);
   const [selectedStreetFilter, setSelectedStreetFilter] = useState<string | null>(null);
@@ -168,7 +168,7 @@ export function useCicloDadosMap(initialViewState: MapViewState | null) {
       setSelectedStreetFilter(streetName);
       
       // Abrir popup automaticamente no ponto
-      setAutoOpenPopup({ lat: pointLat, lng: pointLng });
+      setAutoOpenPopup({ lat: pointLat, lng: pointLng, streetId });
     }
     
     if (streetId) {

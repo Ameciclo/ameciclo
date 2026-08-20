@@ -13,8 +13,8 @@ import { Plausible } from "~/utils/analytics";
 import { ApiAlert } from "~/components/Commom/ApiAlert";
 import { MainContent } from "~/components/Commom/MainContent";
 import { ApiStatusProvider } from "~/contexts/ApiStatusContext";
-import "~/tailwind.css";
-import "maplibre-gl/dist/maplibre-gl.css";
+import tailwindCssUrl from "~/tailwind.css?url";
+import maplibreCssUrl from "maplibre-gl/dist/maplibre-gl.css?url";
 import PageNotFound from "~/components/Commom/PageNotFound";
 import ErrorFallback from "~/components/Commom/ErrorFallback";
 import { seo, organizationSchema } from "~/utils/seo";
@@ -44,7 +44,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         jsonLd: organizationSchema,
       }).meta,
     ],
-    links: seo({ title: "", pathname: "/" }).links,
+    links: [
+      { rel: "stylesheet", href: tailwindCssUrl },
+      { rel: "stylesheet", href: maplibreCssUrl },
+      ...seo({ title: "", pathname: "/" }).links,
+    ],
     scripts: seo({ title: "", pathname: "/", jsonLd: organizationSchema }).scripts,
   }),
   loader: async () => {
@@ -133,23 +137,9 @@ function NotFoundComponent() {
 }
 
 function ConditionalNavbar() {
-  const location = useRouterState({ select: (s) => s.location });
-  const isCicloDadosPage = location.pathname === "/dados/ciclodados";
-
-  if (isCicloDadosPage) {
-    return null;
-  }
-
   return <Navbar />;
 }
 
 function ConditionalFooter() {
-  const location = useRouterState({ select: (s) => s.location });
-  const isCicloDadosPage = location.pathname === "/dados/ciclodados";
-
-  if (isCicloDadosPage) {
-    return null;
-  }
-
   return <Footer />;
 }

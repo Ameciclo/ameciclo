@@ -52,7 +52,7 @@ export function PerfilSection({
   }, []);
 
   const generoOptions = ["Todos", "Masculino", "Feminino"];
-  const anoOptions = ["2024", "2021", "2018", "2015"];
+  const anoOptions = ["2024", "2021", "2018"];
   const areaOptions = ["Todas", "Área 1 - Área Central", "Área 2 - Área Intermediária", "Área 3 - Área Periférica"];
   const idadeOptions = ["Todas", "18-25 anos", "26-35 anos", "36-45 anos", "46+ anos"];
 

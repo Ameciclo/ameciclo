@@ -5,12 +5,12 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   server: {
     host: true,
   },
   plugins: [
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    ...(command === "build" ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),
     tanstackStart({ srcDirectory: "app" }),
     react(),
     tailwindcss(),
@@ -45,4 +45,4 @@ export default defineConfig({
     // Cloudflare Workers runtime, which only understands ESM.
     noExternal: ["use-sync-external-store"],
   },
-});
+}));

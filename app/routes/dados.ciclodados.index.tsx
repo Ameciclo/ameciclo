@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
 import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
 import { useCicloDadosMap } from '~/hooks/useCicloDadosMap';
 import { useProcessedData } from '~/hooks/useProcessedData';
 import {
-  CicloDadosHeader,
   LeftSidebar,
   MapView,
+  RightSidebar,
+  MuralView,
+  CicloDadosHeader,
   useCicloDadosData,
   useCicloDadosState,
   generateInfraData,
@@ -122,6 +125,8 @@ function CicloDados() {
     selectedPerfil,
     togglePerfilOption,
     toggleAllPerfilOptions,
+    selectedPerfilMetric,
+    setSelectedPerfilMetric,
     selectedGenero,
     setSelectedGenero,
     toggleGeneroOption,
@@ -134,6 +139,16 @@ function CicloDados() {
     setSelectedIdade,
     viewMode,
     setViewMode,
+    infracaoStartYear,
+    setInfracaoStartYear,
+    infracaoEndYear,
+    setInfracaoEndYear,
+    infracaoSeverityHigh,
+    setInfracaoSeverityHigh,
+    infracaoSeverityMedium,
+    setInfracaoSeverityMedium,
+    infracaoSeverityLow,
+    setInfracaoSeverityLow,
     clearAllSelections,
     selectAllOptions
   } = useCicloDadosState(
@@ -145,6 +160,8 @@ function CicloDados() {
     estacionamentoOptions,
     perfilOptions
   );
+
+  const [infracaoThresholds, setInfracaoThresholds] = useState<{low: number; medium: number} | null>(null);
 
   const infraData = generateInfraData(selectedInfra);
   const pdcData = generatePdcData(selectedPdc, execucaoCicloviaria);
@@ -168,17 +185,13 @@ function CicloDados() {
   return (
     <CicloDadosErrorBoundary>
       <ClientOnly fallback={<CicloDadosLoader />}>
-        <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
-          <CicloDadosHeader
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            onZoomToStreet={handleZoomToStreet}
-          />
-
-          <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
+        <div className="flex flex-col w-full overflow-hidden" style={{height: 'calc(100vh - 56px)', maxHeight: 'calc(100vh - 56px)', maxWidth: '100vw'}}>
+          <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 56px)'}}>
             <LeftSidebar
                 isOpen={leftSidebarOpen}
                 onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+                viewMode={viewMode || 'map'}
+                onViewModeChange={setViewMode}
                 infraOptions={infraOptions}
                 selectedInfra={selectedInfra}
                 onInfraToggle={toggleInfraOption}
@@ -195,6 +208,17 @@ function CicloDados() {
                 selectedInfracao={selectedInfracao}
                 onInfracaoToggle={toggleInfracaoOption}
                 onInfracaoToggleAll={toggleAllInfracaoOptions}
+                infracaoStartYear={infracaoStartYear}
+                onInfracaoStartYearChange={setInfracaoStartYear}
+                infracaoEndYear={infracaoEndYear}
+                onInfracaoEndYearChange={setInfracaoEndYear}
+                infracaoSeverityHigh={infracaoSeverityHigh}
+                onInfracaoSeverityHighChange={setInfracaoSeverityHigh}
+                infracaoSeverityMedium={infracaoSeverityMedium}
+                onInfracaoSeverityMediumChange={setInfracaoSeverityMedium}
+                infracaoSeverityLow={infracaoSeverityLow}
+                onInfracaoSeverityLowChange={setInfracaoSeverityLow}
+                infracaoThresholds={infracaoThresholds}
                 sinistroOptions={sinistroOptions}
                 selectedSinistro={selectedSinistro}
                 onSinistroToggle={toggleSinistroOption}
@@ -207,6 +231,8 @@ function CicloDados() {
                 selectedPerfil={selectedPerfil}
                 onPerfilToggle={togglePerfilOption}
                 onPerfilToggleAll={toggleAllPerfilOptions}
+                selectedPerfilMetric={selectedPerfilMetric}
+                onPerfilMetricChange={setSelectedPerfilMetric}
                 selectedGenero={selectedGenero}
                 onGeneroChange={toggleGeneroOption}
                 selectedAno={selectedAno}
@@ -228,34 +254,58 @@ function CicloDados() {
               />
 
             <main className="flex-1 relative">
-              <MapView
-                selectedInfra={selectedInfra}
-                selectedPdc={selectedPdc}
-                selectedContagem={selectedContagem}
-                selectedEstacionamento={selectedEstacionamento}
-                selectedSinistro={selectedSinistro}
-                selectedPerfil={selectedPerfil}
-                selectedGenero={selectedGenero}
-                selectedAno={selectedAno}
-                selectedArea={selectedArea}
-                selectedIdade={selectedIdade}
-                infraOptions={infraOptions}
-                pdcOptions={pdcOptions}
-                layersConf={layersConf}
-                infraData={infraData}
-                pdcData={pdcData}
-                contagemData={contagemMapData}
-                getContagemIcon={getContagemIcon}
-                onPointClick={handlePointClick}
-                externalViewState={mapViewState}
-                onMapMove={handleMapMove}
-                highlightedStreet={selectedStreetGeometry}
-                streetData={selectedStreetData}
-                selectedStreetFilter={selectedStreetFilter}
-                perfilCiclistasData={processedPerfilData}
-                autoOpenPopup={autoOpenPopup}
-                onPopupOpened={() => setAutoOpenPopup(null)}
-              />
+              {viewMode === 'mural' ? (
+                <MuralView
+                  sidebarOpen={leftSidebarOpen}
+                  onSidebarToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
+                />
+              ) : (
+                <>
+                  <MapView
+                    selectedInfra={selectedInfra}
+                    selectedPdc={selectedPdc}
+                    selectedContagem={selectedContagem}
+                    selectedEstacionamento={selectedEstacionamento}
+                    selectedSinistro={selectedSinistro}
+                    selectedInfracao={selectedInfracao}
+                    selectedPerfil={selectedPerfil}
+                    selectedPerfilMetric={selectedPerfilMetric}
+                    selectedGenero={selectedGenero}
+                    selectedAno={selectedAno}
+                    selectedArea={selectedArea}
+                    selectedIdade={selectedIdade}
+                    infraOptions={infraOptions}
+                    pdcOptions={pdcOptions}
+                    layersConf={layersConf}
+                    infraData={infraData}
+                    pdcData={pdcData}
+                    contagemData={contagemMapData}
+                    getContagemIcon={getContagemIcon}
+                    onPointClick={handlePointClick}
+                    externalViewState={mapViewState}
+                    onMapMove={handleMapMove}
+                    highlightedStreet={selectedStreetGeometry}
+                    streetData={selectedStreetData}
+                    selectedStreetFilter={selectedStreetFilter}
+                    perfilCiclistasData={processedPerfilData}
+                    autoOpenPopup={autoOpenPopup}
+                    onPopupOpened={() => setAutoOpenPopup(null)}
+                    onZoomToStreet={handleZoomToStreet}
+                    infracaoStartYear={infracaoStartYear}
+                    infracaoEndYear={infracaoEndYear}
+                    infracaoSeverityHigh={infracaoSeverityHigh}
+                    infracaoSeverityMedium={infracaoSeverityMedium}
+                    infracaoSeverityLow={infracaoSeverityLow}
+                    onInfracoesDataChange={setInfracaoThresholds}
+                  />
+                  <RightSidebar
+                    isOpen={rightSidebarOpen}
+                    onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
+                    viewMode={viewMode || 'map'}
+                    mapSelection={mapSelection || undefined}
+                  />
+                </>
+              )}
             </main>
           </div>
         </div>

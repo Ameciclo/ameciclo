@@ -1,16 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ComingSoonButton } from "./ComingSoonButton";
 
-const dataSubPages = [
+const dataSubPages: Array<{ name: string; url: string; icon?: string; comingSoon?: boolean }> = [
   { name: "Contagens", url: "/dados/contagens", icon: "/icons/dados/contagem.svg" },
-  { name: "Ideciclo", url: "/dados/ideciclo", icon: "/icons/dados/ideciclo.svg" },
   { name: "Documentos", url: "/dados/documentos", icon: "/icons/dados/relatorio.svg" },
   { name: "Perfil", url: "/dados/perfil", icon: "/icons/dados/perfil.svg" },
-  { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria", icon: "/icons/dados/mapa.svg" },
-  { name: "LOA", url: "/dados/loa", icon: "/icons/home/logo2.1d0f07c6.png" },
-  { name: "DOM", url: "/dados/dom", icon: "/icons/home/header-logo.4f44929c.png" },
-  { name: "SAMU", url: "/dados/samu", icon: "/icons/home/chamados_sinistros.svg" },
+   { name: "Execução Cicloviária", url: "/dados/execucao-cicloviaria", icon: "/icons/dados/mapa.svg" },
+  // { name: "Orçamento PE", url: "/dados/orcamento-pernambuco", icon: "/icons/home/logo2.1d0f07c6.png", comingSoon: true },
+  // { name: "Orçamento Recife", url: "/dados/orcamento-recife", icon: "/icons/home/header-logo.4f44929c.png", comingSoon: true },
+  { name: "Infrações", url: "/dados/infracoes", icon: "/icons/dados/research.svg" },
+  { name: "Emergências", url: "/dados/chamados-emergencia", icon: "/icons/home/chamados_sinistros.svg" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras", icon: "/icons/home/vias-inseguras.svg" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais", icon: "/icons/home/sinistrosfatais.png" },
   { name: "CicloDados", url: "/dados/ciclodados", icon: "/icons/dados/ciclodados.svg" },
@@ -22,8 +21,8 @@ export function DataSubmenu() {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0, visibility: "visible" }}
+      exit={{ opacity: 0, y: -10, visibility: "hidden" }}
       transition={{ duration: 0.15 }}
       className="submenu-container fixed top-14 left-0 right-0 z-150 shadow-lg pointer-events-auto"
       style={{backgroundColor: '#008080'}}
@@ -36,11 +35,6 @@ export function DataSubmenu() {
           {dataSubPages.map((subPage, _index) => {
             const isActive = location.pathname === subPage.url || 
               location.pathname.startsWith(subPage.url + '/');
-            const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
-            
-            if (isComingSoon) {
-              return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;
-            }
             
             return (
               <Link
@@ -54,6 +48,9 @@ export function DataSubmenu() {
                   <img src={subPage.icon} alt="" className="w-6 h-6 object-contain brightness-0 invert" aria-hidden="true" />
                 )}
                 <span className="relative z-10">{subPage.name}</span>
+                {subPage.comingSoon && (
+                  <span className="text-[8px] bg-yellow-400 text-black px-1 py-0.5 rounded font-bold ml-1 leading-none">BREVE</span>
+                )}
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
@@ -72,11 +69,6 @@ export function DataSubmenu() {
             {dataSubPages.map((subPage, _index) => {
               const isActive = location.pathname === subPage.url || 
                 location.pathname.startsWith(subPage.url + '/');
-              const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
-              
-              if (isComingSoon) {
-                return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;
-              }
               
               return (
                 <Link
@@ -90,6 +82,9 @@ export function DataSubmenu() {
                     <img src={subPage.icon} alt="" className="w-6 h-6 object-contain brightness-0 invert" aria-hidden="true" />
                   )}
                   <span className="relative z-10">{subPage.name}</span>
+                  {subPage.comingSoon && (
+                    <span className="text-[8px] bg-yellow-400 text-black px-1 py-0.5 rounded font-bold ml-1 leading-none">BREVE</span>
+                  )}
                   {isActive && (
                     <motion.div
                       layoutId="activeTabMobile"

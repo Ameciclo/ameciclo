@@ -1,5 +1,7 @@
-export async function fetchContagemData(lat: number, lon: number) {
-  const url = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`;
+import { COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
+
+export async function fetchContagemData(_lat: number, _lon: number) {
+  const url = COUNTINGS_ATLAS_LOCATIONS;
   
   try {
     

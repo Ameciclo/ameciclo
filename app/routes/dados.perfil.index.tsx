@@ -27,19 +27,14 @@ export const Route = createFileRoute("/dados/perfil/")({
 });
 
 function PerfilPage() {
-  const { data: { page, profileData, profileApiDown } } = useSuspenseQuery(perfilQueryOptions());
+  const { data: { pageData, profileData, profileApiDown } } = useSuspenseQuery(perfilQueryOptions());
 
   return (
     <>
-      <Banner image={page.cover?.url ?? undefined} alt="Capa da página de Perfil do Ciclista" />
+      <Banner image={pageData.coverImage} alt="Capa da página de Perfil do Ciclista" />
       <Breadcrumb label="perfil" slug="/perfil" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={profileApiDown} />
-      <ExplanationBoxes
-        boxes={[
-          { title: "O que é?", description: page.description ?? null },
-          { title: "Para o que serve?", description: page.objective ?? null },
-        ]}
-      />
+      <ExplanationBoxes boxes={pageData.explanationBoxes} />
       <PerfilDashboard apiDown={profileApiDown} profileData={profileData} />
     </>
   );

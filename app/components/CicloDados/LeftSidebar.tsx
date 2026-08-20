@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, Navigation, BarChart3 } from 'lucide-react';
+import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, BarChart3, Map, LayoutGrid } from 'lucide-react';
 import { FilterSection } from './FilterSection';
-import { PerfilSection } from './PerfilSection';
+import { PatternDisplay } from './PatternDisplay';
 
 interface LeftSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  viewMode: 'map' | 'mural';
+  onViewModeChange: (mode: 'map' | 'mural') => void;
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   selectedInfra: string[];
   onInfraToggle: (option: string) => void;
@@ -22,7 +24,18 @@ interface LeftSidebarProps {
   selectedInfracao: string[];
   onInfracaoToggle: (option: string) => void;
   onInfracaoToggleAll?: (options: string[], selectAll: boolean) => void;
-  sinistroOptions: string[];
+  infracaoStartYear?: string;
+  onInfracaoStartYearChange?: (year: string) => void;
+  infracaoEndYear?: string;
+  onInfracaoEndYearChange?: (year: string) => void;
+  infracaoSeverityHigh?: boolean;
+  onInfracaoSeverityHighChange?: (value: boolean) => void;
+  infracaoSeverityMedium?: boolean;
+  onInfracaoSeverityMediumChange?: (value: boolean) => void;
+  infracaoSeverityLow?: boolean;
+  onInfracaoSeverityLowChange?: (value: boolean) => void;
+  infracaoThresholds?: { low: number; medium: number } | null;
+  sinistroOptions: Array<{ name: string; color: string; pattern: string }>;
   selectedSinistro: string[];
   onSinistroToggle: (option: string) => void;
   onSinistroToggleAll?: (options: string[], selectAll: boolean) => void;
@@ -34,6 +47,8 @@ interface LeftSidebarProps {
   selectedPerfil: string[];
   onPerfilToggle: (option: string) => void;
   onPerfilToggleAll?: (options: string[], selectAll: boolean) => void;
+  selectedPerfilMetric: string;
+  onPerfilMetricChange: (metric: string) => void;
   selectedGenero: string[];
   onGeneroChange: (value: string) => void;
   selectedAno: string[];
@@ -63,6 +78,8 @@ interface LeftSidebarProps {
 export function LeftSidebar({
   isOpen,
   onToggle,
+  viewMode,
+  onViewModeChange,
   infraOptions,
   selectedInfra,
   onInfraToggle,
@@ -78,26 +95,57 @@ export function LeftSidebar({
   infracaoOptions,
   selectedInfracao,
   onInfracaoToggle,
+  onInfracaoToggleAll,
+  infracaoStartYear,
+  onInfracaoStartYearChange,
+  infracaoEndYear,
+  onInfracaoEndYearChange,
+  infracaoSeverityHigh,
+  onInfracaoSeverityHighChange,
+  infracaoSeverityMedium,
+  onInfracaoSeverityMediumChange,
+  infracaoSeverityLow,
+  onInfracaoSeverityLowChange,
+  infracaoThresholds,
   sinistroOptions,
   selectedSinistro,
   onSinistroToggle,
+  onSinistroToggleAll,
   estacionamentoOptions,
   selectedEstacionamento,
   onEstacionamentoToggle,
   onEstacionamentoToggleAll,
   perfilOptions,
   selectedPerfil,
+  onPerfilToggle,
+  onPerfilToggleAll,
+  selectedPerfilMetric,
+  onPerfilMetricChange,
+  selectedGenero,
+  onGeneroChange,
   selectedAno,
   onAnoChange,
+  selectedArea,
+  onAreaChange,
+  selectedIdade,
+  onIdadeChange,
+  selectedRaca,
+  onRacaChange,
+  selectedSocio,
+  onSocioChange,
+  selectedDias,
+  onDiasChange,
   onClearAll,
   onSelectAll,
+  onReloadMapData,
+  onReloadGeneralData,
   loadingStates = { infra: false, pdc: false, sinistros: false, estacionamento: false }
 }: LeftSidebarProps) {
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'ideciclo']));
   
   const toggleSection = (sectionId: string) => {
     // Prevenir expansão de seções "em breve"
-    const comingSoonSections = ['infracao', 'sinistro', 'rota', 'ideciclo'];
+    const comingSoonSections = ['ideciclo'];
     if (comingSoonSections.includes(sectionId) && collapsedSections.has(sectionId)) {
       return;
     }
@@ -114,15 +162,15 @@ export function LeftSidebar({
   };
   
   const collapseAll = () => {
-    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'rota', 'ideciclo']));
+    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'ideciclo', 'infracao']));
   };
   
   const expandAll = () => {
     // Manter seções "em breve" sempre colapsadas
-    setCollapsedSections(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
+    setCollapsedSections(new Set(['ideciclo']));
   };
   
-  const allCollapsed = collapsedSections.size >= 6; // Considera colapsado se 6 ou mais seções estão colapsadas (excluindo as 4 "em breve")
+  const allCollapsed = collapsedSections.size >= 6; // Considera colapsado se 6 ou mais seções estão colapsadas (excluindo as 2 "em breve")
   
   // Check if ALL options are selected across all sections
   const allOptionsSelected = 
@@ -141,6 +189,12 @@ export function LeftSidebar({
       onSelectAll();
     }
   };
+
+  const allYears = ["2018", "2021", "2024"];
+  const selectedAnoSort = [...selectedAno].sort((a, b) => Number(a) - Number(b));
+  const selectedAnoStartIndex = selectedAno.length > 0 ? Math.max(0, allYears.indexOf(selectedAnoSort[0])) : 0;
+  const selectedAnoEndIndex = selectedAno.length > 0 ? Math.min(allYears.length - 1, allYears.indexOf(selectedAnoSort[selectedAnoSort.length - 1])) : 0;
+
   return (
     <aside 
       className={`bg-gray-50 border-r transition-all duration-300 shrink-0 overflow-hidden flex flex-col ${
@@ -150,6 +204,36 @@ export function LeftSidebar({
       role="complementary"
       aria-label="Filtros de camadas de dados"
     >
+      {/* View mode toggle */}
+      {isOpen && (
+        <div className="px-3 pt-3 pb-1 bg-gray-50 border-b border-gray-200 shrink-0">
+          <div className="flex rounded-lg bg-gray-200 p-0.5">
+            <button
+              onClick={() => onViewModeChange('map')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+                viewMode === 'map'
+                  ? 'bg-white text-teal-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Map size={14} />
+              Mapa
+            </button>
+            <button
+              onClick={() => onViewModeChange('mural')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+                viewMode === 'mural'
+                  ? 'bg-white text-teal-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <LayoutGrid size={14} />
+              Mural
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Fixed header */}
       <div className={`items-center justify-between p-3 bg-gray-50 border-b border-gray-200 shrink-0 ${
         isOpen ? 'flex' : 'hidden md:flex flex-col gap-2'
@@ -180,7 +264,7 @@ export function LeftSidebar({
               title={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
               aria-label={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
             >
-              {allOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" /> : <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" />}
+              {allOptionsSelected ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
             </button>
             <button
               onClick={allCollapsed ? expandAll : collapseAll}
@@ -215,18 +299,6 @@ export function LeftSidebar({
           <div className="px-3 py-3">
             <div className="space-y-2">
               <FilterSection
-                title={<div className="flex items-center gap-2"><Route className="w-4 h-4" />Infraestrutura cicloviária</div>}
-                options={infraOptions}
-                selectedOptions={selectedInfra}
-                onToggle={onInfraToggle}
-                onToggleAll={onInfraToggleAll}
-                hasPattern={true}
-                isCollapsed={collapsedSections.has('infraestrutura')}
-                onToggleCollapse={() => toggleSection('infraestrutura')}
-                loadingOptions={loadingStates?.infra ? infraOptions.map(opt => opt.name) : []}
-              />
-              
-              <FilterSection
                 title={<div className="flex items-center gap-2"><Users className="w-4 h-4" />Contagem de ciclistas</div>}
                 options={contagemOptions.map(opt => ({ name: opt }))}
                 selectedOptions={selectedContagem}
@@ -237,17 +309,340 @@ export function LeftSidebar({
                 onToggleCollapse={() => toggleSection('contagem')}
               />
               
+              <div className="bg-white rounded-sm border" role="region" aria-labelledby="perfil-heading">
+                <div className="p-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                       <button 
+                        onClick={() => {
+                          if (selectedAno.length === allYears.length) {
+                            allYears.forEach(year => { if (selectedAno.includes(year)) onAnoChange(year); });
+                          } else {
+                            if (selectedPerfil.length === 0) {
+                              onPerfilToggleAll?.(perfilOptions, true);
+                            }
+                            allYears.forEach(year => {
+                              if (!selectedAno.includes(year)) onAnoChange(year);
+                            });
+                          }
+                        }}
+                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
+                        title={selectedAno.length > 0 ? 'Ocultar todos os anos de edições de perfil de ciclista' : 'Exibir todos os anos de edições de perfil de ciclista'}
+                        aria-label={selectedAno.length > 0 ? 'Ocultar todos os anos' : 'Exibir todos os anos'}
+                      >
+                        {selectedAno.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" aria-hidden="true" />
+                        <span id="perfil-heading" className="font-medium">Perfil de ciclistas</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => toggleSection('perfil-pontos')}
+                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
+                      title={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
+                      aria-label={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
+                      aria-expanded={!collapsedSections.has('perfil-pontos')}
+                    >
+                      <svg 
+                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('perfil-pontos') ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {!collapsedSections.has('perfil-pontos') && (
+                  <div className="px-2 pb-2 space-y-2">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">De: <span className="text-teal-700 font-medium">{selectedAnoSort[0] || '?'}</span></span>
+                        <span className="text-xs text-gray-500">Até: <span className="text-purple-700 font-medium">{selectedAnoSort[selectedAnoSort.length - 1] || '?'}</span></span>
+                      </div>
+                      <div className="relative h-8 flex items-center">
+                        <div className="absolute inset-x-0 h-2 top-1/2 -translate-y-1/2 rounded-full bg-gray-200" />
+                        <div className="absolute h-2 top-1/2 -translate-y-1/2 rounded-full"
+                          style={{
+                            left: `${((selectedAnoStartIndex) / (allYears.length - 1)) * 100}%`,
+                            right: `${100 - ((selectedAnoEndIndex + 1) / allYears.length) * 100}%`,
+                            background: 'linear-gradient(to right, #0d9488, #f97316 50%, #8B5CF6)',
+                          }}
+                        />
+                        {allYears.map((y, i) => (
+                          <div key={y} className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-400"
+                            style={{ left: `${(i / (allYears.length - 1)) * 100}%`, zIndex: 3 }} />
+                        ))}
+                        <input type="range" min={0} max={allYears.length - 1} step={1} value={selectedAnoStartIndex}
+                          onChange={(e) => {
+                            const newStart = Number(e.target.value);
+                            const s = Math.min(newStart, selectedAnoEndIndex);
+                            const end = Math.max(newStart, selectedAnoEndIndex);
+                            const selected = allYears.slice(s, end + 1);
+                            allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-teal-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-teal-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 1 }} />
+                        <input type="range" min={0} max={allYears.length - 1} step={1} value={selectedAnoEndIndex}
+                          onChange={(e) => {
+                            const newEnd = Number(e.target.value);
+                            const s = Math.min(selectedAnoStartIndex, newEnd);
+                            const end = Math.max(selectedAnoStartIndex, newEnd);
+                            const selected = allYears.slice(s, end + 1);
+                            allYears.forEach(y => { if (selectedAno.includes(y) !== selected.includes(y)) onAnoChange(y); });
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-purple-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 2 }} />
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t">
+                      <p className="text-[11px] text-gray-400 mb-1.5">Colorir por:</p>
+                      <div className="space-y-1">
+                        {[
+                          { key: 'acidentes', label: 'Sinistros', color: '#F97316' },
+                          { key: 'motivacao', label: 'Motivação', color: '#8B5CF6' },
+                          { key: 'idades', label: 'Idades', color: '#3B82F6' },
+                          { key: 'renda', label: 'Renda', color: '#F59E0B' },
+                          { key: 'escolaridade', label: 'Escolaridade', color: '#6366F1' },
+                          { key: 'raca', label: 'Raça/Cor', color: '#1f2937' },
+                        ].map(m => (
+                          <div key={m.key} onClick={() => onPerfilMetricChange(m.key)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onPerfilMetricChange(m.key); }}}
+                            className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${selectedPerfilMetric === m.key ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
+                            role="button" tabIndex={0} aria-pressed={selectedPerfilMetric === m.key}>
+                            <div className="flex items-center gap-2">
+                              <div className="shrink-0">
+                                {selectedPerfilMetric === m.key ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                              </div>
+                              <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: m.color }} />
+                              <span className={`text-sm ${selectedPerfilMetric === m.key ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{m.label}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {(() => {
+                        const colorLabels: Record<string, Array<{ color: string; label: string }>> = {
+                          acidentes: [{ color: '#F97316', label: 'Sinistro' }, { color: '#d1d5db', label: 'Sem sinistro' }],
+                          motivacao: [
+                            { color: '#F97316', label: 'Rápido/prático' },
+                            { color: '#8B5CF6', label: 'Mais barato' },
+                            { color: '#3B82F6', label: 'Mais saudável' },
+                            { color: '#10B981', label: 'Ambiental' },
+                          ],
+                          idades: [
+                            { color: '#3B82F6', label: '18-25' },
+                            { color: '#60A5FA', label: '26-35' },
+                            { color: '#93C5FD', label: '36-45' },
+                            { color: '#BFDBFE', label: '46-60' },
+                            { color: '#DBEAFE', label: '60+' },
+                          ],
+                          renda: [
+                            { color: '#10B981', label: 'Até 1 SM' },
+                            { color: '#F59E0B', label: '1 a 2 SM' },
+                            { color: '#F97316', label: '2 a 5 SM' },
+                            { color: '#EF4444', label: '+5 SM' },
+                          ],
+                          escolaridade: [
+                            { color: '#6366F1', label: 'Fundamental' },
+                            { color: '#8B5CF6', label: 'Médio' },
+                            { color: '#A78BFA', label: 'Superior' },
+                            { color: '#C4B5FD', label: 'Pós-grad' },
+                          ],
+                          raca: [
+                            { color: '#1f2937', label: 'Preta' },
+                            { color: '#78350f', label: 'Parda' },
+                            { color: '#fef3c7', label: 'Branca' },
+                            { color: '#92400e', label: 'Indígena' },
+                          ],
+                        };
+                        const items = colorLabels[selectedPerfilMetric] || [];
+                        if (items.length === 0) return null;
+                        return (
+                          <div className="flex gap-1 flex-wrap pt-1">
+                            {items.map(c => (
+                              <span key={c.label} className="text-sm text-gray-600 flex items-center gap-1">
+                                <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: c.color }} />
+                                {c.label}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <FilterSection
-                title={<div className="flex items-center gap-2"><MapPin className="w-4 h-4" />Plano Diretor Cicloviário</div>}
-                options={pdcOptions}
-                selectedOptions={selectedPdc}
-                onToggle={onPdcToggle}
-                onToggleAll={onPdcToggleAll}
+                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Sinistros com vítima</div>}
+                options={sinistroOptions}
+                selectedOptions={selectedSinistro}
+                onToggle={onSinistroToggle}
+                onToggleAll={onSinistroToggleAll}
                 hasPattern={true}
-                isPdc={true}
-                isCollapsed={collapsedSections.has('pdc')}
-                onToggleCollapse={() => toggleSection('pdc')}
-                loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
+                isCollapsed={collapsedSections.has('sinistro')}
+                onToggleCollapse={() => toggleSection('sinistro')}
+              />
+              
+              <div className="bg-white rounded-sm border" role="region" aria-labelledby="infracao-heading">
+                <div className="p-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => onInfracaoToggleAll?.(infracaoOptions, selectedInfracao.length === 0)}
+                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
+                        title={selectedInfracao.length > 0 ? 'Ocultar infrações' : 'Exibir infrações'}
+                        aria-label={selectedInfracao.length > 0 ? 'Ocultar infrações' : 'Exibir infrações'}
+                      >
+                        {selectedInfracao.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" aria-hidden="true" />
+                        <span id="infracao-heading" className="font-medium">Infrações de Trânsito</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => toggleSection('infracao')}
+                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
+                      title={collapsedSections.has('infracao') ? 'Expandir filtros de infrações' : 'Minimizar filtros de infrações'}
+                      aria-label={collapsedSections.has('infracao') ? 'Expandir filtros de infrações' : 'Minimizar filtros de infrações'}
+                      aria-expanded={!collapsedSections.has('infracao')}
+                    >
+                      <svg 
+                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('infracao') ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {!collapsedSections.has('infracao') && (
+                  <div className="px-2 pb-2 space-y-2">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">De: <span style={{color: '#0d9488'}} className="font-medium">{infracaoStartYear}</span></span>
+                        <span className="text-xs text-gray-500">Até: <span style={{color: '#7C3AED'}} className="font-medium">{infracaoEndYear}</span></span>
+                      </div>
+                      <div className="relative h-8 flex items-center">
+                        <div className="absolute inset-x-0 h-2 top-1/2 -translate-y-1/2 rounded-full bg-gray-200" />
+                        <div
+                          className="absolute h-2 top-1/2 -translate-y-1/2 rounded-full"
+                          style={{
+                            left: `${((Number(infracaoStartYear) - 2007) / (2025 - 2007)) * 100}%`,
+                            right: `${100 - ((Number(infracaoEndYear) - 2007) / (2025 - 2007)) * 100}%`,
+                            background: 'linear-gradient(to right, #0d9488, #7C3AED)',
+                          }}
+                        />
+                        {[2007, 2010, 2013, 2016, 2019, 2022, 2025].map(y => (
+                          <div key={y} className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-400"
+                            style={{ left: `${((y - 2007) / (2025 - 2007)) * 100}%`, zIndex: 3 }} />
+                        ))}
+                        <input
+                          type="range"
+                          min="2007"
+                          max="2025"
+                          value={infracaoStartYear}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            const s = Math.min(Number(v), Number(infracaoEndYear));
+                            const end = Math.max(Number(v), Number(infracaoEndYear));
+                            onInfracaoStartYearChange?.(String(s));
+                            if (String(end) !== infracaoEndYear) onInfracaoEndYearChange?.(String(end));
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-teal-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-teal-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 1 }}
+                        />
+                        <input
+                          type="range"
+                          min="2007"
+                          max="2025"
+                          value={infracaoEndYear}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            const s = Math.min(Number(infracaoStartYear), Number(v));
+                            const end = Math.max(Number(infracaoStartYear), Number(v));
+                            onInfracaoEndYearChange?.(String(end));
+                            if (String(s) !== infracaoStartYear) onInfracaoStartYearChange?.(String(s));
+                          }}
+                          className="absolute w-full h-2 appearance-none bg-transparent rounded-full pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-purple-600 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+                          style={{ zIndex: 2 }}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1 pt-1">
+                      <div
+                        onClick={() => onInfracaoSeverityHighChange?.(!infracaoSeverityHigh)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInfracaoSeverityHighChange?.(!infracaoSeverityHigh); }}}
+                        className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${infracaoSeverityHigh ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={infracaoSeverityHigh}
+                      >
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="shrink-0">
+                            {infracaoSeverityHigh ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                          </div>
+                          <span className={`text-sm transition-colors ${infracaoSeverityHigh ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Alta</span>
+                          {infracaoThresholds && <span className="text-[10px] text-gray-400 ml-auto">≥{infracaoThresholds.medium}</span>}
+                        </div>
+                        <PatternDisplay pattern="dashed" color="#7C3AED" name="Alta" />
+                      </div>
+                      <div
+                        onClick={() => onInfracaoSeverityMediumChange?.(!infracaoSeverityMedium)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInfracaoSeverityMediumChange?.(!infracaoSeverityMedium); }}}
+                        className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${infracaoSeverityMedium ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={infracaoSeverityMedium}
+                      >
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="shrink-0">
+                            {infracaoSeverityMedium ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                          </div>
+                          <span className={`text-sm transition-colors ${infracaoSeverityMedium ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Média</span>
+                          {infracaoThresholds && <span className="text-[10px] text-gray-400 ml-auto">{infracaoThresholds.low}–{infracaoThresholds.medium - 1}</span>}
+                        </div>
+                        <PatternDisplay pattern="dashed" color="#3B82F6" name="Média" />
+                      </div>
+                      <div
+                        onClick={() => onInfracaoSeverityLowChange?.(!infracaoSeverityLow)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInfracaoSeverityLowChange?.(!infracaoSeverityLow); }}}
+                        className={`block p-2 rounded-sm cursor-pointer transition-all duration-200 ${infracaoSeverityLow ? 'bg-teal-50 border border-teal-200 shadow-xs' : 'hover:bg-gray-50 border border-transparent'}`}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={infracaoSeverityLow}
+                      >
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="shrink-0">
+                            {infracaoSeverityLow ? <Eye className="w-4 h-4 text-teal-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                          </div>
+                          <span className={`text-sm transition-colors ${infracaoSeverityLow ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Baixa</span>
+                          {infracaoThresholds && <span className="text-[10px] text-gray-400 ml-auto">{'<'}{infracaoThresholds.low}</span>}
+                        </div>
+                        <PatternDisplay pattern="dashed" color="#14B8A6" name="Baixa" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <FilterSection
+                title={<div className="flex items-center gap-2"><Route className="w-4 h-4" />Infraestrutura cicloviária</div>}
+                options={infraOptions}
+                selectedOptions={selectedInfra}
+                onToggle={onInfraToggle}
+                onToggleAll={onInfraToggleAll}
+                hasPattern={true}
+                isCollapsed={collapsedSections.has('infraestrutura')}
+                onToggleCollapse={() => toggleSection('infraestrutura')}
+                loadingOptions={loadingStates?.infra ? infraOptions.map(opt => opt.name) : []}
               />
               
               <div className="bg-white rounded-sm border" role="region" aria-labelledby="estacionamento-heading">
@@ -322,120 +717,17 @@ export function LeftSidebar({
                 )}
               </div>
               
-              <div className="bg-white rounded-sm border" role="region" aria-labelledby="perfil-heading">
-                <div className="p-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => {
-                          const allYears = ["2024", "2021", "2018", "2015"];
-                          const allSelected = selectedAno.length === 4;
-                          if (allSelected) {
-                            allYears.forEach(year => onAnoChange(year));
-                          } else {
-                            allYears.forEach(year => {
-                              if (!selectedAno.includes(year)) onAnoChange(year);
-                            });
-                          }
-                        }}
-                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                        title={selectedAno.length > 0 ? 'Ocultar todos os anos de edições de perfil de ciclista' : 'Exibir todos os anos de edições de perfil de ciclista'}
-                        aria-label={selectedAno.length > 0 ? 'Ocultar todos os anos' : 'Exibir todos os anos'}
-                      >
-                        {selectedAno.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                      </button>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" aria-hidden="true" />
-                        <span id="perfil-heading" className="font-medium">Perfil de ciclistas</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => toggleSection('perfil-pontos')}
-                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                      title={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
-                      aria-label={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
-                      aria-expanded={!collapsedSections.has('perfil-pontos')}
-                    >
-                      <svg 
-                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('perfil-pontos') ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                {!collapsedSections.has('perfil-pontos') && (
-                  <div className="px-2 pb-2 space-y-1">
-                    {["2024", "2021", "2018", "2015"].map((option) => (
-                      <div
-                        key={option}
-                        onClick={() => onAnoChange(option)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            onAnoChange(option);
-                          }
-                        }}
-                        className={`flex items-center gap-2 p-2 rounded transition-all duration-200 cursor-pointer ${
-                          selectedAno.includes(option)
-                            ? 'bg-teal-50 border border-teal-200 shadow-xs'
-                            : 'hover:bg-gray-50 border border-transparent'
-                        }`}
-                        role="button"
-                        tabIndex={0}
-                        title={selectedAno.includes(option) ? `Ocultar edição ${option}` : `Exibir edição ${option}`}
-                        aria-label={`${selectedAno.includes(option) ? 'Ocultar' : 'Exibir'} edição ${option}`}
-                        aria-pressed={selectedAno.includes(option)}
-                      >
-                        <div className="shrink-0">
-                          {selectedAno.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                        </div>
-                        <span className={`text-sm transition-colors ${selectedAno.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Edição {option}</span>
-                        <div className="ml-auto bg-purple-500 text-white px-2 py-0.5 rounded-sm shadow-xs border border-purple-700 flex items-center gap-1">
-                          <User className="w-2.5 h-2.5 text-white" aria-hidden="true" />
-                          <span className="text-[9px] font-medium">{option}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
               <FilterSection
-                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Infrações de Trânsito</div>}
-                options={infracaoOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedInfracao}
-                onToggle={onInfracaoToggle}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('infracao')}
-                onToggleCollapse={() => toggleSection('infracao')}
-                comingSoon={true}
-              />
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Sinistro com vítima</div>}
-                options={sinistroOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedSinistro}
-                onToggle={onSinistroToggle}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('sinistro')}
-                onToggleCollapse={() => toggleSection('sinistro')}
-                comingSoon={true}
-              />
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><Navigation className="w-4 h-4" />Rota</div>}
-                options={[{ name: "Em breve" }]}
-                selectedOptions={[]}
-                onToggle={() => {}}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('rota')}
-                onToggleCollapse={() => toggleSection('rota')}
-                comingSoon={true}
+                title={<div className="flex items-center gap-2"><MapPin className="w-4 h-4" />Plano Diretor Cicloviário</div>}
+                options={pdcOptions}
+                selectedOptions={selectedPdc}
+                onToggle={onPdcToggle}
+                onToggleAll={onPdcToggleAll}
+                hasPattern={true}
+                isPdc={true}
+                isCollapsed={collapsedSections.has('pdc')}
+                onToggleCollapse={() => toggleSection('pdc')}
+                loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
               />
               
               <FilterSection

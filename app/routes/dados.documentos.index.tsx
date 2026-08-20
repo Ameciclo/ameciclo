@@ -21,24 +21,13 @@ export const Route = createFileRoute("/dados/documentos/")({
 });
 
 function Documentos() {
-  const { data: { page, documents } } = useSuspenseQuery(documentosQueryOptions());
+  const { data: { pageData, documents } } = useSuspenseQuery(documentosQueryOptions());
 
   return (
     <>
-      <Banner image={page.cover?.url ?? undefined} alt="Capa da página de Documentos" />
+      <Banner image={pageData.coverImage} alt="Capa da página de Documentos" />
       <Breadcrumb label="Documentos" slug="/documentos" routes={["/", "/dados"]} />
-      <ExplanationBoxes
-        boxes={[
-          {
-            title: "O que acontece por aqui?",
-            description: page.description ?? null,
-          },
-          {
-            title: "E o que mais?",
-            description: page.objectives ?? null,
-          },
-        ]}
-      />
+      <ExplanationBoxes boxes={pageData.explanationBoxes} />
       <DocumentsSession documents={documents} />
     </>
   );

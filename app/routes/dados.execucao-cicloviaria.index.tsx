@@ -15,7 +15,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { execucaoCicloviariaQueryOptions } from "~/queries/dados.execucaocicloviaria";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/execucaocicloviaria/")({
+export const Route = createFileRoute("/dados/execucao-cicloviaria/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(execucaoCicloviariaQueryOptions()),
   head: () =>
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/dados/execucaocicloviaria/")({
       title: "Execução Cicloviária - Ameciclo",
       description:
         "Monitoramento das estruturas cicloviárias projetadas e executadas nas cidades da Região Metropolitana do Recife.",
-      pathname: "/dados/execucaocicloviaria",
+      pathname: "/dados/execucao-cicloviaria",
     }),
   component: ExecucaoCicloviaria,
   pendingComponent: () => <RouteLoading label="Carregando execução cicloviária..." />,
@@ -35,11 +35,7 @@ export const Route = createFileRoute("/dados/execucaocicloviaria/")({
 function ExecucaoCicloviaria() {
     const { data } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
     const {
-        cover,
-        title1,
-        title2,
-        description1,
-        description2,
+        pageData,
         documents,
         allWaysData,
         layersConf,
@@ -75,16 +71,10 @@ function ExecucaoCicloviaria() {
         },
     ];
 
-
-
-
-
-
-
     return (
         <>
-            <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
-            <Breadcrumb label="Execução Cicloviária" slug="/dados/execucaocicloviaria" routes={["/", "/dados"]} />
+            <Banner image={pageData.coverImage} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
+            <Breadcrumb label="Execução Cicloviária" slug="/dados/execucao-cicloviaria" routes={["/", "/dados"]} />
             <ApiStatusHandler apiDown={apiDown} />
             <StatisticsBox
                 title={"Execução Cicloviária"}
@@ -92,19 +82,10 @@ function ExecucaoCicloviaria() {
                 boxes={statsData}
             />
             <ExplanationBoxes
-                boxes={[
-                    {
-                        title: title1,
-                        description: description1,
-                    },
-                    {
-                        title: title2,
-                        description: description2,
-                    },
-                ]}
+                boxes={pageData.explanationBoxes}
             />
             <div className="relative">
-                {apiDown && (
+                {(!allWaysData?.features || allWaysData.features.length === 0) && (
                     <div className="absolute inset-0 bg-white/90 z-10 flex items-center justify-center">
                         <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-8 max-w-md mx-4">
                             <div className="text-center">
@@ -136,7 +117,6 @@ function ExecucaoCicloviaria() {
                 optionsType={optionsType}
                 sortCityAndType={sortCityAndType}
             />
-
 
             <div data-documents-section>
                 <CardsSession title={documents.title} cards={documents.cards} />

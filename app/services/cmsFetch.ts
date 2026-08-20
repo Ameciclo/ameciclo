@@ -46,7 +46,9 @@ export async function cmsFetch<T = unknown>(
   } = opts;
 
   const edgeCache =
-    typeof caches !== "undefined" && ttl > 0 ? caches.default : null;
+    typeof caches !== "undefined" && ttl > 0 && !import.meta.env.DEV
+      ? caches.default
+      : null;
 
   if (edgeCache) {
     const cacheKey = new Request(url, { method: "GET" });

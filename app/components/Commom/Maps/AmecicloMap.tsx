@@ -373,13 +373,14 @@ export const AmecicloMap = ({
     dragPanEnabled,
     radius,
     setRadius,
-    selectedCircles = [],
     selectedPoints = [],
     hoverPoint,
     onMouseMove,
+    onMouseDown,
     initialViewState,
     onViewStateChange,
     onPointClick,
+    flyTo,
 }: {
     layerData?:
     | GeoJSON.Feature<GeoJSON.Geometry>
@@ -399,13 +400,14 @@ export const AmecicloMap = ({
     dragPanEnabled?: boolean;
     radius?: number;
     setRadius?: (radius: number) => void;
-    selectedCircles?: Array<{ lat: number; lng: number; radius: number; id: string }>;
     selectedPoints?: Array<{ lat: number; lng: number; id: string; customIcon?: React.ReactNode }>;
     hoverPoint?: { lat: number; lng: number } | null;
     onMouseMove?: (event: any) => void;
+    onMouseDown?: (event: any) => void;
     initialViewState?: { latitude: number; longitude: number; zoom: number };
     onViewStateChange?: (viewState: any) => void;
     onPointClick?: (point: any) => void;
+    flyTo?: { latitude: number; longitude: number; zoom?: number } | null;
 }) => {
     const [isClient, setIsClient] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -518,6 +520,18 @@ export const AmecicloMap = ({
             });
         }
     }, [initialViewState?.latitude, initialViewState?.longitude, initialViewState?.zoom, hasSetInitialViewport]);
+
+    useEffect(() => {
+        if (flyTo && hasSetInitialViewport) {
+            setViewport({
+                latitude: flyTo.latitude,
+                longitude: flyTo.longitude,
+                zoom: flyTo.zoom ?? 16,
+                bearing: 0,
+                pitch: 0,
+            });
+        }
+    }, [flyTo?.latitude, flyTo?.longitude, hasSetInitialViewport]);
     const [settings, setsettings] = useState(() => ({
         dragPan: dragPanEnabled ?? defaultDragPan,
         dragRotate: true,
@@ -619,7 +633,7 @@ export const AmecicloMap = ({
                             setSelectedMarker(null);
                             if (onMapClick) onMapClick(e);
                         }}
-                        onMouseDown={onMapClick}
+                        onMouseDown={onMouseDown}
                         onMouseMove={onMouseMove}
                     >
 
@@ -635,7 +649,9 @@ export const AmecicloMap = ({
                         )}
                         {pointsData?.map((point) => {
                             const { key, latitude, longitude, size, color, customIcon } = point;
-                            
+
+                            if (isNaN(latitude) || isNaN(longitude)) return null;
+
                             const zoomAdjustedSize = size;
                             
                             return (
@@ -648,14 +664,9 @@ export const AmecicloMap = ({
                                         onClick={(e) => {
                                             e?.originalEvent?.stopPropagation?.();
                                             
-                                            // Se o ponto tem seu próprio onClick, usar ele
                                             if (point.onClick) {
                                                 point.onClick();
-                                                return;
-                                            }
-                                            
-                                            // Don't show popup for clusters
-                                            if (!point.isCluster && (point.type === 'bicicletario' || point.type === 'bikepe')) {
+                                            } else if (!point.isCluster && (point.type === 'bicicletario' || point.type === 'bikepe')) {
                                                 setSelectedMarker(point);
                                             }
                                             
@@ -696,66 +707,28 @@ export const AmecicloMap = ({
                         })}
 
                         {hoverPoint && radius && (() => {
+                            if (isNaN(hoverPoint.lat) || isNaN(hoverPoint.lng)) return null;
                             const metersPerPixel = 156543.03392 * Math.cos(hoverPoint.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
                             const radiusInPixels = radius / metersPerPixel;
-                            const circleSize = radiusInPixels * 2;
-                            
+
                             return (
-                                <Marker
-                                    latitude={hoverPoint.lat}
-                                    longitude={hoverPoint.lng}
-                                >
-                                    <div 
-                                        style={{
-                                            width: `${circleSize}px`,
-                                            height: `${circleSize}px`,
-                                            borderRadius: '50%',
-                                            background: `repeating-linear-gradient(
-                                                45deg,
-                                                rgba(239, 68, 68, 0.1),
-                                                rgba(239, 68, 68, 0.1) 4px,
-                                                transparent 4px,
-                                                transparent 8px
-                                            )`,
-                                            transform: 'translate(-50%, -50%)',
-                                            pointerEvents: 'none'
-                                        }}
-                                    />
-                                </Marker>
+                                <Source id="hover-circle-source" type="geojson" data={{
+                                    type: 'Feature',
+                                    geometry: { type: 'Point', coordinates: [hoverPoint.lng, hoverPoint.lat] },
+                                    properties: {}
+                                }}>
+                                    <Layer id="hover-circle-layer" type="circle" paint={{
+                                        'circle-radius': radiusInPixels,
+                                        'circle-color': 'rgba(239, 68, 68, 0.15)',
+                                        'circle-stroke-color': 'rgba(239, 68, 68, 0.5)',
+                                        'circle-stroke-width': 2,
+                                    }} />
+                                </Source>
                             );
                         })()}
-                        {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
-                            const metersPerPixel = 156543.03392 * Math.cos(circle.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
-                            const radiusInPixels = circle.radius / metersPerPixel;
-                            const circleSize = radiusInPixels * 2;
-                            
+                        {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => {
+                            if (isNaN(point.lat) || isNaN(point.lng)) return null;
                             return (
-                                <Marker
-                                    key={circle.id}
-                                    latitude={circle.lat}
-                                    longitude={circle.lng}
-                                >
-                                    <div 
-                                        style={{
-                                            width: `${circleSize}px`,
-                                            height: `${circleSize}px`,
-                                            borderRadius: '50%',
-                                            background: `repeating-linear-gradient(
-                                                45deg,
-                                                rgba(239, 68, 68, 0.1),
-                                                rgba(239, 68, 68, 0.1) 4px,
-                                                transparent 4px,
-                                                transparent 8px
-                                            )`,
-                                            transform: 'translate(-50%, -50%)',
-                                            pointerEvents: 'none'
-                                        }}
-                                    />
-                                </Marker>
-                            );
-                        })}
-
-                        {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => (
                             <Marker
                                 key={point.id}
                                 latitude={point.lat}
@@ -765,9 +738,10 @@ export const AmecicloMap = ({
                                     {point.customIcon}
                                 </div>
                             </Marker>
-                        ))}
+                            );
+                        })}
 
-                        {hoveredMarker && hoveredMarker.popup && (
+                        {hoveredMarker && hoveredMarker.popup && !isNaN(hoveredMarker.latitude) && !isNaN(hoveredMarker.longitude) && (
                             <Marker
                                 latitude={hoveredMarker.latitude}
                                 longitude={hoveredMarker.longitude}
@@ -787,7 +761,7 @@ export const AmecicloMap = ({
                             </Marker>
                         )}
 
-                        {selectedMarker && (
+                        {selectedMarker && !isNaN(selectedMarker.latitude) && !isNaN(selectedMarker.longitude) && (
                             <Popup
                                 latitude={selectedMarker.latitude}
                                 longitude={selectedMarker.longitude}

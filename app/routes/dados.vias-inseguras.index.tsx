@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import React from "react";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
@@ -13,15 +12,15 @@ import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBound
 import { viasInsegurasQueryOptions } from "~/queries/dados.vias-inseguras";
 import { seo } from "~/utils/seo";
 
-export const Route = createFileRoute("/dados/viasinseguras/")({
+export const Route = createFileRoute("/dados/vias-inseguras/")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(viasInsegurasQueryOptions()),
   head: () =>
     seo({
       title: "Observatório de Vias Inseguras - Ameciclo",
       description:
-        "Ranking das vias com maior concentração de sinistros de trânsito no Recife, baseado nos dados do SAMU.",
-      pathname: "/dados/viasinseguras",
+        "Ranking das vias com maior concentração de sinistros de trânsito no Recife, baseado nos dados de chamados de emergência.",
+      pathname: "/dados/vias-inseguras",
     }),
   component: ViasInsegurasPage,
   pendingComponent: () => <RouteLoading label="Carregando vias inseguras..." />,
@@ -33,15 +32,11 @@ export const Route = createFileRoute("/dados/viasinseguras/")({
 function ViasInsegurasPage() {
   const { data } = useSuspenseQuery(viasInsegurasQueryOptions());
   const {
-    title1,
-    description1,
-    title2,
-    description2,
+    pageData,
     statisticsBoxes,
     summaryData,
     topViasData,
     mapData,
-    historyData,
     apiDown,
   } = data;
 
@@ -50,12 +45,12 @@ function ViasInsegurasPage() {
   return (
     <>
       <Banner
-        image="/pages_covers/vias-inseguras.png"
+        image={pageData.coverImage}
         alt="Capa da página do Observatório de Vias Inseguras"
       />
       <Breadcrumb
         label="Observatório de Vias Inseguras"
-        slug="/dados/observatorio/vias-inseguras"
+        slug="/dados/vias-inseguras"
         routes={["/", "/dados"]}
       />
       <ApiStatusHandler apiDown={apiDown} />
@@ -65,24 +60,24 @@ function ViasInsegurasPage() {
         boxes={statisticsBoxes}
       />
       <ExplanationBoxes
-        boxes={[
-          {
-            title: title1,
-            description: description1,
-          },
-          {
-            title: title2,
-            description: description2,
-          },
-        ]}
+        boxes={pageData.explanationBoxes}
       />
       <ViasInsegurasClientSide
         summaryData={summaryData}
         topViasData={topViasData}
         mapData={mapData}
-        historyData={historyData}
       />
-      {/* <CardsSession title={documents.title} cards={documents.cards} /> */}
+      {pageData.supportFiles.length > 0 && (
+        <CardsSession
+          title="Documentos"
+          cards={pageData.supportFiles.map((f) => ({
+            title: f.title,
+            description: f.description,
+            src: f.src,
+            url: f.url,
+          }))}
+        />
+      )}
     </>
   );
 }

@@ -2,14 +2,14 @@ import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { cmsFetch } from "~/services/cmsFetch";
 import { makeApiErrorTracker } from "~/services/apiTracking";
+import { parsePageData } from "~/services/parsePageData";
 import {
   DATASUS_SUMMARY_DATA,
   DATASUS_CITIES_BY_YEAR_DATA,
-  OBSERVATORIO_SINISTROS_PAGE_DATA,
+  PLATAFORMA_DADOS_PAGE_DATA,
 } from "~/servers";
 
-const MOCK_PAGE_DATA = {
-  id: 4,
+const FALLBACK_PAGE_DATA = {
   title: "Observatório de Sinistros Fatais",
   coverImage: "/pages_covers/sinistros-fatais.png",
   explanationBoxes: [
@@ -24,13 +24,12 @@ const MOCK_PAGE_DATA = {
         "Local de Ocorrência indica onde o sinistro aconteceu, enquanto Local de Residência mostra onde a vítima morava. Essa distinção é importante para análises de políticas públicas e planejamento urbano.",
     },
   ],
-  supportFiles: [],
 };
 
 const fetchSinistrosFatais = createServerFn().handler(async () => {
   const tracker = makeApiErrorTracker();
 
-  const [summary, citiesByYear, pageData] = await Promise.all([
+  const [summary, citiesByYear, pageDataResponse] = await Promise.all([
     cmsFetch<any>(DATASUS_SUMMARY_DATA, {
       ttl: 300,
       timeout: 10000,
@@ -45,19 +44,18 @@ const fetchSinistrosFatais = createServerFn().handler(async () => {
       onError: tracker.at(DATASUS_CITIES_BY_YEAR_DATA),
       retries: 2,
     }),
-    cmsFetch<any>(OBSERVATORIO_SINISTROS_PAGE_DATA, {
+    cmsFetch<any>(PLATAFORMA_DADOS_PAGE_DATA("sinistros-fatais"), {
       ttl: 600,
-      timeout: 10000,
-      fallback: MOCK_PAGE_DATA,
-      onError: tracker.at(OBSERVATORIO_SINISTROS_PAGE_DATA),
-      retries: 2,
+      timeout: 5000,
+      fallback: null,
+      onError: tracker.at("plataformas-de-dados"),
     }),
   ]);
 
   return {
     summary,
     citiesByYear,
-    pageData,
+    pageData: parsePageData(pageDataResponse, FALLBACK_PAGE_DATA),
     ...tracker.summary(),
   };
 });

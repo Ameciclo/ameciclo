@@ -36,31 +36,25 @@ export const Route = createFileRoute("/dados/contagens/")({
 });
 
 function Contagens() {
-  const { data: { page, summaryData, pcrCounts, amecicloData, atlasApiDown } } =
+  const { data: { pageData, summaryData, pcrCounts, amecicloData, atlasApiDown } } =
     useSuspenseQuery(contagensQueryOptions());
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
+  const [flyTo, setFlyTo] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const statistics = useCountsStatistics(summaryData.summaryData);
   const { pointsData, controlPanel } = useCountsMapData(amecicloData, pcrCounts);
 
-  const docs = (page.archives ?? []).map((a) => ({
-    title: a.filename ?? "",
-    description: a.description ?? "",
-    src: a.image?.url ?? "",
-    url: a.file?.url ?? "#",
-  }));
-
   return (
     <>
-      <Banner image={page.cover?.url ?? undefined} alt="Capa da página de contagens" />
+      <Banner image={pageData.coverImage} alt="Capa da página de contagens" />
       <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={atlasApiDown} />
       <GeneralCountStatistics title={"Estatísticas Gerais"} boxes={statistics} />
       <ExplanationBoxes
         boxes={[
-          { title: "O que é?", description: page.description ?? null },
-          { title: "E o que mais?", description: page.objective ?? null },
+          { title: "O que é?", description: pageData.explanationBoxes[0]?.description ?? null },
+          { title: "E o que mais?", description: pageData.explanationBoxes[1]?.description ?? null },
         ]}
       />
       <InfoCards cards={summaryData.cards} />
@@ -70,14 +64,22 @@ function Contagens() {
         onPointClick={(point) => {
           setSelectedPoint(point);
         }}
+        flyTo={flyTo}
       />
 
       <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
-      <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
-      <CardsSession
-        title={"Documentos para realizar contagens de ciclistas."}
-        cards={docs}
+      <CountsTable
+        data={summaryData.countsData}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        onCoordinateClick={(lat, lng) => setFlyTo({ latitude: lat, longitude: lng })}
       />
+      {pageData.supportFiles.length > 0 && (
+        <CardsSession
+          title={"Documentos para realizar contagens de ciclistas."}
+          cards={pageData.supportFiles}
+        />
+      )}
     </>
   );
 }
