@@ -22,28 +22,28 @@ export default function Instalacao({ darkMode = true, fontSize = 16 }: Instalaca
         <div className="space-y-4">
           <div>
             <p className="mb-2" style={{ fontSize: fontSize - 2 }}>1. Clone o repositório:</p>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'}`} style={{ fontSize: fontSize - 2 }}>git clone https://github.com/Ameciclo/ameciclo.git</code>
             </div>
           </div>
           
           <div>
             <p className="mb-2" style={{ fontSize: fontSize - 2 }}>2. Instale as dependências:</p>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'}`} style={{ fontSize: fontSize - 2 }}>npm install</code>
             </div>
           </div>
           
           <div>
             <p className="mb-2" style={{ fontSize: fontSize - 2 }}>3. Inicie o servidor de desenvolvimento:</p>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'}`} style={{ fontSize: fontSize - 2 }}>npm run dev</code>
             </div>
           </div>
           
           <div>
             <p className="mb-2" style={{ fontSize: fontSize - 2 }}>4. Acesse a aplicação:</p>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-3 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'}`} style={{ fontSize: fontSize - 2 }}>http://localhost:5173</code>
             </div>
           </div>

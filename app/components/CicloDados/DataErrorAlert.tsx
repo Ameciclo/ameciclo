@@ -53,7 +53,7 @@ export function DataErrorAlert({ errors, onShowMore }: DataErrorAlertProps) {
   }, [visibleErrors.length]);
 
   return (
-    <div className="absolute top-4 right-4 z-[70] max-w-sm space-y-2">
+    <div className="absolute top-4 right-4 z-70 max-w-sm space-y-2">
       {visibleErrors.map((error) => {
         const currentProgress = progress[error.type] || 0;
         const isHiding = autoHiding.includes(error.type);
@@ -75,7 +75,7 @@ export function DataErrorAlert({ errors, onShowMore }: DataErrorAlertProps) {
             
             <div className="p-3">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-yellow-800">
                     Dados temporariamente indisponíveis
@@ -104,7 +104,7 @@ export function DataErrorAlert({ errors, onShowMore }: DataErrorAlertProps) {
                 </div>
                 <button
                   onClick={() => dismissError(error.type)}
-                  className="text-yellow-600 hover:text-yellow-800 flex-shrink-0"
+                  className="text-yellow-600 hover:text-yellow-800 shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </button>

@@ -1,0 +1,15 @@
+/*
+ * Monarch theme palette override — Ameciclo brand teal (#008080).
+ *
+ * The monarch theme reads its color tones from CSS variables. The shipped
+ * `palettes/green.css` defines `--fc-monarch-primary` etc. as green; we
+ * shadow those values on the calendar wrapper so the toolbar buttons,
+ * today highlight, and chrome render in the brand teal instead.
+ */
+.agenda-calendar {
+  --fc-monarch-primary: #008080;
+  --fc-monarch-primary-over: #006666;
+  --fc-monarch-primary-down: #004d4d;
+  --fc-monarch-event: #008080;
+  --fc-monarch-highlight: #00808059;
+}

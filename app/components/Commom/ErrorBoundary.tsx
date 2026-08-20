@@ -1,10 +1,5 @@
-import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-
-  if (isRouteErrorResponse(error)) {
-    if (error.status === 504) {
+export function ErrorBoundary({ error }: { error: any }) {
+  if (error?.status === 504) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center">
@@ -21,7 +16,6 @@ export function ErrorBoundary() {
           </div>
         </div>
       );
-    }
   }
 
   return (

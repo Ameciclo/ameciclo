@@ -2,12 +2,12 @@ import { TelegramIcon, CalendarIcon } from "~/components/Commom/Icones/Participe
 
 export function OrganizationSection() {
   return (
-    <div id="como-nos-organizamos" className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-xl p-8 text-white">
+    <div id="como-nos-organizamos" className="bg-linear-to-r from-teal-600 to-teal-700 rounded-xl p-8 text-white">
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8">
         Como nos Organizamos
       </h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        <div className="bg-white/10 backdrop-blur rounded-lg p-6">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
           <div className="flex items-center gap-3 mb-4">
             <TelegramIcon className="w-6 h-6" />
             <h3 className="text-xl font-semibold">Telegram</h3>
@@ -24,7 +24,7 @@ export function OrganizationSection() {
             </li>
           </ul>
         </div>
-        <div className="bg-white/10 backdrop-blur rounded-lg p-6">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
           <div className="flex items-center gap-3 mb-4">
             <CalendarIcon className="w-6 h-6" />
             <h3 className="text-xl font-semibold">Reuniões Ordinárias</h3>

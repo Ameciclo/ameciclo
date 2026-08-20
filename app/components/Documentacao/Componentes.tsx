@@ -14,7 +14,7 @@ export default function Componentes({ darkMode = true, fontSize = 16 }: Document
         <div className="space-y-6">
           <div>
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Organização por Funcionalidade</h3>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border mb-4`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border mb-4`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'}`} style={{ fontSize: fontSize - 2 }}>
 app/components/
 ├── Commom/              # 50+ componentes globais
@@ -43,7 +43,7 @@ app/components/
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Componentes Principais</h3>
             
             <div className="space-y-3">
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-blue-400' : 'text-blue-700'} mb-2`} style={{ fontSize: fontSize }}>CicloDados (Plataforma Colaborativa)</h4>
                 <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Sistema completo de visualização de dados com:</p>
                 <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
@@ -55,7 +55,7 @@ app/components/
                 </ul>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'} mb-2`} style={{ fontSize: fontSize }}>ViasInseguras (Análise de Vias)</h4>
                 <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Sistema de ranking e análise temporal:</p>
                 <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
@@ -67,7 +67,7 @@ app/components/
                 </ul>
               </div>
 
-              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+              <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <h4 className={`font-semibold ${darkMode ? 'text-orange-400' : 'text-orange-700'} mb-2`} style={{ fontSize: fontSize }}>Contagens (Visualização de Dados)</h4>
                 <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Componentes para contagens de ciclistas:</p>
                 <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
@@ -82,7 +82,7 @@ app/components/
           
           <div>
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize + 4 }}>Exemplo de Uso</h3>
-            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded border`}>
+            <div className={`${darkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-100 border-gray-300'} p-4 rounded-sm border`}>
               <code className={`${darkMode ? 'text-green-300' : 'text-green-700'}`} style={{ fontSize: fontSize - 2 }}>
 {`import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";

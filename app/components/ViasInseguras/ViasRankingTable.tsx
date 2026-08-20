@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import Table from "../Commom/Table/Table";
 import { slugify } from "~/utils/slugify";
 
@@ -20,10 +20,8 @@ interface ViasRankingTableProps {
 }
 
 export default function ViasRankingTable({ 
-  data, 
-  totalSinistros, 
-  periodo, 
-  onViaClick 
+  data,
+  totalSinistros,
 }: ViasRankingTableProps) {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof ViaRanking;
@@ -82,10 +80,10 @@ export default function ViasRankingTable({
           value={filterValue || ''}
           onChange={e => setFilter(e.target.value || undefined)}
           placeholder="Buscar ranking"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
         />
       ),
-      Cell: ({ value, row }: any) => (
+      Cell: ({ value }: any) => (
         <div className="flex items-center gap-2">
           <span className={`
             inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
@@ -109,7 +107,8 @@ export default function ViasRankingTable({
       disableFilters: false,
       Cell: ({ value, row }: any) => (
         <Link
-          to={`/dados/vias-inseguras/${row.original.slug}`}
+          to="/dados/viasinseguras/$slug"
+          params={{ slug: String(row.original.slug) }}
           className="text-left hover:text-ameciclo hover:underline transition-colors block"
         >
           <div className="font-medium">{value}</div>
@@ -135,7 +134,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
               }}
               placeholder="Mín"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
             <input
               value={max || ''}
@@ -145,7 +144,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
               }}
               placeholder="Máx"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
           </div>
         );
@@ -177,7 +176,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
               }}
               placeholder="Mín km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
             <input
               value={max || ''}
@@ -188,7 +187,7 @@ export default function ViasRankingTable({
                 setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
               }}
               placeholder="Máx km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded text-xs"
+              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
             />
           </div>
         );

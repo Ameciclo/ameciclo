@@ -1,32 +1,25 @@
 import { useState } from "react";
 import AmeCiclistaModal from "./AmeCiclistaModal";
-import InfoSectionLoading from "./InfoSectionLoading";
-import AmeciclistasLoading from "./AmeciclistasLoading";
 import { InfoSection } from "./InfoSection";
 import { MemberCard } from "./MemberCard";
 import { Tab, TabPanel, Tabs, TabsNav } from "./Tabs";
+import type { Ameciclista, QuemSomo } from "~/queries/quemsomos";
 
 interface QuemSomosContentProps {
   pageData: {
-    ameciclistas?: any[];
-    custom?: {
-      definition?: string;
-      objective?: string;
-      links?: Array<{ id: string; title: string; link: string }>;
-    };
-    ameciclistasLoading?: boolean;
-    customLoading?: boolean;
+    ameciclistas: Ameciclista[];
+    custom: QuemSomo;
   };
 }
 
 export function QuemSomosContent({ pageData }: QuemSomosContentProps) {
-  const { ameciclistas = [], custom = {}, ameciclistasLoading = false, customLoading = false } = pageData || {};
+  const { ameciclistas, custom } = pageData;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAmeciclista, setSelectedAmeciclista] = useState(null);
+  const [selectedAmeciclista, setSelectedAmeciclista] = useState<Ameciclista | null>(null);
   const [lastFocusedElement, setLastFocusedElement] = useState<HTMLElement | null>(null);
 
-  const handleCardClick = (ameciclista: any, event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCardClick = (ameciclista: Ameciclista, event: React.MouseEvent<HTMLButtonElement>) => {
     setLastFocusedElement(event.currentTarget);
     setSelectedAmeciclista(ameciclista);
     setIsModalOpen(true);
@@ -40,20 +33,18 @@ export function QuemSomosContent({ pageData }: QuemSomosContentProps) {
     }
   };
 
-  const coordinators = ameciclistas.filter((a: any) => a.role === "coordenacao");
-  const counselors = ameciclistas.filter((a: any) => a.role === "conselhofiscal" || a.role === "concelhofiscal");
+  const coordinators = ameciclistas.filter((a) => a.role === "coordenacao");
+  const counselors = ameciclistas.filter(
+    (a) => a.role === "conselhofiscal" || a.role === "concelhofiscal",
+  );
 
   return (
     <div className="container mx-auto mt-8 mb-8">
-      {customLoading ? (
-        <InfoSectionLoading />
-      ) : (
-        <InfoSection
-          definition={custom?.definition}
-          objective={custom?.objective}
-          links={custom?.links}
-        />
-      )}
+      <InfoSection
+        definition={custom.definition ?? undefined}
+        objective={custom.objective ?? undefined}
+        links={custom.links ?? undefined}
+      />
 
       <Tabs initialValue="tab-ameciclista">
         <TabsNav>
@@ -63,47 +54,35 @@ export function QuemSomosContent({ pageData }: QuemSomosContentProps) {
         </TabsNav>
 
         <TabPanel name="tab-coord">
-          {ameciclistasLoading ? (
-            <AmeciclistasLoading />
-          ) : (
-            coordinators.map((c: any) => (
-              <MemberCard
-                key={c.id}
-                member={c}
-                onClick={(e) => handleCardClick(c, e)}
-                showBio
-              />
-            ))
-          )}
+          {coordinators.map((c) => (
+            <MemberCard
+              key={c.id}
+              member={c}
+              onClick={(e) => handleCardClick(c, e)}
+              showBio
+            />
+          ))}
         </TabPanel>
 
         <TabPanel name="tab-conselho">
-          {ameciclistasLoading ? (
-            <AmeciclistasLoading />
-          ) : (
-            counselors.map((c: any) => (
-              <MemberCard
-                key={c.id}
-                member={c}
-                onClick={(e) => handleCardClick(c, e)}
-                showBio
-              />
-            ))
-          )}
+          {counselors.map((c) => (
+            <MemberCard
+              key={c.id}
+              member={c}
+              onClick={(e) => handleCardClick(c, e)}
+              showBio
+            />
+          ))}
         </TabPanel>
 
         <TabPanel name="tab-ameciclista">
-          {ameciclistasLoading ? (
-            <AmeciclistasLoading />
-          ) : (
-            ameciclistas.map((c: any) => (
-              <MemberCard
-                key={c.id}
-                member={c}
-                onClick={(e) => handleCardClick(c, e)}
-              />
-            ))
-          )}
+          {ameciclistas.map((c) => (
+            <MemberCard
+              key={c.id}
+              member={c}
+              onClick={(e) => handleCardClick(c, e)}
+            />
+          ))}
         </TabPanel>
       </Tabs>
 

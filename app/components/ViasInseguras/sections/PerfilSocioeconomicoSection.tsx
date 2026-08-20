@@ -45,7 +45,7 @@ export function PerfilSocioeconomicoSection({
             <div key={index} className="flex justify-between items-center">
               <div className="flex items-center">
                 <div
-                  className="w-4 h-4 rounded mr-2"
+                  className="w-4 h-4 rounded-sm mr-2"
                   style={{ backgroundColor: item.color }}
                 ></div>
                 <span className="text-sm">{item.label}</span>

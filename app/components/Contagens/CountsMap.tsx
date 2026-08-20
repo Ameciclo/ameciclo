@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import ReactMapGL, { Source, Layer, Marker, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import ReactMapGL, { Source, Layer, Marker, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl/maplibre";
+import 'maplibre-gl/dist/maplibre-gl.css';
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { pointData } from "../../../typings";
 
-export const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-export const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+export const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 const isValidCoordinate = (lng: number, lat: number) => {
     return lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90 && !isNaN(lng) && !isNaN(lat);
@@ -96,8 +95,7 @@ export const mapInicialState = {
     dragPan: true,
     dragRotate: true,
     scrollZoom: false,
-    touchZoom: true,
-    touchRotate: true,
+    touchZoomRotate: true,
     keyboard: true,
     boxZoom: true,
     doubleClickZoom: true,
@@ -143,15 +141,13 @@ export const CountsMap = ({
 
     return (
         <section className="container mx-auto">
-            <div className="relative bg-green-200 rounded shadow-2xl overflow-hidden">
+            <div className="relative bg-green-200 rounded-sm shadow-2xl overflow-hidden">
                 <ReactMapGL
                     {...viewport}
                     {...settings}
-                    onViewportChange={setViewport}
-                    mapStyle={MAPBOXSTYLE}
-                    mapboxApiAccessToken={MAPBOXTOKEN}
-                    width={width}
-                    height={height}
+                    onMove={(evt) => setViewport(evt.viewState)}
+                    mapStyle={MAPSTYLE}
+                    style={{ width, height }}
                 >
                     <NavigationControl position="top-right" showCompass={false} />
                     <FullscreenControl position="top-right" />
@@ -247,7 +243,7 @@ const MapMarker = ({ size = 20, icon, color = "#008888" }: any) => (
 );
 
 const MapControlPanel = ({ controlPanel, markerVisibility, pointsData, handleMarkerToggle }: any) => (
-    <div className="absolute bottom-0 right-0 bg-white border rounded p-4 mb-2 shadow">
+    <div className="absolute bottom-0 right-0 bg-white border rounded-sm p-4 mb-2 shadow-sm">
         <h3 className="font-bold mb-2">Legenda</h3>
         {controlPanel.map((control: any) => {
             const filteredPoints = pointsData.filter((marker: any) => marker.type === control.type);
@@ -285,7 +281,7 @@ const MapControlPanel = ({ controlPanel, markerVisibility, pointsData, handleMar
 );
 
 const MapLayersPanel = ({ layersConf }: any) => (
-    <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md">
+    <div className="absolute bottom-0 right-0 bg-white border rounded-sm p-4 m-2 shadow-md">
         <h3 className="font-bold mb-2">Legenda</h3>
         {layersConf.map((control: any) => {
             const color = control.paint["line-color"];
@@ -330,7 +326,7 @@ function CountingPopUp({ selectedPoint, setSelectedPoint }: any) {
 function HoverTooltip({ point }: { point: pointData }) {
     return (
         <div 
-            className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap"
+            className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded-sm text-sm whitespace-nowrap"
             style={{
                 transform: 'translate(-50%, -100%)',
                 marginTop: '-25px'

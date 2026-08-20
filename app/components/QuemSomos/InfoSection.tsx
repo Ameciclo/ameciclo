@@ -1,14 +1,15 @@
 import ReactMarkdown from "react-markdown";
+import type { LinksEntry } from "~/queries/quemsomos";
 
 interface InfoSectionProps {
   definition?: string;
   objective?: string;
-  links?: Array<{ id: string; title: string; link: string }>;
+  links?: LinksEntry[];
 }
 
 export function InfoSection({ definition, objective, links }: InfoSectionProps) {
   return (
-    <div className="flex flex-wrap p-16 mx-auto text-white rounded bg-ameciclo lg:mx-0">
+    <div className="flex flex-wrap p-16 mx-auto text-white rounded-sm bg-ameciclo lg:mx-0">
       <div className="w-full mb-4 lg:pr-5 lg:w-1/2 lg:mb-0">
         <div className="text-lg lg:text-3xl">
           <ReactMarkdown>{definition}</ReactMarkdown>
@@ -22,8 +23,8 @@ export function InfoSection({ definition, objective, links }: InfoSectionProps) 
           {links?.map((l) => (
             <a
               key={l.id}
-              href={l.link}
-              className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded shadow hover:bg-white hover:text-ameciclo focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-ameciclo sm:mr-2"
+              href={l.link ?? "#"}
+              className="px-4 py-2 mb-2 text-xs font-bold text-white uppercase bg-transparent border-2 border-white rounded-sm shadow-sm hover:bg-white hover:text-ameciclo focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-ameciclo sm:mr-2"
               style={{ transition: "all .15s ease" }}
             >
               {l.title}

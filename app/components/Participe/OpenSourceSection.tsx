@@ -6,7 +6,7 @@ interface OpenSourceSectionProps {
 
 export function OpenSourceSection({ darkMode }: OpenSourceSectionProps) {
   return (
-    <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? "bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600" : "bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-100"} mt-16`}>
+    <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? "bg-linear-to-br from-gray-800 to-gray-700 border-gray-600" : "bg-linear-to-br from-purple-50 to-indigo-50 border-purple-100"} mt-16`}>
       <div className="flex items-center justify-center gap-4 mb-8">
         <TechIcon className="w-8 h-8 text-purple-600" />
         <h2 className={`text-2xl sm:text-3xl font-bold ${darkMode ? "text-white" : "text-gray-800"}`}>
@@ -17,7 +17,7 @@ export function OpenSourceSection({ darkMode }: OpenSourceSectionProps) {
         Nossos projetos são desenvolvidos de forma aberta e colaborativa. Você pode contribuir com código, documentação, testes ou ideias!
       </p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-purple-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-purple-100">
           <div className="flex items-center gap-2 mb-3">
             <TechIcon className="w-5 h-5 text-purple-600" />
             <h4 className="font-semibold text-purple-600">Como Contribuir</h4>
@@ -31,7 +31,7 @@ export function OpenSourceSection({ darkMode }: OpenSourceSectionProps) {
             <li>• Faça fork, implemente e envie pull request</li>
           </ul>
         </div>
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg border border-purple-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-purple-100">
           <div className="flex items-center gap-2 mb-3">
             <InfoIcon className="w-5 h-5 text-purple-600" />
             <h4 className="font-semibold text-purple-600">Áreas de Contribuição</h4>
@@ -49,7 +49,7 @@ export function OpenSourceSection({ darkMode }: OpenSourceSectionProps) {
           href="https://github.com/Ameciclo"
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 inline-block font-semibold shadow-lg"
+          className="bg-linear-to-r from-purple-500 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 inline-block font-semibold shadow-lg"
         >
           🚀 Ver Projetos no GitHub
         </a>

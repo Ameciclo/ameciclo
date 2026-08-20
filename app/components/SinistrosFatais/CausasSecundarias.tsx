@@ -71,7 +71,7 @@ export const CausasSecundarias: React.FC<CausasSecundariasProps> = ({
       <h2 className="text-3xl font-bold text-center mb-4">{title}</h2>
       <h3 className="text-xl text-center mb-8">{subtitle}</h3>
 
-      <div className="bg-white p-4 rounded-lg shadow mb-4">
+      <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
         <h4 className="text-lg font-semibold mb-2">
           Linha A - Causa direta da morte
         </h4>

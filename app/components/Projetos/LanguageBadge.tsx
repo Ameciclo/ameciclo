@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { Globe } from "lucide-react";
 
 interface LanguageBadgeProps {
@@ -25,7 +25,8 @@ export const LanguageBadge = ({ currentSlug }: LanguageBadgeProps) => {
       {translations.map((t) => (
         <Link
           key={t.lang}
-          to={`/projetos/${t.slug}`}
+          to="/projetos/$projeto"
+          params={{ projeto: t.slug }}
           className="flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-teal-50 rounded-md transition-colors group"
           title={t.label}
         >

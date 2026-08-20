@@ -58,15 +58,15 @@ export default function VisaoGeral({ searchTerm, setSearchTerm, searchResults, s
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 mt-6">
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Arquitetura</h4>
             <p className="text-sm" style={{ fontSize: fontSize - 2 }}>SSR com Remix, 27 rotas, 182+ componentes, deploy Vercel</p>
           </div>
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Stack Principal</h4>
             <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Remix 2.16, React 18, TypeScript 5, Vite 5, Tailwind CSS 3</p>
           </div>
-          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded`}>
+          <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Recursos</h4>
             <p className="text-sm" style={{ fontSize: fontSize - 2 }}>Mapas, gráficos, calendários, busca, acessibilidade WCAG</p>
           </div>

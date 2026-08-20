@@ -84,12 +84,12 @@ export function MuralSidebar({
   const totalCards = cardToggles.length;
 
   return (
-    <aside className={`bg-white border-r border-gray-100 transition-all duration-300 flex-shrink-0 overflow-hidden flex flex-col ${
+    <aside className={`bg-white border-r border-gray-100 transition-all duration-300 shrink-0 overflow-hidden flex flex-col ${
       isOpen ? 'w-72' : 'w-0'
     }`} style={{height: '100%'}}>
       
       {/* Header */}
-      <div className={`items-center justify-between p-6 border-b border-gray-100 flex-shrink-0 ${
+      <div className={`items-center justify-between p-6 border-b border-gray-100 shrink-0 ${
         isOpen ? 'flex' : 'hidden'
       }`}>
         <div>
@@ -117,7 +117,7 @@ export function MuralSidebar({
                     if (!card.visible) onCardToggle(card.id);
                   });
                 }}
-                className="flex-1 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                className="flex-1 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 rounded-sm transition-colors"
               >
                 Todos
               </button>
@@ -127,7 +127,7 @@ export function MuralSidebar({
                     if (card.visible) onCardToggle(card.id);
                   });
                 }}
-                className="flex-1 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                className="flex-1 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 rounded-sm transition-colors"
               >
                 Nenhum
               </button>
@@ -173,7 +173,7 @@ export function MuralSidebar({
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="fixed top-1/2 -translate-y-1/2 left-4 z-[60] bg-white border border-gray-200 rounded-lg p-2 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200"
+          className="fixed top-1/2 -translate-y-1/2 left-4 z-60 bg-white border border-gray-200 rounded-lg p-2 shadow-xs hover:shadow-md hover:bg-gray-50 transition-all duration-200"
           title="Expandir controles"
         >
           <ChevronRight className="w-4 h-4 text-gray-500" />

@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import React, { useState, useMemo } from "react";
 import type { ContagemData } from "~/services/contagens.service";
 import { IntlDateStr } from "~/services/utils";
@@ -17,7 +17,7 @@ const RangeValueFilter = ({ column }: any) => {
   return (
     <div className="flex items-center space-x-2 my-2">
       <input
-        className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
+        className="w-24 px-2 py-1 border border-gray-300 rounded-sm text-sm focus:outline-hidden"
         type="number"
         placeholder="Min"
         value={min || ''}
@@ -28,7 +28,7 @@ const RangeValueFilter = ({ column }: any) => {
       />
       <span className="text-gray-500">a</span>
       <input
-        className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
+        className="w-24 px-2 py-1 border border-gray-300 rounded-sm text-sm focus:outline-hidden"
         type="number"
         placeholder="Max"
         value={max || ''}
@@ -55,7 +55,8 @@ export function CountsTable({ data }: ContagensTableProps) {
           return (
             <Link
               className="text-ameciclo hover:underline"
-              to={`/dados/contagens/${slug}`}
+              to="/dados/contagens/$slug"
+              params={{ slug: String(slug) }}
             >
               {row.original.name}
             </Link>

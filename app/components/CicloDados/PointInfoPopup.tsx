@@ -298,7 +298,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100">
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -311,7 +311,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100">
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-red-600">Erro</h3>
@@ -322,7 +322,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
           <p className="text-gray-700">{error?.message || 'Erro desconhecido'}</p>
           <button 
             onClick={handleClose}
-            className="mt-4 w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+            className="mt-4 w-full bg-gray-500 text-white py-2 px-4 rounded-sm hover:bg-gray-600"
           >
             Fechar
           </button>
@@ -368,10 +368,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100 p-4">
       <div ref={modalRef} className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="point-info-title">
         {/* Header */}
-        <div className="flex justify-between items-center p-5 border-b bg-gradient-to-r from-gray-50 to-white">
+        <div className="flex justify-between items-center p-5 border-b bg-linear-to-r from-gray-50 to-white">
           <div>
             <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
               <MapPin size={22} className="text-blue-600" />
@@ -405,7 +405,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b bg-gray-50 overflow-x-auto flex-shrink-0">
+        <div className="flex border-b bg-gray-50 overflow-x-auto shrink-0">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
@@ -751,7 +751,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <h4 className="font-semibold mb-3">Distribuição por Gênero</h4>
                         <div className="space-y-2">
                           {finalData.emergency_calls.by_gender.map(gender => (
-                            <div key={gender.gender || 'Não informado'} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <div key={gender.gender || 'Não informado'} className="flex justify-between items-center p-2 bg-gray-50 rounded-sm">
                               <span className="text-sm">{gender.gender || 'Não informado'}</span>
                               <span className="font-semibold">{gender.count}</span>
                             </div>
@@ -765,7 +765,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <h4 className="font-semibold mb-3">Distribuição por Faixa Etária</h4>
                         <div className="space-y-2">
                           {finalData.emergency_calls.by_age_group.map(age => (
-                            <div key={age.age_group} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <div key={age.age_group} className="flex justify-between items-center p-2 bg-gray-50 rounded-sm">
                               <span className="text-sm">{age.age_group}</span>
                               <span className="font-semibold">{age.count}</span>
                             </div>
@@ -1042,7 +1042,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                       {Object.entries(edition.race_distribution)
                                         .sort(([,a], [,b]) => b - a)
                                         .map(([race, count]) => (
-                                        <div key={race} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
+                                        <div key={race} className="flex justify-between text-sm p-2 bg-gray-50 rounded-sm">
                                           <span>{race}</span>
                                           <div className="flex items-center gap-2">
                                             <span className="font-medium">{count}</span>
@@ -1061,7 +1061,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                       {Object.entries(edition.gender_distribution)
                                         .sort(([,a], [,b]) => b - a)
                                         .map(([gender, count]) => (
-                                        <div key={gender} className="flex justify-between text-sm p-2 bg-pink-50 rounded">
+                                        <div key={gender} className="flex justify-between text-sm p-2 bg-pink-50 rounded-sm">
                                           <span>{gender}</span>
                                           <div className="flex items-center gap-2">
                                             <span className="font-medium">{count}</span>
@@ -1080,7 +1080,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                       {Object.entries(edition.age_distribution)
                                         .sort(([,a], [,b]) => b - a)
                                         .map(([age, count]) => (
-                                        <div key={age} className="flex justify-between text-sm p-2 bg-green-50 rounded">
+                                        <div key={age} className="flex justify-between text-sm p-2 bg-green-50 rounded-sm">
                                           <span>{age}</span>
                                           <div className="flex items-center gap-2">
                                             <span className="font-medium">{count}</span>
@@ -1099,7 +1099,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                       {Object.entries(edition.education_distribution)
                                         .sort(([,a], [,b]) => b - a)
                                         .map(([education, count]) => (
-                                        <div key={education} className="flex justify-between text-sm p-2 bg-blue-50 rounded">
+                                        <div key={education} className="flex justify-between text-sm p-2 bg-blue-50 rounded-sm">
                                           <span className="text-xs">{education}</span>
                                           <div className="flex items-center gap-2">
                                             <span className="font-medium">{count}</span>
@@ -1118,7 +1118,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                       {Object.entries(edition.income_distribution)
                                         .sort(([,a], [,b]) => b - a)
                                         .map(([income, count]) => (
-                                        <div key={income} className="flex justify-between text-sm p-2 bg-yellow-50 rounded">
+                                        <div key={income} className="flex justify-between text-sm p-2 bg-yellow-50 rounded-sm">
                                           <span className="text-xs">{income}</span>
                                           <div className="flex items-center gap-2">
                                             <span className="font-medium">{count}</span>
@@ -1187,7 +1187,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                                             {Object.entries(values)
                                               .sort(([,a], [,b]) => b - a)
                                               .map(([value, count]) => (
-                                                <div key={`${category}-${value}`} className="flex justify-between items-center text-xs bg-white p-2 rounded">
+                                                <div key={`${category}-${value}`} className="flex justify-between items-center text-xs bg-white p-2 rounded-sm">
                                                   <span className="text-gray-700">{value}</span>
                                                   <div className="flex items-center gap-2">
                                                     <span className="font-bold text-purple-700">{count}</span>
@@ -1292,19 +1292,19 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       })()}
                     </svg>
                     <div className="grid grid-cols-3 gap-3 mt-4">
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {allData.reduce((sum, year) => sum + year.total_calls, 0)}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">Total Histórico</p>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {Math.round(allData.reduce((sum, year) => sum + year.total_calls, 0) / allData.filter(y => y.year < currentYear).length)}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">Média Anual</p>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {chartData[chartData.length - 1]?.total_calls || 0}
                         </p>
@@ -1393,7 +1393,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                         <h6 className="text-xs font-semibold text-gray-700 mb-2">Tipos de Infraestrutura</h6>
                         <div className="grid grid-cols-2 gap-2">
                           {Object.entries(infraTypes).map(([type, count]) => (
-                            <div key={type} className="bg-green-50 p-2 rounded text-center">
+                            <div key={type} className="bg-green-50 p-2 rounded-sm text-center">
                               <p className="text-lg font-bold text-green-600">{count}</p>
                               <p className="text-xs text-gray-600">{type}</p>
                             </div>
@@ -1427,19 +1427,19 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     )}
                     
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {kmExecutados.toFixed(1)}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">km Executados</p>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {finalData.cycling_infra.planned_pdc?.length || 0}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">Vias Planejadas</p>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {kmPlanejados.toFixed(1)}
                         </p>
@@ -1502,23 +1502,23 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                       <HighchartsReact highcharts={Highcharts} options={chartOptions} />
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">{totalCyclists}</p>
                         <p className="text-xs text-gray-600 mt-1">Total Contado</p>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {totalHelmet > 0 ? `${Math.round((totalHelmet / totalCyclists) * 100)}%` : '0%'}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">Com Capacete</p>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {totalWomen > 0 ? `${Math.round((totalWomen / totalCyclists) * 100)}%` : '0%'}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">Mulheres</p>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded">
+                      <div className="text-center p-3 bg-gray-50 rounded-sm">
                         <p className="text-2xl font-bold text-gray-800">
                           {totalWrongWay > 0 ? `${Math.round((totalWrongWay / totalCyclists) * 100)}%` : '0%'}
                         </p>
@@ -1577,7 +1577,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     <div role="img" aria-label={`Gráfico de perfil de gênero: ${Object.entries(latestEdition.gender_distribution).map(([gender, count]) => `${gender}: ${count} ciclistas`).join(', ')}`}>
                       <HighchartsReact highcharts={Highcharts} options={chartOptions} />
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded mt-4">
+                    <div className="text-center p-3 bg-gray-50 rounded-sm mt-4">
                       <p className="text-2xl font-bold text-gray-800">{finalData.cyclist_profile.total_profiles}</p>
                       <p className="text-xs text-gray-600 mt-1">Total de Perfis Coletados</p>
                     </div>
@@ -1590,7 +1590,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                 <h5 className="font-semibold mb-4 text-gray-800">Resumo de Indicadores</h5>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {finalData.emergency_calls && (
-                    <div className="p-3 border rounded text-center">
+                    <div className="p-3 border rounded-sm text-center">
                       <Shield size={20} className="mx-auto mb-2 text-red-500" />
                       <p className="text-lg font-bold text-gray-800">
                         {finalData.emergency_calls.annual_history?.reduce((sum, year) => sum + year.total_calls, 0) || 0}
@@ -1599,14 +1599,14 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     </div>
                   )}
                   {finalData.bike_racks && finalData.bike_racks.total > 0 && (
-                    <div className="p-3 border rounded text-center">
+                    <div className="p-3 border rounded-sm text-center">
                       <div className="text-2xl mx-auto mb-2 text-blue-500">∩</div>
                       <p className="text-lg font-bold text-gray-800">{finalData.bike_racks.total}</p>
                       <p className="text-xs text-gray-600">Bicicletários</p>
                     </div>
                   )}
                   {finalData.cyclist_counts && finalData.cyclist_counts.counts?.length > 0 && (
-                    <div className="p-3 border rounded text-center">
+                    <div className="p-3 border rounded-sm text-center">
                       <BarChart3 size={20} className="mx-auto mb-2 text-green-500" />
                       <p className="text-lg font-bold text-gray-800">
                         {finalData.cyclist_counts.counts.reduce((sum, count) => sum + count.total_cyclists, 0)}
@@ -1615,21 +1615,21 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
                     </div>
                   )}
                   {finalData.cycling_infra && finalData.cycling_infra.existing?.length > 0 && (
-                    <div className="p-3 border rounded text-center">
+                    <div className="p-3 border rounded-sm text-center">
                       <Route size={20} className="mx-auto mb-2 text-teal-500" />
                       <p className="text-lg font-bold text-gray-800">{finalData.cycling_infra.existing.length}</p>
                       <p className="text-xs text-gray-600">Vias Cicloviárias</p>
                     </div>
                   )}
                   {finalData.shared_bike && finalData.shared_bike.has_stations && (
-                    <div className="p-3 border rounded text-center">
+                    <div className="p-3 border rounded-sm text-center">
                       <Activity size={20} className="mx-auto mb-2 text-orange-500" />
                       <p className="text-lg font-bold text-gray-800">{finalData.shared_bike.stations?.length || 0}</p>
                       <p className="text-xs text-gray-600">Estações Bike PE</p>
                     </div>
                   )}
                   {finalData.cyclist_profile && finalData.cyclist_profile.total_profiles > 0 && (
-                    <div className="p-3 border rounded text-center">
+                    <div className="p-3 border rounded-sm text-center">
                       <Users size={20} className="mx-auto mb-2 text-purple-500" />
                       <p className="text-lg font-bold text-gray-800">{finalData.cyclist_profile.total_profiles}</p>
                       <p className="text-xs text-gray-600">Perfis Coletados</p>
@@ -1649,7 +1649,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
         </div>
 
         {/* Footer */}
-        <div className="border-t p-4 bg-gray-50 flex-shrink-0">
+        <div className="border-t p-4 bg-gray-50 shrink-0">
           <p className="text-xs text-gray-500">
             Coordenadas: {finalData.location?.lat.toFixed(6)}, {finalData.location?.lng.toFixed(6)}
           </p>

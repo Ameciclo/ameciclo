@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@remix-run/react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AmecicloLogo } from "./NavBar/AmecicloLogo";
@@ -32,7 +32,7 @@ export const Navbar = ({ pages }: any) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hideRedNavbar, setHideRedNavbar] = useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   const isDataPage = location.pathname.startsWith('/dados') && location.pathname !== '/dados/ciclodados';
   const isCicloDadosPage = location.pathname === '/dados/ciclodados';
 
@@ -72,12 +72,12 @@ export const Navbar = ({ pages }: any) => {
       <motion.nav
         animate={{ y: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={"flex fixed top-0 left-0 right-0 items-center h-14 z-[80] text-white transition-shadow duration-300 bg-ameciclo shadow-sm"}
+        className={"flex fixed top-0 left-0 right-0 items-center h-14 z-80 text-white transition-shadow duration-300 bg-ameciclo shadow-xs"}
         role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-4 lg:px-32 xl:px-32 py-0 m-0">
           {!isMenuOpen && (
-            <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-[85] pointer-events-auto" prefetch="intent">
+            <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-85 pointer-events-auto" prefetch="intent">
               <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
             </Link>
           )}
@@ -90,7 +90,7 @@ export const Navbar = ({ pages }: any) => {
           <button
             aria-label={isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
             aria-expanded={isMenuOpen}
-            className="lg:hidden relative w-10 h-10 flex justify-center items-center z-[70] rounded-md hover:bg-white hover:bg-opacity-10 transition-colors duration-200"
+            className="lg:hidden relative w-10 h-10 flex justify-center items-center z-70 rounded-md hover:bg-white/10 transition-colors duration-200"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <div className="relative w-6 h-6 flex flex-col justify-center">
@@ -113,7 +113,7 @@ export const Navbar = ({ pages }: any) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[50]"
+              className="lg:hidden fixed inset-0 bg-black/50 z-50"
               onClick={() => setIsMenuOpen(false)}
             />
             <motion.div
@@ -121,7 +121,7 @@ export const Navbar = ({ pages }: any) => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
-              className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-ameciclo shadow-2xl z-[60] overflow-y-auto"
+              className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-ameciclo shadow-2xl z-60 overflow-y-auto"
             >
               <SmallMenu pages={pages} closeMenu={() => setIsMenuOpen(false)} />
             </motion.div>
@@ -133,7 +133,7 @@ export const Navbar = ({ pages }: any) => {
 };
 
 function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   
   const isActivePage = (pageUrl: string) => {
     if (pageUrl === "/") {
@@ -144,7 +144,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
 
   return (
     <ul className="flex space-x-6 h-full">
-      {pages.map((page: any, i: any) => {
+      {pages.map((page: any, _i: any) => {
         const isActive = isActivePage(page.url);
         const isDadosPage = page.url === '/dados';
         return (
@@ -161,7 +161,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
                     e.preventDefault();
                     setIsSubmenuVisible(!isSubmenuVisible);
                   }}
-                  className="ml-1 p-1 hover:bg-white hover:bg-opacity-10 rounded transition-colors"
+                  className="ml-1 p-1 hover:bg-white/10 rounded-sm transition-colors"
                   aria-label={isSubmenuVisible ? "Fechar submenu de dados" : "Abrir submenu de dados"}
                   aria-expanded={isSubmenuVisible}
                   aria-controls="dados-submenu"
@@ -187,7 +187,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
 }
 
 function SmallMenu({ pages, closeMenu }: any) {
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   const [isDataSubmenuOpen, setIsDataSubmenuOpen] = useState(false);
   
   const isActivePage = (pageUrl: string) => {
@@ -203,11 +203,11 @@ function SmallMenu({ pages, closeMenu }: any) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-start justify-between p-4 border-b border-white border-opacity-20">
+      <div className="flex items-start justify-between p-4 border-b border-white/20">
         <AmecicloLogo isScrolled={false} />
         <button
           onClick={closeMenu}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-10 transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
           aria-label="Fechar menu"
         >
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,8 +235,8 @@ function SmallMenu({ pages, closeMenu }: any) {
                       onClick={() => setIsDataSubmenuOpen(!isDataSubmenuOpen)}
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-white uppercase font-medium transition-all duration-200 ${
                         isActive 
-                          ? 'bg-white bg-opacity-20 font-bold' 
-                          : 'hover:bg-white hover:bg-opacity-10'
+                          ? 'bg-white/20 font-bold' 
+                          : 'hover:bg-white/10'
                       }`}
                       aria-label={`${page.name} - ${isDataSubmenuOpen ? 'Fechar submenu' : 'Abrir submenu'}`}
                       aria-expanded={isDataSubmenuOpen}
@@ -270,8 +270,8 @@ function SmallMenu({ pages, closeMenu }: any) {
                                   to={subPage.url}
                                   className={`block px-3 py-2 rounded text-white text-sm transition-all duration-200 ${
                                     isSubActive 
-                                      ? 'bg-white bg-opacity-15 font-semibold' 
-                                      : 'hover:bg-white hover:bg-opacity-10'
+                                      ? 'bg-white/15 font-semibold' 
+                                      : 'hover:bg-white/10'
                                   }`}
                                   onClick={handleLinkClick}
                                   prefetch="intent"
@@ -290,8 +290,8 @@ function SmallMenu({ pages, closeMenu }: any) {
                     to={page.url}
                     className={`block px-4 py-3 rounded-lg text-white uppercase font-medium transition-all duration-200 ${
                       isActive 
-                        ? 'bg-white bg-opacity-20 font-bold' 
-                        : 'hover:bg-white hover:bg-opacity-10'
+                        ? 'bg-white/20 font-bold' 
+                        : 'hover:bg-white/10'
                     }`}
                     onClick={handleLinkClick}
                     prefetch="intent"

@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
-import Map, { Source, Layer, Marker, Popup, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl";
+import Map, { Source, Layer, Marker, Popup, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl/maplibre";
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 
 import bbox from "@turf/bbox";
 import * as turf from "@turf/helpers";
 import { pointData } from "../../../../typings";
-import * as Remix from "@remix-run/react";
+
 import { Move } from 'lucide-react';
 import { MapboxKeyWarning } from './MapboxKeyWarning';
 
 
 
-const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings, isFullscreen, setIsFullscreen, initialViewport, isSelectionMode, toggleSelectionMode, toggleDragPan, dragPanEnabled, radius, setRadius, onViewStateChange }: any) => {
+const MapCommands = ({ viewport, setViewport, settings, setsettings, setIsFullscreen, initialViewport, toggleDragPan, dragPanEnabled, onViewStateChange }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 
@@ -77,14 +77,14 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
     };
 
     return (
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-[60]">
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-60">
             <button
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     toggleFullscreen();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Expandir mapa em tela cheia"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleZoomIn();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom in"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleZoomOut();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom out"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,7 +144,7 @@ const MapCommands = ({ handleClick, viewport, setViewport, settings, setsettings
                     e.stopPropagation();
                     handleRecenter();
                 }}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Voltar para visão geral"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +177,7 @@ const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: 
                                         type="checkbox"
                                         checked={isVisible}
                                         onChange={() => control.id && toggleLayerVisibility(control.id)}
-                                        className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                        className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-teal-500 focus:ring-2"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -198,8 +198,7 @@ const MapLayersPanel = ({ layersConf, layerVisibility, toggleLayerVisibility }: 
     );
 };
 
-const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 const getInicialViewPort = (pointsData: any, layerData: any) => {
     let standardViewPort = {
@@ -275,8 +274,7 @@ const getMapInitialState = (defaultDragPan: boolean) => ({
     dragPan: defaultDragPan,
     dragRotate: true,
     scrollZoom: defaultDragPan,
-    touchZoom: true,
-    touchRotate: true,
+    touchZoomRotate: true,
     keyboard: true,
     boxZoom: true,
     doubleClickZoom: true,
@@ -337,7 +335,7 @@ const MapControlPanel = ({
                                                     handleMarkerToggle(point.key)
                                                 );
                                             }}
-                                            className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                            className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-teal-500 focus:ring-2"
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -415,34 +413,33 @@ export const AmecicloMap = ({
     useEffect(() => {
         setIsClient(true);
         
-        // Adicionar CSS para mapbox no head
-        const existingStyle = document.getElementById('mapbox-custom-styles');
+        const existingStyle = document.getElementById('map-custom-styles');
         if (!existingStyle) {
             const style = document.createElement('style');
-            style.id = 'mapbox-custom-styles';
+            style.id = 'map-custom-styles';
             style.textContent = `
-                .mapboxgl-ctrl-attrib {
+                .maplibregl-ctrl-attrib {
                     color: #d1d5db !important;
                     font-size: 10px !important;
                     opacity: 0.6 !important;
                 }
-                .mapboxgl-ctrl-attrib a {
+                .maplibregl-ctrl-attrib a {
                     color: #d1d5db !important;
                     font-size: 10px !important;
                 }
-                .mapboxgl-popup {
+                .maplibregl-popup {
                     max-width: none !important;
                 }
-                .mapboxgl-popup-content {
+                .maplibregl-popup-content {
                     padding: 0 !important;
                     background: transparent !important;
                     box-shadow: none !important;
                     border: none !important;
                 }
-                .mapboxgl-popup-close-button {
+                .maplibregl-popup-close-button {
                     display: none !important;
                 }
-                .mapboxgl-popup-tip {
+                .maplibregl-popup-tip {
                     border-top-color: white !important;
                 }
             `;
@@ -525,8 +522,7 @@ export const AmecicloMap = ({
         dragPan: dragPanEnabled ?? defaultDragPan,
         dragRotate: true,
         scrollZoom: dragPanEnabled ?? defaultDragPan,
-        touchZoom: true,
-        touchRotate: true,
+        touchZoomRotate: true,
         keyboard: true,
         boxZoom: true,
         doubleClickZoom: true,
@@ -604,13 +600,12 @@ export const AmecicloMap = ({
         <section className={width === "100%" ? "w-full" : "container mx-auto"} style={{height: height === "100%" ? "100%" : "auto"}}>
 
             
-            <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
+            <div className={`relative bg-gray-200 map-container ${isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen rounded-sm shadow-2xl' : width === "100%" ? 'w-full h-full' : 'rounded-sm shadow-2xl'}`} style={{height: height === "100%" ? "100%" : height}}>
                 {isClient && isMapReady && (
                     <Map
                         {...viewport}
                         {...settings}
-                        width="100%"
-                        height={isFullscreen ? "100vh" : height}
+                        style={{ width: "100%", height: isFullscreen ? "100vh" : height }}
                         onMove={(evt) => {
                             const newViewport = evt.viewState;
                             setViewport(newViewport);
@@ -618,19 +613,8 @@ export const AmecicloMap = ({
                                 onViewStateChange(newViewport);
                             }
                         }}
-                        onViewStateChange={(evt) => {
-                            const newViewport = evt.viewState;
-                            setViewport(newViewport);
-                            if (onViewStateChange) {
-                                onViewStateChange(newViewport);
-                            }
-                        }}
-                        mapStyle={MAPBOXSTYLE}
-                        mapboxApiAccessToken={MAPBOXTOKEN}
-                        getCursor={({ isDragging }) => {
-                            if (isSelectionMode) return 'pointer';
-                            return settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer';
-                        }}
+                        mapStyle={MAPSTYLE}
+                        cursor={isSelectionMode || !settings.dragPan ? "pointer" : "grab"}
                         onClick={(e) => {
                             setSelectedMarker(null);
                             if (onMapClick) onMapClick(e);
@@ -789,7 +773,7 @@ export const AmecicloMap = ({
                                 longitude={hoveredMarker.longitude}
                             >
                                 <div 
-                                    className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap"
+                                    className="pointer-events-none bg-gray-800 text-white px-2 py-1 rounded-sm text-sm whitespace-nowrap"
                                     style={{
                                         transform: 'translate(-50%, -100%)',
                                         marginTop: '-25px'
@@ -810,13 +794,13 @@ export const AmecicloMap = ({
                                 onClose={() => setSelectedMarker(null)}
                                 closeButton={true}
                                 closeOnClick={false}
-                                offsetTop={-10}
+                                offset={[0, -10]}
                                 anchor="bottom"
                             >
                                 <div className="bg-white rounded-lg shadow-xl border-0 overflow-hidden min-w-[280px] max-w-[320px]">
                                     <div className={`px-4 py-3 text-white ${
-                                        selectedMarker.type === 'bikepe' ? 'bg-gradient-to-r from-orange-500 to-orange-600' :
-                                        'bg-gradient-to-r from-blue-500 to-blue-600'
+                                        selectedMarker.type === 'bikepe' ? 'bg-linear-to-r from-orange-500 to-orange-600' :
+                                        'bg-linear-to-r from-blue-500 to-blue-600'
                                     }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
@@ -832,7 +816,7 @@ export const AmecicloMap = ({
                                             </div>
                                             <button 
                                                 onClick={() => setSelectedMarker(null)}
-                                                className="text-white hover:bg-black hover:bg-opacity-20 rounded-full p-1 transition-colors"
+                                                className="text-white hover:bg-black/20 rounded-full p-1 transition-colors"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -850,19 +834,19 @@ export const AmecicloMap = ({
                                                 </div>
                                                 
                                                 <div className="grid grid-cols-2 gap-3 text-sm">
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Referência</div>
                                                         <div className="font-medium text-gray-900">#{selectedMarker.popup?.ref}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Capacidade</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.capacity} bikes</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Rede</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.network}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Operador</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.operator}</div>
                                                     </div>
@@ -888,19 +872,19 @@ export const AmecicloMap = ({
                                                 </div>
                                                 
                                                 <div className="grid grid-cols-2 gap-3 text-sm">
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Capacidade</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.capacity}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Coberto</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.covered}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Acesso</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.access}</div>
                                                     </div>
-                                                    <div className="bg-gray-50 p-2 rounded">
+                                                    <div className="bg-gray-50 p-2 rounded-sm">
                                                         <div className="text-xs text-gray-500 uppercase tracking-wide">Tipo</div>
                                                         <div className="font-medium text-gray-900">{selectedMarker.popup?.parking_type}</div>
                                                     </div>

@@ -72,7 +72,7 @@ export function HourlyCyclistsChart({ series, hours }: HourlyCyclistsChartProps)
 
   return (
     <section className="container mx-auto grid grid-cols-1 auto-rows-auto gap-10 my-10">
-      <div className="shadow-2xl rounded p-10 text-center overflow-x-scroll">
+      <div className="shadow-2xl rounded-sm p-10 text-center overflow-x-scroll">
         <div style={{ minWidth: "500px" }}>
           <h2 className="text-gray-600 text-3xl">Quantidade de ciclistas por hora</h2>
           {chartsLoaded ? <HighchartsReact highcharts={Highcharts} options={options} /> : <div className="h-96 flex items-center justify-center">Carregando gráfico...</div>}

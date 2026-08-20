@@ -9,17 +9,17 @@ export function PointDetailsModal({ point, onClose }: PointDetailsModalProps) {
   if (!point) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
         <div className={`px-6 py-4 text-white rounded-t-lg ${
-          point.type === 'prefeitura' ? 'bg-gradient-to-r from-red-500 to-red-600' :
-          'bg-gradient-to-r from-teal-500 to-teal-600'
+          point.type === 'prefeitura' ? 'bg-linear-to-r from-red-500 to-red-600' :
+          'bg-linear-to-r from-teal-500 to-teal-600'
         }`}>
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">{point.popup?.name}</h3>
             <button 
               onClick={onClose}
-              className="text-white hover:bg-black hover:bg-opacity-20 rounded-full p-1 transition-colors"
+              className="text-white hover:bg-black/20 rounded-full p-1 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

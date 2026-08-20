@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "@tanstack/react-router";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 
 import { MapPin, Bike, UserCheck } from 'lucide-react';
@@ -24,11 +25,13 @@ interface MapViewProps {
   selectedEstacionamento: string[];
   selectedSinistro: string[];
   selectedPerfil: string[];
-  selectedGenero: string;
+  selectedGenero: string[];
   selectedAno: string[];
-  selectedRaca: string;
-  selectedSocio: string;
-  selectedDias: string;
+  selectedArea?: string;
+  selectedIdade?: string;
+  selectedRaca?: string;
+  selectedSocio?: string;
+  selectedDias?: string;
   infraOptions: Array<{ name: string; color: string; pattern: string }>;
   pdcOptions: Array<{ name: string; color: string; pattern: string; apiKey?: string }>;
   layersConf: any[];
@@ -64,9 +67,7 @@ export function MapView({
   infraData,
   pdcData,
   contagemData,
-  getContagemIcon,
   pdcOptions,
-  onPointClick,
   externalViewState,
   onMapMove,
   highlightedStreet,
@@ -393,8 +394,9 @@ export function MapView({
     }
   };
   
+  const router = useRouter();
   const handleReloadAllData = () => {
-    window.location.reload();
+    router.invalidate();
   };
 
   // Função para lidar com clique em cluster - zoom in +2 na coordenada do cluster
@@ -423,7 +425,7 @@ export function MapView({
         Clique em pontos do mapa para ver informações detalhadas.
       </div>
       {/* Botão no canto superior esquerdo */}
-      <div className="absolute top-4 left-4 z-[60] flex flex-col gap-2">
+      <div className="absolute top-4 left-4 z-60 flex flex-col gap-2">
         <button
           onClick={toggleSelectionMode}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg font-medium transition-all duration-200 ${
@@ -955,7 +957,7 @@ export function MapView({
                       </div>
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2">
                         <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
-                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
+                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-px">
                           <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-black"></div>
                         </div>
                       </div>
@@ -1060,7 +1062,7 @@ export function MapView({
                       </div>
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2">
                         <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-green-500"></div>
-                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
+                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-px">
                           <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-green-700"></div>
                         </div>
                       </div>
@@ -1233,7 +1235,7 @@ export function MapView({
                     </div>
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2">
                       <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-purple-500"></div>
-                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-[-1px]">
+                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-px">
                         <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-purple-700"></div>
                       </div>
                     </div>
@@ -1298,7 +1300,7 @@ export function MapView({
                 <div className="bg-white rounded-full w-2 h-2"></div>
               </div>
               <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500"></div>
+                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-8 border-l-transparent border-r-transparent border-t-red-500"></div>
               </div>
             </div>
           )
@@ -1328,7 +1330,7 @@ export function MapView({
         if (loadingLayers.has('perfil')) loadingLayerNames.push('Perfil de Ciclistas');
         
         return loadingLayerNames.length > 0 ? (
-          <div className="absolute bottom-4 left-4 z-[60] bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
+          <div className="absolute bottom-4 left-4 z-60 bg-black/75 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             <span>Carregando {loadingLayerNames.join(', ')}...</span>
           </div>
@@ -1338,7 +1340,7 @@ export function MapView({
       {/* Cluster Tooltip */}
       {clusterTooltip.show && (
         <div 
-          className="fixed z-[100] bg-black text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none"
+          className="fixed z-100 bg-black text-white text-xs px-2 py-1 rounded-sm shadow-lg pointer-events-none"
           style={{
             left: clusterTooltip.x,
             top: clusterTooltip.y,
@@ -1347,7 +1349,7 @@ export function MapView({
         >
           {clusterTooltip.count} pontos de contagem agrupados
           <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-black"></div>
+            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
           </div>
         </div>
       )}

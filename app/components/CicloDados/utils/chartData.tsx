@@ -49,7 +49,7 @@ const MiniContagensChart = () => {
     loadChart();
   }, [isClient]);
 
-  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded animate-pulse"></div>;
+  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded-sm animate-pulse"></div>;
   return <Chart />;
 };
 
@@ -94,7 +94,7 @@ const MiniSinistrosChart = () => {
     loadChart();
   }, [isClient]);
 
-  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded animate-pulse"></div>;
+  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded-sm animate-pulse"></div>;
   return <Chart />;
 };
 
@@ -196,7 +196,7 @@ const MiniVelocidadeChart = () => {
     loadChart();
   }, [isClient]);
 
-  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded animate-pulse"></div>;
+  if (!isClient || !Chart) return <div className="w-full h-16 bg-blue-100 rounded-sm animate-pulse"></div>;
   return <Chart />;
 };
 
@@ -241,7 +241,7 @@ const MiniFluxoChart = () => {
     loadChart();
   }, [isClient]);
 
-  if (!isClient || !Chart) return <div className="w-full h-16 bg-green-100 rounded animate-pulse"></div>;
+  if (!isClient || !Chart) return <div className="w-full h-16 bg-green-100 rounded-sm animate-pulse"></div>;
   return <Chart />;
 };
 
@@ -293,7 +293,7 @@ const MiniGeneroChart = () => {
     loadChart();
   }, [isClient]);
 
-  if (!isClient || !Chart) return <div className="w-full h-16 bg-pink-100 rounded animate-pulse"></div>;
+  if (!isClient || !Chart) return <div className="w-full h-16 bg-pink-100 rounded-sm animate-pulse"></div>;
   return <Chart />;
 };
 
@@ -310,7 +310,7 @@ const MiniCaracteristicasChart = () => {
   return (
     <div className="w-full h-20 grid grid-cols-2 gap-1">
       {caracteristicas.map((item, index) => (
-        <div key={index} className="flex items-center justify-between text-xs bg-gray-50 rounded px-2 py-1">
+        <div key={index} className="flex items-center justify-between text-xs bg-gray-50 rounded-sm px-2 py-1">
           <div className="flex items-center gap-1">
             <item.Icon className="w-3 h-3" style={{ color: item.color }} />
             <span className="font-medium truncate">{item.label}</span>
@@ -337,7 +337,7 @@ const MiniInfraestruturaChart = () => {
   return (
     <div className="w-full h-20 grid grid-cols-2 gap-1">
       {infraestrutura.map((item, index) => (
-        <div key={index} className="flex items-center justify-between text-xs bg-gray-50 rounded px-2 py-1 relative group">
+        <div key={index} className="flex items-center justify-between text-xs bg-gray-50 rounded-sm px-2 py-1 relative group">
           <div className="flex items-center gap-1">
             <item.Icon className="w-3 h-3" style={{ color: item.color }} />
             <span className="font-medium truncate">{item.label}</span>
@@ -345,7 +345,7 @@ const MiniInfraestruturaChart = () => {
           <span className="font-bold text-xs" style={{ color: item.color }}>
             {item.value}
           </span>
-          <div className="absolute top-0 left-0 transform -translate-y-full px-2 py-1 bg-white border border-gray-300 text-black text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 shadow-sm w-32 break-words">
+          <div className="absolute top-0 left-0 transform -translate-y-full px-2 py-1 bg-white border border-gray-300 text-black text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 shadow-xs w-32 wrap-break-word">
             {item.tooltip}
           </div>
         </div>
@@ -365,7 +365,7 @@ const MiniAcessibilidadeChart = () => {
   return (
     <div className="w-full h-16 grid grid-cols-2 gap-1">
       {viasInseguras.map((item, index) => (
-        <div key={index} className="flex items-center justify-between text-xs bg-gray-50 rounded px-2 py-1">
+        <div key={index} className="flex items-center justify-between text-xs bg-gray-50 rounded-sm px-2 py-1">
           <div className="flex items-center gap-1">
             <item.Icon className="w-3 h-3" style={{ color: item.color }} />
             <span className="font-medium truncate">{item.label}</span>

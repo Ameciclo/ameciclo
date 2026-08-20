@@ -5,7 +5,7 @@ type box = {
 
 export const ExplanationBoxes = ({ boxes }: { boxes: box[] }) => {
   return (
-    <section className="container mx-auto my-5 md:my-6 shadow-2xl rounded px-6 py-12 overflow-auto bg-gray-100">
+    <section className="container mx-auto my-5 md:my-6 shadow-2xl rounded-sm px-6 py-12 overflow-auto bg-gray-100">
       <div className="flex flex-col sm:flex-row justify-between">
         {boxes.map((box : box, index) => {
           return (
@@ -15,10 +15,10 @@ export const ExplanationBoxes = ({ boxes }: { boxes: box[] }) => {
                 <p className="text-left">{box.description}</p>
               ) : (
                 <div className="space-y-2 animate-pulse">
-                  <div className="h-4 bg-gray-300 rounded w-full"></div>
-                  <div className="h-4 bg-gray-300 rounded w-full"></div>
-                  <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-                  <div className="h-4 bg-gray-300 rounded w-4/6"></div>
+                  <div className="h-4 bg-gray-300 rounded-sm w-full"></div>
+                  <div className="h-4 bg-gray-300 rounded-sm w-full"></div>
+                  <div className="h-4 bg-gray-300 rounded-sm w-5/6"></div>
+                  <div className="h-4 bg-gray-300 rounded-sm w-4/6"></div>
                 </div>
               )}
             </div>

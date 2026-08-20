@@ -657,10 +657,10 @@ export default function SinistrosFataisClientSide({
         {!citiesByYearData || !citiesByYearData.cities || citiesByYearData.cities.length === 0 ? (
           <div className="container mx-auto gap-8 my-5 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex flex-col rounded shadow-2xl h-full mx-3 p-3 bg-white h-42">
-                <div className="h-16 bg-gray-200 animate-pulse rounded mb-3"></div>
-                <div className="h-4 bg-gray-200 animate-pulse rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 animate-pulse rounded w-3/4"></div>
+              <div key={i} className="flex flex-col rounded-sm shadow-2xl h-full mx-3 p-3 bg-white h-42">
+                <div className="h-16 bg-gray-200 animate-pulse rounded-sm mb-3"></div>
+                <div className="h-4 bg-gray-200 animate-pulse rounded-sm mb-2"></div>
+                <div className="h-4 bg-gray-200 animate-pulse rounded-sm w-3/4"></div>
               </div>
             ))}
           </div>
@@ -704,16 +704,16 @@ export default function SinistrosFataisClientSide({
           
           if (!citiesByYearData || !citiesByYearData.cities) {
             return (
-              <div className="shadow-2xl rounded p-6 pt-4">
+              <div className="shadow-2xl rounded-sm p-6 pt-4">
                 <h3 className="text-lg font-semibold mb-4">Distribuição de Mortes por Modo de Transporte ao Longo dos Anos</h3>
-                <div className="h-96 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-96 bg-gray-200 animate-pulse rounded-sm"></div>
               </div>
             );
           }
           
           if (!stackedData.categories.length || !stackedData.series.length) {
             return (
-              <div className="shadow-2xl rounded p-6 pt-4 text-center">
+              <div className="shadow-2xl rounded-sm p-6 pt-4 text-center">
                 <h3 className="text-lg font-semibold mb-4">Distribuição de Mortes por Modo de Transporte ao Longo dos Anos</h3>
                 <p className="text-gray-600">Dados não disponíveis para os filtros selecionados.</p>
               </div>
@@ -786,7 +786,7 @@ export default function SinistrosFataisClientSide({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Sexo */}
                     {perfilSocioeconomico.sexo.total > 0 && (
-                      <div className="bg-white p-4 rounded-lg shadow">
+                      <div className="bg-white p-4 rounded-lg shadow-sm">
                         <h4 className="text-lg font-semibold mb-3 text-center">
                           Sexo
                         </h4>
@@ -852,7 +852,7 @@ export default function SinistrosFataisClientSide({
 
                     {/* Raça/Cor */}
                     {perfilSocioeconomico.racaCor.total > 0 && (
-                      <div className="bg-white p-4 rounded-lg shadow">
+                      <div className="bg-white p-4 rounded-lg shadow-sm">
                         <h4 className="text-lg font-semibold mb-3 text-center">
                           Raça/Cor
                         </h4>
@@ -924,7 +924,7 @@ export default function SinistrosFataisClientSide({
 
                     {/* Faixa Etária */}
                     {perfilSocioeconomico.faixaEtaria.total > 0 && (
-                      <div className="bg-white p-4 rounded-lg shadow">
+                      <div className="bg-white p-4 rounded-lg shadow-sm">
                         <h4 className="text-lg font-semibold mb-3 text-center">
                           Faixa Etária
                         </h4>

@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import Map, { Source, Layer, LayerProps } from "react-map-gl";
+import Map, { Source, Layer, LayerProps } from "react-map-gl/maplibre";
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 import bbox from "@turf/bbox";
 
-const MAPBOXTOKEN = typeof window !== 'undefined' ? (window as any).MAPBOX_TOKEN : null;
-const MAPBOXSTYLE = "mapbox://styles/mapbox/light-v10";
+const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 const MapCommands = ({ viewport, setViewport, settings, setsettings, initialViewport }: any) => {
     const handleZoomIn = () => {
@@ -38,7 +37,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-50">
             <button
                 onClick={handleZoomIn}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom in"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +47,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
 
             <button
                 onClick={handleZoomOut}
-                className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                 title="Zoom out"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,7 +57,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
 
             <button
                 onClick={handleToggleDragPan}
-                className={`bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors ${settings.dragPan ? 'text-blue-500' : ''}`}
+                className={`bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors ${settings.dragPan ? 'text-blue-500' : ''}`}
                 title="Mover mapa"
             >
                 <svg className="w-5 h-5" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -69,7 +68,7 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
             {!isAtDefaultPosition() && (
                 <button
                     onClick={handleRecenter}
-                    className="bg-white hover:bg-gray-100 border border-gray-300 rounded p-2 shadow-md transition-colors"
+                    className="bg-white hover:bg-gray-100 border border-gray-300 rounded-sm p-2 shadow-md transition-colors"
                     title="Recentralizar mapa"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,23 +82,23 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, initialView
 
 const ViasInsegurasLegend = () => {
     return (
-        <div className="absolute bottom-0 right-0 bg-white border rounded p-4 m-2 shadow-md max-w-xs">
+        <div className="absolute bottom-0 right-0 bg-white border rounded-sm p-4 m-2 shadow-md max-w-xs">
             <h3 className="font-bold mb-3 text-center">Legenda</h3>
             <div className="flex flex-col gap-2 text-sm">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-1 bg-yellow-200 rounded"></div>
+                    <div className="w-6 h-1 bg-yellow-200 rounded-sm"></div>
                     <span>0-50 sinistros</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-1 bg-yellow-500 rounded"></div>
+                    <div className="w-6 h-1 bg-yellow-500 rounded-sm"></div>
                     <span>50-150 sinistros</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-1 bg-red-600 rounded"></div>
+                    <div className="w-6 h-1 bg-red-600 rounded-sm"></div>
                     <span>150-300 sinistros</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-1 bg-red-900 rounded"></div>
+                    <div className="w-6 h-1 bg-red-900 rounded-sm"></div>
                     <span>300+ sinistros</span>
                 </div>
             </div>
@@ -157,8 +156,7 @@ const mapInicialState = {
     dragPan: false,
     dragRotate: true,
     scrollZoom: false,
-    touchZoom: true,
-    touchRotate: true,
+    touchZoomRotate: true,
     keyboard: true,
     boxZoom: true,
     doubleClickZoom: true,
@@ -201,25 +199,22 @@ export default function ViasInsegurasMap({ layerData, layersConf }: ViasInsegura
     const [settings, setsettings] = useState({ ...mapInicialState });
 
     return (
-        <div className="relative bg-gray-200 rounded shadow-2xl">
+        <div className="relative bg-gray-200 rounded-sm shadow-2xl">
             {isClient && isMapReady && (
                 <Map
                     {...viewport}
                     {...settings}
-                    width="100%"
-                    height="500px"
-                    onViewportChange={setViewport}
-                    mapStyle={MAPBOXSTYLE}
-                    mapboxApiAccessToken={MAPBOXTOKEN}
-                    getCursor={({ isDragging }) => (settings.dragPan ? (isDragging ? 'grabbing' : 'grab') : 'pointer')}
+                    style={{ width: "100%", height: "500px" }}
+                    onMove={(evt) => setViewport(evt.viewState)}
+                    mapStyle={MAPSTYLE}
                 >
                     <style>{`
-                        .mapboxgl-ctrl-attrib {
+                        .maplibregl-ctrl-attrib {
                             color: #d1d5db !important;
                             font-size: 10px !important;
                             opacity: 0.6 !important;
                         }
-                        .mapboxgl-ctrl-attrib a {
+                        .maplibregl-ctrl-attrib a {
                             color: #d1d5db !important;
                             font-size: 10px !important;
                         }

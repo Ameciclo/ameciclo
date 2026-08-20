@@ -148,13 +148,13 @@ export function CityContent({
       </div>
 
       {showFloatingFilter && (
-        <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-200 py-3 px-4 rounded-lg shadow-lg z-[9999] max-w-[90vw]">
+        <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-200 py-3 px-4 rounded-lg shadow-lg z-9999 max-w-[90vw]">
           <div className="flex items-center gap-3 text-sm">
             <span className="font-semibold text-gray-700 whitespace-nowrap">Dados:</span>
             <select
               value={city_sort}
               onChange={(e) => sortCityAndType(e.target.value)}
-              className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent max-w-[200px]"
+              className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent max-w-[200px]"
               tabIndex={-1}
             >
               {sort_cities[0].items.map((item: any) => (
@@ -174,7 +174,7 @@ export function CityContent({
             <select
               value={localSelectedCity?.id || ""}
               onChange={(e) => handleChangeCity(parseInt(e.target.value))}
-              className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#008080] focus:border-transparent"
+              className="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent"
               tabIndex={-1}
             >
               {citiesStatsArray.map((city: any) => (

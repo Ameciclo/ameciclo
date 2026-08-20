@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@remix-run/react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ComingSoonButton } from "./ComingSoonButton";
 
@@ -17,7 +17,7 @@ const dataSubPages = [
 ];
 
 export function DataSubmenu() {
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
 
   return (
     <motion.div
@@ -25,7 +25,7 @@ export function DataSubmenu() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.15 }}
-      className="submenu-container fixed top-14 left-0 right-0 z-[150] shadow-lg pointer-events-auto"
+      className="submenu-container fixed top-14 left-0 right-0 z-150 shadow-lg pointer-events-auto"
       style={{backgroundColor: '#008080'}}
       id="dados-submenu"
       role="navigation"
@@ -33,7 +33,7 @@ export function DataSubmenu() {
     >
       <div className="w-full flex items-center justify-center px-8 py-1 m-0">
         <div className="hidden xl:flex items-center justify-start flex-wrap gap-1 py-1">
-          {dataSubPages.map((subPage, index) => {
+          {dataSubPages.map((subPage, _index) => {
             const isActive = location.pathname === subPage.url || 
               location.pathname.startsWith(subPage.url + '/');
             const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
@@ -46,8 +46,8 @@ export function DataSubmenu() {
               <Link
                 key={subPage.name}
                 to={subPage.url}
-                className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 flex items-center gap-2 ${
-                  isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
+                className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-81 pointer-events-auto hover:bg-white/10 flex items-center gap-2 ${
+                  isActive ? 'bg-white/20 font-semibold shadow-xs' : ''
                 }`}
               >
                 {subPage.icon && (
@@ -57,7 +57,7 @@ export function DataSubmenu() {
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
+                    className="absolute inset-0 bg-white/15 rounded-md"
                     initial={false}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
@@ -69,7 +69,7 @@ export function DataSubmenu() {
         
         <div className="xl:hidden flex items-center justify-center py-1 overflow-x-auto scrollbar-hide">
           <div className="flex items-center flex-wrap justify-start gap-1 py-1">
-            {dataSubPages.map((subPage, index) => {
+            {dataSubPages.map((subPage, _index) => {
               const isActive = location.pathname === subPage.url || 
                 location.pathname.startsWith(subPage.url + '/');
               const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
@@ -82,8 +82,8 @@ export function DataSubmenu() {
                 <Link
                   key={subPage.name}
                   to={subPage.url}
-                  className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-[81] pointer-events-auto hover:bg-white hover:bg-opacity-10 whitespace-nowrap flex items-center gap-2 ${
-                    isActive ? 'bg-white bg-opacity-20 font-semibold shadow-sm' : ''
+                  className={`text-white text-xs font-medium tracking-wide px-3 py-1 rounded-md relative group transition-all duration-300 z-81 pointer-events-auto hover:bg-white/10 whitespace-nowrap flex items-center gap-2 ${
+                    isActive ? 'bg-white/20 font-semibold shadow-xs' : ''
                   }`}
                 >
                   {subPage.icon && (
@@ -93,7 +93,7 @@ export function DataSubmenu() {
                   {isActive && (
                     <motion.div
                       layoutId="activeTabMobile"
-                      className="absolute inset-0 bg-white bg-opacity-15 rounded-md"
+                      className="absolute inset-0 bg-white/15 rounded-md"
                       initial={false}
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />

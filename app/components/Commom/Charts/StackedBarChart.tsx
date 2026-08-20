@@ -88,9 +88,9 @@ function StackedBarChart({
   };
 
   return (
-    <div className="shadow-2xl rounded p-6 pt-4 text-center">
+    <div className="shadow-2xl rounded-sm p-6 pt-4 text-center">
       <div className="mb-4 flex justify-end">
-        <div className="inline-flex rounded-md shadow-sm" role="group">
+        <div className="inline-flex rounded-md shadow-xs" role="group">
           <button
             type="button"
             className={`px-4 py-2 text-sm font-medium rounded-l-lg ${

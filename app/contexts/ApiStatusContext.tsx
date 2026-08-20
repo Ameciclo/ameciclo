@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
-import { useLocation } from '@remix-run/react';
+import { useRouterState } from '@tanstack/react-router';
 
 interface ApiError {
   url: string;
@@ -27,7 +27,7 @@ export function ApiStatusProvider({
 }) {
   const [isApiDown, setIsApiDown] = useState(false);
   const [apiErrors, setApiErrors] = useState<ApiError[]>([]);
-  const location = useLocation();
+  const location = useRouterState({ select: (s) => s.location });
   const prevPathRef = useRef(location.pathname);
   
   useEffect(() => {

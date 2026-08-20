@@ -1,14 +1,8 @@
 import React, { useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { Highlight } from "react-highlighter-ts";
 import type { FuseResult } from "fuse.js";
-
-interface FAQ {
-  id: number;
-  title: string;
-  description: string;
-  answer?: string;
-}
+import type { FAQ } from "~/queries/biciclopedia";
 
 interface SearchComponentProps {
   faqs: FAQ[];
@@ -42,13 +36,13 @@ export const SearchComponent = (props: SearchComponentProps) => {
           type="search"
           name="search"
           placeholder="Qual o melhor tipo de bicicletário?"
-          className="w-full h-10 px-5 pr-10 text-sm text-gray-600 bg-white rounded shadow-2xl focus:outline-none"
+          className="w-full h-10 px-5 pr-10 text-sm text-gray-600 bg-white rounded-sm shadow-2xl focus:outline-hidden"
           value={searchTerm}
           onChange={handleChange}
           onFocus={() => {
             setSearchResultsVisible(true);
           }}
-          onBlur={(e) => {
+          onBlur={(_e) => {
             // Delay para permitir clique nos resultados
             setTimeout(() => {
               setSearchResultsVisible(false);
@@ -58,14 +52,15 @@ export const SearchComponent = (props: SearchComponentProps) => {
       </div>
       {searchTerm.length > 0 && searchResultsVisible && (
         <div
-          className="absolute left-0 right-0 z-10 mt-2 mb-4 overflow-hidden overflow-y-auto text-left text-gray-800 normal-case bg-white border rounded-lg shadow w-108"
+          className="absolute left-0 right-0 z-10 mt-2 mb-4 overflow-hidden overflow-y-auto text-left text-gray-800 normal-case bg-white border rounded-lg shadow-sm w-108"
           style={{ maxHeight: "32rem" }}
         >
           <div className="flex flex-col">
             {results.map((result) => {
               return (
                 <Link
-                  to={`/biciclopedia/${result.item.id}`}
+                  to="/biciclopedia/$question"
+                  params={{ question: String(result.item.id) }}
                   key={result.item.id}
                 >
                   <div

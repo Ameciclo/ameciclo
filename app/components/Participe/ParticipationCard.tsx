@@ -37,8 +37,8 @@ export function ParticipationCard({
     <motion.div
       className={`border-2 rounded-xl shadow-lg p-8 text-center hover:shadow-2xl transition-all duration-300 ${
         darkMode
-          ? "bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600"
-          : `bg-gradient-to-br ${gradientFrom} ${gradientTo} ${borderColor}`
+          ? "bg-linear-to-br from-gray-800 to-gray-700 border-gray-600"
+          : `bg-linear-to-br ${gradientFrom} ${gradientTo} ${borderColor}`
       }`}
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.3 }}

@@ -1,2 +1,2 @@
-export { MapboxKeyWarning } from './MapboxKeyWarning';
 export { AmecicloMap } from './AmecicloMap';
+export { MapboxKeyWarning } from './MapboxKeyWarning';

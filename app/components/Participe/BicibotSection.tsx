@@ -7,7 +7,7 @@ interface BicibotSectionProps {
 
 export function BicibotSection({ darkMode, fontSize }: BicibotSectionProps) {
   return (
-    <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? "bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600" : "bg-gradient-to-br from-red-50 to-orange-50 border-red-100"}`}>
+    <div className={`border-2 rounded-xl shadow-lg p-8 ${darkMode ? "bg-linear-to-br from-gray-800 to-gray-700 border-gray-600" : "bg-linear-to-br from-red-50 to-orange-50 border-red-100"}`}>
       <div className="flex items-center justify-center gap-4 mb-8">
         <RobotIcon className="w-8 h-8 text-gray-800" />
         <h2 className={`text-2xl sm:text-3xl font-bold text-center sm:text-left ${darkMode ? "text-white" : "text-gray-800"}`}>
@@ -19,7 +19,7 @@ export function BicibotSection({ darkMode, fontSize }: BicibotSectionProps) {
           Denuncie motoristas infratores ou lugares que demandam manutenções na infraestrutura cicloviária.
         </p>
 
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg mb-6 border border-red-100">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg mb-6 border border-red-100">
           <div className="flex items-center gap-2 mb-3">
             <AlertIcon className="w-5 h-5 text-purple-800" />
             <h4 className="font-semibold text-purple-800">O que é a Bicibot?</h4>
@@ -62,7 +62,7 @@ export function BicibotSection({ darkMode, fontSize }: BicibotSectionProps) {
             href="https://bicibot.ameciclo.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-gradient-to-r from-purple-500 to-purple-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg hover:from-purple-600 hover:to-purple-800 transition-all duration-300 inline-block mb-4 sm:mb-0 sm:mr-4 font-semibold shadow-lg text-center w-full sm:w-auto"
+            className="bg-linear-to-r from-purple-500 to-purple-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg hover:from-purple-600 hover:to-purple-800 transition-all duration-300 inline-block mb-4 sm:mb-0 sm:mr-4 font-semibold shadow-lg text-center w-full sm:w-auto"
           >
             🚨 Acessar Bicibot
           </a>

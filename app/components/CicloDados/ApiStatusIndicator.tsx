@@ -67,7 +67,7 @@ export function ApiStatusIndicator({ errors, onReload }: ApiStatusIndicatorProps
                 handleReload();
               }}
               disabled={isReloading}
-              className="text-blue-500 hover:text-blue-600 disabled:text-gray-400 p-1 rounded transition-colors"
+              className="text-blue-500 hover:text-blue-600 disabled:text-gray-400 p-1 rounded-sm transition-colors"
               title="Recarregar dados"
             >
               <RefreshCw className={`w-4 h-4 ${isReloading ? 'animate-spin' : ''}`} />
@@ -123,7 +123,7 @@ export function ApiStatusIndicator({ errors, onReload }: ApiStatusIndicatorProps
                 <button
                   onClick={handleReload}
                   disabled={isReloading}
-                  className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-xs py-2 px-3 rounded transition-colors flex items-center justify-center gap-1"
+                  className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-xs py-2 px-3 rounded-sm transition-colors flex items-center justify-center gap-1"
                 >
                   <RefreshCw className={`w-3 h-3 ${isReloading ? 'animate-spin' : ''}`} />
                   {isReloading ? 'Recarregando...' : 'Tentar novamente'}

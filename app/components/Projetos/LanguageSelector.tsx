@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { Globe } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -10,7 +10,7 @@ interface LanguageSelectorProps {
   }>;
 }
 
-export const LanguageSelector = ({ currentSlug, availableLanguages = [] }: LanguageSelectorProps) => {
+export const LanguageSelector = ({ currentSlug }: LanguageSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +51,7 @@ export const LanguageSelector = ({ currentSlug, availableLanguages = [] }: Langu
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-all duration-200 text-white font-medium shadow-lg backdrop-blur-sm"
+        className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-white font-medium shadow-lg backdrop-blur-xs"
         aria-label="Selecionar idioma"
       >
         <Globe className="w-5 h-5" />
@@ -72,7 +72,8 @@ export const LanguageSelector = ({ currentSlug, availableLanguages = [] }: Langu
           {otherLanguages.map((lang) => (
             <Link
               key={lang.lang}
-              to={`/projetos/${lang.slug}`}
+              to="/projetos/$projeto"
+              params={{ projeto: lang.slug }}
               className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 hover:text-teal-600"
               onClick={() => setIsOpen(false)}
             >

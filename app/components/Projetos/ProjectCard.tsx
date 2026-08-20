@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { LanguageBadge } from "./LanguageBadge";
 
 const StatusIndicator = ({ status }: any) => {
@@ -10,7 +10,7 @@ const StatusIndicator = ({ status }: any) => {
 
     return (
         <div
-            className="p-4 font-semibold uppercase bg-green-400 rounded"
+            className="p-4 font-semibold uppercase bg-green-400 rounded-sm"
             style={{
                 maxHeight: "50px",
                 color: statusMap.get(status)?.fontColor,
@@ -29,12 +29,12 @@ const StatusIndicator = ({ status }: any) => {
 
 export const ProjectCard = ({ project }: any) => {
     return (
-        <div className="bg-white rounded-lg shadow relative" style={{ minHeight: "450px" }}>
+        <div className="bg-white rounded-lg shadow-sm relative" style={{ minHeight: "450px" }}>
             <div className="absolute top-0 left-0">
                 <StatusIndicator status={project.project_status} />
             </div>
             {project.media?.url ? (
-                <Link to={`/projetos/${project.slug}`}>
+                <Link to="/projetos/$projeto" params={{ projeto: project.slug }}>
                     <div
                         style={{
                             backgroundImage: `url(${project.media.url})`,
@@ -52,7 +52,7 @@ export const ProjectCard = ({ project }: any) => {
             )}
             <div className="px-4 py-5 lg:p-6">
                 <dl className="pb-6">
-                    <Link to={`/projetos/${project.slug}`}>
+                    <Link to="/projetos/$projeto" params={{ projeto: project.slug }}>
                         <dt className="mt-1 text-3xl font-semibold leading-9 text-gray-900 cursor-pointer">
                             {project.name}
                         </dt>

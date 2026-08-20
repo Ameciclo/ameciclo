@@ -57,7 +57,7 @@ const Tab = ({ name, onClick = () => { }, children, disabled = false }: TabProps
 
     return (
         <button
-            className={`text-xs lg:text-base w-full text-gray-600 py-4 px-6 block uppercase outline-none
+            className={`text-xs lg:text-base w-full text-gray-600 py-4 px-6 block uppercase outline-hidden
         ${disabled ? "cursor-default" : "hover:text-ameciclo focus:ring-2 focus:ring-ameciclo focus:ring-offset-2"}
         ${tabContext.activeTab === name ? " text-ameciclo border-ameciclo border-b-2" : ""}`}
             disabled={disabled}

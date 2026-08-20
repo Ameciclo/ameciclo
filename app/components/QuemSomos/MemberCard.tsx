@@ -1,10 +1,7 @@
+import type { Ameciclista } from "~/queries/quemsomos";
+
 interface MemberCardProps {
-  member: {
-    id: string;
-    name: string;
-    bio?: string;
-    media?: { url: string };
-  };
+  member: Ameciclista;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   showBio?: boolean;
 }
@@ -17,22 +14,22 @@ export function MemberCard({ member, onClick, showBio = false }: MemberCardProps
         onClick={onClick}
       >
         <div className="relative w-full h-64 overflow-hidden">
-          {member.media ? (
-            <img src={member.media.url} alt={member.name} className="absolute w-full h-full object-cover" />
+          {member.media?.url ? (
+            <img src={member.media.url} alt={member.name ?? ""} className="absolute w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gray-200" />
           )}
         </div>
         <div className="p-6 flex-1">
           <h2 className="text-xl font-semibold text-gray-900">{member.name}</h2>
-          {showBio && member.bio && (
+          {showBio && member.bio ? (
             <>
               <p className="text-sm text-gray-600 mt-2 line-clamp-4">{member.bio}</p>
-              {member.bio.length > 150 && (
+              {member.bio.length > 150 ? (
                 <span className="text-xs text-gray-500 mt-1 block">... ver mais</span>
-              )}
+              ) : null}
             </>
-          )}
+          ) : null}
         </div>
       </button>
     </div>

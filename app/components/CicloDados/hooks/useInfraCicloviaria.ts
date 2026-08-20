@@ -1,5 +1,5 @@
 import { useGenericClusters } from './useGenericClusters';
-import { SERVERS } from '~/servers';
+import { INFRA_CICLOVIARIA_DATA } from '~/servers';
 
 interface ViewportBounds {
   north: number;
@@ -9,6 +9,6 @@ interface ViewportBounds {
 }
 
 export function useInfraCicloviaria(bounds?: ViewportBounds, selectedTypes?: string[]) {
-  const result = useGenericClusters(SERVERS.INFRA_CICLOVIARIA, bounds);
+  const result = useGenericClusters(INFRA_CICLOVIARIA_DATA, bounds);
   return { data: result.data, error: result.error };
 }

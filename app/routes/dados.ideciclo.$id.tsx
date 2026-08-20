@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
@@ -7,13 +7,43 @@ import { IdecicloDescription } from "../components/Ideciclo/IdecicloDescription"
 import { idecicloLayers } from "../components/Ideciclo/ideciclo_mapstyle";
 import { StatisticsBoxIdecicloDetalhes } from "../components/Ideciclo/StatisticsBoxIdeciclo";
 import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/VerticalStatisticsBoxesIdeciclo";
-import { loader } from "~/loader/dados.ideciclo.$id";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { idecicloDetailQueryOptions } from "~/queries/dados.ideciclo.$id";
 import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
+import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
+import { seo } from "~/utils/seo";
 
-export { loader };
+export const Route = createFileRoute("/dados/ideciclo/$id")({
+  loader: ({ context: { queryClient }, params: { id } }) =>
+    queryClient.ensureQueryData(idecicloDetailQueryOptions(id)),
+  head: ({ params, loaderData }) => {
+    const structure = loaderData?.structure;
+    const pageData = loaderData?.pageData;
+    const street = structure?.street;
+    const title = street
+      ? `Ideciclo - ${street} - Ameciclo`
+      : "Ideciclo - Estrutura Cicloviária - Ameciclo";
+    const description = street
+      ? `Avaliação Ideciclo da estrutura cicloviária ${street} — índice que mede a qualidade da malha cicloviária.`
+      : "Detalhamento da estrutura cicloviária avaliada pelo Ideciclo.";
+    return seo({
+      title,
+      description,
+      pathname: `/dados/ideciclo/${params.id}`,
+      image: pageData?.cover?.url,
+      type: "article",
+    });
+  },
+  component: IdecicloDetail,
+  pendingComponent: () => <RouteLoading label="Carregando estrutura cicloviária..." />,
+  pendingMs: 500,
+  pendingMinMs: 800,
+  errorComponent: RouteErrorBoundary,
+});
 
-export default function Ideciclo() {
-  const { structure, forms, pageData, mapData } = useLoaderData<typeof loader>();
+function IdecicloDetail() {
+  const { id } = Route.useParams();
+  const { data: { structure, forms, pageData, mapData } } = useSuspenseQuery(idecicloDetailQueryOptions(id));
 
   const info = getRatesSummary(structure, forms);
   const GeneralStatistics = structureStatistics(structure, info);
@@ -36,16 +66,16 @@ export default function Ideciclo() {
 
       <div className="w-full bg-amber-300 py-20">
         <section className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-auto gap-10 min-h-[500px]">
-          <div className="rounded bg-white shadow-2xl h-full">
+          <div className="rounded-sm bg-white shadow-2xl h-full">
             <IdecicloDescription info={info} />
           </div>
-          <div className="bg-white rounded shadow-2xl h-full">
+          <div className="bg-white rounded-sm shadow-2xl h-full">
             <AmecicloMap
               layerData={mapData}
               layersConf={idecicloLayers}
             />
           </div>
-          <div className="rounded bg-white shadow-2xl h-full">
+          <div className="rounded-sm bg-white shadow-2xl h-full">
             <RadarChart
               {...info}
               title={"EVOLUÇÃO DA NOTA"}

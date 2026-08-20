@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { matchSorter } from "match-sorter";
-import * as Remix from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { useTable, usePagination, useFilters, useSortBy, useExpanded } from "react-table";
 import { ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 
@@ -12,7 +12,7 @@ function fuzzyTextFilterFn(rows: any, id: any, filterValue: any) {
 
 fuzzyTextFilterFn.autoRemove = (val: any) => !val;
 
-export function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, setFilter, id } }: any) {
+export function NumberRangeColumnFilter({ column: { filterValue = [], setFilter } }: any) {
     const [min, max] = filterValue;
 
     return (
@@ -25,7 +25,7 @@ export function NumberRangeColumnFilter({ column: { filterValue = [], preFiltere
                     setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
                 }}
                 placeholder="Mínimo"
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             />
             <input
                 value={max || ''}
@@ -35,7 +35,7 @@ export function NumberRangeColumnFilter({ column: { filterValue = [], preFiltere
                     setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
                 }}
                 placeholder="Máximo"
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             />
         </div>
     );
@@ -64,12 +64,12 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
                 setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
             }}
             placeholder={`Buscar ${typeof Header === 'string' ? Header : ''}`}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
         />
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, classifyAction, customHeader }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, customHeader }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -114,7 +114,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
     
     if (hasError) {
         return (
-            <section className="container mx-auto my-10 shadow-2xl rounded p-12 bg-red-50">
+            <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-red-50">
                 <div className="text-center">
                     <h2 className="text-red-800 text-2xl mb-4">Erro ao carregar tabela</h2>
                     <p className="text-red-600 mb-4">Houve um problema ao processar os dados da tabela.</p>
@@ -123,7 +123,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             setHasError(false);
                             window.location.reload();
                         }}
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                        className="bg-red-600 text-white px-4 py-2 rounded-sm hover:bg-red-700"
                     >
                         Tentar novamente
                     </button>
@@ -134,25 +134,25 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
     
     if (safeData.length === 0) {
         return (
-            <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
+            <section className="container mx-auto my-10 shadow-2xl rounded-sm p-2 sm:p-12 overflow-auto bg-gray-100">
                 <div className="mb-4">
                     <h2 className="text-gray-600 text-3xl mb-2">{title}</h2>
                 </div>
-                <div className="shadow overflow-hidden bg-white border-b border-gray-200 sm:rounded-lg">
+                <div className="shadow-sm overflow-hidden bg-white border-b border-gray-200 sm:rounded-lg">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                                    <div className="h-4 bg-gray-300 rounded-sm w-20 animate-pulse"></div>
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                                    <div className="h-4 bg-gray-300 rounded-sm w-16 animate-pulse"></div>
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                                    <div className="h-4 bg-gray-300 rounded-sm w-32 animate-pulse"></div>
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                                    <div className="h-4 bg-gray-300 rounded-sm w-16 animate-pulse"></div>
                                 </th>
                             </tr>
                         </thead>
@@ -160,16 +160,16 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             {[...Array(5)].map((_, i) => (
                                 <tr key={i}>
                                     <td className="px-6 py-4">
-                                        <div className="h-4 bg-gray-300 rounded w-full animate-pulse"></div>
+                                        <div className="h-4 bg-gray-300 rounded-sm w-full animate-pulse"></div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                                        <div className="h-4 bg-gray-300 rounded-sm w-24 animate-pulse"></div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                                        <div className="h-4 bg-gray-300 rounded-sm w-16 animate-pulse"></div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="h-4 bg-gray-300 rounded w-12 animate-pulse"></div>
+                                        <div className="h-4 bg-gray-300 rounded-sm w-12 animate-pulse"></div>
                                     </td>
                                 </tr>
                             ))}
@@ -271,25 +271,25 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
         return () => observer.disconnect();
     }, []);
 
-    function TableHead({ headerGroups, isSmallScreen = false, showFilters, setShowFilters, rows }: any) {
+    function TableHead({ headerGroups, isSmallScreen = false, rows }: any) {
         return (
             <thead>
                 {headerGroups.map((headerGroup: any, groupIndex: number) => (
                     <tr
                         key={groupIndex}
-                        {...(({ key, ...props }) => props)(headerGroup.getHeaderGroupProps())}
+                        {...(({ key: _key, ...props }) => props)(headerGroup.getHeaderGroupProps())}
                         className="bg-gray-100 rounded-lg text-sm font-medium text-gray-700 text-left relative"
                     >
                         {headerGroup.headers.map((column: any, index: number) =>
                             isSmallScreen && index !== 0 ? null : (
                                 <th
                                     key={column.id || index}
-                                    {...(({ key, ...props }) => props)(column.getHeaderProps())}
+                                    {...(({ key: _key, ...props }) => props)(column.getHeaderProps())}
                                     className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
                                 >
                                     <button
                                         {...column.getSortByToggleProps()}
-                                        className="flex items-center gap-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#008080] focus:ring-offset-2 rounded px-1 -mx-1"
+                                        className="flex items-center gap-1 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:ring-offset-2 rounded-sm px-1 -mx-1"
                                         aria-label={`Ordenar por ${typeof column.Header === 'string' ? column.Header : 'coluna'}${column.isSorted ? (column.isSortedDesc ? ' em ordem decrescente' : ' em ordem crescente') : ''}`}
                                         aria-sort={column.isSorted ? (column.isSortedDesc ? 'descending' : 'ascending') : 'none'}
                                     >
@@ -344,7 +344,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     return isSmallScreen ? (
                         <React.Fragment key={i}>
                             <tr
-                                {...(({ key, ...props }) => props)(row.getRowProps())}
+                                {...(({ key: _key, ...props }) => props)(row.getRowProps())}
                                 className={`border-b border-gray-200 ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-200' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                             >
                                 <td className="px-6 py-4">
@@ -356,7 +356,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             {row.isExpanded ? (
                                 <tr>
                                     <td colSpan={columns.length}>
-                                        <div className="p-4 bg-[#008080] text-white transition-all duration-300 ease-in-out overflow-hidden">
+                                        <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">
                                             <div className="mb-2">
                                                 <strong>Tipo de Ação:</strong> {row.original.type === 'good' ? 'Boa Ação' : row.original.type === 'bad' ? 'Má Ação' : 'Ação Neutra'}
                                             </div>
@@ -377,15 +377,15 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     ) : (
                         <React.Fragment key={i}>
                             <tr
-                                {...(({ key, ...props }) => props)(row.getRowProps())}
+                                {...(({ key: _key, ...props }) => props)(row.getRowProps())}
                                 className={`border-b border-gray-200 ${row.original.type === 'good' ? 'bg-blue-600 text-white hover:bg-blue-700' : row.original.type === 'bad' ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'hover:bg-gray-100'}`}
                             >
                                 {row.cells.map((cell: any, cellIndex: number) => {
                                     return (
                                         <td
                                             key={cell.column.id || cellIndex}
-                                            {...(({ key, ...props }) => props)(cell.getCellProps())}
-                                            className={`px-6 py-4 text-sm leading-5 break-words ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : 'text-gray-700'}`}
+                                            {...(({ key: _key, ...props }) => props)(cell.getCellProps())}
+                                            className={`px-6 py-4 text-sm leading-5 wrap-break-word ${row.original.type === 'good' || row.original.type === 'bad' ? 'text-white' : 'text-gray-700'}`}
                                             style={{ width: '20%' }}
                                         >
                                             {cell.render("Cell")}
@@ -396,7 +396,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                             {row.isExpanded ? (
                                 <tr>
                                     <td colSpan={columns.length}>
-                                        <div className="p-4 bg-[#008080] text-white transition-all duration-300 ease-in-out overflow-hidden">
+                                        <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">
                                             <div className="mb-2">
                                                 <strong>Tipo de Ação:</strong> {row.original.type === 'good' ? 'Boa Ação' : row.original.type === 'bad' ? 'Má Ação' : 'Ação Neutra'}
                                             </div>
@@ -429,7 +429,6 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
         nextPage,
         pageIndex,
         gotoPage,
-        data,
     }: any) {
         const [pageNumberInput, setPageNumberInput] = useState("");
 
@@ -463,7 +462,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     pages.push(
                         <button
                             key={i}
-                            className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
+                            className="bg-ameciclo border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow-sm text-xs px-4 py-2 rounded-sm outline-hidden focus:outline-hidden sm:mr-1 mb-2"
                             type="button"
                             style={{ transition: "all .15s ease" }}
                             onClick={() => gotoPage(i - 1)}
@@ -475,7 +474,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     pages.push(
                         <button
                             key={i}
-                            className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-1 mb-2"
+                            className="bg-red-500 border-2 border-white uppercase text-white font-bold hover:bg-white hover:text-ameciclo shadow-sm text-xs px-4 py-2 rounded-sm outline-hidden focus:outline-hidden sm:mr-1 mb-2"
                             type="button"
                             style={{ transition: "all .15s ease" }}
                             onClick={() => gotoPage(i - 1)}
@@ -495,12 +494,13 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     </div>
 
                     <div className="flex items-center space-x-4">
-                        <Remix.Link 
-                            to="/contato?message=Encontrei%20um%20erro%20na%20tabela%20de%20Estruturas%20do%20PDC%3A%0A%0ADescreva%20o%20erro%20encontrado%3A%0A"
-                            className="text-xs text-gray-500 hover:text-[#008080] hover:underline transition-colors"
+                        <Link
+                            to="/contato"
+                            search={{ message: "Encontrei um erro na tabela de Estruturas do PDC:\n\nDescreva o erro encontrado:\n" } as never}
+                            className="text-xs text-gray-500 hover:text-ameciclo hover:underline transition-colors"
                         >
                             Reportar erro
-                        </Remix.Link>
+                        </Link>
 
                         <div className="flex items-center space-x-1">
                             <button
@@ -532,7 +532,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
     }
 
     return (
-        <section className="container mx-auto my-10 shadow-2xl rounded p-2 sm:p-12 overflow-auto bg-gray-100">
+        <section className="container mx-auto my-10 shadow-2xl rounded-sm p-2 sm:p-12 overflow-auto bg-gray-100">
             {customHeader && (
                 <div className="mb-6">
                     {customHeader}
@@ -595,7 +595,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     <button
                         onClick={() => setShowFilters(!showFilters)}
                         className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors ${showFilters
-                            ? 'bg-[#008080] text-white border-[#008080]'
+                            ? 'bg-ameciclo text-white border-ameciclo'
                             : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                             }`}
                         style={{
@@ -663,7 +663,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                         if (!displayValue) return null;
 
                         return (
-                            <div key={column.id} className="inline-flex items-center bg-[#008080] text-white px-3 py-1 rounded-full text-sm">
+                            <div key={column.id} className="inline-flex items-center bg-ameciclo text-white px-3 py-1 rounded-full text-sm">
                                 <span className="mr-2">{headerText}: {displayValue}</span>
                                 <button
                                     onClick={() => {
@@ -683,10 +683,10 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                     })}
                 </div>
             </div>
-            <div className="shadow overflow-hidden bg-white border-b border-gray-200 sm:rounded-lg">
+            <div className="shadow-sm overflow-hidden bg-white border-b border-gray-200 sm:rounded-lg">
                 <table
                     {...getTableProps()}
-                    className="table-auto shadow min-w-full divide-y divide-gray-200"
+                    className="table-auto shadow-sm min-w-full divide-y divide-gray-200"
                 >
                     {isInitialized && <TableHead headerGroups={headerGroups} isSmallScreen={isSmallScreen} showFilters={showFilters} setShowFilters={setShowFilters} rows={rows} />}
                     {showFilters && (

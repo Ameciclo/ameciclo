@@ -31,7 +31,7 @@ interface StackedChartResult {
 export function getStackedTransportModeData(
   citiesByYearData: CitiesByYearData | null,
   selectedCity: string | null,
-  tipoLocal: string = "ocorrencia"
+  _tipoLocal: string = "ocorrencia"
 ): StackedChartResult {
   // Se não temos dados, retornar estrutura vazia
   if (!citiesByYearData?.years) {

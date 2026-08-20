@@ -35,7 +35,7 @@ export default function ConcentrationChart({ data }: ConcentrationChartProps) {
 
   if (!chartsLoaded || !data || data.length === 0) {
     return (
-      <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
+      <div className="h-64 bg-gray-100 rounded-sm flex items-center justify-center">
         <span className="text-gray-500">
           {!chartsLoaded ? "Carregando gráfico..." : "Nenhum dado disponível"}
         </span>

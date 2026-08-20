@@ -1,8 +1,8 @@
-import { Link } from "@remix-run/react";
+import { Link } from "@tanstack/react-router";
 import { footerColumn, footerColumnContent } from "../../../typings";
 
 export const Footer = () => {
-  const columns: footerColumn[] = [
+  const columns = [
     {
       title: "Ameciclo",
       align: "left",
@@ -38,20 +38,16 @@ export const Footer = () => {
           url: "/dados",
         },
         {
+          label: "Projetos",
+          url: "/projetos",
+        },
+        {
           label: "Documentação",
           url: "/documentacao",
         },
         {
-          label: "Biciclopédia",
+          label: "Biciclopedia (FAQ)",
           url: "/biciclopedia",
-        },
-        {
-          label: "API Garfo",
-          url: "http://api.garfo.ameciclo.org",
-        },
-        {
-          label: "CMS Strapi",
-          url: "http://do.strapi.ameciclo.org",
         },
       ],
     },
@@ -60,20 +56,24 @@ export const Footer = () => {
       align: "center",
       content: [
         {
+          label: "Facebook",
+          url: "https://facebook.com/ameciclo",
+        },
+        {
           label: "Instagram",
           url: "https://instagram.com/ameciclo",
         },
         {
-          label: "YouTube",
-          url: "https://www.youtube.com/ameciclo",
+          label: "Twitter",
+          url: "https://twitter.com/ameciclo",
         },
         {
           label: "Telegram",
           url: "https://t.me/ameciclo",
         },
         {
-          label: "GitHub",
-          url: "https://github.com/Ameciclo",
+          label: "Youtube",
+          url: "https://www.youtube.com/ameciclo",
         },
       ],
     },
@@ -92,7 +92,7 @@ export const Footer = () => {
               {column.button && (
                 <Link
                   to={column.button.url}
-                  className="inline-block mt-4 px-4 py-2 text-sm border border-[#008080] text-[#008080] rounded hover:bg-[#008080] hover:text-white transition-colors"
+                  className="inline-block mt-4 px-4 py-2 text-sm border border-ameciclo text-ameciclo rounded-sm hover:bg-ameciclo hover:text-white transition-colors"
                 >
                   {column.button.label}
                 </Link>
@@ -129,3 +129,4 @@ function FooterColumn({ column }: FooterColumnProps) {
     </>
   );
 }
+

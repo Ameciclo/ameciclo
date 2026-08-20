@@ -1,0 +1,52 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ameciclo",
+  "account_id": "8b9af9b81476222e1a787f42f3c8076a",
+  "workers_dev": true,
+  "preview_urls": true,
+  "routes": [
+    { "pattern": "ameciclo.org", "custom_domain": true },
+    { "pattern": "www.ameciclo.org", "custom_domain": true },
+  ],
+  "compatibility_date": "2026-03-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "dist/client",
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": false,
+    },
+  },
+  /**
+   * Public, non-secret values. Available at runtime as process.env.* via the
+   * nodejs_compat flag. Override per environment under [env.production.vars].
+   *
+   * Secrets (MAPBOX_ACCESS_TOKEN, GOOGLE_CALENDAR_API_KEY) are NOT here —
+   * set them with: `wrangler secret put <NAME>`
+   */
+  "vars": {
+    "SITE_URL": "https://ameciclo.org",
+    "GOOGLE_CALENDAR_EXTERNAL_ID": "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
+    "GOOGLE_CALENDAR_INTERNAL_ID": "ameciclo@gmail.com",
+  },
+
+  "env": {
+    "staging": {
+      "routes": [
+        { "pattern": "staging.ameciclo.org", "custom_domain": true },
+      ],
+      "vars": {
+        "SITE_URL": "https://staging.ameciclo.org",
+        "GOOGLE_CALENDAR_EXTERNAL_ID": "oj4bkgv1g6cmcbtsap4obgi9vc@group.calendar.google.com",
+        "GOOGLE_CALENDAR_INTERNAL_ID": "ameciclo@gmail.com",
+      },
+    }
+  }
+}

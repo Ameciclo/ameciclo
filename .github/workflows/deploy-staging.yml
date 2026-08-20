@@ -1,0 +1,60 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: staging
+      url: https://staging.ameciclo.org
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: jdx/mise-action@v4
+        with:
+          cache: true
+
+      - name: Resolve pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v5
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile
+
+      # The Cloudflare Vite plugin resolves the Wrangler environment HERE, at
+      # build time, and flattens it into dist/server/wrangler.json. This env var
+      # is the only thing that selects staging.
+      - run: pnpm build
+        env:
+          CLOUDFLARE_ENV: staging
+
+      # Deliberately no `--env staging`. Wrangler reads the already-flattened
+      # config produced above (via .wrangler/deploy/config.json), which has no
+      # `env` block left to select from — so `--env` is silently ignored and
+      # would only create false confidence. See:
+      # https://developers.cloudflare.com/workers/wrangler/environments/
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          packageManager: pnpm
+          command: deploy
