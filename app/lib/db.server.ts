@@ -21,9 +21,9 @@ import { env } from "cloudflare:workers";
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Client } from "pg";
 
-import * as schema from "~/db/schema";
+import { relations } from "~/db/relations";
 
-export type Db = NodePgDatabase<typeof schema>;
+export type Db = NodePgDatabase<typeof relations>;
 
 /**
  * Runs `fn` with a connected client and always closes it.
@@ -44,7 +44,7 @@ export async function withDb<T>(fn: (db: Db) => Promise<T> | T): Promise<T> {
   await client.connect();
 
   try {
-    return await fn(drizzle(client, { schema }));
+    return await fn(drizzle({ client, relations }));
   } finally {
     await client.end();
   }

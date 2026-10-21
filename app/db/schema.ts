@@ -1,13 +1,13 @@
 /**
  * Drizzle table definitions. Everything exported here is picked up by
- * drizzle-kit (see drizzle.config.ts) and by the `db` instance in
- * app/lib/db.server.ts, which is created with `{ schema }` so relational
- * queries (`db.query.*`) work.
+ * drizzle-kit (see drizzle.config.ts) and by app/db/relations.ts, which feeds
+ * the `db` instance in app/lib/db.server.ts so relational queries
+ * (`db.query.*`) work. Declare the relations between tables there.
  *
- * Derive Zod schemas from these tables with drizzle-zod rather than
+ * Derive Zod schemas from these tables with drizzle-orm/zod rather than
  * hand-writing them, so validation cannot drift from the column types:
  *
- *   import { createInsertSchema } from "drizzle-zod";
+ *   import { createInsertSchema } from "drizzle-orm/zod";
  *   export const insertExampleSchema = createInsertSchema(example);
  */
 
