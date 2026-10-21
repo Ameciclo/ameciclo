@@ -90,13 +90,16 @@ O projeto estará disponível em: **http://localhost:5173**
 ### 🔧 Scripts Disponíveis
 
 ```bash
-pnpm dev           # Inicia servidor de desenvolvimento (Vite)
-pnpm build         # Gera build de produção
-pnpm preview       # Servidor local para inspecionar o build
-pnpm deploy        # Build + deploy no Cloudflare Workers (wrangler)
+pnpm dev           # Site (apps/web) em http://localhost:5173
+pnpm dev:admin     # Admin (apps/admin) em http://localhost:3001
+pnpm build         # Build de todos os apps
 pnpm lint          # Verifica qualidade do código
 pnpm typecheck     # Verifica tipos TypeScript
+pnpm db:generate   # Gera migration a partir de packages/db/src/schema.ts
+pnpm db:migrate    # Aplica migrations (DATABASE_URL em packages/db/.env)
 ```
+
+Deploy de cada app: `pnpm --filter @ameciclo/web deploy` (ameciclo.org) e `pnpm --filter @ameciclo/admin deploy` (admin.ameciclo.org).
 
 ---
 
@@ -104,31 +107,25 @@ pnpm typecheck     # Verifica tipos TypeScript
 
 ```
 ameciclo/
-├── app/
-│   ├── components/      # 220+ componentes React
-│   │   ├── Commom/      # Componentes globais
-│   │   ├── CicloDados/  # Plataforma colaborativa
-│   │   ├── ViasInseguras/ # Análise de vias
-│   │   └── ...
-│   ├── routes/          # 29 rotas (file-based routing via TanStack Router)
-│   ├── loader/          # Loaders para SSR
-│   ├── services/        # Lógica de negócio e APIs
-│   ├── contexts/        # React Context
-│   ├── hooks/           # Custom hooks
-│   └── utils/           # Utilitários
-├── public/              # Assets estáticos
-├── docs/                # Documentação de APIs
-└── package.json
+├── apps/
+│   ├── web/             # Site público (ameciclo.org) — TanStack Start + Worker
+│   │   ├── app/         # components, routes, services, utils...
+│   │   └── public/      # Assets estáticos
+│   └── admin/           # Painel (admin.ameciclo.org) — TanStack Start + Worker
+├── packages/
+│   ├── ui/              # shadcn/ui + tema Tailwind compartilhado
+│   └── db/              # Drizzle: schema, relations, withDb
+└── docker-compose.yml   # Postgres local
 ```
 
 ---
 
 ## 🌐 Variáveis de Ambiente
 
-Em produção (Cloudflare Workers), a configuração vive no `wrangler.jsonc`:
+Em produção (Cloudflare Workers), a configuração vive no `apps/web/wrangler.jsonc`:
 
-- **Valores públicos** (URLs, IDs de calendário, etc.) ficam no bloco `vars` do `wrangler.jsonc` e são acessíveis em runtime via `process.env.*` graças à flag `nodejs_compat`.
-- **Segredos** (tokens, chaves de API) **não** vão no `wrangler.jsonc`. Use:
+- **Valores públicos** (URLs, IDs de calendário, etc.) ficam no bloco `vars` do `apps/web/wrangler.jsonc` e são acessíveis em runtime via `process.env.*` graças à flag `nodejs_compat`.
+- **Segredos** (tokens, chaves de API) **não** vão no `apps/web/wrangler.jsonc`. Use:
 
   ```bash
   wrangler secret put MAPBOX_ACCESS_TOKEN
@@ -144,7 +141,7 @@ MAPBOX_ACCESS_TOKEN=pk.seu_token_aqui
 GOOGLE_CALENDAR_API_KEY=sua_chave_aqui
 ```
 
-Variáveis públicas do `wrangler.jsonc` (`SITE_URL`, `GOOGLE_CALENDAR_EXTERNAL_ID`, `GOOGLE_CALENDAR_INTERNAL_ID`) são carregadas automaticamente.
+Variáveis públicas do `apps/web/wrangler.jsonc` (`SITE_URL`, `GOOGLE_CALENDAR_EXTERNAL_ID`, `GOOGLE_CALENDAR_INTERNAL_ID`) são carregadas automaticamente.
 
 ---
 
@@ -160,7 +157,7 @@ pnpm dlx wrangler login
 pnpm deploy
 ```
 
-A configuração do Worker (nome, domínios customizados, vars) está no `wrangler.jsonc`. O site é servido nos domínios **ameciclo.org** e **www.ameciclo.org**.
+A configuração do Worker (nome, domínios customizados, vars) está no `apps/web/wrangler.jsonc`. O site é servido nos domínios **ameciclo.org** e **www.ameciclo.org**.
 
 ---
 

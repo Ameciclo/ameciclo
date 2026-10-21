@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+@import '@ameciclo/ui/styles.css';
+
+@source './**/*.{ts,tsx}';
+@source '../../../packages/ui/src/**/*.{ts,tsx}';
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}

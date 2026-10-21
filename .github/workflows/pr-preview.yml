@@ -15,7 +15,11 @@ permissions:
 
 jobs:
   preview:
-    name: Deploy Preview
+    name: Deploy Preview ${{ matrix.app }}
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, admin]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -38,10 +42,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm build
+      - run: pnpm --filter @ameciclo/${{ matrix.app }} build
 
       - name: Upload preview version to Cloudflare
         id: deploy
+        working-directory: apps/${{ matrix.app }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
@@ -60,9 +65,9 @@ jobs:
       - name: Comment preview URL on PR
         uses: marocchino/sticky-pull-request-comment@v3
         with:
-          header: pr-preview
+          header: pr-preview-${{ matrix.app }}
           message: |
-            ### 🚀 Preview deploy
+            ### 🚀 Preview deploy (${{ matrix.app }})
 
             | | |
             | --- | --- |

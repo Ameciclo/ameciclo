@@ -1,7 +1,7 @@
 node_modules
 
-/.cache
-/build
+.cache
+build
 .env
 .gemini/
 .playwright-cli/
@@ -38,12 +38,12 @@ node_modules/
 jspm_packages/
 
 # Build outputs
-/build
-/dist
-/.cache
+build
+dist
+.cache
 
 # TanStack Router generated route tree
-app/routeTree.gen.ts
+**/routeTree.gen.ts
 
 # Cloudflare
 .wrangler/
@@ -76,3 +76,4 @@ migrate_files.py
 migration_comparison.py
 migration_review.tsv
 strapi_*.sql
+.tanstack/
