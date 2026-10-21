@@ -60,7 +60,8 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             className="text-ameciclo"
             to="/dados/contagens/$slug"
             params={{ slug: String(row.original.id) }}
-            key={row.original.id}
+            search={{ contagem: row.original.countId }}
+            key={row.original.countId}
           >
             {row.original.name}
           </Link>

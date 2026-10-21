@@ -25,6 +25,7 @@ export const listContagens = createServerFn({ method: "GET" }).handler(async () 
         isPartial: sql<boolean>`(${contagem.observedBuckets} is not null and not ${contagem.isProjected})`,
         totalCyclists: contagem.totalCyclists,
         peakBucketCount: contagem.peakBucketCount,
+        positionsMissing: sql<boolean>`${contagem.approachPositions} is null`,
         localId: local.id,
         localName: local.name,
         warnings: sql<number>`(select count(*)::int from ${importWarning} w where w.contagem_id = ${contagem.id} and w.severity <> 'info' and w.status = 'open')`,

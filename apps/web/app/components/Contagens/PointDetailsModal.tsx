@@ -43,7 +43,7 @@ export function PointDetailsModal({ point, onClose }: PointDetailsModalProps) {
             
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-50 p-3 rounded-lg">
-                <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Data</div>
+                <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{point.popup?.year ? "Última contagem" : "Data"}</div>
                 <div className="font-medium text-gray-900">{point.popup?.date}</div>
               </div>
               <div className="bg-gray-50 p-3 rounded-lg">

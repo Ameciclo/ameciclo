@@ -1,3 +1,4 @@
+import { countNote } from "@ameciclo/db/derive";
 import { METRICS, type PublicCount, type PublicLocation } from "@ameciclo/db/shared";
 import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
 
@@ -9,6 +10,7 @@ export type MapPoint = {
     name: string;
     total: number;
     date: string;
+    year: string;
     url: string;
     obs: string;
     note?: string | null;
@@ -17,13 +19,7 @@ export type MapPoint = {
   color?: string;
 };
 
-// "Estimada": only some hours were observed and the rest projected.
-// "Parcial": only some hours were counted at all.
-export function countNote(count: Pick<PublicCount, "estimated" | "partial">): "Estimada" | "Parcial" | null {
-  if (count.estimated) return "Estimada";
-  if (count.partial) return "Parcial";
-  return null;
-}
+export { countNote } from "@ameciclo/db/derive";
 
 export function getCountingCards(count: PublicCount) {
   const total = count.total_cyclists || 1;
@@ -45,6 +41,7 @@ export function getPointsData(location: PublicLocation, count: PublicCount): Map
         name: location.name,
         total: count.total_cyclists,
         date: IntlDateStr(count.date),
+        year: count.date.slice(0, 4),
         url: `/dados/contagens/${location.id}`,
         obs: "",
         note: countNote(count),
@@ -69,7 +66,8 @@ export function transformOtherCountsForComparison(locations: PublicLocation[], c
     .flatMap((loc) =>
       loc.counts.map((count) => ({
         id: loc.id,
-        name: loc.name,
+        countId: count.id,
+        name: count.variant ? `${loc.name} (${count.variant})` : loc.name,
         date: count.date,
         total_cyclists: count.total_cyclists,
         note: countNote(count),

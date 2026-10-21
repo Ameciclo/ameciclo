@@ -48,6 +48,7 @@ export function useCountsMapData(amecicloData: PublicLocation[] | null, pcrCount
               name: place.name,
               total: latestCount.total_cyclists,
               date: IntlDateStr(latestCount.date),
+              year: latestCount.date.slice(0, 4),
               url: `/dados/contagens/${place.id}`,
               note: countNote(latestCount),
               obs: "As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.",

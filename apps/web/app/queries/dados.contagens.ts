@@ -4,7 +4,6 @@ import { z } from "zod";
 import { METRICS, type PublicCount } from "@ameciclo/db/shared";
 import type { PcrCounting } from "typings";
 import { cmsFetch } from "~/services/cmsFetch";
-import { countNote } from "~/services/counting-details.service";
 import { IntlPercentil } from "~/services/utils";
 import { strapiClient } from "~/lib/strapi";
 
@@ -114,19 +113,9 @@ const fetchContagens = createServerFn().handler(async () => {
         }))
       : [];
 
-  const countsData = (locations ?? []).flatMap((l) =>
-    l.counts.map((c) => ({
-      id: l.id,
-      name: l.name,
-      date: c.date,
-      total_cyclists: c.total_cyclists,
-      note: countNote(c),
-    })),
-  );
-
   return {
     page,
-    summaryData: { summaryData, countsData, cards },
+    summaryData: { summaryData, cards },
     pcrCounts,
     amecicloData: locations,
     atlasApiDown: locations == null,

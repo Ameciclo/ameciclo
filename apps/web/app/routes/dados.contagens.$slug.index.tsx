@@ -23,6 +23,7 @@ import {
   transformOtherCountsForComparison,
 } from "~/services/counting-details.service";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
+import { IntlDateStr, IntlNumber, IntlPercentil } from "~/services/utils";
 import { seo } from "~/utils/seo";
 
 const SearchSchema = z.object({ contagem: z.number().int().positive().optional().catch(undefined) });
@@ -39,22 +40,33 @@ export const Route = createFileRoute("/dados/contagens/$slug/")({
   loader: async ({ context: { queryClient }, params: { slug }, deps }) => {
     const id = parseId(slug);
     if (id === null) throw notFound();
-    const [page] = await Promise.all([
+    const [page, cover] = await Promise.all([
       queryClient.ensureQueryData(contagemPageQueryOptions(id, deps.contagem)),
       queryClient.ensureQueryData(contagensCoverQueryOptions()),
       queryClient.ensureQueryData(contagensLocationsQueryOptions()),
     ]);
     if (!page) throw notFound();
-    return { name: page.location.name };
+    const { location, selected } = page;
+    const facts = [
+      `${IntlNumber(selected.total_cyclists)} ciclistas contados em ${IntlDateStr(selected.date)}`,
+      `pico de ${IntlNumber(selected.max_hour_cyclists)} em uma hora`,
+      selected.total_cyclists > 0 ? `${IntlPercentil(selected.characteristics.women / selected.total_cyclists)} mulheres` : null,
+    ];
+    return {
+      name: location.name,
+      summary: `${facts.filter(Boolean).join("; ")}.`,
+      cover,
+    };
   },
   head: ({ params, loaderData }) => {
     const name = loaderData?.name;
     return seo({
       title: name ? `Contagem ${name} - Ameciclo` : "Contagem - Ameciclo",
       description: name
-        ? `Dados e resultados da contagem de ciclistas realizada pela Ameciclo em ${name}.`
+        ? `Contagem de ciclistas da Ameciclo em ${name}: ${loaderData?.summary}`
         : "Resultados de contagens de ciclistas realizadas pela Ameciclo na Região Metropolitana do Recife.",
       pathname: `/dados/contagens/${params.slug}`,
+      image: loaderData?.cover ?? undefined,
       type: "article",
     });
   },

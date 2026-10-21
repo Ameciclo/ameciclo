@@ -770,7 +770,7 @@ export const AmecicloMap = ({
                                 >
                                     <div className="text-center">
                                         <div className="font-semibold">{hoveredMarker.popup.name}</div>
-                                        <div>{IntlNumber(Number(hoveredMarker.popup.total) || 0)} ciclistas{hoveredMarker.popup.note ? ` · ${hoveredMarker.popup.note}` : ""}</div>
+                                        <div>{IntlNumber(Number(hoveredMarker.popup.total) || 0)} ciclistas{hoveredMarker.popup.year ? ` em ${hoveredMarker.popup.year}` : ""}{hoveredMarker.popup.note ? ` · ${hoveredMarker.popup.note}` : ""}</div>
                                     </div>
                                 </div>
                             </Marker>

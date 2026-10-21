@@ -58,6 +58,7 @@ function getPoints(places: Place[]): MapPoint[] {
               name: location.name,
               total: selected.total_cyclists,
               date: IntlDateStr(selected.date),
+              year: selected.date.slice(0, 4),
               url: `/dados/contagens/${location.id}`,
               obs: "",
               note: countNote(selected),
