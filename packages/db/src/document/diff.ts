@@ -1,3 +1,4 @@
+import { POSITION_LABEL } from "../shared";
 import type {
   ContagemDocument,
   DocumentChange,
@@ -70,6 +71,19 @@ export function diffDocuments(before: ContagemDocument, after: ContagemDocument)
       label: `Aproximação ${i + 1}`,
       before: show(before.approaches[i]),
       after: show(after.approaches[i]),
+    });
+  }
+
+  for (let i = 0; i < approachCount; i++) {
+    const position = (doc: ContagemDocument) => {
+      const p = doc.positions?.[i];
+      return p ? POSITION_LABEL[p] : null;
+    };
+    push({
+      section: "approaches",
+      label: `Posição da aproximação ${i + 1}`,
+      before: position(before),
+      after: position(after),
     });
   }
 

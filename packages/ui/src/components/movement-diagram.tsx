@@ -1,10 +1,13 @@
 import { useId } from "react";
 
 type Topology = "point" | "t_junction" | "crossroad";
+type Position = "N" | "E" | "S" | "W";
 
 type Props = {
   topology: Topology;
   approaches: string[];
+  // Where each approach sits (north up). Without it the approaches follow the default order.
+  positions?: readonly Position[] | null;
   // "fromIdx-toIdx" -> cyclists
   flows: Record<string, number>;
 };
@@ -16,57 +19,35 @@ type Leg = {
   out: Pos;
   in: Pos;
   axis: Pos;
+  road: Pos;
 };
 
-// Legs run clockwise from the top. Positions are illustrative, not compass-true.
-const LEGS: Record<Topology, Leg[]> = {
-  point: [
-    { label: { x: 18, y: 82, align: "start" }, out: { x: 50, y: 132 }, in: { x: 50, y: 108 }, axis: { x: 1, y: 0 } },
-    { label: { x: 302, y: 82, align: "end" }, out: { x: 270, y: 108 }, in: { x: 270, y: 132 }, axis: { x: -1, y: 0 } },
-  ],
-  t_junction: [
-    { label: { x: 18, y: 66, align: "start" }, out: { x: 70, y: 112 }, in: { x: 70, y: 88 }, axis: { x: 1, y: 0 } },
-    { label: { x: 302, y: 66, align: "end" }, out: { x: 250, y: 88 }, in: { x: 250, y: 112 }, axis: { x: -1, y: 0 } },
-    { label: { x: 160, y: 208, align: "middle" }, out: { x: 148, y: 175 }, in: { x: 172, y: 175 }, axis: { x: 0, y: -1 } },
-  ],
-  crossroad: [
-    { label: { x: 160, y: 12, align: "middle" }, out: { x: 172, y: 50 }, in: { x: 148, y: 50 }, axis: { x: 0, y: 1 } },
-    { label: { x: 302, y: 82, align: "end" }, out: { x: 270, y: 108 }, in: { x: 270, y: 132 }, axis: { x: -1, y: 0 } },
-    { label: { x: 160, y: 208, align: "middle" }, out: { x: 148, y: 190 }, in: { x: 172, y: 190 }, axis: { x: 0, y: -1 } },
-    { label: { x: 18, y: 82, align: "start" }, out: { x: 50, y: 132 }, in: { x: 50, y: 108 }, axis: { x: 1, y: 0 } },
-  ],
+const CENTER: Pos = { x: 160, y: 120 };
+
+const LEGS: Record<Position, Leg> = {
+  N: { label: { x: 160, y: 12, align: "middle" }, out: { x: 172, y: 50 }, in: { x: 148, y: 50 }, axis: { x: 0, y: 1 }, road: { x: 160, y: 20 } },
+  E: { label: { x: 302, y: 82, align: "end" }, out: { x: 270, y: 108 }, in: { x: 270, y: 132 }, axis: { x: -1, y: 0 }, road: { x: 300, y: 120 } },
+  S: { label: { x: 160, y: 208, align: "middle" }, out: { x: 148, y: 190 }, in: { x: 172, y: 190 }, axis: { x: 0, y: -1 }, road: { x: 160, y: 215 } },
+  W: { label: { x: 18, y: 82, align: "start" }, out: { x: 50, y: 132 }, in: { x: 50, y: 108 }, axis: { x: 1, y: 0 }, road: { x: 20, y: 120 } },
+};
+
+const DEFAULT_POSITIONS: Record<Topology, readonly Position[]> = {
+  point: ["W", "E"],
+  t_junction: ["W", "E", "S"],
+  crossroad: ["N", "E", "S", "W"],
 };
 
 const TANGENT = 32;
 
 const truncate = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
-function Roads({ topology }: { topology: Topology }) {
-  return (
-    <g stroke="var(--color-foreground)" strokeWidth={30} opacity={0.07} strokeLinecap="round">
-      {topology === "point" && <line x1={20} y1={120} x2={300} y2={120} />}
-      {topology === "t_junction" && (
-        <>
-          <line x1={20} y1={100} x2={300} y2={100} />
-          <line x1={160} y1={100} x2={160} y2={215} />
-        </>
-      )}
-      {topology === "crossroad" && (
-        <>
-          <line x1={20} y1={120} x2={300} y2={120} />
-          <line x1={160} y1={20} x2={160} y2={215} />
-        </>
-      )}
-    </g>
-  );
-}
-
-export function MovementDiagram({ topology, approaches, flows }: Props) {
+export function MovementDiagram({ topology, approaches, positions, flows }: Props) {
   const id = useId();
-  const legs = LEGS[topology];
+  const placed =
+    positions && positions.length === approaches.length ? positions : DEFAULT_POSITIONS[topology].slice(0, approaches.length);
+  const legs = placed.map((p) => LEGS[p]);
   const count = legs.length;
-  const values = Object.values(flows);
-  const max = Math.max(1, ...values);
+  const max = Math.max(1, ...Object.values(flows));
 
   const outgoing = (from: number) =>
     Array.from({ length: count }, (_, to) => (to === from ? 0 : (flows[`${from}-${to}`] ?? 0))).reduce(
@@ -89,7 +70,11 @@ export function MovementDiagram({ topology, approaches, flows }: Props) {
         </marker>
       </defs>
 
-      <Roads topology={topology} />
+      <g stroke="var(--color-foreground)" strokeWidth={30} opacity={0.07} strokeLinecap="round">
+        {legs.map((leg, i) => (
+          <line key={i} x1={CENTER.x} y1={CENTER.y} x2={leg.road.x} y2={leg.road.y} />
+        ))}
+      </g>
 
       {curves.map(({ from, to, value }) => {
         const a = legs[from];

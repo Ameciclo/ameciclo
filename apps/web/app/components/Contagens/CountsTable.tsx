@@ -1,12 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import React, { useState, useMemo } from "react";
-import type { ContagemData } from "~/services/contagens.service";
-import { IntlDateStr } from "~/services/utils";
+import { IntlDateStr, IntlNumber } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
 import { ColumnFilter } from "~/components/Commom/Table/TableFilters";
 
+export type CountsTableRow = {
+  id: number;
+  name: string;
+  date: string;
+  total_cyclists: number;
+  note: "Estimada" | "Parcial" | null;
+};
+
 interface ContagensTableProps {
-  data: ContagemData[];
+  data: CountsTableRow[];
 }
 
 // Componente de filtro de valor aproximado adaptado para a tabela de contagens
@@ -50,8 +57,7 @@ export function CountsTable({ data }: ContagensTableProps) {
         Header: "Nome",
         accessor: "name",
         Cell: ({ row }: any) => {
-          // Generate slug from ID and name if slug doesn't exist
-          const slug = row.original.id || `${row.original.id}`;
+          const slug = row.original.id;
           return (
             <Link
               className="text-ameciclo hover:underline"
@@ -73,6 +79,16 @@ export function CountsTable({ data }: ContagensTableProps) {
       {
         Header: "Total de Ciclistas",
         accessor: "total_cyclists",
+        Cell: ({ row }: any) => (
+          <span className="inline-flex items-center gap-2">
+            {IntlNumber(row.original.total_cyclists)}
+            {row.original.note && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                {row.original.note}
+              </span>
+            )}
+          </span>
+        ),
         Filter: RangeValueFilter,
         filter: (rows: any, id: any, filterValue: any) => {
           const [min, max] = filterValue || [];
@@ -89,7 +105,7 @@ export function CountsTable({ data }: ContagensTableProps) {
         Header: "Dados",
         accessor: "id",
         Cell: ({ row }: any) => {
-          const locationId = row.original.slug?.split('-')[0] || row.original.id;
+          const locationId = row.original.id;
           return (
             <a
               className="text-ameciclo hover:underline"

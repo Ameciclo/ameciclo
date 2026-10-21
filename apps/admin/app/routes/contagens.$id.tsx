@@ -387,7 +387,7 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
             <div className="grid items-start gap-6 lg:grid-cols-2">
               {row.approaches.length <= 4 ? (
                 <div className="flex justify-center rounded-md border bg-muted/30 p-4">
-                  <MovementDiagram topology={row.topology} approaches={row.approaches} flows={flows} />
+                  <MovementDiagram topology={row.topology} approaches={row.approaches} positions={row.approachPositions} flows={flows} />
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
@@ -397,7 +397,7 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
               <DataTable columns={matrixColumns} data={matrixRows} pageSize={100} />
             </div>
             <p className="text-xs text-muted-foreground">
-              A posição das aproximações no desenho é ilustrativa, não segue a bússola.
+              {row.approachPositions ? "Posições conforme definidas na contagem (norte em cima)." : "A posição das aproximações no desenho é ilustrativa."}
             </p>
           </div>
         </Section>

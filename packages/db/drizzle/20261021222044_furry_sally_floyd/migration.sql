@@ -1,0 +1,1 @@
+ALTER TABLE "contagem" ADD COLUMN "approach_positions" text[];

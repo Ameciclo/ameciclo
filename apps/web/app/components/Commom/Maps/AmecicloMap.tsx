@@ -8,6 +8,7 @@ import * as turf from "@turf/helpers";
 import { pointData } from "../../../../typings";
 
 import { Move } from 'lucide-react';
+import { IntlNumber } from "~/services/utils";
 
 
 
@@ -769,7 +770,7 @@ export const AmecicloMap = ({
                                 >
                                     <div className="text-center">
                                         <div className="font-semibold">{hoveredMarker.popup.name}</div>
-                                        <div>{hoveredMarker.popup.total} ciclistas</div>
+                                        <div>{IntlNumber(Number(hoveredMarker.popup.total) || 0)} ciclistas{hoveredMarker.popup.note ? ` · ${hoveredMarker.popup.note}` : ""}</div>
                                     </div>
                                 </div>
                             </Marker>

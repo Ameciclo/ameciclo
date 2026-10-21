@@ -21,8 +21,4 @@ export function hourLabel(startHour: number, bucket: number, bucketMinutes: numb
   return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, "0")}`;
 }
 
-export const TOPOLOGY_LABEL: Record<string, string> = {
-  point: "Ponto",
-  t_junction: "Junção em T",
-  crossroad: "Cruzamento",
-};
+export { TOPOLOGY_LABEL } from "@ameciclo/db/shared";

@@ -3,44 +3,18 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import type { relations } from "./relations";
 import { contagem, local, observation } from "./schema";
+import {
+  METRICS,
+  type PublicCharacteristics,
+  type PublicCount,
+  type PublicCountDetail,
+  type PublicLocation,
+  type PublicSeries,
+} from "./shared";
 
 type Db = NodePgDatabase<typeof relations>;
 
-export type PublicCharacteristics = {
-  women: number;
-  juveniles: number;
-  ride: number;
-  helmet: number;
-  service: number;
-  cargo: number;
-  shared_bike: number;
-  sidewalk: number;
-  wrong_way: number;
-  motor: number;
-};
-
-export type PublicCount = {
-  id: number;
-  date: string;
-  variant: string | null;
-  total_cyclists: number;
-  max_hour_cyclists: number;
-  // True when the total is a projection of a peak-hour count.
-  estimated: boolean;
-  // True when only some hours were counted and nothing was projected.
-  partial: boolean;
-  characteristics: PublicCharacteristics;
-};
-
-// Same shape the site used to read from the Atlas API, so pages need no changes.
-export type PublicLocation = {
-  id: number;
-  name: string;
-  slug: string;
-  latitude: number | null;
-  longitude: number | null;
-  counts: PublicCount[];
-};
+export type { PublicCharacteristics, PublicCount, PublicLocation } from "./shared";
 
 // The spreadsheet's own total row wins when it exists, because that is the number
 // that was always published; the nested rows are the fallback.
@@ -153,33 +127,9 @@ export async function loadPublicLocations(db: Db, options: { localId?: number } 
   return [...locations.values()];
 }
 
-export type PublicSeries = { name: string; data: number[]; visible?: boolean };
+export type { PublicCountDetail, PublicSeries } from "./shared";
 
-export type PublicCountDetail = {
-  id: number;
-  date: string;
-  approaches: string[];
-  topology: "point" | "t_junction" | "crossroad";
-  hours: number[];
-  series: PublicSeries[];
-  flows: { from: number; to: number; value: number }[];
-  estimated: boolean;
-  // Hours with real counts when the count is partial or projected; null when all hours were counted.
-  observedHours: number[] | null;
-  partial: boolean;
-};
-
-const SERIES_LABELS = [
-  ["women", "Mulheres"],
-  ["juveniles", "Crianças e Adolescentes"],
-  ["ride", "Carona"],
-  ["helmet", "Capacete"],
-  ["service", "Serviço"],
-  ["cargo", "Cargueira"],
-  ["shared_bike", "Compartilhada"],
-  ["sidewalk", "Calçada"],
-  ["wrong_way", "Contramão"],
-] as const;
+const SERIES_METRICS = METRICS.filter((m) => m.card);
 
 // Hourly movements and characteristics of one published contagem, for the
 // flow diagram and the hourly chart.
@@ -235,7 +185,7 @@ export async function loadPublicCountDetail(db: Db, contagemId: number): Promise
 
   const series: PublicSeries[] = [
     { name: "Total", data: total },
-    ...SERIES_LABELS.map(([key, name]): PublicSeries => ({ name, data: byName[key], visible: false })),
+    ...SERIES_METRICS.map((m): PublicSeries => ({ name: m.label, data: byName[m.key], visible: false })),
   ];
 
   const partial = !row.isProjected && row.observedBuckets !== null;
@@ -243,6 +193,7 @@ export async function loadPublicCountDetail(db: Db, contagemId: number): Promise
     id: row.id,
     date: row.date,
     approaches: row.approaches,
+    positions: row.approachPositions,
     topology: row.topology,
     hours,
     series,

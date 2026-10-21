@@ -18,6 +18,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import type { ContagemDocument } from "./document/types";
+import type { Position } from "./shared";
 
 export const topologyEnum = pgEnum("topology", ["point", "t_junction", "crossroad"]);
 export const granularityEnum = pgEnum("granularity", ["hourly", "total"]);
@@ -69,6 +70,8 @@ export const contagem = pgTable(
     topology: topologyEnum("topology").notNull(),
     // Ordered approach labels, snapshotted per count. Movement indexes point here.
     approaches: text("approaches").array().notNull(),
+    // N/E/S/W per approach, same order as approaches; null when unknown.
+    approachPositions: text("approach_positions").$type<Position>().array(),
     bucketMinutes: smallint("bucket_minutes").notNull().default(60),
     granularity: granularityEnum("granularity").notNull().default("hourly"),
     // Bucket indexes actually counted; null means every bucket.

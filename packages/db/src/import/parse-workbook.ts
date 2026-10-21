@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 
+import type { Position } from "../shared";
 import { type Block, normalizeLabel, resolveCharacteristic } from "./characteristics";
 
 export const PARSER_VERSION = "1";
@@ -47,6 +48,7 @@ export type ParsedContagem = {
   longitude: number | null;
   reportUrl: string | null;
   approaches: string[];
+  positions: Position[] | null;
   topology: "point" | "t_junction" | "crossroad";
   bucketMinutes: number;
   startHour: number;
@@ -291,6 +293,40 @@ function parseResumo(ws: ExcelJS.Worksheet | undefined) {
   };
 }
 
+// The Fluxo sheet is a sketch of the intersection with each approach name written
+// on its side. The side of the whole sketch an approach sits on gives its position.
+function inferPositions(grid: Grid, approaches: string[]): Position[] | null {
+  if (approaches.length < 2 || approaches.length > 4) return null;
+  const key = (text: string) => normalizeLabel(text).replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+
+  const centers = approaches.map((name) => {
+    const wanted = key(name);
+    const hits: { r: number; c: number }[] = [];
+    grid.forEach((row, r) =>
+      row.forEach((cell, c) => {
+        if (typeof cell === "string" && key(cell) === wanted) hits.push({ r, c });
+      }),
+    );
+    if (hits.length === 0) return null;
+    return {
+      r: hits.reduce((s, h) => s + h.r, 0) / hits.length,
+      c: hits.reduce((s, h) => s + h.c, 0) / hits.length,
+    };
+  });
+  if (centers.some((c) => c === null)) return null;
+  const found = centers.flatMap((c) => (c ? [c] : []));
+
+  const meanR = found.reduce((s, c) => s + c.r, 0) / found.length;
+  const meanC = found.reduce((s, c) => s + c.c, 0) / found.length;
+  const positions = found.map((c): Position => {
+    const dy = c.r - meanR;
+    const dx = c.c - meanC;
+    if (Math.abs(dy) > Math.abs(dx)) return dy < 0 ? "N" : "S";
+    return dx < 0 ? "W" : "E";
+  });
+  return new Set(positions).size === positions.length ? positions : null;
+}
+
 function topologyOf(n: number): ParsedContagem["topology"] {
   if (n <= 2) return "point";
   if (n === 3) return "t_junction";
@@ -326,6 +362,7 @@ export async function parseWorkbook(
       longitude: resumo.longitude,
       reportUrl: resumo.reportUrl,
       approaches: [],
+      positions: null,
       topology: "crossroad",
       bucketMinutes: 60,
       startHour: 6,
@@ -351,6 +388,8 @@ export async function parseWorkbook(
     warn("info", "approach_typo", `Approach "${wrong}" merged into "${right}"`);
   }
   const approaches = approachesOf(table.rows);
+  const fluxo = wb.getWorksheet("Fluxo");
+  const approachPositions = fluxo ? inferPositions(readGrid(fluxo), approaches) : null;
   if (approaches.length > 4) {
     warn("warning", "many_approaches", `${approaches.length} approaches found; stored as crossroad`);
   }
@@ -548,6 +587,7 @@ export async function parseWorkbook(
     longitude: resumo.longitude,
     reportUrl: resumo.reportUrl,
     approaches,
+    positions: approachPositions,
     topology: topologyOf(approaches.length),
     bucketMinutes,
     startHour,

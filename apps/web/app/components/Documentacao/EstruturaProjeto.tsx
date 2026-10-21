@@ -46,8 +46,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   ├── loader/             # Loaders para SSR e data fetching
 │   │   ├── home.ts, agenda.ts, projetos.ts, quemsomos.ts
 │   │   ├── dados.contagens.ts, dados.ideciclo.ts
-│   │   ├── dados.sinistros-fatais.ts, dados.samu.ts
-│   │   └── compareContagensLoader.ts
+│   │   └── dados.sinistros-fatais.ts, dados.samu.ts
 │   ├── services/           # Serviços e APIs
 │   │   ├── fetchWithTimeout.ts  # Fetch com timeout e fallback
 │   │   ├── cmsApi.ts            # Integração com Strapi CMS
@@ -138,7 +137,6 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
             <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
               <li>• <strong>home.ts</strong> - Dados da home (projetos, contagens)</li>
               <li>• <strong>dados.contagens.ts</strong> - Lista de contagens da API</li>
-              <li>• <strong>compareContagensLoader.ts</strong> - Comparação de contagens</li>
               <li>• <strong>dados.ideciclo.ts</strong> - Dados do índice de ciclabilidade</li>
               <li>• <strong>dados.sinistros-fatais.ts</strong> - Dados de sinistros</li>
               <li>• <strong>dados.vias-inseguras.ts</strong> - Ranking de vias</li>

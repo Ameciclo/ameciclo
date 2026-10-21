@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import { pointData, PcrCounting } from "typings";
+import type { PublicLocation } from "@ameciclo/db/shared";
+import type { pointData, PcrCounting } from "typings";
+import { countNote } from "~/services/counting-details.service";
 import { IntlDateStr } from "~/services/utils";
 
 const calculateMarkerSize = (totalCyclists: number) => {
@@ -17,7 +19,7 @@ const isValidCoordinate = (point: pointData) =>
   point.longitude >= -180 &&
   point.longitude <= 180;
 
-export function useCountsMapData(amecicloData: any[], pcrCounts: PcrCounting[]) {
+export function useCountsMapData(amecicloData: PublicLocation[] | null, pcrCounts: PcrCounting[]) {
   const hasAmecicloData = amecicloData && amecicloData.length > 0;
   const hasPcrData = pcrCounts && pcrCounts.length > 0;
 
@@ -32,28 +34,28 @@ export function useCountsMapData(amecicloData: any[], pcrCounts: PcrCounting[]) 
   const atlasAmecicloPoints: pointData[] = useMemo(() => {
     if (!hasAmecicloData) return [];
 
-    return (amecicloData || [])
-      .map((ponto: any) => {
-        const lat = parseFloat(ponto.latitude);
-        const lng = parseFloat(ponto.longitude);
-        const latestCount = ponto.counts?.[0];
-        const totalCyclists = latestCount?.total_cyclists || 0;
-
-        return {
-          key: `atlas_ameciclo_${ponto.id}`,
-          type: "ameciclo",
-          latitude: lat,
-          longitude: lng,
-          popup: {
-            name: ponto.name || "Contagem Ameciclo",
-            total: totalCyclists,
-            date: latestCount?.date ? IntlDateStr(latestCount.date) : "Sem data",
-            url: `/dados/contagens/${ponto.id}`,
-            obs: "As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.",
+    return (amecicloData ?? [])
+      .flatMap((place): pointData[] => {
+        const latestCount = place.counts[0];
+        if (place.latitude === null || place.longitude === null || !latestCount) return [];
+        return [
+          {
+            key: `atlas_ameciclo_${place.id}`,
+            type: "ameciclo",
+            latitude: place.latitude,
+            longitude: place.longitude,
+            popup: {
+              name: place.name,
+              total: latestCount.total_cyclists,
+              date: IntlDateStr(latestCount.date),
+              url: `/dados/contagens/${place.id}`,
+              note: countNote(latestCount),
+              obs: "As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.",
+            },
+            size: calculateMarkerSize(latestCount.total_cyclists),
+            color: "#008888",
           },
-          size: calculateMarkerSize(totalCyclists),
-          color: "#008888",
-        };
+        ];
       })
       .filter(isValidCoordinate);
   }, [amecicloData, hasAmecicloData]);

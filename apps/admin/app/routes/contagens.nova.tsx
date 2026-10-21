@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { buildNewDocument, TOPOLOGY_APPROACHES } from "@ameciclo/db/document";
+import { assignPosition, DEFAULT_POSITIONS, isPosition, type Position, POSITION_LABEL, POSITIONS } from "@ameciclo/db/shared";
 import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { Input } from "@ameciclo/ui/components/input";
@@ -54,10 +55,12 @@ function NewContagemPage() {
   const [bucketMinutes, setBucketMinutes] = useState(60);
   const [topology, setTopology] = useState<Topology>("crossroad");
   const [approaches, setApproaches] = useState<string[]>(["", "", "", ""]);
+  const [chosenPositions, setChosenPositions] = useState<Position[] | null>(null);
   const [reportUrl, setReportUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const count = TOPOLOGY_APPROACHES[topology];
+  const positions = chosenPositions ?? [...DEFAULT_POSITIONS[topology]].slice(0, count);
   const toNumber = (v: string) => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
 
   const problems = [
@@ -81,6 +84,7 @@ function NewContagemPage() {
             bucketMinutes,
             topology,
             approaches: approaches.slice(0, count).map((a) => a.trim()),
+            positions: chosenPositions,
             reportUrl: reportUrl.trim() || null,
           }),
           newLocal:
@@ -205,7 +209,10 @@ function NewContagemPage() {
               type="single"
               value={topology}
               onValueChange={(v) => {
-                if (isTopology(v)) setTopology(v);
+                if (isTopology(v)) {
+                  setTopology(v);
+                  setChosenPositions(null);
+                }
               }}
             >
               {(Object.keys(TOPOLOGY_APPROACHES) as Topology[]).map((t) => (
@@ -218,16 +225,35 @@ function NewContagemPage() {
               <div className="grid content-start gap-4 sm:grid-cols-2">
                 {Array.from({ length: count }, (_, i) => (
                   <Field key={i} id={`new-approach-${i}`} label={`Aproximação ${i + 1}`}>
-                    <Input
-                      id={`new-approach-${i}`}
-                      value={approaches[i] ?? ""}
-                      onChange={(e) => setApproaches((prev) => Array.from({ length: 4 }, (_, j) => (j === i ? e.target.value : (prev[j] ?? ""))))}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id={`new-approach-${i}`}
+                        value={approaches[i] ?? ""}
+                        onChange={(e) => setApproaches((prev) => Array.from({ length: 4 }, (_, j) => (j === i ? e.target.value : (prev[j] ?? ""))))}
+                      />
+                      <Select
+                        value={positions[i]}
+                        onValueChange={(v) => {
+                          if (isPosition(v)) setChosenPositions(assignPosition(positions, i, v));
+                        }}
+                      >
+                        <SelectTrigger className="w-28 shrink-0" aria-label={`Posição da aproximação ${i + 1}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {POSITIONS.map((p) => (
+                            <SelectItem key={p} value={p}>
+                              {POSITION_LABEL[p]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </Field>
                 ))}
               </div>
               <div className="flex justify-center rounded-md border bg-muted/30 p-3">
-                <MovementDiagram topology={topology} approaches={approaches.slice(0, count)} flows={{}} />
+                <MovementDiagram topology={topology} approaches={approaches.slice(0, count)} positions={positions} flows={{}} />
               </div>
             </div>
           </CardContent>

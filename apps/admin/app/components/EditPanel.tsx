@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { isPosition, POSITION_LABEL, POSITIONS } from "@ameciclo/db/shared";
 import {
   addObservationRow,
+  effectivePositions,
+  setPosition,
   type ContagemDocument,
   diffDocuments,
   hourText,
@@ -155,6 +158,8 @@ export function EditPanel({ contagemId, original, version, dictionary, onCancel,
     const present = new Set(draft.observations.map((o) => o.characteristicKey));
     return dictionary.filter((d) => !d.isRollup && (d.key === "outros" || !present.has(d.key)));
   }, [dictionary, draft.observations]);
+
+  const positions = effectivePositions(draft);
 
   const flows = useMemo(() => {
     const sums: Record<string, number> = {};
@@ -395,7 +400,26 @@ export function EditPanel({ contagemId, original, version, dictionary, onCancel,
               <Label htmlFor={`edit-approach-${i}`} className="text-muted-foreground">
                 Aproximação {i + 1}
               </Label>
-              <Input id={`edit-approach-${i}`} value={name} onChange={(e) => setApproach(i, e.target.value)} />
+              <div className="flex gap-2">
+                <Input id={`edit-approach-${i}`} value={name} onChange={(e) => setApproach(i, e.target.value)} />
+                <Select
+                  value={positions[i]}
+                  onValueChange={(v) => {
+                    if (isPosition(v)) setDraft((d) => setPosition(d, i, v));
+                  }}
+                >
+                  <SelectTrigger className="w-28 shrink-0" aria-label={`Posição da aproximação ${i + 1}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {POSITIONS.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {POSITION_LABEL[p]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           ))}
           <div className="space-y-1 text-sm sm:col-span-2">
@@ -407,7 +431,7 @@ export function EditPanel({ contagemId, original, version, dictionary, onCancel,
           </div>
           {draft.approaches.length <= 4 && (
             <div className="flex items-start justify-center rounded-md border bg-muted/30 p-3">
-              <MovementDiagram topology={draft.header.topology} approaches={draft.approaches} flows={flows} />
+              <MovementDiagram topology={draft.header.topology} approaches={draft.approaches} positions={positions} flows={flows} />
             </div>
           )}
         </CardContent>

@@ -127,6 +127,7 @@ export async function loadDocument(
       layout: row.layout,
     },
     approaches: row.approaches,
+    positions: row.approachPositions,
     movements: [...movementMap.values()].sort((a, b) => a.basis.localeCompare(b.basis) || a.from - b.from || a.to - b.to),
     observations: [...observationMap.values()].sort(
       (a, b) => a.basis.localeCompare(b.basis) || a.block.localeCompare(b.block) || a.position - b.position,
@@ -174,6 +175,7 @@ async function writeDocument(tx: Db, id: number, doc: ContagemDocument, version:
       endedAt: h.endedAt,
       topology: h.topology,
       approaches: doc.approaches,
+      approachPositions: doc.positions ?? null,
       bucketMinutes: h.bucketMinutes,
       granularity: h.granularity,
       observedBuckets: h.observedBuckets,

@@ -1,3 +1,5 @@
+import type { Position } from "../shared";
+
 export type Basis = "observed" | "projected";
 export type Block = "padroes" | "observacoes";
 
@@ -57,6 +59,8 @@ export type ContagemDocument = {
   schemaVersion: 1;
   header: DocumentHeader;
   approaches: string[];
+  // Where each approach sits around the intersection; absent or null when unknown.
+  positions?: Position[] | null;
   movements: DocumentMovement[];
   observations: DocumentObservation[];
   conditions: DocumentCondition[];

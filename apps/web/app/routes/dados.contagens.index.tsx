@@ -38,7 +38,6 @@ export const Route = createFileRoute("/dados/contagens/")({
 function Contagens() {
   const { data: { page, summaryData, pcrCounts, amecicloData, atlasApiDown } } =
     useSuspenseQuery(contagensQueryOptions());
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
 
   const statistics = useCountsStatistics(summaryData.summaryData);
@@ -73,7 +72,7 @@ function Contagens() {
       />
 
       <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
-      <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
+      <CountsTable data={summaryData.countsData} />
       <CardsSession
         title={"Documentos para realizar contagens de ciclistas."}
         cards={docs}

@@ -6,7 +6,8 @@
     ".": "./src/index.ts",
     "./import": "./src/import/index.ts",
     "./schema": "./src/schema.ts",
-    "./document": "./src/document/index.ts"
+    "./document": "./src/document/index.ts",
+    "./shared": "./src/shared.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",

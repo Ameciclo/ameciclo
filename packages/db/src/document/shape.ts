@@ -1,3 +1,4 @@
+import { assignPosition, DEFAULT_POSITIONS, type Position } from "../shared";
 import type { Basis, ContagemDocument, DocumentMovement } from "./types";
 
 export const TOPOLOGY_APPROACHES = { point: 2, t_junction: 3, crossroad: 4 } as const;
@@ -24,7 +25,9 @@ export function reshapeTopology(doc: ContagemDocument, topology: ContagemDocumen
     }
   }
   movements.sort((a, b) => a.basis.localeCompare(b.basis) || a.from - b.from || a.to - b.to);
-  return { ...doc, header: { ...doc.header, topology }, approaches, movements };
+  // Positions only survive when the number of approaches did not change.
+  const positions = doc.positions && doc.positions.length === n ? doc.positions : null;
+  return { ...doc, header: { ...doc.header, topology }, approaches, positions, movements };
 }
 
 export type NewContagemInput = {
@@ -36,6 +39,7 @@ export type NewContagemInput = {
   bucketMinutes: number;
   topology: ContagemDocument["header"]["topology"];
   approaches: string[];
+  positions?: Position[] | null;
   reportUrl: string | null;
 };
 
@@ -63,6 +67,7 @@ export function buildNewDocument(input: NewContagemInput): ContagemDocument {
       layout: null,
     },
     approaches: input.approaches,
+    positions: input.positions ?? null,
     movements: [
       { basis: "observed", from: 0, to: 1, cells: Array.from<number>({ length: bucketCount }).fill(0), total: null },
     ],
@@ -91,4 +96,14 @@ export function addObservationRow(doc: ContagemDocument, key: string, label: str
       },
     ],
   };
+}
+
+// The stored positions, or the default order when none were set.
+export function effectivePositions(doc: ContagemDocument): Position[] {
+  if (doc.positions && doc.positions.length === doc.approaches.length) return doc.positions;
+  return [...DEFAULT_POSITIONS[doc.header.topology]].slice(0, doc.approaches.length);
+}
+
+export function setPosition(doc: ContagemDocument, index: number, position: Position): ContagemDocument {
+  return { ...doc, positions: assignPosition(effectivePositions(doc), index, position) };
 }

@@ -11,6 +11,11 @@ export function validateDocument(doc: ContagemDocument): string[] {
     if (!a.trim()) problems.push(`A aproximação ${i + 1} está sem nome.`);
   });
 
+  if (doc.positions) {
+    if (doc.positions.length !== doc.approaches.length) problems.push("Cada aproximação precisa de uma posição.");
+    else if (new Set(doc.positions).size !== doc.positions.length) problems.push("Duas aproximações não podem ter a mesma posição.");
+  }
+
   const bucketCount =
     h.startedAt && h.endedAt
       ? Math.round(((Number.parseInt(h.endedAt, 10) - Number.parseInt(h.startedAt, 10)) * 60) / h.bucketMinutes)

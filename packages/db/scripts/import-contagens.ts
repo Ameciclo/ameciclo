@@ -211,6 +211,7 @@ async function main() {
             endedAt: `${pad(Math.floor(endHour))}:00:00`,
             topology: parsed.topology,
             approaches: parsed.approaches,
+            approachPositions: parsed.positions,
             bucketMinutes: parsed.bucketMinutes,
             observedBuckets: parsed.observedBuckets,
             isProjected: parsed.isProjected,
