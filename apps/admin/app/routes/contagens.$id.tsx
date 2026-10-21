@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@ameciclo/ui/components/badge";
 import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
@@ -66,14 +66,6 @@ function gridColumns(
       cell: ({ row }) => (
         <span className="font-semibold">
           {formatNumber(row.original.total)}
-          {row.original.partsTotal !== undefined && (
-            <span
-              className="ml-1 text-xs font-normal text-amber-600"
-              title="O total da planilha difere da soma das linhas aninhadas"
-            >
-              partes: {formatNumber(row.original.partsTotal)}
-            </span>
-          )}
         </span>
       ),
       meta: { headClassName: "text-right", cellClassName: "text-right tabular-nums" },
@@ -252,6 +244,15 @@ function ContagemPage() {
       >
         {r.label}
       </span>
+      {r.partsTotal !== undefined && (
+        <span
+          role="img"
+          aria-label="Total diverge da soma das partes"
+          title={`O total da planilha é ${formatNumber(r.total)}, mas as linhas aninhadas somam ${formatNumber(r.partsTotal)}`}
+        >
+          <AlertTriangle className="size-4 text-orange-500" />
+        </span>
+      )}
       {!r.mapped && <Badge variant="outline">sem mapa</Badge>}
     </div>
   );
