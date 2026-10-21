@@ -13,6 +13,7 @@ export const relations = defineRelations(schema, (r) => ({
     conditions: r.many.condition(),
     annotations: r.many.note(),
     warnings: r.many.importWarning(),
+    revisions: r.many.contagemRevision(),
   },
   movementCount: {
     contagem: r.one.contagem({ from: r.movementCount.contagemId, to: r.contagem.id }),
@@ -41,6 +42,9 @@ export const relations = defineRelations(schema, (r) => ({
     }),
     children: r.many.characteristic({ alias: "characteristic_parent" }),
     aliases: r.many.characteristicAlias(),
+  },
+  contagemRevision: {
+    contagem: r.one.contagem({ from: r.contagemRevision.contagemId, to: r.contagem.id }),
   },
   characteristicAlias: {
     characteristic: r.one.characteristic({

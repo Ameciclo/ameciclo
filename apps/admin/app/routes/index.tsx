@@ -1,25 +1,27 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { formatDate, formatNumber } from "~/lib/format";
-import { listCharacteristics, listContagens, listLocals } from "~/queries/contagens";
+import { characteristicsQueryOptions, contagensQueryOptions, localsQueryOptions } from "~/queries/contagens";
 
 export const Route = createFileRoute("/")({
-  loader: async () => {
-    const [contagens, locals, characteristics] = await Promise.all([
-      listContagens(),
-      listLocals(),
-      listCharacteristics(),
+  loader: async ({ context: { queryClient } }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(contagensQueryOptions()),
+      queryClient.ensureQueryData(localsQueryOptions()),
+      queryClient.ensureQueryData(characteristicsQueryOptions()),
     ]);
-    return { contagens, locals, characteristics };
   },
   component: AdminDashboard,
 });
 
 function AdminDashboard() {
-  const { contagens, locals, characteristics } = Route.useLoaderData();
+  const { data: contagens } = useSuspenseQuery(contagensQueryOptions());
+  const { data: locals } = useSuspenseQuery(localsQueryOptions());
+  const { data: characteristics } = useSuspenseQuery(characteristicsQueryOptions());
   const projected = contagens.filter((c) => c.isProjected).length;
   const withWarnings = contagens.filter((c) => c.warnings > 0).length;
   const total = contagens.reduce((sum, c) => sum + (c.totalCyclists ?? 0), 0);

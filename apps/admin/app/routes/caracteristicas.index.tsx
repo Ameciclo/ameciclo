@@ -1,13 +1,14 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Badge } from "@ameciclo/ui/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { DataTable, type TableColumn } from "~/components/DataTable";
 import { formatNumber } from "~/lib/format";
-import { listCharacteristics } from "~/queries/contagens";
+import { characteristicsQueryOptions, type listCharacteristics } from "~/queries/contagens";
 
 export const Route = createFileRoute("/caracteristicas/")({
-  loader: () => listCharacteristics(),
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(characteristicsQueryOptions()),
   component: CharacteristicsPage,
 });
 
@@ -62,7 +63,9 @@ const unmappedColumns: TableColumn<UnmappedRow>[] = [
 ];
 
 function CharacteristicsPage() {
-  const { dictionary, unmapped } = Route.useLoaderData();
+  const {
+    data: { dictionary, unmapped },
+  } = useSuspenseQuery(characteristicsQueryOptions());
   return (
     <>
       <AdminTopbar

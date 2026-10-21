@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronDown, ChevronRight, Pencil } from "lucide-react";
 import { Badge } from "@ameciclo/ui/components/badge";
 import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
@@ -8,13 +9,21 @@ import { AdminTopbar } from "~/components/AdminTopbar";
 import { DataTable, type TableColumn, type TableRowOf } from "~/components/DataTable";
 import { MovementDiagram } from "~/components/MovementDiagram";
 import { formatDate, formatNumber, hourLabel, TOPOLOGY_LABEL } from "~/lib/format";
-import { getContagem } from "~/queries/contagens";
+import { EditPanel } from "~/components/EditPanel";
+import { HistoryPanel } from "~/components/HistoryPanel";
+import {
+  contagemQueryOptions,
+  documentQueryOptions,
+  type getContagem,
+  revisionsQueryOptions,
+} from "~/queries/contagens";
 
 export const Route = createFileRoute("/contagens/$id")({
-  loader: async ({ params }) => {
-    const data = await getContagem({ data: { id: Number(params.id) } });
+  loader: async ({ params, context: { queryClient } }) => {
+    const id = Number(params.id);
+    const data = await queryClient.ensureQueryData(contagemQueryOptions(id));
     if (!data) throw notFound();
-    return data;
+    await queryClient.ensureQueryData(revisionsQueryOptions(id));
   },
   component: ContagemPage,
 });
@@ -76,7 +85,18 @@ function gridColumns(
 }
 
 function ContagemPage() {
-  const { row, movements, observations, dictionary } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const { data } = useSuspenseQuery(contagemQueryOptions(Number(id)));
+  if (!data) throw notFound();
+  return <ContagemView data={data} />;
+}
+
+type ContagemData = NonNullable<Awaited<ReturnType<typeof getContagem>>>;
+
+function ContagemView({ data }: { data: ContagemData }) {
+  const { row, movements, observations, dictionary } = data;
+  const [editing, setEditing] = useState(false);
+  const documentQuery = useQuery({ ...documentQueryOptions(row.id), enabled: editing });
   const [basis, setBasis] = useState<"projected" | "observed">(row.isProjected ? "projected" : "observed");
   // null shows the whole day; a number shows a single hour bucket.
   const [bucket, setBucket] = useState<number | null>(null);
@@ -281,12 +301,20 @@ function ContagemPage() {
         title={row.local.name}
         description={`${formatDate(row.date)}${row.variant ? ` · ${row.variant}` : ""}`}
         actions={
-          <Button asChild size="sm" variant="outline">
-            <Link to="/contagens">
-              <ArrowLeft className="size-4" />
-              Contagens
-            </Link>
-          </Button>
+          <>
+            {!editing && (
+              <Button size="sm" onClick={() => setEditing(true)}>
+                <Pencil className="size-4" />
+                Editar
+              </Button>
+            )}
+            <Button asChild size="sm" variant="outline">
+              <Link to="/contagens">
+                <ArrowLeft className="size-4" />
+                Contagens
+              </Link>
+            </Button>
+          </>
         }
       />
       <div className="flex-1 space-y-6 px-6 py-6">
@@ -324,6 +352,22 @@ function ContagemPage() {
           </Card>
         )}
 
+        {editing ? (
+          documentQuery.data ? (
+            <EditPanel
+              key={documentQuery.data.version}
+              contagemId={row.id}
+              original={documentQuery.data.doc}
+              version={documentQuery.data.version}
+              dictionary={dictionary.map((d) => ({ key: d.key, label: d.label }))}
+              onCancel={() => setEditing(false)}
+              onSaved={() => setEditing(false)}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">Carregando para edição...</p>
+          )
+        ) : (
+          <>
         <Section title="Matriz de movimentos">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-1">
@@ -367,6 +411,9 @@ function ContagemPage() {
               pageSize={100}
             />
           </Section>
+        )}
+
+          </>
         )}
 
         {(rain.length > 0 || row.annotations.length > 0) && (
@@ -433,6 +480,10 @@ function ContagemPage() {
               </>
             )}
           </dl>
+        </Section>
+
+        <Section title="Histórico">
+          <HistoryPanel contagemId={row.id} currentVersion={row.version} />
         </Section>
       </div>
     </>

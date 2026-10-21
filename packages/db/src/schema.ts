@@ -17,11 +17,14 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
+import type { ContagemDocument } from "./document/types";
+
 export const topologyEnum = pgEnum("topology", ["point", "t_junction", "crossroad"]);
 export const granularityEnum = pgEnum("granularity", ["hourly", "total"]);
 export const statusEnum = pgEnum("contagem_status", ["draft", "published"]);
 export const basisEnum = pgEnum("basis", ["observed", "projected"]);
 export const blockEnum = pgEnum("observation_block", ["padroes", "observacoes"]);
+export const revisionKindEnum = pgEnum("revision_kind", ["import", "create", "edit", "revert"]);
 export const severityEnum = pgEnum("warning_severity", ["info", "warning", "error"]);
 
 const timestamps = {
@@ -73,6 +76,8 @@ export const contagem = pgTable(
     reportUrl: text("report_url"),
     notes: text("notes"),
     layout: text("layout"),
+    // Bumped on every save; a save with a stale version is rejected.
+    version: integer("version").notNull().default(1),
     // Materialized from movement_count at write time, for cheap list views.
     totalCyclists: integer("total_cyclists"),
     peakBucketCount: integer("peak_bucket_count"),
@@ -199,4 +204,25 @@ export const importWarning = pgTable(
     ref: text("ref"),
   },
   (t) => [index("import_warning_contagem_idx").on(t.contagemId)],
+);
+
+// Immutable history: the full document as it was after each save. Diffs are
+// computed by comparing two snapshots.
+export const contagemRevision = pgTable(
+  "contagem_revision",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    contagemId: integer("contagem_id")
+      .notNull()
+      .references(() => contagem.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    kind: revisionKindEnum("kind").notNull(),
+    author: text("author").notNull(),
+    reason: text("reason"),
+    revertedFromVersion: integer("reverted_from_version"),
+    changeCount: integer("change_count").notNull().default(0),
+    snapshot: jsonb("snapshot").$type<ContagemDocument>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("contagem_revision_version_idx").on(t.contagemId, t.version)],
 );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
 import { Badge } from "@ameciclo/ui/components/badge";
@@ -6,10 +7,10 @@ import { Button } from "@ameciclo/ui/components/button";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { DataTable, type TableColumn } from "~/components/DataTable";
 import { formatDate, formatNumber, TOPOLOGY_LABEL } from "~/lib/format";
-import { listContagens } from "~/queries/contagens";
+import { contagensQueryOptions, type listContagens } from "~/queries/contagens";
 
 export const Route = createFileRoute("/contagens/")({
-  loader: () => listContagens(),
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(contagensQueryOptions()),
   component: ContagensPage,
 });
 
@@ -76,7 +77,7 @@ const columns: TableColumn<Row>[] = [
 ];
 
 function ContagensPage() {
-  const contagens = Route.useLoaderData();
+  const { data: contagens } = useSuspenseQuery(contagensQueryOptions());
   const [onlyFlagged, setOnlyFlagged] = useState(false);
   const data = onlyFlagged ? contagens.filter((c) => c.warnings > 0 || c.isProjected || c.isPartial) : contagens;
 

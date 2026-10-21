@@ -1,11 +1,12 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { DataTable, type TableColumn } from "~/components/DataTable";
 import { formatDate, formatNumber } from "~/lib/format";
-import { listLocals } from "~/queries/contagens";
+import { localsQueryOptions, type listLocals } from "~/queries/contagens";
 
 export const Route = createFileRoute("/locais/")({
-  loader: () => listLocals(),
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(localsQueryOptions()),
   component: LocaisPage,
 });
 
@@ -50,7 +51,7 @@ const columns: TableColumn<Row>[] = [
 ];
 
 function LocaisPage() {
-  const locals = Route.useLoaderData();
+  const { data: locals } = useSuspenseQuery(localsQueryOptions());
   return (
     <>
       <AdminTopbar title="Locais" description={`${formatNumber(locals.length)} pontos de contagem.`} />

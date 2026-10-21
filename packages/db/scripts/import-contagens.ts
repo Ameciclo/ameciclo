@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 
 import { sql } from "drizzle-orm";
 
-import { type Db, withDb } from "../src";
+import { createInitialRevision, type Db, withDb } from "../src";
 import {
   characteristic,
   characteristicAlias,
@@ -240,6 +240,7 @@ async function main() {
           await tx.insert(importWarning).values(warnings.map((w) => ({ ...w, contagemId })));
           warningCount += warnings.length;
         }
+        await createInitialRevision(tx, contagemId, "importação");
       }
 
       console.log(

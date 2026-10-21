@@ -3,6 +3,8 @@ import { Client } from "pg";
 
 import { relations } from "./relations";
 
+export * from "./document";
+export * from "./document/store";
 export * from "./schema";
 export { relations };
 
