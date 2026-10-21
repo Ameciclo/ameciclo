@@ -4,6 +4,10 @@
 @source './**/*.{ts,tsx}';
 @source '../../../packages/ui/src/**/*.{ts,tsx}';
 
+@theme {
+  --color-ameciclo: #008080;
+}
+
 @layer base {
   body {
     @apply bg-background text-foreground;

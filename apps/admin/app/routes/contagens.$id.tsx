@@ -6,6 +6,7 @@ import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { DataTable, type TableColumn } from "~/components/DataTable";
+import { MovementDiagram } from "~/components/MovementDiagram";
 import { formatDate, formatNumber, hourLabel, TOPOLOGY_LABEL } from "~/lib/format";
 import { getContagem } from "~/queries/contagens";
 
@@ -58,6 +59,8 @@ function gridColumns(
 function ContagemPage() {
   const { row, movements, observations, dictionary } = Route.useLoaderData();
   const [basis, setBasis] = useState<"projected" | "observed">(row.isProjected ? "projected" : "observed");
+  // null shows the whole day; a number shows a single hour bucket.
+  const [bucket, setBucket] = useState<number | null>(null);
 
   const startHour = Number.parseInt(row.startedAt ?? "6", 10);
   const dictionaryByKey = useMemo(() => new Map(dictionary.map((d) => [d.key, d])), [dictionary]);
@@ -104,19 +107,25 @@ function ContagemPage() {
     ];
   }, [movements, basis, row.isProjected, row.approaches, bucketCount]);
 
-  const matrixRows = useMemo(() => {
+  const flows = useMemo(() => {
     const wanted = row.isProjected ? basis : "observed";
-    const sums = new Map<string, number>();
+    const sums: Record<string, number> = {};
     for (const m of movements) {
-      if (m.basis !== wanted) continue;
+      if (m.basis !== wanted || (bucket !== null && m.bucket !== bucket)) continue;
       const key = `${m.fromIdx}-${m.toIdx}`;
-      sums.set(key, (sums.get(key) ?? 0) + m.value);
+      sums[key] = (sums[key] ?? 0) + m.value;
     }
-    return row.approaches.map((from, i) => ({
-      from,
-      cells: row.approaches.map((_, j) => (i === j ? null : (sums.get(`${i}-${j}`) ?? 0))),
-    }));
-  }, [movements, basis, row.isProjected, row.approaches]);
+    return sums;
+  }, [movements, basis, bucket, row.isProjected]);
+
+  const matrixRows = useMemo(
+    () =>
+      row.approaches.map((from, i) => ({
+        from,
+        cells: row.approaches.map((_, j) => (i === j ? null : (flows[`${i}-${j}`] ?? 0))),
+      })),
+    [flows, row.approaches],
+  );
 
   const matrixColumns = useMemo<TableColumn<(typeof matrixRows)[number]>[]>(
     () => [
@@ -228,7 +237,33 @@ function ContagemPage() {
         )}
 
         <Section title="Matriz de movimentos">
-          <DataTable columns={matrixColumns} data={matrixRows} pageSize={100} />
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-1">
+              <Button size="sm" variant={bucket === null ? "default" : "outline"} onClick={() => setBucket(null)}>
+                Dia todo
+              </Button>
+              {hours.map((hour, i) => (
+                <Button key={hour} size="sm" variant={bucket === i ? "default" : "outline"} onClick={() => setBucket(i)}>
+                  {hour}
+                </Button>
+              ))}
+            </div>
+            <div className="grid items-start gap-6 lg:grid-cols-2">
+              {row.approaches.length <= 4 ? (
+                <div className="flex justify-center rounded-md border bg-muted/30 p-4">
+                  <MovementDiagram topology={row.topology} approaches={row.approaches} flows={flows} />
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Esta contagem tem {row.approaches.length} aproximações; o diagrama suporta até 4.
+                </p>
+              )}
+              <DataTable columns={matrixColumns} data={matrixRows} pageSize={100} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              A posição das aproximações no desenho é ilustrativa, não segue a bússola.
+            </p>
+          </div>
         </Section>
 
         <Section title="Movimentos por hora">
