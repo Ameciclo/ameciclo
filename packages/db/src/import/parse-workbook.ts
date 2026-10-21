@@ -493,6 +493,19 @@ export async function parseWorkbook(
   }
   const peakBucketCount = Math.max(0, ...bucketTotals);
 
+  // Peak-hour counts leave the other hours empty. Without an Original sheet they
+  // are not projected, so record which hours were actually counted.
+  const emptyBuckets = bucketTotals.flatMap((v, i) => (v === 0 ? [i] : []));
+  if (!hasOriginal && emptyBuckets.length >= 2 && emptyBuckets.length < bucketCount) {
+    observedBuckets = bucketTotals.flatMap((v, i) => (v > 0 ? [i] : []));
+    const counted = observedBuckets.map((b) => `${startHour + (b * bucketMinutes) / 60}h`).join(", ");
+    warn(
+      "warning",
+      "partial_day",
+      `Only ${counted} have counts; ${emptyBuckets.length} of ${bucketCount} hours are empty (peak-hour count?)`,
+    );
+  }
+
   if (resumo.total !== null && resumo.total !== totalCyclists) {
     warn("warning", "total_mismatch", `Resumo total ${resumo.total} differs from the movement sum ${totalCyclists}`);
   }
@@ -513,8 +526,17 @@ export async function parseWorkbook(
   for (const [parent, leaves] of Object.entries(groups)) {
     const p = sumKey(parent);
     const l = leaves.reduce((s, k) => s + sumKey(k), 0);
-    if (p > 0 && l > 0 && p !== l) {
-      warn("info", "rollup_mismatch", `${parent} is ${p} but its parts add up to ${l}`, parent);
+    const hasLeafRows = observations.some((o) => o.characteristicKey !== null && leaves.includes(o.characteristicKey));
+    if (p > 0 && l === 0 && hasLeafRows) {
+      warn("info", "rollup_without_parts", `${parent} is ${p} but its nested rows are all zero`, parent);
+    } else if (p > 0 && l > 0 && p !== l) {
+      const apart = Math.abs(p - l) / Math.max(p, l);
+      warn(
+        apart > 0.25 ? "warning" : "info",
+        "rollup_mismatch",
+        `${parent} is ${p} but its parts add up to ${l} (${Math.round(apart * 100)}% apart)`,
+        parent,
+      );
     }
   }
 

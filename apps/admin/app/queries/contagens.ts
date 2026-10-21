@@ -19,6 +19,7 @@ export const listContagens = createServerFn({ method: "GET" }).handler(async () 
         variant: contagem.variant,
         topology: contagem.topology,
         isProjected: contagem.isProjected,
+        isPartial: sql<boolean>`(${contagem.observedBuckets} is not null and not ${contagem.isProjected})`,
         totalCyclists: contagem.totalCyclists,
         peakBucketCount: contagem.peakBucketCount,
         localId: local.id,

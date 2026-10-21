@@ -102,6 +102,27 @@ async function main() {
     }
     unique.sort((a, b) => (a.parsed.date ?? "").localeCompare(b.parsed.date ?? ""));
 
+    // The same set of approach labels at different places on the same day usually
+    // means a sheet was copied from another count without renaming them.
+    const byLabels = new Map<string, Item[]>();
+    for (const item of unique) {
+      const key = `${item.parsed.date}|${[...item.parsed.approaches].sort().join("/")}`;
+      byLabels.set(key, [...(byLabels.get(key) ?? []), item]);
+    }
+    for (const group of byLabels.values()) {
+      const places = new Set(group.map((i) => placeKey(splitVariant(i.parsed.name).base)));
+      if (places.size < 2) continue;
+      for (const item of group) {
+        // Two neighbouring intersections often share neighbourhood labels; three or more
+        // identical sets on one day is far more likely a copied sheet.
+        item.parsed.warnings.push({
+          severity: places.size >= 3 ? "warning" : "info",
+          code: "approach_labels_reused",
+          message: `Approach labels (${item.parsed.approaches.join(", ")}) are identical at ${places.size} different places on this date; check they were renamed for this intersection`,
+        });
+      }
+    }
+
     await db.transaction(async (tx) => {
       if (reset) {
         await tx.execute(sql`truncate table contagem, local restart identity cascade`);

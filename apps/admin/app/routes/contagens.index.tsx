@@ -63,6 +63,7 @@ const columns: TableColumn<Row>[] = [
     cell: ({ row }) => (
       <div className="flex flex-wrap gap-1">
         {row.original.isProjected && <Badge variant="secondary">Estimada</Badge>}
+        {row.original.isPartial && <Badge variant="secondary">Parcial</Badge>}
         {row.original.warnings > 0 && (
           <Badge variant="outline" className="gap-1">
             <AlertTriangle className="size-3" />
@@ -77,7 +78,7 @@ const columns: TableColumn<Row>[] = [
 function ContagensPage() {
   const contagens = Route.useLoaderData();
   const [onlyFlagged, setOnlyFlagged] = useState(false);
-  const data = onlyFlagged ? contagens.filter((c) => c.warnings > 0 || c.isProjected) : contagens;
+  const data = onlyFlagged ? contagens.filter((c) => c.warnings > 0 || c.isProjected || c.isPartial) : contagens;
 
   return (
     <>
@@ -97,7 +98,7 @@ function ContagensPage() {
               variant={onlyFlagged ? "default" : "outline"}
               onClick={() => setOnlyFlagged((v) => !v)}
             >
-              Só estimadas ou com avisos
+              Só estimadas, parciais ou com avisos
             </Button>
           }
         />

@@ -40,6 +40,7 @@ const cellOrDot = (value: number) =>
 function gridColumns(
   title: string,
   hours: string[],
+  observed: Set<number> | null,
   renderLabel: (data: GridRow, row: TableRowOf<GridRow>) => React.ReactNode,
 ): TableColumn<GridRow>[] {
   return [
@@ -55,7 +56,8 @@ function gridColumns(
         id: `h${i}`,
         header: hour,
         enableSorting: false,
-        cell: ({ row }) => cellOrDot(row.original.cells[i] ?? 0),
+        cell: ({ row }) =>
+          observed && !observed.has(i) ? <span className="text-muted-foreground/30">–</span> : cellOrDot(row.original.cells[i] ?? 0),
         meta: { headClassName: "text-right", cellClassName: "text-right tabular-nums" },
       }),
     ),
@@ -93,6 +95,12 @@ function ContagemPage() {
   const hours = useMemo(
     () => Array.from({ length: bucketCount }, (_, i) => hourLabel(startHour, i, row.bucketMinutes)),
     [bucketCount, startHour, row.bucketMinutes],
+  );
+
+  const isPartial = !row.isProjected && row.observedBuckets !== null;
+  const observedSet = useMemo(
+    () => (row.observedBuckets ? new Set(row.observedBuckets) : null),
+    [row.observedBuckets],
   );
 
   const movementRows = useMemo<GridRow[]>(() => {
@@ -258,10 +266,10 @@ function ContagemPage() {
   );
 
   const movementCols = useMemo(
-    () => gridColumns("Movimento", hours, (r) => <span className={r.strong ? "font-semibold" : ""}>{r.label}</span>),
-    [hours],
+    () => gridColumns("Movimento", hours, observedSet, (r) => <span className={r.strong ? "font-semibold" : ""}>{r.label}</span>),
+    [hours, observedSet],
   );
-  const characteristicCols = useMemo(() => gridColumns("Característica", hours, renderCharacteristic), [hours]);
+  const characteristicCols = useMemo(() => gridColumns("Característica", hours, observedSet, renderCharacteristic), [hours, observedSet]);
 
   const rain = row.conditions.filter((c) => c.kind === "rain").sort((a, b) => a.bucket - b.bucket);
   const observedHours = row.observedBuckets?.map((b) => hours[b]).filter(Boolean) ?? [];
@@ -307,6 +315,15 @@ function ContagemPage() {
           </Card>
         )}
 
+        {isPartial && (
+          <Card className="border-amber-300 bg-amber-50/60 dark:bg-amber-950/20">
+            <CardContent className="pt-6 text-sm">
+              Contagem <strong>parcial</strong>: só há dados em {observedHours.join(", ")}. Os demais horários estão vazios na planilha e
+              não foram projetados, então o total ({formatNumber(row.totalCyclists)}) não representa o dia inteiro.
+            </CardContent>
+          </Card>
+        )}
+
         <Section title="Matriz de movimentos">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-1">
@@ -314,7 +331,7 @@ function ContagemPage() {
                 Dia todo
               </Button>
               {hours.map((hour, i) => (
-                <Button key={hour} size="sm" variant={bucket === i ? "default" : "outline"} onClick={() => setBucket(i)}>
+                <Button key={hour} size="sm" variant={bucket === i ? "default" : "outline"} disabled={observedSet !== null && !observedSet.has(i)} onClick={() => setBucket(i)}>
                   {hour}
                 </Button>
               ))}
