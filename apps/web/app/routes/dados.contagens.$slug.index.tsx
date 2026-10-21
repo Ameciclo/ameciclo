@@ -86,9 +86,9 @@ function Contagem() {
             )}
 
             <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
-                <div className="bg-green-200 rounded-sm shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
+                <div className="rounded-sm shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
                     {pointsData.length > 0 ? (
-                        <AmecicloMap pointsData={pointsData} height="400px" />
+                        <AmecicloMap pointsData={pointsData} height="100%" />
                     ) : (
                         <div className="flex items-center justify-center h-full">
                             <p className="text-gray-500">Carregando mapa...</p>
