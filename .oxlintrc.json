@@ -24,6 +24,6 @@
     "build",
     ".cache",
     "node_modules",
-    "app/types/strapi-api.ts"
+    "**/app/types/strapi-api.ts"
   ]
 }

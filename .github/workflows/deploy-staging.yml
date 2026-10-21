@@ -15,12 +15,16 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy ${{ matrix.app }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, admin]
     environment:
       name: staging
-      url: https://staging.ameciclo.org
+      url: ${{ matrix.app == 'web' && 'https://staging.ameciclo.org' || 'https://staging-admin.ameciclo.org' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -43,7 +47,7 @@ jobs:
       # The Cloudflare Vite plugin resolves the Wrangler environment HERE, at
       # build time, and flattens it into dist/server/wrangler.json. This env var
       # is the only thing that selects staging.
-      - run: pnpm build
+      - run: pnpm --filter @ameciclo/${{ matrix.app }} build
         env:
           CLOUDFLARE_ENV: staging
 
@@ -57,4 +61,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           packageManager: pnpm
+          workingDirectory: apps/${{ matrix.app }}
           command: deploy

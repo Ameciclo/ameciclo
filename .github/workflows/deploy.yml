@@ -15,12 +15,16 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy ${{ matrix.app }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, admin]
     environment:
       name: production
-      url: https://ameciclo.org
+      url: ${{ matrix.app == 'web' && 'https://ameciclo.org' || 'https://admin.ameciclo.org' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -40,11 +44,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm build
+      - run: pnpm --filter @ameciclo/${{ matrix.app }} build
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           packageManager: pnpm
+          workingDirectory: apps/${{ matrix.app }}
           command: deploy

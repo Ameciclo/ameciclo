@@ -5,17 +5,17 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "app/tailwind.css",
+    "css": "src/styles.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "aliases": {
-    "components": "~/components",
-    "utils": "~/lib/utils",
-    "ui": "~/components/ui",
-    "lib": "~/lib",
-    "hooks": "~/hooks"
+    "components": "@ameciclo/ui/components",
+    "utils": "@ameciclo/ui/lib/utils",
+    "ui": "@ameciclo/ui/components",
+    "lib": "@ameciclo/ui/lib",
+    "hooks": "@ameciclo/ui/hooks"
   },
   "iconLibrary": "lucide"
 }

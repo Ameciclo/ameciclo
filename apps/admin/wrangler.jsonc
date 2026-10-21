@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ameciclo-admin",
+  "account_id": "8b9af9b81476222e1a787f42f3c8076a",
+  "workers_dev": true,
+  "preview_urls": true,
+  "routes": [{ "pattern": "admin.ameciclo.org", "custom_domain": true }],
+  "compatibility_date": "2026-03-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "dist/client",
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+    },
+  },
+  "env": {
+    "staging": {
+      "routes": [{ "pattern": "staging-admin.ameciclo.org", "custom_domain": true }],
+    },
+  },
+}
