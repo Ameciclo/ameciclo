@@ -33,5 +33,6 @@ export function validateDocument(doc: ContagemDocument): string[] {
       problems.push(`Valores de "${o.rawLabel}" precisam ser inteiros não negativos.`);
     }
   }
+  for (const n of doc.notes) if (!n.text.trim()) problems.push("Há uma nota vazia.");
   return [...new Set(problems)];
 }

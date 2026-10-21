@@ -13,6 +13,7 @@ import {
 } from "@ameciclo/ui/components/dialog";
 import { Textarea } from "@ameciclo/ui/components/textarea";
 import { ChangeList } from "~/components/ChangeList";
+import { failureMessage } from "~/lib/save-errors";
 import {
   contagemQueryKeys,
   revertContagem,
@@ -49,11 +50,7 @@ export function HistoryPanel({ contagemId, currentVersion }: { contagemId: numbe
       }),
     onSuccess: async (result) => {
       if (!result.ok) {
-        setError(
-          result.code === "conflict"
-            ? `Esta contagem foi alterada por ${result.lastAuthor ?? "outra pessoa"}. Recarregue a página.`
-            : result.problems.join(" "),
-        );
+        setError(failureMessage(result));
         return;
       }
       await Promise.all(contagemQueryKeys(contagemId).map((queryKey) => queryClient.invalidateQueries({ queryKey })));

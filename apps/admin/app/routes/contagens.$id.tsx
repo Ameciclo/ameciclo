@@ -11,6 +11,7 @@ import { MovementDiagram } from "~/components/MovementDiagram";
 import { formatDate, formatNumber, hourLabel, TOPOLOGY_LABEL } from "~/lib/format";
 import { EditPanel } from "~/components/EditPanel";
 import { HistoryPanel } from "~/components/HistoryPanel";
+import { IssuesPanel } from "~/components/IssuesPanel";
 import {
   contagemQueryOptions,
   documentQueryOptions,
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/contagens/$id")({
     if (!data) throw notFound();
     await queryClient.ensureQueryData(revisionsQueryOptions(id));
   },
+  validateSearch: (search: Record<string, unknown>): { editar?: boolean } =>
+    search.editar === true || search.editar === "true" ? { editar: true } : {},
   component: ContagemPage,
 });
 
@@ -86,16 +89,17 @@ function gridColumns(
 
 function ContagemPage() {
   const { id } = Route.useParams();
+  const { editar } = Route.useSearch();
   const { data } = useSuspenseQuery(contagemQueryOptions(Number(id)));
   if (!data) throw notFound();
-  return <ContagemView data={data} />;
+  return <ContagemView data={data} startEditing={editar ?? false} />;
 }
 
 type ContagemData = NonNullable<Awaited<ReturnType<typeof getContagem>>>;
 
-function ContagemView({ data }: { data: ContagemData }) {
+function ContagemView({ data, startEditing }: { data: ContagemData; startEditing: boolean }) {
   const { row, movements, observations, dictionary } = data;
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(startEditing);
   const documentQuery = useQuery({ ...documentQueryOptions(row.id), enabled: editing });
   const [basis, setBasis] = useState<"projected" | "observed">(row.isProjected ? "projected" : "observed");
   // null shows the whole day; a number shows a single hour bucket.
@@ -299,7 +303,7 @@ function ContagemView({ data }: { data: ContagemData }) {
     <>
       <AdminTopbar
         title={row.local.name}
-        description={`${formatDate(row.date)}${row.variant ? ` · ${row.variant}` : ""}`}
+        description={`${formatDate(row.date)}${row.variant ? ` · ${row.variant}` : ""}${row.status === "draft" ? " · rascunho" : ""}`}
         actions={
           <>
             {!editing && (
@@ -359,7 +363,7 @@ function ContagemView({ data }: { data: ContagemData }) {
               contagemId={row.id}
               original={documentQuery.data.doc}
               version={documentQuery.data.version}
-              dictionary={dictionary.map((d) => ({ key: d.key, label: d.label }))}
+              dictionary={dictionary.map((d) => ({ key: d.key, label: d.label, isRollup: d.isRollup }))}
               onCancel={() => setEditing(false)}
               onSaved={() => setEditing(false)}
             />
@@ -439,17 +443,8 @@ function ContagemView({ data }: { data: ContagemData }) {
         )}
 
         {row.warnings.length > 0 && (
-          <Section title={`Avisos de importação (${row.warnings.length})`}>
-            <ul className="space-y-2 text-sm">
-              {row.warnings.map((w) => (
-                <li key={w.id} className="flex items-start gap-3">
-                  <Badge variant={w.severity === "info" ? "outline" : "secondary"}>{w.severity}</Badge>
-                  <span>
-                    <span className="font-mono text-xs text-muted-foreground">{w.code}</span> {w.message}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          <Section title={`Pendências (${row.warnings.filter((w) => w.status === "open").length} abertas de ${row.warnings.length})`}>
+            <IssuesPanel contagemId={row.id} issues={row.warnings} />
           </Section>
         )}
 

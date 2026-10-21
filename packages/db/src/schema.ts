@@ -25,6 +25,8 @@ export const statusEnum = pgEnum("contagem_status", ["draft", "published"]);
 export const basisEnum = pgEnum("basis", ["observed", "projected"]);
 export const blockEnum = pgEnum("observation_block", ["padroes", "observacoes"]);
 export const revisionKindEnum = pgEnum("revision_kind", ["import", "create", "edit", "revert"]);
+export const issueOriginEnum = pgEnum("issue_origin", ["import", "validation"]);
+export const issueStatusEnum = pgEnum("issue_status", ["open", "resolved", "ignored"]);
 export const severityEnum = pgEnum("warning_severity", ["info", "warning", "error"]);
 
 const timestamps = {
@@ -191,6 +193,8 @@ export const note = pgTable("note", {
   text: text("text").notNull(),
 });
 
+// Despite the name, these are the review items for a contagem: import notes
+// (origin "import") and checks recomputed on every save (origin "validation").
 export const importWarning = pgTable(
   "import_warning",
   {
@@ -202,8 +206,13 @@ export const importWarning = pgTable(
     code: text("code").notNull(),
     message: text("message").notNull(),
     ref: text("ref"),
+    origin: issueOriginEnum("origin").notNull().default("import"),
+    status: issueStatusEnum("status").notNull().default("open"),
+    resolvedBy: text("resolved_by"),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    resolutionNote: text("resolution_note"),
   },
-  (t) => [index("import_warning_contagem_idx").on(t.contagemId)],
+  (t) => [index("import_warning_contagem_idx").on(t.contagemId, t.status)],
 );
 
 // Immutable history: the full document as it was after each save. Diffs are

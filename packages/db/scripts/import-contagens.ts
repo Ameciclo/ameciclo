@@ -3,12 +3,12 @@ import { join, resolve } from "node:path";
 
 import { sql } from "drizzle-orm";
 
-import { createInitialRevision, type Db, withDb } from "../src";
+import { createInitialRevision, type Db, seedDictionary, VALIDATION_CODES, withDb } from "../src";
 import {
-  characteristic,
   characteristicAlias,
   condition,
   contagem,
+  contagemRevision,
   importWarning,
   local,
   movementCount,
@@ -17,7 +17,6 @@ import {
 } from "../src/schema";
 import {
   ALIASES,
-  CHARACTERISTICS,
   type ParsedContagem,
   PARSER_VERSION,
   parseWorkbook,
@@ -44,6 +43,9 @@ const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is not set (packages/db/.env)");
 
 const reset = process.argv.includes("--reset");
+const discardEdits = process.argv.includes("--discard-edits");
+const dryRun = process.argv.includes("--dry-run");
+const validationCodes = new Set<string>(VALIDATION_CODES);
 const dir = resolve(process.env.CONTAGENS_DIR ?? join(import.meta.dirname, "../../../data/contagens"));
 const manifest: ManifestEntry[] = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
 
@@ -123,19 +125,30 @@ async function main() {
       }
     }
 
+    if (reset && !discardEdits) {
+      const [edited] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(contagemRevision)
+        .where(sql`${contagemRevision.kind} <> 'import'`);
+      if (edited.n > 0) {
+        throw new Error(
+          `${edited.n} revisions were made after the import (edits, creations or reverts); --reset would delete them. Pass --discard-edits only if you really want that.`,
+        );
+      }
+    }
+
+    if (dryRun) {
+      const places = new Set(unique.map((i) => placeKey(splitVariant(i.parsed.name).base) || i.parsed.name));
+      console.log(`dry run: would import ${unique.length} contagens at ${places.size} locals (${skipped.length} skipped); nothing written`);
+      return;
+    }
+
     await db.transaction(async (tx) => {
       if (reset) {
         await tx.execute(sql`truncate table contagem, local restart identity cascade`);
       }
 
-      const rollups = CHARACTERISTICS.filter((c) => !c.parentKey);
-      const leaves = CHARACTERISTICS.filter((c) => c.parentKey);
-      await tx.insert(characteristic).values(rollups).onConflictDoNothing();
-      await tx.insert(characteristic).values(leaves).onConflictDoNothing();
-      await tx
-        .insert(characteristicAlias)
-        .values(Object.entries(ALIASES).map(([alias, characteristicKey]) => ({ alias, characteristicKey })))
-        .onConflictDoNothing();
+      await seedDictionary(tx);
 
       const groups = new Map<string, Item[]>();
       for (const item of unique) {
@@ -173,7 +186,8 @@ async function main() {
           console.warn(`skip ${entry.title}: no date`);
           continue;
         }
-        const warnings = [...parsed.warnings];
+        // Checks that depend only on the document are recomputed by reconcileIssues.
+        const warnings = parsed.warnings.filter((w) => !validationCodes.has(w.code));
         if (override) {
           warnings.push({ severity: "info", code: "date_corrected", message: override.note });
         } else if (titleDate && parsed.date && titleDate !== parsed.date) {

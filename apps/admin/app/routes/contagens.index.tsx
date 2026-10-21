@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Plus } from "lucide-react";
 import { Badge } from "@ameciclo/ui/components/badge";
 import { Button } from "@ameciclo/ui/components/button";
 import { AdminTopbar } from "~/components/AdminTopbar";
@@ -63,6 +63,7 @@ const columns: TableColumn<Row>[] = [
     enableSorting: false,
     cell: ({ row }) => (
       <div className="flex flex-wrap gap-1">
+        {row.original.status === "draft" && <Badge variant="outline">Rascunho</Badge>}
         {row.original.isProjected && <Badge variant="secondary">Estimada</Badge>}
         {row.original.isPartial && <Badge variant="secondary">Parcial</Badge>}
         {row.original.warnings > 0 && (
@@ -85,7 +86,15 @@ function ContagensPage() {
     <>
       <AdminTopbar
         title="Contagens"
-        description={`${formatNumber(contagens.length)} contagens importadas.`}
+        description={`${formatNumber(contagens.length)} contagens.`}
+        actions={
+          <Button asChild size="sm">
+            <Link to="/contagens/nova">
+              <Plus className="size-4" />
+              Nova contagem
+            </Link>
+          </Button>
+        }
       />
       <div className="flex-1 px-6 py-6">
         <DataTable

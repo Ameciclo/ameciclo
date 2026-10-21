@@ -2,15 +2,20 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import type { relations } from "../relations";
+import { slugify } from "../import/locals";
 import {
+  characteristic,
   condition,
   contagem,
   contagemRevision,
+  importWarning,
+  local,
   movementCount,
   note,
   observation,
 } from "../schema";
 import { diffDocuments } from "./diff";
+import { detectIssues } from "./issues";
 import type {
   Basis,
   ContagemDocument,
@@ -28,6 +33,12 @@ export class VersionConflictError extends Error {
     readonly lastAuthor: string | null,
   ) {
     super("version_conflict");
+  }
+}
+
+export class DuplicateContagemError extends Error {
+  constructor(readonly existingId: number) {
+    super("duplicate_contagem");
   }
 }
 
@@ -252,6 +263,128 @@ export async function createInitialRevision(db: Db, id: number, author: string, 
     changeCount: 0,
     doc: loaded.doc,
   });
+  await reconcileIssues(db, id, loaded.doc);
+}
+
+// Recomputes the document checks and brings the stored issues in line with them,
+// keeping whatever a person decided about an issue that is still there.
+export async function reconcileIssues(db: Db, id: number, doc: ContagemDocument) {
+  const dictionary = await db
+    .select({ key: characteristic.key, parentKey: characteristic.parentKey, isRollup: characteristic.isRollup })
+    .from(characteristic);
+  const detected = detectIssues(doc, dictionary);
+  const existing = await db
+    .select()
+    .from(importWarning)
+    .where(and(eq(importWarning.contagemId, id), eq(importWarning.origin, "validation")));
+
+  const keyOf = (i: { code: string; ref: string | null }) => `${i.code}|${i.ref ?? ""}`;
+  const existingByKey = new Map(existing.map((e) => [keyOf(e), e]));
+  const detectedKeys = new Set(detected.map(keyOf));
+
+  for (const d of detected) {
+    const found = existingByKey.get(keyOf(d));
+    if (!found) {
+      await db.insert(importWarning).values({ contagemId: id, origin: "validation", status: "open", ...d });
+    } else if (found.status === "resolved") {
+      await db
+        .update(importWarning)
+        .set({ severity: d.severity, message: d.message, status: "open", resolvedBy: null, resolvedAt: null, resolutionNote: null })
+        .where(eq(importWarning.id, found.id));
+    } else {
+      await db.update(importWarning).set({ severity: d.severity, message: d.message }).where(eq(importWarning.id, found.id));
+    }
+  }
+  for (const e of existing) {
+    if (detectedKeys.has(keyOf(e)) || e.status !== "open") continue;
+    await db
+      .update(importWarning)
+      .set({ status: "resolved", resolvedBy: "sistema", resolvedAt: new Date(), resolutionNote: "Deixou de ocorrer após uma edição." })
+      .where(eq(importWarning.id, e.id));
+  }
+}
+
+export async function setIssueStatus(
+  db: Db,
+  input: { issueId: number; status: "open" | "resolved" | "ignored"; note: string | null; actor: string },
+) {
+  const reopening = input.status === "open";
+  await db
+    .update(importWarning)
+    .set({
+      status: input.status,
+      resolvedBy: reopening ? null : input.actor,
+      resolvedAt: reopening ? null : new Date(),
+      resolutionNote: reopening ? null : input.note,
+    })
+    .where(eq(importWarning.id, input.issueId));
+}
+
+async function assertNotDuplicate(tx: Db, doc: ContagemDocument, ignoreId: number | null) {
+  const rows = await tx
+    .select({ id: contagem.id })
+    .from(contagem)
+    .where(
+      and(
+        eq(contagem.localId, doc.header.localId),
+        eq(contagem.date, doc.header.date),
+        sql`coalesce(${contagem.variant}, '') = ${doc.header.variant ?? ""}`,
+      ),
+    );
+  const clash = rows.find((r) => r.id !== ignoreId);
+  if (clash) throw new DuplicateContagemError(clash.id);
+}
+
+type CreateInput = {
+  doc: ContagemDocument;
+  newLocal: { name: string; latitude: number | null; longitude: number | null } | null;
+  author: string;
+};
+
+export async function createContagem(db: Db, input: CreateInput) {
+  const problems = validateDocument(input.doc);
+  if (problems.length > 0) throw new InvalidDocumentError(problems);
+
+  return db.transaction(async (tx) => {
+    const doc = structuredClone(input.doc);
+    if (input.newLocal) {
+      const base = slugify(input.newLocal.name) || "local";
+      const taken = new Set(
+        (await tx.select({ slug: local.slug }).from(local).where(sql`${local.slug} like ${`${base}%`}`)).map((r) => r.slug),
+      );
+      let slug = base;
+      for (let i = 2; taken.has(slug); i++) slug = `${base}-${i}`;
+      const [created] = await tx
+        .insert(local)
+        .values({ name: input.newLocal.name.trim(), slug, latitude: input.newLocal.latitude, longitude: input.newLocal.longitude })
+        .returning({ id: local.id });
+      doc.header.localId = created.id;
+    }
+    await assertNotDuplicate(tx, doc, null);
+
+    const [row] = await tx
+      .insert(contagem)
+      .values({
+        localId: doc.header.localId,
+        date: doc.header.date,
+        topology: doc.header.topology,
+        approaches: doc.approaches,
+        bucketMinutes: doc.header.bucketMinutes,
+      })
+      .returning({ id: contagem.id });
+    await writeDocument(tx, row.id, doc, 1);
+    await insertRevision(tx, {
+      contagemId: row.id,
+      version: 1,
+      kind: "create",
+      author: input.author,
+      reason: null,
+      changeCount: 0,
+      doc,
+    });
+    await reconcileIssues(tx, row.id, doc);
+    return { id: row.id };
+  });
 }
 
 type SaveInput = {
@@ -290,8 +423,10 @@ export async function saveDocument(db: Db, input: SaveInput) {
     const changes = diffDocuments(current.doc, input.doc);
     if (changes.length === 0) return { changed: false as const, version: currentVersion, changeCount: 0 };
 
+    await assertNotDuplicate(tx, input.doc, input.id);
     const version = currentVersion + 1;
     await writeDocument(tx, input.id, input.doc, version);
+    await reconcileIssues(tx, input.id, input.doc);
     await insertRevision(tx, {
       contagemId: input.id,
       version,

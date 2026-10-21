@@ -21,12 +21,13 @@ export const listContagens = createServerFn({ method: "GET" }).handler(async () 
         variant: contagem.variant,
         topology: contagem.topology,
         isProjected: contagem.isProjected,
+        status: contagem.status,
         isPartial: sql<boolean>`(${contagem.observedBuckets} is not null and not ${contagem.isProjected})`,
         totalCyclists: contagem.totalCyclists,
         peakBucketCount: contagem.peakBucketCount,
         localId: local.id,
         localName: local.name,
-        warnings: sql<number>`(select count(*)::int from ${importWarning} w where w.contagem_id = ${contagem.id} and w.severity <> 'info')`,
+        warnings: sql<number>`(select count(*)::int from ${importWarning} w where w.contagem_id = ${contagem.id} and w.severity <> 'info' and w.status = 'open')`,
       })
       .from(contagem)
       .innerJoin(local, eq(local.id, contagem.localId))
@@ -129,10 +130,11 @@ export const listRevisions = createServerFn({ method: "GET" })
 type SaveResult =
   | { ok: true; changed: boolean; version: number; changeCount: number }
   | { ok: false; code: "conflict"; currentVersion: number; lastAuthor: string | null }
-  | { ok: false; code: "invalid"; problems: string[] };
+  | { ok: false; code: "invalid"; problems: string[] }
+  | { ok: false; code: "duplicate"; existingId: number };
 
 async function guarded(work: () => Promise<{ changed: boolean; version: number; changeCount: number }>): Promise<SaveResult> {
-  const { VersionConflictError, InvalidDocumentError } = await import("@ameciclo/db");
+  const { VersionConflictError, InvalidDocumentError, DuplicateContagemError } = await import("@ameciclo/db");
   try {
     return { ok: true, ...(await work()) };
   } catch (error) {
@@ -140,6 +142,7 @@ async function guarded(work: () => Promise<{ changed: boolean; version: number; 
       return { ok: false, code: "conflict", currentVersion: error.currentVersion, lastAuthor: error.lastAuthor };
     }
     if (error instanceof InvalidDocumentError) return { ok: false, code: "invalid", problems: error.problems };
+    if (error instanceof DuplicateContagemError) return { ok: false, code: "duplicate", existingId: error.existingId };
     throw error;
   }
 }
@@ -186,3 +189,41 @@ export const contagemQueryKeys = (id: number) => [
   ["locals"],
   ["characteristics"],
 ];
+
+type CreateResult =
+  | { ok: true; id: number }
+  | { ok: false; code: "duplicate"; existingId: number }
+  | { ok: false; code: "invalid"; problems: string[] };
+
+export const createContagem = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: {
+      doc: ContagemDocument;
+      newLocal: { name: string; latitude: number | null; longitude: number | null } | null;
+    }) => input,
+  )
+  .handler(async ({ data }): Promise<CreateResult> => {
+    const { withDb } = await import("~/lib/db.server");
+    const { currentAuthor } = await import("~/lib/author.server");
+    const { createContagem, DuplicateContagemError, InvalidDocumentError } = await import("@ameciclo/db");
+    try {
+      const created = await withDb((db) => createContagem(db, { ...data, author: currentAuthor() }));
+      return { ok: true, id: created.id };
+    } catch (error) {
+      if (error instanceof DuplicateContagemError) return { ok: false, code: "duplicate", existingId: error.existingId };
+      if (error instanceof InvalidDocumentError) return { ok: false, code: "invalid", problems: error.problems };
+      throw error;
+    }
+  });
+
+export const setIssueStatus = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: { issueId: number; status: "open" | "resolved" | "ignored"; note: string | null }) => input,
+  )
+  .handler(async ({ data }) => {
+    const { withDb } = await import("~/lib/db.server");
+    const { currentAuthor } = await import("~/lib/author.server");
+    const { setIssueStatus } = await import("@ameciclo/db");
+    await withDb((db) => setIssueStatus(db, { ...data, actor: currentAuthor() }));
+    return { ok: true as const };
+  });

@@ -140,7 +140,7 @@ export function MovementDiagram({ topology, approaches, flows }: Props) {
       {legs.map((leg, i) => (
         <g key={i}>
           <text x={leg.label.x} y={leg.label.y} textAnchor={leg.label.align} fontSize={11} fontWeight={600} fill="var(--color-foreground)">
-            {truncate(approaches[i] ?? `Aproximação ${i + 1}`, 24)}
+            {truncate(approaches[i]?.trim() || `Aproximação ${i + 1}`, 24)}
           </text>
           <text x={leg.label.x} y={leg.label.y + 12} textAnchor={leg.label.align} fontSize={9} fill="var(--color-muted-foreground)">
             saem {outgoing(i).toLocaleString("pt-BR")}
