@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@ameciclo/ui/components/badge";
 import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
-import { DataTable, type TableColumn } from "~/components/DataTable";
+import { DataTable, type TableColumn, type TableRowOf } from "~/components/DataTable";
 import { MovementDiagram } from "~/components/MovementDiagram";
 import { formatDate, formatNumber, hourLabel, TOPOLOGY_LABEL } from "~/lib/format";
 import { getContagem } from "~/queries/contagens";
@@ -19,7 +19,20 @@ export const Route = createFileRoute("/contagens/$id")({
   component: ContagemPage,
 });
 
-type GridRow = { id: string; label: string; sublabel?: string; mapped?: boolean; cells: number[]; total: number; strong?: boolean };
+type GridRow = {
+  id: string;
+  label: string;
+  mapped?: boolean;
+  rawLabels?: string[];
+  cells: number[];
+  total: number;
+  // Sum of the nested rows, when it disagrees with the total written in the spreadsheet.
+  partsTotal?: number;
+  strong?: boolean;
+  subRows?: GridRow[];
+};
+
+const GROUP_ORDER = ["perfil", "comportamento", "carona", "cargueira", "servico", "contramao", "programa", "modal", "infraestrutura", "chuva", "outros"];
 
 const cellOrDot = (value: number) =>
   value ? value.toLocaleString("pt-BR") : <span className="text-muted-foreground/40">·</span>;
@@ -27,14 +40,14 @@ const cellOrDot = (value: number) =>
 function gridColumns(
   title: string,
   hours: string[],
-  renderLabel: (row: GridRow) => React.ReactNode,
+  renderLabel: (data: GridRow, row: TableRowOf<GridRow>) => React.ReactNode,
 ): TableColumn<GridRow>[] {
   return [
     {
       id: "label",
       header: title,
       enableSorting: false,
-      cell: ({ row }) => renderLabel(row.original),
+      cell: ({ row }) => renderLabel(row.original, row),
       meta: { cellClassName: "min-w-48" },
     },
     ...hours.map(
@@ -50,7 +63,19 @@ function gridColumns(
       id: "total",
       header: "Total",
       enableSorting: false,
-      cell: ({ row }) => <span className="font-semibold">{formatNumber(row.original.total)}</span>,
+      cell: ({ row }) => (
+        <span className="font-semibold">
+          {formatNumber(row.original.total)}
+          {row.original.partsTotal !== undefined && (
+            <span
+              className="ml-1 text-xs font-normal text-amber-600"
+              title="O total da planilha difere da soma das linhas aninhadas"
+            >
+              partes: {formatNumber(row.original.partsTotal)}
+            </span>
+          )}
+        </span>
+      ),
       meta: { headClassName: "text-right", cellClassName: "text-right tabular-nums" },
     },
   ];
@@ -143,55 +168,100 @@ function ContagemPage() {
     [row.approaches],
   );
 
-  const characteristicRows = useMemo(() => {
-    const groups = new Map<string, GridRow & { block: string; position: number }>();
+  const characteristicTree = useMemo<GridRow[]>(() => {
+    type Entry = { key: string | null; labels: string[]; cells: number[]; total: number };
+    const entries = new Map<string, Entry>();
     for (const o of observations) {
-      const id = `${o.block}-${o.position}`;
-      const entry =
-        groups.get(id) ??
-        {
-          id,
-          block: o.block,
-          position: o.position,
-          label: o.rawLabel,
-          sublabel: o.characteristicKey ?? undefined,
-          mapped: o.characteristicKey !== null,
-          cells: Array.from<number>({ length: bucketCount }).fill(0),
-          total: 0,
-        };
-      if (o.bucket === null) entry.total += o.value;
-      else {
-        entry.cells[o.bucket] += o.value;
-        entry.total += o.value;
-      }
-      groups.set(id, entry);
+      const id = o.characteristicKey ?? `raw:${o.block}-${o.position}`;
+      const entry = entries.get(id) ?? {
+        key: o.characteristicKey,
+        labels: [],
+        cells: Array.from<number>({ length: bucketCount }).fill(0),
+        total: 0,
+      };
+      if (!entry.labels.includes(o.rawLabel)) entry.labels.push(o.rawLabel);
+      entry.total += o.value;
+      if (o.bucket !== null) entry.cells[o.bucket] += o.value;
+      entries.set(id, entry);
     }
-    return [...groups.values()];
-  }, [observations, bucketCount]);
 
-  const renderCharacteristic = (r: GridRow) => {
-    const def = r.sublabel ? dictionaryByKey.get(r.sublabel) : undefined;
-    return (
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-medium">{r.label}</span>
-        {def?.isRollup && <Badge variant="secondary">total</Badge>}
-        {!r.mapped && <Badge variant="outline">sem mapa</Badge>}
-      </div>
-    );
-  };
+    const toRow = (entry: Entry): GridRow => {
+      const def = entry.key ? dictionaryByKey.get(entry.key) : undefined;
+      return {
+        id: entry.key ?? `raw:${entry.labels[0]}`,
+        label: def?.label ?? entry.labels[0],
+        mapped: entry.key !== null,
+        rawLabels: entry.labels,
+        cells: entry.cells,
+        total: entry.total,
+      };
+    };
+    const byLabel = (a: GridRow, b: GridRow) => a.label.localeCompare(b.label, "pt-BR");
+    const groupRank = (key: string | null) => {
+      const rank = GROUP_ORDER.indexOf((key && dictionaryByKey.get(key)?.group) || "");
+      return rank < 0 ? GROUP_ORDER.length : rank;
+    };
+
+    const ranked: { rank: number; row: GridRow }[] = [];
+    for (const def of dictionary.filter((d) => d.isRollup)) {
+      const own = entries.get(def.key);
+      const children = [...entries.values()].filter(
+        (e) => e.key && dictionaryByKey.get(e.key)?.parentKey === def.key,
+      );
+      if (!own && children.length === 0) continue;
+      const subRows = children.map(toRow).sort(byLabel);
+      const parent: GridRow = own ? toRow(own) : { id: def.key, label: def.label, mapped: true, cells: [], total: 0 };
+      if (subRows.length > 0) {
+        const partsTotal = subRows.reduce((sum, c) => sum + c.total, 0);
+        parent.subRows = subRows;
+        if (own) {
+          if (own.total !== partsTotal) parent.partsTotal = partsTotal;
+        } else {
+          parent.cells = Array.from<number>({ length: bucketCount }).fill(0);
+          for (const child of subRows) child.cells.forEach((v, i) => (parent.cells[i] += v));
+          parent.total = partsTotal;
+        }
+      }
+      ranked.push({ rank: groupRank(def.key), row: parent });
+    }
+    for (const entry of entries.values()) {
+      const def = entry.key ? dictionaryByKey.get(entry.key) : undefined;
+      if (def?.isRollup || def?.parentKey) continue;
+      ranked.push({ rank: groupRank(entry.key), row: toRow(entry) });
+    }
+    return ranked.sort((a, b) => a.rank - b.rank || byLabel(a.row, b.row)).map((r) => r.row);
+  }, [observations, dictionary, dictionaryByKey, bucketCount]);
+
+  const renderCharacteristic = (r: GridRow, tableRow: TableRowOf<GridRow>) => (
+    <div className="flex items-center gap-1" style={{ paddingLeft: tableRow.depth * 20 }}>
+      {tableRow.getCanExpand() ? (
+        <button
+          type="button"
+          onClick={tableRow.getToggleExpandedHandler()}
+          aria-label={tableRow.getIsExpanded() ? "Recolher" : "Expandir"}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          {tableRow.getIsExpanded() ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+        </button>
+      ) : (
+        <span className="w-4" />
+      )}
+      <span
+        className={tableRow.depth === 0 && tableRow.getCanExpand() ? "font-semibold" : "font-medium"}
+        title={r.rawLabels && r.rawLabels.join(" / ") !== r.label ? `Na planilha: ${r.rawLabels.join(" / ")}` : undefined}
+      >
+        {r.label}
+      </span>
+      {!r.mapped && <Badge variant="outline">sem mapa</Badge>}
+    </div>
+  );
 
   const movementCols = useMemo(
     () => gridColumns("Movimento", hours, (r) => <span className={r.strong ? "font-semibold" : ""}>{r.label}</span>),
     [hours],
   );
-  const characteristicCols = useMemo(
-    () => gridColumns("Característica", hours, renderCharacteristic),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [hours, dictionaryByKey],
-  );
+  const characteristicCols = useMemo(() => gridColumns("Característica", hours, renderCharacteristic), [hours]);
 
-  const padroes = characteristicRows.filter((r) => r.block === "padroes");
-  const observacoes = characteristicRows.filter((r) => r.block === "observacoes");
   const rain = row.conditions.filter((c) => c.kind === "rain").sort((a, b) => a.bucket - b.bucket);
   const observedHours = row.observedBuckets?.map((b) => hours[b]).filter(Boolean) ?? [];
   const endLabel = hourLabel(startHour, bucketCount, row.bucketMinutes);
@@ -270,14 +340,14 @@ function ContagemPage() {
           <DataTable columns={movementCols} data={movementRows} pageSize={100} />
         </Section>
 
-        {padroes.length > 0 && (
-          <Section title="Características — padrões">
-            <DataTable columns={characteristicCols} data={padroes} pageSize={100} />
-          </Section>
-        )}
-        {observacoes.length > 0 && (
-          <Section title="Características — observações">
-            <DataTable columns={characteristicCols} data={observacoes} pageSize={100} />
+        {characteristicTree.length > 0 && (
+          <Section title="Características">
+            <DataTable
+              columns={characteristicCols}
+              data={characteristicTree}
+              getSubRows={(r) => r.subRows}
+              pageSize={100}
+            />
           </Section>
         )}
 

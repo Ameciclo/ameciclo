@@ -3,13 +3,16 @@ import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import {
   type ColumnDef,
   columnFilteringFeature,
+  createExpandedRowModel,
   createFilteredRowModel,
   createPaginatedRowModel,
   createSortedRowModel,
   filterFns,
   globalFilteringFeature,
   rowPaginationFeature,
+  type Row,
   type RowData,
+  rowExpandingFeature,
   rowSortingFeature,
   type SortingState,
   sortFns,
@@ -30,8 +33,10 @@ import {
 const features = tableFeatures({
   columnFilteringFeature,
   globalFilteringFeature,
+  rowExpandingFeature,
   rowSortingFeature,
   rowPaginationFeature,
+  expandedRowModel: createExpandedRowModel(),
   filteredRowModel: createFilteredRowModel(),
   sortedRowModel: createSortedRowModel(),
   paginatedRowModel: createPaginatedRowModel(),
@@ -40,6 +45,7 @@ const features = tableFeatures({
 });
 
 export type TableColumn<TData extends RowData> = ColumnDef<typeof features, TData>;
+export type TableRowOf<TData extends RowData> = Row<typeof features, TData>;
 
 type DataTableProps<TData extends RowData> = {
   columns: TableColumn<TData>[];
@@ -49,6 +55,7 @@ type DataTableProps<TData extends RowData> = {
   initialSorting?: SortingState;
   toolbar?: React.ReactNode;
   emptyLabel?: string;
+  getSubRows?: (row: TData) => TData[] | undefined;
 };
 
 export function DataTable<TData extends RowData>({
@@ -59,12 +66,14 @@ export function DataTable<TData extends RowData>({
   initialSorting = [],
   toolbar,
   emptyLabel = "Nenhum resultado.",
+  getSubRows,
 }: DataTableProps<TData>) {
   const table = useTable({
     features,
     columns,
     data,
-    initialState: { sorting: initialSorting, pagination: { pageIndex: 0, pageSize } },
+    getSubRows,
+    initialState: { sorting: initialSorting, expanded: true, pagination: { pageIndex: 0, pageSize } },
   });
   const globalFilter = table.state.globalFilter ?? "";
 
