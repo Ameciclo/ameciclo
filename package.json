@@ -10,7 +10,8 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "db:generate": "pnpm --filter @ameciclo/db db:generate",
     "db:migrate": "pnpm --filter @ameciclo/db db:migrate",
-    "db:studio": "pnpm --filter @ameciclo/db db:studio"
+    "db:studio": "pnpm --filter @ameciclo/db db:studio",
+    "db:import": "pnpm --filter @ameciclo/db db:import"
   },
   "devDependencies": {
     "oxlint": "^1.62.0"

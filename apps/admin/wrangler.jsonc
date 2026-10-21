@@ -8,6 +8,8 @@
   "compatibility_date": "2026-03-17",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "placement": { "mode": "smart" },
+  "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_PROD_HYPERDRIVE_ID" }],
   "assets": {
     "binding": "ASSETS",
     "directory": "dist/client",
@@ -21,6 +23,7 @@
   "env": {
     "staging": {
       "routes": [{ "pattern": "staging-admin.ameciclo.org", "custom_domain": true }],
+      "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID" }],
     },
   },
 }

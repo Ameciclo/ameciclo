@@ -97,6 +97,7 @@ pnpm lint          # Verifica qualidade do código
 pnpm typecheck     # Verifica tipos TypeScript
 pnpm db:generate   # Gera migration a partir de packages/db/src/schema.ts
 pnpm db:migrate    # Aplica migrations (DATABASE_URL em packages/db/.env)
+pnpm db:import     # Importa as contagens de data/contagens/*.xlsx (--reset para reimportar)
 ```
 
 Deploy de cada app: `pnpm --filter @ameciclo/web deploy` (ameciclo.org) e `pnpm --filter @ameciclo/admin deploy` (admin.ameciclo.org).
