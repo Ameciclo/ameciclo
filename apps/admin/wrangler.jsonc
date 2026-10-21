@@ -9,7 +9,14 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "placement": { "mode": "smart" },
-  "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_PROD_HYPERDRIVE_ID" }],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "REPLACE_WITH_PROD_HYPERDRIVE_ID",
+      // Used only by `vite dev`; the docker-compose Postgres.
+      "localConnectionString": "postgres://ameciclo:ameciclo@localhost:5433/ameciclo",
+    },
+  ],
   "assets": {
     "binding": "ASSETS",
     "directory": "dist/client",
@@ -23,7 +30,13 @@
   "env": {
     "staging": {
       "routes": [{ "pattern": "staging-admin.ameciclo.org", "custom_domain": true }],
-      "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID" }],
+      "hyperdrive": [
+        {
+          "binding": "HYPERDRIVE",
+          "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID",
+          "localConnectionString": "postgres://ameciclo:ameciclo@localhost:5433/ameciclo",
+        },
+      ],
     },
   },
 }
