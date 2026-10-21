@@ -93,7 +93,7 @@ export function CountsTable({ data }: ContagensTableProps) {
           return (
             <a
               className="text-ameciclo hover:underline"
-              href={`https://cyclist-counts.atlas.ameciclo.org/v1/locations/${locationId}`}
+              href={`/api/contagens/${locationId}`}
               target="_blank"
               rel="noopener noreferrer"
             >

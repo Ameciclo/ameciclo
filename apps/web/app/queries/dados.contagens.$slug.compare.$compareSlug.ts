@@ -1,25 +1,17 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { fetchCompareContagens } from "~/queries/compareContagensLoader";
-import {
-  COUNTINGS_ATLAS_LOCATION,
-  COUNTINGS_ATLAS_LOCATIONS,
-  COUNTINGS_PAGE_DATA,
-} from "~/servers";
+import { COUNTINGS_PAGE_DATA } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
 
 const fetchLocationData = async (locationId: string) => {
+  const id = Number(locationId);
+  if (!Number.isInteger(id)) return null;
   try {
-    const data = await cmsFetch<any>(COUNTINGS_ATLAS_LOCATION(locationId), {
-      ttl: 60,
-      timeout: 5000,
-    });
-    if (!data) return null;
-
-    if (data.counts && data.counts.length > 0) {
-      return { ...data, selectedCount: data.counts[0] };
-    }
-    return data;
+    const { withDb } = await import("~/lib/db.server");
+    const { loadPublicLocations } = await import("@ameciclo/db");
+    const [location] = await withDb((db) => loadPublicLocations(db, { localId: id }));
+    return location ? { ...location, selectedCount: location.counts[0] } : null;
   } catch (error) {
     console.error("Error fetching location data:", error);
     return null;
@@ -28,14 +20,10 @@ const fetchLocationData = async (locationId: string) => {
 
 const fetchPageData = async () => {
   try {
-    const [pageDataRes, locationsRes] = await Promise.all([
-      cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 }),
-      cmsFetch<any>(COUNTINGS_ATLAS_LOCATIONS, {
-        ttl: 300,
-        timeout: 5000,
-        fallback: [],
-      }),
-    ]);
+    const pageDataRes = await cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 });
+    const { withDb } = await import("~/lib/db.server");
+    const { loadPublicLocations } = await import("@ameciclo/db");
+    const locationsRes = await withDb((db) => loadPublicLocations(db));
 
     return {
       pageCover: pageDataRes?.data || null,

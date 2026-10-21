@@ -5,6 +5,7 @@ import { relations } from "./relations";
 
 export * from "./document";
 export * from "./document/store";
+export * from "./public";
 export * from "./schema";
 export { seedDictionary } from "./seed";
 export { relations };

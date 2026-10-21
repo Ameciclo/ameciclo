@@ -3,8 +3,19 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { IntlPercentil } from "~/services/utils";
 import { strapiClient } from "~/lib/strapi";
-import { cmsFetch } from "~/services/cmsFetch";
-import { COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
+
+// Ameciclo's own counts come from the contagens database. When it is unreachable
+// the page falls back to the existing "data unavailable" state.
+async function loadAmecicloLocations() {
+  try {
+    const { withDb } = await import("~/lib/db.server");
+    const { loadPublicLocations } = await import("@ameciclo/db");
+    return await withDb((db) => loadPublicLocations(db));
+  } catch (error) {
+    console.error("Error loading contagens from the database:", error);
+    return null;
+  }
+}
 
 const PCR_CONTAGENS_URL = "https://ameciclo.org/dbs/PCR_CONTAGENS.json";
 
@@ -38,10 +49,7 @@ export type ContagemArchive = z.infer<typeof ArchiveSchema>;
 
 const fetchContagens = createServerFn().handler(async () => {
   // Strapi page metadata: migrated to strapiClient + Zod.
-  // Atlas + PCR feeds: still on cmsFetch / native fetch — their
-  // domains don't resolve outside the deployed Worker, so the runtime
-  // shape can't be verified locally. Atlas-side schemas are a follow-up
-  // (see PR #154's body for the same constraint on dados/perfil).
+  // PCR feed: still a native fetch. Ameciclo's counts come from the database.
   const [pageRes, pcrCounts, atlasData] = await Promise.all([
     strapiClient.single("contagem").find({
       populate: ["cover", "archives", "archives.image", "archives.file"],
@@ -52,11 +60,7 @@ const fetchContagens = createServerFn().handler(async () => {
         console.error("Error fetching PCR_CONTAGENS.json:", error);
         return [] as unknown[];
       }),
-    cmsFetch<unknown[] | null>(COUNTINGS_ATLAS_LOCATIONS, {
-      ttl: 60,
-      timeout: 5000,
-      fallback: [],
-    }),
+    loadAmecicloLocations(),
   ]);
 
   const page = ContagemPageSchema.parse(pageRes.data);

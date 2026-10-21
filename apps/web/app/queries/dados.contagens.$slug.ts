@@ -1,35 +1,19 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import {
-  COUNTINGS_ATLAS_LOCATION,
-  COUNTINGS_ATLAS_LOCATIONS,
-  COUNTINGS_PAGE_DATA,
-} from "~/servers";
+import { COUNTINGS_PAGE_DATA } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
 
 const fetchContagemSlug = createServerFn()
   .inputValidator((input: { slug: string }) => input)
   .handler(async ({ data }) => {
-    const fetchLocationData = async (locationId: string, countId?: string) => {
-      const URL = COUNTINGS_ATLAS_LOCATION(locationId);
+    const fetchLocationData = async (locationId: string) => {
+      const id = Number(locationId);
+      if (!Number.isInteger(id)) return null;
       try {
-        const d = await cmsFetch<any>(URL, { ttl: 60, timeout: 5000 });
-        if (!d) return null;
-
-        if (countId && d.counts) {
-          const specificCount = d.counts.find(
-            (c: any) => c.id.toString() === countId
-          );
-          if (specificCount) {
-            return { ...d, selectedCount: specificCount };
-          }
-        }
-
-        if (d.counts && d.counts.length > 0) {
-          return { ...d, selectedCount: d.counts[0] };
-        }
-
-        return d;
+        const { withDb } = await import("~/lib/db.server");
+        const { loadPublicLocations } = await import("@ameciclo/db");
+        const [location] = await withDb((db) => loadPublicLocations(db, { localId: id }));
+        return location ? { ...location, selectedCount: location.counts[0] } : null;
       } catch (error) {
         console.error("Error fetching location data:", error);
         return null;
@@ -38,14 +22,10 @@ const fetchContagemSlug = createServerFn()
 
     const fetchPageData = async () => {
       try {
-        const [pageDataRes, locationsRes] = await Promise.all([
-          cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 }),
-          cmsFetch<any>(COUNTINGS_ATLAS_LOCATIONS, {
-            ttl: 300,
-            timeout: 5000,
-            fallback: [],
-          }),
-        ]);
+        const pageDataRes = await cmsFetch<any>(COUNTINGS_PAGE_DATA, { ttl: 300, timeout: 5000 });
+        const { withDb } = await import("~/lib/db.server");
+        const { loadPublicLocations } = await import("@ameciclo/db");
+        const locationsRes = await withDb((db) => loadPublicLocations(db));
 
         return {
           pageCover: pageDataRes?.data || null,

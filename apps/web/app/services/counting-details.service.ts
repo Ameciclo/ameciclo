@@ -53,16 +53,11 @@ export function getPointsData(location: any, count: any): pointData[] {
   ];
 }
 
-export function getCountingStatistics(location: any, count: any) {
+export function getCountingStatistics(_location: unknown, count: any) {
   return [
     { title: "Total de ciclistas", value: IntlNumber(count.total_cyclists) },
     { title: "Pico em 1h", value: IntlNumber(count.max_hour_cyclists || 0) },
     { title: "Data da Contagem", value: IntlDateStr(count.date) },
-    {
-      type: "LinksBox",
-      title: "Dados",
-      value: [{ label: "JSON", url: `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${location.id}` }],
-    },
   ];
 }
 

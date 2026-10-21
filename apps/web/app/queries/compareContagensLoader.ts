@@ -1,7 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { COUNTINGS_ATLAS_LOCATION } from "~/servers";
-import { cmsFetch } from "~/services/cmsFetch";
 
 function getBoxesForCountingComparision(data: any[]) {
   const boxes = data.map((location) => {
@@ -34,17 +32,13 @@ function getBoxesForCountingComparision(data: any[]) {
 }
 
 const fetchLocationData = async (locationId: string) => {
+  const id = Number(locationId);
+  if (!Number.isInteger(id)) return null;
   try {
-    const data = await cmsFetch<any>(COUNTINGS_ATLAS_LOCATION(locationId), {
-      ttl: 60,
-      timeout: 5000,
-    });
-    if (!data) return null;
-
-    if (data.counts && data.counts.length > 0) {
-      return { ...data, selectedCount: data.counts[0] };
-    }
-    return data;
+    const { withDb } = await import("~/lib/db.server");
+    const { loadPublicLocations } = await import("@ameciclo/db");
+    const [location] = await withDb((db) => loadPublicLocations(db, { localId: id }));
+    return location ? { ...location, selectedCount: location.counts[0] } : null;
   } catch (error) {
     console.error('Error fetching location data:', error);
     return null;
