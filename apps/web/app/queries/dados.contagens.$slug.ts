@@ -37,13 +37,26 @@ const fetchContagemSlug = createServerFn()
       }
     };
 
+    const fetchDetail = async (countId: number | undefined) => {
+      if (countId === undefined) return null;
+      try {
+        const { withDb } = await import("~/lib/db.server");
+        const { loadPublicCountDetail } = await import("@ameciclo/db");
+        return await withDb((db) => loadPublicCountDetail(db, countId));
+      } catch (error) {
+        console.error("Error fetching count detail:", error);
+        return null;
+      }
+    };
+
     const locationId = data.slug;
     const [locationData, pageData] = await Promise.all([
       fetchLocationData(locationId),
       fetchPageData(),
     ]);
+    const detail = await fetchDetail(locationData?.selectedCount?.id);
 
-    return { data: locationData, pageData };
+    return { data: locationData, detail, pageData };
   });
 
 export const contagemSlugQueryOptions = (slug: string) =>

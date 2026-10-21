@@ -53,8 +53,26 @@ const fetchContagemCompare = createServerFn()
       fetchCompareContagens({ data: { slug: data.slug, compareSlug: data.compareSlug } }),
     ]);
 
+    const details = [];
+    for (const location of locations) {
+      const countId = location?.selectedCount?.id;
+      if (countId === undefined) {
+        details.push(null);
+        continue;
+      }
+      try {
+        const { withDb } = await import("~/lib/db.server");
+        const { loadPublicCountDetail } = await import("@ameciclo/db");
+        details.push(await withDb((db) => loadPublicCountDetail(db, countId)));
+      } catch (error) {
+        console.error("Error fetching count detail:", error);
+        details.push(null);
+      }
+    }
+
     return {
       data: locations,
+      details,
       pageData,
       boxes: comparison,
       toCompare,

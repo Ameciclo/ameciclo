@@ -45,9 +45,17 @@ const characteristicsMap = new Map([
   ["total_wrong_way", { name: "Contramão" }],
 ]);
 
-function getChartData(_data: any[]) {
-    // API Atlas não tem dados por hora, retornar vazio
-    return { series: [], hours: [] };
+function getChartData(details: ({ hours: number[]; series: { name: string; data: number[] }[]; date: string } | null)[], locations: any[]) {
+  const present = details.flatMap((d, i) => (d ? [{ detail: d, name: locations[i]?.name ?? "" }] : []));
+  const hours = [...new Set(present.flatMap(({ detail }) => detail.hours))].sort((a, b) => a - b);
+  const series = present.map(({ detail, name }) => ({
+    name: `${name} (${new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(new Date(detail.date))})`,
+    data: hours.map((h) => {
+      const i = detail.hours.indexOf(h);
+      return i < 0 ? 0 : (detail.series[0]?.data[i] ?? 0);
+    }),
+  }));
+  return { series, hours };
 }
 
 function getBoxesForCountingComparision(data: any[]) {
@@ -118,7 +126,7 @@ function Compare() {
   const boxes = loaderData.boxes.boxes;
 
   const pointsData = getPointsDataForComparingCounting(data);
-  const { series, hours } = getChartData(data);
+  const { series, hours } = getChartData(loaderData.details, data);
 
   return (
     <main className="flex-auto overflow-x-hidden">

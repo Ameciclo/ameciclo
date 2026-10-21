@@ -7,7 +7,7 @@ import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { DataTable, type TableColumn, type TableRowOf } from "~/components/DataTable";
-import { MovementDiagram } from "~/components/MovementDiagram";
+import { MovementDiagram } from "@ameciclo/ui/components/movement-diagram";
 import { formatDate, formatNumber, hourLabel, TOPOLOGY_LABEL } from "~/lib/format";
 import { EditPanel } from "~/components/EditPanel";
 import { HistoryPanel } from "~/components/HistoryPanel";

@@ -6,6 +6,8 @@ import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
+import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
+import { MovementDiagram } from "@ameciclo/ui/components/movement-diagram";
 import { contagemSlugQueryOptions } from "~/queries/dados.contagens.$slug";
 import {
   getCountingCards,
@@ -47,9 +49,13 @@ function Contagem() {
     const { slug } = Route.useParams();
     const { data: loaderData } = useSuspenseQuery(contagemSlugQueryOptions(slug));
     const data = loaderData.data;
+    const detail = loaderData.detail;
     const pageData = loaderData.pageData;
 
     if (!data) throw new Response("Not Found", { status: 404 });
+
+    const flows = Object.fromEntries((detail?.flows ?? []).map((f) => [`${f.from}-${f.to}`, f.value]));
+    const hoursLabel = (hours: number[]) => hours.map((h) => `${h}h`).join(", ");
 
     const pointsData = getPointsData(data, data.selectedCount);
 
@@ -68,6 +74,17 @@ function Contagem() {
                 boxes={getCountingStatistics(data, data.selectedCount)}
             />
 
+            {detail?.estimated && (
+                <p className="container mx-auto my-6 text-center text-sm text-gray-600">
+                    Contagem estimada: foram observados apenas os horários {hoursLabel(detail.observedHours ?? [])}; o restante do dia foi projetado.
+                </p>
+            )}
+            {detail?.partial && (
+                <p className="container mx-auto my-6 text-center text-sm text-gray-600">
+                    Contagem parcial: só há dados em {hoursLabel(detail.observedHours ?? [])}. Os demais horários não foram contados.
+                </p>
+            )}
+
             <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
                 <div className="bg-green-200 rounded-sm shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
                     {pointsData.length > 0 ? (
@@ -80,22 +97,20 @@ function Contagem() {
                 </div>
                 <div className="rounded-sm shadow-2xl lg:col-span-1 col-span-3 flex flex-col justify-center items-center p-8">
                     <h3 className="text-gray-800 text-xl font-bold mb-4 text-center">Fluxo de Ciclistas por Direção</h3>
-                    <div className="text-center text-gray-500">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>
-                        <p className="text-sm">Estamos resolvendo um problema nessa sessão</p>
-                    </div>
+                    {detail && detail.approaches.length <= 4 ? (
+                        <>
+                            <MovementDiagram topology={detail.topology} approaches={detail.approaches} flows={flows} />
+                            <p className="text-xs text-gray-500 text-center mt-2">A posição das aproximações no desenho é ilustrativa.</p>
+                        </>
+                    ) : (
+                        <p className="text-sm text-gray-500 text-center">Não há dados de fluxo para esta contagem.</p>
+                    )}
                 </div>
             </section>
 
             <InfoCards cards={getCountingCards(data.selectedCount)} />
 
-            <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
-                <h2 className="text-gray-800 text-2xl font-bold mb-6">Gráfico de Ciclistas por Hora</h2>
-                <div className="text-center text-gray-500 py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ameciclo mx-auto mb-4"></div>
-                    <p className="text-sm">Estamos resolvendo um problema nessa sessão</p>
-                </div>
-            </section>
+            {detail && detail.hours.length > 0 && <HourlyCyclistsChart series={detail.series} hours={detail.hours} />}
 
             {(() => {
                 const allCounts = transformOtherCountsForComparison(pageData.otherCounts || [], data.id);

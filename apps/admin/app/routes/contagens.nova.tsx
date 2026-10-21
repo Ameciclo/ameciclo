@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ToggleGroup, ToggleGroupItem } from "@ameciclo/ui/components/toggle-group";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { DatePicker } from "~/components/DatePicker";
-import { MovementDiagram } from "~/components/MovementDiagram";
+import { MovementDiagram } from "@ameciclo/ui/components/movement-diagram";
 import { TOPOLOGY_LABEL } from "~/lib/format";
 import { failureMessage } from "~/lib/save-errors";
 import { contagemQueryKeys, createContagem, localsQueryOptions } from "~/queries/contagens";

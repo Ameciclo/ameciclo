@@ -27,7 +27,7 @@ import { Textarea } from "@ameciclo/ui/components/textarea";
 import { ChangeList } from "~/components/ChangeList";
 import { DataTable, type TableColumn } from "~/components/DataTable";
 import { DatePicker } from "~/components/DatePicker";
-import { MovementDiagram } from "~/components/MovementDiagram";
+import { MovementDiagram } from "@ameciclo/ui/components/movement-diagram";
 import { formatNumber, TOPOLOGY_LABEL } from "~/lib/format";
 import { failureMessage } from "~/lib/save-errors";
 import { contagemQueryKeys, saveContagem } from "~/queries/contagens";

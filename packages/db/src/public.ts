@@ -152,3 +152,106 @@ export async function loadPublicLocations(db: Db, options: { localId?: number } 
   }
   return [...locations.values()];
 }
+
+export type PublicSeries = { name: string; data: number[]; visible?: boolean };
+
+export type PublicCountDetail = {
+  id: number;
+  date: string;
+  approaches: string[];
+  topology: "point" | "t_junction" | "crossroad";
+  hours: number[];
+  series: PublicSeries[];
+  flows: { from: number; to: number; value: number }[];
+  estimated: boolean;
+  // Hours with real counts when the count is partial or projected; null when all hours were counted.
+  observedHours: number[] | null;
+  partial: boolean;
+};
+
+const SERIES_LABELS = [
+  ["women", "Mulheres"],
+  ["juveniles", "Crianças e Adolescentes"],
+  ["ride", "Carona"],
+  ["helmet", "Capacete"],
+  ["service", "Serviço"],
+  ["cargo", "Cargueira"],
+  ["shared_bike", "Compartilhada"],
+  ["sidewalk", "Calçada"],
+  ["wrong_way", "Contramão"],
+] as const;
+
+// Hourly movements and characteristics of one published contagem, for the
+// flow diagram and the hourly chart.
+export async function loadPublicCountDetail(db: Db, contagemId: number): Promise<PublicCountDetail | null> {
+  const row = await db.query.contagem.findFirst({ where: { id: contagemId, status: "published" } });
+  if (!row) return null;
+
+  const basis = row.isProjected ? "projected" : "observed";
+  const movements = await db.query.movementCount.findMany({ where: { contagemId, basis } });
+  const observations = await db.query.observation.findMany({
+    where: { contagemId, basis: "observed", characteristicKey: { in: [...ALL_KEYS] } },
+  });
+
+  const startHour = Number.parseInt(row.startedAt ?? "6", 10);
+  const declared = Math.round(
+    ((Number.parseInt(row.endedAt ?? "20", 10) - startHour) * 60) / row.bucketMinutes,
+  );
+  const bucketCount = Math.max(declared, ...movements.map((m) => (m.bucket ?? -1) + 1));
+  const zeros = () => Array.from<number>({ length: bucketCount }).fill(0);
+  const hours = Array.from({ length: bucketCount }, (_, i) => startHour + (i * row.bucketMinutes) / 60);
+
+  const total = zeros();
+  const flowMap = new Map<string, number>();
+  for (const m of movements) {
+    if (m.bucket !== null) total[m.bucket] += m.value;
+    const key = `${m.fromIdx}-${m.toIdx}`;
+    flowMap.set(key, (flowMap.get(key) ?? 0) + m.value);
+  }
+
+  const perKey = new Map<string, number[]>();
+  for (const o of observations) {
+    if (o.characteristicKey === null || o.bucket === null) continue;
+    const arr = perKey.get(o.characteristicKey) ?? zeros();
+    arr[o.bucket] += o.value;
+    perKey.set(o.characteristicKey, arr);
+  }
+  const hourly = (keys: readonly string[]) =>
+    keys.reduce((acc, k) => acc.map((v, i) => v + (perKey.get(k)?.[i] ?? 0)), zeros());
+  const hourlyRollup = (r: { total: string; parts: readonly string[] }) =>
+    perKey.has(r.total) ? hourly([r.total]) : hourly(r.parts);
+
+  const byName: Record<string, number[]> = {
+    women: hourly([DIRECT.women]),
+    juveniles: hourly([DIRECT.juveniles]),
+    helmet: hourly([DIRECT.helmet]),
+    sidewalk: hourly([DIRECT.sidewalk]),
+    shared_bike: hourly([DIRECT.shared_bike]),
+    ride: hourlyRollup(ROLLUPS.ride),
+    cargo: hourlyRollup(ROLLUPS.cargo),
+    service: hourlyRollup(ROLLUPS.service),
+    wrong_way: hourlyRollup(ROLLUPS.wrong_way),
+  };
+
+  const series: PublicSeries[] = [
+    { name: "Total", data: total },
+    ...SERIES_LABELS.map(([key, name]): PublicSeries => ({ name, data: byName[key], visible: false })),
+  ];
+
+  const partial = !row.isProjected && row.observedBuckets !== null;
+  return {
+    id: row.id,
+    date: row.date,
+    approaches: row.approaches,
+    topology: row.topology,
+    hours,
+    series,
+    flows: [...flowMap.entries()].map(([key, value]) => {
+      const [from, to] = key.split("-").map(Number);
+      return { from, to, value };
+    }),
+    estimated: row.isProjected,
+    observedHours: row.observedBuckets ? row.observedBuckets.map((b) => hours[b]) : null,
+    partial,
+  };
+}
