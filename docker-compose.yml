@@ -8,11 +8,8 @@ services:
       POSTGRES_PASSWORD: ameciclo
       POSTGRES_DB: ameciclo
     ports:
-      # 5433 no host: a 5432 costuma estar ocupada por outro projeto.
       - "5433:5432"
     volumes:
-      # Postgres 18 moved PGDATA to /var/lib/postgresql/18/docker. Mounting the
-      # parent keeps the volume valid across future major versions.
       - postgres-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ameciclo -d ameciclo"]
