@@ -12,7 +12,7 @@
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "e4e55787928f41b485fa5f2b4f44e914",
+      "id": "eed191a13be64878a7963d325b53c565",
       // Used only by `vite dev`; the docker-compose Postgres.
       "localConnectionString": "postgres://ameciclo:ameciclo@localhost:5433/ameciclo",
     },
