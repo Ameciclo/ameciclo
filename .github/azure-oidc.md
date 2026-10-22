@@ -18,13 +18,17 @@ SERVER=/subscriptions/$SUB/resourceGroups/ameciclo-rg-prod/providers/Microsoft.D
 APP_ID=$(az ad app create --display-name ameciclo-github-ci --query appId -o tsv)
 az ad sp create --id "$APP_ID"
 
-# Só tokens do ambiente "production" deste repositório são aceitos.
-az ad app federated-credential create --id "$APP_ID" --parameters '{
-  "name": "github-production",
-  "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:Ameciclo/ameciclo:environment:production",
-  "audiences": ["api://AzureADTokenExchange"]
-}'
+# Só tokens do ambiente "production" deste repositório são aceitos. O Azure
+# compara o subject sem ignorar maiúsculas, e o ambiente no GitHub se chama
+# "Production", então registramos as duas grafias.
+for env in production Production; do
+  az ad app federated-credential create --id "$APP_ID" --parameters "{
+    \"name\": \"github-$env\",
+    \"issuer\": \"https://token.actions.githubusercontent.com\",
+    \"subject\": \"repo:Ameciclo/ameciclo:environment:$env\",
+    \"audiences\": [\"api://AzureADTokenExchange\"]
+  }"
+done
 
 cat > /tmp/firewall-role.json <<JSON
 {
@@ -51,7 +55,7 @@ echo "AZURE_CLIENT_ID=$APP_ID AZURE_TENANT_ID=$TENANT AZURE_SUBSCRIPTION_ID=$SUB
 Se o primeiro run reclamar de `AuthorizationFailed` para alguma ação, o erro
 diz qual; é só adicionar essa ação à função.
 
-## No GitHub (Settings, Environments, `production`)
+## No GitHub (Settings, Environments, `Production`)
 
 - **Variáveis** (não são segredos): `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`,
   `AZURE_SUBSCRIPTION_ID`, com os valores impressos acima.
