@@ -114,3 +114,14 @@ export type PublicCountDetail = {
   observedHours: number[] | null;
   partial: boolean;
 };
+
+// Report links must be absolute web addresses; anything else renders as a
+// broken relative link.
+export function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}

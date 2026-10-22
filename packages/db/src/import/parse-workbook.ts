@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
 
-import type { Position } from "../shared";
+import { isHttpUrl, type Position } from "../shared";
 import { type Block, normalizeLabel, resolveCharacteristic } from "./characteristics";
 
 export const PARSER_VERSION = "1";
@@ -271,6 +271,22 @@ function approachesOf(rows: { from: string; to: string }[]): string[] {
   return out;
 }
 
+// A link cell shows a title but keeps the address in `hyperlink`; plain() only
+// keeps the title, so the report cell is read separately.
+function reportCell(ws: ExcelJS.Worksheet | undefined): { text: string; url: string | null } {
+  if (!ws) return { text: "", url: null };
+  for (let r = 1; r <= ws.rowCount; r++) {
+    const row = ws.getRow(r);
+    if (normalizeLabel(str(plain(row.getCell(1).value))) !== "relatorio") continue;
+    const value = row.getCell(2).value;
+    const hyperlink = value !== null && typeof value === "object" && "hyperlink" in value ? value.hyperlink : null;
+    const text = str(plain(value)).replace(/^["'\u201c\u2018]+|["'\u201d\u2019]+$/g, "").trim();
+    const url = [hyperlink, text].find((c): c is string => typeof c === "string" && isHttpUrl(c.trim()));
+    return { text, url: url?.trim() ?? null };
+  }
+  return { text: "", url: null };
+}
+
 function parseResumo(ws: ExcelJS.Worksheet | undefined) {
   const map = new Map<string, Cell>();
   if (ws) {
@@ -279,6 +295,7 @@ function parseResumo(ws: ExcelJS.Worksheet | undefined) {
       if (label && !map.has(label)) map.set(label, row[1] ?? null);
     }
   }
+  const report = reportCell(ws);
   const coords = str(map.get("coordenadas geograficas") ?? null).match(
     /(-?\d+[.,]\d+)\s*[,;]\s*(-?\d+[.,]\d+)/,
   );
@@ -287,7 +304,8 @@ function parseResumo(ws: ExcelJS.Worksheet | undefined) {
     date: parseDate(map.get("data")),
     latitude: coords ? Number(coords[1].replace(",", ".")) : null,
     longitude: coords ? Number(coords[2].replace(",", ".")) : null,
-    reportUrl: str(map.get("relatorio") ?? null) || null,
+    reportUrl: report.url,
+    reportText: report.text,
     total: num(map.get("total")),
     peak: num(map.get("maximo em um hora")),
   };
@@ -348,6 +366,9 @@ export async function parseWorkbook(
   if (!resumo.name) warn("error", "missing_name", "Resumo has no Cruzamento");
   if (!resumo.date) warn("error", "missing_date", "Resumo has no readable Data");
   if (resumo.latitude === null) warn("warning", "missing_coordinates", "No coordinates in Resumo");
+  if (resumo.reportText && !resumo.reportUrl) {
+    warn("warning", "report_link_invalid", `The report cell says "${resumo.reportText}" but has no web address`);
+  }
 
   const dadosSheet = wb.getWorksheet("Dados");
   const grid = dadosSheet ? readGrid(dadosSheet) : [];
