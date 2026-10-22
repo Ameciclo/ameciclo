@@ -14,7 +14,9 @@ export const IntlPercentil = (n: number): string => {
 
 export const IntlDateStr = (str: string): string => {
   const date = new Date(str);
-  return new Intl.DateTimeFormat("pt-BR").format(date);
+  // A date without a time is UTC midnight; formatting it in the local zone would show the previous day.
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(str);
+  return new Intl.DateTimeFormat("pt-BR", dateOnly ? { timeZone: "UTC" } : undefined).format(date);
 };
 
 export function getInicialFilters() {

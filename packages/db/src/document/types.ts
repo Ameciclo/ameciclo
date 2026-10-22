@@ -1,0 +1,86 @@
+import type { Position } from "../shared";
+
+export type Basis = "observed" | "projected";
+export type Block = "padroes" | "observacoes";
+
+export type DocumentHeader = {
+  localId: number;
+  variant: string | null;
+  date: string;
+  sourceDate: string | null;
+  dateNote: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  topology: "point" | "t_junction" | "crossroad";
+  bucketMinutes: number;
+  granularity: "hourly" | "total";
+  observedBuckets: number[] | null;
+  isProjected: boolean;
+  status: "draft" | "published";
+  reportUrl: string | null;
+  notes: string | null;
+  layout: string | null;
+};
+
+export type DocumentMovement = {
+  basis: Basis;
+  from: number;
+  to: number;
+  // One value per bucket. A session total (no hourly split) goes in `total`.
+  cells: number[];
+  total: number | null;
+};
+
+export type DocumentObservation = {
+  basis: Basis;
+  block: Block;
+  position: number;
+  rawLabel: string;
+  characteristicKey: string | null;
+  cells: number[];
+  total: number | null;
+};
+
+export type DocumentCondition = {
+  bucket: number;
+  kind: string;
+  value: number | null;
+  note: string | null;
+};
+
+export type DocumentNote = {
+  bucketFrom: number | null;
+  bucketTo: number | null;
+  text: string;
+};
+
+// The full editable state of one contagem. Revisions store this as-is.
+export type ContagemDocument = {
+  schemaVersion: 1;
+  header: DocumentHeader;
+  approaches: string[];
+  // Where each approach sits around the intersection; absent or null when unknown.
+  positions?: Position[] | null;
+  movements: DocumentMovement[];
+  observations: DocumentObservation[];
+  conditions: DocumentCondition[];
+  notes: DocumentNote[];
+};
+
+// The part of the document stored in contagem.data; the header and approaches
+// live in their own columns.
+export type ContagemBody = Pick<ContagemDocument, "movements" | "observations" | "conditions" | "notes">;
+
+// Observed totals per characteristic key (hourly cells plus any session total).
+export type ContagemSummary = {
+  characteristics: Record<string, number>;
+};
+
+export type DocumentChange = {
+  section: "header" | "approaches" | "movements" | "observations" | "conditions" | "notes";
+  label: string;
+  before: string | null;
+  after: string | null;
+};
+
+export type RevisionKind = "import" | "create" | "edit" | "revert";

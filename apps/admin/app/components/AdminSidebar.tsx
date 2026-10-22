@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard } from "lucide-react";
+import { BookOpen, LayoutDashboard, MapPin, Users2 } from "lucide-react";
 import { cn } from "@ameciclo/ui/lib/utils";
 
 type NavItem = {
@@ -11,6 +11,9 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/contagens", label: "Contagens", icon: Users2 },
+  { to: "/locais", label: "Locais", icon: MapPin },
+  { to: "/caracteristicas", label: "Características", icon: BookOpen },
 ];
 
 export function AdminSidebar() {

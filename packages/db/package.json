@@ -3,20 +3,32 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./import": "./src/import/index.ts",
+    "./schema": "./src/schema.ts",
+    "./document": "./src/document/index.ts",
+    "./shared": "./src/shared.ts",
+    "./derive": "./src/derive.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:import": "tsx scripts/import-contagens.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "test": "vitest run",
+    "test:fixtures": "CONTAGENS_FIXTURES=1 vitest run src/import"
   },
   "dependencies": {
     "drizzle-orm": "1.0.0-rc.5-5935859",
+    "exceljs": "^4.4.0",
     "pg": "^8.22.0"
   },
   "devDependencies": {
     "@types/pg": "^8.20.4",
     "drizzle-kit": "1.0.0-rc.5-5935859",
-    "typescript": "^5.1.6"
+    "tsx": "^4.23.15",
+    "typescript": "^5.1.6",
+    "vitest": "^5.0.5"
   }
 }

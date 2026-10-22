@@ -3,7 +3,12 @@ import { Client } from "pg";
 
 import { relations } from "./relations";
 
+export * from "./document";
+export * from "./document/store";
+export * from "./public";
+export * from "./shared";
 export * from "./schema";
+export { seedDictionary } from "./seed";
 export { relations };
 
 export type Db = NodePgDatabase<typeof relations>;

@@ -1,7 +1,7 @@
-import { CountEditionSummary } from "typings";
+import type { CountsSummary } from "~/queries/dados.contagens";
 import { IntlNumber } from "~/services/utils";
 
-export function useCountsStatistics(summaryData: CountEditionSummary | null) {
+export function useCountsStatistics(summaryData: CountsSummary | null) {
   if (!summaryData) {
     return [
       { title: "Total de ciclistas", value: "0" },

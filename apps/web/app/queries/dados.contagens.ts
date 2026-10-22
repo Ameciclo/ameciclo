@@ -1,10 +1,24 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { METRICS, type PublicCount } from "@ameciclo/db/shared";
+import type { PcrCounting } from "typings";
+import { cmsFetch } from "~/services/cmsFetch";
 import { IntlPercentil } from "~/services/utils";
 import { strapiClient } from "~/lib/strapi";
-import { cmsFetch } from "~/services/cmsFetch";
-import { COUNTINGS_ATLAS_LOCATIONS } from "~/servers";
+
+// Ameciclo's own counts come from the contagens database. When it is unreachable
+// the page falls back to the existing "data unavailable" state.
+async function loadAmecicloLocations() {
+  try {
+    const { withDb } = await import("~/lib/db.server");
+    const { loadPublicLocations } = await import("@ameciclo/db");
+    return await withDb((db) => loadPublicLocations(db));
+  } catch (error) {
+    console.error("Error loading contagens from the database:", error);
+    return null;
+  }
+}
 
 const PCR_CONTAGENS_URL = "https://ameciclo.org/dbs/PCR_CONTAGENS.json";
 
@@ -33,129 +47,78 @@ const ContagemPageSchema = z.object({
   archives: z.array(ArchiveSchema).nullish(),
 });
 
+export type CountsSummary = {
+  total_cyclists: number;
+  number_counts: number;
+  different_counts_points: number;
+  where_max_count: { total_cyclists: number };
+  total_women: number;
+  total_juveniles: number;
+  total_ride: number;
+  total_helmet: number;
+  total_service: number;
+  total_cargo: number;
+  total_shared_bike: number;
+  total_sidewalk: number;
+  total_wrong_way: number;
+};
+
 export type ContagemPage = z.infer<typeof ContagemPageSchema>;
 export type ContagemArchive = z.infer<typeof ArchiveSchema>;
 
 const fetchContagens = createServerFn().handler(async () => {
-  // Strapi page metadata: migrated to strapiClient + Zod.
-  // Atlas + PCR feeds: still on cmsFetch / native fetch — their
-  // domains don't resolve outside the deployed Worker, so the runtime
-  // shape can't be verified locally. Atlas-side schemas are a follow-up
-  // (see PR #154's body for the same constraint on dados/perfil).
-  const [pageRes, pcrCounts, atlasData] = await Promise.all([
+  // Strapi page metadata: strapiClient + Zod.
+  // PCR feed: cached at the edge with a timeout (it is a slow static file).
+  // Ameciclo's counts come from the database.
+  const [pageRes, pcrCounts, locations] = await Promise.all([
     strapiClient.single("contagem").find({
       populate: ["cover", "archives", "archives.image", "archives.file"],
     }),
-    fetch(PCR_CONTAGENS_URL)
-      .then((r) => r.json())
-      .catch((error) => {
-        console.error("Error fetching PCR_CONTAGENS.json:", error);
-        return [] as unknown[];
-      }),
-    cmsFetch<unknown[] | null>(COUNTINGS_ATLAS_LOCATIONS, {
-      ttl: 60,
-      timeout: 5000,
-      fallback: [],
+    cmsFetch<PcrCounting[]>(PCR_CONTAGENS_URL, { ttl: 3600, timeout: 15000, fallback: [] }).catch((error) => {
+      console.error("Error fetching PCR_CONTAGENS.json:", error);
+      return [];
     }),
+    loadAmecicloLocations(),
   ]);
 
   const page = ContagemPageSchema.parse(pageRes.data);
+  const counts = (locations ?? []).flatMap((l) => l.counts);
 
-  let totalCyclists = 0;
-  let totalWomen = 0;
-  let totalJuveniles = 0;
-  let totalRide = 0;
-  let totalHelmet = 0;
-  let totalService = 0;
-  let totalCargo = 0;
-  let totalSharedBike = 0;
-  let totalSidewalk = 0;
-  let totalWrongWay = 0;
-  let maxCount = 0;
-  let differentPoints = 0;
-  let totalCounts = 0;
+  const total = (pick: (c: PublicCount) => number) => counts.reduce((sum, c) => sum + pick(c), 0);
+  const totalCyclists = total((c) => c.total_cyclists);
+  const byMetric = Object.fromEntries(METRICS.map((m) => [m.key, total((c) => c.characteristics[m.key])]));
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const countsData: any[] = [];
-
-  // Atlas response shape isn't verified from this dev environment yet;
-  // the aggregation loop keeps its original `any` annotations. Once the
-  // Atlas API is reachable from CI, Zod-parse the response and tighten
-  // these locals.
-  if (Array.isArray(atlasData)) {
-    differentPoints = atlasData.length;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    atlasData.forEach((location: any) => {
-      if (location?.counts && Array.isArray(location.counts)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        location.counts.forEach((count: any) => {
-          totalCounts++;
-          const cyclists = count.total_cyclists || 0;
-          totalCyclists += cyclists;
-
-          if (cyclists > maxCount) maxCount = cyclists;
-
-          const chars = count.characteristics || {};
-          totalWomen += chars.women || 0;
-          totalJuveniles += chars.juveniles || 0;
-          totalRide += chars.ride || 0;
-          totalHelmet += chars.helmet || 0;
-          totalService += chars.service || 0;
-          totalCargo += chars.cargo || 0;
-          totalSharedBike += chars.shared_bike || 0;
-          totalSidewalk += chars.sidewalk || 0;
-          totalWrongWay += chars.wrong_way || 0;
-
-          countsData.push({
-            id: location.id,
-            name: location.name,
-            slug: String(location.id),
-            date: count.date,
-            total_cyclists: cyclists,
-          });
-        });
-      }
-    });
-  }
-
-  const summaryData = {
+  const summaryData: CountsSummary = {
     total_cyclists: totalCyclists,
-    number_counts: totalCounts,
-    different_counts_points: differentPoints,
-    where_max_count: { total_cyclists: maxCount },
-    total_women: totalWomen,
-    total_juveniles: totalJuveniles,
-    total_ride: totalRide,
-    total_helmet: totalHelmet,
-    total_service: totalService,
-    total_cargo: totalCargo,
-    total_shared_bike: totalSharedBike,
-    total_sidewalk: totalSidewalk,
-    total_wrong_way: totalWrongWay,
+    number_counts: counts.length,
+    different_counts_points: locations?.length ?? 0,
+    where_max_count: { total_cyclists: Math.max(0, ...counts.map((c) => c.total_cyclists)) },
+    total_women: byMetric.women,
+    total_juveniles: byMetric.juveniles,
+    total_ride: byMetric.ride,
+    total_helmet: byMetric.helmet,
+    total_service: byMetric.service,
+    total_cargo: byMetric.cargo,
+    total_shared_bike: byMetric.shared_bike,
+    total_sidewalk: byMetric.sidewalk,
+    total_wrong_way: byMetric.wrong_way,
   };
 
   const cards =
     totalCyclists > 0
-      ? [
-          { label: "Mulheres", icon: "women", data: IntlPercentil(totalWomen / totalCyclists) },
-          { label: "Crianças e Adolescentes", icon: "children", data: IntlPercentil(totalJuveniles / totalCyclists) },
-          { label: "Carona", icon: "ride", data: IntlPercentil(totalRide / totalCyclists) },
-          { label: "Capacete", icon: "helmet", data: IntlPercentil(totalHelmet / totalCyclists) },
-          { label: "Serviço", icon: "service", data: IntlPercentil(totalService / totalCyclists) },
-          { label: "Cargueira", icon: "cargo", data: IntlPercentil(totalCargo / totalCyclists) },
-          { label: "Compartilhada", icon: "shared_bike", data: IntlPercentil(totalSharedBike / totalCyclists) },
-          { label: "Calçada", icon: "sidewalk", data: IntlPercentil(totalSidewalk / totalCyclists) },
-          { label: "Contramão", icon: "wrong_way", data: IntlPercentil(totalWrongWay / totalCyclists) },
-        ]
+      ? METRICS.filter((m) => m.card).map((m) => ({
+          label: m.label,
+          icon: m.icon,
+          data: IntlPercentil(byMetric[m.key] / totalCyclists),
+        }))
       : [];
 
   return {
     page,
-    summaryData: { summaryData, countsData, cards },
+    summaryData: { summaryData, cards },
     pcrCounts,
-    amecicloData: atlasData,
-    atlasApiDown: atlasData == null,
+    amecicloData: locations,
+    atlasApiDown: locations == null,
   };
 });
 

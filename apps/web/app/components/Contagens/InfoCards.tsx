@@ -1,4 +1,6 @@
-export const InfoCards = ({ cards }: any) => {
+type InfoCardData = { label: string; data: string; icon: string };
+
+export const InfoCards = ({ cards }: { cards: InfoCardData[] | null | undefined }) => {
   if (!cards) {
     return (
       <section className="container mx-auto grid grid-cols-2 max-[320px]:grid-cols-1 lg:grid-cols-3 auto-rows-auto gap-10 my-10">
@@ -17,14 +19,14 @@ export const InfoCards = ({ cards }: any) => {
 
   return (
     <section className="container mx-auto grid grid-cols-2 max-[320px]:grid-cols-1 lg:grid-cols-3 auto-rows-auto gap-10 my-10">
-      {cards.map((card: any, index: any) => (
-        <InfoCard key={index} {...card} />
+      {cards.map((card) => (
+        <InfoCard key={card.label} {...card} />
       ))}
     </section>
   );
 };
 
-const InfoCard = ({ label, data, icon }: any) => {
+const InfoCard = ({ label, data, icon }: InfoCardData) => {
   return (
     <div
       key={label}

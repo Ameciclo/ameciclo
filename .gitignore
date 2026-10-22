@@ -77,3 +77,4 @@ migration_comparison.py
 migration_review.tsv
 strapi_*.sql
 .tanstack/
+data/contagens/

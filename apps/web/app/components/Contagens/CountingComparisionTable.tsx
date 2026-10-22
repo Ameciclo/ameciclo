@@ -4,7 +4,7 @@ import { matchSorter } from "match-sorter";
 import { Link } from "@tanstack/react-router";
 import { ColumnFilter, NumberRangeColumnFilter } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
-import { IntlDateStr } from "~/services/utils";
+import { IntlDateStr, IntlNumber } from "~/services/utils";
 
 function fuzzyTextFilterFn(rows: any[], id: string, filterValue: string) {
   return matchSorter(rows, filterValue, { keys: [(row: any) => row.values[id]] });
@@ -60,7 +60,8 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             className="text-ameciclo"
             to="/dados/contagens/$slug"
             params={{ slug: String(row.original.id) }}
-            key={row.original.id}
+            search={{ contagem: row.original.countId }}
+            key={row.original.countId}
           >
             {row.original.name}
           </Link>
@@ -83,6 +84,16 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
       {
         Header: "Total de Ciclistas",
         accessor: "total_cyclists",
+        Cell: ({ row }: { row: any }) => (
+          <span className="inline-flex items-center gap-2">
+            {IntlNumber(row.original.total_cyclists)}
+            {row.original.note && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                {row.original.note}
+              </span>
+            )}
+          </span>
+        ),
         Filter: NumberRangeColumnFilter,
         filter: "between",
       },

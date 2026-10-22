@@ -1,4 +1,6 @@
+import { countRows, filterLocations, yearsOf } from "@ameciclo/db/derive";
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { pointData } from "typings";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -18,7 +20,13 @@ import { contagensQueryOptions } from "~/queries/dados.contagens";
 import { useState } from "react";
 import { seo } from "~/utils/seo";
 
+const SearchSchema = z.object({
+  ano: z.number().int().optional().catch(undefined),
+  completas: z.boolean().optional().catch(undefined),
+});
+
 export const Route = createFileRoute("/dados/contagens/")({
+  validateSearch: SearchSchema,
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(contagensQueryOptions()),
   head: () =>
@@ -38,11 +46,16 @@ export const Route = createFileRoute("/dados/contagens/")({
 function Contagens() {
   const { data: { page, summaryData, pcrCounts, amecicloData, atlasApiDown } } =
     useSuspenseQuery(contagensQueryOptions());
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
+  const { ano, completas } = Route.useSearch();
+  const navigate = Route.useNavigate();
+
+  const all = amecicloData ?? [];
+  const filtered = filterLocations(all, { year: ano, completeOnly: completas });
+  const rows = countRows(all, filtered);
 
   const statistics = useCountsStatistics(summaryData.summaryData);
-  const { pointsData, controlPanel } = useCountsMapData(amecicloData, pcrCounts);
+  const { pointsData, controlPanel } = useCountsMapData(filtered, pcrCounts);
 
   const docs = (page.archives ?? []).map((a) => ({
     title: a.filename ?? "",
@@ -73,7 +86,38 @@ function Contagens() {
       />
 
       <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
-      <CountsTable data={summaryData.countsData} showFilters={showFilters} setShowFilters={setShowFilters} />
+      <section className="container mx-auto my-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-700">
+        <label className="flex items-center gap-2">
+          Ano
+          <select
+            className="rounded-sm border border-gray-300 px-2 py-1"
+            value={ano ?? ""}
+            onChange={(e) =>
+              navigate({ search: (prev) => ({ ...prev, ano: e.target.value ? Number(e.target.value) : undefined }) })
+            }
+          >
+            <option value="">Todos</option>
+            {yearsOf(all).map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={completas ?? false}
+            onChange={(e) => navigate({ search: (prev) => ({ ...prev, completas: e.target.checked || undefined }) })}
+          />
+          Ocultar contagens estimadas e parciais
+        </label>
+        <span className="text-gray-500">{rows.length} contagens</span>
+        <a className="text-ameciclo hover:underline sm:ml-auto" href="/api/contagens/csv" download>
+          Baixar todas as contagens (CSV)
+        </a>
+      </section>
+      <CountsTable data={rows} />
       <CardsSession
         title={"Documentos para realizar contagens de ciclistas."}
         cards={docs}
