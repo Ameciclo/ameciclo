@@ -238,6 +238,9 @@ importers:
 
   packages/db:
     dependencies:
+      csv-parse:
+        specifier: ^7.0.3
+        version: 7.0.3
       drizzle-orm:
         specifier: 1.0.0-rc.5-5935859
         version: 1.0.0-rc.5-5935859(@types/pg@8.20.4)(pg@8.22.0)(zod@4.3.6)
@@ -3118,6 +3121,9 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  csv-parse@7.0.3:
+    resolution: {integrity: sha512-YFd3QM/yo17vH91L1IOZuvl09zM0zEEtdfTcOCKWcMdM++MNaQSyp09slXyFCLaPXvHstQFx/xC8myiFHSMUvw==}
 
   data-view-buffer@1.0.2:
     resolution: {integrity: sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==}
@@ -7676,6 +7682,8 @@ snapshots:
   cssesc@3.0.0: {}
 
   csstype@3.2.3: {}
+
+  csv-parse@7.0.3: {}
 
   data-view-buffer@1.0.2:
     dependencies:

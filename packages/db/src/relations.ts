@@ -26,6 +26,13 @@ export const relations = defineRelations(schema, (r) => ({
   contagemRevision: {
     contagem: r.one.contagem({ from: r.contagemRevision.contagemId, to: r.contagem.id }),
   },
+  profileSurvey: {
+    interviews: r.many.profileInterview(),
+  },
+  profileInterview: {
+    survey: r.one.profileSurvey({ from: r.profileInterview.surveyId, to: r.profileSurvey.id, optional: false }),
+    point: r.one.profilePoint({ from: r.profileInterview.pointId, to: r.profilePoint.id }),
+  },
   characteristicAlias: {
     characteristic: r.one.characteristic({
       from: r.characteristicAlias.characteristicKey,
