@@ -67,6 +67,15 @@ export type ContagemDocument = {
   notes: DocumentNote[];
 };
 
+// The part of the document stored in contagem.data; the header and approaches
+// live in their own columns.
+export type ContagemBody = Pick<ContagemDocument, "movements" | "observations" | "conditions" | "notes">;
+
+// Observed totals per characteristic key (hourly cells plus any session total).
+export type ContagemSummary = {
+  characteristics: Record<string, number>;
+};
+
 export type DocumentChange = {
   section: "header" | "approaches" | "movements" | "observations" | "conditions" | "notes";
   label: string;

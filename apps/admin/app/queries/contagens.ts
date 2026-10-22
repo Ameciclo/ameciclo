@@ -7,7 +7,6 @@ import {
   contagem,
   importWarning,
   local,
-  observation,
 } from "@ameciclo/db/schema";
 import type { ContagemDocument } from "@ameciclo/db/document";
 
@@ -68,26 +67,21 @@ export const listCharacteristics = createServerFn({ method: "GET" }).handler(asy
         group: characteristic.group,
         parentKey: characteristic.parentKey,
         isRollup: characteristic.isRollup,
-        contagens: sql<number>`count(distinct ${observation.contagemId})::int`,
+        contagens: sql<number>`(select count(*)::int from ${contagem} c where exists (select 1 from jsonb_array_elements(c.data -> 'observations') o where o ->> 'characteristicKey' = ${characteristic.key}))`,
         aliases: sql<string[]>`coalesce((select array_agg(a.alias order by a.alias) from ${characteristicAlias} a where a.characteristic_key = ${characteristic.key}), '{}')`,
       })
       .from(characteristic)
-      .leftJoin(observation, eq(observation.characteristicKey, characteristic.key))
-      .groupBy(characteristic.key)
       .orderBy(characteristic.group, characteristic.key);
 
-    const unmapped = await db
-      .select({
-        rawLabel: observation.rawLabel,
-        rows: sql<number>`count(*)::int`,
-        contagens: sql<number>`count(distinct ${observation.contagemId})::int`,
-      })
-      .from(observation)
-      .where(sql`${observation.characteristicKey} is null`)
-      .groupBy(observation.rawLabel)
-      .orderBy(sql`count(*) desc`);
+    const unmapped = await db.execute<{ rawLabel: string; rows: number; contagens: number }>(sql`
+      select o ->> 'rawLabel' as "rawLabel", count(*)::int as rows, count(distinct c.id)::int as contagens
+      from ${contagem} c, jsonb_array_elements(c.data -> 'observations') o
+      where o ->> 'characteristicKey' is null
+      group by 1
+      order by 2 desc
+    `);
 
-    return { dictionary, unmapped };
+    return { dictionary, unmapped: unmapped.rows };
   });
 });
 
@@ -98,17 +92,13 @@ export const getContagem = createServerFn({ method: "GET" })
     return withDb(async (db) => {
       const row = await db.query.contagem.findFirst({
         where: { id: data.id },
-        with: { local: true, annotations: true, conditions: true, warnings: true },
+        columns: { summary: false },
+        with: { local: true, warnings: true },
       });
       if (!row) return null;
 
-      const movements = await db.query.movementCount.findMany({ where: { contagemId: data.id } });
-      const observations = await db.query.observation.findMany({
-        where: { contagemId: data.id },
-        orderBy: { block: "asc", position: "asc", bucket: "asc" },
-      });
       const dictionary = await db.query.characteristic.findMany();
-      return { row, movements, observations, dictionary };
+      return { row, dictionary };
     });
   });
 

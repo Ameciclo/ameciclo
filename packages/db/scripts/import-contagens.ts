@@ -3,20 +3,11 @@ import { join, resolve } from "node:path";
 
 import { sql } from "drizzle-orm";
 
-import { createInitialRevision, type Db, seedDictionary, VALIDATION_CODES, withDb } from "../src";
-import {
-  characteristicAlias,
-  condition,
-  contagem,
-  contagemRevision,
-  importWarning,
-  local,
-  movementCount,
-  note,
-  observation,
-} from "../src/schema";
+import { createInitialRevision, type Db, rowFromDocument, seedDictionary, VALIDATION_CODES, withDb } from "../src";
+import { characteristicAlias, contagem, contagemRevision, importWarning, local } from "../src/schema";
 import {
   ALIASES,
+  documentFromParsed,
   type ParsedContagem,
   PARSER_VERSION,
   parseWorkbook,
@@ -49,9 +40,6 @@ const validationCodes = new Set<string>(VALIDATION_CODES);
 const dir = resolve(process.env.CONTAGENS_DIR ?? join(import.meta.dirname, "../../../data/contagens"));
 const manifest: ManifestEntry[] = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
 
-const pad = (n: number) => String(n).padStart(2, "0");
-const chunk = <T>(rows: T[], size = 2000): T[][] =>
-  Array.from({ length: Math.ceil(rows.length / size) }, (_, i) => rows.slice(i * size, (i + 1) * size));
 
 async function main() {
   await withDb(connectionString!, async (db: Db) => {
@@ -198,27 +186,23 @@ async function main() {
           });
         }
 
-        const endHour = parsed.startHour + (parsed.bucketCount * parsed.bucketMinutes) / 60;
+        const doc = documentFromParsed(parsed, {
+          localId: localIds.get(placeKey(base) || parsed.name)!,
+          variant,
+          date,
+          sourceDate: override ? parsed.date : null,
+          dateNote: override?.note ?? null,
+        });
+        const values = rowFromDocument(doc, 1);
+        if (values.totalCyclists !== parsed.totalCyclists || values.peakBucketCount !== parsed.peakBucketCount) {
+          console.warn(
+            `${entry.title}: parser says ${parsed.totalCyclists}/${parsed.peakBucketCount}, document gives ${values.totalCyclists}/${values.peakBucketCount}`,
+          );
+        }
         const [row] = await tx
           .insert(contagem)
           .values({
-            localId: localIds.get(placeKey(base) || parsed.name)!,
-            variant,
-            date,
-            sourceDate: override ? parsed.date : null,
-            dateNote: override?.note ?? null,
-            startedAt: `${pad(parsed.startHour)}:00:00`,
-            endedAt: `${pad(Math.floor(endHour))}:00:00`,
-            topology: parsed.topology,
-            approaches: parsed.approaches,
-            approachPositions: parsed.positions,
-            bucketMinutes: parsed.bucketMinutes,
-            observedBuckets: parsed.observedBuckets,
-            isProjected: parsed.isProjected,
-            reportUrl: parsed.reportUrl,
-            layout: parsed.layout,
-            totalCyclists: parsed.totalCyclists,
-            peakBucketCount: parsed.peakBucketCount,
+            ...values,
             source: {
               driveFileId: entry.fileId,
               fileName: entry.title,
@@ -230,27 +214,6 @@ async function main() {
           .returning({ id: contagem.id });
         const contagemId = row.id;
 
-        for (const rows of chunk(
-          parsed.movements.map((m) => ({
-            contagemId,
-            basis: m.basis,
-            fromIdx: m.from,
-            toIdx: m.to,
-            bucket: m.bucket,
-            value: m.value,
-          })),
-        )) {
-          await tx.insert(movementCount).values(rows);
-        }
-        for (const rows of chunk(parsed.observations.map((o) => ({ ...o, contagemId })))) {
-          await tx.insert(observation).values(rows);
-        }
-        if (parsed.conditions.length > 0) {
-          await tx.insert(condition).values(parsed.conditions.map((c) => ({ ...c, contagemId })));
-        }
-        if (parsed.notes.length > 0) {
-          await tx.insert(note).values(parsed.notes.map((n) => ({ ...n, contagemId })));
-        }
         if (warnings.length > 0) {
           await tx.insert(importWarning).values(warnings.map((w) => ({ ...w, contagemId })));
           warningCount += warnings.length;

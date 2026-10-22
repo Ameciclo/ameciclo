@@ -3,26 +3,11 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import type { relations } from "../relations";
 import { slugify } from "../import/locals";
-import {
-  characteristic,
-  condition,
-  contagem,
-  contagemRevision,
-  importWarning,
-  local,
-  movementCount,
-  note,
-  observation,
-} from "../schema";
+import { characteristic, contagem, contagemRevision, importWarning, local } from "../schema";
 import { diffDocuments } from "./diff";
 import { detectIssues } from "./issues";
-import type {
-  Basis,
-  ContagemDocument,
-  DocumentMovement,
-  DocumentObservation,
-  RevisionKind,
-} from "./types";
+import { bodyOf, summarize } from "./summary";
+import type { Basis, ContagemDocument, RevisionKind } from "./types";
 import { validateDocument } from "./validate";
 
 type Db = NodePgDatabase<typeof relations>;
@@ -48,63 +33,12 @@ export class InvalidDocumentError extends Error {
   }
 }
 
-const hourOf = (time: string | null) => Number.parseInt(time ?? "6", 10);
-
-function bucketCountOf(startedAt: string | null, endedAt: string | null, bucketMinutes: number): number {
-  if (!startedAt || !endedAt) return 0;
-  return Math.max(0, Math.round(((hourOf(endedAt) - hourOf(startedAt)) * 60) / bucketMinutes));
-}
-
 export async function loadDocument(
   db: Db,
   id: number,
 ): Promise<{ doc: ContagemDocument; version: number } | null> {
   const row = await db.query.contagem.findFirst({ where: { id } });
   if (!row) return null;
-
-  // One connection runs one query at a time.
-  const movements = await db.query.movementCount.findMany({ where: { contagemId: id } });
-  const observations = await db.query.observation.findMany({ where: { contagemId: id } });
-  const conditions = await db.query.condition.findMany({ where: { contagemId: id } });
-  const notes = await db.query.note.findMany({ where: { contagemId: id } });
-
-  const declared = bucketCountOf(row.startedAt, row.endedAt, row.bucketMinutes);
-  const highest = Math.max(
-    -1,
-    ...movements.map((m) => m.bucket ?? -1),
-    ...observations.map((o) => o.bucket ?? -1),
-  );
-  const bucketCount = Math.max(declared, highest + 1);
-  const zeros = () => Array.from<number>({ length: bucketCount }).fill(0);
-
-  const movementMap = new Map<string, DocumentMovement>();
-  for (const m of movements) {
-    const key = `${m.basis}|${m.fromIdx}|${m.toIdx}`;
-    const entry =
-      movementMap.get(key) ?? { basis: m.basis, from: m.fromIdx, to: m.toIdx, cells: zeros(), total: null };
-    if (m.bucket === null) entry.total = (entry.total ?? 0) + m.value;
-    else entry.cells[m.bucket] += m.value;
-    movementMap.set(key, entry);
-  }
-
-  const observationMap = new Map<string, DocumentObservation>();
-  for (const o of observations) {
-    const key = `${o.basis}|${o.block}|${o.position}`;
-    const entry =
-      observationMap.get(key) ??
-      {
-        basis: o.basis,
-        block: o.block,
-        position: o.position,
-        rawLabel: o.rawLabel,
-        characteristicKey: o.characteristicKey,
-        cells: zeros(),
-        total: null,
-      };
-    if (o.bucket === null) entry.total = (entry.total ?? 0) + o.value;
-    else entry.cells[o.bucket] += o.value;
-    observationMap.set(key, entry);
-  }
 
   const doc: ContagemDocument = {
     schemaVersion: 1,
@@ -128,14 +62,7 @@ export async function loadDocument(
     },
     approaches: row.approaches,
     positions: row.approachPositions,
-    movements: [...movementMap.values()].sort((a, b) => a.basis.localeCompare(b.basis) || a.from - b.from || a.to - b.to),
-    observations: [...observationMap.values()].sort(
-      (a, b) => a.basis.localeCompare(b.basis) || a.block.localeCompare(b.block) || a.position - b.position,
-    ),
-    conditions: conditions
-      .map((c) => ({ bucket: c.bucket, kind: c.kind, value: c.value, note: c.note }))
-      .sort((a, b) => a.kind.localeCompare(b.kind) || a.bucket - b.bucket),
-    notes: notes.map((n) => ({ bucketFrom: n.bucketFrom, bucketTo: n.bucketTo, text: n.text })),
+    ...row.data,
   };
   return { doc, version: row.version };
 }
@@ -154,78 +81,35 @@ function derivedTotals(doc: ContagemDocument): { total: number; peak: number } {
   return { total, peak: Math.max(0, ...perBucket) };
 }
 
-const chunk = <T>(rows: T[], size = 2000): T[][] =>
-  Array.from({ length: Math.ceil(rows.length / size) }, (_, i) => rows.slice(i * size, (i + 1) * size));
-
-// Replaces everything that belongs to the contagem with the document. Callers
-// run it inside a transaction.
-async function writeDocument(tx: Db, id: number, doc: ContagemDocument, version: number) {
+// Every column a document determines, for both insert and update.
+export function rowFromDocument(doc: ContagemDocument, version: number) {
   const h = doc.header;
   const { total, peak } = derivedTotals(doc);
-
-  await tx
-    .update(contagem)
-    .set({
-      localId: h.localId,
-      variant: h.variant,
-      date: h.date,
-      sourceDate: h.sourceDate,
-      dateNote: h.dateNote,
-      startedAt: h.startedAt,
-      endedAt: h.endedAt,
-      topology: h.topology,
-      approaches: doc.approaches,
-      approachPositions: doc.positions ?? null,
-      bucketMinutes: h.bucketMinutes,
-      granularity: h.granularity,
-      observedBuckets: h.observedBuckets,
-      isProjected: h.isProjected,
-      status: h.status,
-      reportUrl: h.reportUrl,
-      notes: h.notes,
-      layout: h.layout,
-      totalCyclists: total,
-      peakBucketCount: peak,
-      version,
-      updatedAt: new Date(),
-    })
-    .where(eq(contagem.id, id));
-
-  await tx.delete(movementCount).where(eq(movementCount.contagemId, id));
-  await tx.delete(observation).where(eq(observation.contagemId, id));
-  await tx.delete(condition).where(eq(condition.contagemId, id));
-  await tx.delete(note).where(eq(note.contagemId, id));
-
-  const movementRows = doc.movements.flatMap((m) => [
-    ...m.cells.map((value, bucket) => ({ contagemId: id, basis: m.basis, fromIdx: m.from, toIdx: m.to, bucket, value })),
-    ...(m.total === null
-      ? []
-      : [{ contagemId: id, basis: m.basis, fromIdx: m.from, toIdx: m.to, bucket: null, value: m.total }]),
-  ]);
-  for (const rows of chunk(movementRows)) await tx.insert(movementCount).values(rows);
-
-  // Hourly zeros are not stored; a row with no hourly values keeps one total.
-  const observationRows = doc.observations.flatMap((o) => {
-    const base = {
-      contagemId: id,
-      basis: o.basis,
-      block: o.block,
-      position: o.position,
-      rawLabel: o.rawLabel,
-      characteristicKey: o.characteristicKey,
-    };
-    const hourly = o.cells.flatMap((value, bucket) => (value === 0 ? [] : [{ ...base, bucket, value }]));
-    if (hourly.length > 0) return o.total === null ? hourly : [...hourly, { ...base, bucket: null, value: o.total }];
-    return [{ ...base, bucket: null, value: o.total ?? 0 }];
-  });
-  for (const rows of chunk(observationRows)) await tx.insert(observation).values(rows);
-
-  if (doc.conditions.length > 0) {
-    await tx.insert(condition).values(doc.conditions.map((c) => ({ ...c, contagemId: id })));
-  }
-  if (doc.notes.length > 0) {
-    await tx.insert(note).values(doc.notes.map((n) => ({ ...n, contagemId: id })));
-  }
+  return {
+    localId: h.localId,
+    variant: h.variant,
+    date: h.date,
+    sourceDate: h.sourceDate,
+    dateNote: h.dateNote,
+    startedAt: h.startedAt,
+    endedAt: h.endedAt,
+    topology: h.topology,
+    approaches: doc.approaches,
+    approachPositions: doc.positions ?? null,
+    bucketMinutes: h.bucketMinutes,
+    granularity: h.granularity,
+    observedBuckets: h.observedBuckets,
+    isProjected: h.isProjected,
+    status: h.status,
+    reportUrl: h.reportUrl,
+    notes: h.notes,
+    layout: h.layout,
+    totalCyclists: total,
+    peakBucketCount: peak,
+    data: bodyOf(doc),
+    summary: summarize(doc),
+    version,
+  };
 }
 
 type NewRevision = {
@@ -364,17 +248,7 @@ export async function createContagem(db: Db, input: CreateInput) {
     }
     await assertNotDuplicate(tx, doc, null);
 
-    const [row] = await tx
-      .insert(contagem)
-      .values({
-        localId: doc.header.localId,
-        date: doc.header.date,
-        topology: doc.header.topology,
-        approaches: doc.approaches,
-        bucketMinutes: doc.header.bucketMinutes,
-      })
-      .returning({ id: contagem.id });
-    await writeDocument(tx, row.id, doc, 1);
+    const [row] = await tx.insert(contagem).values(rowFromDocument(doc, 1)).returning({ id: contagem.id });
     await insertRevision(tx, {
       contagemId: row.id,
       version: 1,
@@ -406,7 +280,7 @@ export async function saveDocument(db: Db, input: SaveInput) {
   return db.transaction(async (tx) => {
     // Lock the row so two saves cannot interleave.
     const locked = await tx.execute<{ version: number }>(
-      sql`select version from contagem where id = ${input.id} for update`,
+      sql`select version from ${contagem} where id = ${input.id} for update`,
     );
     const currentVersion = locked.rows[0]?.version;
     if (currentVersion === undefined) throw new Error(`contagem ${input.id} not found`);
@@ -427,7 +301,10 @@ export async function saveDocument(db: Db, input: SaveInput) {
 
     await assertNotDuplicate(tx, input.doc, input.id);
     const version = currentVersion + 1;
-    await writeDocument(tx, input.id, input.doc, version);
+    await tx
+      .update(contagem)
+      .set({ ...rowFromDocument(input.doc, version), updatedAt: new Date() })
+      .where(eq(contagem.id, input.id));
     await reconcileIssues(tx, input.id, input.doc);
     await insertRevision(tx, {
       contagemId: input.id,

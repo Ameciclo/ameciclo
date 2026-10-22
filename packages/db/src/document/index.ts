@@ -3,3 +3,4 @@ export * from "./issues";
 export * from "./shape";
 export * from "./types";
 export * from "./validate";
+export * from "./summary";

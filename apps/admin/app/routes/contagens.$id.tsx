@@ -98,7 +98,8 @@ function ContagemPage() {
 type ContagemData = NonNullable<Awaited<ReturnType<typeof getContagem>>>;
 
 function ContagemView({ data, startEditing }: { data: ContagemData; startEditing: boolean }) {
-  const { row, movements, observations, dictionary } = data;
+  const { row, dictionary } = data;
+  const { movements, observations, conditions, notes } = row.data;
   const [editing, setEditing] = useState(startEditing);
   const documentQuery = useQuery({ ...documentQueryOptions(row.id), enabled: editing });
   const [basis, setBasis] = useState<"projected" | "observed">(row.isProjected ? "projected" : "observed");
@@ -109,12 +110,7 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
   const dictionaryByKey = useMemo(() => new Map(dictionary.map((d) => [d.key, d])), [dictionary]);
 
   const bucketCount = useMemo(() => {
-    const maxBucket = Math.max(
-      -1,
-      ...movements.map((m) => m.bucket ?? -1),
-      ...observations.map((o) => o.bucket ?? -1),
-    );
-    return maxBucket + 1;
+    return Math.max(0, ...movements.map((m) => m.cells.length), ...observations.map((o) => o.cells.length));
   }, [movements, observations]);
   const hours = useMemo(
     () => Array.from({ length: bucketCount }, (_, i) => hourLabel(startHour, i, row.bucketMinutes)),
@@ -129,25 +125,17 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
 
   const movementRows = useMemo<GridRow[]>(() => {
     const wanted = row.isProjected ? basis : "observed";
-    const byPair = new Map<string, number[]>();
-    for (const m of movements) {
-      if (m.basis !== wanted || m.bucket === null) continue;
-      const key = `${m.fromIdx}-${m.toIdx}`;
-      const cells = byPair.get(key) ?? Array.from<number>({ length: bucketCount }).fill(0);
-      cells[m.bucket] += m.value;
-      byPair.set(key, cells);
-    }
-    const rows = [...byPair.entries()]
-      .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
-      .map(([key, cells]): GridRow => {
-        const [from, to] = key.split("-").map(Number);
-        return {
-          id: key,
-          label: `${row.approaches[from]} → ${row.approaches[to]}`,
-          cells,
-          total: cells.reduce((s, v) => s + v, 0),
-        };
-      });
+    const rows = movements
+      .filter((m) => m.basis === wanted)
+      .sort((a, b) => a.from - b.from || a.to - b.to)
+      .map(
+        (m): GridRow => ({
+          id: `${m.from}-${m.to}`,
+          label: `${row.approaches[m.from]} → ${row.approaches[m.to]}`,
+          cells: m.cells,
+          total: m.cells.reduce((s, v) => s + v, 0),
+        }),
+      );
     const totals = Array.from<number>({ length: bucketCount }).fill(0);
     for (const r of rows) r.cells.forEach((v, i) => (totals[i] += v));
     return [
@@ -160,9 +148,10 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
     const wanted = row.isProjected ? basis : "observed";
     const sums: Record<string, number> = {};
     for (const m of movements) {
-      if (m.basis !== wanted || (bucket !== null && m.bucket !== bucket)) continue;
-      const key = `${m.fromIdx}-${m.toIdx}`;
-      sums[key] = (sums[key] ?? 0) + m.value;
+      if (m.basis !== wanted) continue;
+      const key = `${m.from}-${m.to}`;
+      const value = bucket === null ? m.cells.reduce((s, v) => s + v, 0) + (m.total ?? 0) : (m.cells[bucket] ?? 0);
+      sums[key] = (sums[key] ?? 0) + value;
     }
     return sums;
   }, [movements, basis, bucket, row.isProjected]);
@@ -204,8 +193,8 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
         total: 0,
       };
       if (!entry.labels.includes(o.rawLabel)) entry.labels.push(o.rawLabel);
-      entry.total += o.value;
-      if (o.bucket !== null) entry.cells[o.bucket] += o.value;
+      entry.total += o.cells.reduce((s, v) => s + v, 0) + (o.total ?? 0);
+      o.cells.forEach((value, i) => (entry.cells[i] += value));
       entries.set(id, entry);
     }
 
@@ -295,7 +284,7 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
   );
   const characteristicCols = useMemo(() => gridColumns("Característica", hours, observedSet, renderCharacteristic), [hours, observedSet]);
 
-  const rain = row.conditions.filter((c) => c.kind === "rain").sort((a, b) => a.bucket - b.bucket);
+  const rain = conditions.filter((c) => c.kind === "rain").sort((a, b) => a.bucket - b.bucket);
   const observedHours = row.observedBuckets?.map((b) => hours[b]).filter(Boolean) ?? [];
   const endLabel = hourLabel(startHour, bucketCount, row.bucketMinutes);
 
@@ -420,21 +409,21 @@ function ContagemView({ data, startEditing }: { data: ContagemData; startEditing
           </>
         )}
 
-        {(rain.length > 0 || row.annotations.length > 0) && (
+        {(rain.length > 0 || notes.length > 0) && (
           <Section title="Condições e notas">
             <div className="space-y-3 text-sm">
               {rain.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">Chuva:</span>
                   {rain.map((c) => (
-                    <Badge key={c.id} variant="secondary" title={c.note ?? undefined}>
+                    <Badge key={c.bucket} variant="secondary" title={c.note ?? undefined}>
                       {hours[c.bucket] ?? c.bucket}
                     </Badge>
                   ))}
                 </div>
               )}
-              {row.annotations.map((n) => (
-                <p key={n.id} className="text-muted-foreground">
+              {notes.map((n, i) => (
+                <p key={i} className="text-muted-foreground">
                   {n.text}
                 </p>
               ))}

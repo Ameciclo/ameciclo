@@ -1,35 +1,47 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "b89db269-dc83-45b2-802f-756b161d9086",
+  "id": "60b489ab-8200-4b0d-b99f-55310c95ba15",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
       "values": [
-        "observed",
-        "projected"
-      ],
-      "name": "basis",
-      "entityType": "enums",
-      "schema": "public"
-    },
-    {
-      "values": [
-        "padroes",
-        "observacoes"
-      ],
-      "name": "observation_block",
-      "entityType": "enums",
-      "schema": "public"
-    },
-    {
-      "values": [
         "hourly",
         "total"
       ],
-      "name": "granularity",
+      "name": "counting_granularity",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "import",
+        "validation"
+      ],
+      "name": "counting_issue_origin",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "open",
+        "resolved",
+        "ignored"
+      ],
+      "name": "counting_issue_status",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "import",
+        "create",
+        "edit",
+        "revert"
+      ],
+      "name": "counting_revision_kind",
       "entityType": "enums",
       "schema": "public"
     },
@@ -39,7 +51,7 @@
         "warning",
         "error"
       ],
-      "name": "warning_severity",
+      "name": "counting_issue_severity",
       "entityType": "enums",
       "schema": "public"
     },
@@ -48,7 +60,7 @@
         "draft",
         "published"
       ],
-      "name": "contagem_status",
+      "name": "counting_status",
       "entityType": "enums",
       "schema": "public"
     },
@@ -58,61 +70,43 @@
         "t_junction",
         "crossroad"
       ],
-      "name": "topology",
+      "name": "counting_topology",
       "entityType": "enums",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "characteristic",
+      "name": "counting_characteristic",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "characteristic_alias",
+      "name": "counting_characteristic_alias",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "condition",
+      "name": "counting_contagem",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "contagem",
+      "name": "counting_revision",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "import_warning",
+      "name": "counting_import_warning",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "local",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "movement_count",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "note",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "observation",
+      "name": "counting_local",
       "entityType": "tables",
       "schema": "public"
     },
@@ -127,7 +121,7 @@
       "name": "key",
       "entityType": "columns",
       "schema": "public",
-      "table": "characteristic"
+      "table": "counting_characteristic"
     },
     {
       "type": "text",
@@ -140,7 +134,7 @@
       "name": "label",
       "entityType": "columns",
       "schema": "public",
-      "table": "characteristic"
+      "table": "counting_characteristic"
     },
     {
       "type": "text",
@@ -153,7 +147,7 @@
       "name": "group",
       "entityType": "columns",
       "schema": "public",
-      "table": "characteristic"
+      "table": "counting_characteristic"
     },
     {
       "type": "text",
@@ -166,7 +160,7 @@
       "name": "parent_key",
       "entityType": "columns",
       "schema": "public",
-      "table": "characteristic"
+      "table": "counting_characteristic"
     },
     {
       "type": "boolean",
@@ -179,7 +173,7 @@
       "name": "is_rollup",
       "entityType": "columns",
       "schema": "public",
-      "table": "characteristic"
+      "table": "counting_characteristic"
     },
     {
       "type": "text",
@@ -192,7 +186,7 @@
       "name": "alias",
       "entityType": "columns",
       "schema": "public",
-      "table": "characteristic_alias"
+      "table": "counting_characteristic_alias"
     },
     {
       "type": "text",
@@ -205,7 +199,7 @@
       "name": "characteristic_key",
       "entityType": "columns",
       "schema": "public",
-      "table": "characteristic_alias"
+      "table": "counting_characteristic_alias"
     },
     {
       "type": "integer",
@@ -216,7 +210,7 @@
       "generated": null,
       "identity": {
         "type": "always",
-        "name": "condition_id_seq",
+        "name": "counting_contagem_id_seq",
         "increment": "1",
         "startWith": "1",
         "minValue": "1",
@@ -227,94 +221,7 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "condition"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "contagem_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "condition"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "bucket",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "condition"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "kind",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "condition"
-    },
-    {
-      "type": "numeric",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "value",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "condition"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "note",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "condition"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "contagem_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "integer",
@@ -327,7 +234,7 @@
       "name": "local_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "text",
@@ -340,7 +247,7 @@
       "name": "variant",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "date",
@@ -353,7 +260,7 @@
       "name": "date",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "date",
@@ -366,7 +273,7 @@
       "name": "source_date",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "text",
@@ -379,7 +286,7 @@
       "name": "date_note",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "time",
@@ -392,7 +299,7 @@
       "name": "started_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "time",
@@ -405,10 +312,10 @@
       "name": "ended_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
-      "type": "topology",
+      "type": "counting_topology",
       "typeSchema": "public",
       "notNull": true,
       "dimensions": 0,
@@ -418,7 +325,7 @@
       "name": "topology",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "text",
@@ -431,7 +338,20 @@
       "name": "approaches",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "approach_positions",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
     },
     {
       "type": "smallint",
@@ -444,10 +364,10 @@
       "name": "bucket_minutes",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
-      "type": "granularity",
+      "type": "counting_granularity",
       "typeSchema": "public",
       "notNull": true,
       "dimensions": 0,
@@ -457,7 +377,7 @@
       "name": "granularity",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "smallint",
@@ -470,7 +390,7 @@
       "name": "observed_buckets",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "boolean",
@@ -483,10 +403,10 @@
       "name": "is_projected",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
-      "type": "contagem_status",
+      "type": "counting_status",
       "typeSchema": "public",
       "notNull": true,
       "dimensions": 0,
@@ -496,7 +416,7 @@
       "name": "status",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "text",
@@ -509,7 +429,7 @@
       "name": "report_url",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "text",
@@ -522,7 +442,7 @@
       "name": "notes",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "text",
@@ -535,7 +455,20 @@
       "name": "layout",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "1",
+      "generated": null,
+      "identity": null,
+      "name": "version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
     },
     {
       "type": "integer",
@@ -548,7 +481,7 @@
       "name": "total_cyclists",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "integer",
@@ -561,7 +494,33 @@
       "name": "peak_bucket_count",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "data",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "summary",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
     },
     {
       "type": "jsonb",
@@ -574,7 +533,7 @@
       "name": "source",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "timestamp with time zone",
@@ -587,7 +546,7 @@
       "name": "created_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "timestamp with time zone",
@@ -600,7 +559,7 @@
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "type": "integer",
@@ -611,7 +570,7 @@
       "generated": null,
       "identity": {
         "type": "always",
-        "name": "import_warning_id_seq",
+        "name": "counting_revision_id_seq",
         "increment": "1",
         "startWith": "1",
         "minValue": "1",
@@ -622,7 +581,7 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "import_warning"
+      "table": "counting_revision"
     },
     {
       "type": "integer",
@@ -635,10 +594,149 @@
       "name": "contagem_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "import_warning"
+      "table": "counting_revision"
     },
     {
-      "type": "warning_severity",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "counting_revision_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "author",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "reason",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "reverted_from_version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "change_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "snapshot",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_import_warning_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "contagem_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_severity",
       "typeSchema": "public",
       "notNull": true,
       "dimensions": 0,
@@ -648,7 +746,7 @@
       "name": "severity",
       "entityType": "columns",
       "schema": "public",
-      "table": "import_warning"
+      "table": "counting_import_warning"
     },
     {
       "type": "text",
@@ -661,7 +759,7 @@
       "name": "code",
       "entityType": "columns",
       "schema": "public",
-      "table": "import_warning"
+      "table": "counting_import_warning"
     },
     {
       "type": "text",
@@ -674,7 +772,7 @@
       "name": "message",
       "entityType": "columns",
       "schema": "public",
-      "table": "import_warning"
+      "table": "counting_import_warning"
     },
     {
       "type": "text",
@@ -687,7 +785,72 @@
       "name": "ref",
       "entityType": "columns",
       "schema": "public",
-      "table": "import_warning"
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_origin",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'import'",
+      "generated": null,
+      "identity": null,
+      "name": "origin",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'open'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolved_by",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolved_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolution_note",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
     },
     {
       "type": "integer",
@@ -698,7 +861,7 @@
       "generated": null,
       "identity": {
         "type": "always",
-        "name": "local_id_seq",
+        "name": "counting_local_id_seq",
         "increment": "1",
         "startWith": "1",
         "minValue": "1",
@@ -709,7 +872,7 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "local"
+      "table": "counting_local"
     },
     {
       "type": "text",
@@ -722,7 +885,7 @@
       "name": "name",
       "entityType": "columns",
       "schema": "public",
-      "table": "local"
+      "table": "counting_local"
     },
     {
       "type": "text",
@@ -735,7 +898,7 @@
       "name": "slug",
       "entityType": "columns",
       "schema": "public",
-      "table": "local"
+      "table": "counting_local"
     },
     {
       "type": "double precision",
@@ -748,7 +911,7 @@
       "name": "latitude",
       "entityType": "columns",
       "schema": "public",
-      "table": "local"
+      "table": "counting_local"
     },
     {
       "type": "double precision",
@@ -761,7 +924,7 @@
       "name": "longitude",
       "entityType": "columns",
       "schema": "public",
-      "table": "local"
+      "table": "counting_local"
     },
     {
       "type": "timestamp with time zone",
@@ -774,7 +937,7 @@
       "name": "created_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "local"
+      "table": "counting_local"
     },
     {
       "type": "timestamp with time zone",
@@ -787,342 +950,7 @@
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "local"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "movement_count_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "contagem_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "type": "basis",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'observed'",
-      "generated": null,
-      "identity": null,
-      "name": "basis",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "from_idx",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "to_idx",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "bucket",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "value",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "note_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "note"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "contagem_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "note"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "bucket_from",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "note"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "bucket_to",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "note"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "text",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "note"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "observation_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "contagem_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "basis",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'observed'",
-      "generated": null,
-      "identity": null,
-      "name": "basis",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "observation_block",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "block",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "position",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "raw_label",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "characteristic_key",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "smallint",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "bucket",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "value",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "contagem_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "bucket",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "kind",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "condition_cell_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "condition"
+      "table": "counting_local"
     },
     {
       "nameExplicit": true,
@@ -1154,10 +982,10 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "contagem_local_date_variant_idx",
+      "name": "counting_contagem_local_date_variant_idx",
       "entityType": "indexes",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "nameExplicit": true,
@@ -1175,16 +1003,51 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "contagem_date_idx",
+      "name": "counting_contagem_date_idx",
       "entityType": "indexes",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "nameExplicit": true,
       "columns": [
         {
           "value": "contagem_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "version",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_revision_version_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "contagem_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "status",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -1196,129 +1059,10 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "import_warning_contagem_idx",
+      "name": "counting_import_warning_contagem_idx",
       "entityType": "indexes",
       "schema": "public",
-      "table": "import_warning"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "contagem_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "basis",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "from_idx",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "to_idx",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "coalesce(\"bucket\", -1)",
-          "isExpression": true,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "movement_count_cell_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "contagem_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "basis",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "block",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "position",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "coalesce(\"bucket\", -1)",
-          "isExpression": true,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "observation_cell_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "characteristic_key",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "observation_key_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "observation"
+      "table": "counting_import_warning"
     },
     {
       "nameExplicit": false,
@@ -1326,16 +1070,16 @@
         "parent_key"
       ],
       "schemaTo": "public",
-      "tableTo": "characteristic",
+      "tableTo": "counting_characteristic",
       "columnsTo": [
         "key"
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
-      "name": "characteristic_parent_key_characteristic_key_fkey",
+      "name": "counting_characteristic_25zwnJAAXQpW_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "characteristic"
+      "table": "counting_characteristic"
     },
     {
       "nameExplicit": false,
@@ -1343,33 +1087,16 @@
         "characteristic_key"
       ],
       "schemaTo": "public",
-      "tableTo": "characteristic",
+      "tableTo": "counting_characteristic",
       "columnsTo": [
         "key"
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "characteristic_alias_characteristic_key_characteristic_key_fkey",
+      "name": "counting_characteristic_alias_qJAG2aEu7rkQ_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "characteristic_alias"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "contagem_id"
-      ],
-      "schemaTo": "public",
-      "tableTo": "contagem",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "condition_contagem_id_contagem_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "condition"
+      "table": "counting_characteristic_alias"
     },
     {
       "nameExplicit": false,
@@ -1377,16 +1104,16 @@
         "local_id"
       ],
       "schemaTo": "public",
-      "tableTo": "local",
+      "tableTo": "counting_local",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
-      "name": "contagem_local_id_local_id_fkey",
+      "name": "counting_contagem_local_id_counting_local_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "contagem"
+      "table": "counting_contagem"
     },
     {
       "nameExplicit": false,
@@ -1394,16 +1121,16 @@
         "contagem_id"
       ],
       "schemaTo": "public",
-      "tableTo": "contagem",
+      "tableTo": "counting_contagem",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "import_warning_contagem_id_contagem_id_fkey",
+      "name": "counting_revision_contagem_id_counting_contagem_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "import_warning"
+      "table": "counting_revision"
     },
     {
       "nameExplicit": false,
@@ -1411,76 +1138,25 @@
         "contagem_id"
       ],
       "schemaTo": "public",
-      "tableTo": "contagem",
+      "tableTo": "counting_contagem",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "movement_count_contagem_id_contagem_id_fkey",
+      "name": "counting_import_warning_contagem_id_counting_contagem_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "movement_count"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "contagem_id"
-      ],
-      "schemaTo": "public",
-      "tableTo": "contagem",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "note_contagem_id_contagem_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "note"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "contagem_id"
-      ],
-      "schemaTo": "public",
-      "tableTo": "contagem",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "observation_contagem_id_contagem_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "observation"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "characteristic_key"
-      ],
-      "schemaTo": "public",
-      "tableTo": "characteristic",
-      "columnsTo": [
-        "key"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "observation_characteristic_key_characteristic_key_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "observation"
+      "table": "counting_import_warning"
     },
     {
       "columns": [
         "key"
       ],
       "nameExplicit": false,
-      "name": "characteristic_pkey",
+      "name": "counting_characteristic_pkey",
       "schema": "public",
-      "table": "characteristic",
+      "table": "counting_characteristic",
       "entityType": "pks"
     },
     {
@@ -1488,9 +1164,9 @@
         "alias"
       ],
       "nameExplicit": false,
-      "name": "characteristic_alias_pkey",
+      "name": "counting_characteristic_alias_pkey",
       "schema": "public",
-      "table": "characteristic_alias",
+      "table": "counting_characteristic_alias",
       "entityType": "pks"
     },
     {
@@ -1498,9 +1174,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "condition_pkey",
+      "name": "counting_contagem_pkey",
       "schema": "public",
-      "table": "condition",
+      "table": "counting_contagem",
       "entityType": "pks"
     },
     {
@@ -1508,9 +1184,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "contagem_pkey",
+      "name": "counting_revision_pkey",
       "schema": "public",
-      "table": "contagem",
+      "table": "counting_revision",
       "entityType": "pks"
     },
     {
@@ -1518,9 +1194,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "import_warning_pkey",
+      "name": "counting_import_warning_pkey",
       "schema": "public",
-      "table": "import_warning",
+      "table": "counting_import_warning",
       "entityType": "pks"
     },
     {
@@ -1528,39 +1204,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "local_pkey",
+      "name": "counting_local_pkey",
       "schema": "public",
-      "table": "local",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "movement_count_pkey",
-      "schema": "public",
-      "table": "movement_count",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "note_pkey",
-      "schema": "public",
-      "table": "note",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "observation_pkey",
-      "schema": "public",
-      "table": "observation",
+      "table": "counting_local",
       "entityType": "pks"
     },
     {
@@ -1569,9 +1215,9 @@
         "slug"
       ],
       "nullsNotDistinct": false,
-      "name": "local_slug_key",
+      "name": "counting_local_slug_key",
       "schema": "public",
-      "table": "local",
+      "table": "counting_local",
       "entityType": "uniques"
     }
   ],

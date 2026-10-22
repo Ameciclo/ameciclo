@@ -1,8 +1,8 @@
-import { and, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import type { relations } from "./relations";
-import { contagem, local, observation } from "./schema";
+import { contagem, local } from "./schema";
 import {
   METRICS,
   type PublicCharacteristics,
@@ -73,6 +73,7 @@ export async function loadPublicLocations(db: Db, options: { localId?: number } 
       variant: contagem.variant,
       total: contagem.totalCyclists,
       peak: contagem.peakBucketCount,
+      summary: contagem.summary,
       estimated: contagem.isProjected,
       partial: sql<boolean>`(${contagem.observedBuckets} is not null and not ${contagem.isProjected})`,
     })
@@ -81,31 +82,6 @@ export async function loadPublicLocations(db: Db, options: { localId?: number } 
     .where(and(eq(contagem.status, "published"), options.localId === undefined ? undefined : eq(local.id, options.localId)))
     .orderBy(desc(contagem.date), local.name);
   if (rows.length === 0) return [];
-
-  const sums = await db
-    .select({
-      contagemId: observation.contagemId,
-      key: observation.characteristicKey,
-      total: sql<number>`sum(${observation.value})::int`,
-    })
-    .from(observation)
-    .where(
-      and(
-        eq(observation.basis, "observed"),
-        isNotNull(observation.characteristicKey),
-        inArray(observation.characteristicKey, ALL_KEYS),
-        inArray(observation.contagemId, rows.map((r) => r.id)),
-      ),
-    )
-    .groupBy(observation.contagemId, observation.characteristicKey);
-
-  const byContagem = new Map<number, Map<string, number>>();
-  for (const s of sums) {
-    if (s.key === null) continue;
-    const map = byContagem.get(s.contagemId) ?? new Map<string, number>();
-    map.set(s.key, s.total);
-    byContagem.set(s.contagemId, map);
-  }
 
   const locations = new Map<number, PublicLocation>();
   for (const r of rows) {
@@ -120,7 +96,7 @@ export async function loadPublicLocations(db: Db, options: { localId?: number } 
       max_hour_cyclists: r.peak ?? 0,
       estimated: r.estimated,
       partial: r.partial,
-      characteristics: characteristicsOf(byContagem.get(r.id) ?? new Map()),
+      characteristics: characteristicsOf(new Map(Object.entries(r.summary.characteristics))),
     });
     locations.set(r.localId, location);
   }
@@ -138,32 +114,32 @@ export async function loadPublicCountDetail(db: Db, contagemId: number): Promise
   if (!row) return null;
 
   const basis = row.isProjected ? "projected" : "observed";
-  const movements = await db.query.movementCount.findMany({ where: { contagemId, basis } });
-  const observations = await db.query.observation.findMany({
-    where: { contagemId, basis: "observed", characteristicKey: { in: [...ALL_KEYS] } },
-  });
+  const movements = row.data.movements.filter((m) => m.basis === basis);
+  const observations = row.data.observations.filter(
+    (o) => o.basis === "observed" && o.characteristicKey !== null && ALL_KEYS.includes(o.characteristicKey),
+  );
 
   const startHour = Number.parseInt(row.startedAt ?? "6", 10);
   const declared = Math.round(
     ((Number.parseInt(row.endedAt ?? "20", 10) - startHour) * 60) / row.bucketMinutes,
   );
-  const bucketCount = Math.max(declared, ...movements.map((m) => (m.bucket ?? -1) + 1));
+  const bucketCount = Math.max(declared, ...movements.map((m) => m.cells.length));
   const zeros = () => Array.from<number>({ length: bucketCount }).fill(0);
   const hours = Array.from({ length: bucketCount }, (_, i) => startHour + (i * row.bucketMinutes) / 60);
 
   const total = zeros();
   const flowMap = new Map<string, number>();
   for (const m of movements) {
-    if (m.bucket !== null) total[m.bucket] += m.value;
-    const key = `${m.fromIdx}-${m.toIdx}`;
-    flowMap.set(key, (flowMap.get(key) ?? 0) + m.value);
+    m.cells.forEach((value, i) => (total[i] += value));
+    const key = `${m.from}-${m.to}`;
+    flowMap.set(key, (flowMap.get(key) ?? 0) + m.cells.reduce((s, v) => s + v, 0) + (m.total ?? 0));
   }
 
   const perKey = new Map<string, number[]>();
   for (const o of observations) {
-    if (o.characteristicKey === null || o.bucket === null) continue;
+    if (o.characteristicKey === null) continue;
     const arr = perKey.get(o.characteristicKey) ?? zeros();
-    arr[o.bucket] += o.value;
+    o.cells.forEach((value, i) => (arr[i] += value));
     perKey.set(o.characteristicKey, arr);
   }
   const hourly = (keys: readonly string[]) =>
