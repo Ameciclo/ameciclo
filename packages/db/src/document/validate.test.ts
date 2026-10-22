@@ -12,6 +12,14 @@ describe("validateDocument", () => {
     expect(validateDocument(doc)).toEqual(["A data precisa estar no formato AAAA-MM-DD."]);
   });
 
+  it("rejects a report link that is not a web address, and accepts a real one or none", () => {
+    expect(validateDocument(crossroadDocument({ reportUrl: '"link"' }))).toEqual([
+      "O link do relatório precisa ser um endereço completo, começando com http:// ou https://.",
+    ]);
+    expect(validateDocument(crossroadDocument({ reportUrl: "https://docs.google.com/document/d/abc/edit" }))).toEqual([]);
+    expect(validateDocument(crossroadDocument({ reportUrl: null }))).toEqual([]);
+  });
+
   it("rejects blank approach names and fewer than two approaches", () => {
     const doc = { ...crossroadDocument(), approaches: [" "] };
     const problems = validateDocument(doc);

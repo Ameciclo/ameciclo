@@ -1,3 +1,4 @@
+import { isHttpUrl } from "../shared";
 import type { ContagemDocument } from "./types";
 
 // Returns human-readable problems; an empty list means the document can be saved.
@@ -7,6 +8,9 @@ export function validateDocument(doc: ContagemDocument): string[] {
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(h.date)) problems.push("A data precisa estar no formato AAAA-MM-DD.");
   if (doc.approaches.length < 2) problems.push("É preciso ao menos duas aproximações.");
+  if (h.reportUrl !== null && !isHttpUrl(h.reportUrl)) {
+    problems.push("O link do relatório precisa ser um endereço completo, começando com http:// ou https://.");
+  }
   doc.approaches.forEach((a, i) => {
     if (!a.trim()) problems.push(`A aproximação ${i + 1} está sem nome.`);
   });
