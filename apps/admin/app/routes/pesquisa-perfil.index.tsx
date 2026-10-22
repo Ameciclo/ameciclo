@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { DataTable, type TableColumn } from "~/components/DataTable";
+import { EvolutionChart } from "~/components/EvolutionChart";
 import { formatNumber } from "~/lib/format";
 import { profileSurveysQueryOptions, type SurveyRow } from "~/queries/pesquisa-perfil";
 
@@ -77,6 +78,15 @@ function PesquisaPerfilPage() {
   const [city, setCity] = useState(cities.find(([c]) => c === "Recife")?.[0] ?? cities[0]?.[0] ?? "");
   const waves = surveys.filter((s) => s.city === city).sort((a, b) => a.year - b.year);
 
+  const [indicatorKey, setIndicatorKey] = useState<keyof SurveyRow>("pctWomen");
+  const [compareWith, setCompareWith] = useState("");
+  const indicator = INDICATORS.find((i) => i.key === indicatorKey) as (typeof INDICATORS)[number];
+  const compareCity = compareWith && compareWith !== city ? compareWith : "";
+  const seriesFor = (name: string) => ({
+    name,
+    values: new Map(surveys.filter((s) => s.city === name).map((s) => [s.year, s[indicator.key] as number | null])),
+  });
+
   return (
     <>
       <AdminTopbar
@@ -109,6 +119,47 @@ function PesquisaPerfilPage() {
             </label>
           </CardHeader>
           <CardContent className="overflow-x-auto">
+            <div className="mb-4 flex flex-wrap items-end gap-3 text-xs text-muted-foreground">
+              <label className="flex flex-col gap-1">
+                Indicador no gráfico
+                <select
+                  value={indicatorKey}
+                  onChange={(e) => setIndicatorKey(e.target.value as keyof SurveyRow)}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                >
+                  {INDICATORS.map((i) => (
+                    <option key={i.key} value={i.key}>
+                      {i.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1">
+                Comparar com
+                <select
+                  value={compareCity}
+                  onChange={(e) => setCompareWith(e.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                >
+                  <option value="">Nenhuma</option>
+                  {cities
+                    .filter(([name]) => name !== city)
+                    .map(([name, n]) => (
+                      <option key={name} value={name}>
+                        {name} ({n} {n === 1 ? "edição" : "edições"})
+                      </option>
+                    ))}
+                </select>
+              </label>
+            </div>
+            <div className="mb-6">
+              <EvolutionChart
+                a={seriesFor(city)}
+                b={compareCity ? seriesFor(compareCity) : undefined}
+                format={indicator.format}
+              />
+              {indicator.note && <p className="mt-2 text-xs text-muted-foreground">{indicator.note}</p>}
+            </div>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
