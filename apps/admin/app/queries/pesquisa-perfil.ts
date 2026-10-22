@@ -108,6 +108,8 @@ export type SurveyDetail = {
   flags: Flag[];
   distributions: Distribution[];
   siblings: { id: number; year: number }[];
+  // Interview points with how many interviews each held (a count, not interviews).
+  points: { id: number; name: string; latitude: number; longitude: number; n: number }[];
 };
 
 export const getProfileSurvey = createServerFn({ method: "GET" })
@@ -173,6 +175,13 @@ export const getProfileSurvey = createServerFn({ method: "GET" })
       const siblings = await db.execute<{ id: number; year: number }>(sql`
         select id, year::int as year from profile_survey
         where city = ${survey.city} order by year`);
+      const points = await db.execute<SurveyDetail["points"][number]>(sql`
+        select p.id, p.name, p.latitude, p.longitude, count(*)::int as n
+        from profile_interview i
+        join profile_point p on p.id = i.point_id
+        where i.survey_id = ${data.id}
+        group by p.id
+        order by n desc`);
 
       return {
         survey,
@@ -194,6 +203,7 @@ export const getProfileSurvey = createServerFn({ method: "GET" })
         }).filter((f) => f.yes + f.no > 0),
         distributions,
         siblings: siblings.rows,
+        points: points.rows,
       };
     });
   });

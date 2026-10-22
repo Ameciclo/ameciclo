@@ -5,6 +5,7 @@ import { Button } from "@ameciclo/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
 import { BarList } from "~/components/BarList";
+import { PointsMap } from "~/components/PointsMap";
 import { formatNumber } from "~/lib/format";
 import { profileSurveyQueryOptions } from "~/queries/pesquisa-perfil";
 
@@ -23,7 +24,7 @@ function PesquisaDetalhe() {
   const { id } = Route.useParams();
   const { data: detail } = useSuspenseQuery(profileSurveyQueryOptions(Number(id)));
   if (!detail) return null;
-  const { survey, stats, interviews, flags, distributions, days, siblings } = detail;
+  const { survey, stats, interviews, flags, distributions, days, siblings, points } = detail;
   const daysAnswered = days.reduce((sum, d) => sum + d.n, 0);
 
   return (
@@ -111,6 +112,20 @@ function PesquisaDetalhe() {
                   ))}
                 </tbody>
               </table>
+            </CardContent>
+          </Card>
+        )}
+
+        {points.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Pontos de entrevista</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {formatNumber(points.length)} pontos. O tamanho do círculo é o número de entrevistas feitas ali; clique em um ponto para ver o nome.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <PointsMap points={points} className="h-96 w-full overflow-hidden rounded-md border" />
             </CardContent>
           </Card>
         )}
