@@ -14,8 +14,41 @@ permissions:
   deployments: write
 
 jobs:
+  # Postgres has no public address, so this runs on a runner inside the Azure
+  # VNet (see .github/runner/README.md). Migrations run before the Workers are
+  # deployed: a failed migration stops the deploy, and the old Workers keep
+  # serving against the new schema, so migrations must stay backwards compatible.
+  # db:import is a one-off and deliberately never runs here.
+  migrate:
+    name: Migrate database
+    runs-on: [self-hosted, ameciclo-vnet]
+    timeout-minutes: 10
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: jdx/mise-action@v4
+        with:
+          cache: true
+
+      - run: pnpm install --frozen-lockfile --filter @ameciclo/db...
+
+      - name: Apply migrations
+        run: pnpm --filter @ameciclo/db db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # Idempotent: only inserts what is missing, never overwrites dictionary
+      # edits made in the admin.
+      - name: Seed the characteristics dictionary
+        run: pnpm --filter @ameciclo/db db:seed
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
   deploy:
     name: Deploy ${{ matrix.app }}
+    needs: migrate
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
