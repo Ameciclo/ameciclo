@@ -14,17 +14,28 @@ permissions:
   deployments: write
 
 jobs:
-  # Postgres has no public address, so this runs on a runner inside the Azure
-  # VNet (see .github/runner/README.md). Migrations run before the Workers are
-  # deployed: a failed migration stops the deploy, and the old Workers keep
-  # serving against the new schema, so migrations must stay backwards compatible.
-  # db:import is a one-off and deliberately never runs here.
+  # Runs before the Workers are deployed: a failed migration stops the deploy,
+  # and the old Workers keep serving against the new schema for a moment, so
+  # migrations must stay backwards compatible. db:import is a one-off and
+  # deliberately never runs here.
+  #
+  # The server's firewall only allows Cloudflare, so the job logs in to Azure
+  # with OIDC (no stored credentials), opens a rule for this runner's IP, and
+  # always closes it. Setup: .github/azure-oidc.md
   migrate:
     name: Migrate database
-    runs-on: [self-hosted, ameciclo-vnet]
-    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZ_SUBSCRIPTION: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZ_RESOURCE_GROUP: ameciclo-rg-prod
+      AZ_POSTGRES_SERVER: ameciclo-postgres-pub
+      FIREWALL_RULE: github-run-${{ github.run_id }}
     steps:
       - uses: actions/checkout@v6
 
@@ -33,6 +44,31 @@ jobs:
           cache: true
 
       - run: pnpm install --frozen-lockfile --filter @ameciclo/db...
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          # The identity only has a role on the one server, not the subscription.
+          allow-no-subscriptions: true
+
+      - name: Open the firewall for this runner
+        run: |
+          rules() { az postgres flexible-server firewall-rule "$@" --subscription "$AZ_SUBSCRIPTION" -g "$AZ_RESOURCE_GROUP" -s "$AZ_POSTGRES_SERVER"; }
+          # A cancelled run may have left its rule behind.
+          for stale in $(rules list --query "[?starts_with(name, 'github-run-')].name" -o tsv); do
+            rules delete -n "$stale" --yes
+          done
+          ip=$(curl -fsS https://api.ipify.org)
+          rules create -n "$FIREWALL_RULE" --start-ip-address "$ip" --end-ip-address "$ip"
+          host="$AZ_POSTGRES_SERVER.postgres.database.azure.com"
+          for _ in $(seq 1 18); do
+            timeout 5 bash -c "exec 3<>/dev/tcp/$host/5432" 2>/dev/null && exit 0
+            sleep 5
+          done
+          echo "::error::Port 5432 is still closed 90 s after the firewall rule was created"
+          exit 1
 
       - name: Apply migrations
         run: pnpm --filter @ameciclo/db db:migrate
@@ -45,6 +81,12 @@ jobs:
         run: pnpm --filter @ameciclo/db db:seed
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Close the firewall
+        if: always()
+        run: |
+          az postgres flexible-server firewall-rule delete --subscription "$AZ_SUBSCRIPTION" \
+            -g "$AZ_RESOURCE_GROUP" -s "$AZ_POSTGRES_SERVER" -n "$FIREWALL_RULE" --yes
 
   deploy:
     name: Deploy ${{ matrix.app }}
