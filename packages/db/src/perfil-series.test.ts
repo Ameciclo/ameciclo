@@ -2,13 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { assembleCube } from "./perfil";
 import {
-  buildHistogram,
   buildSeries,
   chooseSurvey,
   type PerfilChartDef,
   type PerfilSelection,
 } from "./perfil-series";
-import type { PerfilCell, PerfilHistogramCell, PerfilSurveyOption } from "./shared";
+import type { PerfilCell, PerfilSurveyOption } from "./shared";
 
 const cell = (option: string, order: number, gender: string, race: string, n: number): PerfilCell => ({
   option,
@@ -101,32 +100,6 @@ describe("buildSeries", () => {
   it("returns nothing when no cell matches", () => {
     expect(buildSeries(ageCells, ageDef, { ...all, races: ["Indígena"] })).toEqual([]);
     expect(buildSeries([], ageDef, all)).toEqual([]);
-  });
-});
-
-describe("buildHistogram", () => {
-  const cells: PerfilHistogramCell[] = [
-    { bucket: 0, gender: "Masculino", race: "Parda", n: 6 },
-    { bucket: 10, gender: "Feminino", race: "Parda", n: 8 },
-    { bucket: 10, gender: "Masculino", race: "Branca", n: 5 },
-  ];
-
-  it("fills every 5-minute group up to the last one", () => {
-    const h = buildHistogram(cells, all);
-    expect(h?.categories).toEqual(["0–5", "5–10", "10–15"]);
-    expect(h?.series.find((s) => s.name === "Parda")?.data).toEqual([6, 0, 8]);
-    expect(h?.series.find((s) => s.name === "Branca")?.data).toEqual([0, 0, 5]);
-  });
-
-  it("filters by gender", () => {
-    const h = buildHistogram(cells, { ...all, gender: "Feminino" });
-    expect(h?.series.map((s) => s.name)).toEqual(["Parda"]);
-    expect(h?.series[0]?.data).toEqual([0, 0, 8]);
-  });
-
-  it("is empty when nothing matches", () => {
-    expect(buildHistogram(cells, { ...all, races: ["Indígena"] })).toBeNull();
-    expect(buildHistogram([], all)).toBeNull();
   });
 });
 

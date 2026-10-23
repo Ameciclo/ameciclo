@@ -7,7 +7,6 @@
 import {
   PERFIL_RACES,
   type PerfilCell,
-  type PerfilHistogramCell,
   type PerfilSurveyOption,
 } from "./shared";
 
@@ -81,27 +80,6 @@ export function buildSeries(cells: PerfilCell[], def: PerfilChartDef, sel: Perfi
       return { name: group, data: categories.map((name) => ({ name, y: counts.get(name) ?? 0 })) };
     })
     .filter((s) => s.data.some((d) => d.y > 0));
-}
-
-export type PerfilHistogram = { categories: string[]; series: { name: string; data: number[] }[] };
-
-export function buildHistogram(cells: PerfilHistogramCell[], sel: PerfilSelection): PerfilHistogram | null {
-  const kept = cells.filter((c) => keeps(c, sel));
-  if (kept.length === 0) return null;
-  const last = Math.max(...kept.map((c) => c.bucket));
-  const buckets = Array.from({ length: last / 5 + 1 }, (_, i) => i * 5);
-
-  const series = seriesGroups(sel)
-    .map((group) => ({
-      name: group,
-      data: buckets.map((b) =>
-        kept.filter((c) => c.bucket === b && (!sel.hasRace || c.race === group)).reduce((sum, c) => sum + c.n, 0),
-      ),
-    }))
-    .filter((s) => s.data.some((y) => y > 0));
-  if (series.length === 0) return null;
-
-  return { categories: buckets.map((b) => `${b}–${b + 5}`), series };
 }
 
 export const PERFIL_DEFAULT_CITY = "Recife";

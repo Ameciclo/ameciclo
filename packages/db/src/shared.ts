@@ -145,6 +145,12 @@ export type PerfilCell = { option: string; order: number; gender: string; race: 
 
 export type PerfilHistogramCell = { bucket: number; gender: string; race: string; n: number };
 
+// An interview point (Recife): how many people were interviewed there and how
+// many of them were women. Points with few interviews are left out.
+export type PerfilPoint = { name: string; latitude: number; longitude: number; n: number; women: number };
+
+export const PERFIL_MIN_POINT = 10;
+
 export type PerfilCube = {
   survey: { id: number; year: number; city: string; interviews: number; notes: string | null };
   // Question key -> cells. A question the survey did not ask is absent.
@@ -154,4 +160,10 @@ export type PerfilCube = {
   // False when the survey did not ask color/race (2015).
   hasRace: boolean;
   minCell: number;
+  // Interview points with enough interviews to show; empty outside Recife.
+  points: PerfilPoint[];
 };
+
+// The same questions answered by every city surveyed in one year, to compare a
+// city against the rest of the country. `cities` is how many were surveyed.
+export type PerfilNational = { year: number; cities: number; questions: Record<string, PerfilCell[]> };
