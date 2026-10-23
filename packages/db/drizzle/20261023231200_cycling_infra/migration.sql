@@ -1,4 +1,4 @@
-CREATE EXTENSION IF NOT EXISTS postgis;--> statement-breakpoint
+-- A extensão postgis é criada pelo Pulumi (groundwork); o papel de migração não tem permissão para isso.
 CREATE TYPE "cycling_stage" AS ENUM('existing', 'proposed', 'planned');--> statement-breakpoint
 CREATE TYPE "cycling_sync_kind" AS ENUM('import', 'osm');--> statement-breakpoint
 CREATE TYPE "cycling_sync_status" AS ENUM('running', 'success', 'failed');--> statement-breakpoint
