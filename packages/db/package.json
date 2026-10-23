@@ -8,7 +8,8 @@
     "./schema": "./src/schema.ts",
     "./document": "./src/document/index.ts",
     "./shared": "./src/shared.ts",
-    "./derive": "./src/derive.ts"
+    "./derive": "./src/derive.ts",
+    "./perfil-series": "./src/perfil-series.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",

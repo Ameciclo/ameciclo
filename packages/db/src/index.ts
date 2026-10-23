@@ -5,6 +5,7 @@ import { relations } from "./relations";
 
 export * from "./document";
 export * from "./document/store";
+export * from "./perfil";
 export * from "./public";
 export * from "./shared";
 export * from "./schema";
