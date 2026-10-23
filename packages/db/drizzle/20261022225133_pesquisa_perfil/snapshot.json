@@ -1,0 +1,2532 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "c8db3e19-5bb9-4163-987c-eba4551529a3",
+  "prevIds": [
+    "60b489ab-8200-4b0d-b99f-55310c95ba15"
+  ],
+  "ddl": [
+    {
+      "values": [
+        "hourly",
+        "total"
+      ],
+      "name": "counting_granularity",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "import",
+        "validation"
+      ],
+      "name": "counting_issue_origin",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "open",
+        "resolved",
+        "ignored"
+      ],
+      "name": "counting_issue_status",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "import",
+        "create",
+        "edit",
+        "revert"
+      ],
+      "name": "counting_revision_kind",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "name": "counting_issue_severity",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "draft",
+        "published"
+      ],
+      "name": "counting_status",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "point",
+        "t_junction",
+        "crossroad"
+      ],
+      "name": "counting_topology",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_characteristic",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_characteristic_alias",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_contagem",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_revision",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_import_warning",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_local",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_interview",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_option",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_point",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_survey",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "label",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "group",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "parent_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_rollup",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "alias",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic_alias"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "characteristic_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic_alias"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_contagem_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "local_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "variant",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_date",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date_note",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "time",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "started_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "time",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ended_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "counting_topology",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "topology",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "approaches",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "approach_positions",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "60",
+      "generated": null,
+      "identity": null,
+      "name": "bucket_minutes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "counting_granularity",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'hourly'",
+      "generated": null,
+      "identity": null,
+      "name": "granularity",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "observed_buckets",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_projected",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "counting_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'published'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "report_url",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "notes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "layout",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "1",
+      "generated": null,
+      "identity": null,
+      "name": "version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "total_cyclists",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "peak_bucket_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "data",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "summary",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_revision_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "contagem_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "counting_revision_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "author",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "reason",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "reverted_from_version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "change_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "snapshot",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_import_warning_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "contagem_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_severity",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "severity",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "message",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ref",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_origin",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'import'",
+      "generated": null,
+      "identity": null,
+      "name": "origin",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'open'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolved_by",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolved_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolution_note",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_local_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "slug",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "latitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "longitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_interview_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "survey_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "interviewed_on",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "weekday",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "point_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "area_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "age",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "age_group_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gender_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "schooling_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "income_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "color_race_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "occupation",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "household_size",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood_living",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_per_week",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_work",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_school",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_shopping",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_leisure",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_station",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "years_using_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trip_minutes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trip_time_group_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood_origin",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood_destiny",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "shared_bike",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "electric_bike",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "combines_modes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "combination_mode_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "previous_mode_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "shared_bike_influence",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "had_collision",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "had_theft",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "had_harassment",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "biggest_issue_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "biggest_need_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "motivation_start_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "motivation_continue_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "covid_household_case",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "extra",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_option_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "question",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "label",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "sort_order",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_point_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "latitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "longitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_survey_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "city",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_edition_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "notes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "local_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "date",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "coalesce(\"variant\", '')",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_contagem_local_date_variant_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "date",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_contagem_date_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "contagem_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "version",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_revision_version_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "contagem_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "status",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_import_warning_contagem_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "survey_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "source_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_interview_survey_source_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "survey_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_interview_survey_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "question",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "label",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_option_question_label_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "year",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "city",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_survey_year_city_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "parent_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_characteristic",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "counting_characteristic_25zwnJAAXQpW_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "characteristic_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_characteristic",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "counting_characteristic_alias_qJAG2aEu7rkQ_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_characteristic_alias"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "local_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_local",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "counting_contagem_local_id_counting_local_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "contagem_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_contagem",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "counting_revision_contagem_id_counting_contagem_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "contagem_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_contagem",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "counting_import_warning_contagem_id_counting_contagem_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "survey_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_survey",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "profile_interview_survey_id_profile_survey_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "point_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_point",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "profile_interview_point_id_profile_point_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "area_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_area_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "age_group_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_age_group_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "gender_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_gender_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "schooling_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_schooling_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "income_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_income_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "color_race_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_color_race_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "years_using_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_years_using_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "trip_time_group_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_trip_time_group_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "combination_mode_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_combination_mode_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "previous_mode_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_previous_mode_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "biggest_issue_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_biggest_issue_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "biggest_need_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_biggest_need_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "motivation_start_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_motivation_start_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "motivation_continue_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_motivation_continue_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "columns": [
+        "key"
+      ],
+      "nameExplicit": false,
+      "name": "counting_characteristic_pkey",
+      "schema": "public",
+      "table": "counting_characteristic",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "alias"
+      ],
+      "nameExplicit": false,
+      "name": "counting_characteristic_alias_pkey",
+      "schema": "public",
+      "table": "counting_characteristic_alias",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_contagem_pkey",
+      "schema": "public",
+      "table": "counting_contagem",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_revision_pkey",
+      "schema": "public",
+      "table": "counting_revision",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_import_warning_pkey",
+      "schema": "public",
+      "table": "counting_import_warning",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_local_pkey",
+      "schema": "public",
+      "table": "counting_local",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_interview_pkey",
+      "schema": "public",
+      "table": "profile_interview",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_option_pkey",
+      "schema": "public",
+      "table": "profile_option",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_point_pkey",
+      "schema": "public",
+      "table": "profile_point",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_survey_pkey",
+      "schema": "public",
+      "table": "profile_survey",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "slug"
+      ],
+      "nullsNotDistinct": false,
+      "name": "counting_local_slug_key",
+      "schema": "public",
+      "table": "counting_local",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "source_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "profile_point_source_id_key",
+      "schema": "public",
+      "table": "profile_point",
+      "entityType": "uniques"
+    }
+  ],
+  "renames": []
+}

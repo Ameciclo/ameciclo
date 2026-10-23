@@ -18,8 +18,6 @@ export const IDECICLO_DATA = `https://api.ideciclo.ameciclo.org/reviews`
 export const IDECICLO_STRUCTURES_DATA = `https://api.ideciclo.ameciclo.org/structures`
 export const IDECICLO_FORMS_DATA = `https://api.ideciclo.ameciclo.org/forms`
 
-// Cyclist-profile Atlas (Perfil page)
-export const PERFIL_API_URL = `https://cyclist-profile.atlas.ameciclo.org/v1/cyclist-profiles/nearby?lat=-8.05&lon=-34.9&radius=100000&limit=1000`
 
 // Cyclist-counts Atlas (Contagens)
 export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`

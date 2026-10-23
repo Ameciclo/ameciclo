@@ -125,3 +125,33 @@ export function isHttpUrl(value: string): boolean {
     return false;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Pesquisa Perfil do Ciclista: what the public page receives. Only counts,
+// never an interview.
+// ---------------------------------------------------------------------------
+
+export const PERFIL_RACES = ["Amarela", "Branca", "Indígena", "Parda", "Preta"] as const;
+
+// Cross-tab cells with fewer answers than this are left out, so a small city
+// cannot be used to single out a person.
+export const PERFIL_MIN_CELL = 5;
+
+export type PerfilSurveyOption = { id: number; year: number; city: string; interviews: number };
+
+// Answers to one question, by gender and color/race. gender is "Masculino",
+// "Feminino" or "Outro"; race is one of PERFIL_RACES or "Não informada".
+export type PerfilCell = { option: string; order: number; gender: string; race: string; n: number };
+
+export type PerfilHistogramCell = { bucket: number; gender: string; race: string; n: number };
+
+export type PerfilCube = {
+  survey: { id: number; year: number; city: string; interviews: number; notes: string | null };
+  // Question key -> cells. A question the survey did not ask is absent.
+  questions: Record<string, PerfilCell[]>;
+  // Trip minutes in groups of 5 (bucket is the lower bound).
+  histogram: PerfilHistogramCell[];
+  // False when the survey did not ask color/race (2015).
+  hasRace: boolean;
+  minCell: number;
+};

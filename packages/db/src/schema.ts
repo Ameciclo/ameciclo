@@ -160,3 +160,125 @@ export const contagemRevision = pgTable(
   },
   (t) => [uniqueIndex("counting_revision_version_idx").on(t.contagemId, t.version)],
 );
+
+// ---------------------------------------------------------------------------
+// Pesquisa Perfil do Ciclista
+//
+// One row per interview. Questions every wave asks are typed columns; answers
+// that are a choice point at profile_option; whatever only one wave asked goes
+// in `extra`. Only aggregates are ever shown: individual interviews are not
+// exposed. Imported from the research spreadsheets by
+// scripts/import-pesquisa-perfil.ts.
+// ---------------------------------------------------------------------------
+
+// One survey wave in one city, e.g. 2021 / Recife.
+export const profileSurvey = pgTable(
+  "profile_survey",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    year: smallint("year").notNull(),
+    city: text("city").notNull(),
+    // edition_id in the research spreadsheet, kept for traceability.
+    sourceEditionId: integer("source_edition_id"),
+    // How this wave differs from the others (question wording, bands).
+    notes: text("notes"),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("profile_survey_year_city_idx").on(t.year, t.city)],
+);
+
+// Lookup of choice answers: gender, schooling, income band, ...
+// `question` is the key of the question, `label` the answer as shown.
+export const profileOption = pgTable(
+  "profile_option",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    question: text("question").notNull(),
+    label: text("label").notNull(),
+    sortOrder: smallint("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("profile_option_question_label_idx").on(t.question, t.label)],
+);
+
+// Fixed street corners where interviews were held (Recife only).
+export const profilePoint = pgTable("profile_point", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sourceId: integer("source_id").notNull().unique(),
+  name: text("name").notNull(),
+  latitude: doublePrecision("latitude").notNull(),
+  longitude: doublePrecision("longitude").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+const optionRef = (name: string) =>
+  integer(name).references(() => profileOption.id, { onDelete: "restrict" });
+
+export const profileInterview = pgTable(
+  "profile_interview",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    surveyId: integer("survey_id")
+      .notNull()
+      .references(() => profileSurvey.id, { onDelete: "cascade" }),
+    // Row number inside its survey in the research spreadsheet.
+    sourceId: integer("source_id").notNull(),
+
+    interviewedOn: date("interviewed_on", { mode: "string" }),
+    weekday: text("weekday"),
+    pointId: integer("point_id").references(() => profilePoint.id),
+    areaId: optionRef("area_id"),
+    // Neighborhood where the interview took place.
+    neighborhood: text("neighborhood"),
+
+    // Respondent
+    age: smallint("age"),
+    ageGroupId: optionRef("age_group_id"),
+    genderId: optionRef("gender_id"),
+    schoolingId: optionRef("schooling_id"),
+    incomeId: optionRef("income_id"),
+    colorRaceId: optionRef("color_race_id"),
+    occupation: text("occupation"),
+    householdSize: smallint("household_size"),
+    neighborhoodLiving: text("neighborhood_living"),
+
+    // Cycling habits
+    daysPerWeek: smallint("days_per_week"),
+    daysWork: smallint("days_work"),
+    daysSchool: smallint("days_school"),
+    daysShopping: smallint("days_shopping"),
+    daysLeisure: smallint("days_leisure"),
+    daysStation: smallint("days_station"),
+    yearsUsingId: optionRef("years_using_id"),
+    tripMinutes: smallint("trip_minutes"),
+    tripTimeGroupId: optionRef("trip_time_group_id"),
+    neighborhoodOrigin: text("neighborhood_origin"),
+    neighborhoodDestiny: text("neighborhood_destiny"),
+    sharedBike: boolean("shared_bike"),
+    electricBike: boolean("electric_bike"),
+    combinesModes: boolean("combines_modes"),
+    combinationModeId: optionRef("combination_mode_id"),
+    previousModeId: optionRef("previous_mode_id"),
+    sharedBikeInfluence: boolean("shared_bike_influence"),
+
+    // Safety
+    hadCollision: boolean("had_collision"),
+    hadTheft: boolean("had_theft"),
+    hadHarassment: boolean("had_harassment"),
+
+    // Opinions
+    biggestIssueId: optionRef("biggest_issue_id"),
+    biggestNeedId: optionRef("biggest_need_id"),
+    motivationStartId: optionRef("motivation_start_id"),
+    motivationContinueId: optionRef("motivation_continue_id"),
+
+    covidHouseholdCase: boolean("covid_household_case"),
+    // Answers only some waves asked (e.g. frequency change in the pandemic).
+    extra: jsonb("extra").$type<Record<string, unknown>>(),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("profile_interview_survey_source_idx").on(t.surveyId, t.sourceId),
+    index("profile_interview_survey_idx").on(t.surveyId),
+  ],
+);
