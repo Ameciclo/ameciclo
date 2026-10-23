@@ -282,3 +282,5 @@ export const profileInterview = pgTable(
     index("profile_interview_survey_idx").on(t.surveyId),
   ],
 );
+
+export * from "./cycling-schema";

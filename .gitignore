@@ -79,3 +79,4 @@ strapi_*.sql
 .tanstack/
 data/contagens/
 data/pesquisa-perfil/
+.vitest/
