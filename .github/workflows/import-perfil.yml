@@ -1,9 +1,8 @@
 name: Import Pesquisa Perfil (one-off)
 
-# Throwaway: lives only on tmp/import-perfil, never merged.
+# Throwaway: run once by hand, then delete this file and data/pesquisa-perfil/.
 on:
-  push:
-    branches: [tmp/import-perfil]
+  workflow_dispatch:
 
 permissions:
   contents: read
