@@ -83,6 +83,14 @@ function TrechoDetalhe() {
                 )}
                 <span className="text-muted-foreground">Construído: {way.built ?? "sem ciclovia"}</span>
               </div>
+              {way.stretchId !== null && (
+                <p className="text-sm">
+                  Parte do trecho{" "}
+                  <Link to="/infra/trechos/trecho/$id" params={{ id: String(way.stretchId) }} className="font-medium hover:underline">
+                    {way.stretchName}
+                  </Link>
+                </p>
+              )}
 
               <div className="space-y-1">
                 <Label>Cidade{way.cityManual && " (definida aqui)"}</Label>

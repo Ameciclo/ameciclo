@@ -1,10 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq, notInArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, notExists, notInArray, sql } from "drizzle-orm";
 import {
   cyclingPdcProject,
   cyclingPdcProjectAgency,
   cyclingPdcProjectCity,
+  cyclingStretch,
   cyclingWay,
   cyclingWayProject,
 } from "@ameciclo/db/schema";
@@ -240,6 +241,8 @@ export type WayRow = {
   built: string | null;
   km: number;
   projects: string[];
+  stretchId: number | null;
+  stretchName: string | null;
 };
 
 export const listWays = createServerFn({ method: "GET" }).handler(async () => {
@@ -249,8 +252,10 @@ export const listWays = createServerFn({ method: "GET" }).handler(async () => {
       select w.id, w.osm_id as "osmId", w.name, w.highway, c.name as city, w.city_manual as "cityManual",
         s.status, t.label as built, coalesce(w.length_m, 0)::float8 / 1000 as km,
         coalesce((select array_agg(p.ref order by p.ref) from cycling_way_project wp
-                  join cycling_pdc_project p on p.id = wp.project_id where wp.way_id = w.id), '{}') as projects
+                  join cycling_pdc_project p on p.id = wp.project_id where wp.way_id = w.id), '{}') as projects,
+        w.stretch_id as "stretchId", st.name as "stretchName"
       from cycling_way w
+      left join cycling_stretch st on st.id = w.stretch_id
       left join cycling_city c on c.ibge_code = w.city_ibge
       left join cycling_typology t on t.key = w.built_typology_key
       left join cycling_way_status s on s.way_id = w.id
@@ -277,6 +282,8 @@ export type WayDetail = {
     tags: Record<string, string>;
     firstSeen: string | null;
     lastSeen: string | null;
+    stretchId: number | null;
+    stretchName: string | null;
   };
   links: { projectId: number; ref: string; name: string; typology: string; manual: boolean }[];
   map: MapWay[];
@@ -292,8 +299,10 @@ export const getWay = createServerFn({ method: "GET" })
       const rows = await db.execute<WayDetail["way"]>(sql`
         select w.id, w.osm_id as "osmId", w.name, w.highway, w.city_ibge as "cityIbge", w.city_manual as "cityManual",
           w.has_cycleway as "hasCycleway", t.label as built, w.surface, coalesce(w.length_m, 0)::float8 / 1000 as km,
-          s.status, w.tags, fr.started_at::text as "firstSeen", lr.started_at::text as "lastSeen"
+          s.status, w.tags, fr.started_at::text as "firstSeen", lr.started_at::text as "lastSeen",
+          w.stretch_id as "stretchId", st.name as "stretchName"
         from cycling_way w
+        left join cycling_stretch st on st.id = w.stretch_id
         left join cycling_typology t on t.key = w.built_typology_key
         left join cycling_way_status s on s.way_id = w.id
         left join cycling_sync_run fr on fr.id = w.first_seen_run_id
@@ -357,6 +366,123 @@ export const saveWay = createServerFn({ method: "POST" })
     );
   });
 
+// Trechos: segments composed into one stretch of street, the unit the IDECiclo evaluates.
+
+export type StretchWay = { id: number; osmId: number; name: string | null; highway: string | null; status: WayStatus | null; km: number };
+
+export type StretchDetail = {
+  stretch: { id: number; name: string; city: string | null };
+  ways: StretchWay[];
+  // Free segments within 300 m of the stretch, to add to it.
+  nearby: StretchWay[];
+  map: MapWay[];
+};
+
+export const getStretch = createServerFn({ method: "GET" })
+  .inputValidator((input: { id: number }) => input)
+  .handler(async ({ data }): Promise<StretchDetail | null> => {
+    const { withDb } = await import("~/lib/db.server");
+    return withDb(async (db) => {
+      const [stretch] = await db.select().from(cyclingStretch).where(eq(cyclingStretch.id, data.id));
+      if (!stretch) return null;
+      const wayColumns = sql`w.id, w.osm_id as "osmId", w.name, w.highway, s.status, coalesce(w.length_m, 0)::float8 / 1000 as km`;
+      const ways = await db.execute<StretchWay>(sql`
+        select ${wayColumns} from cycling_way w
+        left join cycling_way_status s on s.way_id = w.id
+        where w.stretch_id = ${data.id} and w.removed_at is null
+        order by w.name nulls last, w.osm_id
+      `);
+      const city = await db.execute<{ name: string }>(sql`
+        select c.name from cycling_way w join cycling_city c on c.ibge_code = w.city_ibge
+        where w.stretch_id = ${data.id} and w.removed_at is null
+        group by c.name order by count(*) desc limit 1
+      `);
+      const nearby = await db.execute<StretchWay>(sql`
+        select ${wayColumns} from cycling_way w
+        left join cycling_way_status s on s.way_id = w.id
+        where w.stretch_id is null and w.removed_at is null
+          and st_dwithin(w.geom::geography, (select st_collect(geom) from cycling_way where stretch_id = ${data.id})::geography, 300)
+        order by w.name nulls last, w.osm_id
+        limit 200
+      `);
+      const map = await loadMapWays(db, sql`w.stretch_id = ${data.id}`);
+      return { stretch: { id: stretch.id, name: stretch.name, city: city.rows[0]?.name ?? null }, ways: ways.rows, nearby: nearby.rows, map };
+    });
+  });
+
+export type NewStretch = { name: string; wayIds: number[] };
+
+// Confirms suggested groups, or a hand-made one. A way already in a trecho stays where it is.
+export const createStretches = createServerFn({ method: "POST" })
+  .inputValidator((input: { stretches: NewStretch[] }) => input)
+  .handler(async ({ data }): Promise<{ created: number }> => {
+    const stretches = data.stretches.filter((s) => s.name.trim() && s.wayIds.length > 0);
+    if (stretches.length === 0) return { created: 0 };
+    const { withDb } = await import("~/lib/db.server");
+    return withDb((db) =>
+      db.transaction(async (tx) => {
+        const inserted = await tx
+          .insert(cyclingStretch)
+          .values(stretches.map((s) => ({ name: s.name.trim() })))
+          .returning({ id: cyclingStretch.id });
+        const pairs = inserted.flatMap((row, i) => (stretches[i]?.wayIds ?? []).map((w) => ({ w, s: row.id })));
+        await tx.execute(sql`
+          update cycling_way set stretch_id = v.s, updated_at = now()
+          from jsonb_to_recordset(${JSON.stringify(pairs)}::jsonb) as v(w int, s int)
+          where cycling_way.id = v.w and cycling_way.stretch_id is null
+        `);
+        // A group whose ways were all taken meanwhile leaves no trecho behind.
+        await tx.delete(cyclingStretch).where(
+          and(
+            inArray(
+              cyclingStretch.id,
+              inserted.map((r) => r.id),
+            ),
+            notExists(tx.select({ one: sql`1` }).from(cyclingWay).where(eq(cyclingWay.stretchId, cyclingStretch.id))),
+          ),
+        );
+        return { created: inserted.length };
+      }),
+    );
+  });
+
+export type SaveStretchInput = { id: number; name: string; wayIds: number[] };
+
+export const saveStretch = createServerFn({ method: "POST" })
+  .inputValidator((input: SaveStretchInput) => input)
+  .handler(async ({ data }): Promise<SaveResult> => {
+    const problems: string[] = [];
+    if (!data.name.trim()) problems.push("O nome é obrigatório.");
+    if (data.wayIds.length === 0) problems.push("Um trecho precisa de ao menos um segmento. Para desfazê-lo, use Desfazer trecho.");
+    if (problems.length) return { ok: false, problems };
+
+    const { withDb } = await import("~/lib/db.server");
+    return withDb((db) =>
+      db.transaction(async (tx) => {
+        await tx.update(cyclingStretch).set({ name: data.name.trim(), updatedAt: sql`now()` }).where(eq(cyclingStretch.id, data.id));
+        await tx
+          .update(cyclingWay)
+          .set({ stretchId: null, updatedAt: sql`now()` })
+          .where(and(eq(cyclingWay.stretchId, data.id), notInArray(cyclingWay.id, data.wayIds)));
+        // Only free segments can join: one that belongs to another trecho is left alone.
+        await tx
+          .update(cyclingWay)
+          .set({ stretchId: data.id, updatedAt: sql`now()` })
+          .where(and(inArray(cyclingWay.id, data.wayIds), isNull(cyclingWay.stretchId)));
+        return { ok: true as const };
+      }),
+    );
+  });
+
+// The segments go back to being loose; nothing else is lost.
+export const deleteStretch = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: number }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { withDb } = await import("~/lib/db.server");
+    await withDb((db) => db.delete(cyclingStretch).where(eq(cyclingStretch.id, data.id)));
+    return { ok: true };
+  });
+
 export type RunRow = {
   id: number;
   kind: string;
@@ -390,6 +516,8 @@ export const projectQueryOptions = (id: number) =>
 export const waysQueryOptions = () => queryOptions({ queryKey: ["infra", "ways"], queryFn: () => listWays() });
 export const wayQueryOptions = (id: number) =>
   queryOptions({ queryKey: ["infra", "way", id], queryFn: () => getWay({ data: { id } }) });
+export const stretchQueryOptions = (id: number) =>
+  queryOptions({ queryKey: ["infra", "stretch", id], queryFn: () => getStretch({ data: { id } }) });
 export const runsQueryOptions = () => queryOptions({ queryKey: ["infra", "runs"], queryFn: () => listRuns() });
 
 // Everything a project or way edit can change.

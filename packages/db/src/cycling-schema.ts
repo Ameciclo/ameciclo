@@ -123,6 +123,15 @@ export const cyclingSyncRun = pgTable("cycling_sync_run", {
   triggeredBy: text("triggered_by"),
 });
 
+// Trecho: a stretch of street made of several OpenStreetMap ways, as the
+// IDECiclo composes them before evaluating. Created in the admin, from the
+// suggestions or by hand; city, typology and length come from its ways.
+export const cyclingStretch = pgTable("cycling_stretch", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  ...timestamps,
+});
+
 export const cyclingWay = pgTable(
   "cycling_way",
   {
@@ -145,6 +154,8 @@ export const cyclingWay = pgTable(
     dualCarriageway: boolean("dual_carriageway").notNull().default(false),
     // Todas as tags do OSM, inclusive as promovidas acima.
     tags: jsonb("tags").$type<Record<string, string>>().notNull().default({}),
+    // Trecho (rua) a que este segmento pertence, se alguém o compôs.
+    stretchId: integer("stretch_id").references(() => cyclingStretch.id, { onDelete: "set null" }),
     // Trecho que sumiu do OSM: fica no banco, só deixa de contar.
     removedAt: timestamp("removed_at", { withTimezone: true }),
     firstSeenRunId: integer("first_seen_run_id").references(() => cyclingSyncRun.id),
@@ -154,6 +165,7 @@ export const cyclingWay = pgTable(
   (t) => [
     index("cycling_way_geom_idx").using("gist", t.geom),
     index("cycling_way_city_idx").on(t.cityIbge),
+    index("cycling_way_stretch_idx").on(t.stretchId),
   ],
 );
 
