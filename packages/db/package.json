@@ -21,7 +21,8 @@
     "test": "vitest run",
     "test:fixtures": "CONTAGENS_FIXTURES=1 vitest run src/import",
     "db:import-perfil": "tsx scripts/import-pesquisa-perfil.ts",
-    "db:import-ciclo-infra": "tsx scripts/import-ciclo-infra.ts"
+    "db:import-ciclo-infra": "tsx scripts/import-ciclo-infra.ts",
+    "db:seed-ideciclo": "tsx scripts/seed-ideciclo.ts"
   },
   "dependencies": {
     "csv-parse": "^7.0.3",

@@ -284,3 +284,4 @@ export const profileInterview = pgTable(
 );
 
 export * from "./cycling-schema";
+export * from "./ideciclo-schema";

@@ -1,0 +1,5133 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "a384c16d-8a90-42e6-8233-935e3e4c6d92",
+  "prevIds": [
+    "f834d4af-0f3c-4309-984b-8129154118a2"
+  ],
+  "ddl": [
+    {
+      "values": [
+        "hourly",
+        "total"
+      ],
+      "name": "counting_granularity",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "import",
+        "validation"
+      ],
+      "name": "counting_issue_origin",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "open",
+        "resolved",
+        "ignored"
+      ],
+      "name": "counting_issue_status",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "import",
+        "create",
+        "edit",
+        "revert"
+      ],
+      "name": "counting_revision_kind",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "name": "counting_issue_severity",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "draft",
+        "published"
+      ],
+      "name": "counting_status",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "point",
+        "t_junction",
+        "crossroad"
+      ],
+      "name": "counting_topology",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "existing",
+        "proposed",
+        "planned"
+      ],
+      "name": "cycling_stage",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "import",
+        "osm"
+      ],
+      "name": "cycling_sync_kind",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "running",
+        "success",
+        "failed"
+      ],
+      "name": "cycling_sync_status",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "name": "ideciclo_rating_type",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "Ciclofaixa",
+        "Ciclovia",
+        "Ciclorrota",
+        "Compartilhada"
+      ],
+      "name": "ideciclo_segment_type",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_characteristic",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_characteristic_alias",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_contagem",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_revision",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_import_warning",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "counting_local",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_interview",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_option",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_point",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "profile_survey",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_agency",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_city",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_pdc_project",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_pdc_project_agency",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_pdc_project_city",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_stretch",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_summary_snapshot",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_sync_run",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_typology",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_way",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cycling_way_project",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "ideciclo_city",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "ideciclo_form",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "ideciclo_review",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "ideciclo_segment",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "label",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "group",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "parent_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_rollup",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "alias",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic_alias"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "characteristic_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_characteristic_alias"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_contagem_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "local_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "variant",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_date",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date_note",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "time",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "started_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "time",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ended_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "counting_topology",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "topology",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "approaches",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "approach_positions",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "60",
+      "generated": null,
+      "identity": null,
+      "name": "bucket_minutes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "counting_granularity",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'hourly'",
+      "generated": null,
+      "identity": null,
+      "name": "granularity",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "observed_buckets",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_projected",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "counting_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'published'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "report_url",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "notes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "layout",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "1",
+      "generated": null,
+      "identity": null,
+      "name": "version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "total_cyclists",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "peak_bucket_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "data",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "summary",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_revision_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "contagem_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "counting_revision_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "author",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "reason",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "reverted_from_version",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "change_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "snapshot",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_import_warning_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "contagem_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_severity",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "severity",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "message",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ref",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_origin",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'import'",
+      "generated": null,
+      "identity": null,
+      "name": "origin",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "counting_issue_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'open'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolved_by",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolved_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "resolution_note",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "counting_local_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "slug",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "latitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "longitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "counting_local"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_interview_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "survey_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "interviewed_on",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "weekday",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "point_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "area_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "age",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "age_group_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gender_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "schooling_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "income_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "color_race_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "occupation",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "household_size",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood_living",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_per_week",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_work",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_school",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_shopping",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_leisure",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "days_station",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "years_using_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trip_minutes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trip_time_group_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood_origin",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood_destiny",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "shared_bike",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "electric_bike",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "combines_modes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "combination_mode_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "previous_mode_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "shared_bike_influence",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "had_collision",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "had_theft",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "had_harassment",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "biggest_issue_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "biggest_need_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "motivation_start_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "motivation_continue_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "covid_household_case",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "extra",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_option_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "question",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "label",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "sort_order",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_point_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "latitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "longitude",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_point"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "profile_survey_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "city",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_edition_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "notes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "cycling_agency_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_agency"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_agency"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ibge_code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_city"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_city"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_rmr",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_city"
+    },
+    {
+      "type": "geometry(MultiPolygon,4326)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "boundary",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_city"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "cycling_pdc_project_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ref",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "osm_relation_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "typology_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "cycling_stage",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "stage",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "stretch",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "numeric(8,2)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "planned_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "notes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "osm_tags",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "project_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project_agency"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "agency_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project_agency"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "project_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project_city"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "city_ibge",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_pdc_project_city"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "cycling_stretch_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_stretch"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_stretch"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_stretch"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_stretch"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "run_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "city_ibge",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "pdc_realizado_designado_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "pdc_realizado_nao_designado_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "realizado_fora_pdc_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "pdc_nao_realizado_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "planned_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "cycling_sync_run_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "cycling_sync_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_ref",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "cycling_sync_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'running'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "started_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "finished_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ways_added",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ways_updated",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ways_removed",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "error",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "triggered_by",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_sync_run"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_typology"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "label",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_typology"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "color",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_typology"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "sort_order",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_typology"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "cycling_way_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "osm_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "highway",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "geometry(Geometry,4326)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "geom",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "ST_Length(geom::geography)",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "length_m",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "city_ibge",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "city_manual",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "has_cycleway",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "built_typology_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "surface",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "oneway",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "maxspeed_kmh",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "lit",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "dual_carriageway",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'{}'",
+      "generated": null,
+      "identity": null,
+      "name": "tags",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "stretch_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "removed_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "first_seen_run_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "last_seen_run_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "way_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way_project"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "project_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way_project"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "manual",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cycling_way_project"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "state",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'0'",
+      "generated": null,
+      "identity": null,
+      "name": "extensao_avaliada",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'0'",
+      "generated": null,
+      "identity": null,
+      "name": "ideciclo",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'0'",
+      "generated": null,
+      "identity": null,
+      "name": "vias_estruturais_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'0'",
+      "generated": null,
+      "identity": null,
+      "name": "vias_alimentadoras_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'0'",
+      "generated": null,
+      "identity": null,
+      "name": "vias_locais_km",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "show_in_ranking",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "segment_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "city_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "researcher",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "street_name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "extension",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "start_point",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "end_point",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "hierarchy",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "observations",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "responses",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "velocity",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "blocks_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "intersections_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "form_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "type": "ideciclo_rating_type",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rating_name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rating",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "weight",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id_cidade",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id_form",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "ideciclo_segment_type",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "numeric",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "length",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "neighborhood",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "geometry",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "selected",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "evaluated",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_merged",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "parent_segment_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "'[]'",
+      "generated": null,
+      "identity": null,
+      "name": "merged_segments",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "classification",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "osm_advanced",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "deleted_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "local_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "date",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "coalesce(\"variant\", '')",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_contagem_local_date_variant_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "date",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_contagem_date_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "contagem_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "version",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_revision_version_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "contagem_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "status",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "counting_import_warning_contagem_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "survey_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "source_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_interview_survey_source_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "survey_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_interview_survey_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "question",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "label",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_option_question_label_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_option"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "year",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "city",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "profile_survey_year_city_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "profile_survey"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "geom",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gist",
+      "concurrently": false,
+      "name": "cycling_way_geom_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "city_ibge",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "cycling_way_city_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "stretch_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "cycling_way_stretch_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "project_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "cycling_way_project_project_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "cycling_way_project"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "state",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "ideciclo_city_state_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "ideciclo_city"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "city_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "ideciclo_form_city_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "segment_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "ideciclo_form_segment_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "form_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "ideciclo_review_form_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "id_cidade",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "ideciclo_segment_city_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "parent_segment_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "ideciclo_segment_parent_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "deleted_at",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "ideciclo_segment_deleted_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "parent_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_characteristic",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "counting_characteristic_25zwnJAAXQpW_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_characteristic"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "characteristic_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_characteristic",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "counting_characteristic_alias_qJAG2aEu7rkQ_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_characteristic_alias"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "local_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_local",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "counting_contagem_local_id_counting_local_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_contagem"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "contagem_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_contagem",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "counting_revision_contagem_id_counting_contagem_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_revision"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "contagem_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "counting_contagem",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "counting_import_warning_contagem_id_counting_contagem_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "counting_import_warning"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "survey_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_survey",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "profile_interview_survey_id_profile_survey_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "point_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_point",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "profile_interview_point_id_profile_point_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "area_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_area_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "age_group_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_age_group_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "gender_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_gender_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "schooling_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_schooling_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "income_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_income_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "color_race_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_color_race_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "years_using_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_years_using_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "trip_time_group_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_trip_time_group_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "combination_mode_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_combination_mode_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "previous_mode_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_previous_mode_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "biggest_issue_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_biggest_issue_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "biggest_need_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_biggest_need_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "motivation_start_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_motivation_start_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "motivation_continue_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "profile_option",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "profile_interview_motivation_continue_id_profile_option_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "profile_interview"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "typology_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_typology",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_pdc_project_typology_key_cycling_typology_key_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_pdc_project"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "project_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_pdc_project",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cycling_pdc_project_agency_Byd6tWYtXi5N_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_pdc_project_agency"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "agency_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_agency",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_pdc_project_agency_agency_id_cycling_agency_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_pdc_project_agency"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "project_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_pdc_project",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cycling_pdc_project_city_project_id_cycling_pdc_project_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_pdc_project_city"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "city_ibge"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_city",
+      "columnsTo": [
+        "ibge_code"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_pdc_project_city_city_ibge_cycling_city_ibge_code_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_pdc_project_city"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "run_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_sync_run",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cycling_summary_snapshot_run_id_cycling_sync_run_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "city_ibge"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_city",
+      "columnsTo": [
+        "ibge_code"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_summary_snapshot_city_ibge_cycling_city_ibge_code_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "city_ibge"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_city",
+      "columnsTo": [
+        "ibge_code"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_way_city_ibge_cycling_city_ibge_code_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "built_typology_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_typology",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_way_built_typology_key_cycling_typology_key_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "stretch_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_stretch",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "cycling_way_stretch_id_cycling_stretch_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "first_seen_run_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_sync_run",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_way_first_seen_run_id_cycling_sync_run_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "last_seen_run_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_sync_run",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "cycling_way_last_seen_run_id_cycling_sync_run_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_way"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "way_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_way",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cycling_way_project_way_id_cycling_way_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_way_project"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "project_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cycling_pdc_project",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cycling_way_project_project_id_cycling_pdc_project_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cycling_way_project"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "segment_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "ideciclo_segment",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "ideciclo_form_segment_id_ideciclo_segment_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "city_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "ideciclo_city",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "ideciclo_form_city_id_ideciclo_city_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "ideciclo_form"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "form_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "ideciclo_form",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "ideciclo_review_form_id_ideciclo_form_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "ideciclo_review"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "id_cidade"
+      ],
+      "schemaTo": "public",
+      "tableTo": "ideciclo_city",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "ideciclo_segment_id_cidade_ideciclo_city_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "parent_segment_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "ideciclo_segment",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "ideciclo_segment_parent_segment_id_ideciclo_segment_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "ideciclo_segment"
+    },
+    {
+      "columns": [
+        "project_id",
+        "agency_id"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_pdc_project_agency_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "cycling_pdc_project_agency"
+    },
+    {
+      "columns": [
+        "project_id",
+        "city_ibge"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_pdc_project_city_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "cycling_pdc_project_city"
+    },
+    {
+      "columns": [
+        "run_id",
+        "city_ibge"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_summary_snapshot_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "cycling_summary_snapshot"
+    },
+    {
+      "columns": [
+        "way_id",
+        "project_id"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_way_project_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "cycling_way_project"
+    },
+    {
+      "columns": [
+        "key"
+      ],
+      "nameExplicit": false,
+      "name": "counting_characteristic_pkey",
+      "schema": "public",
+      "table": "counting_characteristic",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "alias"
+      ],
+      "nameExplicit": false,
+      "name": "counting_characteristic_alias_pkey",
+      "schema": "public",
+      "table": "counting_characteristic_alias",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_contagem_pkey",
+      "schema": "public",
+      "table": "counting_contagem",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_revision_pkey",
+      "schema": "public",
+      "table": "counting_revision",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_import_warning_pkey",
+      "schema": "public",
+      "table": "counting_import_warning",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "counting_local_pkey",
+      "schema": "public",
+      "table": "counting_local",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_interview_pkey",
+      "schema": "public",
+      "table": "profile_interview",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_option_pkey",
+      "schema": "public",
+      "table": "profile_option",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_point_pkey",
+      "schema": "public",
+      "table": "profile_point",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "profile_survey_pkey",
+      "schema": "public",
+      "table": "profile_survey",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_agency_pkey",
+      "schema": "public",
+      "table": "cycling_agency",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "ibge_code"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_city_pkey",
+      "schema": "public",
+      "table": "cycling_city",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_pdc_project_pkey",
+      "schema": "public",
+      "table": "cycling_pdc_project",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_stretch_pkey",
+      "schema": "public",
+      "table": "cycling_stretch",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_sync_run_pkey",
+      "schema": "public",
+      "table": "cycling_sync_run",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "key"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_typology_pkey",
+      "schema": "public",
+      "table": "cycling_typology",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "cycling_way_pkey",
+      "schema": "public",
+      "table": "cycling_way",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "ideciclo_city_pkey",
+      "schema": "public",
+      "table": "ideciclo_city",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "ideciclo_form_pkey",
+      "schema": "public",
+      "table": "ideciclo_form",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "ideciclo_review_pkey",
+      "schema": "public",
+      "table": "ideciclo_review",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "ideciclo_segment_pkey",
+      "schema": "public",
+      "table": "ideciclo_segment",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "slug"
+      ],
+      "nullsNotDistinct": false,
+      "name": "counting_local_slug_key",
+      "schema": "public",
+      "table": "counting_local",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "source_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "profile_point_source_id_key",
+      "schema": "public",
+      "table": "profile_point",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "cycling_agency_name_key",
+      "schema": "public",
+      "table": "cycling_agency",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "ref"
+      ],
+      "nullsNotDistinct": false,
+      "name": "cycling_pdc_project_ref_key",
+      "schema": "public",
+      "table": "cycling_pdc_project",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "osm_relation_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "cycling_pdc_project_osm_relation_id_key",
+      "schema": "public",
+      "table": "cycling_pdc_project",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "osm_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "cycling_way_osm_id_key",
+      "schema": "public",
+      "table": "cycling_way",
+      "entityType": "uniques"
+    },
+    {
+      "definition": "\n  SELECT\n    city_ibge,\n    COALESCE(SUM(length_m) FILTER (WHERE status = 'pdc_realizado_designado'), 0) / 1000 AS pdc_realizado_designado_km,\n    COALESCE(SUM(length_m) FILTER (WHERE status = 'pdc_realizado_nao_designado'), 0) / 1000 AS pdc_realizado_nao_designado_km,\n    COALESCE(SUM(length_m) FILTER (WHERE status = 'realizado_fora_pdc'), 0) / 1000 AS realizado_fora_pdc_km,\n    COALESCE(SUM(length_m) FILTER (WHERE status = 'pdc_nao_realizado'), 0) / 1000 AS pdc_nao_realizado_km\n  FROM cycling_way_status\n  WHERE city_ibge IS NOT NULL\n  GROUP BY city_ibge\n",
+      "with": null,
+      "withNoData": null,
+      "using": null,
+      "tablespace": null,
+      "materialized": false,
+      "name": "cycling_city_summary",
+      "entityType": "views",
+      "schema": "public"
+    },
+    {
+      "definition": "\n  SELECT\n    w.id AS way_id,\n    w.city_ibge,\n    w.length_m,\n    CASE\n      WHEN w.has_cycleway AND NOT EXISTS (\n        SELECT 1 FROM cycling_way_project wp WHERE wp.way_id = w.id\n      ) THEN 'realizado_fora_pdc'\n      WHEN w.has_cycleway AND EXISTS (\n        SELECT 1 FROM cycling_way_project wp\n        JOIN cycling_pdc_project p ON p.id = wp.project_id\n        WHERE wp.way_id = w.id AND p.typology_key = w.built_typology_key\n      ) THEN 'pdc_realizado_designado'\n      WHEN w.has_cycleway THEN 'pdc_realizado_nao_designado'\n      WHEN EXISTS (\n        SELECT 1 FROM cycling_way_project wp WHERE wp.way_id = w.id\n      ) THEN 'pdc_nao_realizado'\n    END AS status\n  FROM cycling_way w\n  WHERE w.removed_at IS NULL\n",
+      "with": null,
+      "withNoData": null,
+      "using": null,
+      "tablespace": null,
+      "materialized": false,
+      "name": "cycling_way_status",
+      "entityType": "views",
+      "schema": "public"
+    }
+  ],
+  "renames": []
+}
