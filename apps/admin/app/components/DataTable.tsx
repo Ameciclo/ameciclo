@@ -53,6 +53,7 @@ type DataTableProps<TData extends RowData> = {
   filterPlaceholder?: string;
   pageSize?: number;
   initialSorting?: SortingState;
+  initialFilter?: string;
   toolbar?: React.ReactNode;
   emptyLabel?: string;
   getSubRows?: (row: TData) => TData[] | undefined;
@@ -64,6 +65,7 @@ export function DataTable<TData extends RowData>({
   filterPlaceholder,
   pageSize = 25,
   initialSorting = [],
+  initialFilter = "",
   toolbar,
   emptyLabel = "Nenhum resultado.",
   getSubRows,
@@ -73,7 +75,7 @@ export function DataTable<TData extends RowData>({
     columns,
     data,
     getSubRows,
-    initialState: { sorting: initialSorting, expanded: true, pagination: { pageIndex: 0, pageSize } },
+    initialState: { sorting: initialSorting, globalFilter: initialFilter, expanded: true, pagination: { pageIndex: 0, pageSize } },
   });
   const globalFilter = table.state.globalFilter ?? "";
 

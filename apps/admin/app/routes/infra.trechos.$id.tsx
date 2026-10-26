@@ -51,7 +51,7 @@ function TrechoDetalhe() {
         description={`way/${way.osmId} · ${formatKm(way.km)} km${way.highway ? ` · ${way.highway}` : ""}`}
         actions={
           <Button asChild size="sm" variant="outline">
-            <Link to="/infra/trechos">
+            <Link to="/infra/trechos" search={{ agrupar: true, q: "" }}>
               <ArrowLeft className="size-4" />
               Todos os trechos
             </Link>

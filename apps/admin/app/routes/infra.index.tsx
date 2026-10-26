@@ -1,7 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@ameciclo/ui/components/card";
 import { AdminTopbar } from "~/components/AdminTopbar";
+import { StatusBar } from "~/components/StatusBar";
 import { DataTable, type TableColumn } from "~/components/DataTable";
 import { formatNumber } from "~/lib/format";
 import { formatKm, STAGE_LABEL, STATUS, STATUS_ORDER, type WayStatus } from "~/lib/infra";
@@ -19,12 +21,46 @@ const KM_KEY = {
   pdc_nao_realizado: "naoRealizado",
 } as const satisfies Record<WayStatus, keyof CityRow>;
 
-const total = (c: CityRow) => c.designado + c.naoDesignado + c.foraPdc + c.naoRealizado;
+const executed = (c: CityRow) => c.designado + c.naoDesignado + c.foraPdc;
+// Of what the plan covers on the mapped ways, how much already has a cycleway.
+const planShare = (c: CityRow) => {
+  const inPlan = c.designado + c.naoDesignado + c.naoRealizado;
+  return inPlan > 0 ? (c.designado + c.naoDesignado) / inPlan : null;
+};
+const kmByStatus = (c: CityRow): Record<WayStatus, number> => ({
+  pdc_realizado_designado: c.designado,
+  pdc_realizado_nao_designado: c.naoDesignado,
+  realizado_fora_pdc: c.foraPdc,
+  pdc_nao_realizado: c.naoRealizado,
+});
 
 const numeric = { headClassName: "text-right", cellClassName: "text-right tabular-nums" };
 
 const columns: TableColumn<CityRow>[] = [
   { accessorKey: "name", header: "Cidade", cell: ({ row }) => <span className="font-medium">{row.original.name}</span> },
+  {
+    id: "executed",
+    header: "Total executado",
+    accessorFn: executed,
+    cell: ({ row }) => <span className="font-semibold">{formatKm(executed(row.original))}</span>,
+    meta: numeric,
+  },
+  {
+    id: "planShare",
+    header: "% do plano feito",
+    accessorFn: (c) => planShare(c) ?? -1,
+    cell: ({ row }) => {
+      const share = planShare(row.original);
+      return share === null ? "—" : `${(share * 100).toFixed(1).replace(".", ",")}%`;
+    },
+    meta: numeric,
+  },
+  {
+    id: "bar",
+    header: "Proporção",
+    enableSorting: false,
+    cell: ({ row }) => <StatusBar km={kmByStatus(row.original)} />,
+  },
   ...STATUS_ORDER.map(
     (status): TableColumn<CityRow> => ({
       id: status,
@@ -34,35 +70,20 @@ const columns: TableColumn<CityRow>[] = [
       meta: numeric,
     }),
   ),
-  {
-    id: "bar",
-    header: "Proporção",
-    enableSorting: false,
-    cell: ({ row }) => <StatusBar city={row.original} />,
-  },
 ];
-
-function StatusBar({ city }: { city: CityRow }) {
-  const sum = total(city);
-  if (sum === 0) return <span className="text-muted-foreground">—</span>;
-  return (
-    <div className="flex h-2.5 w-48 overflow-hidden rounded-full bg-muted">
-      {STATUS_ORDER.map((status) => (
-        <div
-          key={status}
-          title={`${STATUS[status].label}: ${formatKm(city[KM_KEY[status]])} km`}
-          style={{ width: `${(city[KM_KEY[status]] / sum) * 100}%`, backgroundColor: STATUS[status].color }}
-        />
-      ))}
-    </div>
-  );
-}
 
 function InfraOverview() {
   const { data } = useSuspenseQuery(infraOverviewQueryOptions());
   const km = (status: WayStatus) => data.cities.reduce((sum, c) => sum + c[KM_KEY[status]], 0);
   const built = km("pdc_realizado_designado") + km("pdc_realizado_nao_designado");
   const planned = built + km("pdc_nao_realizado");
+  const totalExecuted = built + km("realizado_fora_pdc");
+
+  const [onlyBuilt, setOnlyBuilt] = useState(false);
+  const [onlyPlan, setOnlyPlan] = useState(false);
+  const cities = data.cities.filter(
+    (c) => (!onlyBuilt || executed(c) > 0) && (!onlyPlan || c.designado + c.naoDesignado + c.naoRealizado > 0),
+  );
 
   return (
     <>
@@ -71,7 +92,13 @@ function InfraOverview() {
         description="Plano (PDC Cicloviário) e o que existe no OpenStreetMap. Km somados pela geometria dos trechos."
       />
       <div className="flex-1 space-y-6 px-6 py-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-sm text-muted-foreground">Total executado</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">{formatKm(totalExecuted)} km</div>
+            </CardContent>
+          </Card>
           {STATUS_ORDER.map((status) => (
             <Card key={status}>
               <CardContent className="pt-6">
@@ -107,7 +134,25 @@ function InfraOverview() {
             <CardTitle className="text-base">Por cidade (km)</CardTitle>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={data.cities} pageSize={20} initialSorting={[{ id: "name", desc: false }]} />
+            <DataTable
+              columns={columns}
+              data={cities}
+              pageSize={20}
+              filterPlaceholder="Buscar cidade..."
+              initialSorting={[{ id: "executed", desc: true }]}
+              toolbar={
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={onlyBuilt} onChange={(e) => setOnlyBuilt(e.target.checked)} />
+                    Só com ciclovia executada
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={onlyPlan} onChange={(e) => setOnlyPlan(e.target.checked)} />
+                    Só com projeto no PDC
+                  </label>
+                </div>
+              }
+            />
           </CardContent>
         </Card>
       </div>
