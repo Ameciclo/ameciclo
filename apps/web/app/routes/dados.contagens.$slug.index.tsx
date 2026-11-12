@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
@@ -28,24 +28,20 @@ import { seo } from "~/utils/seo";
 
 const SearchSchema = z.object({ contagem: z.number().int().positive().optional().catch(undefined) });
 
-// A place id that is not a positive integer can never exist.
-const parseId = (slug: string) => {
-  const id = Number(slug);
-  return Number.isInteger(id) && id > 0 ? id : null;
-};
-
 export const Route = createFileRoute("/dados/contagens/$slug/")({
   validateSearch: SearchSchema,
   loaderDeps: ({ search }) => ({ contagem: search.contagem }),
   loader: async ({ context: { queryClient }, params: { slug }, deps }) => {
-    const id = parseId(slug);
-    if (id === null) throw notFound();
     const [page, cover] = await Promise.all([
-      queryClient.ensureQueryData(contagemPageQueryOptions(id, deps.contagem)),
+      queryClient.ensureQueryData(contagemPageQueryOptions(slug, deps.contagem)),
       queryClient.ensureQueryData(contagensCoverQueryOptions()),
       queryClient.ensureQueryData(contagensLocationsQueryOptions()),
     ]);
     if (!page) throw notFound();
+    // Links from before slugs named the place by id: send them to the count's own URL.
+    if (page.legacy) {
+      throw redirect({ to: "/dados/contagens/$slug", params: { slug: page.canonical }, search: {}, statusCode: 301 });
+    }
     const { location, selected } = page;
     const facts = [
       `${IntlNumber(selected.total_cyclists)} ciclistas contados em ${IntlDateStr(selected.date)}`,
@@ -53,19 +49,20 @@ export const Route = createFileRoute("/dados/contagens/$slug/")({
       selected.total_cyclists > 0 ? `${IntlPercentil(selected.characteristics.women / selected.total_cyclists)} mulheres` : null,
     ];
     return {
+      canonical: page.canonical,
       name: location.name,
       summary: `${facts.filter(Boolean).join("; ")}.`,
       cover,
     };
   },
-  head: ({ params, loaderData }) => {
+  head: ({ loaderData }) => {
     const name = loaderData?.name;
     return seo({
       title: name ? `Contagem ${name} - Ameciclo` : "Contagem - Ameciclo",
       description: name
         ? `Contagem de ciclistas da Ameciclo em ${name}: ${loaderData?.summary}`
         : "Resultados de contagens de ciclistas realizadas pela Ameciclo na Região Metropolitana do Recife.",
-      pathname: `/dados/contagens/${params.slug}`,
+      pathname: `/dados/contagens/${loaderData?.canonical ?? ""}`,
       image: loaderData?.cover ?? undefined,
       type: "article",
     });
@@ -80,9 +77,7 @@ export const Route = createFileRoute("/dados/contagens/$slug/")({
 function Contagem() {
     const { slug } = Route.useParams();
     const { contagem } = Route.useSearch();
-    const id = parseId(slug);
-    if (id === null) throw notFound();
-    const { data: page } = useSuspenseQuery(contagemPageQueryOptions(id, contagem));
+    const { data: page } = useSuspenseQuery(contagemPageQueryOptions(slug, contagem));
     const { data: cover } = useSuspenseQuery(contagensCoverQueryOptions());
     const { data: locations } = useSuspenseQuery(contagensLocationsQueryOptions());
     if (!page) throw notFound();
@@ -108,7 +103,7 @@ function Contagem() {
                 boxes={getCountingStatistics(selected)}
             />
 
-            <CountSelector locationId={location.id} counts={location.counts} selectedId={selected.id} />
+            <CountSelector placeSlug={location.slug} counts={location.counts} selectedId={selected.id} />
 
             {detail?.estimated && (
                 <p className="container mx-auto my-6 text-center text-sm text-gray-600">
@@ -154,7 +149,7 @@ function Contagem() {
 
             <CountingComparisionTable
                 data={transformOtherCountsForComparison(locations, location.id)}
-                firstSlug={String(location.id)}
+                firstSlug={page.canonical}
             />
         </main>
     );

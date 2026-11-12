@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { contagemSlug } from "@ameciclo/db/slug";
 import type { PublicLocation } from "@ameciclo/db/shared";
 import type { pointData, PcrCounting } from "typings";
 import { countNote } from "~/services/counting-details.service";
@@ -49,7 +50,7 @@ export function useCountsMapData(amecicloData: PublicLocation[] | null, pcrCount
               total: latestCount.total_cyclists,
               date: IntlDateStr(latestCount.date),
               year: latestCount.date.slice(0, 4),
-              url: `/dados/contagens/${place.id}`,
+              url: `/dados/contagens/${contagemSlug(place.slug, latestCount)}`,
               note: countNote(latestCount),
               obs: "As nossas contagens são registradas manualmente através da observação das pessoas voluntárias, registrando a direção do deslocamento e fatores qualitativos.",
             },

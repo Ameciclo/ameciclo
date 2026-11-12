@@ -10,7 +10,8 @@
     "./shared": "./src/shared.ts",
     "./derive": "./src/derive.ts",
     "./perfil-series": "./src/perfil-series.ts",
-    "./cycling-streets": "./src/cycling/streets.ts"
+    "./cycling-streets": "./src/cycling/streets.ts",
+    "./slug": "./src/slug.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",

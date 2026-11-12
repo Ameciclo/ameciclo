@@ -1,4 +1,5 @@
 import { countNote } from "@ameciclo/db/derive";
+import { contagemSlug } from "@ameciclo/db/slug";
 import { METRICS, type PublicCount, type PublicLocation } from "@ameciclo/db/shared";
 import { IntlPercentil, IntlNumber, IntlDateStr } from "~/services/utils";
 
@@ -42,7 +43,7 @@ export function getPointsData(location: PublicLocation, count: PublicCount): Map
         total: count.total_cyclists,
         date: IntlDateStr(count.date),
         year: count.date.slice(0, 4),
-        url: `/dados/contagens/${location.id}`,
+        url: `/dados/contagens/${contagemSlug(location.slug, count)}`,
         obs: "",
         note: countNote(count),
       },
@@ -67,6 +68,7 @@ export function transformOtherCountsForComparison(locations: PublicLocation[], c
       loc.counts.map((count) => ({
         id: loc.id,
         countId: count.id,
+        slug: contagemSlug(loc.slug, count),
         name: count.variant ? `${loc.name} (${count.variant})` : loc.name,
         date: count.date,
         total_cyclists: count.total_cyclists,
