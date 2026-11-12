@@ -59,13 +59,11 @@ export function CountsTable({ data }: ContagensTableProps) {
         Header: "Nome",
         accessor: "name",
         Cell: ({ row }: any) => {
-          const slug = row.original.id;
           return (
             <Link
               className="text-ameciclo hover:underline"
               to="/dados/contagens/$slug"
-              params={{ slug: String(slug) }}
-              search={{ contagem: row.original.countId }}
+              params={{ slug: row.original.slug }}
             >
               {row.original.name}
               {row.original.variant && <span className="text-gray-500"> ({row.original.variant})</span>}

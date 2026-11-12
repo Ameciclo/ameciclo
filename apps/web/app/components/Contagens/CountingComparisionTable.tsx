@@ -59,8 +59,7 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
           <Link
             className="text-ameciclo"
             to="/dados/contagens/$slug"
-            params={{ slug: String(row.original.id) }}
-            search={{ contagem: row.original.countId }}
+            params={{ slug: row.original.slug }}
             key={row.original.countId}
           >
             {row.original.name}
@@ -104,7 +103,7 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
           <Link
             className="text-ameciclo hover:underline font-medium"
             to="/dados/contagens/$slug/compare/$compareSlug"
-            params={{ slug: String(firstSlug), compareSlug: String(row.original.id) }}
+            params={{ slug: firstSlug, compareSlug: row.original.slug }}
           >
             COMPARE
           </Link>

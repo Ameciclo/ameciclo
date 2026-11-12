@@ -1,7 +1,7 @@
 import { METRICS, type PublicCountDetail, type PublicLocation } from "@ameciclo/db/shared";
+import { contagemSlug } from "@ameciclo/db/slug";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { z } from "zod";
 import Banner from "~/components/Commom/Banner";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { Tooltip } from "~/components/Commom/Tooltip";
@@ -13,8 +13,6 @@ import { contagensCoverQueryOptions, contagensLocationsQueryOptions } from "~/qu
 import { countNote, transformOtherCountsForComparison, type MapPoint } from "~/services/counting-details.service";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import { seo } from "~/utils/seo";
-
-const IdParam = z.coerce.number().int().positive();
 
 const HINTS: Record<string, string> = {
   women: "mulheres ciclistas",
@@ -28,7 +26,7 @@ const HINTS: Record<string, string> = {
   wrong_way: "bicicletas que vieram na contramão do trânsito",
 };
 
-type Place = { location: PublicLocation; selected: PublicLocation["counts"][number]; detail: PublicCountDetail | null };
+type Place = { location: PublicLocation; selected: PublicLocation["counts"][number]; detail: PublicCountDetail | null; canonical: string };
 
 function getChartData(places: Place[]) {
   const present = places.flatMap(({ location, detail }) => (detail ? [{ detail, name: location.name }] : []));
@@ -59,7 +57,7 @@ function getPoints(places: Place[]): MapPoint[] {
               total: selected.total_cyclists,
               date: IntlDateStr(selected.date),
               year: selected.date.slice(0, 4),
-              url: `/dados/contagens/${location.id}`,
+              url: `/dados/contagens/${contagemSlug(location.slug, selected)}`,
               obs: "",
               note: countNote(selected),
             },
@@ -73,11 +71,8 @@ const percent = (part: number, total: number) => `${((part / (total > 0 ? total 
 
 export const Route = createFileRoute("/dados/contagens/$slug/compare/$compareSlug")({
   loader: async ({ context: { queryClient }, params }) => {
-    const slug = IdParam.safeParse(params.slug);
-    const compareSlug = IdParam.safeParse(params.compareSlug);
-    if (!slug.success || !compareSlug.success) throw notFound();
     const [places] = await Promise.all([
-      queryClient.ensureQueryData(contagemCompareQueryOptions(slug.data, compareSlug.data)),
+      queryClient.ensureQueryData(contagemCompareQueryOptions(params.slug, params.compareSlug)),
       queryClient.ensureQueryData(contagensCoverQueryOptions()),
       queryClient.ensureQueryData(contagensLocationsQueryOptions()),
     ]);
@@ -100,9 +95,7 @@ export const Route = createFileRoute("/dados/contagens/$slug/compare/$compareSlu
 
 function Compare() {
   const params = Route.useParams();
-  const slug = IdParam.parse(params.slug);
-  const compareSlug = IdParam.parse(params.compareSlug);
-  const { data: places } = useSuspenseQuery(contagemCompareQueryOptions(slug, compareSlug));
+  const { data: places } = useSuspenseQuery(contagemCompareQueryOptions(params.slug, params.compareSlug));
   const { data: cover } = useSuspenseQuery(contagensCoverQueryOptions());
   const { data: locations } = useSuspenseQuery(contagensLocationsQueryOptions());
   if (!places) throw notFound();
@@ -139,7 +132,7 @@ function Compare() {
               </li>
               {places.map(({ location }) => (
                 <li key={location.id} className="flex items-center">
-                  <Link to="/dados/contagens/$slug" params={{ slug: String(location.id) }} className="text-white">{location.name}</Link>
+                  <Link to="/dados/contagens/$slug" params={{ slug: location.slug }} className="text-white">{location.name}</Link>
                   <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
                     <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
                     </svg>
@@ -213,8 +206,7 @@ function Compare() {
                   <div className="pt-4">
                     <Link
                       to="/dados/contagens/$slug"
-                      params={{ slug: String(location.id) }}
-                      search={{ contagem: selected.id }}
+                      params={{ slug: contagemSlug(location.slug, selected) }}
                       className={`inline-block w-full text-center py-3 px-4 ${colors.accent} text-white rounded-md hover:opacity-90 transition-opacity font-medium`}
                     >
                       Ver Detalhes Completos
@@ -239,7 +231,7 @@ function Compare() {
           <HourlyCyclistsChart series={series} hours={hours} />
         )}
 
-        <CountingComparisionTable data={others} firstSlug={String(slug)} />
+        <CountingComparisionTable data={others} firstSlug={places[0].canonical} />
       </section>
     </main>
   );

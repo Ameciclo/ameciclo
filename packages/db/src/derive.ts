@@ -1,4 +1,5 @@
 import { METRICS, type PublicCount, type PublicLocation } from "./shared";
+import { contagemSlug } from "./slug";
 
 // "Estimada": only some hours were observed and the rest projected.
 // "Parcial": only some hours were counted at all.
@@ -51,6 +52,8 @@ export type CountRow = {
   // The place; `countId` is the specific count.
   id: number;
   countId: number;
+  // Public URL segment of this count.
+  slug: string;
   name: string;
   date: string;
   variant: string | null;
@@ -67,6 +70,7 @@ export function countRows(all: readonly PublicLocation[], filtered: readonly Pub
     location.counts.map((c) => ({
       id: location.id,
       countId: c.id,
+      slug: contagemSlug(location.slug, c),
       name: location.name,
       date: c.date,
       variant: c.variant,

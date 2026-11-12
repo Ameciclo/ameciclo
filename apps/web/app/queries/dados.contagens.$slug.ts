@@ -5,25 +5,20 @@ import { COUNTINGS_PAGE_DATA } from "~/servers";
 import { cmsFetch } from "~/services/cmsFetch";
 
 const PageInput = z.object({
-  id: z.number().int().positive(),
+  slug: z.string().min(1),
+  // Only for links from before slugs existed: the id of a count of the place.
   contagem: z.number().int().positive().optional(),
 });
 
-// One place with all of its counts, plus the hourly detail of the selected count
-// (the newest one unless `contagem` names another of this place).
+// One place with all of its counts, plus the hourly detail of the selected count:
+// the one the slug names, or the newest when it names only the place.
 // Database errors are not swallowed: a broken database must not look like a missing page.
 const fetchContagemPage = createServerFn()
   .inputValidator(PageInput)
   .handler(async ({ data }) => {
     const { withDb } = await import("~/lib/db.server");
-    const { loadPublicLocations, loadPublicCountDetail } = await import("@ameciclo/db");
-    return withDb(async (db) => {
-      const [location] = await loadPublicLocations(db, { localId: data.id });
-      if (!location) return null;
-      const selected = location.counts.find((c) => c.id === data.contagem) ?? location.counts[0];
-      const detail = await loadPublicCountDetail(db, selected.id);
-      return { location, selected, detail };
-    });
+    const { loadPublicCountPage } = await import("@ameciclo/db");
+    return withDb((db) => loadPublicCountPage(db, data.slug, data.contagem));
   });
 
 const fetchAllLocations = createServerFn().handler(async () => {
@@ -46,10 +41,10 @@ const fetchPageCover = createServerFn().handler(async () => {
   }
 });
 
-export const contagemPageQueryOptions = (id: number, contagem?: number) =>
+export const contagemPageQueryOptions = (slug: string, contagem?: number) =>
   queryOptions({
-    queryKey: ["dados", "contagens", "page", id, contagem ?? null],
-    queryFn: () => fetchContagemPage({ data: { id, contagem } }),
+    queryKey: ["dados", "contagens", "page", slug, contagem ?? null],
+    queryFn: () => fetchContagemPage({ data: { slug, contagem } }),
   });
 
 export const contagensLocationsQueryOptions = () =>

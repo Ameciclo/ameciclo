@@ -3,6 +3,7 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import type { relations } from "./relations";
 import { contagem, local } from "./schema";
+import { contagemSlug, legacyPlaceId, matchesCount, parseContagemSlug } from "./slug";
 import {
   METRICS,
   type PublicCharacteristics,
@@ -60,7 +61,7 @@ export function characteristicsOf(sums: Map<string, number>): PublicCharacterist
 }
 
 // Published contagens grouped by place, newest count first.
-export async function loadPublicLocations(db: Db, options: { localId?: number } = {}): Promise<PublicLocation[]> {
+export async function loadPublicLocations(db: Db, options: { localId?: number; localSlug?: string } = {}): Promise<PublicLocation[]> {
   const rows = await db
     .select({
       localId: local.id,
@@ -79,7 +80,13 @@ export async function loadPublicLocations(db: Db, options: { localId?: number } 
     })
     .from(contagem)
     .innerJoin(local, eq(local.id, contagem.localId))
-    .where(and(eq(contagem.status, "published"), options.localId === undefined ? undefined : eq(local.id, options.localId)))
+    .where(
+      and(
+        eq(contagem.status, "published"),
+        options.localId === undefined ? undefined : eq(local.id, options.localId),
+        options.localSlug === undefined ? undefined : eq(local.slug, options.localSlug),
+      ),
+    )
     .orderBy(desc(contagem.date), local.name);
   if (rows.length === 0) return [];
 
@@ -104,6 +111,52 @@ export async function loadPublicLocations(db: Db, options: { localId?: number } 
 }
 
 export type { PublicCountDetail, PublicSeries } from "./shared";
+
+export type PublicCountPage = {
+  location: PublicLocation;
+  selected: PublicCount;
+  detail: PublicCountDetail | null;
+  // The slug of the selected count: the one URL every way of asking for it points to.
+  canonical: string;
+  // True when asked for by the numeric id of the place, which only old links use.
+  legacy: boolean;
+};
+
+// Resolves a public URL segment to one published count and its hourly detail.
+// Accepts a count slug (that count), a place slug (its newest count) or, for links
+// shared before slugs, the numeric id of the place (`legacyCountId` picks the count).
+// Drafts never match: only published counts are loaded.
+export async function loadPublicCountPage(
+  db: Db,
+  segment: string,
+  legacyCountId?: number,
+): Promise<PublicCountPage | null> {
+  const legacyId = legacyPlaceId(segment);
+  const parts = legacyId === null ? parseContagemSlug(segment) : null;
+
+  let location: PublicLocation | undefined;
+  if (legacyId !== null) [location] = await loadPublicLocations(db, { localId: legacyId });
+  else {
+    if (parts) [location] = await loadPublicLocations(db, { localSlug: parts.localSlug });
+    location ??= (await loadPublicLocations(db, { localSlug: segment }))[0];
+  }
+  if (!location) return null;
+
+  const selected = parts
+    ? location.counts.find((c) => matchesCount(parts, c))
+    : legacyId === null
+      ? location.counts[0]
+      : (location.counts.find((c) => c.id === legacyCountId) ?? location.counts[0]);
+  if (!selected) return null;
+
+  return {
+    location,
+    selected,
+    detail: await loadPublicCountDetail(db, selected.id),
+    canonical: contagemSlug(location.slug, selected),
+    legacy: legacyId !== null,
+  };
+}
 
 const SERIES_METRICS = METRICS.filter((m) => m.card);
 
