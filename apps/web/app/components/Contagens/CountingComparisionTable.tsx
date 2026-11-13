@@ -1,20 +1,20 @@
 "use client";
 import React from "react";
-import { matchSorter } from "match-sorter";
 import { Link } from "@tanstack/react-router";
-import { ColumnFilter, NumberRangeColumnFilter, containsText } from "~/components/Commom/Table/TableFilters";
+import { tableColumnHelper } from "~/components/Commom/Table/features";
+import { ColumnFilter, NumberRangeColumnFilter, between, containsText } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
+import type { CountRow } from "@ameciclo/db/derive";
 import { CompareOtherCell } from "~/components/Contagens/comparison/CompareOtherCell";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 
-function fuzzyTextFilterFn(rows: any[], id: string, filterValue: string) {
-  return matchSorter(rows, filterValue, { keys: [(row: any) => row.values[id]] });
-}
+// The other counts to compare with: no change against the previous count. `name` already
+// carries the variant; `placeName` is the place alone.
+type ComparisonRow = Omit<CountRow, "change"> & { placeName: string };
 
-// Let the table remove the filter if the string is empty
-fuzzyTextFilterFn.autoRemove = (val: any) => !val;
+const columnHelper = tableColumnHelper<ComparisonRow>();
 
-export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], firstSlug: string }) => {
+export const CountingComparisionTable = ({ data, firstSlug }: { data: ComparisonRow[], firstSlug: string }) => {
   const [showFilters, setShowFilters] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
 
@@ -22,41 +22,11 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
     setIsMounted(true);
   }, []);
 
-  const filterTypes = React.useMemo(
-    () => ({
-      // Add a new fuzzyTextFilterFn filter type.
-      fuzzyText: fuzzyTextFilterFn,
-      // Or, override the default text filter to use
-      // "startWith"
-      text: (rows: any[], id: string, filterValue: string) => {
-        return rows.filter((row) => {
-          const rowValue = row.values[id];
-          return rowValue !== undefined
-            ? String(rowValue)
-                .toLowerCase()
-                .startsWith(String(filterValue).toLowerCase())
-            : true;
-        });
-      },
-      between: (rows: any[], id: string, filterValue: [number, number]) => {
-        return rows.filter((row) => {
-          const rowValue = row.values[id];
-          if (rowValue === undefined) return true;
-          if (filterValue[0] && rowValue < filterValue[0]) return false;
-          if (filterValue[1] && rowValue > filterValue[1]) return false;
-          return true;
-        });
-      },
-    }),
-    []
-  );
-
   const columns = React.useMemo(
-    () => [
-      {
-        Header: "Nome",
-        accessor: "name",
-        Cell: ({ row }: { row: any }) => (
+    () => columnHelper.columns([
+      columnHelper.accessor("name", {
+        header: "Nome",
+        cell: ({ row }) => (
           <Link
             className="text-ameciclo"
             to="/dados/contagens/$slug"
@@ -66,13 +36,13 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             {row.original.name}
           </Link>
         ),
-        Filter: ColumnFilter,
-        filter: containsText,
-      },
-      {
-        Header: "Data",
-        accessor: "date",
-        Cell: ({ value }: { value: string }) => {
+        meta: { Filter: ColumnFilter },
+        filterFn: containsText,
+      }),
+      columnHelper.accessor("date", {
+        header: "Data",
+        cell: ({ getValue }) => {
+          const value = getValue();
           if (!value) return <span>-</span>;
           try {
             return <span>{IntlDateStr(value)}</span>;
@@ -80,12 +50,11 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             return <span>{value}</span>;
           }
         },
-        Filter: ColumnFilter,
-      },
-      {
-        Header: "Total de Ciclistas",
-        accessor: "total_cyclists",
-        Cell: ({ row }: { row: any }) => (
+        meta: { Filter: ColumnFilter },
+      }),
+      columnHelper.accessor("total_cyclists", {
+        header: "Total de Ciclistas",
+        cell: ({ row }) => (
           <span className="inline-flex items-center gap-2">
             {IntlNumber(row.original.total_cyclists)}
             {row.original.note && (
@@ -95,22 +64,20 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
             )}
           </span>
         ),
-        Filter: NumberRangeColumnFilter,
-        filter: "between",
-      },
-      {
-        Header: "Comparar",
-        accessor: "compare",
-        Cell: ({ row }: { row: any }) => (
+        meta: { Filter: NumberRangeColumnFilter },
+        filterFn: between,
+      }),
+      columnHelper.display({
+        header: "Comparar",
+        id: "compare",
+        cell: ({ row }) => (
           <CompareOtherCell
             item={{ slug: row.original.slug, name: row.original.placeName, date: row.original.date, variant: row.original.variant }}
             firstSlug={firstSlug}
           />
         ),
-        disableFilters: true,
-        disableSortBy: true,
-      },
-    ],
+      }),
+    ]),
     [firstSlug]
   );
 
@@ -141,7 +108,6 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
       title={"Compare com outras contagens"}
       data={data}
       columns={columns}
-      filterTypes={filterTypes}
       showFilters={showFilters}
       setShowFilters={setShowFilters}
     />
