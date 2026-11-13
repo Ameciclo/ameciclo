@@ -5,10 +5,12 @@ import { tableColumnHelper } from "~/components/Commom/Table/features";
 import { ColumnFilter, NumberRangeColumnFilter, between, containsText } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
 import type { CountRow } from "@ameciclo/db/derive";
+import { CompareOtherCell } from "~/components/Contagens/comparison/CompareOtherCell";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 
-// The other counts to compare with: no variant and no change against the previous count.
-type ComparisonRow = Omit<CountRow, "variant" | "change">;
+// The other counts to compare with: no change against the previous count. `name` already
+// carries the variant; `placeName` is the place alone.
+type ComparisonRow = Omit<CountRow, "change"> & { placeName: string };
 
 const columnHelper = tableColumnHelper<ComparisonRow>();
 
@@ -66,16 +68,13 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: Comparison
         filterFn: between,
       }),
       columnHelper.display({
-        header: "COMPARE",
+        header: "Comparar",
         id: "compare",
         cell: ({ row }) => (
-          <Link
-            className="text-ameciclo hover:underline font-medium"
-            to="/dados/contagens/$slug/compare/$compareSlug"
-            params={{ slug: firstSlug, compareSlug: row.original.slug }}
-          >
-            COMPARE
-          </Link>
+          <CompareOtherCell
+            item={{ slug: row.original.slug, name: row.original.placeName, date: row.original.date, variant: row.original.variant }}
+            firstSlug={firstSlug}
+          />
         ),
       }),
     ]),
