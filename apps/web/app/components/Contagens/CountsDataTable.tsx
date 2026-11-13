@@ -112,6 +112,11 @@ function Change({ value }: { value: number | null }) {
   );
 }
 
+// Fixed heights: every place row is the same height whatever it holds (badges, variant, wrapped
+// names), so a page of 10 (5 on phones) always takes the same room. Sub-rows are shorter.
+const PLACE_ROW_HEIGHT = "h-28 sm:h-16";
+const SUB_ROW_HEIGHT = "h-16 sm:h-12";
+
 const SORT_LABEL = { asc: "crescente", desc: "decrescente" };
 
 const COLUMN_CLASS: Record<string, string> = {
@@ -143,6 +148,7 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
   const maxTotal = useMemo(() => Math.max(1, ...data.map((c) => c.total_cyclists)), [data]);
   const mobile = useSyncExternalStore(matchesMobile, isMobile, () => false);
   const [pageIndex, setPageIndex] = useState(0);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const pagination: PaginationState = { pageIndex, pageSize: mobile ? 5 : 10 };
 
   const columns = useMemo<CountColumn[]>(
@@ -255,7 +261,7 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
             }}
           />
         </div>
-        <Popover>
+        <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" className="h-10 bg-background">
               <SlidersHorizontal aria-hidden />
@@ -263,46 +269,82 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
               {advancedActive > 0 && <Badge className="ml-1 px-1.5">{advancedActive}</Badge>}
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="theme-ameciclo w-80 space-y-4">
-            <div className="space-y-2">
-              <Label>Total de ciclistas</Label>
-              <div className="flex items-center gap-2">
+          <PopoverContent align="end" className="theme-ameciclo w-[min(22rem,calc(100vw-2rem))] gap-0 p-0">
+            <div className="space-y-5 p-5">
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-semibold">Total de ciclistas</legend>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="filtro-total-min" className="text-xs text-muted-foreground">
+                      Mínimo
+                    </Label>
+                    <Input
+                      id="filtro-total-min"
+                      type="number"
+                      min={0}
+                      inputMode="numeric"
+                      placeholder="0"
+                      className="h-10"
+                      value={min ?? ""}
+                      onChange={(e) => {
+                        totalColumn?.setFilterValue([e.target.value ? Number(e.target.value) : undefined, max]);
+                        resetPage();
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="filtro-total-max" className="text-xs text-muted-foreground">
+                      Máximo
+                    </Label>
+                    <Input
+                      id="filtro-total-max"
+                      type="number"
+                      min={0}
+                      inputMode="numeric"
+                      placeholder="Sem limite"
+                      className="h-10"
+                      value={max ?? ""}
+                      onChange={(e) => {
+                        totalColumn?.setFilterValue([min, e.target.value ? Number(e.target.value) : undefined]);
+                        resetPage();
+                      }}
+                    />
+                  </div>
+                </div>
+              </fieldset>
+              <div className="space-y-3">
+                <Label htmlFor="filtro-data" className="text-sm font-semibold">
+                  Data da contagem
+                </Label>
                 <Input
-                  type="number"
-                  min={0}
-                  placeholder="Mín."
-                  aria-label="Total mínimo de ciclistas"
-                  value={min ?? ""}
+                  id="filtro-data"
+                  className="h-10"
+                  placeholder="Ex.: 03/2026 ou 2026-03"
+                  value={dateValue}
                   onChange={(e) => {
-                    totalColumn?.setFilterValue([e.target.value ? Number(e.target.value) : undefined, max]);
+                    dateColumn?.setFilterValue(e.target.value || undefined);
                     resetPage();
                   }}
                 />
-                <span className="text-muted-foreground">a</span>
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="Máx."
-                  aria-label="Total máximo de ciclistas"
-                  value={max ?? ""}
-                  onChange={(e) => {
-                    totalColumn?.setFilterValue([min, e.target.value ? Number(e.target.value) : undefined]);
-                    resetPage();
-                  }}
-                />
+                <p className="text-xs text-muted-foreground">Digite o mês e o ano, ou só o ano.</p>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="filtro-data">Data</Label>
-              <Input
-                id="filtro-data"
-                placeholder="Ex.: 03/2026 ou 2026-03"
-                value={dateValue}
-                onChange={(e) => {
-                  dateColumn?.setFilterValue(e.target.value || undefined);
+            <div className="flex items-center justify-between gap-3 border-t bg-muted/60 px-5 py-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={advancedActive === 0}
+                onClick={() => {
+                  totalColumn?.setFilterValue(undefined);
+                  dateColumn?.setFilterValue(undefined);
                   resetPage();
                 }}
-              />
+              >
+                Limpar filtros
+              </Button>
+              <Button size="sm" onClick={() => setFiltersOpen(false)}>
+                Concluir
+              </Button>
             </div>
           </PopoverContent>
         </Popover>
@@ -363,10 +405,13 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="[&_tr:last-child]:border-b!">
             {rows.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={columns.length} className="py-12 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={columns.length}
+                  className={cn("text-center text-muted-foreground", mobile ? "h-[34rem]" : "h-[40rem]")}
+                >
                   Nenhuma contagem encontrada com esses filtros.
                 </TableCell>
               </TableRow>
@@ -375,6 +420,7 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
                 <TableRow
                   key={row.id}
                   className={cn(
+                    row.depth > 0 ? SUB_ROW_HEIGHT : PLACE_ROW_HEIGHT,
                     row.depth > 0 && "bg-muted/70 text-muted-foreground",
                     row.depth === 0 && row.getIsExpanded() && "bg-accent/40",
                   )}
@@ -382,7 +428,7 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
                   {row.getAllCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={cn("py-3", COLUMN_CLASS[cell.column.id], row.depth > 0 && cell.column.id === "select" && "pl-6")}
+                      className={cn("py-2", COLUMN_CLASS[cell.column.id], row.depth > 0 && cell.column.id === "select" && "pl-6")}
                     >
                       <table.FlexRender cell={cell} />
                     </TableCell>
@@ -390,11 +436,18 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
                 </TableRow>
               ))
             )}
+            {/* Filler rows keep the table (and the footer below it) the same height on every page. */}
+            {rows.length > 0 &&
+              Array.from({ length: Math.max(0, pagination.pageSize - rows.filter((r) => r.depth === 0).length) }, (_, i) => (
+                <TableRow key={`filler-${i}`} aria-hidden className={cn(PLACE_ROW_HEIGHT, "hover:bg-transparent")}>
+                  <TableCell colSpan={columns.length} />
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+      <div className="flex min-h-8 flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
         <span aria-live="polite">
           {placeCount === places.length
             ? `${placeCount} locais · ${data.length} contagens`

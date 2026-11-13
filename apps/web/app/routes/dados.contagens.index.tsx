@@ -7,7 +7,7 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { CountsIntro, CountsProfile, CountsStatsBand } from "~/components/Contagens/CountsOverview";
 import { CountsFilters, CsvLink } from "~/components/Contagens/CountsFilters";
 import { ComparisonBarSlot } from "~/components/Contagens/ComparisonBarSlot";
-import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
+import { CountsMapSection } from "~/components/Contagens/CountsMapSection";
 import { PointDetailsModal } from "~/components/Contagens/PointDetailsModal";
 import { CountsDataTable } from "~/components/Contagens/CountsDataTable";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
@@ -54,7 +54,7 @@ function Contagens() {
   const rows = countRows(all, filtered);
 
   const statistics = useCountsStatistics(summaryData.summaryData);
-  const { pointsData, controlPanel } = useCountsMapData(filtered);
+  const { pointsData } = useCountsMapData(filtered);
 
   return (
     <div className="theme-ameciclo text-foreground">
@@ -90,22 +90,8 @@ function Contagens() {
       {/* Slot for the "compare counts" sticky bar (see ComparisonBarSlot). */}
       <ComparisonBarSlot />
 
-      <section className="py-10 md:py-14" aria-labelledby="mapa-contagens">
-        <div className="container mx-auto mb-6 px-4">
-          <h2 id="mapa-contagens" className="text-2xl font-bold md:text-3xl">
-            Onde contamos
-          </h2>
-          <p className="mt-1 text-muted-foreground">Os pontos seguem o ano e o filtro de contagens completas escolhidos acima.</p>
-        </div>
-        <AmecicloMap
-          pointsData={pointsData}
-          controlPanel={controlPanel}
-          onPointClick={(point) => {
-            setSelectedPoint(point);
-          }}
-        />
-        <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
-      </section>
+      <CountsMapSection points={pointsData} onPointClick={setSelectedPoint} />
+      <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
 
       <CountsProfile cards={summaryData.cards} />
       <CountsIntro

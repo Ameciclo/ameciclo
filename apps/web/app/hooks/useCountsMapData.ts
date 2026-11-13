@@ -5,7 +5,7 @@ import type { pointData } from "typings";
 import { countNote } from "~/services/counting-details.service";
 import { IntlDateStr } from "~/services/utils";
 
-const calculateMarkerSize = (totalCyclists: number) => {
+export const calculateMarkerSize = (totalCyclists: number) => {
   if (totalCyclists === 0) return 8;
   const baseSize = 10;
   const maxSize = 40;
