@@ -18,10 +18,10 @@ export function CompareBar() {
       <div aria-hidden className="h-36 md:h-24" />
       <section
         aria-label="Contagens escolhidas para comparar"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.12)]"
+        className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-primary bg-background shadow-[0_-6px_20px_rgba(0,64,64,0.18)]"
       >
         <div className="container mx-auto flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 md:flex-nowrap">
-          <p className="order-1 text-sm font-semibold text-gray-800 md:shrink-0" aria-live="polite">
+          <p className="order-1 text-sm font-semibold text-foreground md:shrink-0" aria-live="polite">
             {selection.length}/{MAX_COMPARE} contagens
           </p>
 
@@ -31,7 +31,7 @@ export function CompareBar() {
               return (
                 <li
                   key={item.slug}
-                  className="flex shrink-0 items-center gap-2 rounded-full border border-gray-300 bg-gray-50 py-1 pl-3 pr-1 text-sm text-gray-800"
+                  className="flex shrink-0 items-center gap-2 rounded-full border border-input bg-muted py-1 pl-3 pr-1 text-sm text-foreground"
                 >
                   <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colorAt(index).hex }} />
                   <span className="whitespace-nowrap">{label}</span>
@@ -39,7 +39,7 @@ export function CompareBar() {
                     type="button"
                     onClick={() => compareSelection.remove(item.slug)}
                     aria-label={`Remover ${label} da comparação`}
-                    className="flex h-6 w-6 items-center justify-center rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-900"
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   >
                     <span aria-hidden>×</span>
                   </button>
@@ -49,24 +49,24 @@ export function CompareBar() {
           </ul>
 
           <div className="order-2 ml-auto flex items-center gap-3 md:order-3 md:shrink-0">
-            <button type="button" onClick={compareSelection.clear} className="text-sm text-gray-600 underline hover:text-gray-900">
+            <button type="button" onClick={compareSelection.clear} className="text-sm text-muted-foreground underline hover:text-foreground">
               Limpar
             </button>
             {ready ? (
               <CompareLink
                 slugs={selection.map((i) => i.slug)}
-                className="rounded-md bg-ameciclo px-4 py-2 text-sm font-semibold text-white shadow hover:bg-ameciclo/90"
+                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90"
               >
                 Comparar
               </CompareLink>
             ) : (
               <span className="flex items-center gap-2">
-                <span className="hidden text-xs text-gray-500 sm:inline">escolha mais {missing}</span>
+                <span className="hidden text-xs text-muted-foreground sm:inline">escolha mais {missing}</span>
                 <button
                   type="button"
                   disabled
                   title={`Escolha mais ${missing} para comparar`}
-                  className="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-600"
+                  className="cursor-not-allowed rounded-md bg-muted px-4 py-2 text-sm font-semibold text-muted-foreground"
                 >
                   Comparar
                 </button>

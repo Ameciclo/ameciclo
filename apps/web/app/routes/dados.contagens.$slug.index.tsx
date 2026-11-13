@@ -3,10 +3,12 @@ import { z } from "zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
-import { InfoCards } from "~/components/Contagens/InfoCards";
+import { Button } from "@ameciclo/ui/components/button";
+import { Card } from "@ameciclo/ui/components/card";
+import { CountHero } from "~/components/Contagens/CountHero";
+import { CountsProfile } from "~/components/Contagens/CountsOverview";
+import { OtherCountsTable } from "~/components/Contagens/OtherCountsTable";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
-import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
 import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
 import { MovementDiagram } from "@ameciclo/ui/components/movement-diagram";
 import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
@@ -21,8 +23,6 @@ import {
 import {
   getCountingCards,
   getPointsData,
-  getCountingStatistics,
-  transformOtherCountsForComparison,
 } from "~/services/counting-details.service";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { IntlDateStr, IntlNumber, IntlPercentil } from "~/services/utils";
@@ -91,7 +91,7 @@ function Contagem() {
     const pointsData = getPointsData(location, selected);
 
     return (
-        <main className="flex-auto">
+        <main className="theme-ameciclo flex-auto text-foreground">
             <Banner image={cover ?? undefined} alt="Capa da contagem" />
 
             <Breadcrumb
@@ -100,74 +100,76 @@ function Contagem() {
                 routes={["/", "/dados"]}
             />
 
-            <StatisticsBox
-                title={location.name}
-                boxes={getCountingStatistics(selected)}
+            <CountHero location={location} selected={selected} />
+
+            <section className="border-b bg-muted/60">
+                <div className="container mx-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
+                    <CountSelector placeSlug={location.slug} counts={location.counts} selectedId={selected.id} />
+                    <CompareActions
+                        item={{ slug: page.canonical, name: location.name, date: selected.date, variant: selected.variant }}
+                        location={location}
+                    />
+                </div>
+            </section>
+
+            {(detail?.estimated || detail?.partial) && (
+                <div className="container mx-auto mt-6 px-4">
+                    <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                        {detail.estimated
+                            ? `Contagem estimada: foram observados apenas os horários ${hoursLabel(detail.observedHours ?? [])}; o restante do dia foi projetado.`
+                            : `Contagem parcial: só há dados em ${hoursLabel(detail.observedHours ?? [])}. Os demais horários não foram contados.`}
+                    </p>
+                </div>
+            )}
+
+            <CountsProfile
+                cards={getCountingCards(selected)}
+                title="Características dos ciclistas"
+                description="Participação de cada característica no total de ciclistas desta contagem."
             />
 
-            <CountSelector placeSlug={location.slug} counts={location.counts} selectedId={selected.id} />
-
-            <CompareActions
-                item={{ slug: page.canonical, name: location.name, date: selected.date, variant: selected.variant }}
-                location={location}
-            />
-
-            {detail?.estimated && (
-                <p className="container mx-auto my-6 text-center text-sm text-gray-600">
-                    Contagem estimada: foram observados apenas os horários {hoursLabel(detail.observedHours ?? [])}; o restante do dia foi projetado.
-                </p>
-            )}
-            {detail?.partial && (
-                <p className="container mx-auto my-6 text-center text-sm text-gray-600">
-                    Contagem parcial: só há dados em {hoursLabel(detail.observedHours ?? [])}. Os demais horários não foram contados.
-                </p>
-            )}
-
-            <section className="container mx-auto grid lg:grid-cols-3 md:grid-cols-1 auto-rows-auto gap-10">
-                <div className="rounded-sm shadow-2xl lg:col-span-2 col-span-3" style={{ minHeight: "400px" }}>
+            <section className="container mx-auto grid gap-6 px-4 pb-10 lg:grid-cols-3" aria-label="Local e fluxo">
+                <div className="overflow-hidden rounded-xl border shadow-sm lg:col-span-2">
                     {pointsData.length > 0 ? (
-                        <AmecicloMap pointsData={pointsData} height="100%" />
+                        <AmecicloMap pointsData={pointsData} width="100%" height="clamp(340px, 50vh, 460px)" />
                     ) : (
-                        <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500">Local sem coordenadas.</p>
+                        <div className="flex h-72 items-center justify-center">
+                            <p className="text-muted-foreground">Local sem coordenadas.</p>
                         </div>
                     )}
                 </div>
-                <div className="rounded-sm shadow-2xl lg:col-span-1 col-span-3 flex flex-col justify-center items-center p-8">
-                    <h3 className="text-gray-800 text-xl font-bold mb-4 text-center">Fluxo de Ciclistas por Direção</h3>
+                <Card className="items-center justify-center gap-3 p-6 lg:col-span-1">
+                    <h2 className="text-center text-lg font-bold">Fluxo de ciclistas por direção</h2>
                     {detail && detail.approaches.length <= 4 ? (
                         <>
                             <MovementDiagram topology={detail.topology} approaches={detail.approaches} positions={detail.positions} flows={flows} />
                             {!detail.positions && (
-                                <p className="text-xs text-gray-500 text-center mt-2">A posição das aproximações no desenho é ilustrativa.</p>
+                                <p className="text-center text-xs text-muted-foreground">A posição das aproximações no desenho é ilustrativa.</p>
                             )}
                         </>
                     ) : (
-                        <p className="text-sm text-gray-500 text-center">Não há dados de fluxo para esta contagem.</p>
+                        <p className="text-center text-sm text-muted-foreground">Não há dados de fluxo para esta contagem.</p>
                     )}
-                </div>
+                </Card>
             </section>
-
-            <InfoCards cards={getCountingCards(selected)} />
 
             {detail && detail.hours.length > 0 && <HourlyCyclistsChart series={detail.series} hours={detail.hours} />}
 
             {location.counts.length > 1 && <EvolutionChart counts={location.counts} selectedId={selected.id} />}
 
             {location.counts.length > 1 && (
-                <section className="container mx-auto mt-6 mb-2 text-center">
-                    <Link
-                        to="/dados/contagens/$slug/evolucao"
-                        params={{ slug: location.slug }}
-                        className="inline-flex items-center gap-2 px-5 py-3 bg-ameciclo text-white rounded-lg hover:bg-ameciclo/90 transition-colors font-medium shadow-md"
-                    >
-                        Ver a evolução deste ponto ({location.counts.length} contagens)
-                    </Link>
+                <section className="container mx-auto px-4 pb-10">
+                    <Button asChild size="lg">
+                        <Link to="/dados/contagens/$slug/evolucao" params={{ slug: location.slug }}>
+                            Ver a evolução deste ponto ({location.counts.length} contagens)
+                        </Link>
+                    </Button>
                 </section>
             )}
 
-            <CountingComparisionTable
-                data={transformOtherCountsForComparison(locations, [page.canonical])}
+            <OtherCountsTable
+                locations={locations}
+                shownSlugs={[page.canonical]}
                 firstSlug={page.canonical}
             />
             <CompareBar />

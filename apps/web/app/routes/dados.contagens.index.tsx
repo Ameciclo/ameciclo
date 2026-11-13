@@ -4,13 +4,12 @@ import { z } from "zod";
 import { pointData } from "typings";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { GeneralCountStatistics } from "~/components/Contagens/GeneralCountStatistics";
-import { InfoCards } from "~/components/Contagens/InfoCards";
-import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
-import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
+import { CountsIntro, CountsProfile, CountsStatsBand } from "~/components/Contagens/CountsOverview";
+import { CountsFilters, CsvLink } from "~/components/Contagens/CountsFilters";
+import { ComparisonBarSlot } from "~/components/Contagens/ComparisonBarSlot";
+import { CountsMapSection } from "~/components/Contagens/CountsMapSection";
 import { PointDetailsModal } from "~/components/Contagens/PointDetailsModal";
-import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
-import { CountsTable } from "~/components/Contagens/CountsTable";
+import { CountsDataTable } from "~/components/Contagens/CountsDataTable";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { useCountsStatistics } from "~/hooks/useCountsStatistics";
@@ -55,66 +54,53 @@ function Contagens() {
   const rows = countRows(all, filtered);
 
   const statistics = useCountsStatistics(summaryData.summaryData);
-  const { pointsData, controlPanel } = useCountsMapData(filtered);
+  const { pointsData } = useCountsMapData(filtered);
 
   return (
-    <>
+    <div className="theme-ameciclo text-foreground">
       <Banner image={page.cover?.url ?? undefined} alt="Capa da página de contagens" />
       <Breadcrumb label="Contagens" slug="/contagens" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={atlasApiDown} />
-      <GeneralCountStatistics title={"Estatísticas Gerais"} boxes={statistics} />
-      <ExplanationBoxes
+      <CountsStatsBand stats={statistics} />
+      <section className="bg-muted/60 py-10 md:py-14" aria-labelledby="lista-contagens">
+        <div className="container mx-auto px-4">
+          <h2 id="lista-contagens" className="text-2xl font-bold md:text-3xl">
+            Contagens realizadas
+          </h2>
+          <p className="mt-1 mb-6 text-muted-foreground">
+            Cada local mostra a contagem mais recente; abra “anteriores” para ver o histórico.
+          </p>
+          <CountsDataTable
+            data={rows}
+            filters={
+              <CountsFilters
+                years={yearsOf(all)}
+                year={ano}
+                completeOnly={completas ?? false}
+                onYearChange={(year) => navigate({ search: (prev) => ({ ...prev, ano: year }), resetScroll: false })}
+                onCompleteOnlyChange={(only) =>
+                  navigate({ search: (prev) => ({ ...prev, completas: only || undefined }), resetScroll: false })
+                }
+              />
+            }
+            actions={<CsvLink />}
+          />
+        </div>
+      </section>
+
+      <CountsMapSection points={pointsData} onPointClick={setSelectedPoint} />
+      <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
+
+      <CountsProfile cards={summaryData.cards} />
+      <CountsIntro
         boxes={[
           { title: "O que é?", description: page.description ?? null },
           { title: "E o que mais?", description: page.objective ?? null },
         ]}
       />
-      <InfoCards cards={summaryData.cards} />
-      <AmecicloMap
-        pointsData={pointsData}
-        controlPanel={controlPanel}
-        onPointClick={(point) => {
-          setSelectedPoint(point);
-        }}
-      />
 
-      <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
-      <section className="container mx-auto my-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-700">
-        <label className="flex items-center gap-2">
-          Ano
-          <select
-            className="rounded-sm border border-gray-300 px-2 py-1"
-            value={ano ?? ""}
-            onChange={(e) =>
-              navigate({
-                search: (prev) => ({ ...prev, ano: e.target.value ? Number(e.target.value) : undefined }),
-                resetScroll: false,
-              })
-            }
-          >
-            <option value="">Todos</option>
-            {yearsOf(all).map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={completas ?? false}
-            onChange={(e) => navigate({ search: (prev) => ({ ...prev, completas: e.target.checked || undefined }), resetScroll: false })}
-          />
-          Ocultar contagens estimadas e parciais
-        </label>
-        <span className="text-gray-500">{rows.length} contagens</span>
-        <a className="text-ameciclo hover:underline sm:ml-auto" href="/api/contagens/csv" download>
-          Baixar todas as contagens (CSV)
-        </a>
-      </section>
-      <CountsTable data={rows} />
-      <CompareBar />
-    </>
+      {/* Sticky bar of the "compare counts" feature; last so its spacer sits at the end of the page. */}
+      <ComparisonBarSlot />
+    </div>
   );
 }
