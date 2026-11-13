@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { contagemSlug } from "@ameciclo/db/slug";
 import type { PublicLocation } from "@ameciclo/db/shared";
-import type { pointData, PcrCounting } from "typings";
+import type { pointData } from "typings";
 import { countNote } from "~/services/counting-details.service";
 import { IntlDateStr } from "~/services/utils";
 
@@ -20,16 +20,12 @@ const isValidCoordinate = (point: pointData) =>
   point.longitude >= -180 &&
   point.longitude <= 180;
 
-export function useCountsMapData(amecicloData: PublicLocation[] | null, pcrCounts: PcrCounting[]) {
+export function useCountsMapData(amecicloData: PublicLocation[] | null) {
   const hasAmecicloData = amecicloData && amecicloData.length > 0;
-  const hasPcrData = pcrCounts && pcrCounts.length > 0;
 
   const controlPanel = useMemo(
-    () => [
-      { type: "ameciclo", color: "#008888", loading: !hasAmecicloData },
-      { type: "prefeitura", color: "#ef4444", loading: !hasPcrData },
-    ],
-    [hasAmecicloData, hasPcrData]
+    () => [{ type: "ameciclo", color: "#008888", loading: !hasAmecicloData }],
+    [hasAmecicloData]
   );
 
   const atlasAmecicloPoints: pointData[] = useMemo(() => {
@@ -62,30 +58,5 @@ export function useCountsMapData(amecicloData: PublicLocation[] | null, pcrCount
       .filter(isValidCoordinate);
   }, [amecicloData, hasAmecicloData]);
 
-  const pcrPointsData: pointData[] = useMemo(() => {
-    return pcrCounts
-      .map((d: PcrCounting, index: number) => ({
-        key: "pcr_" + index,
-        type: "prefeitura",
-        latitude: d.location.coordinates[0],
-        longitude: d.location.coordinates[1],
-        popup: {
-          name: d.name || "Contagem PCR",
-          total: d.summary?.total || 0,
-          date: IntlDateStr(d.date),
-          url: "",
-          obs: "Contagem realizadas pela ocasião do Diagnóstico do Plano de Mobilidade (ICPS/PCR).",
-        },
-        size: calculateMarkerSize(d.summary?.total || 0),
-        color: "#ef4444",
-      }))
-      .filter(isValidCoordinate);
-  }, [pcrCounts]);
-
-  const pointsData = useMemo(
-    () => [...pcrPointsData, ...atlasAmecicloPoints],
-    [pcrPointsData, atlasAmecicloPoints]
-  );
-
-  return { pointsData, controlPanel };
+  return { pointsData: atlasAmecicloPoints, controlPanel };
 }
