@@ -69,7 +69,7 @@ function DefaultColumnFilter({ column: { filterValue, preFilteredRows, setFilter
     );
 }
 
-const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, customHeader }: any) => {
+const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, subtitle, filterType, setFilterType, pageLoa, customHeader, initialSortBy }: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(typeof window !== 'undefined' ? window.innerWidth < SMALL_SCREEN_WIDTH : false);
     const [shouldBlink, setShouldBlink] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -224,7 +224,9 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
         {
             columns: safeColumns,
             data: safeData,
-            initialState: { pageIndex: 0, pageSize: 5 },
+            initialState: { pageIndex: 0, pageSize: 5, sortBy: initialSortBy ?? [] },
+            // With an initial order, clicking a header flips asc/desc instead of dropping the sort.
+            disableSortRemove: initialSortBy !== undefined,
             filterTypes,
             defaultColumn,
         },
