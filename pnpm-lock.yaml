@@ -126,6 +126,9 @@ importers:
       '@tanstack/react-start':
         specifier: ^1.167.13
         version: 1.167.43(@rsbuild/core@2.0.2)(@rspack/core@2.0.0(@swc/helpers@0.5.21))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@7.3.2(@types/node@26.1.2)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.23.15))
+      '@tanstack/react-table':
+        specifier: ^9.3.1
+        version: 9.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@turf/bbox':
         specifier: ^7.2.0
         version: 7.3.5
