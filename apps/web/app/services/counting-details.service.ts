@@ -71,6 +71,8 @@ export function transformOtherCountsForComparison(locations: PublicLocation[], s
         countId: count.id,
         slug: contagemSlug(loc.slug, count),
         name: count.variant ? `${loc.name} (${count.variant})` : loc.name,
+        placeName: loc.name,
+        variant: count.variant,
         date: count.date,
         total_cyclists: count.total_cyclists,
         note: countNote(count),

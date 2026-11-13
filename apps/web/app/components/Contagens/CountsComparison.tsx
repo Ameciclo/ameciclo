@@ -5,18 +5,14 @@ import Banner from "~/components/Commom/Banner";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { Tooltip } from "~/components/Commom/Tooltip";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
-import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
+import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
+import { EditSelectionButton } from "~/components/Contagens/comparison/CompareActions";
+import { colorAt, TABLE_FROM } from "~/components/Contagens/comparison/constants";
+import { ComparisonHourlyChart } from "~/components/Contagens/comparison/ComparisonHourlyChart";
+import { MetricsTable } from "~/components/Contagens/comparison/MetricsTable";
+import { compareLabel, deltaAgainst } from "~/components/Contagens/comparison/selection";
 import { countNote, transformOtherCountsForComparison, type MapPoint } from "~/services/counting-details.service";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
-
-const CARD_COLORS = [
-  { bg: "bg-teal-50", border: "border-teal-200", text: "text-teal-700", accent: "bg-teal-500" },
-  { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", accent: "bg-emerald-500" },
-  { bg: "bg-indigo-50", border: "border-indigo-200", text: "text-indigo-700", accent: "bg-indigo-500" },
-  { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", accent: "bg-amber-500" },
-  { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700", accent: "bg-purple-500" },
-  { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", accent: "bg-rose-500" },
-];
 
 const HINTS: Record<string, string> = {
   women: "mulheres ciclistas",
@@ -32,27 +28,16 @@ const HINTS: Record<string, string> = {
 
 export type Place = { location: PublicLocation; selected: PublicLocation["counts"][number]; detail: PublicCountDetail | null; canonical: string };
 
-function getChartData(places: Place[]) {
-  // Two counts of one place on the same day differ only by their variant (e.g. a lane).
-  const present = places.flatMap(({ location, selected, detail }) =>
-    detail ? [{ detail, name: `${location.name}${selected.variant ? ` – ${selected.variant}` : ""}` }] : [],
-  );
-  const hours = [...new Set(present.flatMap(({ detail }) => detail.hours))].sort((a, b) => a - b);
-  const series = present.map(({ detail, name }) => ({
-    name: `${name} (${IntlDateStr(detail.date)})`,
-    data: hours.map((h) => {
-      const i = detail.hours.indexOf(h);
-      return i < 0 ? 0 : (detail.series[0]?.data[i] ?? 0);
-    }),
-  }));
-  return { series, hours };
-}
-
-// Counts of one place share coordinates: a single marker (its latest count) is enough.
+// Counts of one place share coordinates: a single marker is enough. It takes the color of
+// the place's first count and describes its newest one.
 function getPoints(places: Place[]): MapPoint[] {
-  const pointColors = ["#008888", "#10b981"];
-  const newestPerPlace = [...new Map(places.map((p) => [p.location.id, p])).values()];
-  return newestPerPlace.flatMap(({ location, selected, canonical }, index) =>
+  const byPlace = new Map<number, { first: number; newest: Place }>();
+  places.forEach((place, index) => {
+    const known = byPlace.get(place.location.id);
+    if (!known) byPlace.set(place.location.id, { first: index, newest: place });
+    else if (place.selected.date > known.newest.selected.date) known.newest = place;
+  });
+  return [...byPlace.values()].flatMap(({ first, newest: { location, selected, canonical } }) =>
     location.latitude === null || location.longitude === null
       ? []
       : [
@@ -60,7 +45,7 @@ function getPoints(places: Place[]): MapPoint[] {
             key: canonical,
             latitude: location.latitude,
             longitude: location.longitude,
-            color: pointColors[index % pointColors.length],
+            color: colorAt(first).hex,
             popup: {
               name: location.name,
               total: selected.total_cyclists,
@@ -76,6 +61,7 @@ function getPoints(places: Place[]): MapPoint[] {
   );
 }
 
+const percentFormat = new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 0, signDisplay: "exceptZero" });
 const percent = (part: number, total: number) => `${((part / (total > 0 ? total : 1)) * 100).toFixed(1)}%`;
 
 type CountsComparisonProps = {
@@ -91,7 +77,9 @@ type CountsComparisonProps = {
 export function CountsComparison({ places, cover, locations, title, subtitle, crumb }: CountsComparisonProps) {
 
   const sameLocation = places.every((p) => p.location.id === places[0].location.id);
-  const { series, hours } = getChartData(places);
+  const chartCounts = places.flatMap(({ selected, location, detail }) =>
+    detail ? [{ label: compareLabel({ ...selected, name: location.name }), detail }] : [],
+  );
   const others = transformOtherCountsForComparison(locations, places.map(({ canonical }) => canonical));
 
   return (
@@ -142,9 +130,26 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
           <p className="text-lg text-gray-600">{subtitle}</p>
         </div>
 
+        <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
+          <ul className="flex flex-wrap justify-center gap-2" aria-label="Contagens comparadas">
+            {places.map(({ location, selected, canonical }, index) => (
+              <li key={canonical} className="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-3 py-1 text-sm text-gray-800">
+                <span aria-hidden className="h-3 w-3 rounded-full" style={{ backgroundColor: colorAt(index).hex }} />
+                {compareLabel({ ...selected, name: location.name })}
+              </li>
+            ))}
+          </ul>
+          <EditSelectionButton
+            items={places.map(({ location, selected, canonical }) => ({ slug: canonical, name: location.name, date: selected.date, variant: selected.variant }))}
+          />
+        </div>
+
+        {places.length >= TABLE_FROM ? (
+          <MetricsTable places={places} />
+        ) : (
         <div className={`grid grid-cols-1 ${places.length >= 3 ? "xl:grid-cols-3 lg:grid-cols-2" : "lg:grid-cols-2"} gap-8 mb-8`}>
           {places.map(({ location, selected, canonical }, index) => {
-            const colors = CARD_COLORS[index % CARD_COLORS.length];
+            const colors = colorAt(index);
             const note = countNote(selected);
             const rows = [
               ...METRICS.filter((m) => m.key !== "motor").map((m) => ({
@@ -177,7 +182,15 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-2 border-b border-gray-200">
                     <span className="text-base font-medium text-gray-700">Total de Ciclistas</span>
-                    <span className={`text-3xl font-bold ${colors.text}`}>{IntlNumber(selected.total_cyclists)}</span>
+                    <span className={`text-3xl font-bold ${colors.text}`}>
+                      {IntlNumber(selected.total_cyclists)}
+                      {index > 0 && (() => {
+                        const delta = deltaAgainst(selected.total_cyclists, places[0].selected.total_cyclists);
+                        return delta === null ? null : (
+                          <span className="ml-2 text-sm font-medium text-gray-600">{`${percentFormat.format(delta)} vs. 1ª`}</span>
+                        );
+                      })()}
+                    </span>
                   </div>
 
                   {rows.map((row) => (
@@ -205,22 +218,24 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
             );
           })}
         </div>
+        )}
 
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
           <AmecicloMap pointsData={getPoints(places)} height="500px" />
         </div>
 
-        {series.length === 0 || hours.length === 0 ? (
+        {chartCounts.length === 0 ? (
           <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
             <h2 className="text-gray-800 text-2xl font-bold mb-6">Quantidade de Ciclistas por Hora</h2>
             <p className="text-center text-sm text-gray-500 py-12">Não há dados horários para estas contagens.</p>
           </section>
         ) : (
-          <HourlyCyclistsChart series={series} hours={hours} />
+          <ComparisonHourlyChart counts={chartCounts} />
         )}
 
         <CountingComparisionTable data={others} firstSlug={places[0].canonical} />
       </section>
+      <CompareBar />
     </main>
   );
 }

@@ -9,6 +9,7 @@ import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { PointDetailsModal } from "~/components/Contagens/PointDetailsModal";
+import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
 import { CountsTable } from "~/components/Contagens/CountsTable";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
@@ -113,6 +114,7 @@ function Contagens() {
         </a>
       </section>
       <CountsTable data={rows} />
+      <CompareBar />
     </>
   );
 }
