@@ -1,6 +1,7 @@
 import { METRICS, type PublicCountDetail, type PublicLocation } from "@ameciclo/db/shared";
 import { contagemSlug } from "@ameciclo/db/slug";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import Banner from "~/components/Commom/Banner";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { Tooltip } from "~/components/Commom/Tooltip";
@@ -79,6 +80,9 @@ type CountsComparisonProps = {
 
 // Cards, map, hourly chart and the "compare with others" table for any number of counts.
 export function CountsComparison({ places, cover, locations, title, subtitle, crumb }: CountsComparisonProps) {
+  // The selection bar only shows here once the user chose to edit this comparison; before that
+  // it could show an unrelated selection left over from another page.
+  const [editing, setEditing] = useState(false);
 
   const sameLocation = places.every((p) => p.location.id === places[0].location.id);
   const chartCounts = places.flatMap(({ selected, location, detail }) =>
@@ -142,6 +146,7 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
               })}
             </ul>
             <EditSelectionButton
+              onEdit={() => setEditing(true)}
               items={places.map(({ location, selected, canonical }) => ({ slug: canonical, name: location.name, date: selected.date, variant: selected.variant }))}
             />
           </div>
@@ -245,7 +250,7 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
       )}
 
       <OtherCountsTable locations={locations} shownSlugs={places.map(({ canonical }) => canonical)} firstSlug={places[0].canonical} />
-      <CompareBar />
+      {editing && <CompareBar />}
     </main>
   );
 }
