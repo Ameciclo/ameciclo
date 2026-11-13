@@ -1,11 +1,9 @@
 import type { PublicLocation } from "@ameciclo/db/shared";
 import { contagemSlug } from "@ameciclo/db/slug";
+import { Button } from "@ameciclo/ui/components/button";
 import { MAX_COMPARE } from "./constants";
 import type { CompareItem } from "./selection";
 import { compareSelection, isFull, useCompareSelection } from "./store";
-
-const buttonClass =
-  "inline-flex items-center gap-2 rounded-lg px-5 py-3 font-medium shadow-md transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 export function itemsOf(location: Pick<PublicLocation, "name" | "slug" | "counts">): CompareItem[] {
   return location.counts.map((c) => ({ slug: contagemSlug(location.slug, c), name: location.name, date: c.date, variant: c.variant }));
@@ -25,38 +23,29 @@ export function CompareActions({ item, location }: { item: CompareItem; location
     .reverse();
 
   return (
-    <section className="container mx-auto mt-6 flex flex-wrap items-center justify-center gap-3 px-4">
-      <button
-        type="button"
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        variant={picked ? "outline" : "default"}
         disabled={blocked}
         title={blocked ? `Você já escolheu ${MAX_COMPARE} contagens. Remova uma para escolher outra.` : undefined}
         onClick={() => compareSelection.toggle(item)}
-        className={`${buttonClass} ${picked ? "border border-ameciclo bg-white text-ameciclo hover:bg-gray-50" : "bg-ameciclo text-white hover:bg-ameciclo/90"}`}
       >
         {picked ? "Remover da comparação" : "Adicionar à comparação"}
-      </button>
+      </Button>
       {latest.length > 1 && (
-        <button
-          type="button"
-          onClick={() => compareSelection.replace(latest)}
-          className={`${buttonClass} border border-ameciclo bg-white text-ameciclo hover:bg-gray-50`}
-        >
+        <Button variant="outline" onClick={() => compareSelection.replace(latest)}>
           Comparar todas as edições deste ponto{location.counts.length > MAX_COMPARE ? ` (as ${MAX_COMPARE} mais recentes)` : ""}
-        </button>
+        </Button>
       )}
-    </section>
+    </div>
   );
 }
 
 // For a comparison page: carry its counts over to the selection, to add or remove some.
 export function EditSelectionButton({ items }: { items: readonly CompareItem[] }) {
   return (
-    <button
-      type="button"
-      onClick={() => compareSelection.replace(items)}
-      className="rounded-md border border-ameciclo bg-white px-4 py-2 text-sm font-medium text-ameciclo hover:bg-gray-50"
-    >
+    <Button variant="outline" size="sm" onClick={() => compareSelection.replace(items)}>
       Editar esta seleção
-    </button>
+    </Button>
   );
 }

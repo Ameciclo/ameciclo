@@ -32,7 +32,7 @@ export function EvolutionChart({ counts, selectedId }: { counts: PublicCount[]; 
         data: ordered.map((c) => ({
           y: c.total_cyclists,
           // The count being viewed stands out; estimated and partial ones are lighter.
-          color: c.id === selectedId ? colors[0] : "#9ca3af",
+          color: c.id === selectedId ? "#008080" : "#9bb5b5",
           opacity: countNote(c) ? 0.6 : 1,
         })),
       },
@@ -41,9 +41,9 @@ export function EvolutionChart({ counts, selectedId }: { counts: PublicCount[]; 
   };
 
   return (
-    <section className="container mx-auto grid grid-cols-1 gap-10 my-10">
-      <div className="shadow-2xl rounded-sm p-10 text-center overflow-x-auto">
-        <div style={{ minWidth: "500px" }}>
+    <section className="container mx-auto px-4 pb-10" aria-label="Evolução ao longo dos anos">
+      <div className="overflow-x-auto rounded-xl border bg-card p-5 shadow-sm md:p-8">
+        <div className="min-w-[500px]">
           <LazyChart options={options} />
         </div>
       </div>

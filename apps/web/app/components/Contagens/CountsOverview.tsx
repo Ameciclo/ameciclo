@@ -49,14 +49,22 @@ export function CountsIntro({ boxes }: { boxes: Explanation[] }) {
 type ProfileCard = { label: string; data: string; icon: string };
 
 // Share of counted people with each characteristic (women, helmet, cargo bikes...).
-export function CountsProfile({ cards }: { cards: ProfileCard[] | null | undefined }) {
+export function CountsProfile({
+  cards,
+  title = "Perfil de quem pedala",
+  description = "Participação de cada característica no total de ciclistas contados.",
+}: {
+  cards: ProfileCard[] | null | undefined;
+  title?: string;
+  description?: string;
+}) {
   if (!cards || cards.length === 0) return null;
   return (
     <section className="container mx-auto px-4 py-10 md:py-14" aria-labelledby="perfil-ciclistas">
       <h2 id="perfil-ciclistas" className="text-2xl font-bold text-foreground md:text-3xl">
-        Perfil de quem pedala
+        {title}
       </h2>
-      <p className="mt-1 mb-6 text-muted-foreground">Participação de cada característica no total de ciclistas contados.</p>
+      <p className="mt-1 mb-6 text-muted-foreground">{description}</p>
       <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-3">
         {cards.map((card) => (
           <Card key={card.label} className="flex-row items-center justify-between gap-3 border-l-4 border-l-primary px-4 py-4 shadow-sm">

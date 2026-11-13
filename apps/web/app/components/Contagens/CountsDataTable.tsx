@@ -119,13 +119,15 @@ const SUB_ROW_HEIGHT = "h-16 sm:h-12";
 
 const SORT_LABEL = { asc: "crescente", desc: "decrescente" };
 
+// With table-layout: fixed the widths below are the real column widths: they do not change with
+// the rows on the page ("Local" takes what is left).
 const COLUMN_CLASS: Record<string, string> = {
-  select: "w-9 pr-0 pl-3",
-  name: "min-w-32 whitespace-normal sm:min-w-48",
-  date: "hidden sm:table-cell",
-  total_cyclists: "",
-  change: "hidden text-right sm:table-cell",
-  json: "hidden text-right md:table-cell",
+  select: "w-10 pr-0 pl-3",
+  name: "whitespace-normal",
+  date: "hidden w-36 sm:table-cell",
+  total_cyclists: "w-40 sm:w-52",
+  change: "hidden w-36 text-right sm:table-cell",
+  json: "hidden w-36 text-right md:table-cell",
 };
 
 function matchesMobile(onChange: () => void) {
@@ -141,9 +143,13 @@ type CountsDataTableProps = {
   filters?: ReactNode;
   // Rendered at the end of the toolbar row (e.g. the CSV link).
   actions?: ReactNode;
+  // Replaces the per-row "JSON" link (e.g. a "compare only these two" shortcut).
+  rowAction?: (row: CountRow) => ReactNode;
+  // Without the CSV/year toolbar the table can sit anywhere; this labels it for screen readers.
+  label?: string;
 };
 
-export function CountsDataTable({ data, filters, actions }: CountsDataTableProps) {
+export function CountsDataTable({ data, filters, actions, rowAction, label }: CountsDataTableProps) {
   const places = useMemo(() => newestPerPlace(data), [data]);
   const maxTotal = useMemo(() => Math.max(1, ...data.map((c) => c.total_cyclists)), [data]);
   const mobile = useSyncExternalStore(matchesMobile, isMobile, () => false);
@@ -193,7 +199,10 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
       {
         id: "json",
         header: () => <span className="sr-only">Dados</span>,
-        cell: ({ row }) => (
+        cell: ({ row }) =>
+          rowAction ? (
+            rowAction(row.original)
+          ) : (
           <a
             className="inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-4 hover:underline"
             href={`/api/contagens/${row.original.id}`}
@@ -204,12 +213,12 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
             JSON
             <ExternalLink className="size-3" aria-hidden />
           </a>
-        ),
+          ),
         enableSorting: false,
         enableColumnFilter: false,
       },
     ],
-    [maxTotal],
+    [maxTotal, rowAction],
   );
 
   const table = useTable({
@@ -241,10 +250,12 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        {filters}
-        {actions}
-      </div>
+      {(filters || actions) && (
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          {filters}
+          {actions}
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-0 flex-1 basis-64">
@@ -364,7 +375,7 @@ export function CountsDataTable({ data, filters, actions }: CountsDataTableProps
       </div>
 
       <div className="overflow-hidden rounded-xl border bg-background shadow-sm">
-        <Table>
+        <Table aria-label={label} className="table-fixed">
           <TableHeader className="bg-accent/60">
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id} className="hover:bg-transparent">
@@ -493,10 +504,12 @@ function NameCell({ row }: { row: CountTableRow }) {
       <Link
         to="/dados/contagens/$slug"
         params={{ slug: count.slug }}
-        className="font-semibold text-primary underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="block font-semibold text-primary underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
-        {count.name}
-        {count.variant && <span className="font-normal text-muted-foreground"> ({count.variant})</span>}
+        <span className="line-clamp-2 sm:line-clamp-1" title={count.variant ? `${count.name} (${count.variant})` : count.name}>
+          {count.name}
+          {count.variant && <span className="font-normal text-muted-foreground"> ({count.variant})</span>}
+        </span>
       </Link>
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">{IntlDateStr(count.date)}</div>
       {older > 0 && (
@@ -516,7 +529,7 @@ function NameCell({ row }: { row: CountTableRow }) {
 
 function TotalCell({ count, maxTotal }: { count: CountRow; maxTotal: number }) {
   return (
-    <div className="min-w-20 space-y-1">
+    <div className="space-y-1">
       <div className="flex items-center gap-2">
         <span className="font-semibold tabular-nums">{IntlNumber(count.total_cyclists)}</span>
         <span className="text-xs sm:hidden">

@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { colors as defaultColors } from "~/components/Charts/FlowChart/FlowContainer";
 import { LazyChart } from "./LazyChart";
 
+const BRAND_FIRST = ["#008080", ...defaultColors.slice(1)];
+
 interface HourlyCyclistsChartProps {
   series: PublicSeries[];
   hours: number[];
@@ -15,7 +17,7 @@ interface HourlyCyclistsChartProps {
   controls?: ReactNode;
 }
 
-export function HourlyCyclistsChart({ series, hours, colors = defaultColors, unit, controls }: HourlyCyclistsChartProps) {
+export function HourlyCyclistsChart({ series, hours, colors = BRAND_FIRST, unit, controls }: HourlyCyclistsChartProps) {
   const options: Options = {
     chart: { type: "line" },
     colors,
@@ -25,7 +27,7 @@ export function HourlyCyclistsChart({ series, hours, colors = defaultColors, uni
       valueDecimals: unit?.decimals,
       valueSuffix: unit?.suffix,
     },
-    title: { text: "Fluxo horário de ciclistas" },
+    title: { text: undefined },
     xAxis: { type: "category", categories: hours.map(String), title: { text: "Hora" } },
     yAxis: { title: { text: unit?.yTitle ?? "Quantidade" } },
     series: series.map((s) => ({ type: "line", ...s })),
@@ -33,10 +35,12 @@ export function HourlyCyclistsChart({ series, hours, colors = defaultColors, uni
   };
 
   return (
-    <section className="container mx-auto grid grid-cols-1 auto-rows-auto gap-10 my-10">
-      <div className="shadow-2xl rounded-sm p-10 text-center overflow-x-scroll">
-        <div style={{ minWidth: "500px" }}>
-          <h2 className="text-gray-600 text-3xl">Quantidade de ciclistas por hora</h2>
+    <section className="container mx-auto px-4 pb-10" aria-labelledby="grafico-horario">
+      <div className="overflow-x-auto rounded-xl border bg-card p-5 shadow-sm md:p-8">
+        <div className="min-w-[500px]">
+          <h2 id="grafico-horario" className="text-2xl font-bold">
+            Quantidade de ciclistas por hora
+          </h2>
           {controls}
           <LazyChart options={options} />
         </div>
