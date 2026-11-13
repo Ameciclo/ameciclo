@@ -5,7 +5,7 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
 import { IntlNumber } from "~/services/utils";
-import Table from "~/components/Commom/Table/Table";
+import Table, { type TableColumn } from "~/components/Commom/Table/Table";
 import { PerfilSocioeconomicoSection } from "~/components/ViasInseguras/sections/PerfilSocioeconomicoSection";
 import { MapSection } from "~/components/ViasInseguras/sections/MapSection";
 import { EvolucaoAnualSection } from "~/components/ViasInseguras/sections/EvolucaoAnualSection";
@@ -30,6 +30,22 @@ interface ViaHistoryData {
 }
 
 
+
+interface SinistroRow {
+  data_hora: string;
+  categoria: string;
+  sexo: string;
+  idade: string | number;
+  desfecho: string;
+}
+
+const SINISTROS_COLUMNS: TableColumn<SinistroRow>[] = [
+  { header: "Data e Hora", accessorKey: "data_hora" },
+  { header: "Categoria", accessorKey: "categoria" },
+  { header: "Sexo", accessorKey: "sexo" },
+  { header: "Idade", accessorKey: "idade" },
+  { header: "Desfecho", accessorKey: "desfecho" },
+];
 
 const getViaStatistics = (data: ViaHistoryData, mapData?: any) => {
   const totalSinistros = data.evolucao.reduce((sum, year) => sum + year.sinistros, 0);
@@ -221,13 +237,6 @@ function ViaInsegura() {
                 })
                 .sort((a: any, b: any) => b._sortDate.getTime() - a._sortDate.getTime());
 
-              const columns = [
-                { Header: "Data e Hora", accessor: "data_hora", disableFilters: false },
-                { Header: "Categoria", accessor: "categoria", disableFilters: false },
-                { Header: "Sexo", accessor: "sexo", disableFilters: false },
-                { Header: "Idade", accessor: "idade", disableFilters: false },
-                { Header: "Desfecho", accessor: "desfecho", disableFilters: false },
-              ];
 
               return (
                 <section className="mb-12">
@@ -238,7 +247,7 @@ function ViaInsegura() {
                     <Table
                       title={`${tableData.length} sinistros registrados`}
                       data={tableData}
-                      columns={columns}
+                      columns={SINISTROS_COLUMNS}
                       showFilters={true}
                     />
                   </div>

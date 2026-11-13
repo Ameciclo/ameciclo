@@ -2,7 +2,23 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { filterById, filterByName, IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import { CyclingInfrastructureByCity } from "./CyclingInfrastructureByCity";
 import { StatisticsBox } from "./StatisticsBox";
-import Table from "../Commom/Table/Table";
+import Table, { type TableColumn } from "../Commom/Table/Table";
+
+interface Relation {
+  name: string;
+  pdc_typology: string;
+  typologies_str: string;
+  length: number;
+  has_cycleway_length: number;
+}
+
+const RELATION_COLUMNS: TableColumn<Relation>[] = [
+  { header: "Nome", accessorKey: "name" },
+  { header: "Tipologia Prevista", accessorKey: "pdc_typology" },
+  { header: "Tipologia Executada", accessorKey: "typologies_str" },
+  { header: "Extensão Prevista (km)", accessorKey: "length" },
+  { header: "Extensão Executada (km)", accessorKey: "has_cycleway_length" },
+];
 
 interface CityContentProps {
   citiesStats: any;
@@ -200,13 +216,7 @@ export function CityContent({
           <Table
             title={`Estruturas do PDC para ${localSelectedCity?.name || ""}`}
             data={localSelectedCity.relations}
-            columns={[
-              { Header: "Nome", accessor: "name" },
-              { Header: "Tipologia Prevista", accessor: "pdc_typology" },
-              { Header: "Tipologia Executada", accessor: "typologies_str" },
-              { Header: "Extensão Prevista (km)", accessor: "length" },
-              { Header: "Extensão Executada (km)", accessor: "has_cycleway_length" },
-            ]}
+            columns={RELATION_COLUMNS}
             showFilters={true}
           />
         </div>
