@@ -2,7 +2,7 @@
 import React from "react";
 import { matchSorter } from "match-sorter";
 import { Link } from "@tanstack/react-router";
-import { ColumnFilter, NumberRangeColumnFilter } from "~/components/Commom/Table/TableFilters";
+import { ColumnFilter, NumberRangeColumnFilter, containsText } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 
@@ -66,6 +66,7 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
           </Link>
         ),
         Filter: ColumnFilter,
+        filter: containsText,
       },
       {
         Header: "Data",
