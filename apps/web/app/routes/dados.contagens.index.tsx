@@ -8,7 +8,6 @@ import { GeneralCountStatistics } from "~/components/Contagens/GeneralCountStati
 import { InfoCards } from "~/components/Contagens/InfoCards";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import { CardsSession } from "~/components/Commom/CardsSession";
 import { PointDetailsModal } from "~/components/Contagens/PointDetailsModal";
 import { CountsTable } from "~/components/Contagens/CountsTable";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
@@ -56,13 +55,6 @@ function Contagens() {
 
   const statistics = useCountsStatistics(summaryData.summaryData);
   const { pointsData, controlPanel } = useCountsMapData(filtered);
-
-  const docs = (page.archives ?? []).map((a) => ({
-    title: a.filename ?? "",
-    description: a.description ?? "",
-    src: a.image?.url ?? "",
-    url: a.file?.url ?? "#",
-  }));
 
   return (
     <>
@@ -121,10 +113,6 @@ function Contagens() {
         </a>
       </section>
       <CountsTable data={rows} />
-      <CardsSession
-        title={"Documentos para realizar contagens de ciclistas."}
-        cards={docs}
-      />
     </>
   );
 }
