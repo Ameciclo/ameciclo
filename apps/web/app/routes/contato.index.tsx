@@ -7,6 +7,10 @@ import { ContactMap } from "~/components/Contato/ContactMap";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/contato/")({
+  // `message` prefills the contact form (e.g. the "Reportar erro" link of the tables).
+  validateSearch: (search: Record<string, unknown>) => ({
+    message: typeof search.message === "string" ? search.message : undefined,
+  }),
   head: () =>
     seo({
       title: "Contato - Ameciclo",

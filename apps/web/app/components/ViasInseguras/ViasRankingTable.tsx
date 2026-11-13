@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import Table from "../Commom/Table/Table";
+import Table, { numberRangeFilterFn } from "../Commom/Table/Table";
+import { tableColumnHelper, type ColumnFilterProps } from "../Commom/Table/features";
+import { asRange } from "../Commom/Table/TableFilters";
 import { slugify } from "~/utils/slugify";
 
 interface ViaRanking {
@@ -19,19 +21,181 @@ interface ViasRankingTableProps {
   onViaClick?: (ranking: number) => void;
 }
 
+interface ViaRankingRow {
+  ranking: number;
+  nome_via: string;
+  slug: string;
+  total_sinistros: string;
+  extensao_km: string;
+  sinistros_por_km: string;
+  percentual_total: string;
+  densidade_categoria: string;
+  // Raw numbers, used for sorting and filtering.
+  _sinistros: number;
+  _km: number;
+  _densidade: number;
+  _percentual: number;
+}
+
+function getDensityCategory(density: number): string {
+  if (density >= 20) return "Crítica";
+  if (density >= 15) return "Alta";
+  if (density >= 10) return "Média";
+  if (density >= 5) return "Baixa";
+  return "Muito Baixa";
+}
+
+function getDensityColor(category: string): string {
+  switch (category) {
+    case "Crítica": return "text-red-700 bg-red-100";
+    case "Alta": return "text-orange-700 bg-orange-100";
+    case "Média": return "text-yellow-700 bg-yellow-100";
+    case "Baixa": return "text-blue-700 bg-blue-100";
+    default: return "text-gray-700 bg-gray-100";
+  }
+}
+
+function RankingFilter({ column }: ColumnFilterProps<ViaRankingRow>) {
+  const filterValue = column.getFilterValue();
+  return (
+    <input
+      value={typeof filterValue === "string" ? filterValue : ''}
+      onChange={e => column.setFilterValue(e.target.value || undefined)}
+      placeholder="Buscar ranking"
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
+    />
+  );
+}
+
+function RangeFilter({ column, minPlaceholder, maxPlaceholder, step }: ColumnFilterProps<ViaRankingRow> & { minPlaceholder: string; maxPlaceholder: string; step?: string }) {
+  const [min, max] = asRange(column.getFilterValue());
+  return (
+    <div className="flex space-x-2">
+      <input
+        value={min || ''}
+        type="number"
+        step={step}
+        onChange={e => {
+          const val = e.target.value;
+          column.setFilterValue((old: unknown) => [val ? Number(val) : undefined, asRange(old)[1]]);
+        }}
+        placeholder={minPlaceholder}
+        className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
+      />
+      <input
+        value={max || ''}
+        type="number"
+        step={step}
+        onChange={e => {
+          const val = e.target.value;
+          column.setFilterValue((old: unknown) => [asRange(old)[0], val ? Number(val) : undefined]);
+        }}
+        placeholder={maxPlaceholder}
+        className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
+      />
+    </div>
+  );
+}
+
+const columnHelper = tableColumnHelper<ViaRankingRow>();
+
+const columns = columnHelper.columns([
+  columnHelper.accessor("ranking", {
+    header: "Ranking",
+    meta: { Filter: RankingFilter },
+    cell: ({ getValue }) => {
+      const value = getValue();
+      return (
+        <div className="flex items-center gap-2">
+          <span className={`
+            inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
+            ${value <= 3 ? 'bg-red-100 text-red-800' : 
+              value <= 10 ? 'bg-orange-100 text-orange-800' : 
+              'bg-gray-100 text-gray-800'}
+          `}>
+            {value}
+          </span>
+          {value <= 3 && (
+            <span className="text-lg">
+              {value === 1 ? '🥇' : value === 2 ? '🥈' : '🥉'}
+            </span>
+          )}
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("nome_via", {
+    header: "Nome da Via",
+    cell: ({ getValue, row }) => (
+      <Link
+        to="/dados/viasinseguras/$slug"
+        params={{ slug: String(row.original.slug) }}
+        className="text-left hover:text-ameciclo hover:underline transition-colors block"
+      >
+        <div className="font-medium">{getValue()}</div>
+        <div className="text-sm text-gray-500">
+          Clique para ver detalhes
+        </div>
+      </Link>
+    ),
+  }),
+  columnHelper.accessor("_sinistros", {
+    header: "Total de Sinistros",
+    meta: { Filter: (props) => <RangeFilter {...props} minPlaceholder="Mín" maxPlaceholder="Máx" /> },
+    filterFn: numberRangeFilterFn,
+    cell: ({ getValue, row }) => (
+      <div className="text-right">
+        <div className="font-semibold text-lg">{getValue()}</div>
+        <div className="text-sm text-gray-500">
+          {row.original.percentual_total} do total
+        </div>
+      </div>
+    ),
+  }),
+  columnHelper.accessor("_km", {
+    header: "Extensão (km)",
+    meta: { Filter: (props) => <RangeFilter {...props} minPlaceholder="Mín km" maxPlaceholder="Máx km" step="0.1" /> },
+    filterFn: numberRangeFilterFn,
+    cell: ({ row }) => (
+      <div className="text-right">
+        <span className="font-mono">{row.original.extensao_km}</span>
+      </div>
+    ),
+  }),
+  columnHelper.accessor("densidade_categoria", {
+    header: "Vítimas/km",
+    cell: ({ getValue, row }) => {
+      const value = getValue();
+      return (
+        <div className="text-right">
+          {row.original._km >= 1 ? (
+            <>
+              <div className="font-semibold">{row.original.sinistros_por_km}</div>
+              <span className={`
+                inline-block px-2 py-1 rounded-full text-xs font-medium
+                ${getDensityColor(value)}
+              `}>
+                {value}
+              </span>
+            </>
+          ) : (
+            <div className="text-gray-400 text-sm">-</div>
+          )}
+        </div>
+      );
+    },
+  }),
+]);
+
 export default function ViasRankingTable({ 
   data,
   totalSinistros,
 }: ViasRankingTableProps) {
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof ViaRanking;
-    direction: 'asc' | 'desc';
-  } | null>(null);
   const [densityFilter, setDensityFilter] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   // Processar dados para a tabela
-  const tableData = (data || [])
+  const tableData = useMemo((): ViaRankingRow[] => (data || [])
     .filter((via) => {
       if (!densityFilter) return true;
       return getDensityCategory(via.sinistros_por_km || 0) === densityFilter;
@@ -50,178 +214,7 @@ export default function ViasRankingTable({
       _km: via.km || 0,
       _densidade: via.sinistros_por_km || 0,
       _percentual: via.percentual_total || 0,
-    }));
-
-  function getDensityCategory(density: number): string {
-    if (density >= 20) return "Crítica";
-    if (density >= 15) return "Alta";
-    if (density >= 10) return "Média";
-    if (density >= 5) return "Baixa";
-    return "Muito Baixa";
-  }
-
-  function getDensityColor(category: string): string {
-    switch (category) {
-      case "Crítica": return "text-red-700 bg-red-100";
-      case "Alta": return "text-orange-700 bg-orange-100";
-      case "Média": return "text-yellow-700 bg-yellow-100";
-      case "Baixa": return "text-blue-700 bg-blue-100";
-      default: return "text-gray-700 bg-gray-100";
-    }
-  }
-
-  const columns = [
-    {
-      Header: "Ranking",
-      accessor: "ranking",
-      disableFilters: false,
-      Filter: ({ column: { filterValue, setFilter } }: any) => (
-        <input
-          value={filterValue || ''}
-          onChange={e => setFilter(e.target.value || undefined)}
-          placeholder="Buscar ranking"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
-        />
-      ),
-      Cell: ({ value }: any) => (
-        <div className="flex items-center gap-2">
-          <span className={`
-            inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
-            ${value <= 3 ? 'bg-red-100 text-red-800' : 
-              value <= 10 ? 'bg-orange-100 text-orange-800' : 
-              'bg-gray-100 text-gray-800'}
-          `}>
-            {value}
-          </span>
-          {value <= 3 && (
-            <span className="text-lg">
-              {value === 1 ? '🥇' : value === 2 ? '🥈' : '🥉'}
-            </span>
-          )}
-        </div>
-      ),
-    },
-    {
-      Header: "Nome da Via",
-      accessor: "nome_via",
-      disableFilters: false,
-      Cell: ({ value, row }: any) => (
-        <Link
-          to="/dados/viasinseguras/$slug"
-          params={{ slug: String(row.original.slug) }}
-          className="text-left hover:text-ameciclo hover:underline transition-colors block"
-        >
-          <div className="font-medium">{value}</div>
-          <div className="text-sm text-gray-500">
-            Clique para ver detalhes
-          </div>
-        </Link>
-      ),
-    },
-    {
-      Header: "Total de Sinistros",
-      accessor: "_sinistros",
-      disableFilters: false,
-      Filter: ({ column: { filterValue = [], setFilter } }: any) => {
-        const [min, max] = filterValue;
-        return (
-          <div className="flex space-x-2">
-            <input
-              value={min || ''}
-              type="number"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
-              }}
-              placeholder="Mín"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
-            />
-            <input
-              value={max || ''}
-              type="number"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
-              }}
-              placeholder="Máx"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
-            />
-          </div>
-        );
-      },
-      filter: 'numberRange',
-      Cell: ({ value, row }: any) => (
-        <div className="text-right">
-          <div className="font-semibold text-lg">{value}</div>
-          <div className="text-sm text-gray-500">
-            {row.original.percentual_total} do total
-          </div>
-        </div>
-      ),
-    },
-    {
-      Header: "Extensão (km)",
-      accessor: "_km",
-      disableFilters: false,
-      Filter: ({ column: { filterValue = [], setFilter } }: any) => {
-        const [min, max] = filterValue;
-        return (
-          <div className="flex space-x-2">
-            <input
-              value={min || ''}
-              type="number"
-              step="0.1"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [val ? Number(val) : undefined, old[1]]);
-              }}
-              placeholder="Mín km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
-            />
-            <input
-              value={max || ''}
-              type="number"
-              step="0.1"
-              onChange={e => {
-                const val = e.target.value;
-                setFilter((old = []) => [old[0], val ? Number(val) : undefined]);
-              }}
-              placeholder="Máx km"
-              className="w-1/2 px-2 py-1 border border-gray-300 rounded-sm text-xs"
-            />
-          </div>
-        );
-      },
-      filter: 'numberRange',
-      Cell: ({ row }: any) => (
-        <div className="text-right">
-          <span className="font-mono">{row.original.extensao_km}</span>
-        </div>
-      ),
-    },
-    {
-      Header: "Vítimas/km",
-      accessor: "densidade_categoria",
-      disableFilters: false,
-      Cell: ({ value, row }: any) => (
-        <div className="text-right">
-          {row.original._km >= 1 ? (
-            <>
-              <div className="font-semibold">{row.original.sinistros_por_km}</div>
-              <span className={`
-                inline-block px-2 py-1 rounded-full text-xs font-medium
-                ${getDensityColor(value)}
-              `}>
-                {value}
-              </span>
-            </>
-          ) : (
-            <div className="text-gray-400 text-sm">-</div>
-          )}
-        </div>
-      ),
-    },
-  ];
+    })), [data, densityFilter]);
 
   const customHeader = (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">

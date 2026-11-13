@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import Table from "../Commom/Table/Table";
+import Table, { type TableColumn } from "../Commom/Table/Table";
 import { VerticalBarChart } from "../Charts/VerticalBarChart";
 import { NumberCards } from "../Commom/NumberCards";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
@@ -37,6 +37,20 @@ interface CitiesData {
 interface SamuClientSideProps {
   citiesData: CitiesData;
 }
+
+interface CityTableRow {
+  ranking: number;
+  municipio: string;
+  total_chamadas: string;
+  percentual: string;
+}
+
+const CITY_TABLE_COLUMNS: TableColumn<CityTableRow>[] = [
+  { header: "Ranking", accessorKey: "ranking", enableColumnFilter: false },
+  { header: "Município", accessorKey: "municipio", enableColumnFilter: false },
+  { header: "Total de Chamadas", accessorKey: "total_chamadas", enableColumnFilter: false },
+  { header: "Percentual (%)", accessorKey: "percentual", enableColumnFilter: false },
+];
 
 export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
   const [selectedCity, setSelectedCity] = useState("RECIFE");
@@ -601,24 +615,7 @@ export default function SamuClientSide({ citiesData }: SamuClientSideProps) {
           <Table
             title="Lista completa das cidades"
             data={allCitiesTableData}
-            columns={[
-              { Header: "Ranking", accessor: "ranking", disableFilters: true },
-              {
-                Header: "Município",
-                accessor: "municipio",
-                disableFilters: true,
-              },
-              {
-                Header: "Total de Chamadas",
-                accessor: "total_chamadas",
-                disableFilters: true,
-              },
-              {
-                Header: "Percentual (%)",
-                accessor: "percentual",
-                disableFilters: true,
-              },
-            ]}
+            columns={CITY_TABLE_COLUMNS}
           />
         </div>
       </div>

@@ -5,7 +5,8 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { loaQueryOptions } from "~/queries/dados.loa";
-import Table, { NumberRangeColumnFilter } from "~/components/Commom/Table/Table";
+import Table, { NumberRangeColumnFilter, numberRangeFilterFn, type DetailField, type FilterType } from "~/components/Commom/Table/Table";
+import { tableColumnHelper } from "~/components/Commom/Table/features";
 import { formatLargeValue } from "~/utils/formatCurrency";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
 import { useReportApiErrors } from "~/hooks/useReportApiErrors";
@@ -32,11 +33,27 @@ export const Route = createFileRoute("/dados/loa/")({
   errorComponent: RouteErrorBoundary,
 });
 
+interface LoaAction {
+    cd_nm_funcao: string;
+    cd_nm_prog: string;
+    cd_nm_acao: string;
+    cd_nm_subacao: string;
+    cd_nm_subfuncao: string;
+    vlrdotatualizada: number;
+    vlrempenhado: number;
+    vlrliquidado: number;
+    vlrtotalpago: number;
+    // 'good' and 'bad' color the row.
+    type?: string;
+}
+
+const columnHelper = tableColumnHelper<LoaAction>();
+
 function Loa() {
     const { data } = useSuspenseQuery(loaQueryOptions());
     useReportApiErrors(data);
     const [showFilters, setShowFilters] = useState(false);
-    const [filterType, setFilterType] = useState<'all' | 'good' | 'bad'>('all');
+    const [filterType, setFilterType] = useState<FilterType>('all');
 
     const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
@@ -88,75 +105,40 @@ function Loa() {
         return sum + value;
     }, 0);
 
-    const allColumns = [
-        {
-            Header: "Função",
-            accessor: "cd_nm_funcao",
-        },
-        {
-            Header: "Programa",
-            accessor: "cd_nm_prog",
-        },
-        {
-            Header: "Ação",
-            accessor: "cd_nm_acao",
-        },
-        {
-            Header: "Sub-ação",
-            accessor: "cd_nm_subacao",
-        },
-        {
-            Header: "Sub-função",
-            accessor: "cd_nm_subfuncao",
-        },
-        {
-            Header: "Dotação Atualizada",
-            accessor: "vlrdotatualizada",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-        },
-        {
-            Header: "Valor Empenhado",
-            accessor: "vlrempenhado",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-        },
-        {
-            Header: "Valor Liquidado",
-            accessor: "vlrliquidado",
-            Cell: ({ value }: any) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-        },
-        {
-            Header: "Total Pago",
-            accessor: "vlrtotalpago",
-            Cell: ({ value }: any) => formatLargeValue(value),
-            Filter: NumberRangeColumnFilter,
-            filter: 'numberRange',
-        },
+    const money = (value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+    const allColumns: DetailField<LoaAction>[] = [
+        { label: "Função", render: (action) => String(action.cd_nm_funcao) },
+        { label: "Programa", render: (action) => String(action.cd_nm_prog) },
+        { label: "Ação", render: (action) => String(action.cd_nm_acao) },
+        { label: "Sub-ação", render: (action) => String(action.cd_nm_subacao) },
+        { label: "Sub-função", render: (action) => String(action.cd_nm_subfuncao) },
+        { label: "Dotação Atualizada", render: (action) => money(action.vlrdotatualizada) },
+        { label: "Valor Empenhado", render: (action) => money(action.vlrempenhado) },
+        { label: "Valor Liquidado", render: (action) => money(action.vlrliquidado) },
+        { label: "Total Pago", render: (action) => formatLargeValue(action.vlrtotalpago) },
     ];
 
-    const columns = [
-        {
-            Header: "Ação",
-            accessor: "cd_nm_acao",
-        },
-        {
-            Header: "Sub-ação",
-            accessor: "cd_nm_subacao",
-        },
-        {
-            Header: "Total Empenhado",
-            accessor: "vlrdotatualizada",
-            Cell: ({ value }: any) => formatLargeValue(value),
-            Filter: NumberRangeColumnFilter,
-            filter: 'numberRange',
-        },
-        {
-            Header: "Total Pago",
-            accessor: "vlrtotalpago",
-            Cell: ({ value }: any) => formatLargeValue(value),
-            Filter: NumberRangeColumnFilter,
-            filter: 'numberRange',
-        },
-    ];
+    const columns = columnHelper.columns([
+        columnHelper.accessor("cd_nm_acao", {
+          header: "Ação",
+        }),
+        columnHelper.accessor("cd_nm_subacao", {
+          header: "Sub-ação",
+        }),
+        columnHelper.accessor("vlrdotatualizada", {
+          header: "Total Empenhado",
+            cell: ({ getValue }) => formatLargeValue(getValue()),
+            meta: { Filter: NumberRangeColumnFilter },
+            filterFn: numberRangeFilterFn,
+        }),
+        columnHelper.accessor("vlrtotalpago", {
+          header: "Total Pago",
+            cell: ({ getValue }) => formatLargeValue(getValue()),
+            meta: { Filter: NumberRangeColumnFilter },
+            filterFn: numberRangeFilterFn,
+        }),
+    ]);
 
 
 
@@ -194,7 +176,7 @@ function Loa() {
                 </div>
                 <section>
                     {(() => {
-                                    const processedActions = actions2025.map((action: any) => {
+                                    const processedActions: LoaAction[] = actions2025.map((action: any) => {
                                         try {
                                             return {
                                                 ...action,
@@ -226,7 +208,6 @@ function Loa() {
                                             setShowFilters={setShowFilters}
                                             filterType={filterType}
                                             setFilterType={setFilterType}
-                                            classifyAction={classifyAction}
                                         />
                                     );
                                 })()}
