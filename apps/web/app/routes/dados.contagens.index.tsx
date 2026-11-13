@@ -93,7 +93,10 @@ function Contagens() {
             className="rounded-sm border border-gray-300 px-2 py-1"
             value={ano ?? ""}
             onChange={(e) =>
-              navigate({ search: (prev) => ({ ...prev, ano: e.target.value ? Number(e.target.value) : undefined }) })
+              navigate({
+                search: (prev) => ({ ...prev, ano: e.target.value ? Number(e.target.value) : undefined }),
+                resetScroll: false,
+              })
             }
           >
             <option value="">Todos</option>
@@ -108,7 +111,7 @@ function Contagens() {
           <input
             type="checkbox"
             checked={completas ?? false}
-            onChange={(e) => navigate({ search: (prev) => ({ ...prev, completas: e.target.checked || undefined }) })}
+            onChange={(e) => navigate({ search: (prev) => ({ ...prev, completas: e.target.checked || undefined }), resetScroll: false })}
           />
           Ocultar contagens estimadas e parciais
         </label>
