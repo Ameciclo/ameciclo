@@ -53,24 +53,62 @@ const RangeValueFilter = ({ column }: any) => {
 // Newest count first; the "Data" header shows (and can reverse) this order.
 const NEWEST_FIRST = [{ id: "date", desc: true }];
 
+type PlaceRow = CountRow & { subRows: CountRow[] };
+
+// One row per place (and variant, e.g. a lane): its newest count, with the older ones as
+// sub-rows that open on click. Sorting then orders places by their newest count.
+function newestPerPlace(rows: readonly CountRow[]): PlaceRow[] {
+  const series = new Map<string, CountRow[]>();
+  for (const row of rows) {
+    const key = `${row.id}|${row.variant ?? ""}`;
+    series.set(key, [...(series.get(key) ?? []), row]);
+  }
+  return [...series.values()].map((counts) => {
+    const [newest, ...older] = [...counts].sort((a, b) => b.date.localeCompare(a.date));
+    return { ...newest, subRows: older };
+  });
+}
+
 export function CountsTable({ data }: ContagensTableProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const places = useMemo(() => newestPerPlace(data), [data]);
 
   const columns = useMemo(
     () => [
       {
         Header: "Nome",
         accessor: "name",
-        Cell: ({ row }: any) => (
-          <Link
-            className="text-ameciclo hover:underline"
-            to="/dados/contagens/$slug"
-            params={{ slug: row.original.slug }}
-          >
-            {row.original.name}
-            {row.original.variant && <span className="text-gray-500"> ({row.original.variant})</span>}
-          </Link>
-        ),
+        Cell: ({ row }: any) =>
+          row.depth > 0 ? (
+            <Link
+              className="pl-6 text-gray-500 hover:underline"
+              to="/dados/contagens/$slug"
+              params={{ slug: row.original.slug }}
+            >
+              ↳ {row.original.variant ?? "mesma esquina"}
+            </Link>
+          ) : (
+            <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <Link
+                className="text-ameciclo hover:underline"
+                to="/dados/contagens/$slug"
+                params={{ slug: row.original.slug }}
+              >
+                {row.original.name}
+                {row.original.variant && <span className="text-gray-500"> ({row.original.variant})</span>}
+              </Link>
+              {row.original.subRows.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => row.toggleRowExpanded()}
+                  aria-expanded={row.isExpanded}
+                  className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
+                >
+                  {row.isExpanded ? "▾" : "▸"} {row.original.subRows.length} {row.original.subRows.length === 1 ? "anterior" : "anteriores"}
+                </button>
+              )}
+            </span>
+          ),
         Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" />,
         filter: containsText,
       },
@@ -138,7 +176,7 @@ export function CountsTable({ data }: ContagensTableProps) {
   return (
     <Table
       title="Contagens de Ciclistas"
-      data={data}
+      data={places}
       initialSortBy={NEWEST_FIRST}
       columns={columns}
       showFilters={showFilters}

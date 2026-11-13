@@ -227,6 +227,8 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
             initialState: { pageIndex: 0, pageSize: 5, sortBy: initialSortBy ?? [] },
             // With an initial order, clicking a header flips asc/desc instead of dropping the sort.
             disableSortRemove: initialSortBy !== undefined,
+            // A parent row stays visible when only one of its sub-rows matches a filter.
+            filterFromLeafRows: true,
             filterTypes,
             defaultColumn,
         },
@@ -355,7 +357,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     </div>
                                 </td>
                             </tr>
-                            {row.isExpanded ? (
+                            {row.isExpanded && !(row.subRows && row.subRows.length > 0) ? (
                                 <tr>
                                     <td colSpan={columns.length}>
                                         <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">
@@ -395,7 +397,7 @@ const Table = ({ title, data, columns, allColumns, showFilters, setShowFilters, 
                                     );
                                 })}
                             </tr>
-                            {row.isExpanded ? (
+                            {row.isExpanded && !(row.subRows && row.subRows.length > 0) ? (
                                 <tr>
                                     <td colSpan={columns.length}>
                                         <div className="p-4 bg-ameciclo text-white transition-all duration-300 ease-in-out overflow-hidden">
