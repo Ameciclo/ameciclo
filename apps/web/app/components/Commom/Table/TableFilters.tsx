@@ -1,5 +1,15 @@
 import React from "react";
 
+// Lowercase and strip accents, so "amelia" finds "R. Amélia".
+const plain = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+
+// Text filter that matches anywhere in the value, ignoring case and accents.
+export function containsText(rows: any[], id: string, filterValue: string) {
+    const wanted = plain(String(filterValue).trim());
+    return rows.filter((row) => plain(String(row.values[id] ?? "")).includes(wanted));
+}
+containsText.autoRemove = (value: unknown) => !value;
+
 export const ColumnFilter = ({ column, placeholder = "Buscar" }: any) => {
     const { filterValue, setFilter } = column;
     return (

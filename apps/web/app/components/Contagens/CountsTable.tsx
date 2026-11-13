@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import React, { useState, useMemo } from "react";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
-import { ColumnFilter } from "~/components/Commom/Table/TableFilters";
+import { ColumnFilter, containsText } from "~/components/Commom/Table/TableFilters";
 
 interface ContagensTableProps {
   data: CountRow[];
@@ -87,6 +87,7 @@ export function CountsTable({ data }: ContagensTableProps) {
           );
         },
         Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" />,
+        filter: containsText,
       },
       {
         Header: "Data",
