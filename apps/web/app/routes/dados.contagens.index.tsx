@@ -44,7 +44,7 @@ export const Route = createFileRoute("/dados/contagens/")({
 });
 
 function Contagens() {
-  const { data: { page, summaryData, pcrCounts, amecicloData, atlasApiDown } } =
+  const { data: { page, summaryData, amecicloData, atlasApiDown } } =
     useSuspenseQuery(contagensQueryOptions());
   const [selectedPoint, setSelectedPoint] = useState<pointData | null>(null);
   const { ano, completas } = Route.useSearch();
@@ -55,7 +55,7 @@ function Contagens() {
   const rows = countRows(all, filtered);
 
   const statistics = useCountsStatistics(summaryData.summaryData);
-  const { pointsData, controlPanel } = useCountsMapData(filtered, pcrCounts);
+  const { pointsData, controlPanel } = useCountsMapData(filtered);
 
   const docs = (page.archives ?? []).map((a) => ({
     title: a.filename ?? "",

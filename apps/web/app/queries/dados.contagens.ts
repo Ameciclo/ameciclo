@@ -2,8 +2,6 @@ import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { METRICS, type PublicCount } from "@ameciclo/db/shared";
-import type { PcrCounting } from "typings";
-import { cmsFetch } from "~/services/cmsFetch";
 import { IntlPercentil } from "~/services/utils";
 import { strapiClient } from "~/lib/strapi";
 
@@ -19,8 +17,6 @@ async function loadAmecicloLocations() {
     return null;
   }
 }
-
-const PCR_CONTAGENS_URL = "https://ameciclo.org/dbs/PCR_CONTAGENS.json";
 
 const MediaSchema = z.object({
   id: z.number().nullish(),
@@ -67,16 +63,10 @@ export type ContagemPage = z.infer<typeof ContagemPageSchema>;
 export type ContagemArchive = z.infer<typeof ArchiveSchema>;
 
 const fetchContagens = createServerFn().handler(async () => {
-  // Strapi page metadata: strapiClient + Zod.
-  // PCR feed: cached at the edge with a timeout (it is a slow static file).
-  // Ameciclo's counts come from the database.
-  const [pageRes, pcrCounts, locations] = await Promise.all([
+  // Strapi page metadata: strapiClient + Zod. Ameciclo's counts come from the database.
+  const [pageRes, locations] = await Promise.all([
     strapiClient.single("contagem").find({
       populate: ["cover", "archives", "archives.image", "archives.file"],
-    }),
-    cmsFetch<PcrCounting[]>(PCR_CONTAGENS_URL, { ttl: 3600, timeout: 15000, fallback: [] }).catch((error) => {
-      console.error("Error fetching PCR_CONTAGENS.json:", error);
-      return [];
     }),
     loadAmecicloLocations(),
   ]);
@@ -116,7 +106,6 @@ const fetchContagens = createServerFn().handler(async () => {
   return {
     page,
     summaryData: { summaryData, cards },
-    pcrCounts,
     amecicloData: locations,
     atlasApiDown: locations == null,
   };
