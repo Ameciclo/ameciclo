@@ -120,7 +120,7 @@ const SUB_ROW_HEIGHT = "h-16 sm:h-12";
 const SORT_LABEL = { asc: "crescente", desc: "decrescente" };
 
 const COLUMN_CLASS: Record<string, string> = {
-  select: "w-0 pr-0 pl-2 sm:w-8 sm:pl-3",
+  select: "w-9 pr-0 pl-3",
   name: "min-w-32 whitespace-normal sm:min-w-48",
   date: "hidden sm:table-cell",
   total_cyclists: "",

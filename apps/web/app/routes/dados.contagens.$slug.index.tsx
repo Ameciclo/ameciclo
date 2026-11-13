@@ -9,6 +9,8 @@ import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
 import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
 import { MovementDiagram } from "@ameciclo/ui/components/movement-diagram";
+import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
+import { CompareActions } from "~/components/Contagens/comparison/CompareActions";
 import { CountSelector } from "~/components/Contagens/CountSelector";
 import { EvolutionChart } from "~/components/Contagens/EvolutionChart";
 import {
@@ -105,6 +107,11 @@ function Contagem() {
 
             <CountSelector placeSlug={location.slug} counts={location.counts} selectedId={selected.id} />
 
+            <CompareActions
+                item={{ slug: page.canonical, name: location.name, date: selected.date, variant: selected.variant }}
+                location={location}
+            />
+
             {detail?.estimated && (
                 <p className="container mx-auto my-6 text-center text-sm text-gray-600">
                     Contagem estimada: foram observados apenas os horários {hoursLabel(detail.observedHours ?? [])}; o restante do dia foi projetado.
@@ -163,6 +170,7 @@ function Contagem() {
                 data={transformOtherCountsForComparison(locations, [page.canonical])}
                 firstSlug={page.canonical}
             />
+            <CompareBar />
         </main>
     );
 }

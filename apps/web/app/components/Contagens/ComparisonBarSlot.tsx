@@ -1,6 +1,6 @@
-// RESERVED SLOT for the sticky bottom bar of the "compare counts" feature. The page renders
-// it after the table section; replace it with the real bar (it should position itself
-// `fixed bottom-0` and render nothing while no count is selected).
+import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
+
+// Sticky bottom bar of the "compare 2-5 counts" feature. Renders nothing until a count is picked.
 export function ComparisonBarSlot() {
-  return null;
+  return <CompareBar />;
 }

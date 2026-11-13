@@ -87,8 +87,6 @@ function Contagens() {
           />
         </div>
       </section>
-      {/* Slot for the "compare counts" sticky bar (see ComparisonBarSlot). */}
-      <ComparisonBarSlot />
 
       <CountsMapSection points={pointsData} onPointClick={setSelectedPoint} />
       <PointDetailsModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
@@ -101,6 +99,8 @@ function Contagens() {
         ]}
       />
 
+      {/* Sticky bar of the "compare counts" feature; last so its spacer sits at the end of the page. */}
+      <ComparisonBarSlot />
     </div>
   );
 }

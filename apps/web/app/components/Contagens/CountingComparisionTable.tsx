@@ -4,6 +4,7 @@ import { matchSorter } from "match-sorter";
 import { Link } from "@tanstack/react-router";
 import { ColumnFilter, NumberRangeColumnFilter, containsText } from "~/components/Commom/Table/TableFilters";
 import Table from "~/components/Commom/Table/Table";
+import { CompareOtherCell } from "~/components/Contagens/comparison/CompareOtherCell";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 
 function fuzzyTextFilterFn(rows: any[], id: string, filterValue: string) {
@@ -98,16 +99,13 @@ export const CountingComparisionTable = ({ data, firstSlug }: { data: any[], fir
         filter: "between",
       },
       {
-        Header: "COMPARE",
-        accessor: "compare", // Adiciona accessor
+        Header: "Comparar",
+        accessor: "compare",
         Cell: ({ row }: { row: any }) => (
-          <Link
-            className="text-ameciclo hover:underline font-medium"
-            to="/dados/contagens/$slug/compare/$compareSlug"
-            params={{ slug: firstSlug, compareSlug: row.original.slug }}
-          >
-            COMPARE
-          </Link>
+          <CompareOtherCell
+            item={{ slug: row.original.slug, name: row.original.placeName, date: row.original.date, variant: row.original.variant }}
+            firstSlug={firstSlug}
+          />
         ),
         disableFilters: true,
         disableSortBy: true,

@@ -1,6 +1,7 @@
 import type { CountRow } from "@ameciclo/db/derive";
 import { Link } from "@tanstack/react-router";
 import React, { useState, useMemo } from "react";
+import { CompareCheckbox } from "~/components/Contagens/comparison/CompareCheckbox";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
 import { ColumnFilter, containsText } from "~/components/Commom/Table/TableFilters";
@@ -149,6 +150,13 @@ export function CountsTable({ data }: ContagensTableProps) {
         Cell: ({ row }: any) => <Change value={row.original.change} />,
         disableFilters: true,
         sortType: (a: any, b: any) => (a.original.change ?? -Infinity) - (b.original.change ?? -Infinity),
+      },
+      {
+        Header: "Comparar",
+        accessor: "compare",
+        Cell: ({ row }: any) => <CompareCheckbox item={row.original} />,
+        disableFilters: true,
+        disableSortBy: true,
       },
       {
         Header: "Dados",
