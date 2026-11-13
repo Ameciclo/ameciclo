@@ -43,12 +43,12 @@ function getChartData(places: Place[]) {
 
 function getPoints(places: Place[]): MapPoint[] {
   const pointColors = ["#008888", "#10b981"];
-  return places.flatMap(({ location, selected }, index) =>
+  return places.flatMap(({ location, selected, canonical }, index) =>
     location.latitude === null || location.longitude === null
       ? []
       : [
           {
-            key: location.name,
+            key: canonical,
             latitude: location.latitude,
             longitude: location.longitude,
             color: pointColors[index % pointColors.length],
@@ -101,8 +101,7 @@ function Compare() {
   if (!places) throw notFound();
 
   const { series, hours } = getChartData(places);
-  const shown = new Set(places.map(({ location }) => location.id));
-  const others = transformOtherCountsForComparison(locations, -1).filter((row) => !shown.has(row.id));
+  const others = transformOtherCountsForComparison(locations, places.map(({ canonical }) => canonical));
 
   return (
     <main className="flex-auto overflow-x-hidden">
@@ -130,8 +129,8 @@ function Compare() {
                   <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
                 </svg>
               </li>
-              {places.map(({ location }) => (
-                <li key={location.id} className="flex items-center">
+              {places.map(({ location, canonical }) => (
+                <li key={canonical} className="flex items-center">
                   <Link to="/dados/contagens/$slug" params={{ slug: location.slug }} className="text-white">{location.name}</Link>
                   <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
                     <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
@@ -153,7 +152,7 @@ function Compare() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {places.map(({ location, selected }, index) => {
+          {places.map(({ location, selected, canonical }, index) => {
             const colors = {
               bg: index === 0 ? "bg-teal-50" : "bg-emerald-50",
               border: index === 0 ? "border-teal-200" : "border-emerald-200",
@@ -172,7 +171,7 @@ function Compare() {
             ];
 
             return (
-              <div key={location.id} className={`${colors.bg} ${colors.border} border-2 rounded-lg p-6 shadow-lg`}>
+              <div key={canonical} className={`${colors.bg} ${colors.border} border-2 rounded-lg p-6 shadow-lg`}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className={`w-4 h-4 ${colors.accent} rounded-full`}></div>

@@ -61,9 +61,10 @@ export function getCountingStatistics(count: PublicCount) {
   ];
 }
 
-export function transformOtherCountsForComparison(locations: PublicLocation[], currentLocationId: number) {
+// Every count except the ones already on screen, so the other dates of the same
+// place are offered too.
+export function transformOtherCountsForComparison(locations: PublicLocation[], shownSlugs: readonly string[]) {
   return locations
-    .filter((loc) => loc.id !== currentLocationId)
     .flatMap((loc) =>
       loc.counts.map((count) => ({
         id: loc.id,
@@ -74,7 +75,8 @@ export function transformOtherCountsForComparison(locations: PublicLocation[], c
         total_cyclists: count.total_cyclists,
         note: countNote(count),
       })),
-    );
+    )
+    .filter((row) => !shownSlugs.includes(row.slug));
 }
 
 // Year, plus the variant when a place has several counts in the same year.

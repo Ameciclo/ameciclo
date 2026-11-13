@@ -148,7 +148,7 @@ function Contagem() {
             {location.counts.length > 1 && <EvolutionChart counts={location.counts} selectedId={selected.id} />}
 
             <CountingComparisionTable
-                data={transformOtherCountsForComparison(locations, location.id)}
+                data={transformOtherCountsForComparison(locations, [page.canonical])}
                 firstSlug={page.canonical}
             />
         </main>
