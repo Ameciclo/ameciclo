@@ -4,7 +4,9 @@ import React, { useState, useMemo } from "react";
 import { CompareCheckbox } from "~/components/Contagens/comparison/CompareCheckbox";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 import Table from "~/components/Commom/Table/Table";
-import { ColumnFilter, containsText } from "~/components/Commom/Table/TableFilters";
+import type { ColumnFilterProps } from "~/components/Commom/Table/features";
+import { tableColumnHelper } from "~/components/Commom/Table/features";
+import { ColumnFilter, asRange, containsText } from "~/components/Commom/Table/TableFilters";
 
 interface ContagensTableProps {
   data: CountRow[];
@@ -19,10 +21,11 @@ function Change({ value }: { value: number | null }) {
   return <span className={tone}>{percentFormat.format(value)}</span>;
 }
 
+type PlaceRow = CountRow & { subRows: PlaceRow[] };
+
 // Componente de filtro de valor aproximado adaptado para a tabela de contagens
-const RangeValueFilter = ({ column }: any) => {
-  const { filterValue = [], setFilter } = column;
-  const [min, max] = filterValue;
+const RangeValueFilter = ({ column }: ColumnFilterProps<PlaceRow>) => {
+  const [min, max] = asRange(column.getFilterValue());
 
   return (
     <div className="flex items-center space-x-2 my-2">
@@ -33,7 +36,7 @@ const RangeValueFilter = ({ column }: any) => {
         value={min || ''}
         onChange={(e) => {
           const val = e.target.value;
-          setFilter([val ? parseFloat(val) : undefined, max]);
+          column.setFilterValue([val ? parseFloat(val) : undefined, max]);
         }}
       />
       <span className="text-gray-500">a</span>
@@ -44,17 +47,19 @@ const RangeValueFilter = ({ column }: any) => {
         value={max || ''}
         onChange={(e) => {
           const val = e.target.value;
-          setFilter([min, val ? parseFloat(val) : undefined]);
+          column.setFilterValue([min, val ? parseFloat(val) : undefined]);
         }}
       />
     </div>
   );
 };
 
+const columnHelper = tableColumnHelper<PlaceRow>();
+
+const subRowsOf = (place: PlaceRow) => place.subRows;
+
 // Newest count first; the "Data" header shows (and can reverse) this order.
 const NEWEST_FIRST = [{ id: "date", desc: true }];
-
-type PlaceRow = CountRow & { subRows: CountRow[] };
 
 // One row per place (and variant, e.g. a lane): its newest count, with the older ones as
 // sub-rows that open on click. Sorting then orders places by their newest count.
@@ -66,7 +71,7 @@ function newestPerPlace(rows: readonly CountRow[]): PlaceRow[] {
   }
   return [...series.values()].map((counts) => {
     const [newest, ...older] = [...counts].sort((a, b) => b.date.localeCompare(a.date));
-    return { ...newest, subRows: older };
+    return { ...newest, subRows: older.map((count) => ({ ...count, subRows: [] })) };
   });
 }
 
@@ -75,11 +80,10 @@ export function CountsTable({ data }: ContagensTableProps) {
   const places = useMemo(() => newestPerPlace(data), [data]);
 
   const columns = useMemo(
-    () => [
-      {
-        Header: "Nome",
-        accessor: "name",
-        Cell: ({ row }: any) =>
+    () => columnHelper.columns([
+      columnHelper.accessor("name", {
+        header: "Nome",
+        cell: ({ row }) =>
           row.depth > 0 ? (
             <Link
               className="pl-6 text-gray-500 hover:underline"
@@ -101,28 +105,26 @@ export function CountsTable({ data }: ContagensTableProps) {
               {row.original.subRows.length > 0 && (
                 <button
                   type="button"
-                  onClick={() => row.toggleRowExpanded()}
-                  aria-expanded={row.isExpanded}
+                  onClick={() => row.toggleExpanded()}
+                  aria-expanded={row.getIsExpanded()}
                   className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
                 >
-                  {row.isExpanded ? "▾" : "▸"} {row.original.subRows.length} {row.original.subRows.length === 1 ? "anterior" : "anteriores"}
+                  {row.getIsExpanded() ? "▾" : "▸"} {row.original.subRows.length} {row.original.subRows.length === 1 ? "anterior" : "anteriores"}
                 </button>
               )}
             </span>
           ),
-        Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" />,
-        filter: containsText,
-      },
-      {
-        Header: "Data",
-        accessor: "date",
-        Cell: ({ value }: any) => IntlDateStr(value),
-        Filter: (props: any) => <ColumnFilter {...props} placeholder="Filtrar por data" />,
-      },
-      {
-        Header: "Total de Ciclistas",
-        accessor: "total_cyclists",
-        Cell: ({ row }: any) => (
+        meta: { Filter: (props) => <ColumnFilter {...props} placeholder="Buscar por nome" /> },
+        filterFn: containsText,
+      }),
+      columnHelper.accessor("date", {
+        header: "Data",
+        cell: ({ getValue }) => IntlDateStr(getValue()),
+        meta: { Filter: (props) => <ColumnFilter {...props} placeholder="Filtrar por data" /> },
+      }),
+      columnHelper.accessor("total_cyclists", {
+        header: "Total de Ciclistas",
+        cell: ({ row }) => (
           <span className="inline-flex items-center gap-2">
             {IntlNumber(row.original.total_cyclists)}
             {row.original.note && (
@@ -132,36 +134,30 @@ export function CountsTable({ data }: ContagensTableProps) {
             )}
           </span>
         ),
-        Filter: RangeValueFilter,
-        filter: (rows: any, id: any, filterValue: any) => {
-          const [min, max] = filterValue || [];
-          return rows.filter((row: any) => {
-            const rowValue = parseFloat(row.values[id]) || 0;
-            if (min !== undefined && rowValue < min) return false;
-            if (max !== undefined && rowValue > max) return false;
-            return true;
-          });
+        meta: { Filter: RangeValueFilter },
+        filterFn: (row, columnId, filterValue) => {
+          const [min, max] = asRange(filterValue);
+          const rowValue = parseFloat(String(row.getValue(columnId))) || 0;
+          if (min !== undefined && rowValue < min) return false;
+          if (max !== undefined && rowValue > max) return false;
+          return true;
         },
-      },
+      }),
 
-      {
-        Header: "Variação",
-        accessor: "change",
-        Cell: ({ row }: any) => <Change value={row.original.change} />,
-        disableFilters: true,
-        sortType: (a: any, b: any) => (a.original.change ?? -Infinity) - (b.original.change ?? -Infinity),
-      },
-      {
-        Header: "Comparar",
-        accessor: "compare",
-        Cell: ({ row }: any) => <CompareCheckbox item={row.original} />,
-        disableFilters: true,
-        disableSortBy: true,
-      },
-      {
-        Header: "Dados",
-        accessor: "id",
-        Cell: ({ row }: any) => {
+      columnHelper.accessor("change", {
+        header: "Variação",
+        cell: ({ row }) => <Change value={row.original.change} />,
+        enableColumnFilter: false,
+        sortFn: (a, b) => (a.original.change ?? -Infinity) - (b.original.change ?? -Infinity),
+      }),
+      columnHelper.display({
+        header: "Comparar",
+        id: "compare",
+        cell: ({ row }) => <CompareCheckbox item={row.original} />,
+      }),
+      columnHelper.accessor("id", {
+        header: "Dados",
+        cell: ({ row }) => {
           const locationId = row.original.id;
           return (
             <a
@@ -174,10 +170,10 @@ export function CountsTable({ data }: ContagensTableProps) {
             </a>
           );
         },
-        disableFilters: true,
-        disableSortBy: true,
-      },
-    ],
+        enableColumnFilter: false,
+        enableSorting: false,
+      }),
+    ]),
     []
   );
 
@@ -186,6 +182,7 @@ export function CountsTable({ data }: ContagensTableProps) {
       title="Contagens de Ciclistas"
       data={places}
       initialSortBy={NEWEST_FIRST}
+      getSubRows={subRowsOf}
       columns={columns}
       showFilters={showFilters}
       setShowFilters={setShowFilters}

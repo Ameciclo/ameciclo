@@ -1,51 +1,59 @@
 import { Link } from "@tanstack/react-router";
 import React, { useState } from "react";
 import Table from "../Commom/Table/Table";
+import { tableColumnHelper, type ColumnFilterProps } from "../Commom/Table/features";
+import { asRange, between } from "../Commom/Table/TableFilters";
 
-function ColumnFilter({ column }: any) {
-    const { filterValue, setFilter } = column;
+interface IdecicloRow {
+    id: number | string;
+    logradouro: string;
+    cidade: number;
+    tipologia: string;
+    comprimento: number;
+    nota: number;
+}
+
+const columnHelper = tableColumnHelper<IdecicloRow>();
+
+function ColumnFilter({ column }: ColumnFilterProps<IdecicloRow>) {
+    const filterValue = column.getFilterValue();
     return (
         <input
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent"
             type="text"
             placeholder="Buscar..."
-            value={filterValue || ""}
-            onChange={(e) => setFilter(e.target.value)}
+            value={typeof filterValue === "string" ? filterValue : ""}
+            onChange={(e) => column.setFilterValue(e.target.value)}
         />
     );
 }
 
-function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, setFilter, id } }: any) {
-    const [min, max] = React.useMemo(() => {
-        let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
-        let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
-        preFilteredRows.forEach((row: any) => {
-            min = Math.min(row.values[id], min);
-            max = Math.max(row.values[id], max);
-        });
-        return [min, max];
-    }, [id, preFilteredRows]);
+function NumberRangeColumnFilter({ column, rows }: ColumnFilterProps<IdecicloRow>) {
+    const [filterMin, filterMax] = asRange(column.getFilterValue());
+    const values = rows.map((row) => Number(row.getValue(column.id)));
+    const min = values.length ? Math.min(...values) : 0;
+    const max = values.length ? Math.max(...values) : 0;
 
     return (
         <div className="flex gap-2 items-center">
             <input
                 className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm focus:outline-hidden focus:ring-1 focus:ring-ameciclo"
-                value={filterValue[0] || ""}
+                value={filterMin || ""}
                 type="number"
                 onChange={(e) => {
                     const val = e.target.value;
-                    setFilter((old = []) => [val ? parseFloat(val) : undefined, old[1]]);
+                    column.setFilterValue((old: unknown) => [val ? parseFloat(val) : undefined, asRange(old)[1]]);
                 }}
                 placeholder={`${min.toFixed(1)}`}
             />
             <span className="text-xs text-gray-500">a</span>
             <input
                 className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm focus:outline-hidden focus:ring-1 focus:ring-ameciclo"
-                value={filterValue[1] || ""}
+                value={filterMax || ""}
                 type="number"
                 onChange={(e) => {
                     const val = e.target.value;
-                    setFilter((old = []) => [old[0], val ? parseFloat(val) : undefined]);
+                    column.setFilterValue((old: unknown) => [asRange(old)[0], val ? parseFloat(val) : undefined]);
                 }}
                 placeholder={`${max.toFixed(1)}`}
             />
@@ -53,23 +61,18 @@ function NumberRangeColumnFilter({ column: { filterValue = [], preFilteredRows, 
     );
 }
 
-function SelectColumnFilter({ column: { filterValue, setFilter, preFilteredRows, id } }: any) {
-    const options = React.useMemo(() => {
-        const options = new Set();
-        preFilteredRows.forEach((row: any) => {
-            options.add(row.values[id]);
-        });
-        return Array.from(options.values());
-    }, [id, preFilteredRows]);
+function SelectColumnFilter({ column, rows }: ColumnFilterProps<IdecicloRow>) {
+    const filterValue = column.getFilterValue();
+    const options = Array.from(new Set(rows.map((row) => String(row.getValue(column.id)))));
 
     return (
         <select
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:border-transparent"
-            value={filterValue}
-            onChange={(e) => setFilter(e.target.value || undefined)}
+            value={typeof filterValue === "string" ? filterValue : ""}
+            onChange={(e) => column.setFilterValue(e.target.value || undefined)}
         >
             <option value="">Todos</option>
-            {(options as string[]).map((option, i) => (
+            {options.map((option, i) => (
                 <option key={i} value={option}>
                     {option}
                 </option>
@@ -78,15 +81,14 @@ function SelectColumnFilter({ column: { filterValue, setFilter, preFilteredRows,
     );
 }
 
-export const IdecicloTable = ({ title, data }: any) => {
+export const IdecicloTable = ({ title, data }: { title: string; data: IdecicloRow[] }) => {
     const [showFilters, setShowFilters] = useState(false);
 
     const columns = React.useMemo(
-        () => [
-            {
-                Header: "Rua",
-                accessor: "logradouro",
-                Cell: ({ row }: any) => (
+        () => columnHelper.columns([
+            columnHelper.accessor("logradouro", {
+              header: "Rua",
+                cell: ({ row }) => (
                     <Link
                         to="/dados/ideciclo/$id"
                         params={{ id: String(row.original.id) }}
@@ -96,37 +98,38 @@ export const IdecicloTable = ({ title, data }: any) => {
                         {row.original.logradouro}
                     </Link>
                 ),
-                Filter: ColumnFilter,
-            },
-            {
-                Header: "Tipo",
-                accessor: "tipologia",
-                Filter: SelectColumnFilter,
-            },
-            {
-                Header: "Extensão (km)",
-                accessor: "comprimento",
-                Cell: ({ value }: any) => (
-                    <span>{value ? value.toFixed(2).replace(".", ",") : "N/A"}</span>
-                ),
-                Filter: NumberRangeColumnFilter,
-                filter: 'between',
-            },
-            {
-                Header: "Nota Geral",
-                accessor: "nota",
-                Cell: ({ value }: any) => (
-                    <span className={`font-medium ${value >= 7 ? "text-green-600" :
-                            value >= 5 ? "text-yellow-600" :
-                                value ? "text-red-600" : "text-gray-500"
-                        }`}>
-                        {value ? value.toFixed(1).replace(".", ",") : "N/A"}
-                    </span>
-                ),
-                Filter: NumberRangeColumnFilter,
-                filter: 'between',
-            },
-        ],
+                meta: { Filter: ColumnFilter },
+            }),
+            columnHelper.accessor("tipologia", {
+              header: "Tipo",
+                meta: { Filter: SelectColumnFilter },
+            }),
+            columnHelper.accessor("comprimento", {
+              header: "Extensão (km)",
+                cell: ({ getValue }) => {
+                    const value = getValue();
+                    return <span>{value ? value.toFixed(2).replace(".", ",") : "N/A"}</span>;
+                },
+                meta: { Filter: NumberRangeColumnFilter },
+                filterFn: between,
+            }),
+            columnHelper.accessor("nota", {
+              header: "Nota Geral",
+                cell: ({ getValue }) => {
+                    const value = getValue();
+                    return (
+                        <span className={`font-medium ${value >= 7 ? "text-green-600" :
+                                value >= 5 ? "text-yellow-600" :
+                                    value ? "text-red-600" : "text-gray-500"
+                            }`}>
+                            {value ? value.toFixed(1).replace(".", ",") : "N/A"}
+                        </span>
+                    );
+                },
+                meta: { Filter: NumberRangeColumnFilter },
+                filterFn: between,
+            }),
+        ]),
         []
     );
 
