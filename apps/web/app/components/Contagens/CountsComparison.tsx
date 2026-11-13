@@ -33,7 +33,10 @@ const HINTS: Record<string, string> = {
 export type Place = { location: PublicLocation; selected: PublicLocation["counts"][number]; detail: PublicCountDetail | null; canonical: string };
 
 function getChartData(places: Place[]) {
-  const present = places.flatMap(({ location, detail }) => (detail ? [{ detail, name: location.name }] : []));
+  // Two counts of one place on the same day differ only by their variant (e.g. a lane).
+  const present = places.flatMap(({ location, selected, detail }) =>
+    detail ? [{ detail, name: `${location.name}${selected.variant ? ` – ${selected.variant}` : ""}` }] : [],
+  );
   const hours = [...new Set(present.flatMap(({ detail }) => detail.hours))].sort((a, b) => a - b);
   const series = present.map(({ detail, name }) => ({
     name: `${name} (${IntlDateStr(detail.date)})`,
@@ -166,7 +169,10 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
                   </span>
                 </div>
 
-                <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>{location.name}</h2>
+                <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>
+                  {location.name}
+                  {selected.variant && <span className="block text-lg font-semibold">{selected.variant}</span>}
+                </h2>
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-2 border-b border-gray-200">
