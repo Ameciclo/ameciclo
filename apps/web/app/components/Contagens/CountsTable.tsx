@@ -50,42 +50,27 @@ const RangeValueFilter = ({ column }: any) => {
   );
 };
 
-// Counts of the same place stay together, newest first, so the table reads place by place.
-function groupedByPlace(rows: readonly CountRow[]): CountRow[] {
-  return [...rows].sort((a, b) => a.name.localeCompare(b.name, "pt-BR") || a.id - b.id || b.date.localeCompare(a.date));
-}
+// Newest count first; the "Data" header shows (and can reverse) this order.
+const NEWEST_FIRST = [{ id: "date", desc: true }];
 
 export function CountsTable({ data }: ContagensTableProps) {
   const [showFilters, setShowFilters] = useState(false);
-  const grouped = useMemo(() => groupedByPlace(data), [data]);
 
   const columns = useMemo(
     () => [
       {
         Header: "Nome",
         accessor: "name",
-        Cell: ({ row, page }: any) => {
-          // Another count of the place right above (in whatever order and page is on screen):
-          // tie it to that row instead of repeating the name.
-          const position = page.findIndex((r: any) => r.id === row.id);
-          const repeat = position > 0 && page[position - 1].original.id === row.original.id;
-          return (
-            <Link
-              className={repeat ? "pl-6 text-gray-500 hover:underline" : "text-ameciclo hover:underline"}
-              to="/dados/contagens/$slug"
-              params={{ slug: row.original.slug }}
-            >
-              {repeat ? (
-                <>↳ {row.original.variant ?? "mesma esquina"}</>
-              ) : (
-                <>
-                  {row.original.name}
-                  {row.original.variant && <span className="text-gray-500"> ({row.original.variant})</span>}
-                </>
-              )}
-            </Link>
-          );
-        },
+        Cell: ({ row }: any) => (
+          <Link
+            className="text-ameciclo hover:underline"
+            to="/dados/contagens/$slug"
+            params={{ slug: row.original.slug }}
+          >
+            {row.original.name}
+            {row.original.variant && <span className="text-gray-500"> ({row.original.variant})</span>}
+          </Link>
+        ),
         Filter: (props: any) => <ColumnFilter {...props} placeholder="Buscar por nome" />,
         filter: containsText,
       },
@@ -153,7 +138,8 @@ export function CountsTable({ data }: ContagensTableProps) {
   return (
     <Table
       title="Contagens de Ciclistas"
-      data={grouped}
+      data={data}
+      initialSortBy={NEWEST_FIRST}
       columns={columns}
       showFilters={showFilters}
       setShowFilters={setShowFilters}
