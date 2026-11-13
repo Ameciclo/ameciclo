@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
@@ -146,6 +146,18 @@ function Contagem() {
             {detail && detail.hours.length > 0 && <HourlyCyclistsChart series={detail.series} hours={detail.hours} />}
 
             {location.counts.length > 1 && <EvolutionChart counts={location.counts} selectedId={selected.id} />}
+
+            {location.counts.length > 1 && (
+                <section className="container mx-auto mt-6 mb-2 text-center">
+                    <Link
+                        to="/dados/contagens/$slug/evolucao"
+                        params={{ slug: location.slug }}
+                        className="inline-flex items-center gap-2 px-5 py-3 bg-ameciclo text-white rounded-lg hover:bg-ameciclo/90 transition-colors font-medium shadow-md"
+                    >
+                        Ver a evolução deste ponto ({location.counts.length} contagens)
+                    </Link>
+                </section>
+            )}
 
             <CountingComparisionTable
                 data={transformOtherCountsForComparison(locations, [page.canonical])}
