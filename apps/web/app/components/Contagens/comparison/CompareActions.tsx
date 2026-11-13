@@ -44,7 +44,7 @@ export function CompareActions({ item, location }: { item: CompareItem; location
 // For a comparison page: carry its counts over to the selection, to add or remove some.
 export function EditSelectionButton({ items }: { items: readonly CompareItem[] }) {
   return (
-    <Button variant="outline" size="sm" onClick={() => compareSelection.replace(items)}>
+    <Button variant="outline" size="sm" className="text-foreground" onClick={() => compareSelection.replace(items)}>
       Editar esta seleção
     </Button>
   );

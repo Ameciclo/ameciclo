@@ -4,14 +4,18 @@ import { Link } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { Tooltip } from "~/components/Commom/Tooltip";
-import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
+import { Badge } from "@ameciclo/ui/components/badge";
+import { Card } from "@ameciclo/ui/components/card";
+import { X } from "lucide-react";
+import { OtherCountsTable } from "~/components/Contagens/OtherCountsTable";
+import { CompareLink } from "~/components/Contagens/comparison/CompareLink";
 import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
 import { EditSelectionButton } from "~/components/Contagens/comparison/CompareActions";
-import { colorAt, TABLE_FROM } from "~/components/Contagens/comparison/constants";
+import { colorAt, MIN_COMPARE, TABLE_FROM } from "~/components/Contagens/comparison/constants";
 import { ComparisonHourlyChart } from "~/components/Contagens/comparison/ComparisonHourlyChart";
 import { MetricsTable } from "~/components/Contagens/comparison/MetricsTable";
 import { compareLabel, deltaAgainst } from "~/components/Contagens/comparison/selection";
-import { countNote, transformOtherCountsForComparison, type MapPoint } from "~/services/counting-details.service";
+import { countNote, type MapPoint } from "~/services/counting-details.service";
 import { IntlDateStr, IntlNumber } from "~/services/utils";
 
 const HINTS: Record<string, string> = {
@@ -80,40 +84,22 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
   const chartCounts = places.flatMap(({ selected, location, detail }) =>
     detail ? [{ label: compareLabel({ ...selected, name: location.name }), detail }] : [],
   );
-  const others = transformOtherCountsForComparison(locations, places.map(({ canonical }) => canonical));
 
   return (
-    <main className="flex-auto overflow-x-hidden">
+    <main className="theme-ameciclo flex-auto overflow-x-hidden text-foreground">
       <Banner image={cover ?? undefined} alt={title} />
 
       <div className="bg-ameciclo text-white py-2 px-4 uppercase flex items-center text-sm md:text-base">
         <div className="container mx-auto">
           <nav className="bg-grey-light rounded-sm font-sans w-full">
-            <ol className="list-none p-0 inline-flex text-xs md:text-sm">
-              <li className="flex items-center">
-                <Link to="/" className="text-white">Página Inicial</Link>
-                <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                  <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
-                </svg>
-              </li>
-              <li className="flex items-center">
-                <Link to="/dados" className="text-white">Dados</Link>
-                <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                  <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
-                </svg>
-              </li>
-              <li className="flex items-center">
-                <Link to="/dados/contagens" className="text-white">Contagens</Link>
-                <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                  <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
-                </svg>
-              </li>
+            <ol className="list-none p-0 inline-flex flex-wrap text-xs md:text-sm">
+              <Crumb to="/">Página Inicial</Crumb>
+              <Crumb to="/dados">Dados</Crumb>
+              <Crumb to="/dados/contagens">Contagens</Crumb>
               {places.filter((p, i) => places.findIndex((q) => q.location.id === p.location.id) === i).map(({ location }) => (
                 <li key={location.id} className="flex items-center">
                   <Link to="/dados/contagens/$slug" params={{ slug: location.slug }} className="text-white">{location.name}</Link>
-                  <svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                    <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
-                    </svg>
+                  <ChevronIcon />
                 </li>
               ))}
               <li className="flex items-center">
@@ -124,118 +110,161 @@ export function CountsComparison({ places, cover, locations, title, subtitle, cr
         </div>
       </div>
 
-      <section className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{title}</h1>
-          <p className="text-lg text-gray-600">{subtitle}</p>
-        </div>
+      <section className="bg-ameciclo-dark text-white" aria-labelledby="titulo-comparacao">
+        <div className="container mx-auto px-4 py-8 md:py-10">
+          <p className="text-sm font-semibold tracking-[0.2em] text-white/80 uppercase">Contagens de ciclistas</p>
+          <h1 id="titulo-comparacao" className="mt-2 text-3xl leading-tight font-bold sm:text-4xl md:text-5xl">
+            {title}
+          </h1>
+          <p className="mt-2 text-white/90">{subtitle}</p>
 
-        <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
-          <ul className="flex flex-wrap justify-center gap-2" aria-label="Contagens comparadas">
-            {places.map(({ location, selected, canonical }, index) => (
-              <li key={canonical} className="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-3 py-1 text-sm text-gray-800">
-                <span aria-hidden className="h-3 w-3 rounded-full" style={{ backgroundColor: colorAt(index).hex }} />
-                {compareLabel({ ...selected, name: location.name })}
-              </li>
-            ))}
-          </ul>
-          <EditSelectionButton
-            items={places.map(({ location, selected, canonical }) => ({ slug: canonical, name: location.name, date: selected.date, variant: selected.variant }))}
-          />
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <ul className="flex flex-wrap gap-2" aria-label="Contagens comparadas">
+              {places.map(({ location, selected, canonical }, index) => {
+                const label = compareLabel({ ...selected, name: location.name });
+                return (
+                  <li key={canonical} className="flex items-center gap-2 rounded-full bg-white py-1 pr-1 pl-3 text-sm font-medium text-foreground">
+                    <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colorAt(index).hex }} />
+                    {label}
+                    {places.length > MIN_COMPARE ? (
+                      <CompareLink
+                        slugs={places.filter((p) => p.canonical !== canonical).map((p) => p.canonical)}
+                        className="flex size-6 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <X className="size-3.5" aria-hidden />
+                        <span className="sr-only">Remover {label} da comparação</span>
+                      </CompareLink>
+                    ) : (
+                      <span className="w-2" />
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <EditSelectionButton
+              items={places.map(({ location, selected, canonical }) => ({ slug: canonical, name: location.name, date: selected.date, variant: selected.variant }))}
+            />
+          </div>
         </div>
+      </section>
 
+      <section className="container mx-auto px-4 py-10 md:py-14" aria-labelledby="resumo-comparacao">
+        <h2 id="resumo-comparacao" className="mb-6 text-2xl font-bold md:text-3xl">
+          Lado a lado
+        </h2>
         {places.length >= TABLE_FROM ? (
           <MetricsTable places={places} />
         ) : (
-        <div className={`grid grid-cols-1 ${places.length >= 3 ? "xl:grid-cols-3 lg:grid-cols-2" : "lg:grid-cols-2"} gap-8 mb-8`}>
-          {places.map(({ location, selected, canonical }, index) => {
-            const colors = colorAt(index);
-            const note = countNote(selected);
-            const rows = [
-              ...METRICS.filter((m) => m.key !== "motor").map((m) => ({
-                key: m.key,
-                label: m.label,
-                value: selected.characteristics[m.key],
-                hint: HINTS[m.key],
-              })),
-              { key: "peak", label: "Pico em 1h", value: selected.max_hour_cyclists, hint: "maior quantidade de ciclistas registrada em uma única hora" },
-            ];
+          <div className={`grid grid-cols-1 gap-6 ${places.length >= 3 ? "lg:grid-cols-3" : "lg:grid-cols-2"}`}>
+            {places.map(({ location, selected, canonical }, index) => {
+              const colors = colorAt(index);
+              const note = countNote(selected);
+              const rows = [
+                ...METRICS.filter((m) => m.key !== "motor").map((m) => ({
+                  key: m.key,
+                  label: m.label,
+                  value: selected.characteristics[m.key],
+                  hint: HINTS[m.key],
+                })),
+                { key: "peak", label: "Pico em 1h", value: selected.max_hour_cyclists, hint: "maior quantidade de ciclistas registrada em uma única hora" },
+              ];
 
-            return (
-              <div key={canonical} className={`${colors.bg} ${colors.border} border-2 rounded-lg p-6 shadow-lg`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 ${colors.accent} rounded-full`}></div>
-                    <span className="text-sm font-medium text-gray-600">{sameLocation ? `Edição ${index + 1}` : `Ponto ${index + 1}`}</span>
+              return (
+                <Card key={canonical} className="gap-0 border-t-4 p-6" style={{ borderTopColor: colors.hex }}>
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <span aria-hidden className="size-3 rounded-full" style={{ backgroundColor: colors.hex }} />
+                      {sameLocation ? `Edição ${index + 1}` : `Ponto ${index + 1}`}
+                    </span>
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      {IntlDateStr(selected.date)}
+                      {note && <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-900">{note}</Badge>}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    {IntlDateStr(selected.date)}
-                    {note && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">{note}</span>}
-                  </span>
-                </div>
 
-                <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>
-                  {location.name}
-                  {selected.variant && <span className="block text-lg font-semibold">{selected.variant}</span>}
-                </h2>
+                  <h3 className="mb-4 text-xl leading-snug font-bold">
+                    {location.name}
+                    {selected.variant && <span className="block text-base font-semibold text-muted-foreground">{selected.variant}</span>}
+                  </h3>
 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                    <span className="text-base font-medium text-gray-700">Total de Ciclistas</span>
-                    <span className={`text-3xl font-bold ${colors.text}`}>
+                  <div className="mb-2 flex items-baseline justify-between gap-3 border-b pb-3">
+                    <span className="font-medium">Total de ciclistas</span>
+                    <span className="text-3xl font-bold tabular-nums">
                       {IntlNumber(selected.total_cyclists)}
                       {index > 0 && (() => {
                         const delta = deltaAgainst(selected.total_cyclists, places[0].selected.total_cyclists);
                         return delta === null ? null : (
-                          <span className="ml-2 text-sm font-medium text-gray-600">{`${percentFormat.format(delta)} vs. 1ª`}</span>
+                          <span className={`ml-2 text-sm font-semibold ${delta > 0 ? "text-green-700" : delta < 0 ? "text-red-700" : "text-muted-foreground"}`}>
+                            {`${percentFormat.format(delta)} vs. 1ª`}
+                          </span>
                         );
                       })()}
                     </span>
                   </div>
 
                   {rows.map((row) => (
-                    <div key={row.key} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                    <div key={row.key} className="flex items-center justify-between gap-3 border-b py-2 last:border-b-0">
                       <Tooltip text={`${IntlNumber(row.value)} ${row.hint}`}>
-                        <span className="text-base font-medium text-gray-700 cursor-help">
-                          {row.label} <span className="text-sm text-gray-500">({percent(row.value, selected.total_cyclists)})</span>
+                        <span className="cursor-help font-medium">
+                          {row.label} <span className="text-sm font-normal text-muted-foreground">({percent(row.value, selected.total_cyclists)})</span>
                         </span>
                       </Tooltip>
-                      <span className={`text-xl font-semibold ${colors.text}`}>{IntlNumber(row.value)}</span>
+                      <span className="text-lg font-semibold tabular-nums">{IntlNumber(row.value)}</span>
                     </div>
                   ))}
 
-                  <div className="pt-4">
-                    <Link
-                      to="/dados/contagens/$slug"
-                      params={{ slug: contagemSlug(location.slug, selected) }}
-                      className={`inline-block w-full text-center py-3 px-4 ${colors.accent} text-white rounded-md hover:opacity-90 transition-opacity font-medium`}
-                    >
-                      Ver Detalhes Completos
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  <Link
+                    to="/dados/contagens/$slug"
+                    params={{ slug: contagemSlug(location.slug, selected) }}
+                    className="mt-4 inline-flex w-full items-center justify-center rounded-md border border-primary py-2 text-sm font-medium text-primary hover:bg-accent"
+                  >
+                    Ver detalhes completos
+                  </Link>
+                </Card>
+              );
+            })}
+          </div>
         )}
-
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-          <AmecicloMap pointsData={getPoints(places)} height="500px" />
-        </div>
-
-        {chartCounts.length === 0 ? (
-          <section className="container mx-auto my-10 shadow-2xl rounded-sm p-12 bg-gray-50">
-            <h2 className="text-gray-800 text-2xl font-bold mb-6">Quantidade de Ciclistas por Hora</h2>
-            <p className="text-center text-sm text-gray-500 py-12">Não há dados horários para estas contagens.</p>
-          </section>
-        ) : (
-          <ComparisonHourlyChart counts={chartCounts} />
-        )}
-
-        <CountingComparisionTable data={others} firstSlug={places[0].canonical} />
       </section>
+
+      <section className="container mx-auto px-4 pb-10" aria-label="Mapa dos locais">
+        <div className="overflow-hidden rounded-xl border shadow-sm">
+          <AmecicloMap pointsData={getPoints(places)} width="100%" height="clamp(340px, 50vh, 460px)" />
+        </div>
+      </section>
+
+      {chartCounts.length === 0 ? (
+        <section className="container mx-auto px-4 pb-10">
+          <div className="rounded-xl border bg-card p-8 shadow-sm">
+            <h2 className="mb-4 text-2xl font-bold">Quantidade de ciclistas por hora</h2>
+            <p className="py-8 text-center text-sm text-muted-foreground">Não há dados horários para estas contagens.</p>
+          </div>
+        </section>
+      ) : (
+        <ComparisonHourlyChart counts={chartCounts} />
+      )}
+
+      <OtherCountsTable locations={locations} shownSlugs={places.map(({ canonical }) => canonical)} firstSlug={places[0].canonical} />
       <CompareBar />
     </main>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg className="mx-3 h-3 w-3 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" aria-hidden>
+      <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
+    </svg>
+  );
+}
+
+function Crumb({ to, children }: { to: string; children: string }) {
+  return (
+    <li className="flex items-center">
+      <Link to={to} className="text-white">
+        {children}
+      </Link>
+      <ChevronIcon />
+    </li>
   );
 }
