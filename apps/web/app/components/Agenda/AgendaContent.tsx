@@ -51,6 +51,7 @@ export function AgendaContent({ mes, fonte, eventoId, data, onCloseEvent }: Agen
           <nav aria-label="Navegar entre meses" className="flex items-center gap-2">
             <Link
               to="/agenda"
+              resetScroll={false}
               search={(prev) => ({ ...prev, mes: shiftMonth(mes, -1), evento: undefined })}
               className={navLink}
               aria-label="Mês anterior"
@@ -60,6 +61,7 @@ export function AgendaContent({ mes, fonte, eventoId, data, onCloseEvent }: Agen
             </Link>
             <Link
               to="/agenda"
+              resetScroll={false}
               search={(prev) => ({ ...prev, mes: undefined, evento: undefined })}
               className={navLink}
               aria-current={mes === currentMonth() ? "date" : undefined}
@@ -68,6 +70,7 @@ export function AgendaContent({ mes, fonte, eventoId, data, onCloseEvent }: Agen
             </Link>
             <Link
               to="/agenda"
+              resetScroll={false}
               search={(prev) => ({ ...prev, mes: shiftMonth(mes, 1), evento: undefined })}
               className={navLink}
               aria-label="Próximo mês"
@@ -85,6 +88,7 @@ export function AgendaContent({ mes, fonte, eventoId, data, onCloseEvent }: Agen
               <Link
                 key={source ?? "todos"}
                 to="/agenda"
+              resetScroll={false}
                 search={(prev) => ({ ...prev, fonte: source, evento: undefined })}
                 aria-current={active ? "true" : undefined}
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm ${
@@ -116,6 +120,7 @@ export function AgendaContent({ mes, fonte, eventoId, data, onCloseEvent }: Agen
             </p>
             <Link
               to="/agenda"
+              resetScroll={false}
               search={(prev) => ({ ...prev, mes: shiftMonth(mes, 1), evento: undefined })}
               className="mt-3 inline-block text-sm font-medium text-ameciclo underline"
             >
