@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { Badge } from "@ameciclo/ui/components/badge";
 import { Button } from "@ameciclo/ui/components/button";
 import { Card } from "@ameciclo/ui/components/card";
 import { ToggleGroup, ToggleGroupItem } from "@ameciclo/ui/components/toggle-group";
@@ -14,6 +15,7 @@ import {
   eventDays,
   formatTimeRange,
   isToday,
+  todayKey,
   monthLabel,
   shiftMonth,
 } from "./dates";
@@ -41,6 +43,13 @@ function groupByDay(events: AgendaEvent[], mes: string): [string, AgendaEvent[]]
   return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
 
+// Ref callback with a stable identity, so React calls it only when the element
+// mounts — not on every render. Brings the next upcoming day into view below the
+// sticky headers, unless the reader has already scrolled.
+function scrollToUpcoming(element: HTMLLIElement | null) {
+  if (element && window.scrollY === 0) element.scrollIntoView({ block: "start" });
+}
+
 export function AgendaContent({
   mes,
   fonte,
@@ -54,6 +63,11 @@ export function AgendaContent({
   const selected = data.events.find((event) => event.id === eventoId);
   const label = monthLabel(mes);
   const isCurrentMonth = mes === currentMonth();
+  // First day that hasn't passed yet. Only worth scrolling to when past days precede it.
+  const upcomingDay = isCurrentMonth
+    ? days.find(([day]) => isToday(day) || day > todayKey())?.[0]
+    : undefined;
+  const skipsPastDays = upcomingDay !== undefined && upcomingDay !== days[0]?.[0];
 
   return (
     <div className="container mx-auto my-10 grid gap-8 px-4 lg:grid-cols-[1fr_20rem]">
@@ -138,7 +152,7 @@ export function AgendaContent({
               Nenhuma atividade em {label}
               {fonte ? ` (${SOURCE_LABEL[fonte].toLowerCase()})` : ""}.
             </p>
-            <Button asChild variant="link">
+            <Button asChild variant="link" className="text-ameciclo">
               <Link
                 to="/agenda"
                 resetScroll={false}
@@ -147,19 +161,41 @@ export function AgendaContent({
                 Ver o mês seguinte
               </Link>
             </Button>
+            <div className="mt-2 flex flex-col items-center gap-2 border-t pt-4">
+              <p className="text-sm text-gray-600">
+                Adicione ao seu calendário para ver as próximas atividades assim que forem publicadas.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {data.calendars.map((calendar) => (
+                  <Button key={calendar.source} asChild variant="outline" size="sm">
+                    <a href={calendar.addUrl} target="_blank" rel="noopener noreferrer">
+                      <span
+                        className={`size-2.5 rounded-full ${SOURCE_DOT[calendar.source]}`}
+                        aria-hidden
+                      />
+                      {calendar.label}
+                    </a>
+                  </Button>
+                ))}
+              </div>
+            </div>
           </Card>
         ) : (
           <ol className="mt-6 space-y-8">
             {days.map(([day, events]) => (
-              <li key={day}>
+              <li
+                key={day}
+                ref={skipsPastDays && day === upcomingDay ? scrollToUpcoming : undefined}
+                className="scroll-mt-44"
+              >
                 <h2
                   className={cn(
-                    "text-sm font-semibold uppercase tracking-wide",
+                    "flex items-center gap-2 text-sm font-semibold uppercase tracking-wide",
                     isToday(day) ? "text-ameciclo" : "text-gray-500",
                   )}
                 >
                   {dayHeading(day)}
-                  {isToday(day) && " · hoje"}
+                  {isToday(day) && <Badge className="bg-ameciclo text-white">Hoje</Badge>}
                 </h2>
                 <ul className="mt-3 space-y-3">
                   {events.map((event) => (
@@ -174,6 +210,7 @@ export function AgendaContent({
                           className={cn(
                             "gap-1 rounded-md border-l-4 px-4 py-4 shadow-none transition-colors hover:bg-accent",
                             SOURCE_BAR[event.source],
+                            isToday(day) && "bg-ameciclo/5 ring-1 ring-ameciclo/30",
                           )}
                         >
                           <p className="text-sm text-gray-600">

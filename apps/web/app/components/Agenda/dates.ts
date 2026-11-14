@@ -107,6 +107,11 @@ export function formatTimeRange(event: AgendaDateFields): string {
   return `${from} – ${timeFormatter.format(new Date(event.end))}`;
 }
 
+/** Today as "YYYY-MM-DD" in Recife. */
+export function todayKey(now: Date = new Date()): string {
+  return dayFormatter.format(now);
+}
+
 export function isToday(day: string, now: Date = new Date()): boolean {
-  return dayFormatter.format(now) === day;
+  return todayKey(now) === day;
 }
