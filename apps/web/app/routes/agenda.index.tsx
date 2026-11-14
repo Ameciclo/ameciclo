@@ -74,6 +74,12 @@ function Agenda() {
         fonte={fonte}
         eventoId={evento}
         data={data}
+        onFonteChange={(next) =>
+          navigate({
+            search: (prev) => ({ ...prev, fonte: next, evento: undefined }),
+            resetScroll: false,
+          })
+        }
         onCloseEvent={() =>
           navigate({ search: (prev) => ({ ...prev, evento: undefined }), resetScroll: false })
         }

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { MES_PATTERN, monthRange, startsAtMs } from "~/components/Agenda/dates";
 import { env } from "~/utils/env.server";
 
-const SourceSchema = z.enum(["external", "internal"]);
+export const SourceSchema = z.enum(["external", "internal"]);
 export type AgendaSource = z.infer<typeof SourceSchema>;
 
 // What we hand to the UI. We deliberately don't echo Google's full
