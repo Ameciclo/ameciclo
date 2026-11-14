@@ -42,6 +42,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # The web preview runs against the staging database (the staging Worker and
+      # its Hyperdrive), never production. The Cloudflare Vite plugin picks the
+      # Wrangler environment at build time, so this is what selects it. The admin
+      # has no staging Worker yet, so its preview still uses production.
+      - name: Select the staging environment
+        if: matrix.app == 'web'
+        run: echo "CLOUDFLARE_ENV=staging" >> "$GITHUB_ENV"
+
       - run: pnpm --filter @ameciclo/${{ matrix.app }} build
 
       - name: Upload preview version to Cloudflare
@@ -75,4 +83,4 @@ jobs:
             | **Version** | `${{ steps.deploy.outputs.version-id || 'n/a' }}` |
             | **Commit** | `${{ github.event.pull_request.head.sha }}` |
 
-            Updates on every push. Production is unchanged.
+            Updates on every push. ${{ matrix.app == 'web' && 'Uses the staging database.' || 'Uses the production database.' }} Production is unchanged.
