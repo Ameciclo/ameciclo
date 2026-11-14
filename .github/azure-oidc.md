@@ -68,3 +68,55 @@ diz qual; é só adicionar essa ação à função.
 O job apaga a própria regra (`github-run-<id>`) mesmo se falhar e, ao começar,
 apaga sobras de execuções canceladas. Se alguma regra `github-run-*` aparecer
 parada no portal, pode apagar.
+
+## Staging (Postgres do Coolify)
+
+O job `migrate` do `deploy-staging.yml` usa a mesma identidade (`ameciclo-github-ci`),
+mas abre uma regra no NSG da VM (`ameciclo-k3s-nsg`, porta 15432) em vez de uma
+regra do Postgres gerenciado. A identidade só pode criar, ler e apagar regras
+**nesse NSG**.
+
+```bash
+SUB=$(az account show --query id -o tsv)
+APP_ID=$(az ad app list --display-name ameciclo-github-ci --query '[0].appId' -o tsv)
+NSG=/subscriptions/$SUB/resourceGroups/ameciclo-rg-prod/providers/Microsoft.Network/networkSecurityGroups/ameciclo-k3s-nsg
+
+# O ambiente do GitHub se chama "staging" (o Azure diferencia maiúsculas).
+az ad app federated-credential create --id "$APP_ID" --parameters '{
+  "name": "github-staging",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:Ameciclo/ameciclo:environment:staging",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
+
+cat > /tmp/nsg-role.json <<JSON
+{
+  "Name": "Ameciclo NSG rule operator",
+  "IsCustom": true,
+  "Description": "Cria e apaga regras do NSG da VM do Coolify (Postgres de staging)",
+  "Actions": [
+    "Microsoft.Network/networkSecurityGroups/read",
+    "Microsoft.Network/networkSecurityGroups/join/action",
+    "Microsoft.Network/networkSecurityGroups/securityRules/read",
+    "Microsoft.Network/networkSecurityGroups/securityRules/write",
+    "Microsoft.Network/networkSecurityGroups/securityRules/delete",
+    "Microsoft.Network/locations/operations/read",
+    "Microsoft.Network/locations/operationResults/read"
+  ],
+  "AssignableScopes": ["/subscriptions/$SUB/resourceGroups/ameciclo-rg-prod"]
+}
+JSON
+az role definition create --role-definition @/tmp/nsg-role.json
+az role assignment create --assignee "$APP_ID" --role "Ameciclo NSG rule operator" --scope "$NSG"
+```
+
+No GitHub (Settings, Environments, `staging`):
+
+- **Variáveis**: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`
+  (os mesmos de produção).
+- **Segredo** `STAGING_DATABASE_URL`, **sem** parâmetros de SSL (o job os
+  acrescenta e usa o CA de `.github/staging-db-ca.crt`):
+  `postgresql://ameciclo:SENHA@db-staging.az.ameciclo.org:15432/ameciclo`
+
+Como na produção, se o primeiro run reclamar de `AuthorizationFailed`, o erro
+diz qual ação falta na função.
