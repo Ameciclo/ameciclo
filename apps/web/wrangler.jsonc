@@ -54,7 +54,7 @@
       "hyperdrive": [
         {
           "binding": "HYPERDRIVE",
-          "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID",
+          "id": "bb7f4a59e3aa4a86967d79c30de81e93",
           "localConnectionString": "postgres://ameciclo:ameciclo@localhost:5433/ameciclo",
         },
       ],
