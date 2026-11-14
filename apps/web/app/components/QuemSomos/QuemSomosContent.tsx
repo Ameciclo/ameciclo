@@ -1,96 +1,52 @@
-import { useState } from "react";
-import AmeCiclistaModal from "./AmeCiclistaModal";
-import { InfoSection } from "./InfoSection";
-import { MemberCard } from "./MemberCard";
-import { Tab, TabPanel, Tabs, TabsNav } from "./Tabs";
 import type { Ameciclista, QuemSomo } from "~/queries/quemsomos";
+import { Intro } from "./Intro";
+import { JoinCta } from "./JoinCta";
+import { PeopleSection } from "./PeopleSection";
+import { PersonDialog } from "./PersonDialog";
+import { Transparency } from "./Transparency";
+import { isCoordination, isFiscalCouncil } from "./roles";
 
 interface QuemSomosContentProps {
   pageData: {
     ameciclistas: Ameciclista[];
     custom: QuemSomo;
   };
+  busca: string | undefined;
+  pessoaId: number | undefined;
+  onBuscaChange: (busca: string | undefined) => void;
+  onClosePerson: () => void;
 }
 
-export function QuemSomosContent({ pageData }: QuemSomosContentProps) {
+export function QuemSomosContent({
+  pageData,
+  busca,
+  pessoaId,
+  onBuscaChange,
+  onClosePerson,
+}: QuemSomosContentProps) {
   const { ameciclistas, custom } = pageData;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAmeciclista, setSelectedAmeciclista] = useState<Ameciclista | null>(null);
-  const [lastFocusedElement, setLastFocusedElement] = useState<HTMLElement | null>(null);
-
-  const handleCardClick = (ameciclista: Ameciclista, event: React.MouseEvent<HTMLButtonElement>) => {
-    setLastFocusedElement(event.currentTarget);
-    setSelectedAmeciclista(ameciclista);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedAmeciclista(null);
-    if (lastFocusedElement) {
-      setTimeout(() => lastFocusedElement.focus(), 0);
-    }
-  };
-
-  const coordinators = ameciclistas.filter((a) => a.role === "coordenacao");
-  const counselors = ameciclistas.filter(
-    (a) => a.role === "conselhofiscal" || a.role === "concelhofiscal",
-  );
+  const coordination = ameciclistas.filter(isCoordination);
+  const council = ameciclistas.filter(isFiscalCouncil);
+  // Coordination and council are shown above; the grid is everyone else.
+  const members = ameciclistas.filter((person) => !isCoordination(person) && !isFiscalCouncil(person));
+  const selected = ameciclistas.find((person) => person.id === pessoaId);
 
   return (
-    <div className="container mx-auto mt-8 mb-8">
-      <InfoSection
-        definition={custom.definition ?? undefined}
-        objective={custom.objective ?? undefined}
-        links={custom.links ?? undefined}
-      />
-
-      <Tabs initialValue="tab-ameciclista">
-        <TabsNav>
-          <Tab name="tab-ameciclista">Ameciclistas</Tab>
-          <Tab name="tab-coord">Coordenação</Tab>
-          <Tab name="tab-conselho">Conselho Fiscal</Tab>
-        </TabsNav>
-
-        <TabPanel name="tab-coord">
-          {coordinators.map((c) => (
-            <MemberCard
-              key={c.id}
-              member={c}
-              onClick={(e) => handleCardClick(c, e)}
-              showBio
-            />
-          ))}
-        </TabPanel>
-
-        <TabPanel name="tab-conselho">
-          {counselors.map((c) => (
-            <MemberCard
-              key={c.id}
-              member={c}
-              onClick={(e) => handleCardClick(c, e)}
-              showBio
-            />
-          ))}
-        </TabPanel>
-
-        <TabPanel name="tab-ameciclista">
-          {ameciclistas.map((c) => (
-            <MemberCard
-              key={c.id}
-              member={c}
-              onClick={(e) => handleCardClick(c, e)}
-            />
-          ))}
-        </TabPanel>
-      </Tabs>
-
-      <AmeCiclistaModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        ameciclista={selectedAmeciclista}
-      />
+    <div className="container mx-auto my-8 px-4">
+      <Intro definition={custom.definition ?? undefined} objective={custom.objective ?? undefined} />
+      <div className="mt-16">
+        <PeopleSection
+          coordination={coordination}
+          council={council}
+          members={members}
+          busca={busca}
+          onBuscaChange={onBuscaChange}
+        />
+      </div>
+      <Transparency links={custom.links ?? []} />
+      <JoinCta />
+      <PersonDialog person={selected} onClose={onClosePerson} />
     </div>
   );
 }

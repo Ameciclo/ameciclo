@@ -59,7 +59,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   ├── providers/          # Providers globais
 │   │   └── QueryProvider.tsx    # TanStack Query
 │   ├── hooks/              # Custom hooks
-│   │   ├── useApiWithAlert.ts, useFocusTrap.ts
+│   │   ├── useApiWithAlert.ts
 │   ├── utils/              # Utilitários
 │   │   ├── mapbox.server.ts, slugify.ts, translations.ts, analytics.tsx
 │   │   └── contagens/
