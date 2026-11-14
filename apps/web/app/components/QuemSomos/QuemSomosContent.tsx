@@ -12,7 +12,7 @@ interface QuemSomosContentProps {
     custom: QuemSomo;
   };
   busca: string | undefined;
-  pessoaId: string | undefined;
+  pessoaId: number | undefined;
   onBuscaChange: (busca: string | undefined) => void;
   onClosePerson: () => void;
 }
@@ -30,7 +30,7 @@ export function QuemSomosContent({
   const council = ameciclistas.filter(isFiscalCouncil);
   // Coordination and council are shown above; the grid is everyone else.
   const members = ameciclistas.filter((person) => !isCoordination(person) && !isFiscalCouncil(person));
-  const selected = ameciclistas.find((person) => String(person.id) === pessoaId);
+  const selected = ameciclistas.find((person) => person.id === pessoaId);
 
   return (
     <div className="container mx-auto my-8 px-4">

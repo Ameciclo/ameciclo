@@ -11,7 +11,7 @@ import { seo } from "~/utils/seo";
 // ?busca=ana&pessoa=12. Anything malformed falls back to "no search, nobody open".
 const SearchSchema = z.object({
   busca: z.string().optional().catch(undefined),
-  pessoa: z.string().optional().catch(undefined),
+  pessoa: z.number().int().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/quemsomos/")({

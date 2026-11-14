@@ -17,7 +17,7 @@ export function PersonCard({ person, variant }: PersonCardProps) {
     <Link
       to="/quemsomos"
       resetScroll={false}
-      search={(prev) => ({ ...prev, pessoa: String(person.id) })}
+      search={(prev) => ({ ...prev, pessoa: person.id })}
       className={linkClass}
     >
       {children}
