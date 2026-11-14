@@ -6,6 +6,8 @@ import { strapiClient } from "~/lib/strapi";
 const MediaSchema = z.object({
   id: z.number().nullish(),
   url: z.string().nullish(),
+  width: z.number().nullish(),
+  height: z.number().nullish(),
 });
 
 // Spec lists only "ameciclista" | "concelhofiscal" | "coordenacao", but real
