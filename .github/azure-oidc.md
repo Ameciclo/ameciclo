@@ -19,16 +19,23 @@ APP_ID=$(az ad app create --display-name ameciclo-github-ci --query appId -o tsv
 az ad sp create --id "$APP_ID"
 
 # Só tokens do ambiente "production" deste repositório são aceitos. O Azure
-# compara o subject sem ignorar maiúsculas, e o ambiente no GitHub se chama
-# "Production", então registramos as duas grafias.
-for env in production Production; do
-  az ad app federated-credential create --id "$APP_ID" --parameters "{
-    \"name\": \"github-$env\",
-    \"issuer\": \"https://token.actions.githubusercontent.com\",
-    \"subject\": \"repo:Ameciclo/ameciclo:environment:$env\",
-    \"audiences\": [\"api://AzureADTokenExchange\"]
-  }"
-done
+# compara o subject diferenciando maiúsculas, mas o nome da credencial não
+# (github-Production colide com github-production), então a segunda grafia
+# precisa de outro nome. O token traz o nome do ambiente como o workflow o
+# declara (`name: production`), então a grafia em minúsculas é a que vale; a
+# outra é só por garantia.
+az ad app federated-credential create --id "$APP_ID" --parameters '{
+  "name": "github-production",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:Ameciclo/ameciclo:environment:production",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
+az ad app federated-credential create --id "$APP_ID" --parameters '{
+  "name": "github-production-capitalized",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:Ameciclo/ameciclo:environment:Production",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
 
 cat > /tmp/firewall-role.json <<JSON
 {
@@ -81,11 +88,18 @@ SUB=$(az account show --query id -o tsv)
 APP_ID=$(az ad app list --display-name ameciclo-github-ci --query '[0].appId' -o tsv)
 NSG=/subscriptions/$SUB/resourceGroups/ameciclo-rg-prod/providers/Microsoft.Network/networkSecurityGroups/ameciclo-k3s-nsg
 
-# O ambiente do GitHub se chama "staging" (o Azure diferencia maiúsculas).
+# Mesma regra da produção: a grafia do workflow (`staging`) vale, e a outra
+# precisa de outro nome de credencial.
 az ad app federated-credential create --id "$APP_ID" --parameters '{
   "name": "github-staging",
   "issuer": "https://token.actions.githubusercontent.com",
   "subject": "repo:Ameciclo/ameciclo:environment:staging",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
+az ad app federated-credential create --id "$APP_ID" --parameters '{
+  "name": "github-staging-capitalized",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:Ameciclo/ameciclo:environment:Staging",
   "audiences": ["api://AzureADTokenExchange"]
 }'
 
