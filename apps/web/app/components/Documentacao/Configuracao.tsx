@@ -54,7 +54,6 @@ export default function Configuracao({ darkMode = true, fontSize = 16 }: Documen
         manualChunks: (id) => {
           if (id.includes('highcharts')) return 'highcharts';
           if (id.includes('mapbox')) return 'mapbox';
-          if (id.includes('@fullcalendar')) return 'calendar';
         }
       }
     }

@@ -20,7 +20,7 @@ export default function EstruturaProjeto({ darkMode = true, fontSize = 16 }: Doc
 │   │   │   ├── ErrorBoundary.tsx, ApiStatusHandler.tsx
 │   │   │   ├── Charts/, Maps/, Table/, Icones/
 │   │   │   └── SEO.tsx
-│   │   ├── Agenda/         # FullCalendar com Google Calendar API
+│   │   ├── Agenda/         # Lista de eventos (Google Calendar API)
 │   │   ├── Biciclopedia/   # FAQ com busca e accordion
 │   │   ├── CicloDados/     # Plataforma de dados colaborativos
 │   │   ├── Contagens/      # Visualização de contagens de ciclistas

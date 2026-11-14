@@ -29,9 +29,6 @@ export default defineConfig({
             if (id.includes("react-map-gl") || id.includes("mapbox-gl")) {
               return "mapbox";
             }
-            if (id.includes("@fullcalendar")) {
-              return "calendar";
-            }
           }
         },
       },

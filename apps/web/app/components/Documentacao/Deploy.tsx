@@ -45,7 +45,6 @@ export default function Deploy({ darkMode = true, fontSize = 16 }: Documentation
           <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
             <h4 className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-3`} style={{ fontSize: fontSize }}>Funcionalidades Específicas</h4>
             <ul className="text-sm space-y-2" style={{ fontSize: fontSize - 2 }}>
-              <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@fullcalendar/*</strong> (v6.1.x) - Calendário com Google Calendar</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>@tanstack/react-query</strong> (v5.90.7) - Cache e sincronização de dados</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>keen-slider</strong> (v6.3.3) - Carrossel/slider</li>
               <li><strong className={darkMode ? 'text-blue-300' : 'text-blue-700'}>swiper</strong> (v12.0.3) - Slider touch</li>

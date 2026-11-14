@@ -34,7 +34,7 @@ export default function API({ darkMode = true, fontSize = 16 }: DocumentationCom
 
               <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 rounded-sm`}>
                 <div className={`font-semibold ${darkMode ? 'text-green-400' : 'text-green-700'} mb-2`} style={{ fontSize: fontSize }}>Google Calendar API</div>
-                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block mb-2`} style={{ fontSize: fontSize - 2 }}>Integração via FullCalendar</code>
+                <code className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} block mb-2`} style={{ fontSize: fontSize - 2 }}>Server function com cache de 5 min no edge</code>
                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} style={{ fontSize: fontSize - 2 }}>Eventos da agenda da Ameciclo</p>
               </div>
 
