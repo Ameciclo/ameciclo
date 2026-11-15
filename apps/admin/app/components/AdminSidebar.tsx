@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Bike, ChevronDown, ClipboardList, History, LayoutDashboard, Map, MapPin, Route, Users2 } from "lucide-react";
+import { BookOpen, Bike, ChevronDown, ClipboardList, History, Ambulance, LayoutDashboard, Map, MapPin, Route, Users2 } from "lucide-react";
 import { cn } from "@ameciclo/ui/lib/utils";
 
 type Icon = React.ComponentType<{ className?: string }>;
@@ -33,6 +33,14 @@ const GROUPS: NavGroup[] = [
     label: "Pesquisa",
     icon: ClipboardList,
     items: [{ to: "/pesquisa-perfil", label: "Pesquisa Perfil", icon: ClipboardList }],
+  },
+  {
+    label: "Sinistros",
+    icon: Ambulance,
+    items: [
+      { to: "/samu", label: "Chamados do SAMU", icon: Ambulance, exact: true },
+      { to: "/samu/ruas", label: "Ruas com mais chamados", icon: Route },
+    ],
   },
   {
     label: "Infraestrutura",

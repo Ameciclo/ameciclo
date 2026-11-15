@@ -1,21 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import React from "react";
+import { z } from "zod";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
-import { CardsSession } from "~/components/Commom/CardsSession";
-import SamuClientSide from "~/components/Samu/SamuClientSide";
+import SamuExplorer from "~/components/Samu/SamuExplorer";
 import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
-import { samuQueryOptions } from "~/queries/dados.samu";
+import { resolveSamuSelection, samuCityQueryOptions, samuQueryOptions } from "~/queries/dados.samu";
 import { seo } from "~/utils/seo";
 
+// ?cidade=2611606&de=2024&ate=2025: city (IBGE code) and range of years. Anything unknown falls back to Recife, all years.
+const SearchSchema = z.object({
+  cidade: z.number().int().optional().catch(undefined),
+  de: z.number().int().optional().catch(undefined),
+  ate: z.number().int().optional().catch(undefined),
+});
+
 export const Route = createFileRoute("/dados/samu/")({
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(samuQueryOptions()),
+  validateSearch: SearchSchema,
+  loaderDeps: ({ search }) => search,
+  loader: async ({ context: { queryClient }, deps }) => {
+    const overview = await queryClient.ensureQueryData(samuQueryOptions());
+    const { city, from, to } = resolveSamuSelection(overview, deps);
+    if (city) await queryClient.ensureQueryData(samuCityQueryOptions({ cityIbge: city.ibge, fromYear: from, toYear: to }));
+  },
   head: () =>
     seo({
       title: "Observatório SAMU - Chamados de Sinistros - Ameciclo",
@@ -31,52 +39,30 @@ export const Route = createFileRoute("/dados/samu/")({
 });
 
 function SamuPage() {
-  const { data } = useSuspenseQuery(samuQueryOptions());
-  const {
-    cover,
-    title1,
-    description1,
-    title2,
-    description2,
-    documents,
-    statisticsBoxes,
-    citiesData,
-    apiDown,
-  } = data;
-
-  useReportApiErrors(data);
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const { data: overview } = useSuspenseQuery(samuQueryOptions());
+  const { city, from, to } = resolveSamuSelection(overview, search);
+  const { data: view } = useSuspenseQuery(
+    samuCityQueryOptions({ cityIbge: city?.ibge ?? 0, fromYear: from, toYear: to }),
+  );
 
   return (
     <>
-      <Banner
-        image={cover}
-        alt="Capa da página do Observatório de Chamadas do SAMU"
+      <Banner image="/pages_covers/chamadosdosamu.png" alt="Capa da página do Observatório de Chamadas do SAMU" />
+      <Breadcrumb label="Observatório de Chamadas do SAMU" slug="/dados/observatorio/samu" routes={["/", "/dados"]} />
+      <ApiStatusHandler apiDown={overview.dataUnavailable} />
+      <SamuExplorer
+        overview={overview}
+        view={view}
+        selection={{ city, from, to }}
+        onSelect={(next) =>
+          navigate({
+            search: (prev) => ({ ...prev, ...next }),
+            resetScroll: false,
+          })
+        }
       />
-      <Breadcrumb
-        label="Observatório de Chamadas do SAMU"
-        slug="/dados/observatorio/samu"
-        routes={["/", "/dados"]}
-      />
-      <ApiStatusHandler apiDown={apiDown} />
-      <StatisticsBox
-        title="Observatório de Chamadas do SAMU"
-        subtitle="Estatísticas gerais dos sinistros de trânsito"
-        boxes={statisticsBoxes}
-      />
-      <ExplanationBoxes
-        boxes={[
-          {
-            title: title1,
-            description: description1,
-          },
-          {
-            title: title2,
-            description: description2,
-          },
-        ]}
-      />
-      <SamuClientSide citiesData={citiesData || { cidades: [], total: 0 }} />
-      <CardsSession title={documents.title} cards={documents.cards} />
     </>
   );
 }
