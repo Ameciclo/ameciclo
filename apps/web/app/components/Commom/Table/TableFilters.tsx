@@ -2,7 +2,7 @@ import type { RowData } from "@tanstack/react-table";
 import type { ColumnFilterProps, TableRowOf } from "./features";
 
 // Lowercase and strip accents, so "amelia" finds "R. Amélia".
-const plain = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+export const plain =(text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
 export type NumberRange = [number | undefined, number | undefined];
 

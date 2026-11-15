@@ -15,6 +15,7 @@
 
   --color-customGrey: #f1f1f1;
   --color-ameciclo: #008080;
+  --color-ameciclo-dark: #005f5f;
   --color-ideciclo: #5050aa;
   --color-amecicloTransparent: rgba(0, 128, 128, 0.5);
   --color-idecicloTransparent: rgba(80, 80, 170, 0.5);
@@ -23,6 +24,26 @@
   --grid-template-columns-fill: 200px repeat(auto-fill, 1fr) 300px;
 
   --grid-template-rows-fill: minmax(100px, auto);
+}
+
+/*
+  Ameciclo theme for shadcn/ui components. The shared tokens in @ameciclo/ui are a neutral
+  preset; wrap a page in `.theme-ameciclo` to map them onto the brand teal.
+*/
+.theme-ameciclo {
+  --radius: 0.5rem;
+  --primary: #008080;
+  --primary-foreground: #ffffff;
+  --ring: #008080;
+  --accent: #e3f1f1;
+  --accent-foreground: #004d4d;
+  --secondary: #eef4f4;
+  --secondary-foreground: #004d4d;
+  --muted: #f3f7f7;
+  --muted-foreground: #4a5a5a;
+  --border: #d5e2e2;
+  --input: #b9cccc;
+  --foreground: #1c2b2b;
 }
 
 /*

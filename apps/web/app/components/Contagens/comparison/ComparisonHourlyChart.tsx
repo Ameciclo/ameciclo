@@ -1,5 +1,7 @@
 import type { PublicCountDetail } from "@ameciclo/db/shared";
 import { useState } from "react";
+import { Checkbox } from "@ameciclo/ui/components/checkbox";
+import { Label } from "@ameciclo/ui/components/label";
 import { HourlyCyclistsChart } from "~/components/Contagens/HourlyCyclistsChart";
 import { colorAt } from "./constants";
 
@@ -25,7 +27,7 @@ export function hourlySeries(counts: readonly ChartCount[], metricIndex: number,
 }
 
 const chip = (active: boolean) =>
-  `rounded-full border px-3 py-1 text-sm transition-colors ${active ? "border-ameciclo bg-ameciclo text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"}`;
+  `rounded-full border px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 ${active ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background text-foreground hover:border-primary hover:text-primary"}`;
 
 // Hourly chart of the counts side by side, for one metric at a time (all counts share the
 // same list of series: the total, then each characteristic).
@@ -45,10 +47,12 @@ export function ComparisonHourlyChart({ counts }: { counts: readonly ChartCount[
           </button>
         ))}
       </div>
-      <label className="flex items-center gap-2 text-sm text-gray-700">
-        <input type="checkbox" className="h-4 w-4 accent-ameciclo" checked={share} onChange={(e) => setShare(e.target.checked)} />
-        Mostrar como % do total do dia (compara o formato do dia, não o volume)
-      </label>
+      <div className="flex items-center gap-2">
+        <Checkbox id="grafico-share" checked={share} onCheckedChange={(checked) => setShare(checked === true)} />
+        <Label htmlFor="grafico-share" className="cursor-pointer text-sm font-normal">
+          Mostrar como % do total do dia (compara o formato do dia, não o volume)
+        </Label>
+      </div>
     </div>
   );
 
