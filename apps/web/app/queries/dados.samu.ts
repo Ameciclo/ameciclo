@@ -12,7 +12,7 @@ async function load(): Promise<Loaded | null> {
   try {
     const { withDb } = await import("~/lib/db.server");
     const { getSamuProfile, getSamuSummary } = await import("@ameciclo/db");
-    return await withDb(async (db) => ({ summary: await getSamuSummary(db), state: await getSamuProfile(db) }));
+    return await withDb(async (db) => ({ summary: await getSamuSummary(db, { rmrOnly: true }), state: await getSamuProfile(db, { rmrOnly: true }) }));
   } catch (error) {
     console.error("Error loading the SAMU summary from the database:", error);
     return null;
@@ -25,7 +25,7 @@ const fetchSamu = createServerFn({ method: "GET" }).handler(async () => {
     until: loaded?.summary.until ?? null,
     years: loaded?.summary.years ?? [],
     cities: loaded?.summary.cities ?? [],
-    // Pernambuco as a whole, for the headline numbers.
+    // The whole Região Metropolitana do Recife, for the headline numbers.
     state: loaded?.state ?? null,
     dataUnavailable: !loaded || loaded.summary.cities.length === 0,
   };

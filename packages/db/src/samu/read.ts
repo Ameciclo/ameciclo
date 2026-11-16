@@ -21,7 +21,15 @@ export const validOutcomeSql = sql.raw(`c.outcome in (${VALID_OUTCOMES.map((o) =
 // unless said otherwise.
 // ---------------------------------------------------------------------------
 
-export type SamuYearRow = { year: number; received: number; valid: number };
+// `firstMonth`/`lastMonth`/`months`: which months of the year have any call (a year is partial when `months` < 12).
+export type SamuYearRow = {
+  year: number;
+  received: number;
+  valid: number;
+  firstMonth: number;
+  lastMonth: number;
+  months: number;
+};
 
 export type SamuCityRow = {
   ibge: number;
@@ -39,12 +47,17 @@ export type SamuSummary = {
   cities: SamuCityRow[];
 };
 
-export async function getSamuSummary(db: Db): Promise<SamuSummary> {
+export async function getSamuSummary(db: Db, options: { rmrOnly?: boolean } = {}): Promise<SamuSummary> {
+  const w = where({ rmrOnly: options.rmrOnly });
   const years = await db.execute<SamuYearRow>(sql`
     select extract(year from c.occurred_on)::int as year,
       count(*)::int as received,
-      (count(*) filter (where ${validOutcomeSql}))::int as valid
+      (count(*) filter (where ${validOutcomeSql}))::int as valid,
+      min(extract(month from c.occurred_on))::int as "firstMonth",
+      max(extract(month from c.occurred_on))::int as "lastMonth",
+      count(distinct extract(month from c.occurred_on))::int as months
     from samu_call c
+    where ${w}
     group by 1 order by 1`);
   const [latest] = (await db.execute<{ until: string | null }>(sql`select max(occurred_on)::text as until from samu_call`)).rows;
   const cityYears = await db.execute<{ ibge: number; name: string; isRmr: boolean; year: number; n: number }>(sql`
@@ -52,7 +65,7 @@ export async function getSamuSummary(db: Db): Promise<SamuSummary> {
       extract(year from c.occurred_on)::int as year, count(*)::int as n
     from samu_call c
     join samu_city s on s.ibge_code = c.city_ibge
-    where ${validOutcomeSql}
+    where ${validOutcomeSql} and ${w}
     group by 1, 2, 3, 4`);
 
   const cities = new Map<number, SamuCityRow>();
@@ -68,6 +81,8 @@ export async function getSamuSummary(db: Db): Promise<SamuSummary> {
 export type SamuFilter = {
   // All of Pernambuco when empty.
   cityIbge?: number | null;
+  // Only the Região Metropolitana do Recife.
+  rmrOnly?: boolean;
   fromYear?: number | null;
   toYear?: number | null;
 };
@@ -89,6 +104,7 @@ export type SamuProfile = {
 function where(filter: SamuFilter) {
   const parts = [sql`true`];
   if (filter.cityIbge) parts.push(sql`c.city_ibge = ${filter.cityIbge}`);
+  if (filter.rmrOnly) parts.push(sql`c.city_ibge in (select ibge_code from samu_city where is_rmr)`);
   if (filter.fromYear) parts.push(sql`extract(year from c.occurred_on) >= ${filter.fromYear}`);
   if (filter.toYear) parts.push(sql`extract(year from c.occurred_on) <= ${filter.toYear}`);
   return sql.join(parts, sql` and `);

@@ -1,5 +1,5 @@
 // Observatório de chamadas do SAMU: headline numbers and highlights first, then a map
-// of Pernambuco and an explorer (one city and range of years at a time).
+// of the Região Metropolitana do Recife and an explorer (one city and range of years at a time).
 import { Link } from "@tanstack/react-router";
 import type { Options } from "highcharts";
 import { useState } from "react";
@@ -32,7 +32,7 @@ const OUTCOMES = [
 const count = (rows: SamuCount[], ...labels: string[]) =>
   rows.filter((r) => labels.includes(r.label)).reduce((sum, r) => sum + r.n, 0);
 
-// Short sentences about the whole state, each with the number behind it.
+// Short sentences about the whole metropolitan region, each with the number behind it.
 function highlights(state: SamuProfile) {
   const informed = state.gender.filter((g) => g.label !== "Não informado").reduce((sum, g) => sum + g.n, 0);
   const people = count(
@@ -46,7 +46,7 @@ function highlights(state: SamuProfile) {
   return [
     {
       kind: "Motocicletas",
-      text: `${percent(count(state.categories, "Acidente de Moto"), state.total)} dos chamados são acidentes de moto, sem contar atropelamentos por moto.`,
+      text: `${percent(count(state.categories, "Acidente de Moto"), state.total)} dos chamados são sinistros de moto, sem contar atropelamentos por moto.`,
     },
     {
       kind: "Quem está fora do carro",
@@ -59,6 +59,10 @@ function highlights(state: SamuProfile) {
   ];
 }
 
+const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const monthSpan = (y: { firstMonth: number; lastMonth: number }) =>
+  y.firstMonth === y.lastMonth ? MONTHS[y.firstMonth - 1] : `${MONTHS[y.firstMonth - 1]} a ${MONTHS[y.lastMonth - 1]}`;
+
 export default function SamuExplorer({ overview, view, selection, onSelect }: SamuExplorerProps) {
   const { city, from, to } = selection;
   const years = overview.years.map((y) => y.year);
@@ -68,6 +72,8 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
     null,
   );
   const topCity = overview.cities[0];
+  const partialYears = overview.years.filter((y) => y.months < 12);
+  const isPartial = (year: number) => partialYears.some((y) => y.year === year);
 
   if (overview.dataUnavailable || !city || !overview.state) {
     return (
@@ -83,7 +89,7 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
   const stats = [
     { label: `chamados com atendimento, ${years[0]} a ${years[years.length - 1]}`, value: number(total) },
     { label: `chamados em ${peak?.year}, o ano com mais`, value: peak ? number(peak.valid) : "—" },
-    { label: "municípios de Pernambuco com chamados", value: number(overview.cities.length) },
+    { label: "municípios da Região Metropolitana do Recife", value: number(overview.cities.length) },
     { label: `dos chamados são de ${topCity.name}`, value: percent(topCity.total, total) },
   ];
 
@@ -125,16 +131,18 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
             </div>
           ))}
         </div>
-        {overview.until && (
+        {partialYears.length > 0 && (
           <p className="mt-2 text-xs text-gray-500">
-            Dados até {day(overview.until)}; {years[years.length - 1]} ainda não está completo.
+            * Anos incompletos na base do SAMU:{" "}
+            {partialYears.map((y) => `${y.year} (${monthSpan(y)})`).join(", ")}
+            {overview.until && `. Dados até ${day(overview.until)}`}.
           </p>
         )}
       </section>
 
       <section className="container mx-auto px-4 mt-8">
         <h2 className="text-sm uppercase tracking-wide text-gray-500">Em destaque</h2>
-        <p className="text-xs text-gray-500 mb-3 max-w-3xl">Pernambuco inteiro, todos os anos.</p>
+        <p className="text-xs text-gray-500 mb-3 max-w-3xl">Região Metropolitana do Recife, todos os anos.</p>
         <ul className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {highlights(overview.state).map((h) => (
             <li key={h.kind} className="rounded-xl border border-gray-200 bg-white p-4">
@@ -198,6 +206,7 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
                   }`}
                 >
                   {year}
+                  {isPartial(year) ? "*" : ""}
                 </button>
               ))}
             </div>

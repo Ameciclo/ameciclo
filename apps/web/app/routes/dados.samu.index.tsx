@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { isServer, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
@@ -22,7 +22,13 @@ export const Route = createFileRoute("/dados/samu/")({
   loader: async ({ context: { queryClient }, deps }) => {
     const overview = await queryClient.ensureQueryData(samuQueryOptions());
     const { city, from, to } = resolveSamuSelection(overview, deps);
-    if (city) await queryClient.ensureQueryData(samuCityQueryOptions({ cityIbge: city.ibge, fromYear: from, toYear: to }));
+    if (!city) return;
+    // No servidor espera, para a primeira renderização já vir completa. No navegador não espera:
+    // a página fica montada com os dados anteriores enquanto os novos chegam (sem tela de carregamento
+    // e sem voltar ao topo ao trocar de período).
+    const cityView = queryClient.ensureQueryData(samuCityQueryOptions({ cityIbge: city.ibge, fromYear: from, toYear: to }));
+    if (isServer) await cityView;
+    else void cityView.catch(() => undefined);
   },
   head: () =>
     seo({
@@ -43,15 +49,17 @@ function SamuPage() {
   const navigate = Route.useNavigate();
   const { data: overview } = useSuspenseQuery(samuQueryOptions());
   const { city, from, to } = resolveSamuSelection(overview, search);
-  const { data: view } = useSuspenseQuery(
+  const { data: view, isPlaceholderData } = useQuery(
     samuCityQueryOptions({ cityIbge: city?.ibge ?? 0, fromYear: from, toYear: to }),
   );
+  if (!view) return <RouteLoading label="Carregando dados do SAMU..." />;
 
   return (
     <>
       <Banner image="/pages_covers/chamadosdosamu.png" alt="Capa da página do Observatório de Chamadas do SAMU" />
-      <Breadcrumb label="Observatório de Chamadas do SAMU" slug="/dados/observatorio/samu" routes={["/", "/dados"]} />
+      <Breadcrumb label="Chamados de sinistro" slug="/dados/observatorio/samu" routes={["/", "/dados"]} />
       <ApiStatusHandler apiDown={overview.dataUnavailable} />
+      <div className={isPlaceholderData ? "opacity-60 transition-opacity" : "transition-opacity"} aria-busy={isPlaceholderData}>
       <SamuExplorer
         overview={overview}
         view={view}
@@ -63,6 +71,7 @@ function SamuPage() {
           })
         }
       />
+      </div>
     </>
   );
 }
