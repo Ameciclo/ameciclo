@@ -32,11 +32,6 @@ export const DATASUS_CAUSAS_SECUNDARIAS_DATA = `https://api.garfo.ameciclo.org/d
 
 // SAMU Atlas (Emergency Calls API)
 export const SAMU_ATLAS_BASE = `https://emergency-calls.atlas.ameciclo.org`
-export const SAMU_CALLS_API = `${SAMU_ATLAS_BASE}/v1/calls`
-export const SAMU_CALLS_OUTCOMES = `${SAMU_ATLAS_BASE}/v1/calls/outcomes`
-export const SAMU_CALLS_PROFILES = `${SAMU_ATLAS_BASE}/v1/calls/profiles`
-export const SAMU_SUMMARY_API = `${SAMU_ATLAS_BASE}/v1/summary`
-export const SAMU_CITIES_LIST = `${SAMU_ATLAS_BASE}/v1/cities`
 
 // Vias Inseguras — endpoints v2 of the SAMU Atlas, hardcoded to RECIFE.
 export const VIAS_INSEGURAS_BASE_URL = "https://api.garfo.ameciclo.org"

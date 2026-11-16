@@ -12,7 +12,7 @@ const dataSubPages = [
   { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria" },
   { name: "LOA", url: "/dados/loa" },
   { name: "DOM", url: "/dados/dom" },
-  { name: "SAMU", url: "/dados/samu" },
+  { name: "SAMU", url: "/dados/chamados-de-sinistros" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
   { name: "CicloDados", url: "/dados/ciclodados" },

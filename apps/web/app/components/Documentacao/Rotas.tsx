@@ -41,7 +41,7 @@ export default function Rotas({ darkMode = true, fontSize = 16 }: DocumentationC
               <br />/dados.ideciclo._index.tsx          → /dados/ideciclo
               <br />/dados.ideciclo.$id.tsx             → /dados/ideciclo/:id
               <br />/dados.perfil.tsx                    → /dados/perfil
-              <br />/dados.samu.tsx                      → /dados/samu
+              <br />/dados.chamados-de-sinistros.tsx → /dados/chamados-de-sinistros
               <br />/dados.sinistros-fatais.tsx         → /dados/sinistros-fatais
               <br />/dados.vias-inseguras.tsx           → /dados/vias-inseguras
               <br />/dados.viasinseguras.$slug.tsx      → /dados/vias-inseguras/:slug

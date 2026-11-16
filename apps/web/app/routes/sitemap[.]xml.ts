@@ -30,7 +30,7 @@ const STATIC_ROUTES: Array<{
   { path: "/dados/ideciclo", changefreq: "weekly", priority: 0.7 },
   { path: "/dados/loa", changefreq: "weekly", priority: 0.7 },
   { path: "/dados/perfil", changefreq: "weekly", priority: 0.7 },
-  { path: "/dados/samu", changefreq: "weekly", priority: 0.7 },
+  { path: "/dados/chamados-de-sinistros", changefreq: "weekly", priority: 0.7 },
   { path: "/dados/sinistrosfatais", changefreq: "weekly", priority: 0.7 },
   { path: "/dados/viasinseguras", changefreq: "weekly", priority: 0.7 },
   { path: "/participe", changefreq: "monthly", priority: 0.7 },

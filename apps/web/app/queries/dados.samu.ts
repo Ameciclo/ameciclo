@@ -1,167 +1,105 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import {
-  SAMU_SUMMARY_API,
-  SAMU_CITIES_LIST,
-} from "~/servers";
-import { cmsFetch } from "~/services/cmsFetch";
-import { makeApiErrorTracker } from "~/services/apiTracking";
-import samuMockData from "~/data/samu-mock-data.json";
+import { z } from "zod";
+import type { SamuEvolutionRow, SamuProfile, SamuSummary } from "@ameciclo/db";
 
-const fetchSamu = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
+// SAMU calls about traffic crashes, from the database. Everything is a count:
+// no individual call leaves the server.
 
+const OverviewInput = z.object({ onlyComplete: z.boolean() });
+
+type Loaded = { summary: SamuSummary; state: SamuProfile };
+
+async function load(onlyComplete: boolean): Promise<Loaded | null> {
   try {
-    const cover = "/pages_covers/chamadosdosamu.png";
-    const title1 = "O que são chamadas de sinistro?";
-    const description1 =
-      "Analisamos as chamadas do SAMU relacionadas a sinistros de trânsito para identificar padrões e pontos críticos de segurança viária em Pernambuco.";
-    const title2 = "Como utilizamos os dados?";
-    const description2 =
-      "Processamos dados reais de chamadas do SAMU para mapear sinistros por localização, gravidade, características temporais e perfil das vítimas.";
-
-    const [summaryData, citiesData] = await Promise.all([
-      cmsFetch<any>(SAMU_SUMMARY_API, {
-        ttl: 300,
-        timeout: 10000,
-        fallback: null,
-        onError: tracker.at(SAMU_SUMMARY_API),
-        retries: 1,
-      }),
-      cmsFetch<any>(SAMU_CITIES_LIST, {
-        ttl: 300,
-        timeout: 10000,
-        fallback: null,
-        onError: tracker.at(SAMU_CITIES_LIST),
-        retries: 1,
-      }),
-    ]);
-
-    let usingMockData = false;
-    let processedData;
-
-    if (summaryData && citiesData) {
-      const totalChamadas = summaryData.totalChamadas || 0;
-      const evolucaoAnual = summaryData.evolucaoAnual || [];
-      const anoMaisViolento =
-        evolucaoAnual.length > 0
-          ? evolucaoAnual.reduce((max: any, curr: any) =>
-              curr.count > max.count ? curr : max
-            )
-          : { ano: 0, count: 0 };
-
-      const cidadeMaisViolenta = summaryData.cidadeMaisViolenta || {};
-      const totalCidades = citiesData.cidades?.length || 0;
-
-      const citiesWithDetails = citiesData.cidades.map(
-        (city: any, index: number) => {
-          const municipio =
-            city.municipio_samu ||
-            city.name ||
-            city.municipio ||
-            `CIDADE_${index}`;
-          return {
-            ...city,
-            municipio,
-            name: city.name || municipio,
-            municipio_samu: city.municipio_samu || municipio,
-          };
-        }
-      );
-
-      processedData = {
-        totalChamadas,
-        anoMaisViolento: {
-          ano: anoMaisViolento.ano || 0,
-          total: anoMaisViolento.count || 0,
-        },
-        cidadeMaisViolenta: {
-          municipio: cidadeMaisViolenta.municipio || "N/A",
-          total: cidadeMaisViolenta.totalValidas || 0,
-          percentual:
-            totalChamadas > 0
-              ? ((cidadeMaisViolenta.totalValidas || 0) / totalChamadas) * 100
-              : 0,
-        },
-        totalMunicipios: totalCidades,
-        citiesData: { ...citiesData, cidades: citiesWithDetails },
-      };
-    } else {
-      console.warn("Usando dados estaticos do SAMU");
-      usingMockData = true;
-      processedData = {
-        totalChamadas: 73667,
-        anoMaisViolento: { ano: 2024, total: 20785 },
-        cidadeMaisViolenta: { municipio: "Recife", total: 26904, percentual: 36.5 },
-        totalMunicipios: 72,
-        citiesData: samuMockData.citiesData,
-      };
-    }
-
-    const statisticsBoxes = [
-      {
-        title: "Total de chamadas",
-        value: processedData.totalChamadas.toLocaleString(),
-        unit: "2016 - 2024",
-      },
-      {
-        title: "Ano mais violento",
-        value: processedData.anoMaisViolento.ano.toString(),
-        unit: `${processedData.anoMaisViolento.total.toLocaleString()} chamadas`,
-      },
-      {
-        title: "Area de cobertura (PE)",
-        value: processedData.totalMunicipios.toString(),
-        unit: "municipios",
-      },
-      {
-        title: "Cidade mais violenta",
-        value: processedData.cidadeMaisViolenta.municipio,
-        unit: `${processedData.cidadeMaisViolenta.percentual.toFixed(1)}% das chamadas`,
-      },
-    ];
-
-    const documents = {
-      title: "Documentos relacionados",
-      cards: [
-        {
-          title: "Metodologia",
-          description: "Como analisamos os dados das chamadas do SAMU",
-          url: "#metodologia",
-          target: "_self",
-        },
-        {
-          title: "Dados abertos",
-          description: "Acesse os dados brutos das chamadas do SAMU",
-          url: "https://emergency-calls.atlas.ameciclo.org",
-          target: "_blank",
-        },
-      ],
-    };
-
-    const summary = tracker.summary();
-
-    return {
-      cover,
-      title1,
-      description1,
-      title2,
-      description2,
-      documents,
-      statisticsBoxes,
-      citiesData: processedData.citiesData,
-      usingMockData,
-      apiDown: summary.apiDown,
-      apiErrors: summary.apiErrors,
-    };
+    const { withDb } = await import("~/lib/db.server");
+    const { getSamuProfile, getSamuSummary } = await import("@ameciclo/db");
+    return await withDb(async (db) => {
+      const summary = await getSamuSummary(db, { rmrOnly: true, onlyCompleteYears: onlyComplete });
+      const state = await getSamuProfile(db, { rmrOnly: true, years: summary.years.map((y) => y.year) });
+      return { summary, state };
+    });
   } catch (error) {
-    console.error("Erro critico no SAMU Loader:", error);
-    throw error;
+    console.error("Error loading the SAMU summary from the database:", error);
+    return null;
   }
+}
+
+const fetchSamu = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => OverviewInput.parse(input))
+  .handler(async ({ data }) => {
+  const loaded = await load(data.onlyComplete);
+  return {
+    until: loaded?.summary.until ?? null,
+    years: loaded?.summary.years ?? [],
+    partialYears: loaded?.summary.partialYears ?? [],
+    cities: loaded?.summary.cities ?? [],
+    // The whole Região Metropolitana do Recife, for the headline numbers.
+    state: loaded?.state ?? null,
+    dataUnavailable: !loaded || loaded.summary.cities.length === 0,
+  };
 });
 
-export const samuQueryOptions = () =>
-  queryOptions({
-    queryKey: ["dados", "samu"],
-    queryFn: () => fetchSamu(),
+export type SamuOverview = Awaited<ReturnType<typeof fetchSamu>>;
+
+const CityInput = z.object({
+  cityIbge: z.number().int(),
+  fromYear: z.number().int(),
+  toYear: z.number().int(),
+  // The years the page is showing (complete ones only, or all).
+  years: z.array(z.number().int()),
+});
+
+export type SamuCityView = { profile: SamuProfile | null; evolution: SamuEvolutionRow[] };
+
+// The profile of one city in a range of years, and its yearly evolution.
+const fetchSamuCity = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => CityInput.parse(input))
+  .handler(async ({ data }): Promise<SamuCityView> => {
+    try {
+      const { withDb } = await import("~/lib/db.server");
+      const { getSamuEvolution, getSamuProfile } = await import("@ameciclo/db");
+      return await withDb(async (db) => ({
+        profile: await getSamuProfile(db, data),
+        evolution: await getSamuEvolution(db, data.cityIbge, data.years),
+      }));
+    } catch (error) {
+      console.error("Error loading the SAMU city view from the database:", error);
+      return { profile: null, evolution: [] };
+    }
   });
+
+export const samuQueryOptions = (input: z.infer<typeof OverviewInput>) =>
+  queryOptions({
+    queryKey: ["dados", "samu", input],
+    queryFn: () => fetchSamu({ data: input }),
+    staleTime: 10 * 60 * 1000,
+  });
+
+export const samuCityQueryOptions = (input: z.infer<typeof CityInput>) =>
+  queryOptions({
+    queryKey: ["dados", "samu", "city", input],
+    queryFn: () => fetchSamuCity({ data: input }),
+    staleTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData,
+  });
+
+const RECIFE = 2611606;
+
+// ?cidade=2611606&de=2024&ate=2025. Anything missing or unknown falls back to
+// Recife, over every year.
+export function resolveSamuSelection(
+  overview: Pick<SamuOverview, "years" | "cities">,
+  search: { cidade?: number; de?: number; ate?: number },
+) {
+  const years = overview.years.map((y) => y.year);
+  const first = years[0] ?? 0;
+  const last = years[years.length - 1] ?? 0;
+  const city =
+    overview.cities.find((c) => c.ibge === search.cidade) ??
+    overview.cities.find((c) => c.ibge === RECIFE) ??
+    overview.cities[0];
+  const from = search.de && years.includes(search.de) ? search.de : first;
+  const to = search.ate && years.includes(search.ate) ? Math.max(search.ate, from) : last;
+  return { city, from, to };
+}

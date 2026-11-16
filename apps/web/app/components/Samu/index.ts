@@ -1,3 +1,2 @@
-export { default as SamuClientSide } from './SamuClientSide';
+export { default as SamuExplorer } from './SamuExplorer';
 export { SamuChoroplethMap } from './SamuChoroplethMap';
-export { default as SamuLoading } from './SamuLoading';
