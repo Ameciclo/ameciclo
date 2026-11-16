@@ -35,8 +35,8 @@ type City = SamuOverview["cities"][number];
 interface SamuExplorerProps {
   overview: SamuOverview;
   view: SamuCityView;
-  selection: { city: City | undefined; from: number; to: number };
-  onSelect: (next: { cidade?: number; de?: number; ate?: number }) => void;
+  selection: { city: City | undefined; from: number; to: number; onlyComplete: boolean };
+  onSelect: (next: { cidade?: number; de?: number; ate?: number; completos?: boolean }) => void;
 }
 
 const number = (n: number) => n.toLocaleString("pt-BR");
@@ -86,7 +86,7 @@ const monthSpan = (y: { firstMonth: number; lastMonth: number }) =>
   y.firstMonth === y.lastMonth ? MONTHS[y.firstMonth - 1] : `${MONTHS[y.firstMonth - 1]} a ${MONTHS[y.lastMonth - 1]}`;
 
 export default function SamuExplorer({ overview, view, selection, onSelect }: SamuExplorerProps) {
-  const { city, from, to } = selection;
+  const { city, from, to, onlyComplete } = selection;
   const years = overview.years.map((y) => y.year);
   const total = overview.years.reduce((sum, y) => sum + y.valid, 0);
   const peak = overview.years.reduce<(typeof overview.years)[number] | null>(
@@ -94,7 +94,7 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
     null,
   );
   const topCity = overview.cities[0];
-  const partialYears = overview.years.filter((y) => y.months < 12);
+  const partialYears = overview.partialYears;
   const isPartial = (year: number) => partialYears.some((y) => y.year === year);
 
   if (overview.dataUnavailable || !city || !overview.state) {
@@ -155,7 +155,7 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
         </div>
         {partialYears.length > 0 && (
           <p className="mt-2 text-xs text-gray-500">
-            * Anos incompletos na base do SAMU:{" "}
+            {onlyComplete ? "Fora da contagem, por terem meses faltando" : "* Anos incompletos"} na base do SAMU:{" "}
             {partialYears.map((y) => `${y.year} (${monthSpan(y)})`).join(", ")}
             {overview.until && `. Dados até ${day(overview.until)}`}.
           </p>
@@ -232,6 +232,16 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
                 </button>
               ))}
             </div>
+            <label className="mt-3 flex cursor-pointer items-start gap-2 text-xs text-gray-700">
+              <input
+                type="checkbox"
+                checked={onlyComplete}
+                // Years and range may no longer exist once the list changes: start over from all of them.
+                onChange={(e) => onSelect({ completos: e.target.checked ? undefined : false, de: undefined, ate: undefined })}
+                className="mt-0.5 accent-ameciclo"
+              />
+              <span>Apenas anos completos</span>
+            </label>
             <p className="text-xs text-gray-500 mt-2">
               {from === to ? "Clique em outro ano para escolher um intervalo." : "Clique em um ano para recomeçar."}
             </p>

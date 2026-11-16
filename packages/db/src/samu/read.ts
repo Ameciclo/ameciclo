@@ -44,12 +44,14 @@ export type SamuSummary = {
   // Date of the latest call (YYYY-MM-DD): the last year is usually partial.
   until: string | null;
   years: SamuYearRow[];
+  // Years with months missing in the source, whether or not they are in `years`.
+  partialYears: SamuYearRow[];
   cities: SamuCityRow[];
 };
 
-export async function getSamuSummary(db: Db, options: { rmrOnly?: boolean; fromYear?: number } = {}): Promise<SamuSummary> {
-  const w = where({ rmrOnly: options.rmrOnly, fromYear: options.fromYear });
-  const years = await db.execute<SamuYearRow>(sql`
+export async function getSamuSummary(db: Db, options: { rmrOnly?: boolean; onlyCompleteYears?: boolean } = {}): Promise<SamuSummary> {
+  const w = where({ rmrOnly: options.rmrOnly });
+  const allYears = await db.execute<SamuYearRow>(sql`
     select extract(year from c.occurred_on)::int as year,
       count(*)::int as received,
       (count(*) filter (where ${validOutcomeSql}))::int as valid,
@@ -59,13 +61,16 @@ export async function getSamuSummary(db: Db, options: { rmrOnly?: boolean; fromY
     from samu_call c
     where ${w}
     group by 1 order by 1`);
+  // A year with calls in every month. Some years in the source stop early (or skip months).
+  const years = { rows: options.onlyCompleteYears ? allYears.rows.filter((y) => y.months === 12) : allYears.rows };
+  const w2 = where({ rmrOnly: options.rmrOnly, years: years.rows.map((y) => y.year) });
   const [latest] = (await db.execute<{ until: string | null }>(sql`select max(occurred_on)::text as until from samu_call`)).rows;
   const cityYears = await db.execute<{ ibge: number; name: string; isRmr: boolean; year: number; n: number }>(sql`
     select s.ibge_code as ibge, s.name, s.is_rmr as "isRmr",
       extract(year from c.occurred_on)::int as year, count(*)::int as n
     from samu_call c
     join samu_city s on s.ibge_code = c.city_ibge
-    where ${validOutcomeSql} and ${w}
+    where ${validOutcomeSql} and ${w2}
     group by 1, 2, 3, 4`);
 
   const cities = new Map<number, SamuCityRow>();
@@ -75,7 +80,7 @@ export async function getSamuSummary(db: Db, options: { rmrOnly?: boolean; fromY
     city.total += r.n;
     cities.set(r.ibge, city);
   }
-  return { until: latest?.until ?? null, years: years.rows, cities: [...cities.values()].sort((a, b) => b.total - a.total) };
+  return { until: latest?.until ?? null, years: years.rows, partialYears: allYears.rows.filter((y) => y.months < 12), cities: [...cities.values()].sort((a, b) => b.total - a.total) };
 }
 
 export type SamuFilter = {
@@ -83,6 +88,8 @@ export type SamuFilter = {
   cityIbge?: number | null;
   // Only the Região Metropolitana do Recife.
   rmrOnly?: boolean;
+  // Only these years (an empty list means none).
+  years?: number[];
   fromYear?: number | null;
   toYear?: number | null;
 };
@@ -105,6 +112,13 @@ function where(filter: SamuFilter) {
   const parts = [sql`true`];
   if (filter.cityIbge) parts.push(sql`c.city_ibge = ${filter.cityIbge}`);
   if (filter.rmrOnly) parts.push(sql`c.city_ibge in (select ibge_code from samu_city where is_rmr)`);
+  if (filter.years) {
+    parts.push(
+      filter.years.length > 0
+        ? sql`extract(year from c.occurred_on) in (${sql.join(filter.years.map((y) => sql`${y}`), sql`, `)})`
+        : sql`false`,
+    );
+  }
   if (filter.fromYear) parts.push(sql`extract(year from c.occurred_on) >= ${filter.fromYear}`);
   if (filter.toYear) parts.push(sql`extract(year from c.occurred_on) <= ${filter.toYear}`);
   return sql.join(parts, sql` and `);
@@ -189,11 +203,11 @@ const EVOLUTION_KEY = {
 } as const satisfies Record<(typeof VALID_OUTCOMES)[number], keyof Omit<SamuEvolutionRow, "year">>;
 
 // Calls with a valid outcome per year, split by what happened to the patient.
-export async function getSamuEvolution(db: Db, cityIbge?: number | null, fromYear?: number): Promise<SamuEvolutionRow[]> {
+export async function getSamuEvolution(db: Db, cityIbge?: number | null, onlyYears?: number[]): Promise<SamuEvolutionRow[]> {
   const result = await db.execute<{ year: number; outcome: string; n: number }>(sql`
     select extract(year from c.occurred_on)::int as year, c.outcome, count(*)::int as n
     from samu_call c
-    where ${where({ cityIbge, fromYear })} and ${validOutcomeSql}
+    where ${where({ cityIbge, years: onlyYears })} and ${validOutcomeSql}
     group by 1, 2 order by 1`);
 
   const years = new Map<number, SamuEvolutionRow>();

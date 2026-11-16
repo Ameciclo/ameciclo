@@ -6,27 +6,33 @@ import type { SamuEvolutionRow, SamuProfile, SamuSummary } from "@ameciclo/db";
 // SAMU calls about traffic crashes, from the database. Everything is a count:
 // no individual call leaves the server.
 
-// 2018 and 2019 only have the first months (see the note on the page), so the public page starts in 2020.
-const FIRST_YEAR = 2020;
+const OverviewInput = z.object({ onlyComplete: z.boolean() });
 
 type Loaded = { summary: SamuSummary; state: SamuProfile };
 
-async function load(): Promise<Loaded | null> {
+async function load(onlyComplete: boolean): Promise<Loaded | null> {
   try {
     const { withDb } = await import("~/lib/db.server");
     const { getSamuProfile, getSamuSummary } = await import("@ameciclo/db");
-    return await withDb(async (db) => ({ summary: await getSamuSummary(db, { rmrOnly: true, fromYear: FIRST_YEAR }), state: await getSamuProfile(db, { rmrOnly: true, fromYear: FIRST_YEAR }) }));
+    return await withDb(async (db) => {
+      const summary = await getSamuSummary(db, { rmrOnly: true, onlyCompleteYears: onlyComplete });
+      const state = await getSamuProfile(db, { rmrOnly: true, years: summary.years.map((y) => y.year) });
+      return { summary, state };
+    });
   } catch (error) {
     console.error("Error loading the SAMU summary from the database:", error);
     return null;
   }
 }
 
-const fetchSamu = createServerFn({ method: "GET" }).handler(async () => {
-  const loaded = await load();
+const fetchSamu = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => OverviewInput.parse(input))
+  .handler(async ({ data }) => {
+  const loaded = await load(data.onlyComplete);
   return {
     until: loaded?.summary.until ?? null,
     years: loaded?.summary.years ?? [],
+    partialYears: loaded?.summary.partialYears ?? [],
     cities: loaded?.summary.cities ?? [],
     // The whole Região Metropolitana do Recife, for the headline numbers.
     state: loaded?.state ?? null,
@@ -40,6 +46,8 @@ const CityInput = z.object({
   cityIbge: z.number().int(),
   fromYear: z.number().int(),
   toYear: z.number().int(),
+  // The years the page is showing (complete ones only, or all).
+  years: z.array(z.number().int()),
 });
 
 export type SamuCityView = { profile: SamuProfile | null; evolution: SamuEvolutionRow[] };
@@ -53,7 +61,7 @@ const fetchSamuCity = createServerFn({ method: "GET" })
       const { getSamuEvolution, getSamuProfile } = await import("@ameciclo/db");
       return await withDb(async (db) => ({
         profile: await getSamuProfile(db, data),
-        evolution: await getSamuEvolution(db, data.cityIbge, FIRST_YEAR),
+        evolution: await getSamuEvolution(db, data.cityIbge, data.years),
       }));
     } catch (error) {
       console.error("Error loading the SAMU city view from the database:", error);
@@ -61,10 +69,10 @@ const fetchSamuCity = createServerFn({ method: "GET" })
     }
   });
 
-export const samuQueryOptions = () =>
+export const samuQueryOptions = (input: z.infer<typeof OverviewInput>) =>
   queryOptions({
-    queryKey: ["dados", "samu"],
-    queryFn: () => fetchSamu(),
+    queryKey: ["dados", "samu", input],
+    queryFn: () => fetchSamu({ data: input }),
     staleTime: 10 * 60 * 1000,
   });
 

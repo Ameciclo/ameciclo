@@ -14,19 +14,21 @@ const SearchSchema = z.object({
   cidade: z.number().int().optional().catch(undefined),
   de: z.number().int().optional().catch(undefined),
   ate: z.number().int().optional().catch(undefined),
+  // ?completos=false also shows the years that are missing months.
+  completos: z.boolean().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/dados/chamados-de-sinistros/")({
   validateSearch: SearchSchema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context: { queryClient }, deps }) => {
-    const overview = await queryClient.ensureQueryData(samuQueryOptions());
+    const overview = await queryClient.ensureQueryData(samuQueryOptions({ onlyComplete: deps.completos !== false }));
     const { city, from, to } = resolveSamuSelection(overview, deps);
     if (!city) return;
     // No servidor espera, para a primeira renderização já vir completa. No navegador não espera:
     // a página fica montada com os dados anteriores enquanto os novos chegam (sem tela de carregamento
     // e sem voltar ao topo ao trocar de período).
-    const cityView = queryClient.ensureQueryData(samuCityQueryOptions({ cityIbge: city.ibge, fromYear: from, toYear: to }));
+    const cityView = queryClient.ensureQueryData(samuCityQueryOptions({ cityIbge: city.ibge, fromYear: from, toYear: to, years: overview.years.map((y) => y.year) }));
     if (isServer) await cityView;
     else void cityView.catch(() => undefined);
   },
@@ -47,10 +49,10 @@ export const Route = createFileRoute("/dados/chamados-de-sinistros/")({
 function SamuPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data: overview } = useSuspenseQuery(samuQueryOptions());
+  const { data: overview } = useSuspenseQuery(samuQueryOptions({ onlyComplete: search.completos !== false }));
   const { city, from, to } = resolveSamuSelection(overview, search);
   const { data: view, isPlaceholderData } = useQuery(
-    samuCityQueryOptions({ cityIbge: city?.ibge ?? 0, fromYear: from, toYear: to }),
+    samuCityQueryOptions({ cityIbge: city?.ibge ?? 0, fromYear: from, toYear: to, years: overview.years.map((y) => y.year) }),
   );
   if (!view) return <RouteLoading label="Carregando dados do SAMU..." />;
 
@@ -63,7 +65,7 @@ function SamuPage() {
       <SamuExplorer
         overview={overview}
         view={view}
-        selection={{ city, from, to }}
+        selection={{ city, from, to, onlyComplete: search.completos !== false }}
         onSelect={(next) =>
           navigate({
             search: (prev) => ({ ...prev, ...next }),
