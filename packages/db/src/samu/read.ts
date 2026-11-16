@@ -47,8 +47,8 @@ export type SamuSummary = {
   cities: SamuCityRow[];
 };
 
-export async function getSamuSummary(db: Db, options: { rmrOnly?: boolean } = {}): Promise<SamuSummary> {
-  const w = where({ rmrOnly: options.rmrOnly });
+export async function getSamuSummary(db: Db, options: { rmrOnly?: boolean; fromYear?: number } = {}): Promise<SamuSummary> {
+  const w = where({ rmrOnly: options.rmrOnly, fromYear: options.fromYear });
   const years = await db.execute<SamuYearRow>(sql`
     select extract(year from c.occurred_on)::int as year,
       count(*)::int as received,
@@ -189,11 +189,11 @@ const EVOLUTION_KEY = {
 } as const satisfies Record<(typeof VALID_OUTCOMES)[number], keyof Omit<SamuEvolutionRow, "year">>;
 
 // Calls with a valid outcome per year, split by what happened to the patient.
-export async function getSamuEvolution(db: Db, cityIbge?: number | null): Promise<SamuEvolutionRow[]> {
+export async function getSamuEvolution(db: Db, cityIbge?: number | null, fromYear?: number): Promise<SamuEvolutionRow[]> {
   const result = await db.execute<{ year: number; outcome: string; n: number }>(sql`
     select extract(year from c.occurred_on)::int as year, c.outcome, count(*)::int as n
     from samu_call c
-    where ${where({ cityIbge })} and ${validOutcomeSql}
+    where ${where({ cityIbge, fromYear })} and ${validOutcomeSql}
     group by 1, 2 order by 1`);
 
   const years = new Map<number, SamuEvolutionRow>();

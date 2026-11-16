@@ -6,13 +6,16 @@ import type { SamuEvolutionRow, SamuProfile, SamuSummary } from "@ameciclo/db";
 // SAMU calls about traffic crashes, from the database. Everything is a count:
 // no individual call leaves the server.
 
+// 2018 and 2019 only have the first months (see the note on the page), so the public page starts in 2020.
+const FIRST_YEAR = 2020;
+
 type Loaded = { summary: SamuSummary; state: SamuProfile };
 
 async function load(): Promise<Loaded | null> {
   try {
     const { withDb } = await import("~/lib/db.server");
     const { getSamuProfile, getSamuSummary } = await import("@ameciclo/db");
-    return await withDb(async (db) => ({ summary: await getSamuSummary(db, { rmrOnly: true }), state: await getSamuProfile(db, { rmrOnly: true }) }));
+    return await withDb(async (db) => ({ summary: await getSamuSummary(db, { rmrOnly: true, fromYear: FIRST_YEAR }), state: await getSamuProfile(db, { rmrOnly: true, fromYear: FIRST_YEAR }) }));
   } catch (error) {
     console.error("Error loading the SAMU summary from the database:", error);
     return null;
@@ -50,7 +53,7 @@ const fetchSamuCity = createServerFn({ method: "GET" })
       const { getSamuEvolution, getSamuProfile } = await import("@ameciclo/db");
       return await withDb(async (db) => ({
         profile: await getSamuProfile(db, data),
-        evolution: await getSamuEvolution(db, data.cityIbge),
+        evolution: await getSamuEvolution(db, data.cityIbge, FIRST_YEAR),
       }));
     } catch (error) {
       console.error("Error loading the SAMU city view from the database:", error);

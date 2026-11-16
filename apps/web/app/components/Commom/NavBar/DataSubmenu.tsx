@@ -10,7 +10,7 @@ const dataSubPages = [
   { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria", icon: "/icons/dados/mapa.svg" },
   { name: "LOA", url: "/dados/loa", icon: "/icons/home/logo2.1d0f07c6.png" },
   { name: "DOM", url: "/dados/dom", icon: "/icons/home/header-logo.4f44929c.png" },
-  { name: "SAMU", url: "/dados/samu", icon: "/icons/home/chamados_sinistros.svg" },
+  { name: "SAMU", url: "/dados/chamados-de-sinistros", icon: "/icons/home/chamados_sinistros.svg" },
   { name: "Vias Inseguras", url: "/dados/vias-inseguras", icon: "/icons/home/vias-inseguras.svg" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais", icon: "/icons/home/sinistrosfatais.png" },
   { name: "CicloDados", url: "/dados/ciclodados", icon: "/icons/dados/ciclodados.svg" },

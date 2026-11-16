@@ -1,10 +1,32 @@
 // Observatório de chamadas do SAMU: headline numbers and highlights first, then a map
 // of the Região Metropolitana do Recife and an explorer (one city and range of years at a time).
 import { Link } from "@tanstack/react-router";
-import type { Options } from "highcharts";
-import { useState } from "react";
+import { useMemo } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  type ColumnDef,
+  columnFilteringFeature,
+  createFilteredRowModel,
+  createSortedRowModel,
+  filterFns,
+  globalFilteringFeature,
+  rowSortingFeature,
+  sortFns,
+  tableFeatures,
+  useTable,
+} from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ChevronsUpDown, Search } from "lucide-react";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@ameciclo/ui/components/chart";
+import { Input } from "@ameciclo/ui/components/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ameciclo/ui/components/table";
 import type { SamuCount, SamuProfile } from "@ameciclo/db";
-import { LazyChart } from "../Contagens/LazyChart";
 import { SamuChoroplethMap } from "./SamuChoroplethMap";
 import type { SamuCityView, SamuOverview } from "~/queries/dados.samu";
 
@@ -240,34 +262,31 @@ export default function SamuExplorer({ overview, view, selection, onSelect }: Sa
 
       <section className="container mx-auto px-4 my-10">
         <h2 className="text-xl font-bold text-gray-800 mb-3">Todos os municípios</h2>
-        <CitiesTable cities={overview.cities} total={total} selectedIbge={city.ibge} />
+        <CitiesTable cities={overview.cities} selectedIbge={city.ibge} />
       </section>
     </>
   );
 }
 
 function Evolution({ evolution, city }: { evolution: SamuCityView["evolution"]; city: string }) {
-  const options: Options = {
-    chart: { type: "column" },
-    title: { text: `Chamados por ano, ${city}` },
-    xAxis: { categories: evolution.map((e) => String(e.year)) },
-    yAxis: { title: { text: "Chamados" }, stackLabels: { enabled: false } },
-    legend: { enabled: true },
-    plotOptions: { column: { stacking: "normal" } },
-    series: OUTCOMES.map((o) => ({
-      type: "column",
-      name: o.label,
-      color: o.color,
-      data: evolution.map((e) => e[o.key]),
-    })),
-    credits: { enabled: false },
-  };
+  const config: ChartConfig = Object.fromEntries(OUTCOMES.map((o) => [o.key, { label: o.label, color: o.color }]));
+  const data = evolution.map((e) => ({ ...e, year: String(e.year) }));
 
   return (
-    <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 overflow-x-auto">
-      <div style={{ minWidth: "480px" }}>
-        <LazyChart options={options} />
-      </div>
+    <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4">
+      <h3 className="text-sm font-semibold text-gray-900">Chamados por ano, {city}</h3>
+      <ChartContainer config={config} className="mt-3 aspect-auto h-72 w-full">
+        <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <CartesianGrid vertical={false} />
+          <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} />
+          <YAxis width={48} tickLine={false} axisLine={false} tickFormatter={(v: number) => number(v)} />
+          <ChartTooltip content={<ChartTooltipContent valueFormatter={(v) => number(Number(v))} />} />
+          <ChartLegend content={<ChartLegendContent />} />
+          {OUTCOMES.map((o) => (
+            <Bar key={o.key} dataKey={o.key} stackId="outcome" fill={`var(--color-${o.key})`} />
+          ))}
+        </BarChart>
+      </ChartContainer>
     </div>
   );
 }
@@ -298,106 +317,153 @@ function Distribution({ title, rows, total }: { title: string; rows: SamuCount[]
   );
 }
 
-const COLLAPSED_ROWS = 15;
+type CityRow = City & { rank: number };
+
+const tableFeatures_ = tableFeatures({
+  columnFilteringFeature,
+  globalFilteringFeature,
+  rowSortingFeature,
+  filteredRowModel: createFilteredRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  filterFns,
+  sortFns,
+});
 
 // Every municipality, biggest first. Clicking one selects it in the explorer above.
-function CitiesTable({ cities, total, selectedIbge }: { cities: City[]; total: number; selectedIbge: number }) {
-  const [query, setQuery] = useState("");
-  const [onlyRmr, setOnlyRmr] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-
+function CitiesTable({ cities, selectedIbge }: { cities: City[]; selectedIbge: number }) {
   const max = cities[0]?.total ?? 1;
-  const needle = query.trim().toLocaleLowerCase("pt-BR");
-  // The rank is the place in the whole list, so it does not change when filtering.
-  const matching = cities
-    .map((c, i) => ({ ...c, rank: i + 1 }))
-    .filter((c) => (!onlyRmr || c.isRmr) && c.name.toLocaleLowerCase("pt-BR").includes(needle));
-  const filtering = needle !== "" || onlyRmr;
-  const visible = expanded || filtering ? matching : matching.slice(0, COLLAPSED_ROWS);
+  // The rank is the place in the whole list, so it does not change when sorting or filtering.
+  const data = useMemo<CityRow[]>(() => cities.map((c, i) => ({ ...c, rank: i + 1 })), [cities]);
+
+  const columns = useMemo<ColumnDef<typeof tableFeatures_, CityRow>[]>(
+    () => [
+      {
+        accessorKey: "rank",
+        header: "#",
+        cell: ({ row }) => <span className="tabular-nums text-muted-foreground">{row.original.rank}</span>,
+      },
+      {
+        accessorKey: "name",
+        header: "Município",
+        sortingFn: "alphanumeric",
+        cell: ({ row }) => (
+          <Link
+            to="/dados/chamados-de-sinistros"
+            search={(prev) => ({ ...prev, cidade: row.original.ibge })}
+            hash="explorador"
+            resetScroll={false}
+            className={
+              row.original.ibge === selectedIbge ? "font-semibold text-ameciclo hover:underline" : "hover:underline"
+            }
+          >
+            {row.original.name}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "total",
+        header: "Chamados",
+        cell: ({ row }) => <span className="tabular-nums">{number(row.original.total)}</span>,
+      },
+      {
+        id: "share",
+        header: "Proporção do maior",
+        accessorFn: (c) => c.total,
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="h-1.5 w-full min-w-24 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-ameciclo" style={{ width: `${(row.original.total / max) * 100}%` }} />
+          </div>
+        ),
+      },
+    ],
+    [selectedIbge, max],
+  );
+
+  const table = useTable({
+    features: tableFeatures_,
+    columns,
+    data,
+    initialState: { sorting: [{ id: "total", desc: true }] },
+    globalFilterFn: (row, _columnId, value) =>
+      row.original.name.toLocaleLowerCase("pt-BR").includes(String(value).trim().toLocaleLowerCase("pt-BR")),
+  });
+  const rows = table.getRowModel().rows;
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-        <input
+    <div className="space-y-3">
+      <div className="relative max-w-xs">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
           type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={table.state.globalFilter ?? ""}
+          onChange={(e) => table.setGlobalFilter(e.target.value)}
           placeholder="Buscar município"
           aria-label="Buscar município"
-          className="w-56 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm"
+          className="pl-9"
         />
-        <div className="flex gap-1 rounded-full bg-gray-100 p-1">
-          {[
-            [false, "Todos"],
-            [true, "Região Metropolitana"],
-          ].map(([rmr, label]) => (
-            <button
-              key={String(label)}
-              onClick={() => setOnlyRmr(rmr === true)}
-              className={`px-3 py-1 rounded-full ${onlyRmr === rmr ? "bg-white shadow-sm font-medium" : "text-gray-500"}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <span className="text-gray-500">{matching.length} municípios</span>
       </div>
 
-      <div className="mt-3 overflow-hidden rounded-xl border border-gray-200 bg-white">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500">
-              <th className="w-12 py-2 pl-4 pr-2 font-medium">#</th>
-              <th className="px-2 py-2 font-medium">Município</th>
-              <th className="px-2 py-2 text-right font-medium">Chamados</th>
-              <th className="hidden w-56 py-2 pl-6 pr-4 font-medium sm:table-cell">% do total</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {visible.map((c) => (
-              <tr key={c.ibge} className={c.ibge === selectedIbge ? "bg-ameciclo/5" : "hover:bg-gray-50"}>
-                <td className="py-2 pl-4 pr-2 tabular-nums text-gray-400">{c.rank}</td>
-                <td className="px-2 py-2">
-                  <Link
-                    to="/dados/samu"
-                    search={(prev) => ({ ...prev, cidade: c.ibge })}
-                    hash="explorador"
-                    resetScroll={false}
-                    className={`hover:underline ${c.ibge === selectedIbge ? "font-semibold text-ameciclo" : "text-gray-900"}`}
-                  >
-                    {c.name}
-                  </Link>
-                  {c.isRmr && (
-                    <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">RMR</span>
-                  )}
-                </td>
-                <td className="px-2 py-2 text-right tabular-nums text-gray-900">{number(c.total)}</td>
-                <td className="hidden py-2 pl-6 pr-4 sm:table-cell">
-                  <div className="flex items-center gap-3">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
-                      <div className="h-full rounded-full bg-ameciclo" style={{ width: `${(c.total / max) * 100}%` }} />
-                    </div>
-                    <span className="w-12 text-right tabular-nums text-gray-500">{percent(c.total, total)}</span>
-                  </div>
-                </td>
-              </tr>
+      <div className="rounded-xl border bg-background">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((group) => (
+              <TableRow key={group.id}>
+                {group.headers.map((header) => {
+                  const sorted = header.column.getIsSorted();
+                  const right = header.column.id === "total";
+                  return (
+                    <TableHead key={header.id} className={right ? "text-right" : undefined}>
+                      {header.column.getCanSort() ? (
+                        <button
+                          type="button"
+                          onClick={header.column.getToggleSortingHandler()}
+                          className="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                          <table.FlexRender header={header} />
+                          {sorted === "asc" ? (
+                            <ArrowUp className="size-3" />
+                          ) : sorted === "desc" ? (
+                            <ArrowDown className="size-3" />
+                          ) : (
+                            <ChevronsUpDown className="size-3 opacity-40" />
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          <table.FlexRender header={header} />
+                        </span>
+                      )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
             ))}
-            {visible.length === 0 && (
-              <tr>
-                <td colSpan={4} className="py-6 text-center text-gray-500">
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="py-10 text-center text-sm text-muted-foreground">
                   Nenhum município encontrado.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
+            ) : (
+              rows.map((row) => (
+                <TableRow key={row.id} data-state={row.original.ibge === selectedIbge ? "selected" : undefined}>
+                  {row.getAllCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cell.column.id === "total" ? "text-right" : undefined}
+                    >
+                      <table.FlexRender cell={cell} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
-
-      {!filtering && matching.length > COLLAPSED_ROWS && (
-        <button onClick={() => setExpanded(!expanded)} className="mt-3 text-sm font-medium text-ameciclo hover:underline">
-          {expanded ? "Mostrar só os maiores" : `Mostrar todos os ${matching.length} municípios`}
-        </button>
-      )}
     </div>
   );
 }

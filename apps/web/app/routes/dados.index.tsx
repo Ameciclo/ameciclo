@@ -81,7 +81,7 @@ const FEATURED_PAGES = [
   {
     title: "Chamados de Sinistros",
     src: "/icons/home/chamados_sinistros.svg",
-    url: "/dados/samu",
+    url: "/dados/chamados-de-sinistros",
     description:
       "Detalhamento dos dados de chamados de sinistros pela SAMU.",
     target: "",
