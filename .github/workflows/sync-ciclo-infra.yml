@@ -1,14 +1,13 @@
 name: Sincronizar infraestrutura cicloviária com o OpenStreetMap
 
-# Every Monday, brings the cycling infrastructure in the production database up to date
-# with OpenStreetMap (packages/db/scripts/sync-ciclo-infra.ts): the PDC relations, the
-# ways in them and every way with cycling infrastructure in the RMR. Each run leaves a
-# row in the admin (/infra/sincronizacoes) and a snapshot of the summary per city.
+# Manual fallback for the weekly OpenStreetMap sync. The scheduled one is the
+# Cloudflare Workflow in apps/sync, which fetches Overpass in small retried pieces
+# and keeps every answer in R2. This one asks Overpass in two big queries from a
+# GitHub runner (packages/db/scripts/sync-ciclo-infra.ts), which Overpass often
+# refuses, so use it only when the Workflow cannot run.
 #
-# By hand it can run against staging, or as a dry run that reports and writes nothing.
+# It can run against staging, or as a dry run that reports and writes nothing.
 on:
-  schedule:
-    - cron: "0 7 * * 1" # Mondays 07:00 UTC (04:00 in Recife)
   workflow_dispatch:
     inputs:
       target:
@@ -27,7 +26,7 @@ permissions:
 jobs:
   production:
     name: Sync the production database
-    if: github.event_name == 'schedule' || inputs.target == 'production'
+    if: inputs.target == 'production'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
@@ -88,7 +87,7 @@ jobs:
 
   staging:
     name: Sync the staging database
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'staging'
+    if: inputs.target == 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
