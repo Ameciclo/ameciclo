@@ -24,13 +24,15 @@
     "test:fixtures": "CONTAGENS_FIXTURES=1 vitest run src/import",
     "db:import-perfil": "tsx scripts/import-pesquisa-perfil.ts",
     "db:import-ciclo-infra": "tsx scripts/import-ciclo-infra.ts",
-    "db:import-samu": "tsx scripts/import-samu.ts"
+    "db:import-samu": "tsx scripts/import-samu.ts",
+    "db:sync-ciclo-infra": "tsx scripts/sync-ciclo-infra.ts"
   },
   "dependencies": {
     "csv-parse": "^7.0.3",
     "drizzle-orm": "1.0.0-rc.5-5935859",
     "exceljs": "^4.4.0",
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/pg": "^8.20.4",
