@@ -31,7 +31,7 @@ Só faz chamadas de saída. Se faltar peça, ou se o dado for velho (alguns espe
 1. Aplicação a partir do repositório, `Dockerfile` em `apps/collector/Dockerfile` (contexto: a raiz). O contêiner só fica ligado.
 2. Limite de memória no contêiner: a VM é compartilhada com o Strapi.
 3. Uma *scheduled task* semanal (`0 7 * * 1`): `pnpm --filter @ameciclo/collector collect`, com `ENVIRONMENT=production` e a `DATABASE_URL` de produção.
-4. Produção: o firewall do Postgres do Azure (`ameciclo-postgres-pub`) precisa liberar o IP público da VPS, uma vez.
+4. Produção: nada a liberar. O `ameciclo-postgres-pub` tem um Private Endpoint na VNet da VM (`groundwork`), então o nome do servidor resolve para um IP privado de dentro da VM. Confira no terminal da aplicação: `getent hosts ameciclo-postgres-pub.postgres.database.azure.com` deve dar um `10.x`.
 5. Staging, quando quiser: a mesma imagem com `ENVIRONMENT=staging` e a URL do `postgres-staging`.
 
 ## Rodar à mão
