@@ -36,7 +36,7 @@ export function DataSubmenu() {
           {dataSubPages.map((subPage, _index) => {
             const isActive = location.pathname === subPage.url || 
               location.pathname.startsWith(subPage.url + '/');
-            const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
+            const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Vias Inseguras";
             
             if (isComingSoon) {
               return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;
@@ -72,7 +72,7 @@ export function DataSubmenu() {
             {dataSubPages.map((subPage, _index) => {
               const isActive = location.pathname === subPage.url || 
                 location.pathname.startsWith(subPage.url + '/');
-              const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Execução Cicloviária" || subPage.name === "Vias Inseguras";
+              const isComingSoon = subPage.name === "Ideciclo" || subPage.name === "Vias Inseguras";
               
               if (isComingSoon) {
                 return <ComingSoonButton key={subPage.name} name={subPage.name} icon={subPage.icon} />;
