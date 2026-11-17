@@ -8,7 +8,8 @@ RUN corepack enable
 WORKDIR /app
 
 # Every workspace manifest, so that the frozen lockfile still matches.
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# tsconfig.base.json: the packages extend it, and drizzle-kit (db:migrate) refuses to run without it.
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
 COPY apps/web/package.json apps/web/
 COPY apps/admin/package.json apps/admin/
 COPY apps/collector/package.json apps/collector/
