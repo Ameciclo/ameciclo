@@ -23,8 +23,8 @@
       "name": "ameciclo-sync-ciclo",
       "binding": "CICLO_SYNC",
       "class_name": "CicloSync",
-      // Mondays 07:00 UTC (04:00 in Recife).
-      "schedules": ["0 7 * * 1"],
+      // No schedule: the collector on the VPS (apps/collector) starts it, once
+      // it has left the week's snapshot in R2.
     },
   ],
 

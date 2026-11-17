@@ -7,8 +7,7 @@
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
     "types": "wrangler types",
-    "typecheck": "tsc",
-    "test": "vitest run"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@ameciclo/db": "workspace:*"
@@ -16,7 +15,6 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "typescript": "^5.1.6",
-    "vitest": "^5.0.5",
     "wrangler": "^4.164.0"
   }
 }

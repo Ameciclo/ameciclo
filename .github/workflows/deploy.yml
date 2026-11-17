@@ -130,7 +130,7 @@ jobs:
           command: deploy
 
   # The weekly OpenStreetMap sync (apps/sync). A Workflow, so it is deployed
-  # but never run here: the cron schedule or `wrangler workflows trigger` does.
+  # but never run here: the collector on the VPS (apps/collector) starts it.
   # Needs the R2 bucket ameciclo-cycling-osm to exist.
   deploy-sync:
     name: Deploy sync

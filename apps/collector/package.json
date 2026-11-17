@@ -1,0 +1,20 @@
+{
+  "name": "@ameciclo/collector",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "collect": "tsx src/collect.ts",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ameciclo/db": "workspace:*",
+    "aws4fetch": "^1.0.20",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.1.6",
+    "vitest": "^5.0.5"
+  }
+}
