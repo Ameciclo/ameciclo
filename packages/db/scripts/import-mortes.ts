@@ -20,10 +20,10 @@ try {
   process.loadEnvFile();
 } catch {}
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) throw new Error("DATABASE_URL is not set (packages/db/.env)");
-
 const dryRun = process.argv.includes("--dry-run");
+// O banco só é preciso para gravar: o dry-run só lê e relata.
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString && !dryRun) throw new Error("DATABASE_URL is not set (packages/db/.env)");
 const dir = resolve(process.env.MORTES_DIR ?? join(import.meta.dirname, "../../../data/mortes"));
 // Todo ano que tiver arquivo: 2011 em diante.
 const YEARS = Array.from({ length: new Date().getFullYear() - 2010 }, (_, i) => 2011 + i).filter((y) => existsSync(join(dir, `mortes_transito_${y}.csv`)));
@@ -54,7 +54,7 @@ if (dryRun) {
   process.exit(0);
 }
 
-await withDb(connectionString, async (db) => {
+await withDb(connectionString ?? "", async (db) => {
   await db.transaction(async (tx) => {
     for (const [year, drafts] of perYear) {
       await tx.delete(trafficDeath).where(sql`${trafficDeath.sourceYear} = ${year}`);

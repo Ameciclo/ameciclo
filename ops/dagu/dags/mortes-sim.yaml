@@ -1,0 +1,34 @@
+# Óbitos por acidente de transporte do SIM/DATASUS na RMR (alimenta /dados/sinistros-fatais).
+# Cada passo aparece no grafo, com o log e as contagens que ele imprime.
+# Por padrão só valida (DRY_RUN=true); para gravar no banco, rode com DRY_RUN=false e DATABASE_URL definido.
+description: Baixa o ano do DATASUS, filtra a RMR e carrega em traffic_death
+params:
+  - YEAR: "2026"
+  - DRY_RUN: "true"
+env:
+  - DATA_DIR: /tmp/mortes
+steps:
+  - name: baixar-e-converter
+    # FTP do DATASUS (versão final, ou a preliminar), .dbc -> CSV só com as causas V e Y85.
+    run: python /app/packages/db/scripts/baixar-mortes.py ${YEAR} ${DATA_DIR}
+
+  - name: filtrar-e-validar
+    depends:
+      - baixar-e-converter
+    # Fica a RMR (ocorrência ou residência) com causa V01-V89 ou V99; imprime o que foi descartado e por quê.
+    working_dir: /app/packages/db
+    run: pnpm db:import-mortes --dry-run
+    env:
+      - MORTES_DIR: ${DATA_DIR}
+
+  - name: carregar-no-banco
+    depends:
+      - filtrar-e-validar
+    # Substitui o ano inteiro numa transação; só roda com DRY_RUN=false.
+    working_dir: /app/packages/db
+    run: pnpm db:import-mortes
+    env:
+      - MORTES_DIR: ${DATA_DIR}
+    preconditions:
+      - condition: "${DRY_RUN}"
+        expected: "false"
