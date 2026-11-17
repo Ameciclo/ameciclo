@@ -160,6 +160,9 @@ export type FetchOptions = {
   log?: (message: string) => void;
 };
 
+// Overpass asks automated clients to say who they are and how to reach them.
+const USER_AGENT = "ameciclo-cycling-sync/1.0 (+https://ameciclo.org; weekly sync of the PDC/RMR cycling network)";
+
 const DAY = 86_400_000;
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -187,7 +190,7 @@ export async function fetchOverpass(query: string, options: FetchOptions = {}): 
       try {
         const response = await fetch(endpoint, {
           method: "POST",
-          headers: { "User-Agent": "ameciclo-cycling-sync/1.0", "Content-Type": "application/x-www-form-urlencoded" },
+          headers: { "User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({ data: query }),
           signal: AbortSignal.timeout(timeoutMs),
         });
