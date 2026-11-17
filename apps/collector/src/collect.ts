@@ -159,7 +159,13 @@ async function main() {
 async function heartbeat(status: "up" | "down", message: string) {
   const url = process.env.KUMA_PUSH_URL;
   if (!url) return;
-  await fetch(`${url}?status=${status}&msg=${encodeURIComponent(message.slice(0, 200))}`).catch(() => {});
+  // The push URL Kuma shows already ends in "?status=up&msg=OK&ping=". Whatever was pasted, drop
+  // its query and set our own: a repeated msg turns into a list and Kuma prints "[object Object]".
+  const target = new URL(url);
+  target.search = "";
+  target.searchParams.set("status", status);
+  target.searchParams.set("msg", message.slice(0, 200));
+  await fetch(target).catch(() => {});
 }
 
 main().then(
