@@ -34,7 +34,7 @@ describe("summarizeDeaths", () => {
 
   it("soma por ano, modo, sexo, raça, idade e causas secundárias", () => {
     const s = summarizeDeaths([
-      row({ secondaryCauses: "T794 V234 T794 V099" }),
+      row({ secondaryCauses: "T794 V234 T794 V099 S061 S069" }),
       row({ year: 2023, cause: "V031", sex: "2", raceColor: null, ageYears: 80, secondaryCauses: "T794" }),
     ]);
     expect(s.total).toBe(2);
@@ -44,6 +44,11 @@ describe("summarizeDeaths", () => {
     expect(s.bySex).toEqual({ masculino: 1, feminino: 1, ignorado: 0 });
     expect(s.byRace.map((r) => r.label).sort()).toEqual(["Ignorada", "Parda"]);
     expect(s.byAge.map((a) => a.label)).toEqual(["30 a 44", "75 ou mais"]);
-    expect(s.secondaryCauses).toEqual([{ code: "T794", total: 2 }]);
+    // T794 vira T79; S061 e S069 na mesma declaração valem uma citação de S06.
+    expect(s.secondaryCauses).toEqual([{ code: "T79", total: 2 }, { code: "S06", total: 1 }]);
+    expect(s.byVictim.motociclista.total).toBe(1);
+    expect(s.byVictim.motociclista.secondaryCauses).toEqual([{ code: "S06", total: 1 }, { code: "T79", total: 1 }]);
+    expect(s.byVictim.pedestre.bySex).toEqual({ masculino: 0, feminino: 1, ignorado: 0 });
+    expect(s.byVictim.ciclista.total).toBe(0);
   });
 });

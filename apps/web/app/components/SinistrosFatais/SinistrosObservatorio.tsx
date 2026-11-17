@@ -2,7 +2,7 @@
 // período e local do óbito) com quem morre, em que colisão e com que diagnósticos; por fim, todos os municípios.
 import type { DeathOverview, DeathStats } from "@ameciclo/db/deaths-read";
 import { PLACES, type PlaceKey, type Selection } from "~/queries/dados.sinistros-fatais";
-import { CollisionMatrix, ModeChart, Profile, SecondaryCauses } from "./SinistrosCharts";
+import { CollisionMatrix, ModeChart, VictimProfile } from "./SinistrosCharts";
 import { MODE_LABELS, n, pct } from "./labels";
 import { MODES } from "@ameciclo/db/deaths-model";
 
@@ -33,7 +33,7 @@ const EXPLANATIONS = [
   },
   {
     label: "Onde morreram ou onde moravam?",
-    text: "“Onde morreram” conta o município em que o óbito foi registrado, que pode não ser o do sinistro: quem é socorrido pode morrer em outro. “Onde moravam” conta pelo município de residência. Os dois olhares aparecem lado a lado, por isso os totais não coincidem.",
+    text: "“Onde morreram” conta o município em que o óbito foi registrado, que pode não ser o do sinistro: quem é socorrido pode morrer em outro. “Onde moravam” conta pelo município de residência, que pode ser diferente do município onde ocorreu o óbito. Os dois olhares aparecem lado a lado, por isso os totais não coincidem.",
   },
 ];
 
@@ -54,10 +54,12 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
 
   const { basis, city, from, to, place } = selection;
   const series = overview.byBasis[basis];
-  const last = series.byYear.at(-1);
-  const previous = series.byYear.at(-2);
-  const worst = series.byYear.reduce((a, b) => (b.total > a.total ? b : a), series.byYear[0]);
-  const tenYears = series.byYear.slice(-10).reduce((a, b) => a + b.total, 0);
+  // Um ano que o SIM ainda não fechou não entra nas comparações: pareceria uma queda.
+  const complete = series.byYear.filter((y) => !overview.partialYears.includes(y.year));
+  const last = complete.at(-1);
+  const previous = complete.at(-2);
+  const worst = complete.reduce((a, b) => (b.total > a.total ? b : a), complete[0]);
+  const tenYears = complete.slice(-10).reduce((a, b) => a + b.total, 0);
   const change = last && previous && previous.total > 0 ? ((last.total - previous.total) / previous.total) * 100 : null;
   const cityName = city === undefined ? "a Região Metropolitana do Recife" : (series.byCity.find((c) => c.city === city)?.name ?? "");
   const years = overview.years;
@@ -99,7 +101,7 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
           </div>
         </div>
         <p className="mt-2 text-xs text-gray-500">
-          Contagem por {BASIS_NOTE[basis]}, de {overview.years[0]} a {overview.updatedThrough}. Fonte: SIM/DATASUS.{" "}
+          Contagem por {BASIS_NOTE[basis]}, de {overview.years[0]} a {overview.updatedThrough}. Fonte: SIM/DATASUS.{overview.partialYears.length > 0 && ` ${overview.partialYears.join(" e ")}* ainda não fechou e fica fora das comparações; os anos mais recentes podem ser preliminares.`}{" "}
           <a href="#metodo" className="underline underline-offset-2 hover:text-gray-700">Como medimos</a>.
         </p>
       </section>
@@ -162,7 +164,7 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
 
         <div className="min-w-0 space-y-8">
           {stats ? (
-            <Results stats={stats} cityName={cityName} periodText={periodText} basis={basis} />
+            <Results stats={stats} cityName={cityName} periodText={periodText} basis={basis} partialYears={overview.partialYears} />
           ) : (
             <p className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-600">Não foi possível carregar os números agora. Tente de novo em instantes.</p>
           )}
@@ -172,7 +174,7 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
       <section className="container mx-auto mt-10 px-4" aria-labelledby="todos">
         <h2 id="todos" className="mb-1 text-xl font-bold text-gray-800">Todos os municípios</h2>
         <p className="mb-3 text-sm text-gray-500">Mortes por ano, {BASIS_NOTE[basis]}. Clique em um município para abri-lo acima.</p>
-        <CitiesTable series={series} years={years} selectedCity={city} onSelect={(c) => onSelect({ cidade: c })} />
+        <CitiesTable series={series} years={years} partialYears={overview.partialYears} selectedCity={city} onSelect={(c) => onSelect({ cidade: c })} />
       </section>
 
       <section id="metodo" className="container mx-auto mb-10 mt-10 scroll-mt-20 px-4" aria-labelledby="como-medimos">
@@ -240,18 +242,18 @@ function YearSelect({ label, value, years, onChange }: { label: string; value: n
   );
 }
 
-function Results({ stats, cityName, periodText, basis }: { stats: DeathStats; cityName: string; periodText: string; basis: Basis }) {
+function Results({ stats, cityName, periodText, basis, partialYears }: { stats: DeathStats; cityName: string; periodText: string; basis: Basis; partialYears: number[] }) {
   if (stats.total === 0) {
     return <p className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-600">Nenhuma morte registrada com esses filtros.</p>;
   }
   const vulnerable = stats.byMode.pedestre + stats.byMode.ciclista + stats.byMode.motociclista;
   const top = MODES.reduce((a, b) => (stats.byMode[b] > stats.byMode[a] ? b : a), MODES[0]);
-  const worst = stats.byYear.reduce((a, b) => (b.total > a.total ? b : a), stats.byYear[0]);
+  const worst = stats.byYear.filter((y) => !partialYears.includes(y.year)).reduce<(typeof stats.byYear)[number] | undefined>((a, b) => (!a || b.total > a.total ? b : a), undefined);
   const highlights = [
     { lead: n(stats.total), text: `mortes em ${cityName} ${periodText}, ${basis === "ocorrencia" ? "pelo município do óbito" : "pelo município de residência"}.` },
     { lead: pct(vulnerable, stats.total), text: `eram pedestres, ciclistas ou motociclistas: ${n(vulnerable)} de ${n(stats.total)}. ${MODE_LABELS[top]} são o maior grupo, com ${pct(stats.byMode[top], stats.total)}.` },
-    stats.byYear.length > 1 && { lead: String(worst.year), text: `foi o ano mais violento do período, com ${n(worst.total)} mortes.` },
-  ].filter((h) => h !== false);
+    worst && stats.byYear.length > 1 && { lead: String(worst.year), text: `foi o ano mais violento do período, com ${n(worst.total)} mortes.` },
+  ].filter((h) => h !== false && h !== undefined);
 
   return (
     <>
@@ -266,17 +268,14 @@ function Results({ stats, cityName, periodText, basis }: { stats: DeathStats; ci
           ))}
         </ul>
       </div>
-      <Block title="Quem morreu, ano a ano" note="Pela causa principal do óbito.">
-        <ModeChart stats={stats} />
+      <Block title="Quem morreu, ano a ano" note="Pela causa principal do óbito. Clique em um tipo de vítima para tirá-lo do gráfico.">
+        <ModeChart stats={stats} partialYears={partialYears} />
       </Block>
-      <Block title="Em que colisão" note="Cada linha é quem morreu; cada coluna, contra quem ou o quê.">
+      <Block title="Em que colisão">
         <CollisionMatrix stats={stats} />
       </Block>
       <Block title="Perfil de quem morreu">
-        <Profile stats={stats} />
-      </Block>
-      <Block title="Diagnósticos mais citados" note="Lesões e complicações que a declaração registra além da causa principal. Quantas declarações citam cada uma.">
-        <SecondaryCauses stats={stats} />
+        <VictimProfile stats={stats} />
       </Block>
     </>
   );
@@ -292,7 +291,7 @@ function Block({ title, note, children }: { title: string; note?: string; childr
   );
 }
 
-function CitiesTable({ series, years, selectedCity, onSelect }: { series: DeathOverview["byBasis"][Basis]; years: number[]; selectedCity: number | undefined; onSelect: (city: number) => void }) {
+function CitiesTable({ series, years, partialYears, selectedCity, onSelect }: { series: DeathOverview["byBasis"][Basis]; years: number[]; partialYears: number[]; selectedCity: number | undefined; onSelect: (city: number) => void }) {
   const shown = years.slice(-10);
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
@@ -302,7 +301,7 @@ function CitiesTable({ series, years, selectedCity, onSelect }: { series: DeathO
           <tr className="border-b border-gray-200 text-xs text-gray-500">
             <th scope="col" className="px-3 py-2 text-left font-medium">Município</th>
             {shown.map((y, i) => (
-              <th key={y} scope="col" className={`px-2 py-2 text-right font-medium ${i < shown.length - 2 ? "hidden md:table-cell" : ""}`}>{y}</th>
+              <th key={y} scope="col" className={`px-2 py-2 text-right font-medium ${i < shown.length - 2 ? "hidden md:table-cell" : ""}`}>{y}{partialYears.includes(y) ? "*" : ""}</th>
             ))}
             <th scope="col" className="px-3 py-2 text-right font-medium">Total {years[0]}–{years.at(-1)}</th>
           </tr>

@@ -95,18 +95,24 @@ export type DeathRow = {
   ageYears: number | null;
 };
 
-export type DeathStats = {
+/** Quem são as pessoas que morreram e com que diagnósticos: para todas, ou só para um tipo de vítima. */
+export type Profile = {
   total: number;
+  bySex: { masculino: number; feminino: number; ignorado: number };
+  byRace: { label: string; total: number }[];
+  byAge: { label: string; total: number }[];
+  /** Diagnósticos (CID-10, fora os V) mais citados nas declarações, além da causa principal, agrupados pelas três primeiras posições (S061, S068 e S069 viram S06). */
+  secondaryCauses: { code: string; total: number }[];
+};
+
+export type DeathStats = Profile & {
   byYear: { year: number; total: number }[];
   byYearMode: ({ year: number } & Record<Mode, number>)[];
   byMode: Record<Mode, number>;
   /** matrix[vítima][contraparte]: só ciclistas, pedestres, motociclistas, automóveis, ônibus e outros como vítima. */
   matrix: Record<Mode, Record<Counterpart, number>>;
-  bySex: { masculino: number; feminino: number; ignorado: number };
-  byRace: { label: string; total: number }[];
-  byAge: { label: string; total: number }[];
-  /** Diagnósticos (CID-10, fora os V) mais citados nas declarações, além da causa principal. */
-  secondaryCauses: { code: string; total: number }[];
+  /** O perfil de cada tipo de vítima: o do ciclista morto, o do pedestre, etc. */
+  byVictim: Record<Mode, Profile>;
 };
 
 const RACES: Record<string, string> = { "1": "Branca", "2": "Preta", "3": "Amarela", "4": "Parda", "5": "Indígena" };
@@ -117,25 +123,13 @@ const zeroMatrix = () =>
     MODES.map((m) => [m, Object.fromEntries(COUNTERPARTS.map((c) => [c, 0]))]),
   ) as Record<Mode, Record<Counterpart, number>>;
 
-/** Agrega as linhas já filtradas. Pura, para testar sem banco. */
-export function summarizeDeaths(rows: DeathRow[], limitSecondary = 12): DeathStats {
-  const byYear = new Map<number, { total: number; modes: Record<Mode, number> }>();
-  const byMode = zeroByMode();
-  const matrix = zeroMatrix();
+function profileOf(rows: DeathRow[], limitSecondary: number): Profile {
   const bySex = { masculino: 0, feminino: 0, ignorado: 0 };
   const race = new Map<string, number>();
   const age = new Map<string, number>();
   const secondary = new Map<string, number>();
 
   for (const r of rows) {
-    const mode = victimMode(r.cause);
-    const y = byYear.get(r.year) ?? { total: 0, modes: zeroByMode() };
-    y.total += 1;
-    y.modes[mode] += 1;
-    byYear.set(r.year, y);
-    byMode[mode] += 1;
-    matrix[mode][counterpart(r.cause)] += 1;
-
     if (r.sex === "1") bySex.masculino += 1;
     else if (r.sex === "2") bySex.feminino += 1;
     else bySex.ignorado += 1;
@@ -148,20 +142,17 @@ export function summarizeDeaths(rows: DeathRow[], limitSecondary = 12): DeathSta
       age.set(band, (age.get(band) ?? 0) + 1);
     }
 
-    // Cada código conta uma vez por declaração, mesmo que repetido em linhas diferentes.
-    for (const code of new Set(r.secondaryCauses?.split(" ").filter(Boolean) ?? [])) {
+    // Cada categoria conta uma vez por declaração, mesmo que apareça com subcategorias diferentes
+    // (S061 e S069 na mesma declaração valem uma citação de S06).
+    const categories = new Set(r.secondaryCauses?.split(" ").filter(Boolean).map((code) => code.slice(0, 3)) ?? []);
+    for (const code of categories) {
       // Os códigos V repetem o mecanismo do sinistro, que já é a causa principal.
       if (!code.startsWith("V")) secondary.set(code, (secondary.get(code) ?? 0) + 1);
     }
   }
 
-  const years = [...byYear.keys()].sort((a, b) => a - b);
   return {
     total: rows.length,
-    byYear: years.map((year) => ({ year, total: byYear.get(year)!.total })),
-    byYearMode: years.map((year) => ({ year, ...byYear.get(year)!.modes })),
-    byMode,
-    matrix,
     bySex,
     byRace: [...race].map(([label, total]) => ({ label, total })).sort((a, b) => b.total - a.total),
     byAge: AGE_BANDS.flatMap((b) => (age.has(b.label) ? [{ label: b.label, total: age.get(b.label)! }] : [])),
@@ -169,6 +160,34 @@ export function summarizeDeaths(rows: DeathRow[], limitSecondary = 12): DeathSta
       .map(([code, total]) => ({ code, total }))
       .sort((a, b) => b.total - a.total || a.code.localeCompare(b.code))
       .slice(0, limitSecondary),
+  };
+}
+
+/** Agrega as linhas já filtradas. Pura, para testar sem banco. */
+export function summarizeDeaths(rows: DeathRow[], limitSecondary = 10): DeathStats {
+  const byYear = new Map<number, { total: number; modes: Record<Mode, number> }>();
+  const byMode = zeroByMode();
+  const matrix = zeroMatrix();
+
+  for (const r of rows) {
+    const mode = victimMode(r.cause);
+    const y = byYear.get(r.year) ?? { total: 0, modes: zeroByMode() };
+    y.total += 1;
+    y.modes[mode] += 1;
+    byYear.set(r.year, y);
+    byMode[mode] += 1;
+    matrix[mode][counterpart(r.cause)] += 1;
+  }
+
+  const of = (mode: Mode) => profileOf(rows.filter((r) => victimMode(r.cause) === mode), limitSecondary);
+  const years = [...byYear.keys()].sort((a, b) => a - b);
+  return {
+    ...profileOf(rows, limitSecondary),
+    byYear: years.map((year) => ({ year, total: byYear.get(year)!.total })),
+    byYearMode: years.map((year) => ({ year, ...byYear.get(year)!.modes })),
+    byMode,
+    matrix,
+    byVictim: { pedestre: of("pedestre"), ciclista: of("ciclista"), motociclista: of("motociclista"), automovel: of("automovel"), onibus: of("onibus"), outros: of("outros") },
   };
 }
 
@@ -208,6 +227,8 @@ export type DeathOverview = {
     }
   >;
   updatedThrough: number | null;
+  /** Anos que o SIM ainda não fechou: o último mês com óbitos registrados não é dezembro. */
+  partialYears: number[];
 };
 
 export async function getDeathOverview(db: Db): Promise<DeathOverview> {
@@ -246,8 +267,14 @@ export async function getDeathOverview(db: Db): Promise<DeathOverview> {
     };
   };
 
+  const lastMonths = await db
+    .select({ year: trafficDeath.year, month: sql<number>`max(${trafficDeath.month})::int` })
+    .from(trafficDeath)
+    .groupBy(trafficDeath.year);
+
   const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b);
   return {
+    partialYears: lastMonths.filter((m) => m.month < 12).map((m) => m.year).sort((a, b) => a - b),
     years,
     byBasis: { ocorrencia: build((r) => r.occurrence), residencia: build((r) => r.residence) },
     updatedThrough: years.at(-1) ?? null,

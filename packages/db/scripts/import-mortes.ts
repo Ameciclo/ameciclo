@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { parse } from "csv-parse/sync";
@@ -8,7 +8,7 @@ import { withDb } from "../src";
 import { type DeathDraft, toDraft } from "../src/deaths/transform";
 import { trafficDeath } from "../src/schema";
 
-// Importa os óbitos por acidente de transporte do SIM/DATASUS (2011-2023) para a RMR, a partir dos CSVs
+// Importa os óbitos por acidente de transporte do SIM/DATASUS (2011 em diante) para a RMR, a partir dos CSVs
 // anuais mortes_transito_AAAA.csv (git-ignorados: data/mortes/).
 //
 //   pnpm --filter @ameciclo/db db:import-mortes              lê, limpa e grava
@@ -25,7 +25,8 @@ if (!connectionString) throw new Error("DATABASE_URL is not set (packages/db/.en
 
 const dryRun = process.argv.includes("--dry-run");
 const dir = resolve(process.env.MORTES_DIR ?? join(import.meta.dirname, "../../../data/mortes"));
-const YEARS = Array.from({ length: 13 }, (_, i) => 2011 + i);
+// Todo ano que tiver arquivo: 2011 em diante.
+const YEARS = Array.from({ length: new Date().getFullYear() - 2010 }, (_, i) => 2011 + i).filter((y) => existsSync(join(dir, `mortes_transito_${y}.csv`)));
 const BATCH = 2000;
 
 const perYear = new Map<number, DeathDraft[]>();
