@@ -1,12 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
-import { cmsFetch } from "~/services/cmsFetch";
-import { makeApiErrorTracker } from "~/services/apiTracking";
 import {
-  EXECUCAO_CICLOVIARIA_DATA,
-  EXECUCAO_CICLOVIARIA_SUMMARY,
-  EXECUCAO_CICLOVIARIA_RELATIONS,
   PDC_VOL1_URL,
   PDC_VOL2_URL,
   PDC_PASTA_URL,
@@ -16,8 +11,6 @@ import {
 } from "~/servers";
 
 const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
-
   const page_data = {
     title: "Observatório Cicloviário",
     cover_image_url: "/execucaocicloviaria.png",
@@ -32,32 +25,28 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
     },
   };
 
-  const cycleStructureExecutionStatistics = (d: any) => {
-    const { pdc_feito, out_pdc, pdc_total, percent } = { ...d };
-
-    return [
-      {
-        title: "estrutura cicloviárias existentes",
-        unit: "km",
-        value: IntlNumberMax1Digit(pdc_feito + out_pdc),
-      },
-      {
-        title: "projetada no plano cicloviário",
-        unit: "km",
-        value: IntlNumberMax1Digit(pdc_total),
-      },
-      {
-        title: "implantados no plano cicloviário",
-        unit: "km",
-        value: IntlNumberMax1Digit(pdc_feito),
-      },
-      {
-        title: "cobertos do plano cicloviário",
-        unit: "%",
-        value: IntlPercentil(percent),
-      },
-    ];
-  };
+  const cycleStructureExecutionStatistics = (d: { existingKm: number; plannedKm: number; executedInPdcKm: number; percent: number }) => [
+    {
+      title: "estrutura cicloviárias existentes",
+      unit: "km",
+      value: IntlNumberMax1Digit(d.existingKm),
+    },
+    {
+      title: "projetada no plano cicloviário",
+      unit: "km",
+      value: IntlNumberMax1Digit(d.plannedKm),
+    },
+    {
+      title: "implantados no plano cicloviário",
+      unit: "km",
+      value: IntlNumberMax1Digit(d.executedInPdcKm),
+    },
+    {
+      title: "cobertos do plano cicloviário",
+      unit: "%",
+      value: IntlPercentil(d.percent / 100),
+    },
+  ];
 
   const PDCLayer = {
     id: "Não executado no PDC",
@@ -98,86 +87,42 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
 
   const layersConf = [PDCLayer, PDCDoneLayer, NotPDC];
 
-  const fallbackData = {
-    type: "FeatureCollection",
-    features: [],
-  };
+  const { withDb } = await import("~/lib/db.server");
+  const { getCyclingOverview, getCyclingProjects, getCyclingHistory } = await import("@ameciclo/db/cycling-read");
+  const { overview, projects, history } = await withDb(async (db) => ({
+    overview: await getCyclingOverview(db),
+    projects: await getCyclingProjects(db),
+    history: await getCyclingHistory(db),
+  }));
 
-  const fallbackStats = {
-    pdc_feito: 0,
-    out_pdc: 0,
-    pdc_total: 0,
-    percent: 0,
-  };
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const statsData = cycleStructureExecutionStatistics(overview.all);
 
-  const cityNamesMap: Record<string, string> = {
-    "2600054": "Abreu e Lima",
-    "2601052": "Araçoiaba",
-    "2602902": "Cabo de Santo Agostinho",
-    "2603454": "Camaragibe",
-    "2606804": "Igarassu",
-    "2607208": "Ipojuca",
-    "2607604": "Ilha de Itamaracá",
-    "2607752": "Itapissuma",
-    "2607901": "Jaboatão dos Guararapes",
-    "2609402": "Moreno",
-    "2609600": "Olinda",
-    "2610707": "Paulista",
-    "2611606": "Recife",
-    "2613701": "São Lourenço da Mata",
-  };
-
-  const rmrCityIds = new Set(Object.keys(cityNamesMap));
-
-  const [apiData, summaryData, relationsData] = await Promise.all([
-    cmsFetch<any>(EXECUCAO_CICLOVIARIA_DATA, {
-      ttl: 300,
-      timeout: 15000,
-      fallback: fallbackData,
-      onError: tracker.at(EXECUCAO_CICLOVIARIA_DATA),
-      retries: 2,
-    }),
-    cmsFetch<any>(EXECUCAO_CICLOVIARIA_SUMMARY, {
-      ttl: 300,
-      timeout: 15000,
-      fallback: { all: fallbackStats, byCity: {} },
-      onError: tracker.at(EXECUCAO_CICLOVIARIA_SUMMARY),
-      retries: 2,
-    }),
-    cmsFetch<any>(EXECUCAO_CICLOVIARIA_RELATIONS, {
-      ttl: 300,
-      timeout: 15000,
-      fallback: {},
-      onError: tracker.at(EXECUCAO_CICLOVIARIA_RELATIONS),
-      retries: 2,
-    }),
-  ]);
-
-  const allWaysData = apiData || fallbackData;
-  const statsData = cycleStructureExecutionStatistics(
-    summaryData?.all || fallbackStats
+  // The shape the page already reads: kilometres per city, the share as a ratio
+  // (0 to 1), and the PDC projects of the city for the table.
+  const citiesData = Object.fromEntries(
+    overview.cities.map((city) => [
+      city.ibge,
+      {
+        id: city.ibge,
+        name: city.name,
+        pdc_feito: city.executedInPdcKm,
+        out_pdc: city.outsidePdcKm,
+        pdc_total: city.plannedKm,
+        percent: city.percent / 100,
+        total: city.existingKm,
+        relations: projects
+          .filter((p) => p.cityIbge === city.ibge)
+          .map((p) => ({
+            name: `${p.name} (${p.ref})`,
+            pdc_typology: p.plannedTypology,
+            typologies_str: p.builtTypologies || "Nenhuma",
+            length: round2(p.plannedKm),
+            has_cycleway_length: round2(p.builtKm),
+          })),
+      },
+    ]),
   );
-
-  const citiesData: any = {};
-  if (summaryData?.byCity) {
-    Object.entries(summaryData.byCity).forEach(
-      ([cityId, cityData]: [string, any]) => {
-        if (rmrCityIds.has(cityId)) {
-          const cityRelations = relationsData?.[cityId]?.relations || [];
-          citiesData[cityId] = {
-            id: parseInt(cityId),
-            name: cityNamesMap[cityId],
-            pdc_feito: cityData.pdc_feito || 0,
-            out_pdc: cityData.out_pdc || 0,
-            pdc_total: cityData.pdc_total || 0,
-            percent: cityData.percent || 0,
-            total: (cityData.pdc_feito || 0) + (cityData.out_pdc || 0),
-            relations: cityRelations,
-          };
-        }
-      }
-    );
-  }
 
   const documents = {
     title: "Documentos e Recursos do PDC",
@@ -241,10 +186,10 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
     description2: page_data.ExplanationBoxData.text_2,
     documents,
     layersConf,
-    allWaysData,
     statsData,
     citiesData,
-    ...tracker.summary(),
+    updatedAt: overview.updatedAt,
+    history,
   };
 });
 
@@ -252,4 +197,17 @@ export const execucaoCicloviariaQueryOptions = () =>
   queryOptions({
     queryKey: ["dados", "execucaocicloviaria"],
     queryFn: () => fetchExecucaoCicloviaria(),
+  });
+
+// The ways of the map come apart from the page (about 0.5 MB, cached at the edge)
+// so the numbers do not wait for them.
+export const execucaoCicloviariaWaysQueryOptions = () =>
+  queryOptions({
+    queryKey: ["dados", "execucaocicloviaria", "trechos"],
+    queryFn: async (): Promise<GeoJSON.FeatureCollection<GeoJSON.Geometry>> => {
+      const response = await fetch("/api/execucao-cicloviaria/trechos");
+      if (!response.ok) throw new Error(`Trechos: HTTP ${response.status}`);
+      return response.json();
+    },
+    staleTime: 5 * 60_000,
   });
