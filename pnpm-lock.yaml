@@ -288,6 +288,9 @@ importers:
       '@types/pg':
         specifier: ^8.20.4
         version: 8.20.4
+      basic-ftp:
+        specifier: ^6.2.6
+        version: 6.2.6
       drizzle-kit:
         specifier: 1.0.0-rc.5-5935859
         version: 1.0.0-rc.5-5935859
@@ -3072,6 +3075,10 @@ packages:
     resolution: {integrity: sha512-Q+rUQ7Uz8AHM7DEaNdwvfFCTq7a43lNTzuS94eiWqwyxfV/wJv+oUivef51T91mmRY4d4A1u9rcSvkeufCVXlA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  basic-ftp@6.2.6:
+    resolution: {integrity: sha512-0EjZCaodOz6yiokv2JA1VyKGNdGxULZ+GGlPgG9tm4d+T/bHtX1hUch8CumDneBfpIbiSdn7TaCGwpM+gwsOlw==}
+    engines: {node: '>=10.0.0'}
 
   big-integer@1.6.52:
     resolution: {integrity: sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==}
@@ -7808,6 +7815,8 @@ snapshots:
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.10.21: {}
+
+  basic-ftp@6.2.6: {}
 
   big-integer@1.6.52: {}
 

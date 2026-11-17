@@ -1,0 +1,78 @@
+# Windmill para o Coolify (experimento), a partir do docker-compose oficial:
+# https://github.com/windmill-labs/windmill/blob/main/docker-compose.yml
+# Sem o Caddy (o proxy é o do Coolify), com 1 worker comum e 1 nativo, e sem modo privilegiado.
+# SERVICE_PASSWORD_* e SERVICE_FQDN_* são variáveis mágicas do Coolify.
+services:
+  db:
+    image: postgres:18
+    shm_size: 1g
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql
+    environment:
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_DB=windmill
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  windmill:
+    image: ghcr.io/windmill-labs/windmill:1.876.1
+    restart: unless-stopped
+    environment:
+      - SERVICE_FQDN_WINDMILL_8000
+      - DATABASE_URL=postgres://postgres:${SERVICE_PASSWORD_POSTGRES}@db/windmill?sslmode=disable
+      - MODE=server
+      - BASE_URL=${SERVICE_FQDN_WINDMILL}
+      # Token de superadmin para a API e a CLI (wmill); não é a senha de nenhum usuário.
+      - SUPERADMIN_SECRET=${SERVICE_PASSWORD_SUPERADMIN}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - worker_logs:/tmp/windmill/logs
+
+  windmill_worker:
+    image: ghcr.io/windmill-labs/windmill:1.876.1
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+    environment:
+      - DATABASE_URL=postgres://postgres:${SERVICE_PASSWORD_POSTGRES}@db/windmill?sslmode=disable
+      - MODE=worker
+      - WORKER_GROUP=default
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - worker_dependency_cache:/tmp/windmill/cache
+      - worker_logs:/tmp/windmill/logs
+
+  # Jobs "nativos" (rodam dentro do próprio processo, bem mais leves).
+  windmill_worker_native:
+    image: ghcr.io/windmill-labs/windmill:1.876.1
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    environment:
+      - DATABASE_URL=postgres://postgres:${SERVICE_PASSWORD_POSTGRES}@db/windmill?sslmode=disable
+      - MODE=worker
+      - WORKER_GROUP=native
+      - NATIVE_MODE=true
+      - SLEEP_QUEUE=200
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - worker_logs:/tmp/windmill/logs
+
+volumes:
+  db_data:
+  worker_logs:
+  worker_dependency_cache:

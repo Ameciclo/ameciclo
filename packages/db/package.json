@@ -32,7 +32,9 @@
     "db:import-ciclo-infra": "tsx scripts/import-ciclo-infra.ts",
     "db:import-samu": "tsx scripts/import-samu.ts",
     "db:import-mortes": "tsx scripts/import-mortes.ts",
-    "db:sync-ciclo-infra": "tsx scripts/sync-ciclo-infra.ts"
+    "db:sync-ciclo-infra": "tsx scripts/sync-ciclo-infra.ts",
+    "db:datasus-baixar": "tsx scripts/datasus-baixar.ts",
+    "db:datasus-filtrar": "tsx scripts/datasus-filtrar.ts"
   },
   "dependencies": {
     "csv-parse": "^7.0.3",
@@ -43,6 +45,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.20.4",
+    "basic-ftp": "^6.2.6",
     "drizzle-kit": "1.0.0-rc.5-5935859",
     "tsx": "^4.23.15",
     "typescript": "^5.1.6",

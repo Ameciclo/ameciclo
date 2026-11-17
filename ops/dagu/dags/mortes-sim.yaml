@@ -7,25 +7,30 @@ params:
   - DRY_RUN: "true"
 env:
   - DATA_DIR: /tmp/mortes
+working_dir: /app/packages/db
 steps:
-  - name: baixar-e-converter
-    # FTP do DATASUS (versão final, ou a preliminar), .dbc -> CSV só com as causas V e Y85.
-    run: python /app/packages/db/scripts/baixar-mortes.py ${YEAR} ${DATA_DIR}
+  - name: baixar
+    # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar.
+    run: pnpm db:datasus-baixar ${YEAR} ${DATA_DIR}
 
-  - name: filtrar-e-validar
+  - name: descompactar-e-filtrar
     depends:
-      - baixar-e-converter
+      - baixar
+    # .dbc (PKWare implode) -> CSV só com as causas de trânsito (V e Y85), no Brasil inteiro.
+    run: pnpm db:datasus-filtrar ${YEAR} ${DATA_DIR}
+
+  - name: validar
+    depends:
+      - descompactar-e-filtrar
     # Fica a RMR (ocorrência ou residência) com causa V01-V89 ou V99; imprime o que foi descartado e por quê.
-    working_dir: /app/packages/db
     run: pnpm db:import-mortes --dry-run
     env:
       - MORTES_DIR: ${DATA_DIR}
 
   - name: carregar-no-banco
     depends:
-      - filtrar-e-validar
+      - validar
     # Substitui o ano inteiro numa transação; só roda com DRY_RUN=false.
-    working_dir: /app/packages/db
     run: pnpm db:import-mortes
     env:
       - MORTES_DIR: ${DATA_DIR}

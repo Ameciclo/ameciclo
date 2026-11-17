@@ -1,18 +1,15 @@
 # Dagu (agendador de fluxos com interface web) com o que os fluxos da Ameciclo precisam:
-# Python (conversão dos .dbc do DATASUS) e Node + pnpm (importadores do packages/db).
+# Node + pnpm (os scripts do packages/db).
 # Build context: a raiz do repositório.
 #   docker build -f ops/dagu/Dockerfile -t ameciclo-dagu .
 FROM ghcr.io/dagucloud/dagu:latest
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends python3 python3-venv python3-dev build-essential ca-certificates curl gnupg \
+ && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
  && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
  && apt-get install -y --no-install-recommends nodejs \
  && corepack enable \
  && rm -rf /var/lib/apt/lists/*
-
-RUN python3 -m venv /opt/py && /opt/py/bin/pip install --no-cache-dir datasus-dbc dbfread
-ENV PATH="/opt/py/bin:${PATH}"
 
 # O pnpm fica na imagem, em um diretório que o usuário dagu lê.
 ENV COREPACK_HOME=/opt/corepack COREPACK_ENABLE_DOWNLOAD_PROMPT=0
