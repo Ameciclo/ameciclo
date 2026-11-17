@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+**/.wrangler
+.git
+.claude
+*.xlsx
+*.sql
+data

@@ -128,3 +128,30 @@ jobs:
           packageManager: pnpm
           workingDirectory: apps/${{ matrix.app }}
           command: deploy
+
+  # The weekly OpenStreetMap sync (apps/sync). A Workflow, so it is deployed
+  # but never run here: the collector on the VPS (apps/collector) starts it.
+  # Needs the R2 bucket ameciclo-cycling-osm to exist.
+  deploy-sync:
+    name: Deploy sync
+    needs: migrate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jdx/mise-action@v5
+        with:
+          cache: true
+
+      - run: pnpm install --frozen-lockfile --filter @ameciclo/sync...
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          packageManager: pnpm
+          workingDirectory: apps/sync
+          command: deploy

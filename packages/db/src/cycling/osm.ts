@@ -18,20 +18,78 @@ rel["source"="PDC/RMR"]["route"="bicycle"]->.pdc;
 way(r.pdc);
 out tags geom;`;
 
+// Limits declared in each query. Overpass only admits a query that needs at most
+// half of what the server has left, so declaring what the query really needs
+// (not the 180 s / 512 MiB default, nor more) makes it easier to get in when the
+// server is busy. Measured: the PDC relations take ~40 s, the rest is quicker.
+const RELATIONS_TIMEOUT_S = 90;
+const IDS_TIMEOUT_S = 60;
+const TILE_TIMEOUT_S = 120;
+const MAX_SIZE = 134_217_728; // 128 MiB
+
 // Bounding box of the RMR (south, west, north, east). Ways outside the 14
 // municipalities are dropped when the city is assigned.
-const RMR_BBOX = "-8.55,-35.25,-7.65,-34.8";
+export type Bbox = readonly [south: number, west: number, north: number, east: number];
+export const RMR_BBOX: Bbox = [-8.55, -35.25, -7.65, -34.8];
 const SIDES = ["cycleway", "cycleway:left", "cycleway:right", "cycleway:both"] as const;
-const INFRA_VALUES = "^(track|lane|opposite_lane|shared_lane|share_busway)$";
+const INFRA_VALUES = ["track", "lane", "opposite_lane", "shared_lane", "share_busway"] as const;
 
-// Every way with cycling infrastructure, in or out of the PDC.
-export const INFRASTRUCTURE_QUERY = `[out:json][timeout:240][bbox:${RMR_BBOX}];
+// Every way with cycling infrastructure inside a box, in or out of the PDC.
+//
+// One exact tag match per statement, never a regex: exact values use Overpass's
+// index, a regex has to look at every way in the box (the ciclomapa project,
+// which queries whole countries, does the same).
+export function infrastructureQuery(bbox: Bbox = RMR_BBOX): string {
+  const statements = [
+    '  way["highway"="cycleway"];',
+    ...SIDES.flatMap((side) => INFRA_VALUES.map((value) => `  way["${side}"="${value}"];`)),
+    ...(["footway", "pedestrian"] as const).flatMap((highway) =>
+      (["yes", "designated"] as const).map((bicycle) => `  way["highway"="${highway}"]["bicycle"="${bicycle}"];`),
+    ),
+  ];
+  return `[out:json][timeout:${TILE_TIMEOUT_S}][maxsize:${MAX_SIZE}][bbox:${bbox.join(",")}];
 (
-  way["highway"="cycleway"];
-${SIDES.map((side) => `  way["${side}"~"${INFRA_VALUES}"];`).join("\n")}
-  way["highway"~"^(footway|pedestrian)$"]["bicycle"~"^(yes|designated)$"];
+${statements.join("\n")}
 );
 out tags geom;`;
+}
+
+export const INFRASTRUCTURE_QUERY = infrastructureQuery();
+
+/**
+ * The RMR box cut in a grid, so each Overpass answer is small enough to arrive
+ * and a failure only repeats one piece. A way across a border shows up in both
+ * pieces; mergeOsm keeps it once.
+ */
+export function infrastructureTiles(rows = 3, columns = 2, bbox: Bbox = RMR_BBOX): Bbox[] {
+  const [south, west, north, east] = bbox;
+  const tiles: Bbox[] = [];
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      tiles.push([
+        round(south + ((north - south) * row) / rows),
+        round(west + ((east - west) * column) / columns),
+        round(south + ((north - south) * (row + 1)) / rows),
+        round(west + ((east - west) * (column + 1)) / columns),
+      ]);
+    }
+  }
+  return tiles;
+}
+
+const round = (n: number) => Math.round(n * 1e5) / 1e5;
+
+// Just the PDC relations and their member ids: small, no geometry.
+export const PDC_RELATIONS_QUERY = `[out:json][timeout:${RELATIONS_TIMEOUT_S}][maxsize:${MAX_SIZE}];
+rel["source"="PDC/RMR"]["route"="bicycle"];
+out body;`;
+
+/** The geometry of some ways by id; the PDC ones, whether or not anything was built there. */
+export function waysByIdQuery(ids: readonly number[]): string {
+  return `[out:json][timeout:${IDS_TIMEOUT_S}][maxsize:${MAX_SIZE}];
+way(id:${ids.join(",")});
+out tags geom;`;
+}
 
 // ---------------------------------------------------------------------------
 // Overpass response
@@ -102,32 +160,99 @@ export function parseOverpass(json: unknown): OsmData {
 // Fetching
 // ---------------------------------------------------------------------------
 
-// Public instances, tried in order: the main one often answers 429 or 504.
-const ENDPOINTS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
-const ATTEMPTS_PER_ENDPOINT = 2;
+// Public instances, tried in order. overpass-api.de goes last: it is the most
+// overloaded one and has the strictest usage policy (the order the ciclomapa
+// project settled on). Only instances that have answered are kept: from the
+// Coolify VPS, overpass.private.coffee and overpass.kumi.systems timed out on
+// every single attempt (about 15 of 15 each, and private.coffee also served
+// data from June and July), and each timeout cost 45 s of every failed attempt.
+// The freshness check still refuses an instance that answers with old data.
+export const OVERPASS_PRIMARY = "https://overpass-api.de/api/interpreter";
+export const OVERPASS_ENDPOINTS = ["https://maps.mail.ru/osm/tools/overpass/api/interpreter", OVERPASS_PRIMARY];
 
+// The mirrors either answer quickly or not at all (measured: every miss was a
+// timeout), so waiting the full time for them only delays the instance that works.
+const MIRROR_TIMEOUT_MS = 45_000;
+
+export type FetchOptions = {
+  endpoints?: readonly string[];
+  attemptsPerEndpoint?: number;
+  timeoutMs?: number;
+  /** Answers whose OSM data is older than this are refused; the next instance is tried. */
+  maxAgeMs?: number;
+  /** A way to reach whoever runs the sync (an e-mail), sent as the From header: Overpass's etiquette. */
+  contact?: string;
+  now?: () => number;
+  log?: (message: string) => void;
+};
+
+// Overpass asks automated clients to say who they are and how to reach them.
+const USER_AGENT = "ameciclo-cycling-sync/1.0 (+https://ameciclo.org; weekly sync of the PDC/RMR cycling network)";
+
+const DAY = 86_400_000;
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function fetchOverpass(query: string, endpoints: string[] = ENDPOINTS): Promise<OsmData> {
+/** Throws when the OSM data behind an answer is older than maxAgeMs. */
+export function assertFresh(data: OsmData, maxAgeMs: number, now = Date.now()): void {
+  if (!data.timestamp) throw new Error("Overpass não informou a data do OSM");
+  const age = now - Date.parse(data.timestamp);
+  if (!(age <= maxAgeMs)) {
+    throw new Error(`dado do OSM de ${data.timestamp}, velho demais (limite ${Math.round(maxAgeMs / DAY)} dias)`);
+  }
+}
+
+export async function fetchOverpass(query: string, options: FetchOptions = {}): Promise<OsmData & { endpoint: string }> {
+  const {
+    endpoints = OVERPASS_ENDPOINTS,
+    attemptsPerEndpoint = 2,
+    timeoutMs = 120_000,
+    maxAgeMs = 3 * DAY,
+    contact,
+    now = Date.now,
+    log = () => {},
+  } = options;
   const errors: string[] = [];
   for (const endpoint of endpoints) {
-    for (let attempt = 1; attempt <= ATTEMPTS_PER_ENDPOINT; attempt++) {
+    for (let attempt = 1; attempt <= attemptsPerEndpoint; attempt++) {
       try {
         const response = await fetch(endpoint, {
           method: "POST",
-          headers: { "User-Agent": "ameciclo-cycling-sync/1.0", "Content-Type": "application/x-www-form-urlencoded" },
+          headers: {
+            "User-Agent": USER_AGENT,
+            "Content-Type": "application/x-www-form-urlencoded",
+            ...(contact ? { From: contact } : {}),
+          },
           body: new URLSearchParams({ data: query }),
-          signal: AbortSignal.timeout(300_000),
+          signal: AbortSignal.timeout(endpoint === OVERPASS_PRIMARY ? timeoutMs : Math.min(timeoutMs, MIRROR_TIMEOUT_MS)),
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return parseOverpass(await response.json());
+        const data = parseOverpass(await response.json());
+        assertFresh(data, maxAgeMs, now());
+        log(`${endpoint}: OSM de ${data.timestamp}`);
+        return { ...data, endpoint };
       } catch (error) {
-        errors.push(`${endpoint} (tentativa ${attempt}): ${error instanceof Error ? error.message : String(error)}`);
-        await sleep(attempt * 10_000);
+        const message = `${endpoint} (tentativa ${attempt}): ${error instanceof Error ? error.message : String(error)}`;
+        errors.push(message);
+        log(message);
+        // Stale data will not get fresher by asking again: go to the next instance.
+        if (error instanceof Error && error.message.includes("velho demais")) break;
+        if (attempt < attemptsPerEndpoint) await sleep(attempt * 5_000);
       }
     }
   }
   throw new Error(`Overpass não respondeu:\n${errors.join("\n")}`);
+}
+
+/** Pieces of the same snapshot as one: each way once, the oldest timestamp. */
+export function mergeOsm(parts: readonly OsmData[]): OsmData {
+  const relations = new Map<number, OsmRelation>();
+  const ways = new Map<number, OsmWay>();
+  for (const part of parts) {
+    for (const relation of part.relations) relations.set(relation.osmId, relation);
+    for (const way of part.ways) ways.set(way.osmId, way);
+  }
+  const timestamp = parts.map((p) => p.timestamp).filter((t) => t !== null).sort().at(0) ?? null;
+  return { timestamp, relations: [...relations.values()], ways: [...ways.values()] };
 }
 
 // ---------------------------------------------------------------------------
