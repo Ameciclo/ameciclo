@@ -29,6 +29,7 @@
     "db:import-perfil": "tsx scripts/import-pesquisa-perfil.ts",
     "db:import-ciclo-infra": "tsx scripts/import-ciclo-infra.ts",
     "db:import-samu": "tsx scripts/import-samu.ts",
+    "db:import-mortes": "tsx scripts/import-mortes.ts",
     "db:sync-ciclo-infra": "tsx scripts/sync-ciclo-infra.ts"
   },
   "dependencies": {
