@@ -3,7 +3,7 @@ import { index, integer, pgTable, smallint, text, timestamp, unique } from "driz
 // ---------------------------------------------------------------------------
 // Mortes no trânsito (DATASUS / SIM)
 //
-// Uma linha por óbito por acidente de transporte (CID-10 V01 a V99) em que o município de ocorrência
+// Uma linha por óbito por acidente de transporte (CID-10 V01 a V89) em que o município de ocorrência
 // ou o de residência está na Região Metropolitana do Recife, de 2011 a 2023. Só o necessário para as
 // estatísticas: ano e mês (sem dia, hora, nascimento nem ocupação). Os códigos de município são os do
 // SIM, com 6 dígitos (o IBGE sem o dígito verificador). Os códigos de sexo, raça/cor e local de

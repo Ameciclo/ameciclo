@@ -43,7 +43,8 @@ describe("toDraft", () => {
 
   it("descarta o que não é da RMR ou não é acidente de transporte", () => {
     expect(toDraft({ ...base, CODMUNOCOR: "240260" })).toEqual({ skipped: "fora da RMR" });
-    expect(toDraft({ ...base, CAUSABAS: "W19" })).toEqual({ skipped: "causa básica fora de V01-V99" });
+    expect(toDraft({ ...base, CAUSABAS: "W19" })).toEqual({ skipped: "causa básica fora de V01-V89" });
+    expect(toDraft({ ...base, CAUSABAS: "V950" })).toEqual({ skipped: "causa básica fora de V01-V89" });
     expect(toDraft({ ...base, DTOBITO: "NA" })).toEqual({ skipped: "sem data de óbito" });
   });
 });

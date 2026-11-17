@@ -15,7 +15,8 @@
     "./cycling-osm": "./src/cycling/osm.ts",
     "./cycling-sync": "./src/cycling/sync.ts",
     "./cycling-manifest": "./src/cycling/manifest.ts",
-    "./cycling-read": "./src/cycling/read.ts"
+    "./cycling-read": "./src/cycling/read.ts",
+    "./deaths-read": "./src/deaths/read.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",

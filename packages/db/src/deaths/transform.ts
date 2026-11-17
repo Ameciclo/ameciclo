@@ -57,7 +57,8 @@ export function toDraft(raw: DeathRow): DraftResult {
   const date = parseDeathDate(raw.DTOBITO);
   if (!date) return { skipped: "sem data de óbito" };
   const cause = noStar(raw.CAUSABAS);
-  if (!cause?.startsWith("V")) return { skipped: "causa básica fora de V01-V99" };
+  // V01 a V89: acidentes de transporte terrestre. V90 a V99 (água, ar) ficam de fora.
+  if (!cause || !/^V[0-8]\d/.test(cause)) return { skipped: "causa básica fora de V01-V89" };
   const occurrenceCity = code(raw.CODMUNOCOR);
   const residenceCity = code(raw.CODMUNRES);
   const inRmr = (occurrenceCity !== null && rmr.has(occurrenceCity)) || (residenceCity !== null && rmr.has(residenceCity));
