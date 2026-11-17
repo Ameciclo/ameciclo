@@ -1,0 +1,92 @@
+summary: ''
+description: ''
+lock: '!inline f/mortes_sim/carregar.script.lock'
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    ano:
+      type: number
+      description: ''
+      default: null
+    banco:
+      type: object
+      description: ''
+      default: null
+      format: resource-postgresql
+      properties:
+        dbname:
+          type: string
+          description: ''
+          originalType: string
+        host:
+          type: string
+          description: ''
+          originalType: string
+        password:
+          type: string
+          description: ''
+          originalType: string
+        port:
+          type: number
+          description: ''
+        sslmode:
+          type: string
+          description: ''
+          originalType: string
+        user:
+          type: string
+          description: ''
+          originalType: string
+    gravar:
+      type: boolean
+      description: ''
+      default: false
+    obitos:
+      type: array
+      description: ''
+      default: null
+      format: resource-obito
+      items:
+        type: object
+        properties:
+          ageYears:
+            type: number
+            description: ''
+          cause:
+            type: string
+            description: ''
+            originalType: string
+          deathPlace:
+            type: string
+            description: ''
+            originalType: string
+          month:
+            type: number
+            description: ''
+          occurrenceCity:
+            type: number
+            description: ''
+          raceColor:
+            type: string
+            description: ''
+            originalType: string
+          residenceCity:
+            type: number
+            description: ''
+          secondaryCauses:
+            type: string
+            description: ''
+            originalType: string
+          sex:
+            type: string
+            description: ''
+            originalType: string
+          year:
+            type: number
+            description: ''
+      originalType: record[]
+  required:
+    - ano
+    - obitos

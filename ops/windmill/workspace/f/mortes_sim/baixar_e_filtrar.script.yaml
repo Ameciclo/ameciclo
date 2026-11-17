@@ -1,0 +1,14 @@
+summary: ''
+description: ''
+lock: '!inline f/mortes_sim/baixar_e_filtrar.script.lock'
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    ano:
+      type: number
+      description: ''
+      default: null
+  required:
+    - ano
