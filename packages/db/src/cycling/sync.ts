@@ -111,6 +111,8 @@ export async function syncCycling(
           geom: sql`ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(wayGeometry(w))}), 4326)`,
           hasCycleway: typology !== null,
           builtTypologyKey: typology,
+          // Pista dupla: o OSM a mapeia como duas linhas, o plano a conta uma vez.
+          dualCarriageway: w.tags.dual_carriageway === "yes",
           tags: w.tags,
           ...wayTags(w.tags),
           removedAt: null,
@@ -128,6 +130,7 @@ export async function syncCycling(
             geom: sql`excluded.geom`,
             hasCycleway: sql`excluded.has_cycleway`,
             builtTypologyKey: sql`excluded.built_typology_key`,
+            dualCarriageway: sql`excluded.dual_carriageway`,
             tags: sql`excluded.tags`,
             surface: sql`excluded.surface`,
             oneway: sql`excluded.oneway`,
