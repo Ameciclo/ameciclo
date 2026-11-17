@@ -129,7 +129,8 @@ async function heartbeat(status: "up" | "down", message: string) {
 }
 
 main().then(
-  () => heartbeat("up", "coleta concluída"),
+  // A dry run is not a success of the sync: say so, or a forgotten DRY_RUN=true would look fine for weeks.
+  () => heartbeat("up", process.env.DRY_RUN === "true" ? "dry run concluido (nada foi gravado)" : "coleta concluida"),
   async (error) => {
     console.error(error);
     await heartbeat("down", error instanceof Error ? error.message : String(error));
