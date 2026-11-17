@@ -1,8 +1,6 @@
-// What the collector leaves in R2 for the sync Workflow: where each piece of
-// the OpenStreetMap snapshot is, and enough to tell whether it is all there.
-//
-// The collector (apps/collector) runs on a VPS because Cloudflare's network
-// cannot reach Overpass; the Workflow (apps/sync) only validates and applies.
+// What the collector (apps/collector) gathers from Overpass before it writes
+// anything: where each piece of the OpenStreetMap snapshot is (in R2, when
+// configured), and enough to tell whether it is all there and recent.
 
 export type Part = {
   /** Object key in R2. */

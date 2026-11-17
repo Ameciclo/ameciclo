@@ -4,9 +4,11 @@ import {
   assertFresh,
   builtTypology,
   INFRASTRUCTURE_QUERY,
+  infrastructureQuery,
   infrastructureTiles,
   mergeOsm,
   parseOverpass,
+  PDC_RELATIONS_QUERY,
   RMR_BBOX,
   relationRef,
   wayGeometry,
@@ -131,5 +133,35 @@ describe("assertFresh", () => {
   });
   it("refuses an answer without a date", () => {
     expect(() => assertFresh({ ...data, timestamp: null }, 1)).toThrow();
+  });
+});
+
+describe("infrastructureQuery", () => {
+  it("matches exact values, never a regex", () => {
+    expect(INFRASTRUCTURE_QUERY).not.toContain("~");
+    for (const value of ["track", "lane", "opposite_lane", "shared_lane", "share_busway"]) {
+      expect(INFRASTRUCTURE_QUERY).toContain(`way["cycleway:left"="${value}"];`);
+    }
+    expect(INFRASTRUCTURE_QUERY).toContain('way["highway"="footway"]["bicycle"="designated"];');
+    expect(INFRASTRUCTURE_QUERY).toContain('way["highway"="pedestrian"]["bicycle"="yes"];');
+  });
+
+  it("asks for every typology that builtTypology reads", () => {
+    // Anything builtTypology calls built has to be in the query, or it never arrives.
+    for (const side of ["cycleway", "cycleway:left", "cycleway:right", "cycleway:both"]) {
+      for (const [value, typology] of [["track", "ciclovia"], ["lane", "ciclofaixa"], ["opposite_lane", "ciclofaixa"], ["shared_lane", "ciclorrota"], ["share_busway", "ciclorrota"]]) {
+        expect(builtTypology({ [side]: value }, false)).toBe(typology);
+        expect(INFRASTRUCTURE_QUERY).toContain(`way["${side}"="${value}"];`);
+      }
+    }
+  });
+});
+
+describe("declared limits", () => {
+  it("every query says how much time and memory it needs", () => {
+    for (const query of [PDC_RELATIONS_QUERY, waysByIdQuery([1]), infrastructureQuery()]) {
+      expect(query).toMatch(/\[timeout:\d+\]/);
+      expect(query).toMatch(/\[maxsize:\d+\]/);
+    }
   });
 });

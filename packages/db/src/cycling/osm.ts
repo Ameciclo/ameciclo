@@ -18,20 +18,38 @@ rel["source"="PDC/RMR"]["route"="bicycle"]->.pdc;
 way(r.pdc);
 out tags geom;`;
 
+// Limits declared in each query. Overpass only admits a query that needs at most
+// half of what the server has left, so declaring what the query really needs
+// (not the 180 s / 512 MiB default, nor more) makes it easier to get in when the
+// server is busy. Measured: the PDC relations take ~40 s, the rest is quicker.
+const RELATIONS_TIMEOUT_S = 90;
+const IDS_TIMEOUT_S = 60;
+const TILE_TIMEOUT_S = 120;
+const MAX_SIZE = 134_217_728; // 128 MiB
+
 // Bounding box of the RMR (south, west, north, east). Ways outside the 14
 // municipalities are dropped when the city is assigned.
 export type Bbox = readonly [south: number, west: number, north: number, east: number];
 export const RMR_BBOX: Bbox = [-8.55, -35.25, -7.65, -34.8];
 const SIDES = ["cycleway", "cycleway:left", "cycleway:right", "cycleway:both"] as const;
-const INFRA_VALUES = "^(track|lane|opposite_lane|shared_lane|share_busway)$";
+const INFRA_VALUES = ["track", "lane", "opposite_lane", "shared_lane", "share_busway"] as const;
 
 // Every way with cycling infrastructure inside a box, in or out of the PDC.
+//
+// One exact tag match per statement, never a regex: exact values use Overpass's
+// index, a regex has to look at every way in the box (the ciclomapa project,
+// which queries whole countries, does the same).
 export function infrastructureQuery(bbox: Bbox = RMR_BBOX): string {
-  return `[out:json][timeout:240][bbox:${bbox.join(",")}];
+  const statements = [
+    '  way["highway"="cycleway"];',
+    ...SIDES.flatMap((side) => INFRA_VALUES.map((value) => `  way["${side}"="${value}"];`)),
+    ...(["footway", "pedestrian"] as const).flatMap((highway) =>
+      (["yes", "designated"] as const).map((bicycle) => `  way["highway"="${highway}"]["bicycle"="${bicycle}"];`),
+    ),
+  ];
+  return `[out:json][timeout:${TILE_TIMEOUT_S}][maxsize:${MAX_SIZE}][bbox:${bbox.join(",")}];
 (
-  way["highway"="cycleway"];
-${SIDES.map((side) => `  way["${side}"~"${INFRA_VALUES}"];`).join("\n")}
-  way["highway"~"^(footway|pedestrian)$"]["bicycle"~"^(yes|designated)$"];
+${statements.join("\n")}
 );
 out tags geom;`;
 }
@@ -62,13 +80,13 @@ export function infrastructureTiles(rows = 3, columns = 2, bbox: Bbox = RMR_BBOX
 const round = (n: number) => Math.round(n * 1e5) / 1e5;
 
 // Just the PDC relations and their member ids: small, no geometry.
-export const PDC_RELATIONS_QUERY = `[out:json][timeout:120];
+export const PDC_RELATIONS_QUERY = `[out:json][timeout:${RELATIONS_TIMEOUT_S}][maxsize:${MAX_SIZE}];
 rel["source"="PDC/RMR"]["route"="bicycle"];
 out body;`;
 
 /** The geometry of some ways by id; the PDC ones, whether or not anything was built there. */
 export function waysByIdQuery(ids: readonly number[]): string {
-  return `[out:json][timeout:120];
+  return `[out:json][timeout:${IDS_TIMEOUT_S}][maxsize:${MAX_SIZE}];
 way(id:${ids.join(",")});
 out tags geom;`;
 }
@@ -142,13 +160,21 @@ export function parseOverpass(json: unknown): OsmData {
 // Fetching
 // ---------------------------------------------------------------------------
 
-// Public instances, tried in order: the main one often answers 429 or 504, and
-// some mirrors serve data that is months old (hence the freshness check).
+// Public instances, tried in order. overpass-api.de goes last: it is the most
+// overloaded one and has the strictest usage policy, so lean on it only when the
+// others are down (the order the ciclomapa project settled on). Some mirrors
+// serve data that is months old, hence the freshness check.
+export const OVERPASS_PRIMARY = "https://overpass-api.de/api/interpreter";
 export const OVERPASS_ENDPOINTS = [
-  "https://overpass-api.de/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
+  OVERPASS_PRIMARY,
 ];
+
+// The mirrors either answer quickly or not at all (measured: every miss was a
+// timeout), so waiting the full time for them only delays the instance that works.
+const MIRROR_TIMEOUT_MS = 45_000;
 
 export type FetchOptions = {
   endpoints?: readonly string[];
@@ -156,6 +182,8 @@ export type FetchOptions = {
   timeoutMs?: number;
   /** Answers whose OSM data is older than this are refused; the next instance is tried. */
   maxAgeMs?: number;
+  /** A way to reach whoever runs the sync (an e-mail), sent as the From header: Overpass's etiquette. */
+  contact?: string;
   now?: () => number;
   log?: (message: string) => void;
 };
@@ -181,6 +209,7 @@ export async function fetchOverpass(query: string, options: FetchOptions = {}): 
     attemptsPerEndpoint = 2,
     timeoutMs = 120_000,
     maxAgeMs = 3 * DAY,
+    contact,
     now = Date.now,
     log = () => {},
   } = options;
@@ -190,9 +219,13 @@ export async function fetchOverpass(query: string, options: FetchOptions = {}): 
       try {
         const response = await fetch(endpoint, {
           method: "POST",
-          headers: { "User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded" },
+          headers: {
+            "User-Agent": USER_AGENT,
+            "Content-Type": "application/x-www-form-urlencoded",
+            ...(contact ? { From: contact } : {}),
+          },
           body: new URLSearchParams({ data: query }),
-          signal: AbortSignal.timeout(timeoutMs),
+          signal: AbortSignal.timeout(endpoint === OVERPASS_PRIMARY ? timeoutMs : Math.min(timeoutMs, MIRROR_TIMEOUT_MS)),
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = parseOverpass(await response.json());
