@@ -6,13 +6,15 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
 import { CardsSession } from "~/components/Commom/CardsSession";
-import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
 import { CityContent } from "~/components/ExecucaoCicloviaria/CityContent";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { execucaoCicloviariaQueryOptions } from "~/queries/dados.execucaocicloviaria";
+import { ExecucaoHistory } from "~/components/ExecucaoCicloviaria/ExecucaoHistory";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
+    execucaoCicloviariaQueryOptions,
+    execucaoCicloviariaWaysQueryOptions,
+} from "~/queries/dados.execucaocicloviaria";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/execucaocicloviaria/")({
@@ -41,14 +43,15 @@ function ExecucaoCicloviaria() {
         description1,
         description2,
         documents,
-        allWaysData,
         layersConf,
         statsData,
         citiesData,
-        apiDown,
+        updatedAt,
+        history,
     } = data;
 
-    useReportApiErrors(data);
+    // The ways come after the page: the numbers do not wait for the map.
+    const { data: allWaysData } = useQuery(execucaoCicloviariaWaysQueryOptions());
 
     const [optionsType, setOptionsType] = useState("max1digit");
     const [city_sort, sortCity] = useState("total");
@@ -85,7 +88,6 @@ function ExecucaoCicloviaria() {
         <>
             <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
             <Breadcrumb label="Execução Cicloviária" slug="/dados/execucaocicloviaria" routes={["/", "/dados"]} />
-            <ApiStatusHandler apiDown={apiDown} />
             <StatisticsBox
                 title={"Execução Cicloviária"}
                 subtitle={"da Região Metropolitana do Recife"}
@@ -103,31 +105,16 @@ function ExecucaoCicloviaria() {
                     },
                 ]}
             />
-            <div className="relative">
-                {apiDown && (
-                    <div className="absolute inset-0 bg-white/90 z-10 flex items-center justify-center">
-                        <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-8 max-w-md mx-4">
-                            <div className="text-center">
-                                <svg className="w-16 h-16 text-orange-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-2">Dados do mapa indisponíveis</h3>
-                                <p className="text-gray-600 mb-6">Não foi possível carregar os dados do mapa no momento. Tente novamente mais tarde.</p>
-                                <a
-                                    href="/contato"
-                                    className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-3 rounded-lg transition-colors"
-                                >
-                                    Reportar problema
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                <AmecicloMap
-                    layerData={allWaysData}
-                    layersConf={layersConf as LayerProps[]}
-                />
-            </div>
+            <AmecicloMap
+                layerData={allWaysData}
+                layersConf={layersConf as LayerProps[]}
+                // The whole RMR: the map cannot frame itself on ways that are still on their way.
+                initialViewState={{ latitude: -8.1, longitude: -35.0, zoom: 9.2 }}
+            />
+            <p className="mx-auto container px-4 mt-4 text-center text-sm text-gray-600">
+                Dados do OpenStreetMap{updatedAt ? `, atualizados em ${new Date(updatedAt).toLocaleDateString("pt-BR", { timeZone: "America/Recife" })}` : ""}.
+                Nas vias de pista dupla, as duas pistas contam como uma só.
+            </p>
             <CityContent
                 citiesStats={citiesData}
                 filterRef={filterRef}
@@ -137,6 +124,11 @@ function ExecucaoCicloviaria() {
                 sortCityAndType={sortCityAndType}
             />
 
+
+            <ExecucaoHistory
+                history={history}
+                cities={Object.values(citiesData).map((c: any) => ({ id: c.id, name: c.name }))}
+            />
 
             <div data-documents-section>
                 <CardsSession title={documents.title} cards={documents.cards} />

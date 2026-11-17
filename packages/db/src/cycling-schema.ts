@@ -202,6 +202,10 @@ export const cyclingSummarySnapshot = pgTable(
   (t) => [primaryKey({ columns: [t.runId, t.cityIbge] })],
 );
 
+// Pista dupla: o plano traz a via uma vez, mas no OSM ela é duas linhas paralelas
+// (tag dual_carriageway=yes). Para os números do PDC cada uma conta metade, como
+// o Atlas sempre contou (effective_length_m). length_m segue sendo o comprimento real.
+//
 // Status de execução de cada trecho ativo. Com ciclovia construída, é
 // "designado" se a tipologia construída bate com a de qualquer projeto a que
 // o trecho pertence. Sem ciclovia mas com projeto, o plano não saiu do papel.
@@ -210,6 +214,7 @@ export const cyclingWayStatus = pgView("cycling_way_status", {
   cityIbge: integer("city_ibge"),
   lengthM: doublePrecision("length_m"),
   status: text("status"),
+  effectiveLengthM: doublePrecision("effective_length_m"),
 }).as(sql`
   SELECT
     w.id AS way_id,
@@ -228,12 +233,14 @@ export const cyclingWayStatus = pgView("cycling_way_status", {
       WHEN EXISTS (
         SELECT 1 FROM cycling_way_project wp WHERE wp.way_id = w.id
       ) THEN 'pdc_nao_realizado'
-    END AS status
+    END AS status,
+    w.length_m * CASE WHEN w.dual_carriageway THEN 0.5 ELSE 1 END AS effective_length_m
   FROM cycling_way w
   WHERE w.removed_at IS NULL
 `);
 
-// Km por status em cada cidade, somados pela geometria dos trechos. Como cada
+// Km por status em cada cidade, somados pela geometria dos trechos (pista dupla
+// pela metade, ver acima). Como cada
 // trecho tem uma cidade só, um projeto que cruza municípios não conta em dobro.
 export const cyclingCitySummary = pgView("cycling_city_summary", {
   cityIbge: integer("city_ibge").notNull(),
@@ -244,10 +251,10 @@ export const cyclingCitySummary = pgView("cycling_city_summary", {
 }).as(sql`
   SELECT
     city_ibge,
-    COALESCE(SUM(length_m) FILTER (WHERE status = 'pdc_realizado_designado'), 0) / 1000 AS pdc_realizado_designado_km,
-    COALESCE(SUM(length_m) FILTER (WHERE status = 'pdc_realizado_nao_designado'), 0) / 1000 AS pdc_realizado_nao_designado_km,
-    COALESCE(SUM(length_m) FILTER (WHERE status = 'realizado_fora_pdc'), 0) / 1000 AS realizado_fora_pdc_km,
-    COALESCE(SUM(length_m) FILTER (WHERE status = 'pdc_nao_realizado'), 0) / 1000 AS pdc_nao_realizado_km
+    COALESCE(SUM(effective_length_m) FILTER (WHERE status = 'pdc_realizado_designado'), 0) / 1000 AS pdc_realizado_designado_km,
+    COALESCE(SUM(effective_length_m) FILTER (WHERE status = 'pdc_realizado_nao_designado'), 0) / 1000 AS pdc_realizado_nao_designado_km,
+    COALESCE(SUM(effective_length_m) FILTER (WHERE status = 'realizado_fora_pdc'), 0) / 1000 AS realizado_fora_pdc_km,
+    COALESCE(SUM(effective_length_m) FILTER (WHERE status = 'pdc_nao_realizado'), 0) / 1000 AS pdc_nao_realizado_km
   FROM cycling_way_status
   WHERE city_ibge IS NOT NULL
   GROUP BY city_ibge
