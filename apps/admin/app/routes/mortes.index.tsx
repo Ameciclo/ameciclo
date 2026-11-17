@@ -86,7 +86,7 @@ function MortesPage() {
     <>
       <AdminTopbar
         title="Mortes no trânsito"
-        description={`Óbitos por acidentes de transporte (CID-10 V01 a V89) do SIM/DATASUS na Região Metropolitana do Recife, ${first} a ${last}. Só agregados: nenhum óbito individual é exibido.`}
+        description={`Óbitos por acidentes de transporte (CID-10 V01 a V89 e V99) do SIM/DATASUS na Região Metropolitana do Recife, ${first} a ${last}. Só agregados: nenhum óbito individual é exibido.`}
       />
       <div className="flex-1 space-y-6 px-6 py-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

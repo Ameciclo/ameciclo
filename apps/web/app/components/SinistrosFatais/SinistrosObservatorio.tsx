@@ -29,7 +29,7 @@ const BASIS_NOTE: Record<Basis, string> = {
 const EXPLANATIONS = [
   {
     label: "O que são esses dados?",
-    text: "Mortes por acidentes de transporte terrestre (CID-10, de V01 a V89) registradas no Sistema de Informações sobre Mortalidade (SIM), do DATASUS, a partir das declarações de óbito. Os números só consideram as pessoas que morreram; feridos não entram.",
+    text: "Mortes por acidentes de transporte terrestre (CID-10, de V01 a V89, mais o V99, acidente de transporte não especificado) registradas no Sistema de Informações sobre Mortalidade (SIM), do DATASUS, a partir das declarações de óbito. Os números só consideram as pessoas que morreram; feridos não entram.",
   },
   {
     label: "Onde morreram ou onde moravam?",
@@ -181,9 +181,9 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
         <h2 id="como-medimos" className="text-xl font-bold text-gray-800">Como medimos</h2>
         <dl className="mt-4 grid max-w-5xl grid-cols-1 gap-x-12 gap-y-5 md:grid-cols-2">
           {[
-            ["De onde vem", "Das declarações de óbito do SIM, publicadas pelo DATASUS. Contamos os óbitos cuja causa principal é um acidente de transporte terrestre (CID-10 V01 a V89) em que o município do óbito ou o de residência é um dos 14 da Região Metropolitana do Recife."],
+            ["De onde vem", "Das declarações de óbito do SIM, publicadas pelo DATASUS. Contamos os óbitos cuja causa principal é um acidente de transporte terrestre (CID-10 V01 a V89 e V99) em que o município do óbito ou o de residência é um dos 14 da Região Metropolitana do Recife."],
             ["Quem morreu e em que colisão", "O próprio código da causa diz quem morreu (pedestre, ciclista, motociclista, ocupante de automóvel…) e contra quem ou o quê colidiu. Os códigos de colisão com “não especificado” aparecem como tal."],
-            ["O que não está aqui", "Feridos e sinistros sem morte; mortes que o SIM ainda não registrou; e o local exato do sinistro, que a declaração de óbito não traz. Cada ano só entra depois que o DATASUS o publica, o que leva cerca de um ano."],
+            ["O que não está aqui", "Feridos e sinistros sem morte; quem morreu meses depois, de sequelas (cerca de 3 pessoas por ano na região); mortes que o SIM ainda não registrou; e o local exato do sinistro, que a declaração de óbito não traz. Cada ano só entra depois que o DATASUS o publica, o que leva cerca de um ano."],
             ["Privacidade", "Guardamos só o ano e o mês do óbito, sem dia, hora, nascimento ou profissão, e a página mostra apenas totais."],
           ].map(([term, text]) => (
             <div key={term}>

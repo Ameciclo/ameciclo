@@ -34,7 +34,7 @@ export const RMR_CITY_NAMES: Record<number, string> = {
 export type Basis = "ocorrencia" | "residencia";
 
 
-// Quem morreu, pelo número da causa básica (V01 a V89).
+// Quem morreu, pelo número da causa básica (V01 a V89; o V99 cai em "outros").
 export function victimMode(cause: string): Mode {
   const n = Number(cause.slice(1, 3));
   if (n >= 1 && n <= 9) return "pedestre";
