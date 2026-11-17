@@ -161,16 +161,14 @@ export function parseOverpass(json: unknown): OsmData {
 // ---------------------------------------------------------------------------
 
 // Public instances, tried in order. overpass-api.de goes last: it is the most
-// overloaded one and has the strictest usage policy, so lean on it only when the
-// others are down (the order the ciclomapa project settled on). Some mirrors
-// serve data that is months old, hence the freshness check.
+// overloaded one and has the strictest usage policy (the order the ciclomapa
+// project settled on). Only instances that have answered are kept: from the
+// Coolify VPS, overpass.private.coffee and overpass.kumi.systems timed out on
+// every single attempt (about 15 of 15 each, and private.coffee also served
+// data from June and July), and each timeout cost 45 s of every failed attempt.
+// The freshness check still refuses an instance that answers with old data.
 export const OVERPASS_PRIMARY = "https://overpass-api.de/api/interpreter";
-export const OVERPASS_ENDPOINTS = [
-  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
-  "https://overpass.private.coffee/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
-  OVERPASS_PRIMARY,
-];
+export const OVERPASS_ENDPOINTS = ["https://maps.mail.ru/osm/tools/overpass/api/interpreter", OVERPASS_PRIMARY];
 
 // The mirrors either answer quickly or not at all (measured: every miss was a
 // timeout), so waiting the full time for them only delays the instance that works.

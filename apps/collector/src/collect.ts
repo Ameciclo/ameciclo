@@ -9,7 +9,7 @@
 // (HTTP 521 and timeouts from Workers, measured 2026-11-17).
 
 import { withDb } from "@ameciclo/db";
-import { type Manifest, manifestProblems, type Part } from "@ameciclo/db/cycling-manifest";
+import { type Manifest, manifestParts, manifestProblems, type Part } from "@ameciclo/db/cycling-manifest";
 import {
   fetchOverpass,
   infrastructureQuery,
@@ -21,6 +21,8 @@ import {
 } from "@ameciclo/db/cycling-osm";
 import { syncCycling } from "@ameciclo/db/cycling-sync";
 import { randomBytes } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 import { r2Client } from "./r2";
 import { withRetries } from "./retry";
@@ -38,6 +40,21 @@ const ATTEMPTS = 10;
 const MAX_WAIT_MS = 15 * 60_000;
 // Whatever happens, the run ends: a stuck night must not hold the VPS for days.
 const DEADLINE_MS = 6 * 60 * 60_000;
+
+// Every answer is also kept on disk, so a run that was only a dry run can be
+// applied for real afterwards without asking Overpass again (APPLY_SNAPSHOT).
+const SNAPSHOT_DIR = process.env.SNAPSHOT_DIR ?? "/tmp/osm-snapshots";
+const SNAPSHOT_PREFIX = /^(production|staging)\/\d{4}-\d{2}-\d{2}\/[0-9a-f]{8}$/;
+
+async function saveSnapshot(key: string, value: unknown): Promise<void> {
+  const file = join(SNAPSHOT_DIR, key);
+  await mkdir(dirname(file), { recursive: true });
+  await writeFile(file, JSON.stringify(value));
+}
+
+async function readSnapshot<T>(key: string): Promise<T> {
+  return JSON.parse(await readFile(join(SNAPSHOT_DIR, key), "utf8"));
+}
 
 function required(name: string): string {
   const value = process.env[name];
@@ -64,56 +81,73 @@ async function main() {
     : null;
 
   const startedAt = Date.now();
-  const prefix = `${environment}/${new Date().toISOString().slice(0, 10)}/${randomBytes(4).toString("hex")}`;
-  log(`Coleta ${prefix}${dryRun ? " (dry run)" : ""}${r2 ? "" : " (sem R2)"}`);
+  const reuse = process.env.APPLY_SNAPSHOT;
+  if (reuse && !(SNAPSHOT_PREFIX.test(reuse) && reuse.startsWith(`${environment}/`))) {
+    throw new Error(`APPLY_SNAPSHOT inválido para ${environment}: ${reuse}`);
+  }
+  const prefix = reuse ?? `${environment}/${new Date().toISOString().slice(0, 10)}/${randomBytes(4).toString("hex")}`;
+  log(`${reuse ? "Aplicando o snapshot" : "Coleta"} ${prefix}${dryRun ? " (dry run)" : ""}${r2 ? "" : " (sem R2)"}`);
 
-  const collect = (name: string, query: string): Promise<Part & { data: OsmData }> =>
-    withRetries(
-      async () => {
-        if (Date.now() > startedAt + DEADLINE_MS) throw new Error("Passou do prazo de 6 horas; a coleta foi abandonada");
-        const { endpoint, ...data } = await fetchOverpass(query, { attemptsPerEndpoint: 1, contact: process.env.OVERPASS_CONTACT, log });
-        const key = `${prefix}/${name}.json`;
-        await r2?.putJson(key, data);
-        log(`${name}: ${data.relations.length} relações, ${data.ways.length} trechos (OSM de ${data.timestamp})`);
-        return { key, timestamp: data.timestamp, endpoint, relations: data.relations.length, ways: data.ways.length, data };
-      },
-      { attempts: ATTEMPTS, baseMs: 30_000, maxMs: MAX_WAIT_MS, onError: (error, attempt) => log(`${name}, tentativa ${attempt}: ${error instanceof Error ? error.message : error}`) },
+  let manifest: Manifest;
+  let pieces: OsmData[]; // in the order of manifestParts(manifest)
+
+  if (reuse) {
+    // Already collected (and checked for freshness below): no Overpass this time.
+    manifest = await readSnapshot<Manifest>(`${prefix}/manifest.json`);
+    pieces = await Promise.all(manifestParts(manifest).map((part) => readSnapshot<OsmData>(part.key)));
+  } else {
+    const collect = (name: string, query: string): Promise<Part & { data: OsmData }> =>
+      withRetries(
+        async () => {
+          if (Date.now() > startedAt + DEADLINE_MS) throw new Error("Passou do prazo de 6 horas; a coleta foi abandonada");
+          const { endpoint, ...data } = await fetchOverpass(query, { attemptsPerEndpoint: 1, contact: process.env.OVERPASS_CONTACT, log });
+          const key = `${prefix}/${name}.json`;
+          await saveSnapshot(key, data);
+          await r2?.putJson(key, data);
+          log(`${name}: ${data.relations.length} relações, ${data.ways.length} trechos (OSM de ${data.timestamp})`);
+          return { key, timestamp: data.timestamp, endpoint, relations: data.relations.length, ways: data.ways.length, data };
+        },
+        { attempts: ATTEMPTS, baseMs: 30_000, maxMs: MAX_WAIT_MS, onError: (error, attempt) => log(`${name}, tentativa ${attempt}: ${error instanceof Error ? error.message : error}`) },
+      );
+    const withoutData = ({ data: _data, ...part }: Part & { data: OsmData }): Part => part;
+
+    // 1. The PDC relations, and with them which ways belong to the plan.
+    const relations = await collect("pdc-relacoes", PDC_RELATIONS_QUERY);
+    const wayIds = [...new Set(relations.data.relations.flatMap((r) => r.wayIds))].sort((a, b) => a - b);
+
+    // 2. Their geometry, a few hundred ways at a time.
+    const idChunks = Array.from({ length: Math.ceil(wayIds.length / WAYS_PER_QUERY) }, (_, i) =>
+      wayIds.slice(i * WAYS_PER_QUERY, (i + 1) * WAYS_PER_QUERY),
     );
-  const withoutData = ({ data: _data, ...part }: Part & { data: OsmData }): Part => part;
+    const pdcWays = await inWaves(idChunks, CONCURRENCY, (ids, i) => collect(`pdc-trechos-${i + 1}`, waysByIdQuery(ids)));
 
-  // 1. The PDC relations, and with them which ways belong to the plan.
-  const relations = await collect("pdc-relacoes", PDC_RELATIONS_QUERY);
-  const wayIds = [...new Set(relations.data.relations.flatMap((r) => r.wayIds))].sort((a, b) => a - b);
+    // 3. Everything with cycling infrastructure, by tile of the RMR.
+    const infrastructure = await inWaves(infrastructureTiles(), CONCURRENCY, (tile, i) =>
+      collect(`infra-${i + 1}`, infrastructureQuery(tile)),
+    );
 
-  // 2. Their geometry, a few hundred ways at a time.
-  const idChunks = Array.from({ length: Math.ceil(wayIds.length / WAYS_PER_QUERY) }, (_, i) =>
-    wayIds.slice(i * WAYS_PER_QUERY, (i + 1) * WAYS_PER_QUERY),
-  );
-  const pdcWays = await inWaves(idChunks, CONCURRENCY, (ids, i) => collect(`pdc-trechos-${i + 1}`, waysByIdQuery(ids)));
-
-  // 3. Everything with cycling infrastructure, by tile of the RMR.
-  const infrastructure = await inWaves(infrastructureTiles(), CONCURRENCY, (tile, i) =>
-    collect(`infra-${i + 1}`, infrastructureQuery(tile)),
-  );
-
-  const manifest: Manifest = {
-    version: 1,
-    prefix,
-    collectedAt: new Date().toISOString(),
-    pdcWayIds: wayIds.length,
-    relations: withoutData(relations),
-    pdcWays: pdcWays.map(withoutData),
-    infrastructure: infrastructure.map(withoutData),
-  };
-  await r2?.putJson(`${prefix}/manifest.json`, manifest);
+    manifest = {
+      version: 1,
+      prefix,
+      collectedAt: new Date().toISOString(),
+      pdcWayIds: wayIds.length,
+      relations: withoutData(relations),
+      pdcWays: pdcWays.map(withoutData),
+      infrastructure: infrastructure.map(withoutData),
+    };
+    pieces = [relations.data, ...pdcWays.map((p) => p.data), ...infrastructure.map((p) => p.data)];
+    await saveSnapshot(`${prefix}/manifest.json`, manifest);
+    await r2?.putJson(`${prefix}/manifest.json`, manifest);
+    log(`Snapshot guardado em ${join(SNAPSHOT_DIR, prefix)}. Para aplicar de novo sem buscar: APPLY_SNAPSHOT=${prefix} DRY_RUN=false`);
+  }
 
   // 4. All there, and recent? Otherwise nothing is written.
   const problems = manifestProblems(manifest);
   if (problems.length > 0) throw new Error(`Dados incompletos ou velhos, nada foi gravado: ${problems.join("; ")}`);
 
-  // 5. One transaction.
-  const pdc = mergeOsm([relations.data, ...pdcWays.map((p) => p.data)]);
-  const infra = mergeOsm(infrastructure.map((p) => p.data));
+  // 5. One transaction. The pieces are [relations, ...PDC ways, ...infrastructure tiles].
+  const pdc = mergeOsm(pieces.slice(0, 1 + manifest.pdcWays.length));
+  const infra = mergeOsm(pieces.slice(1 + manifest.pdcWays.length));
   const summary = await withDb(databaseUrl, (db) =>
     syncCycling(db, { pdc, infrastructure: infra }, { triggeredBy: `coletor ${prefix}`, dryRun }),
   );
