@@ -2,7 +2,11 @@ import { and, between, eq, inArray, sql, type SQL } from "drizzle-orm";
 
 import type { Db } from "../index";
 import { trafficDeath } from "../schema";
+import { COUNTERPARTS, type Counterpart, MODES, type Mode } from "./model";
 import { RMR_SIM_CODES } from "./transform";
+
+export { COUNTERPARTS, MODES };
+export type { Counterpart, Mode };
 
 // ---------------------------------------------------------------------------
 // Leituras das mortes no trânsito. Só estatísticas: nenhuma linha sai daqui.
@@ -29,8 +33,6 @@ export const RMR_CITY_NAMES: Record<number, string> = {
 
 export type Basis = "ocorrencia" | "residencia";
 
-export const MODES = ["pedestre", "ciclista", "motociclista", "automovel", "onibus", "outros"] as const;
-export type Mode = (typeof MODES)[number];
 
 // Quem morreu, pelo número da causa básica (V01 a V89).
 export function victimMode(cause: string): Mode {
@@ -43,18 +45,6 @@ export function victimMode(cause: string): Mode {
   return "outros";
 }
 
-export const COUNTERPARTS = [
-  "pedestre",
-  "ciclista",
-  "motociclista",
-  "automovel",
-  "onibus",
-  "outros",
-  "objeto_fixo",
-  "sem_colisao",
-  "nao_especificado",
-] as const;
-export type Counterpart = (typeof COUNTERPARTS)[number];
 
 // Com quem ou com o quê colidiu, pelo último dígito da causa básica.
 export function counterpart(cause: string): Counterpart {
@@ -115,7 +105,7 @@ export type DeathStats = {
   bySex: { masculino: number; feminino: number; ignorado: number };
   byRace: { label: string; total: number }[];
   byAge: { label: string; total: number }[];
-  /** Códigos CID-10 mais citados nas causas secundárias, com quantas declarações os citam. */
+  /** Diagnósticos (CID-10, fora os V) mais citados nas declarações, além da causa principal. */
   secondaryCauses: { code: string; total: number }[];
 };
 
@@ -160,7 +150,8 @@ export function summarizeDeaths(rows: DeathRow[], limitSecondary = 12): DeathSta
 
     // Cada código conta uma vez por declaração, mesmo que repetido em linhas diferentes.
     for (const code of new Set(r.secondaryCauses?.split(" ").filter(Boolean) ?? [])) {
-      if (code !== r.cause) secondary.set(code, (secondary.get(code) ?? 0) + 1);
+      // Os códigos V repetem o mecanismo do sinistro, que já é a causa principal.
+      if (!code.startsWith("V")) secondary.set(code, (secondary.get(code) ?? 0) + 1);
     }
   }
 

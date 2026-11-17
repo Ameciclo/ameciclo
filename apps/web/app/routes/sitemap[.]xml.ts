@@ -31,7 +31,7 @@ const STATIC_ROUTES: Array<{
   { path: "/dados/loa", changefreq: "weekly", priority: 0.7 },
   { path: "/dados/perfil", changefreq: "weekly", priority: 0.7 },
   { path: "/dados/chamados-de-sinistros", changefreq: "weekly", priority: 0.7 },
-  { path: "/dados/sinistrosfatais", changefreq: "weekly", priority: 0.7 },
+  { path: "/dados/sinistros-fatais", changefreq: "weekly", priority: 0.7 },
   { path: "/dados/viasinseguras", changefreq: "weekly", priority: 0.7 },
   { path: "/participe", changefreq: "monthly", priority: 0.7 },
   { path: "/projetos", changefreq: "weekly", priority: 0.9 },

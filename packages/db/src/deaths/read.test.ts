@@ -34,7 +34,7 @@ describe("summarizeDeaths", () => {
 
   it("soma por ano, modo, sexo, raça, idade e causas secundárias", () => {
     const s = summarizeDeaths([
-      row({ secondaryCauses: "T794 V234 T794" }),
+      row({ secondaryCauses: "T794 V234 T794 V099" }),
       row({ year: 2023, cause: "V031", sex: "2", raceColor: null, ageYears: 80, secondaryCauses: "T794" }),
     ]);
     expect(s.total).toBe(2);
