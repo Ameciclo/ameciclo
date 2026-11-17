@@ -1,6 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { IntlNumberMax1Digit, IntlPercentil } from "~/services/utils";
 import {
   PDC_VOL1_URL,
   PDC_VOL2_URL,
@@ -10,82 +9,23 @@ import {
   PDC_WIKI_URL,
 } from "~/servers";
 
-const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
-  const page_data = {
-    title: "Observatório Cicloviário",
-    cover_image_url: "/execucaocicloviaria.png",
-    ExplanationBoxData: {
-      title_1: "O que é?",
-      text_1: `O Observatório Cicloviário é uma central de monitoramento que acompanha a evolução da estrutura cicloviária da Região Metropolitana do Recife, comparando a estrutura projetada pelo Plano Diretor Cicloviário frente à estrutura executada.
-            Para facilitar a demonstração dos dados, considera-se EXECUTADA o local onde havia previsão de estrutura e foi implatado algo lá, não necessariamente da mesma tipologia.`,
-      title_2: "Por que o PDC?",
-      text_2: `Em 4 de fevereiro de 2014 o Governo do Estado de Pernambuco, junto com as prefeituras da Região Metropolitana do Recife, lançou o Plano Diretor Cicloviário (PDC).
-            O Plano integra os diversos municípios da RMR com uma ampla rede cicloviária, priorizando as principais avenidas e pontos de conexão das cidades. Sua construção teve participação não só dos entes públicos, mas também da sociedade civil, como nós, da Ameciclo.
-            Com metas estipuladas em fases,  o PDC precisa ser concluído em 2024.`,
-    },
-  };
+// Recife opens first when the address names no (or an unknown) municipality.
+export const DEFAULT_CITY_IBGE = 2611606;
 
-  const cycleStructureExecutionStatistics = (d: { existingKm: number; plannedKm: number; executedInPdcKm: number; percent: number }) => [
+const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
+  const explanations = [
     {
-      title: "estrutura cicloviárias existentes",
-      unit: "km",
-      value: IntlNumberMax1Digit(d.existingKm),
+      label: "O que é?",
+      text: `O Observatório Cicloviário é uma central de monitoramento que acompanha a evolução da estrutura cicloviária da Região Metropolitana do Recife, comparando a estrutura projetada pelo Plano Diretor Cicloviário frente à estrutura executada.
+            Para facilitar a demonstração dos dados, considera-se EXECUTADA o local onde havia previsão de estrutura e foi implantado algo lá, não necessariamente da mesma tipologia.`,
     },
     {
-      title: "projetada no plano cicloviário",
-      unit: "km",
-      value: IntlNumberMax1Digit(d.plannedKm),
-    },
-    {
-      title: "implantados no plano cicloviário",
-      unit: "km",
-      value: IntlNumberMax1Digit(d.executedInPdcKm),
-    },
-    {
-      title: "cobertos do plano cicloviário",
-      unit: "%",
-      value: IntlPercentil(d.percent / 100),
+      label: "Por que o PDC?",
+      text: `Em 4 de fevereiro de 2014 o Governo do Estado de Pernambuco, junto com as prefeituras da Região Metropolitana do Recife, lançou o Plano Diretor Cicloviário (PDC).
+            O Plano integra os diversos municípios da RMR com uma ampla rede cicloviária, priorizando as principais avenidas e pontos de conexão das cidades. Sua construção teve participação não só dos entes públicos, mas também da sociedade civil, como nós, da Ameciclo.
+            Com metas estipuladas em fases, o PDC tinha prazo de conclusão em 2024. O observatório mostra quanto dele saiu do papel até hoje.`,
     },
   ];
-
-  const PDCLayer = {
-    id: "Não executado no PDC",
-    type: "line",
-    paint: {
-      "line-color": "#E02F31",
-      "line-opacity": 0.5,
-      "line-width": 2,
-    },
-    filter: ["==", "status_type", "pdc_nao_realizado"],
-  };
-
-  const PDCDoneLayer = {
-    id: "Executados dentro do PDC",
-    type: "line",
-    paint: {
-      "line-color": "#008080",
-      "line-width": 3,
-    },
-    filter: [
-      "in",
-      "status_type",
-      "pdc_realizado_designado",
-      "pdc_realizado_nao_designado",
-    ],
-  };
-
-  const NotPDC = {
-    id: "Executados fora do PDC",
-    type: "line",
-    paint: {
-      "line-color": "#DDDF00",
-      "line-width": 1.5,
-      "line-opacity": 0.8,
-    },
-    filter: ["==", "status_type", "realizado_fora_pdc"],
-  };
-
-  const layersConf = [PDCLayer, PDCDoneLayer, NotPDC];
 
   const { withDb } = await import("~/lib/db.server");
   const { getCyclingOverview, getCyclingProjects, getCyclingHistory } = await import("@ameciclo/db/cycling-read");
@@ -95,37 +35,8 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
     history: await getCyclingHistory(db),
   }));
 
-  const round2 = (n: number) => Math.round(n * 100) / 100;
-  const statsData = cycleStructureExecutionStatistics(overview.all);
-
-  // The shape the page already reads: kilometres per city, the share as a ratio
-  // (0 to 1), and the PDC projects of the city for the table.
-  const citiesData = Object.fromEntries(
-    overview.cities.map((city) => [
-      city.ibge,
-      {
-        id: city.ibge,
-        name: city.name,
-        pdc_feito: city.executedInPdcKm,
-        out_pdc: city.outsidePdcKm,
-        pdc_total: city.plannedKm,
-        percent: city.percent / 100,
-        total: city.existingKm,
-        relations: projects
-          .filter((p) => p.cityIbge === city.ibge)
-          .map((p) => ({
-            name: `${p.name} (${p.ref})`,
-            pdc_typology: p.plannedTypology,
-            typologies_str: p.builtTypologies || "Nenhuma",
-            length: round2(p.plannedKm),
-            has_cycleway_length: round2(p.builtKm),
-          })),
-      },
-    ]),
-  );
-
   const documents = {
-    title: "Documentos e Recursos do PDC",
+    title: "Documentos e recursos do PDC",
     cards: [
       {
         title: "Plano Diretor Cicloviário - Volume 1",
@@ -179,16 +90,12 @@ const fetchExecucaoCicloviaria = createServerFn().handler(async () => {
   };
 
   return {
-    cover: page_data.cover_image_url,
-    title1: page_data.ExplanationBoxData.title_1,
-    title2: page_data.ExplanationBoxData.title_2,
-    description1: page_data.ExplanationBoxData.text_1,
-    description2: page_data.ExplanationBoxData.text_2,
+    title: "Execução do Plano Diretor Cicloviário",
+    cover: "/execucaocicloviaria.png",
+    explanations,
     documents,
-    layersConf,
-    statsData,
-    citiesData,
-    updatedAt: overview.updatedAt,
+    overview,
+    projects,
     history,
   };
 });

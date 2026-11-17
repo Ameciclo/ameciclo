@@ -1,35 +1,32 @@
 import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@ameciclo/ui/components/chart";
-import type { CyclingHistoryPoint } from "@ameciclo/db/cycling-read";
-import { IntlNumberMax1Digit } from "~/services/utils";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@ameciclo/ui/components/chart";
+import type { CyclingCityStats, CyclingHistoryPoint } from "@ameciclo/db/cycling-read";
+import { km, kmValue } from "./status";
 
 const RMR = "rmr";
 
 const config = {
-  executed: { label: "Implantado no PDC (km)", color: "#008080" },
+  executed: { label: "Implantado no PDC", color: "#00695f" },
 } satisfies ChartConfig;
 
 const day = (iso: string) =>
   new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Recife" });
 
 /**
- * How much of the PDC is built, week after week: one point per sync with
- * OpenStreetMap, for the whole RMR or for one municipality.
+ * How much of the PDC is built, week after week: one point per sync with OpenStreetMap, for one
+ * municipality or the whole RMR. Starts on the municipality selected in the explorer.
  */
 export function ExecucaoHistory({
   history,
   cities,
+  selectedIbge,
 }: {
   history: CyclingHistoryPoint[];
-  cities: { id: number; name: string }[];
+  cities: CyclingCityStats[];
+  selectedIbge: number;
 }) {
-  const [where, setWhere] = useState(RMR);
+  const [where, setWhere] = useState(String(selectedIbge));
 
   const points = history.flatMap((h) => {
     const executed = where === RMR ? h.all.executedInPdcKm : h.byCity[Number(where)]?.executedInPdcKm;
@@ -38,51 +35,50 @@ export function ExecucaoHistory({
   const first = history[0];
 
   return (
-    <section className="mx-auto container px-4 my-12 md:my-24">
-      <div className="mx-auto max-w-4xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-3xl font-bold">Evolução</h2>
-            <p className="mt-2 text-gray-600">
-              Medimos a infraestrutura toda semana, a partir do OpenStreetMap.
-              {first ? ` A primeira medição é de ${day(first.at)}.` : ""}
-            </p>
-          </div>
-          <label className="flex flex-col text-sm font-semibold text-gray-700">
-            Onde
-            <select
-              value={where}
-              onChange={(e) => setWhere(e.target.value)}
-              className="mt-1 rounded-lg border-2 border-gray-200 bg-white px-3 py-2 font-normal text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-ameciclo"
-            >
-              <option value={RMR}>Região Metropolitana</option>
-              {cities.map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        {points.length < 2 ? (
-          <p className="mt-6 rounded-xl border border-gray-200 bg-white p-6 text-gray-600">
-            O gráfico aparece a partir da segunda medição, na próxima semana.
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Evolução</h3>
+          <p className="text-sm text-gray-500">
+            Quilômetros do PDC implantados, medidos toda semana.
+            {first ? ` A primeira medição é de ${day(first.at)}.` : ""}
           </p>
-        ) : (
-          <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4">
-            <ChartContainer config={config} className="aspect-auto h-72 w-full">
-              <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
-                <YAxis width={48} tickLine={false} axisLine={false} domain={["auto", "auto"]} />
-                <ChartTooltip content={<ChartTooltipContent valueFormatter={(v) => `${IntlNumberMax1Digit(Number(v))} km`} />} />
-                <Line dataKey="executed" type="monotone" stroke="var(--color-executed)" strokeWidth={2} dot />
-              </LineChart>
-            </ChartContainer>
-          </div>
-        )}
+        </div>
+        <label className="text-sm text-gray-600">
+          <span className="sr-only">Evolução de</span>
+          <select
+            value={where}
+            onChange={(e) => setWhere(e.target.value)}
+            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-800"
+          >
+            <option value={RMR}>Região Metropolitana</option>
+            {cities.map((c) => (
+              <option key={c.ibge} value={c.ibge}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
-    </section>
+
+      {points.length < 2 ? (
+        <p className="mt-4 rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-600">
+          {points[0] ? `Até agora temos uma medição: ${km(points[0].executed)} em ${points[0].date}. ` : ""}
+          O gráfico aparece a partir da segunda medição, na próxima semana.
+        </p>
+      ) : (
+        <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
+          <ChartContainer config={config} className="aspect-auto h-64 w-full">
+            <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
+              <YAxis width={48} tickLine={false} axisLine={false} domain={["auto", "auto"]} tickFormatter={(v: number) => kmValue(v)} />
+              <ChartTooltip content={<ChartTooltipContent valueFormatter={(v) => km(Number(v))} />} />
+              <Line dataKey="executed" type="monotone" stroke="var(--color-executed)" strokeWidth={2} dot />
+            </LineChart>
+          </ChartContainer>
+        </div>
+      )}
+    </div>
   );
 }
