@@ -60,6 +60,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # O routeTree.gen.ts (rotas tipadas) é gerado pelo build e não vai para o git: sem ele o tsc não conhece nenhuma rota.
+      - run: pnpm build
+
       - run: pnpm typecheck
 
   lint:
