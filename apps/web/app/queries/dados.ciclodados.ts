@@ -69,7 +69,7 @@ export const stationsQueryOptions = () => queryOptions({ queryKey: ["dados", "ci
 
 // ---- Pesquisa de perfil: pontos com o total que passa nos filtros ---------------------------------------------------
 
-const PerfilInput = z.object({ genero: z.string().max(60).optional(), raca: z.string().max(60).optional(), socio: z.string().max(120).optional(), dias: z.string().max(20).optional() });
+const PerfilInput = z.object({ anos: z.array(z.number().int().min(2000).max(2100)).max(20).optional(), genero: z.string().max(60).optional(), raca: z.string().max(60).optional(), socio: z.string().max(120).optional(), dias: z.string().max(20).optional() });
 
 const fetchPerfilPoints = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => PerfilInput.parse(input))
