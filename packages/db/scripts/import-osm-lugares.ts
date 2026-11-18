@@ -18,7 +18,7 @@ try {
   process.loadEnvFile();
 } catch {}
 
-const dryRun = process.argv.includes("--dry-run");
+const dryRun = process.argv.includes("--dry-run") || process.env.DRY_RUN === "true";
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString && !dryRun) throw new Error("DATABASE_URL is not set (packages/db/.env)");
 const contact = process.env.OVERPASS_CONTACT && !process.env.OVERPASS_CONTACT.startsWith("${") ? process.env.OVERPASS_CONTACT : undefined;

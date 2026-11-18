@@ -43,12 +43,15 @@ export function parsePlaces(json: unknown): OsmPlaces {
   return { places, timestamp };
 }
 
-export type FetchPlacesOptions = { timeoutMs?: number; contact?: string; log?: (message: string) => void };
+export type FetchPlacesOptions = { timeoutMs?: number; contact?: string; log?: (message: string) => void; rounds?: number; pauseMs?: number };
 
-// Tenta cada instância do Overpass, uma vez cada, e desiste com o que cada uma respondeu.
+// Tenta as instâncias do Overpass em até `rounds` rodadas e desiste com o que cada uma respondeu.
 export async function fetchPlaces(query: string, options: FetchPlacesOptions = {}): Promise<OsmPlaces & { endpoint: string }> {
-  const { timeoutMs = 130_000, contact, log = () => {} } = options;
+  const { timeoutMs = 130_000, contact, log = () => {}, rounds = 4, pauseMs = 20_000 } = options;
   const errors: string[] = [];
+  // O Overpass público recusa boa parte das tentativas (502/504): várias rodadas pelos dois servidores, com pausa entre elas.
+  for (let round = 1; round <= rounds; round++) {
+  if (round > 1) await new Promise((resolve) => setTimeout(resolve, pauseMs * (round - 1)));
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
       const response = await fetch(endpoint, {
@@ -66,6 +69,7 @@ export async function fetchPlaces(query: string, options: FetchPlacesOptions = {
       errors.push(message);
       log(message);
     }
+  }
   }
   throw new Error(`Overpass não respondeu:\n${errors.join("\n")}`);
 }
