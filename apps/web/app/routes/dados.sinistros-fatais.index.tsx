@@ -3,8 +3,6 @@ import { isServer, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import SinistrosObservatorio from "~/components/SinistrosFatais/SinistrosObservatorio";
 import {
@@ -53,7 +51,6 @@ function SinistrosFataisPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const { data } = useSuspenseQuery(sinistrosOverviewQueryOptions());
-  useReportApiErrors(data);
   const { pageData, overview } = data;
   const selection = overview ? resolveSelection(overview, search) : null;
   const { data: stats, isPlaceholderData } = useQuery({
@@ -71,7 +68,6 @@ function SinistrosFataisPage() {
     <>
       <Banner image={pageData.coverImage} alt="Capa da página do Observatório de Sinistros Fatais" />
       <Breadcrumb label="Sinistros Fatais" slug="/dados/sinistros-fatais" routes={["/", "/dados"]} />
-      <ApiStatusHandler apiDown={data.apiDown} />
       <div className={isPlaceholderData ? "opacity-60 transition-opacity" : "transition-opacity"} aria-busy={isPlaceholderData}>
         <SinistrosObservatorio
           title={pageData.title}

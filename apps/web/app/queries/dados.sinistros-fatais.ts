@@ -2,9 +2,6 @@ import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { DeathOverview, DeathStats } from "@ameciclo/db/deaths-read";
-import { cmsFetch } from "~/services/cmsFetch";
-import { makeApiErrorTracker } from "~/services/apiTracking";
-import { OBSERVATORIO_SINISTROS_PAGE_DATA } from "~/servers";
 
 // Mortes no trânsito (SIM/DATASUS), do banco. Tudo são contagens: nenhum óbito individual sai do servidor.
 
@@ -18,25 +15,14 @@ export const PLACES = {
 } as const;
 export type PlaceKey = keyof typeof PLACES;
 
-const MOCK_PAGE_DATA = {
+// A página não tem entrada no Strapi: título e capa são fixos, e não há arquivos de apoio.
+const PAGE_DATA = {
   title: "Observatório de Sinistros Fatais",
   coverImage: "/pages_covers/sinistros-fatais.png",
   supportFiles: [],
 };
 
-type SupportFile = { title?: string; name?: string; description?: string; url?: string };
-type PageData = { title: string; coverImage: string; supportFiles: SupportFile[] };
-
 const fetchOverview = createServerFn({ method: "GET" }).handler(async () => {
-  const tracker = makeApiErrorTracker();
-  const pageData = await cmsFetch<PageData>(OBSERVATORIO_SINISTROS_PAGE_DATA, {
-    ttl: 600,
-    timeout: 10000,
-    fallback: MOCK_PAGE_DATA,
-    onError: tracker.at(OBSERVATORIO_SINISTROS_PAGE_DATA),
-    retries: 2,
-  });
-
   let overview: DeathOverview | null = null;
   try {
     const { withDb } = await import("~/lib/db.server");
@@ -47,9 +33,8 @@ const fetchOverview = createServerFn({ method: "GET" }).handler(async () => {
   }
 
   return {
-    pageData,
+    pageData: PAGE_DATA,
     overview: overview && overview.years.length > 0 ? overview : null,
-    ...tracker.summary(),
   };
 });
 
