@@ -26,21 +26,12 @@ export function useCicloDadosState(
       setLeftSidebarOpen(shouldOpenSidebar);
     }
   }, [isClient]);
-  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'mural'>('map');
   
   // Initialize client-side
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
-  // Keep sidebar open when switching to mural mode
-  useEffect(() => {
-    if (viewMode === 'mural') {
-      setLeftSidebarOpen(true);
-    }
-  }, [viewMode]);
   
   const getStoredValue = (key: string, defaultValue: any) => {
     if (!isClient) return defaultValue;
@@ -515,10 +506,6 @@ export function useCicloDadosState(
   return {
     leftSidebarOpen,
     setLeftSidebarOpen,
-    rightSidebarOpen,
-    setRightSidebarOpen,
-    chatOpen,
-    setChatOpen,
     selectedInfra,
     toggleInfraOption,
     toggleAllInfraOptions,

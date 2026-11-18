@@ -210,20 +210,6 @@ export function useCicloDadosMap(initialViewState: MapViewState | null) {
     }
   }, []);
 
-  useEffect(() => {
-    const handleDemoSelection = () => {
-      handleMapSelection({
-        lat: -8.0476,
-        lng: -34.8770,
-        radius: 1000,
-        street: "Av. Gov. Agamenon Magalhães"
-      });
-    };
-    
-    window.addEventListener('demo-map-selection', handleDemoSelection);
-    return () => window.removeEventListener('demo-map-selection', handleDemoSelection);
-  }, []);
-
   return {
     mapSelection,
     mapViewState,

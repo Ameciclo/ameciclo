@@ -97,10 +97,6 @@ function CicloDados() {
   const {
     leftSidebarOpen,
     setLeftSidebarOpen,
-    rightSidebarOpen,
-    setRightSidebarOpen,
-    chatOpen,
-    setChatOpen,
     selectedInfra,
     toggleInfraOption,
     toggleAllInfraOptions,
