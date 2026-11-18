@@ -16,6 +16,8 @@ export type PointInfo = {
     lng: number;
     nearest_street: { name: string; official_name: string; total_length_meters: number; distance_to_point_meters: number };
   };
+  // As ruas a poucos metros do ponto (uma esquina tem mais de uma); `key` serve para pedir o resumo de uma delas.
+  nearby_streets: { key: string; name: string; distance_meters: number }[];
   emergency_calls: {
     annual_history: { year: number; total_calls: number }[];
     last_month_data: { month: string; total_calls: number };
@@ -32,6 +34,8 @@ export type PointInfo = {
     counts: {
       id: number;
       name: string;
+      // A página da contagem (/dados/contagens/<slug>); ausente nas contagens da Prefeitura.
+      slug?: string;
       date: string;
       city: string;
       total_cyclists: number;
@@ -75,7 +79,7 @@ export type RunWithDb = <T>(fn: (db: Db) => Promise<T>) => Promise<T>;
 
 type Json<T> = T | null;
 
-export async function getPointInfo(run: RunWithDb, options: { lat: number; lng: number; radius?: number }): Promise<PointInfo> {
+export async function getPointInfo(run: RunWithDb, options: { lat: number; lng: number; radius?: number; streetKey?: string }): Promise<PointInfo> {
   const { lat, lng } = options;
   const radius = Math.min(Math.max(options.radius ?? 200, 50), 1000);
   const here = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)`;
@@ -91,10 +95,12 @@ export async function getPointInfo(run: RunWithDb, options: { lat: number; lng: 
         by_category: { category: string; count: number }[];
         by_gender: { gender: string | null; count: number }[];
         by_age: { age_group: string; count: number }[];
+        nearby: { key: string; name: string | null; distance: number }[];
       }>(sql`
         with st as (
+          -- A rua pedida (uma das vizinhas escolhida no popup) ou, sem pedido, a mais próxima.
           select s.name_key as key, s.official_name as official, ST_Distance(s.geom::geography, ${here}::geography) as distance
-          from street_segment s order by s.geom <-> ${here} limit 1
+          from street_segment s ${options.streetKey ? sql`where s.name_key = ${options.streetKey}` : sql``} order by s.geom <-> ${here} limit 1
         ),
         calls as (
           select c.occurred_on, c.category, c.gender, c.age
@@ -115,7 +121,11 @@ export async function getPointInfo(run: RunWithDb, options: { lat: number; lng: 
           (select coalesce(json_agg(z order by z.count desc), '[]'::json)
              from (select case when age is null then 'Não informado' when age < 18 then 'Menor de 18' when age <= 30 then '18-30'
                               when age <= 50 then '31-50' when age <= 70 then '51-70' else 'Maior de 70' end as age_group,
-                          count(*)::int as count from calls group by 1) z) as by_age`)
+                          count(*)::int as count from calls group by 1) z) as by_age,
+          (select coalesce(json_agg(n order by n.distance), '[]'::json) from (
+             select name_key as key, max(official_name) as name, min(ST_Distance(geom::geography, ${here}::geography)) as distance
+             from street_segment where ST_DWithin(geom::geography, ${here}::geography, 80)
+             group by name_key order by min(ST_Distance(geom::geography, ${here}::geography)) limit 6) n) as nearby`)
     ).rows;
     return row;
   });
@@ -205,6 +215,7 @@ export async function getPointInfo(run: RunWithDb, options: { lat: number; lng: 
         distance_to_point_meters: Math.round(toNumber(street?.distance)),
       },
     },
+    nearby_streets: (sc?.nearby ?? []).map((n) => ({ key: n.key, name: n.name ?? n.key, distance_meters: Math.round(n.distance) })),
     emergency_calls: {
       annual_history: sc?.annual ?? [],
       last_month_data: sc?.last_month ?? { month: "", total_calls: 0 },
@@ -229,6 +240,7 @@ export async function getPointInfo(run: RunWithDb, options: { lat: number; lng: 
       counts: nearCounts.map(({ l, c, distance }) => ({
         id: c.id,
         name: l.name,
+        slug: l.slug,
         date: c.date,
         city: "",
         total_cyclists: c.total_cyclists,

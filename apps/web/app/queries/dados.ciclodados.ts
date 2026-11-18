@@ -84,7 +84,7 @@ export const perfilPointsQueryOptions = (filters: PerfilFilters) =>
 
 // ---- O resumo de um ponto clicado ----------------------------------------------------------------------------------
 
-const PointInput = z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), radius: z.number().min(50).max(1000).optional() });
+const PointInput = z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), radius: z.number().min(50).max(1000).optional(), streetKey: z.string().min(1).max(160).optional() });
 
 const fetchPointInfo = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => PointInput.parse(input))
@@ -100,8 +100,8 @@ const fetchPointInfo = createServerFn({ method: "GET" })
     }
   });
 
-export const pointInfoQueryOptions = (lat: number, lng: number, radius = 200) =>
-  queryOptions({ queryKey: ["dados", "ciclodados", "ponto", lat, lng, radius], queryFn: () => fetchPointInfo({ data: { lat, lng, radius } }), staleTime: hour });
+export const pointInfoQueryOptions = (lat: number, lng: number, radius = 200, streetKey?: string) =>
+  queryOptions({ queryKey: ["dados", "ciclodados", "ponto", lat, lng, radius, streetKey ?? null], queryFn: () => fetchPointInfo({ data: { lat, lng, radius, streetKey } }), staleTime: hour });
 
 // Contagens da Prefeitura do Recife: um arquivo estático servido pelo site (mapa e popup do ponto o leem).
 export type PrefeituraCount = {

@@ -6,6 +6,8 @@ import { Badge } from '@ameciclo/ui/components/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@ameciclo/ui/components/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ameciclo/ui/components/tabs';
 import { pointInfoQueryOptions, prefeituraCountsQueryOptions } from '~/queries/dados.ciclodados';
+import { slugify } from '~/utils/slugify';
+import { PromptAssistant } from './PromptAssistant';
 
 // O resumo de um ponto clicado no mapa: tudo vem do banco (`getPointInfo`) e das contagens da Prefeitura (arquivo estático).
 // Só agregados: nenhuma pessoa, chamado ou entrevista individual.
@@ -18,15 +20,18 @@ interface PointInfoPopupProps {
   initialTab?: string;
 }
 
-const TABS = [
-  { id: 'resumo', label: 'Resumo' },
-  { id: 'seguranca', label: 'Segurança' },
-  { id: 'infraestrutura', label: 'Infraestrutura' },
-  { id: 'contagens', label: 'Contagens' },
-  { id: 'perfil', label: 'Perfil' },
-] as const;
+// Cada aba tem a cor do assunto (a mesma do cartão do Resumo que leva até ela).
+type TabId = 'resumo' | 'seguranca' | 'infraestrutura' | 'contagens' | 'perfil' | 'documento';
+const TABS: { id: TabId; label: string; active: string; dot: string }[] = [
+  { id: 'resumo', label: 'Resumo', active: 'data-[state=active]:text-blue-700', dot: 'bg-blue-500' },
+  { id: 'seguranca', label: 'Segurança', active: 'data-[state=active]:text-red-700', dot: 'bg-red-500' },
+  { id: 'infraestrutura', label: 'Infraestrutura', active: 'data-[state=active]:text-teal-700', dot: 'bg-teal-500' },
+  { id: 'contagens', label: 'Contagens', active: 'data-[state=active]:text-green-700', dot: 'bg-green-500' },
+  { id: 'perfil', label: 'Perfil', active: 'data-[state=active]:text-purple-700', dot: 'bg-purple-500' },
+  { id: 'documento', label: 'Documento', active: 'data-[state=active]:text-amber-700', dot: 'bg-amber-500' },
+];
 
-const LEGACY_TAB: Record<string, (typeof TABS)[number]['id']> = {
+const LEGACY_TAB: Record<string, TabId> = {
   overview: 'resumo', location: 'resumo', analysis: 'resumo', safety: 'seguranca', infrastructure: 'infraestrutura', counts: 'contagens', profile: 'perfil',
 };
 
@@ -37,6 +42,7 @@ const distance = (meters: number) => (meters < 1000 ? `${n(Math.round(meters))} 
 
 type NearbyCount = {
   id: string;
+  slug?: string;
   source: 'Ameciclo' | 'Prefeitura';
   name: string;
   date: string;
@@ -65,13 +71,35 @@ function metersBetween(aLat: number, aLng: number, bLat: number, bLng: number) {
 
 // ---- Peças visuais -------------------------------------------------------------------------------------------------
 
-function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
-  return (
-    <div className="rounded-lg border bg-card p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
+function Stat({ label, value, note, onClick, dot }: { label: string; value: string; note?: string; onClick?: () => void; dot?: string }) {
+  const body = (
+    <>
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        {dot && <span className={`size-1.5 rounded-full ${dot}`} aria-hidden="true" />}
+        {label}
+      </p>
       <p className="text-2xl font-bold tabular-nums">{value}</p>
       {note && <p className="text-xs text-muted-foreground">{note}</p>}
-    </div>
+    </>
+  );
+  // Com `onClick` o cartão é um botão que abre a aba do assunto.
+  return onClick ? (
+    <button type="button" onClick={onClick} className="rounded-lg border bg-card p-3 text-left transition-colors hover:bg-muted/50 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none">
+      {body}
+    </button>
+  ) : (
+    <div className="rounded-lg border bg-card p-3">{body}</div>
+  );
+}
+
+// O caminho para a página completa do assunto, no fim de cada aba.
+function FullDataLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <p className="border-t pt-3 text-sm">
+      <a href={href} className="font-medium text-ameciclo underline underline-offset-2 hover:opacity-80">
+        {children} →
+      </a>
+    </p>
   );
 }
 
@@ -108,21 +136,41 @@ const Empty = ({ children }: { children: ReactNode }) => <p className="py-6 text
 
 // ---- Abas ----------------------------------------------------------------------------------------------------------
 
-function Resumo({ info, counts }: { info: PointInfo; counts: NearbyCount[] }) {
+function Resumo({ info, counts, go, onPickStreet, pickedStreet }: { info: PointInfo; counts: NearbyCount[]; go: (tab: TabId) => void; onPickStreet: (key: string | undefined) => void; pickedStreet: string | undefined }) {
   const calls = info.emergency_calls.annual_history.reduce((sum, y) => sum + y.total_calls, 0);
   const street = info.location.nearest_street;
+  const [safety, infra, counting, profile] = [TABS[1], TABS[2], TABS[3], TABS[4]];
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        <Stat label="Chamados do SAMU" value={n(calls)} note="nesta rua" />
-        <Stat label="Bicicletários" value={n(info.bike_racks.total)} note={info.bike_racks.total_capacity > 0 ? `${n(info.bike_racks.total_capacity)} vagas` : undefined} />
-        <Stat label="Estações Bike PE" value={n(info.shared_bike.stations.length)} note="a menos de 2 km" />
-        <Stat label="Contagens" value={n(counts.length)} note="por perto" />
-        <Stat label="Infraestrutura" value={n(info.cycling_infra.existing.length)} note="trechos por perto" />
-        <Stat label="Entrevistas" value={n(info.cyclist_profile.total_profiles)} note="pesquisa de perfil" />
+        <Stat label="Chamados do SAMU" value={n(calls)} note="nesta rua" dot={safety.dot} onClick={() => go('seguranca')} />
+        <Stat label="Estacionamento" value={n(info.bike_racks.total)} note={info.bike_racks.total_capacity > 0 ? `bicicletários · ${n(info.bike_racks.total_capacity)} vagas` : 'bicicletários'} dot={infra.dot} onClick={() => go('infraestrutura')} />
+        <Stat label="Estações Bike PE" value={n(info.shared_bike.stations.length)} note="a menos de 2 km" dot={infra.dot} onClick={() => go('infraestrutura')} />
+        <Stat label="Contagens" value={n(counts.length)} note="por perto" dot={counting.dot} onClick={() => go('contagens')} />
+        <Stat label="Infraestrutura" value={n(info.cycling_infra.existing.length)} note="trechos por perto" dot={infra.dot} onClick={() => go('infraestrutura')} />
+        <Stat label="Entrevistas" value={n(info.cyclist_profile.total_profiles)} note="pesquisa de perfil" dot={profile.dot} onClick={() => go('perfil')} />
       </div>
-      <Section title="Rua mais próxima">
-        <p className="text-sm">
+      <Section title={info.nearby_streets.length > 1 ? 'Ruas aqui perto (escolha a rua dos dados)' : 'Rua mais próxima'}>
+        {info.nearby_streets.length > 1 ? (
+          <div role="radiogroup" aria-label="Rua dos dados" className="flex flex-wrap gap-2">
+            {info.nearby_streets.map((s) => {
+              const on = s.key === street.name;
+              return (
+                <button
+                  key={s.key}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => onPickStreet(on && pickedStreet ? undefined : s.key)}
+                  className={`rounded-full border px-3 py-1 text-xs transition-colors ${on ? 'border-red-500 bg-red-50 font-medium text-red-700' : 'hover:bg-muted'}`}
+                >
+                  {s.name} <span className="text-muted-foreground">· {distance(s.distance_meters)}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+        <p className="mt-2 text-sm">
           {street.official_name || street.name || 'Sem rua cadastrada por perto'}
           {street.total_length_meters > 0 && <span className="text-muted-foreground"> · {distance(street.total_length_meters)} de extensão · a {distance(street.distance_to_point_meters)} do ponto</span>}
         </p>
@@ -155,9 +203,8 @@ function Seguranca({ info }: { info: PointInfo }) {
           <Bars percent rows={calls.by_age_group.map((a) => ({ label: a.age_group, value: a.count }))} />
         </Section>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Fonte: SAMU Recife. <a href="/dados/chamados-de-sinistros" className="underline">Observatório de chamados</a>
-      </p>
+      <p className="text-xs text-muted-foreground">Fonte: SAMU Recife.</p>
+      <FullDataLink href={`/dados/viasinseguras/${slugify(info.location.nearest_street.name)}`}>Ver os dados completos desta via</FullDataLink>
     </div>
   );
 }
@@ -190,7 +237,6 @@ function Infraestrutura({ info }: { info: PointInfo }) {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-muted-foreground"><a href="/dados/execucaocicloviaria" className="underline">Observatório Cicloviário</a></p>
         </Section>
       )}
       {total > 0 && (
@@ -216,6 +262,7 @@ function Infraestrutura({ info }: { info: PointInfo }) {
         </Section>
       )}
       <p className="text-xs text-muted-foreground">Bicicletários e estações: OpenStreetMap.</p>
+      <FullDataLink href="/dados/execucaocicloviaria">Ver os dados completos da infraestrutura cicloviária</FullDataLink>
     </div>
   );
 }
@@ -224,10 +271,11 @@ function Contagens({ counts }: { counts: NearbyCount[] }) {
   if (counts.length === 0) return <Empty>Nenhuma contagem de ciclistas por perto.</Empty>;
   return (
     <div className="space-y-3">
-      {counts.map((c) => {
+      {counts.map((c, index) => {
         const rows = CHARACTERISTICS.map(({ key, label }) => ({ label, value: c.characteristics[key] ?? 0 })).filter((r) => r.value > 0);
         return (
-          <details key={c.id} className="group rounded-lg border">
+          // O levantamento mais recente já abre aberto.
+          <details key={c.id} open={index === 0} className="group rounded-lg border">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-3">
               <span className="flex items-center gap-2">
                 <span className="font-medium">{c.name}</span>
@@ -238,14 +286,29 @@ function Contagens({ counts }: { counts: NearbyCount[] }) {
             <div className="space-y-2 border-t p-3 text-sm">
               <p className="text-muted-foreground">{c.distance === 0 ? 'No ponto' : `A ${distance(c.distance)} do ponto`}</p>
               {rows.length > 0 && <Bars rows={rows.map((r) => ({ ...r, label: `${r.label} (${Math.round((r.value / c.total) * 100)}%)` }))} />}
+              {c.slug && (
+                <a href={`/dados/contagens/${c.slug}`} className="inline-block text-xs font-medium text-ameciclo underline underline-offset-2">
+                  Ver todas as contagens deste ponto
+                </a>
+              )}
             </div>
           </details>
         );
       })}
-      <p className="text-xs text-muted-foreground">Contagens da Ameciclo e da Prefeitura. <a href="/dados/contagens" className="underline">Página de contagens</a></p>
+      <p className="text-xs text-muted-foreground">Contagens da Ameciclo e da Prefeitura.</p>
+      <FullDataLink href="/dados/contagens">Ver os dados completos das contagens</FullDataLink>
     </div>
   );
 }
+
+type Edition = PointInfo['cyclist_profile']['by_edition'][number];
+const distributions = (e: Edition): [string, Record<string, number>][] => [
+  ['Sexo', e.gender_distribution],
+  ['Cor ou raça', e.race_distribution],
+  ['Faixa etária', e.age_distribution],
+  ['Escolaridade', e.education_distribution],
+  ['Renda', e.income_distribution],
+];
 
 function Perfil({ info }: { info: PointInfo }) {
   const profile = info.cyclist_profile;
@@ -253,17 +316,12 @@ function Perfil({ info }: { info: PointInfo }) {
   return (
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">{n(profile.total_profiles)} entrevistas nesta região, em {profile.by_edition.map((e) => e.edition).join(' e ')}.</p>
-      {profile.by_edition.map((e) => (
-        <section key={e.edition} className="rounded-lg border p-3">
-          <h4 className="mb-3 text-sm font-semibold">Edição {e.edition} · {n(e.total_profiles)} entrevistas</h4>
-          <div className="grid gap-4 md:grid-cols-2">
-            {([
-              ['Sexo', e.gender_distribution],
-              ['Cor ou raça', e.race_distribution],
-              ['Faixa etária', e.age_distribution],
-              ['Escolaridade', e.education_distribution],
-              ['Renda', e.income_distribution],
-            ] as const).map(([title, distributionByLabel]) =>
+      {[...profile.by_edition].reverse().map((e, index) => (
+        // A edição mais recente já abre aberta.
+        <details key={e.edition} open={index === 0} className="rounded-lg border p-3">
+          <summary className="cursor-pointer list-none text-sm font-semibold">Edição {e.edition} · {n(e.total_profiles)} entrevistas</summary>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            {distributions(e).map(([title, distributionByLabel]) =>
               Object.keys(distributionByLabel).length > 0 ? (
                 <div key={title}>
                   <p className="mb-1 text-xs font-medium text-muted-foreground">{title}</p>
@@ -272,8 +330,9 @@ function Perfil({ info }: { info: PointInfo }) {
               ) : null,
             )}
           </div>
-        </section>
+        </details>
       ))}
+      <FullDataLink href="/dados/perfil">Ver os dados completos da pesquisa de perfil</FullDataLink>
     </div>
   );
 }
@@ -282,7 +341,8 @@ function Perfil({ info }: { info: PointInfo }) {
 
 export function PointInfoPopup({ lat, lng, onClose, initialTab = 'resumo' }: PointInfoPopupProps) {
   const [shared, setShared] = useState(false);
-  const { data, isLoading } = useQuery(pointInfoQueryOptions(lat, lng, 200));
+  const [streetKey, setStreetKey] = useState<string | undefined>(undefined);
+  const { data, isLoading } = useQuery({ ...pointInfoQueryOptions(lat, lng, 200, streetKey), placeholderData: (previous) => previous });
   const info = data?.info ?? null;
 
   // Contagens da Prefeitura: um arquivo estático, filtrado aqui para os pontos a até 200 m.
@@ -290,7 +350,7 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'resumo' }: Poi
 
   const counts = useMemo<NearbyCount[]>(() => {
     const own = (info?.cyclist_counts.counts ?? []).map<NearbyCount>((c) => ({
-      id: `ameciclo-${c.id}`, source: 'Ameciclo', name: c.name, date: c.date, total: c.total_cyclists, distance: c.distance_meters, characteristics: c.characteristics,
+      id: `ameciclo-${c.id}`, slug: c.slug, source: 'Ameciclo', name: c.name, date: c.date, total: c.total_cyclists, distance: c.distance_meters, characteristics: c.characteristics,
     }));
     const city = (prefeitura ?? []).flatMap<NearbyCount>((p) => {
       const [pLat, pLng] = p.location.coordinates;
@@ -338,7 +398,9 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'resumo' }: Poi
     }
   };
 
-  const tab = LEGACY_TAB[initialTab] ?? (TABS.some((t) => t.id === initialTab) ? initialTab : 'resumo');
+  const startTab: TabId = LEGACY_TAB[initialTab] ?? (TABS.find((t) => t.id === initialTab)?.id ?? 'resumo');
+  const [tab, setTab] = useState<TabId>(startTab);
+  const isTab = (value: string): value is TabId => TABS.some((t) => t.id === value);
 
   return (
     <Dialog open onOpenChange={(open) => !open && close()}>
@@ -359,17 +421,29 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'resumo' }: Poi
         {isLoading && <Empty>Carregando dados do ponto…</Empty>}
         {!isLoading && !info && <Empty>Os dados deste ponto estão indisponíveis no momento. Tente de novo em instantes.</Empty>}
         {info && (
-          <Tabs defaultValue={tab} className="min-h-0 flex-1">
+          <Tabs value={tab} onValueChange={(value) => isTab(value) && setTab(value)} className="min-h-0 flex-1">
             <TabsList>
               {TABS.map((t) => (
-                <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>
+                <TabsTrigger key={t.id} value={t.id} className={t.active}>
+                  <span className={`size-1.5 rounded-full ${t.dot}`} aria-hidden="true" />
+                  {t.label}
+                </TabsTrigger>
               ))}
             </TabsList>
-            <TabsContent value="resumo"><Resumo info={info} counts={counts} /></TabsContent>
+            <TabsContent value="resumo"><Resumo info={info} counts={counts} go={setTab} onPickStreet={setStreetKey} pickedStreet={streetKey} /></TabsContent>
             <TabsContent value="seguranca"><Seguranca info={info} /></TabsContent>
             <TabsContent value="infraestrutura"><Infraestrutura info={info} /></TabsContent>
             <TabsContent value="contagens"><Contagens counts={counts} /></TabsContent>
             <TabsContent value="perfil"><Perfil info={info} /></TabsContent>
+            <TabsContent value="documento">
+              <PromptAssistant
+                info={info}
+                lat={lat}
+                lng={lng}
+                radius={200}
+                counts={counts.map((c) => ({ name: c.name, date: c.date, total: c.total, distance: c.distance, source: c.source }))}
+              />
+            </TabsContent>
           </Tabs>
         )}
       </DialogContent>
