@@ -90,7 +90,14 @@ const fetchPointInfo = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => PointInput.parse(input))
   .handler(async ({ data }): Promise<{ info: PointInfo | null }> => {
     const { getPointInfo } = await import("@ameciclo/db");
-    return { info: await layer("ponto", (db) => getPointInfo(db, data)) };
+    const { withDb } = await import("~/lib/db.server");
+    try {
+      // Cada consulta do resumo abre a sua conexão e roda em paralelo (ver getPointInfo).
+      return { info: await getPointInfo((fn) => withDb(fn), data) };
+    } catch (error) {
+      console.error('Error loading the CicloDados layer "ponto" from the database:', error);
+      return { info: null };
+    }
   });
 
 export const pointInfoQueryOptions = (lat: number, lng: number, radius = 200) =>
