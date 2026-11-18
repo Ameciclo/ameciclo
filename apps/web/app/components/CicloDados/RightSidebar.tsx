@@ -404,7 +404,7 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
       id: 'viasInseguras',
       title: "Ranking Vias Inseguras",
       value: "Top 5",
-      description: "Fonte: <a href='/dados/vias-inseguras' class='text-blue-600 underline'>página vias inseguras</a>",
+      description: "Fonte: <a href='/dados/viasinseguras' class='text-blue-600 underline'>página vias inseguras</a>",
       hasData: availability.acessibilidade
     }
   ];

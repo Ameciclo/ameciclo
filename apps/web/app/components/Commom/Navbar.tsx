@@ -13,7 +13,7 @@ const dataSubPages = [
   { name: "LOA", url: "/dados/loa" },
   { name: "DOM", url: "/dados/dom" },
   { name: "SAMU", url: "/dados/chamados-de-sinistros" },
-  { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
+  { name: "Vias Inseguras", url: "/dados/viasinseguras" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
   { name: "CicloDados", url: "/dados/ciclodados" },
 ];
