@@ -29,6 +29,10 @@ steps:
     # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar. Compara com a última
     # importação e, se nada mudou, avisa e os passos seguintes são pulados.
     run: node /opt/scripts/datasus-baixar.mjs ${YEAR} ${WORK_DIR} ${RAW_DIR} ${FORCAR}
+    # O FTP do DATASUS às vezes trava (timeout do socket de controle): tenta de novo antes de falhar.
+    retry_policy:
+      limit: 3
+      interval_sec: 60
 
   - name: houve-mudanca
     depends:
