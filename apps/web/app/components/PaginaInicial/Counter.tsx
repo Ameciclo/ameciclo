@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import CounterLoading from "../PaginaInicial/CounterLoading";
+import CounterLoading from "./CounterLoading";
 
 const Counter = ({ label, number }: any) => {
   const [displayNumber, setDisplayNumber] = useState(number);

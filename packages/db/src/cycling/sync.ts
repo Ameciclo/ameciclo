@@ -16,8 +16,6 @@ import { cyclingPdcProject, cyclingSummarySnapshot, cyclingSyncRun, cyclingWay, 
 import { builtTypology, type OsmData, relationRef, wayGeometry } from "./osm";
 import { wayTags } from "./transform";
 
-type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
-
 const BATCH = 200;
 
 // A run that would drop more than this share of the ways is almost certainly

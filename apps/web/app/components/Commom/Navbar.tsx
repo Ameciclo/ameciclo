@@ -30,20 +30,15 @@ export const Navbar = ({ pages }: any) => {
   if (!pages) pages = pagesDefault;
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hideRedNavbar, setHideRedNavbar] = useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
   const location = useRouterState({ select: (s) => s.location });
-  const isDataPage = location.pathname.startsWith('/dados') && location.pathname !== '/dados/ciclodados';
   const isCicloDadosPage = location.pathname === '/dados/ciclodados';
 
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 1;
-      const coverImageHeight = 400;
-      const hideRed = window.scrollY > coverImageHeight;
       
       setIsHeaderScrolled(scrolled);
-      setHideRedNavbar(hideRed);
     };
 
     const handleClickOutside = (event: MouseEvent) => {

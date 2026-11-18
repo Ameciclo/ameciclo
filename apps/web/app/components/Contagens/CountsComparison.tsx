@@ -3,7 +3,7 @@ import { contagemSlug } from "@ameciclo/db/slug";
 import { Link } from "@tanstack/react-router";
 import Banner from "~/components/Commom/Banner";
 import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
-import { Tooltip } from "~/components/Commom/Tooltip";
+import { Tooltip } from "~/components/Contagens/Tooltip";
 import { CountingComparisionTable } from "~/components/Contagens/CountingComparisionTable";
 import { CompareBar } from "~/components/Contagens/comparison/CompareBar";
 import { EditSelectionButton } from "~/components/Contagens/comparison/CompareActions";

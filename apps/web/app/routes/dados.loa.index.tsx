@@ -55,8 +55,6 @@ function Loa() {
     const [showFilters, setShowFilters] = useState(false);
     const [filterType, setFilterType] = useState<FilterType>('all');
 
-    const numParse = (numero: any) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-
     const goodActionsTags = ["0398", "3308", "3378", "3382", "3389", "3786", "3891", "3906", "4122", "4123", "4165", "4167", "4185", "4294", "4313", "4482", "4648", "3198", "3340", "4202", "4642", "4646", "4176", "4483", "4166", "4074", "4055", "3721", "3725", "2755", "2796", "2286", "0569", "3877", "4131", "4235", "4679", "4682", "1313", "2967", "2730", "2733", "4650", "4669", "1537", "3178", "3187", "4116", "4440", "1896"];
 
     const badActionsTags = [

@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CicloDadosErrorBoundary } from '~/components/CicloDados/ErrorBoundary';
 import { ClientOnly, CicloDadosLoader } from '~/components/CicloDados/ClientOnly';
-import { useCicloDadosMap } from '~/hooks/useCicloDadosMap';
-import { useProcessedData } from '~/hooks/useProcessedData';
+import { useCicloDadosMap } from '~/components/CicloDados/hooks/useCicloDadosMap';
+import { useProcessedData } from '~/components/CicloDados/hooks/useProcessedData';
 import {
   CicloDadosHeader,
   LeftSidebar,

@@ -1,4 +1,4 @@
-import Counter from "../Commom/Counter";
+import Counter from "./Counter";
 import { Link } from "@tanstack/react-router";
 import type { Project } from "~/queries/home";
 
