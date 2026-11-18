@@ -86,3 +86,17 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm lint
+
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jdx/mise-action@v5
+        with:
+          cache: true
+
+      # Falha com vulnerabilidade alta ou crítica em dependência de produção (o Dependabot abre os PRs de correção).
+      - run: pnpm audit --prod --audit-level=high
