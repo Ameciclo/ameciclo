@@ -23,7 +23,7 @@ export async function fetchWithTimeout(
     
     try {
       // Strip cache mode as Cloudflare Workers doesn't support force-cache
-      const { cache, ...fetchOptions } = options;
+      const { cache: _cache, ...fetchOptions } = options;
       const response = await fetch(url, {
         ...fetchOptions,
         signal: controller.signal,

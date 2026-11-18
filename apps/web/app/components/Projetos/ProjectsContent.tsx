@@ -11,10 +11,8 @@ interface ProjectsContentProps {
 }
 
 export function ProjectsContent({ projectsData }: ProjectsContentProps) {
-  const { projects, workgroups } = projectsData;
+  const { projects } = projectsData;
 
-  const [status, setStatus] = useState<string>("");
-  const [group, setGroup] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const filteredProjects = useMemo(() => {
@@ -29,16 +27,6 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
       filtered = filtered.filter((project) =>
         (project.name ?? "").toLowerCase().includes(lowerCaseSearchTerm)
       );
-    }
-
-    if (status || group) {
-      filtered = filtered.filter((project) => {
-        if (group !== "" && status !== "") {
-          return project.project_status === status && project.workgroup?.name === group;
-        } else {
-          return project.project_status === status || project.workgroup?.name === group;
-        }
-      });
     }
 
     const highlighted: Project[] = [];
@@ -59,7 +47,7 @@ export function ProjectsContent({ projectsData }: ProjectsContentProps) {
     });
 
     return { highlighted, ongoing, paused, others };
-  }, [status, group, searchTerm, projects]);
+  }, [searchTerm, projects]);
 
   const allProjectsCount =
     filteredProjects.highlighted.length +

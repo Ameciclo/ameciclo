@@ -1,5 +1,4 @@
 import { queryOptions } from "@tanstack/react-query";
-import { LOA_RMR_ATLAS_API } from "~/servers";
 
 export const domQueryOptions = () =>
   queryOptions({

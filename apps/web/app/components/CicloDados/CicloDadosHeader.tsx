@@ -1,10 +1,8 @@
-import { Search, Users, Bike, AlertTriangle } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchStreets, type StreetMatch } from '~/services/streets.service';
+import { searchStreets, type StreetMatch } from '~/components/CicloDados/streets.service';
 
 interface CicloDadosHeaderProps {
-  viewMode: 'map' | 'mural';
-  onViewModeChange: (mode: 'map' | 'mural') => void;
   onStreetSelect?: (street: StreetMatch) => void;
   onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => void;
 }

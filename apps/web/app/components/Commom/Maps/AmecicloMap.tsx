@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Map, { Source, Layer, Marker, Popup, FullscreenControl, NavigationControl, LayerProps } from "react-map-gl/maplibre";
+import Map, { Source, Layer, Marker, Popup, LayerProps } from "react-map-gl/maplibre";
 
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 
@@ -12,7 +12,7 @@ import { IntlNumber } from "~/services/utils";
 
 
 
-const MapCommands = ({ viewport, setViewport, settings, setsettings, setIsFullscreen, initialViewport, toggleDragPan, dragPanEnabled, onViewStateChange }: any) => {
+const MapCommands = ({ viewport, setViewport, settings, setsettings, setIsFullscreen, toggleDragPan, dragPanEnabled, onViewStateChange }: any) => {
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
 
@@ -67,13 +67,6 @@ const MapCommands = ({ viewport, setViewport, settings, setsettings, setIsFullsc
                 scrollZoom: !prev.scrollZoom 
             }));
         }
-    };
-
-    const isAtDefaultPosition = () => {
-        const tolerance = 0.001;
-        return Math.abs(viewport.latitude - initialViewport.latitude) < tolerance &&
-            Math.abs(viewport.longitude - initialViewport.longitude) < tolerance &&
-            Math.abs(viewport.zoom - initialViewport.zoom) < 0.1;
     };
 
     return (
@@ -270,16 +263,6 @@ const getInicialViewPort = (pointsData: any, layerData: any) => {
     return standardViewPort;
 };
 
-const getMapInitialState = (defaultDragPan: boolean) => ({
-    dragPan: defaultDragPan,
-    dragRotate: true,
-    scrollZoom: defaultDragPan,
-    touchZoomRotate: true,
-    keyboard: true,
-    boxZoom: true,
-    doubleClickZoom: true,
-});
-
 const dropIcon = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,4.5,2,10c0,2,0.6,3.9,1.6,5.4c0,0.1,0.1,0.2,0.2,0.3
 c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
 C20.1,15.8,20.2,15.8,20.2,15.7z`;
@@ -452,72 +435,21 @@ export const AmecicloMap = ({
 
 
 
-    const [viewport, setViewport] = useState(() => {
-        if (initialViewState) {
-            return {
-                ...initialViewState,
-                bearing: 0,
-                pitch: 0
-            };
-        }
-        return {
-            latitude: -8.0584364,
-            longitude: -34.945277,
-            zoom: 10,
-            bearing: 0,
-            pitch: 0,
-        };
-    });
-    const [initialViewport, setInitialViewport] = useState(() => {
-        if (initialViewState) {
-            return {
-                ...initialViewState,
-                bearing: 0,
-                pitch: 0
-            };
-        }
-        return {
-            latitude: -8.0584364,
-            longitude: -34.945277,
-            zoom: 10,
-            bearing: 0,
-            pitch: 0,
-        };
-    });
-
-
-    const [hasSetInitialViewport, setHasSetInitialViewport] = useState(false);
-
+    // O ponto de partida: o que veio da URL (initialViewState) ou o enquadramento dos dados do mapa.
+    const [viewport, setViewport] = useState(() => ({
+        ...(initialViewState ?? getInicialViewPort(pointsData, layerData)),
+        bearing: 0,
+        pitch: 0,
+    }));
+    // Quando quem usa o mapa troca o ponto de vista (zoom em um grupo, rua buscada), o mapa o acompanha.
+    const initialLatitude = initialViewState?.latitude;
+    const initialLongitude = initialViewState?.longitude;
+    const initialZoom = initialViewState?.zoom;
     useEffect(() => {
-        if (isClient && isMapReady && !hasSetInitialViewport) {
-            let newViewport;
-            if (initialViewState) {
-                // Prioridade: usar viewState fornecido via props (vem de URL params ou localStorage)
-                newViewport = {
-                    ...initialViewState,
-                    bearing: 0,
-                    pitch: 0
-                };
-            } else {
-                // Só calcular baseado nos dados se NÃO houver initialViewState
-                newViewport = getInicialViewPort(pointsData, layerData);
-            }
-            setViewport(newViewport);
-            setInitialViewport(newViewport);
-            setHasSetInitialViewport(true);
+        if (initialLatitude !== undefined && initialLongitude !== undefined && initialZoom !== undefined) {
+            setViewport({ latitude: initialLatitude, longitude: initialLongitude, zoom: initialZoom, bearing: 0, pitch: 0 });
         }
-    }, [isClient, isMapReady, hasSetInitialViewport]);
-    
-    // Atualizar viewport quando initialViewState mudar (para zoom em clusters)
-    useEffect(() => {
-        if (initialViewState && hasSetInitialViewport) {
-            setViewport({
-                ...initialViewState,
-                bearing: 0,
-                pitch: 0
-            });
-        }
-    }, [initialViewState?.latitude, initialViewState?.longitude, initialViewState?.zoom, hasSetInitialViewport]);
+    }, [initialLatitude, initialLongitude, initialZoom]);
     const [settings, setsettings] = useState(() => ({
         dragPan: dragPanEnabled ?? defaultDragPan,
         dragRotate: true,
@@ -612,7 +544,7 @@ export const AmecicloMap = ({
                         onMouseMove={onMouseMove}
                     >
 
-                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} initialViewport={initialViewport} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} dragPanEnabled={dragPanEnabled} radius={radius} setRadius={setRadius} onViewStateChange={onViewStateChange} />
+                        <MapCommands viewport={viewport} setViewport={setViewport} settings={settings} setsettings={setsettings} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} isSelectionMode={isSelectionMode} toggleSelectionMode={toggleSelectionMode} toggleDragPan={toggleDragPan} dragPanEnabled={dragPanEnabled} radius={radius} setRadius={setRadius} onViewStateChange={onViewStateChange} />
                         {layerData && (
                             <Source id="layersMap" type="geojson" data={layerData}>
                                 {layersConf?.map((layer: any, i: number) =>
@@ -625,7 +557,7 @@ export const AmecicloMap = ({
                         {pointsData?.map((point) => {
                             const { key, latitude, longitude, size, color, customIcon } = point;
                             
-                            const zoomAdjustedSize = size;
+                            const zoomAdjustedSize = size ?? 24;
                             
                             return (
                                 markerVisibility &&
@@ -896,7 +828,7 @@ export const AmecicloMap = ({
                             <MapControlPanel
                                 controlPanel={controlPanel}
                                 markerVisibility={markerVisibility}
-                                pointsData={pointsData}
+                                pointsData={pointsData ?? []}
                                 handleMarkerToggle={handleMarkerToggle}
                             />
                         )}

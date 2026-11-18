@@ -1,69 +1,107 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { cmsFetch } from "~/services/cmsFetch";
-import { makeApiErrorTracker } from "~/services/apiTracking";
-import {
-  DATASUS_SUMMARY_DATA,
-  DATASUS_CITIES_BY_YEAR_DATA,
-  OBSERVATORIO_SINISTROS_PAGE_DATA,
-} from "~/servers";
+import { z } from "zod";
+import type { DeathOverview, DeathStats } from "@ameciclo/db/deaths-read";
 
-const MOCK_PAGE_DATA = {
-  id: 4,
+// Mortes no trânsito (SIM/DATASUS), do banco. Tudo são contagens: nenhum óbito individual sai do servidor.
+
+export const DEFAULT_YEARS_SHOWN = 10;
+
+// Onde a pessoa morreu, em grupos que se explicam sozinhos.
+export const PLACES = {
+  via: { label: "Na via pública", codes: ["4"] },
+  hospital: { label: "No hospital ou outro estabelecimento de saúde", codes: ["1", "2"] },
+  outros: { label: "Em casa ou em outro lugar", codes: ["3", "5", "9"] },
+} as const;
+export type PlaceKey = keyof typeof PLACES;
+
+// A página não tem entrada no Strapi: título e capa são fixos, e não há arquivos de apoio.
+const PAGE_DATA = {
   title: "Observatório de Sinistros Fatais",
   coverImage: "/pages_covers/sinistros-fatais.png",
-  explanationBoxes: [
-    {
-      title: "O que são esses dados?",
-      description:
-        "Dados de mortalidade no trânsito extraídos do Sistema de Informações sobre Mortalidade (SIM) do DATASUS, considerando os códigos CID-10 de V01 a V89 (acidentes de transporte terrestre).",
-    },
-    {
-      title: "Local de Ocorrência vs. Residência",
-      description:
-        "Local de Ocorrência indica onde o sinistro aconteceu, enquanto Local de Residência mostra onde a vítima morava. Essa distinção é importante para análises de políticas públicas e planejamento urbano.",
-    },
-  ],
   supportFiles: [],
 };
 
-const fetchSinistrosFatais = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
-
-  const [summary, citiesByYear, pageData] = await Promise.all([
-    cmsFetch<any>(DATASUS_SUMMARY_DATA, {
-      ttl: 300,
-      timeout: 10000,
-      fallback: null,
-      onError: tracker.at(DATASUS_SUMMARY_DATA),
-      retries: 2,
-    }),
-    cmsFetch<any>(DATASUS_CITIES_BY_YEAR_DATA, {
-      ttl: 300,
-      timeout: 10000,
-      fallback: null,
-      onError: tracker.at(DATASUS_CITIES_BY_YEAR_DATA),
-      retries: 2,
-    }),
-    cmsFetch<any>(OBSERVATORIO_SINISTROS_PAGE_DATA, {
-      ttl: 600,
-      timeout: 10000,
-      fallback: MOCK_PAGE_DATA,
-      onError: tracker.at(OBSERVATORIO_SINISTROS_PAGE_DATA),
-      retries: 2,
-    }),
-  ]);
+const fetchOverview = createServerFn({ method: "GET" }).handler(async () => {
+  let overview: DeathOverview | null = null;
+  try {
+    const { withDb } = await import("~/lib/db.server");
+    const { getDeathOverview } = await import("@ameciclo/db/deaths-read");
+    overview = await withDb((db) => getDeathOverview(db));
+  } catch (error) {
+    console.error("Error loading the traffic deaths overview from the database:", error);
+  }
 
   return {
-    summary,
-    citiesByYear,
-    pageData,
-    ...tracker.summary(),
+    pageData: PAGE_DATA,
+    overview: overview && overview.years.length > 0 ? overview : null,
   };
 });
 
-export const sinistrosFataisQueryOptions = () =>
+const StatsInput = z.object({
+  basis: z.enum(["ocorrencia", "residencia"]),
+  city: z.number().int().optional(),
+  from: z.number().int(),
+  to: z.number().int(),
+  place: z.enum(["via", "hospital", "outros"]).optional(),
+});
+export type StatsInput = z.infer<typeof StatsInput>;
+
+const fetchStats = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => StatsInput.parse(input))
+  .handler(async ({ data }): Promise<DeathStats | null> => {
+    try {
+      const { withDb } = await import("~/lib/db.server");
+      const { getDeathStats } = await import("@ameciclo/db/deaths-read");
+      return await withDb((db) =>
+        getDeathStats(db, {
+          basis: data.basis,
+          city: data.city,
+          yearFrom: data.from,
+          yearTo: data.to,
+          places: data.place ? [...PLACES[data.place].codes] : undefined,
+        }),
+      );
+    } catch (error) {
+      console.error("Error loading the traffic deaths statistics from the database:", error);
+      return null;
+    }
+  });
+
+export const sinistrosOverviewQueryOptions = () =>
   queryOptions({
     queryKey: ["dados", "sinistros-fatais"],
-    queryFn: () => fetchSinistrosFatais(),
+    queryFn: () => fetchOverview(),
+    staleTime: 10 * 60 * 1000,
   });
+
+export const sinistrosStatsQueryOptions = (input: StatsInput) =>
+  queryOptions({
+    queryKey: ["dados", "sinistros-fatais", "stats", input],
+    queryFn: () => fetchStats({ data: input }),
+    staleTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData,
+  });
+
+export type Selection = {
+  basis: "ocorrencia" | "residencia";
+  /** Município (código do SIM); sem ele, a RMR inteira. */
+  city: number | undefined;
+  from: number;
+  to: number;
+  place: PlaceKey | undefined;
+};
+
+type SearchInput = { olhar?: "ocorrencia" | "residencia"; cidade?: number; de?: number; ate?: number; local?: PlaceKey };
+
+// Tudo o que faltar ou não existir volta ao padrão: RMR inteira, por ocorrência, os últimos 10 anos.
+export function resolveSelection(overview: DeathOverview, search: SearchInput): Selection {
+  const first = overview.years[0];
+  const last = overview.years[overview.years.length - 1];
+  const inRange = (y: number | undefined) => (y !== undefined && y >= first && y <= last ? y : undefined);
+  const basis = search.olhar ?? "ocorrencia";
+  const known = overview.byBasis[basis].byCity.some((c) => c.city === search.cidade);
+  const to = inRange(search.ate) ?? last;
+  const from = Math.min(inRange(search.de) ?? Math.max(first, last - DEFAULT_YEARS_SHOWN + 1), to);
+  return { basis, city: known ? search.cidade : undefined, from, to, place: search.local };
+}

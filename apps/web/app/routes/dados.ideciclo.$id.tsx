@@ -9,7 +9,7 @@ import { StatisticsBoxIdecicloDetalhes } from "../components/Ideciclo/Statistics
 import { VerticalStatisticsBoxesIdeciclo } from "../components/Ideciclo/VerticalStatisticsBoxesIdeciclo";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { idecicloDetailQueryOptions } from "~/queries/dados.ideciclo.$id";
-import { getRatesSummary, structureStatistics } from "~/services/ideciclo.service";
+import { getRatesSummary, structureStatistics } from "~/components/Ideciclo/ideciclo.service";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 

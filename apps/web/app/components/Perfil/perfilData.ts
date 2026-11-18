@@ -1,7 +1,6 @@
 // Turns the cube's counts into the shares, notes and highlights the Perfil page shows.
 import { buildSeries, type PerfilChartDef, type PerfilGender } from "@ameciclo/db/perfil-series";
 import type { PerfilCube, PerfilHistogramCell, PerfilNational, PerfilSurveyOption } from "@ameciclo/db/shared";
-import type { PerfilPage } from "~/queries/dados.perfil";
 
 export type PerfilProps = {
   surveys: PerfilSurveyOption[];

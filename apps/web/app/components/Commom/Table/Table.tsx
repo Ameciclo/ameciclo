@@ -181,12 +181,12 @@ function TableHead<TData extends RowData>({ table, isSmallScreen, rows }: { tabl
                             <th
                                 key={header.id}
                                 className="px-6 py-3 border-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider"
+                                aria-sort={sorted ? (sorted === 'desc' ? 'descending' : 'ascending') : 'none'}
                             >
                                 <button
                                     onClick={column.getToggleSortingHandler()}
                                     className="flex items-center gap-1 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-ameciclo focus:ring-offset-2 rounded-sm px-1 -mx-1"
                                     aria-label={`Ordenar por ${columnTitle(column) ?? 'coluna'}${sorted ? (sorted === 'desc' ? ' em ordem decrescente' : ' em ordem crescente') : ''}`}
-                                    aria-sort={sorted ? (sorted === 'desc' ? 'descending' : 'ascending') : 'none'}
                                 >
                                     {sorted ? (
                                         sorted === 'desc' ? (

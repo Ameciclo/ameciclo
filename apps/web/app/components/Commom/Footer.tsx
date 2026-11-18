@@ -42,10 +42,6 @@ export const Footer = () => {
           url: "/projetos",
         },
         {
-          label: "Documentação",
-          url: "/documentacao",
-        },
-        {
           label: "Biciclopedia (FAQ)",
           url: "/biciclopedia",
         },

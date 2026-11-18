@@ -12,8 +12,8 @@ const dataSubPages = [
   { name: "Execução Cicloviária", url: "/dados/execucaocicloviaria" },
   { name: "LOA", url: "/dados/loa" },
   { name: "DOM", url: "/dados/dom" },
-  { name: "SAMU", url: "/dados/samu" },
-  { name: "Vias Inseguras", url: "/dados/vias-inseguras" },
+  { name: "SAMU", url: "/dados/chamados-de-sinistros" },
+  { name: "Vias Inseguras", url: "/dados/viasinseguras" },
   { name: "Sinistros Fatais", url: "/dados/sinistros-fatais" },
   { name: "CicloDados", url: "/dados/ciclodados" },
 ];
@@ -30,20 +30,15 @@ export const Navbar = ({ pages }: any) => {
   if (!pages) pages = pagesDefault;
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hideRedNavbar, setHideRedNavbar] = useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
   const location = useRouterState({ select: (s) => s.location });
-  const isDataPage = location.pathname.startsWith('/dados') && location.pathname !== '/dados/ciclodados';
   const isCicloDadosPage = location.pathname === '/dados/ciclodados';
 
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 1;
-      const coverImageHeight = 400;
-      const hideRed = window.scrollY > coverImageHeight;
       
       setIsHeaderScrolled(scrolled);
-      setHideRedNavbar(hideRed);
     };
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -73,11 +68,10 @@ export const Navbar = ({ pages }: any) => {
         animate={{ y: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={"flex fixed top-0 left-0 right-0 items-center h-14 z-80 text-white transition-shadow duration-300 bg-ameciclo shadow-xs"}
-        role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-4 lg:px-32 xl:px-32 py-0 m-0">
           {!isMenuOpen && (
-            <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-85 pointer-events-auto" prefetch="intent">
+            <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-85 pointer-events-auto" preload="intent">
               <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
             </Link>
           )}
@@ -152,7 +146,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
             <div className={`uppercase h-14 flex items-center relative ${
               isActive ? 'font-semibold' : 'text-white'
             } ${isDadosPage ? 'dados-button' : ''}`}>
-              <Link to={page.url} className="flex items-center" prefetch="intent">
+              <Link to={page.url} className="flex items-center" preload="intent">
                 <span>{page.name}</span>
               </Link>
               {isDadosPage && (
@@ -274,7 +268,7 @@ function SmallMenu({ pages, closeMenu }: any) {
                                       : 'hover:bg-white/10'
                                   }`}
                                   onClick={handleLinkClick}
-                                  prefetch="intent"
+                                  preload="intent"
                                 >
                                   {subPage.name}
                                 </Link>
@@ -294,7 +288,7 @@ function SmallMenu({ pages, closeMenu }: any) {
                         : 'hover:bg-white/10'
                     }`}
                     onClick={handleLinkClick}
-                    prefetch="intent"
+                    preload="intent"
                   >
                     {page.name}
                   </Link>

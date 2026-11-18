@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { CardsSession } from "~/components/Commom/CardsSession";
+import { CardsSession } from "~/components/Dados/CardsSession";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { ImagesGrid } from "~/components/Dados/ImagesGrid";
 import { dadosQueryOptions } from "~/queries/dados";
@@ -56,11 +56,10 @@ const FEATURED_PAGES = [
   {
     title: "Execução Cicloviária",
     src: "/icons/dados/mapa.svg",
-    url: "#",
+    url: "/dados/execucaocicloviaria",
     description:
       "Monitoramento das estruturas cicloviárias projetadas e executadas conforme PDC.",
     target: "",
-    comingSoon: true,
   },
   {
     title: "Orçamento Estadual para o Clima",
@@ -81,7 +80,7 @@ const FEATURED_PAGES = [
   {
     title: "Chamados de Sinistros",
     src: "/icons/home/chamados_sinistros.svg",
-    url: "/dados/samu",
+    url: "/dados/chamados-de-sinistros",
     description:
       "Detalhamento dos dados de chamados de sinistros pela SAMU.",
     target: "",
@@ -89,11 +88,10 @@ const FEATURED_PAGES = [
   {
     title: "Vias Inseguras",
     src: "/icons/home/vias-inseguras.svg",
-    url: "#",
+    url: "/dados/viasinseguras",
     description:
       "Ranking das vias com maior concentração de sinistros de trânsito no Recife baseado nos dados do SAMU.",
     target: "",
-    comingSoon: true,
   },
   {
     title: "Sinistros Fatais",

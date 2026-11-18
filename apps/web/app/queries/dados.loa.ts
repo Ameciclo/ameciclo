@@ -1,7 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { cmsFetch } from "~/services/cmsFetch";
+import { z } from "zod";
 import { LOA_PAGE_DATA } from "~/servers";
+
+// As linhas da base aberta de ações e programas do Estado; só olhamos alguns campos numéricos e o código da ação.
+const LoaRows = z.object({ campos: z.array(z.record(z.string(), z.json())).optional() });
 
 const fetchLoa = createServerFn().handler(async () => {
   const errors: Array<{ url: string; error: string }> = [];
@@ -31,8 +35,8 @@ const fetchLoa = createServerFn().handler(async () => {
     "3178", "3187", "4116", "4440", "1896",
   ];
 
-  const getActionCode = (action: any) => {
-    const match = action.cd_nm_acao?.match(/^(\d+)/);
+  const getActionCode = (action: Record<string, unknown>) => {
+    const match = typeof action.cd_nm_acao === "string" ? action.cd_nm_acao.match(/^(\d+)/) : null;
     return match ? match[1] : "";
   };
 
@@ -55,13 +59,13 @@ const fetchLoa = createServerFn().handler(async () => {
         return { budgeted: 0, executed: 0, totalBudgeted: 0 };
       }
 
-      const data = await response.json();
+      const data = LoaRows.parse(await response.json());
       let budgeted = 0;
       let executed = 0;
       let totalBudgeted = 0;
 
-      if (data.campos && Array.isArray(data.campos)) {
-        data.campos.forEach((item: any) => {
+      if (data.campos) {
+        data.campos.forEach((item) => {
           const actionCode = getActionCode(item);
           const isGoodAction = goodActionsTags.includes(actionCode);
 
@@ -137,7 +141,7 @@ const fetchLoa = createServerFn().handler(async () => {
         2025: getData(data2025),
       };
 
-      let actions2025 = [];
+      let actions2025: NonNullable<z.infer<typeof LoaRows>["campos"]> = [];
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -155,8 +159,8 @@ const fetchLoa = createServerFn().handler(async () => {
         clearTimeout(timeoutId);
 
         if (response.ok) {
-          const d = await response.json();
-          actions2025 = d.campos || [];
+          const d = LoaRows.parse(await response.json());
+          actions2025 = d.campos ?? [];
         } else {
           errors.push({
             url: "https://dados.pe.gov.br/dataset/.../acoes_e_programas_json_2025_20250716.json",

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Calendar, Users, Award, MapPin, BookOpen, Bike } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import DocumentationSearchBar from "~/components/Documentacao/DocumentationSearchBar";
+import TimelineSearchBar from "~/components/QuemSomos/TimelineSearchBar";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/quemsomos/linhadotempo/")({
@@ -154,7 +154,7 @@ function LinhaDoTempoPage() {
     <>
       {isSearchFloating && (
         <div className="fixed top-20 right-4 z-40" title="Ctrl + / para focar">
-          <DocumentationSearchBar
+          <TimelineSearchBar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             searchResults={searchResults}

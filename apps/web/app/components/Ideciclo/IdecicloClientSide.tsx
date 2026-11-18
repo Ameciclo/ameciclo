@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
     filterById,
     filterByName,
@@ -20,85 +20,53 @@ export type city = {
     reviews: any[];
 };
 
-function getTotalCityStates(input: any) {
-    let arr = input,
-        obj: any = {},
-        count = 0,
-        st_arr = [];
-    for (let i = 0; i < arr.length; i++) {
-        if (!obj[arr[i].state]) {
-            obj[arr[i].state] = 1;
-            count++;
-            st_arr.push(arr[i].state);
-        } else if (obj[arr[i].state]) {
-            obj[arr[i].state] += 1;
-        }
-    }
-    return { states: st_arr, count: count };
-}
 
-
-export default function IdecicloClientSide({ cidades, structures, ideciclo }: any) {
-    const [filteredCity, setFilteredCity] = useState<any[]>([]);
-    const [filteredCityData, setFilteredCityData] = useState<any[]>([]);
-    const [selectedCity, setCity] = useState<city | null>(null);
-    
-    // Inicializar cidade quando dados chegarem
-    useEffect(() => {
-        if (!selectedCity && cidades && cidades.length > 0) {
-            const defaultCity = filterByName(cidades, "Recife") || cidades[0];
-            setCity(defaultCity);
-        }
-    }, [cidades, selectedCity]);
+export default function IdecicloClientSide({ cidades, structures, ideciclo }: { cidades: city[]; structures: any; ideciclo: any }) {
+    const [chosenCity, setCity] = useState<city | null>(null);
+    // Enquanto ninguém escolheu uma cidade, vale Recife (ou a primeira da lista).
+    const selectedCity = chosenCity ?? filterByName(cidades, "Recife") ?? cidades[0] ?? null;
     const [cityState, setCityState] = useState<any>("PE");
     const [cityPop, setCityPop] = useState<any>("");
 
     const changeCity = (id: any) => {
-        setCity(filterById(cidades, id));
+        setCity(filterById(cidades, id) ?? null);
         //window.location.replace("#maisinfo")
     };
 
-    useEffect(() => {
-        if (selectedCity) {
-            let city_structures = structures.filter((s: any) => {
-                return s.city_id === selectedCity.id;
-            });
-            let segs: any[] = [];
-            city_structures.forEach((d: any) => {
-                segs.push({
+    // As estruturas da cidade escolhida, na forma da tabela.
+    const filteredCityData = useMemo(() => {
+        if (!selectedCity) return [];
+        return structures
+            .filter((s: any) => s.city_id === selectedCity.id)
+            .map((d: any) => {
+                const last = d.reviews[d.reviews.length - 1];
+                return {
                     id: d.id,
                     cidade: d.city_id,
                     logradouro: d.street,
                     tipologia: d.typology,
-                    comprimento: d.reviews[d.reviews.length - 1].length / 1000,
-                    nota: d.reviews[d.reviews.length - 1].rates.average,
-                    projeto: d.reviews[d.reviews.length - 1].rates.project,
-                    manutencao:
-                        d.reviews[d.reviews.length - 1].rates.maintenance_and_urbanity,
-                    seguranca: d.reviews[d.reviews.length - 1].rates.safety,
-                });
+                    comprimento: last.length / 1000,
+                    nota: last.rates.average,
+                    projeto: last.rates.project,
+                    manutencao: last.rates.maintenance_and_urbanity,
+                    seguranca: last.rates.safety,
+                };
             });
-            setFilteredCityData(segs);
-        } else {
-            setFilteredCityData([]);
-        }
-        if (cityState || cityPop) {
-            setFilteredCity(
-                ideciclo.filter((c: any) => {
-                    let city_size = "med";
-                    if (c.population < 100000) city_size = "peq";
-                    if (c.population > 500000) city_size = "grd";
-                    if (cityState !== "" && cityPop !== "") {
-                        return c.state === cityState && city_size === cityPop;
-                    } else {
-                        return c.state === cityState || city_size === cityPop;
-                    }
-                })
-            );
-        } else {
-            setFilteredCity(ideciclo);
-        }
-    }, [selectedCity, cityState, cityPop]);
+    }, [selectedCity, structures]);
+
+    // O ranking de cidades filtrado por estado e porte.
+    const filteredCity = useMemo(() => {
+        if (!cityState && !cityPop) return ideciclo;
+        return ideciclo.filter((c: any) => {
+            let city_size = "med";
+            if (c.population < 100000) city_size = "peq";
+            if (c.population > 500000) city_size = "grd";
+            if (cityState !== "" && cityPop !== "") {
+                return c.state === cityState && city_size === cityPop;
+            }
+            return c.state === cityState || city_size === cityPop;
+        });
+    }, [ideciclo, cityState, cityPop]);
 
     const cards_city = (chosenCities: any) => {
         const orderedCities = chosenCities
@@ -115,19 +83,6 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
             label: c.name,
             value: c.reviews[0].ideciclo,
         }));
-    };
-    const statesFilter = {
-        title: "por estado:",
-        value: cityState,
-        name: "cityState",
-        onChange: (e: any) => setCityState(e.target.value),
-        onBlur: (e: any) => e,
-        items: [{ value: "", label: "Todas" }].concat(
-            getTotalCityStates(cidades).states.map((s: any) => ({
-                value: s,
-                label: s,
-            }))
-        ),
     };
     const CitiesRanking = {
         title: "Ranking das Cidades",

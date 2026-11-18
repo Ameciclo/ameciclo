@@ -77,11 +77,7 @@ const ProjectDetailSchema = ProjectListSchema.extend({
 export type Project = z.infer<typeof ProjectListSchema>;
 export type ProjectDetail = z.infer<typeof ProjectDetailSchema>;
 export type Workgroup = z.infer<typeof WorkgroupSchema>;
-export type ProjectMedia = z.infer<typeof MediaSchema>;
-export type ProjectLink = z.infer<typeof LinkEntrySchema>;
 export type ProjectStep = z.infer<typeof StepEntrySchema>;
-export type ProjectProduct = z.infer<typeof ProductEntrySchema>;
-export type ProjectPartner = z.infer<typeof PartnerSchema>;
 
 const fetchProjetos = createServerFn().handler(async () => {
   const [projectsRes, workgroupsRes] = await Promise.all([
@@ -109,11 +105,14 @@ export const projetosQueryOptions = () =>
   });
 
 // Static JSON translation files live on ameciclo.org (same origin as app).
+// O arquivo de tradução de um projeto: uma lista de projetos em `data`, validada item a item depois.
+const TranslationFile = z.object({ data: z.array(z.unknown()) });
+
 async function fetchTranslationJson(slug: string) {
   try {
     const response = await fetch(`https://ameciclo.org/data/${slug}.json`);
     if (response.ok) {
-      return await response.json();
+      return TranslationFile.parse(await response.json());
     }
   } catch {}
   return null;

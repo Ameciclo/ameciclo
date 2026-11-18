@@ -22,9 +22,13 @@
     "directory": "dist/client",
   },
   "observability": {
+    // Agrupa falhas de produção (exceções, 5xx, logs de erro) em problemas, no painel da Cloudflare. Pede Wrangler 4.134+.
+    "issues": { "enabled": true },
     "logs": {
       "enabled": true,
       "invocation_logs": true,
+      // Também exporta para o Axiom (destino criado no painel: Observability > Destinations)
+      "destinations": ["axiom-logs"],
     },
   },
   "env": {

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type HighchartsReact from "highcharts-react-official";
 import LoadingSpinner from "../Ideciclo/loading/graphLoading";
 
 export function RadarChart({ series, categories, title = "", subtitle = "" }: any) {
@@ -19,19 +18,9 @@ export function RadarChart({ series, categories, title = "", subtitle = "" }: an
         try {
           const Highcharts = (await import("highcharts")).default;
           const HighchartsReactComponent = (await import("highcharts-react-official")).default;
-          const ExportingModule = await import("highcharts/modules/exporting");
-          if (typeof ExportingModule === 'function') {
-            ExportingModule(Highcharts);
-          } else if (ExportingModule && typeof ExportingModule.default === 'function') {
-            ExportingModule.default(Highcharts);
-          }
-
-          const HighchartsMoreModule = await import("highcharts/highcharts-more");
-          if (typeof HighchartsMoreModule === 'function') {
-            HighchartsMoreModule(Highcharts);
-          } else if (HighchartsMoreModule && typeof HighchartsMoreModule.default === 'function') {
-            HighchartsMoreModule.default(Highcharts);
-          }
+          // No Highcharts 12 os módulos se registram sozinhos ao serem importados, depois do núcleo.
+          await import("highcharts/modules/exporting");
+          await import("highcharts/highcharts-more");
 
           const options = {
             chart: {

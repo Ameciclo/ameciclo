@@ -25,9 +25,6 @@ const DadosPageSchema = z.object({
   partners: z.array(PartnerSchema).nullish(),
 });
 
-export type DadosPartner = z.infer<typeof PartnerSchema>;
-export type DadosPage = z.infer<typeof DadosPageSchema>;
-
 const fetchDados = createServerFn().handler(async () => {
   const res = await strapiClient.single("plataforma-de-dado").find({
     populate: {

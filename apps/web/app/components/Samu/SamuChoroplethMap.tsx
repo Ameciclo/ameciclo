@@ -1,292 +1,215 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import ReactMapGL, { Source, Layer, LayerProps, NavigationControl, FullscreenControl } from "react-map-gl/maplibre";
+// Chamados do SAMU por município. Passar o mouse mostra os números; clicar escolhe o município no explorador.
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import ReactMapGL, {
+  Layer,
+  NavigationControl,
+  Popup,
+  Source,
+  type LayerProps,
+  type MapLayerMouseEvent,
+} from "react-map-gl/maplibre";
+import "maplibre-gl/dist/maplibre-gl.css";
+import type { SamuCityRow } from "@ameciclo/db";
+import { n } from "../Observatorio/format";
+import { MAP_STYLE } from "../Observatorio/map";
 
-const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
-interface CityData {
-  municipio_samu?: string;
-  name?: string;
-  count: number;
-  id?: number;
-  historico_anual?: Array<{ ano: number; total_chamados: number }>;
+// Pale yellow to dark red (ColorBrewer YlOrRd, as the old page): more calls, hotter.
+const RAMP = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"];
+const NO_CALLS = "#f3f4f6";
+
+type Municipalities = {
+  features: { type: "Feature"; properties: { id: string; name: string }; geometry: GeoJSON.Geometry }[];
+};
+
+const municipalitiesQuery = {
+  queryKey: ["geojson", "pernambuco-municipios"],
+  queryFn: async (): Promise<Municipalities> => (await fetch("/data/pernambuco-municipios.geojson")).json(),
+  staleTime: Infinity,
+};
+
+// Fernando de Noronha is 360 km out at sea: fitting the map to it would push the mainland into a corner.
+const FERNANDO_DE_NORONHA = 2605459;
+
+
+// Five classes with about the same number of municipalities each: one city (Recife) has
+// more calls than the rest, so equal-width classes would paint almost everything pale.
+function breaks(totals: number[]): number[] {
+  const sorted = totals.filter((n) => n > 0).sort((a, b) => a - b);
+  if (sorted.length === 0) return [];
+  const at = (q: number) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))];
+  return [...new Set([0.2, 0.4, 0.6, 0.8].map(at))];
 }
+
+function legendLabels(cuts: number[]): string[] {
+  return [
+    `até ${n(cuts[0] - 1)}`,
+    ...cuts.slice(0, -1).map((c, i) => `${n(c)} a ${n(cuts[i + 1] - 1)}`),
+    `${n(cuts[cuts.length - 1])} ou mais`,
+  ];
+}
+
+type Hover = { ibge: number; longitude: number; latitude: number };
 
 interface SamuChoroplethMapProps {
-  citiesData: CityData[];
+  cities: SamuCityRow[];
+  selectedIbge: number;
+  onSelect: (ibge: number) => void;
 }
 
-export function SamuChoroplethMap({ citiesData }: SamuChoroplethMapProps) {
-  const [geoJsonData, setGeoJsonData] = useState<any>(null);
-  const [selectedCity, setSelectedCity] = useState<any>(null);
-  const [viewport, setViewport] = useState({
-    latitude: -8.0584364,
-    longitude: -34.945277,
-    zoom: 9,
-    bearing: 0,
-    pitch: 0,
-  });
+export function SamuChoroplethMap({ cities, selectedIbge, onSelect }: SamuChoroplethMapProps) {
+  const { data: municipalities } = useQuery(municipalitiesQuery);
+  const [hover, setHover] = useState<Hover | null>(null);
 
-  const handleMapClick = (event: any) => {
-    const feature = event.features && event.features[0];
-    if (feature && feature.properties && feature.properties.calls > 0) {
-      const ranking = feature.properties.ranking || 0;
-      
-      let historico = feature.properties.historico_anual || [];
-      
-      if (typeof historico === 'string') {
-        try {
-          historico = JSON.parse(historico);
-        } catch (e) {
-          console.error('Erro ao fazer parse do histórico:', e);
-          historico = [];
-        }
-      }
-      
-      setSelectedCity({
-        name: feature.properties.displayName,
-        calls: feature.properties.calls,
-        ranking: ranking,
-        historico_anual: historico
-      });
+  const cuts = useMemo(() => breaks(cities.map((c) => c.total)), [cities]);
+  const total = useMemo(() => cities.reduce((sum, c) => sum + c.total, 0), [cities]);
+
+  const geoJson = useMemo(() => {
+    if (!municipalities) return null;
+    const byIbge = new Map(cities.map((c, i) => [c.ibge, { ...c, rank: i + 1 }]));
+    return {
+      type: "FeatureCollection" as const,
+      features: municipalities.features.map((f) => {
+        const ibge = Number(f.properties.id);
+        return { ...f, properties: { ibge, name: f.properties.name, calls: byIbge.get(ibge)?.total ?? 0 } };
+      }),
+    };
+  }, [municipalities, cities]);
+
+  const bounds = useMemo((): [[number, number], [number, number]] | undefined => {
+    if (!geoJson) return undefined;
+    const withCalls = geoJson.features.filter((f) => f.properties.calls > 0 && f.properties.ibge !== FERNANDO_DE_NORONHA);
+    const coords: number[][] = [];
+    const walk = (c: unknown): void => {
+      if (Array.isArray(c) && typeof c[0] === "number") coords.push(c as number[]);
+      else if (Array.isArray(c)) c.forEach(walk);
+    };
+    for (const f of withCalls) if ("coordinates" in f.geometry) walk(f.geometry.coordinates);
+    if (coords.length === 0) return undefined;
+    return [
+      [Math.min(...coords.map((c) => c[0])), Math.min(...coords.map((c) => c[1]))],
+      [Math.max(...coords.map((c) => c[0])), Math.max(...coords.map((c) => c[1]))],
+    ];
+  }, [geoJson]);
+
+  if (!geoJson || !bounds) {
+    return <div className="h-[420px] md:h-[520px] rounded-xl border border-gray-200 bg-gray-50" />;
+  }
+
+  const fill: LayerProps = {
+    id: "samu-fill",
+    type: "fill",
+    paint: {
+      "fill-color": [
+        "case",
+        ["==", ["get", "calls"], 0],
+        NO_CALLS,
+        ["step", ["get", "calls"], RAMP[0], ...cuts.flatMap((c, i) => [c, RAMP[i + 1]])],
+      ],
+      "fill-opacity": 0.9,
+    },
+  };
+  const borders: LayerProps = {
+    id: "samu-borders",
+    type: "line",
+    paint: { "line-color": "#ffffff", "line-width": 0.8 },
+  };
+  const selected: LayerProps = {
+    id: "samu-selected",
+    type: "line",
+    filter: ["==", ["get", "ibge"], selectedIbge],
+    paint: { "line-color": "#111827", "line-width": 2.5 },
+  };
+  // The biggest municipalities win when names collide; the rest show up as you zoom in.
+  const names: LayerProps = {
+    id: "samu-names",
+    type: "symbol",
+    filter: [">", ["get", "calls"], 0],
+    layout: {
+      "text-field": ["get", "name"],
+      "text-size": 11,
+      "symbol-sort-key": ["-", 0, ["get", "calls"]],
+    },
+    paint: { "text-color": "#111827", "text-halo-color": "#ffffff", "text-halo-width": 1.5 },
+  };
+
+  const hovered = hover ? cities.findIndex((c) => c.ibge === hover.ibge) : -1;
+  const hoveredCity = hovered >= 0 ? cities[hovered] : null;
+
+  const onMove = (e: MapLayerMouseEvent) => {
+    const ibge = e.features?.[0]?.properties?.ibge;
+    if (typeof ibge === "number" && cities.some((c) => c.ibge === ibge)) {
+      setHover({ ibge, longitude: e.lngLat.lng, latitude: e.lngLat.lat });
+    } else {
+      setHover(null);
     }
   };
 
-  useEffect(() => {
-    if (!citiesData || citiesData.length === 0) return;
-    
-    fetch("/data/pernambuco-municipios.geojson")
-      .then((response) => response.json())
-      .then((data) => {
-        const validCities = citiesData.filter(city => city.count && city.count > 0);
-        if (validCities.length === 0) return;
-        
-        const maxCalls = Math.max(...validCities.map((city) => city.count));
-
-        const enrichedFeatures = data.features
-          .filter((feature: any) => 
-            feature.geometry && 
-            feature.geometry.coordinates && 
-            feature.properties &&
-            (feature.properties.name || feature.properties.NAME || feature.properties.NM_MUN)
-          )
-          .map((feature: any) => {
-            const cityName =
-              feature.properties.name ||
-              feature.properties.NAME ||
-              feature.properties.NM_MUN;
-            const cityData = validCities.find(
-              (city) =>
-                (city.name &&
-                  city.name.toLowerCase().includes(cityName.toLowerCase())) ||
-                (city.municipio_samu &&
-                  city.municipio_samu
-                    .toLowerCase()
-                    .includes(cityName.toLowerCase())) ||
-                cityName
-                  .toLowerCase()
-                  .includes(
-                    (city.name || city.municipio_samu || "").toLowerCase()
-                  )
-            );
-
-            const calls = cityData ? cityData.count : 0;
-            const intensity = maxCalls > 0 ? calls / maxCalls : 0;
-
-            return {
-              ...feature,
-              properties: {
-                ...feature.properties,
-                calls,
-                intensity,
-                displayName: cityName,
-                cityData: cityData,
-                ranking: cityData?.ranking || 0,
-                historico_anual: cityData?.historico_anual || [],
-              },
-            };
-          });
-
-        setGeoJsonData({
-          ...data,
-          features: enrichedFeatures,
-        });
-      })
-      .catch((error) => console.error("Erro ao carregar GeoJSON:", error));
-  }, [citiesData]);
-  
-  const totalCities = citiesData.length;
-  const layersConf: LayerProps[] = geoJsonData
-    ? [
-        {
-          id: "samu-choropleth",
-          type: "fill",
-          paint: {
-            "fill-color": [
-              "case",
-              [">", ["get", "intensity"], 0.7],
-              "#800026",
-              [">", ["get", "intensity"], 0.4],
-              "#BD0026",
-              [">", ["get", "intensity"], 0.15],
-              "#E31A1C",
-              [">", ["get", "intensity"], 0.05],
-              "#FC4E2A",
-              [">", ["get", "intensity"], 0],
-              "#FD8D3C",
-              "#FFEDA0",
-            ],
-            "fill-opacity": ["case", ["==", ["get", "calls"], 0], 0, 0.7],
-          },
-          layout: {},
-        },
-        {
-          id: "samu-choropleth-border",
-          type: "line",
-          paint: {
-            "line-color": "#ffffff",
-            "line-width": 1,
-          },
-          layout: {},
-        },
-        {
-          id: "samu-city-names",
-          type: "symbol",
-          paint: {
-            "text-color": "#000000",
-            "text-halo-color": "#ffffff",
-            "text-halo-width": 1,
-          },
-          layout: {
-            "text-field": [
-              "case",
-              [">", ["get", "calls"], 0],
-              ["get", "displayName"],
-              "",
-            ],
-            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-            "text-size": 10,
-            "text-anchor": "center",
-            "text-offset": [0, -1.5],
-          },
-        },
-        {
-          id: "samu-labels",
-          type: "symbol",
-          paint: {
-            "text-color": "#000000",
-            "text-halo-color": "#ffffff",
-            "text-halo-width": 2,
-          },
-          layout: {
-            "text-field": [
-              "case",
-              [">", ["get", "calls"], 0],
-              ["get", "calls"],
-              "",
-            ],
-            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-            "text-size": 12,
-            "text-anchor": "center",
-            "text-offset": [0, 0.5],
-          },
-        },
-      ]
-    : [];
+  const onClick = (e: MapLayerMouseEvent) => {
+    const ibge = e.features?.[0]?.properties?.ibge;
+    if (typeof ibge === "number" && cities.some((c) => c.ibge === ibge)) onSelect(ibge);
+  };
 
   return (
-    <div className="w-full">
-      <div className="mb-4">
-        <h3 className="text-lg font-bold mb-2">
-          Mapa de Chamadas do SAMU por Município
-        </h3>
-        <div className="flex items-center space-x-4 text-sm">
-          <span>Menos chamadas</span>
-          <div className="flex">
-            {[
-              "#FFEDA0",
-              "#FD8D3C",
-              "#FC4E2A",
-              "#E31A1C",
-              "#BD0026",
-              "#800026",
-            ].map((color, index) => (
-              <div
-                key={index}
-                className="w-6 h-4"
-                style={{ backgroundColor: color }}
-              ></div>
-            ))}
-          </div>
-          <span>Mais chamadas</span>
-        </div>
+    <div>
+      <div className="h-[420px] md:h-[520px] overflow-hidden rounded-xl border border-gray-200">
+        <ReactMapGL
+          initialViewState={{ longitude: -35.9, latitude: -8.1, zoom: 7 }}
+          // Fit once the map knows the size of its box; fitting before that frames the wrong area.
+          onLoad={(e) => {
+            e.target.resize();
+            e.target.fitBounds(bounds, { padding: 24, duration: 0 });
+          }}
+          mapStyle={MAP_STYLE}
+          interactiveLayerIds={["samu-fill"]}
+          onMouseMove={onMove}
+          onMouseLeave={() => setHover(null)}
+          onClick={onClick}
+          cursor={hoveredCity ? "pointer" : undefined}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <NavigationControl position="top-right" showCompass={false} />
+          <Source id="samu-data" type="geojson" data={geoJson}>
+            <Layer {...fill} />
+            <Layer {...borders} />
+            <Layer {...selected} />
+            <Layer {...names} />
+          </Source>
+          {hover && hoveredCity && (
+            <Popup
+              longitude={hover.longitude}
+              latitude={hover.latitude}
+              closeButton={false}
+              closeOnClick={false}
+              offset={12}
+            >
+              <div className="text-sm">
+                <div className="font-medium">{hoveredCity.name}</div>
+                <div className="tabular-nums text-gray-600">{n(hoveredCity.total)} chamados</div>
+                <div className="text-xs text-gray-500">
+                  {hovered + 1}º de {cities.length} · {((hoveredCity.total / total) * 100).toFixed(1).replace(".", ",")}% do total
+                </div>
+              </div>
+            </Popup>
+          )}
+        </ReactMapGL>
       </div>
 
-      {geoJsonData && geoJsonData.features && geoJsonData.features.length > 0 && (
-        <div className="relative">
-          <div className="bg-green-200 rounded-sm shadow-2xl">
-            <ReactMapGL
-              {...viewport}
-              onMove={(evt) => setViewport(evt.viewState)}
-              style={{ width: "100%", height: "400px" }}
-              mapStyle={MAPSTYLE}
-              dragPan={true}
-              dragRotate={true}
-              scrollZoom={true}
-              touchZoomRotate={true}
-              keyboard={true}
-              boxZoom={true}
-              doubleClickZoom={true}
-              onClick={handleMapClick}
-              interactiveLayerIds={['samu-choropleth']}
-            >
-              <Source id="samu-data" type="geojson" data={geoJsonData}>
-                {layersConf.map((layer, index) => (
-                  <Layer key={index} {...layer} />
-                ))}
-              </Source>
-              
-              <div style={{ position: 'absolute', top: 10, right: 50, zIndex: 1000 }}>
-                <NavigationControl />
-              </div>
-              
-              <div style={{ position: 'absolute', top: 110, right: 50, zIndex: 1000 }}>
-                <FullscreenControl />
-              </div>
-            </ReactMapGL>
-          </div>
-          {selectedCity && (
-            <div className="absolute top-4 left-4 bg-white p-4 rounded-lg shadow-lg max-w-xs z-10">
-              <button
-                onClick={() => setSelectedCity(null)}
-                className="float-right text-gray-500 hover:text-gray-700 text-xl leading-none"
-              >
-                ×
-              </button>
-              <h4 className="font-bold text-lg mb-2">{selectedCity.name}</h4>
-              <p className="text-sm mb-1">
-                Ranking: {selectedCity.ranking}º de {totalCities} municípios
-              </p>
-              <p className="text-sm mb-2">
-                Total: {selectedCity.calls} chamadas
-              </p>
-              {Array.isArray(selectedCity.historico_anual) &&
-                selectedCity.historico_anual.length > 0 && (
-                  <div>
-                    <h5 className="font-semibold mb-1">Histórico:</h5>
-                    <div className="text-xs space-y-1">
-                      {selectedCity.historico_anual.map((item: any, index: number) => (
-                        <div key={index} className="flex justify-between">
-                          <span>{item.ano}:</span>
-                          <span>{item.total_chamados} chamadas</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-            </div>
-          )}
-        </div>
+      {cuts.length === RAMP.length - 1 && (
+        <ul className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-gray-600">
+          {legendLabels(cuts).map((label, i) => (
+            <li key={label} className="flex items-center gap-1.5">
+              <span className="h-3 w-5 rounded-sm" style={{ backgroundColor: RAMP[i] }} />
+              {label}
+            </li>
+          ))}
+          <li className="flex items-center gap-1.5">
+            <span className="h-3 w-5 rounded-sm border border-gray-200" style={{ backgroundColor: NO_CALLS }} />
+            sem chamados
+          </li>
+        </ul>
       )}
     </div>
   );

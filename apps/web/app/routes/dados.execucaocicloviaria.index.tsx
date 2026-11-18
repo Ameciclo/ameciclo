@@ -1,28 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef } from "react";
-import { LayerProps } from "react-map-gl/maplibre";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { z } from "zod";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
-import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
-import { StatisticsBox } from "~/components/ExecucaoCicloviaria/StatisticsBox";
-import { CardsSession } from "~/components/Commom/CardsSession";
-import { ApiStatusHandler } from "~/components/Commom/ApiStatusHandler";
-import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
-import { AmecicloMap } from "~/components/Commom/Maps/AmecicloMap";
-import { CityContent } from "~/components/ExecucaoCicloviaria/CityContent";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { execucaoCicloviariaQueryOptions } from "~/queries/dados.execucaocicloviaria";
+import { ExecucaoDocumentos } from "~/components/ExecucaoCicloviaria/ExecucaoDocumentos";
+import ExecucaoObservatorio from "~/components/ExecucaoCicloviaria/ExecucaoObservatorio";
+import {
+  DEFAULT_CITY_IBGE,
+  execucaoCicloviariaQueryOptions,
+  execucaoCicloviariaWaysQueryOptions,
+} from "~/queries/dados.execucaocicloviaria";
 import { seo } from "~/utils/seo";
 
+// ?cidade=2611606: the municipality (IBGE code). Anything unknown falls back to Recife.
+const SearchSchema = z.object({
+  cidade: z.number().int().optional().catch(undefined),
+});
+
 export const Route = createFileRoute("/dados/execucaocicloviaria/")({
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(execucaoCicloviariaQueryOptions()),
+  validateSearch: SearchSchema,
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(execucaoCicloviariaQueryOptions()),
   head: () =>
     seo({
       title: "Execução Cicloviária - Ameciclo",
       description:
-        "Monitoramento das estruturas cicloviárias projetadas e executadas nas cidades da Região Metropolitana do Recife.",
+        "Quanto do Plano Diretor Cicloviário já saiu do papel: monitoramento das estruturas cicloviárias projetadas e executadas nas cidades da Região Metropolitana do Recife.",
       pathname: "/dados/execucaocicloviaria",
     }),
   component: ExecucaoCicloviaria,
@@ -33,114 +36,31 @@ export const Route = createFileRoute("/dados/execucaocicloviaria/")({
 });
 
 function ExecucaoCicloviaria() {
-    const { data } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
-    const {
-        cover,
-        title1,
-        title2,
-        description1,
-        description2,
-        documents,
-        allWaysData,
-        layersConf,
-        statsData,
-        citiesData,
-        apiDown,
-    } = data;
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const { data } = useSuspenseQuery(execucaoCicloviariaQueryOptions());
+  // The ways come after the page: the numbers do not wait for the map.
+  const { data: ways } = useQuery(execucaoCicloviariaWaysQueryOptions());
 
-    useReportApiErrors(data);
+  const known = (ibge: number | undefined) => data.overview.cities.some((c) => c.ibge === ibge);
+  const selectedIbge = known(search.cidade) ? (search.cidade ?? DEFAULT_CITY_IBGE) : DEFAULT_CITY_IBGE;
 
-    const [optionsType, setOptionsType] = useState("max1digit");
-    const [city_sort, sortCity] = useState("total");
-    const filterRef = useRef<HTMLDivElement>(null);
-
-    const sortCityAndType = (value: string) => {
-        sortCity(value);
-        setOptionsType(value === "percent" ? "percentual" : "max1digit");
-    };
-
-    const sort_cities = [
-        {
-            title: "Exibir dados por:",
-            value: city_sort,
-            name: "city-sort",
-            onChange: (e: any) => sortCityAndType(e.target.value),
-            onBlur: (e: any) => e,
-            items: [
-                { value: "percent", label: "cobertos do plano cicloviário" },
-                { value: "pdc_feito", label: "implantados no plano cicloviário" },
-                { value: "pdc_total", label: "projetada no plano cicloviário" },
-                { value: "total", label: "estrutura cicloviárias existentes" },
-            ],
-        },
-    ];
-
-
-
-
-
-
-
-    return (
-        <>
-            <Banner image={cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
-            <Breadcrumb label="Execução Cicloviária" slug="/dados/execucaocicloviaria" routes={["/", "/dados"]} />
-            <ApiStatusHandler apiDown={apiDown} />
-            <StatisticsBox
-                title={"Execução Cicloviária"}
-                subtitle={"da Região Metropolitana do Recife"}
-                boxes={statsData}
-            />
-            <ExplanationBoxes
-                boxes={[
-                    {
-                        title: title1,
-                        description: description1,
-                    },
-                    {
-                        title: title2,
-                        description: description2,
-                    },
-                ]}
-            />
-            <div className="relative">
-                {apiDown && (
-                    <div className="absolute inset-0 bg-white/90 z-10 flex items-center justify-center">
-                        <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-8 max-w-md mx-4">
-                            <div className="text-center">
-                                <svg className="w-16 h-16 text-orange-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-2">Dados do mapa indisponíveis</h3>
-                                <p className="text-gray-600 mb-6">Não foi possível carregar os dados do mapa no momento. Tente novamente mais tarde.</p>
-                                <a
-                                    href="/contato"
-                                    className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-3 rounded-lg transition-colors"
-                                >
-                                    Reportar problema
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                <AmecicloMap
-                    layerData={allWaysData}
-                    layersConf={layersConf as LayerProps[]}
-                />
-            </div>
-            <CityContent
-                citiesStats={citiesData}
-                filterRef={filterRef}
-                sort_cities={sort_cities}
-                city_sort={city_sort}
-                optionsType={optionsType}
-                sortCityAndType={sortCityAndType}
-            />
-
-
-            <div data-documents-section>
-                <CardsSession title={documents.title} cards={documents.cards} />
-            </div>
-        </>
-    );
+  return (
+    <>
+      <Banner image={data.cover} alt="Capa da página dos dados, de execuções cicloviárias, na região metropolitana do recife." />
+      <Breadcrumb label="Execução Cicloviária" slug="/dados/execucaocicloviaria" routes={["/", "/dados"]} />
+      <ExecucaoObservatorio
+        title={data.title}
+        explanations={data.explanations}
+        overview={data.overview}
+        projects={data.projects}
+        history={data.history}
+        ways={ways}
+        selectedIbge={selectedIbge}
+        // Picking a municipality must not send the page back to the top.
+        onSelect={(ibge) => navigate({ search: (prev) => ({ ...prev, cidade: ibge }), resetScroll: false })}
+      />
+      <ExecucaoDocumentos title={data.documents.title} resources={data.documents.cards} />
+    </>
+  );
 }

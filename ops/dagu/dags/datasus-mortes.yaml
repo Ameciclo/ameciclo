@@ -1,0 +1,77 @@
+# Óbitos por acidente de transporte do SIM/DATASUS na RMR (alimenta /dados/sinistros-fatais).
+# Cada passo aparece no grafo, com o log e as contagens que ele imprime; o histórico das execuções é o
+# do próprio Dagu. Código: packages/db/scripts no repositório (datasus-baixar.ts, datasus-filtrar.ts,
+# import-mortes.ts).
+#
+# Parâmetros: ALVO (staging ou producao: em qual banco gravar), YEAR (ano do óbito), DRY_RUN (true só valida;
+# false grava no banco do ALVO), FORCAR ("--forcar" baixa de novo mesmo que o DATASUS não tenha mudado).
+# O dado bruto e o registro do que já foi importado ficam separados por ALVO, para que importar em um
+# não faça o outro achar que já está em dia.
+description: Baixa o ano do DATASUS, filtra a RMR, guarda o bruto e carrega em traffic_death
+labels:
+  - fonte=datasus
+params:
+  - ALVO: "staging"
+  - YEAR: "2026"
+  - DRY_RUN: "true"
+  - FORCAR: ""
+env:
+  # Vêm do ambiente do container (Coolify); o Dagu só repassa aos passos o que o fluxo declara.
+  - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
+  - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
+  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+  - WORK_DIR: /tmp/mortes
+  # O dado bruto (CSV filtrado e manifesto de cada ano) fica no volume do Dagu, uma pasta por ALVO.
+  - RAW_DIR: /var/lib/dagu/raw/${ALVO}
+handler_on:
+  failure:
+    run: sh /opt/scripts/avisar.sh "datasus-mortes (${ALVO}, ano ${YEAR}) falhou"
+steps:
+  - name: baixar
+    # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar. Compara com a última
+    # importação e, se nada mudou, avisa e os passos seguintes são pulados.
+    run: node /opt/scripts/datasus-baixar.mjs ${YEAR} ${WORK_DIR} ${RAW_DIR} ${FORCAR}
+    # O FTP do DATASUS às vezes trava (timeout do socket de controle): tenta de novo antes de falhar.
+    retry_policy:
+      limit: 3
+      interval_sec: 60
+
+  - name: houve-mudanca
+    depends:
+      - baixar
+    # "sim" se o arquivo do DATASUS é diferente do que foi importado da última vez; "nao" pula o resto.
+    run: cat ${WORK_DIR}/mudou_${YEAR}.txt
+    output: MUDOU
+
+  - name: descompactar-e-filtrar
+    depends:
+      - houve-mudanca
+    # .dbc (PKWare implode) -> CSV só com as causas de trânsito (V e Y85), no Brasil inteiro, guardado em RAW_DIR.
+    run: node /opt/scripts/datasus-filtrar.mjs ${YEAR} ${WORK_DIR} ${RAW_DIR}
+    preconditions:
+      - condition: "${MUDOU}"
+        expected: "sim"
+
+  - name: validar
+    depends:
+      - descompactar-e-filtrar
+    # Fica a RMR (ocorrência ou residência) com causa V01-V89 ou V99; imprime o que foi descartado e por quê.
+    run: node /opt/scripts/import-mortes.mjs --dry-run --ano ${YEAR}
+    env:
+      - MORTES_DIR: ${RAW_DIR}
+    preconditions:
+      - condition: "${MUDOU}"
+        expected: "sim"
+
+  - name: carregar-no-banco
+    depends:
+      - validar
+    # Substitui o ano inteiro numa transação, no banco do ALVO; só roda com DRY_RUN=false.
+    run: sh /opt/scripts/com-banco.sh node /opt/scripts/import-mortes.mjs --ano ${YEAR}
+    env:
+      - MORTES_DIR: ${RAW_DIR}
+    preconditions:
+      - condition: "${DRY_RUN}"
+        expected: "false"
+      - condition: "${MUDOU}"
+        expected: "sim"

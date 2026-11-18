@@ -216,7 +216,10 @@ await withDb(connectionString, (db) =>
           },
         })
         .returning({ inserted: sql<boolean>`(xmax = 0)` });
-      for (const r of result) r.inserted ? added++ : updated++;
+      for (const r of result) {
+        if (r.inserted) added++;
+        else updated++;
+      }
     }
 
     // Way ↔ project links: the export's single relation plus every relation

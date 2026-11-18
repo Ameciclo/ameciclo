@@ -164,21 +164,6 @@ A configuração do Worker (nome, domínios customizados, vars) está no `apps/w
 
 ---
 
-## 📖 Documentação
-
-Acesse a documentação completa em: **[ameciclo.org/documentacao](https://ameciclo.org/documentacao)**
-
-A documentação inclui:
-- Visão geral da arquitetura
-- Estrutura detalhada do projeto
-- Guia de componentes
-- Rotas e APIs
-- Boas práticas de desenvolvimento
-- Configurações e deploy
-- Solução de problemas
-
----
-
 ## 🤝 Como Contribuir
 
 Contribuições são bem-vindas! Siga os passos:

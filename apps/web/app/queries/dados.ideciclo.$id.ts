@@ -1,11 +1,17 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { cmsFetch } from "~/services/cmsFetch";
 import {
   IDECICLO_FORMS_DATA,
   IDECICLO_PAGE_DATA,
   IDECICLO_STRUCTURES_DATA,
 } from "~/servers";
+
+// Os trechos da malha cicloviária: só precisamos do id para casar com os segmentos da avaliação.
+const MapData = z.object({
+  features: z.array(z.object({ properties: z.object({ idunido: z.union([z.string(), z.number()]) }) }).passthrough()),
+});
 
 const MAP_DATA_URL = "https://ameciclo.org/dbs/malhacicloviariapermanente_mar2021.json";
 
@@ -25,7 +31,7 @@ async function getStructureMap(structure: any) {
     if (!response.ok) {
       throw new Error("Failed to fetch map data");
     }
-    const map = await response.json();
+    const map = MapData.parse(await response.json());
 
     structure.reviews[structure.reviews.length - 1].segments.forEach(
       (seg: any) => {

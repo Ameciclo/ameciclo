@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowUpIcon } from "~/components/Commom/Icones/DocumentationIcons";
+import { ArrowUp } from "lucide-react";
 
 const AccessibilityIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -145,7 +145,7 @@ export default function AccessibilityControls({
           }`}
           aria-label="Voltar ao topo"
         >
-          <ArrowUpIcon className="w-6 h-6" />
+          <ArrowUp className="w-6 h-6" />
         </button>
       )}
     </>
