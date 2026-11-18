@@ -60,12 +60,13 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-end">
           {/* Search Bar */}
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="documentos-busca" className="block text-sm font-medium text-gray-700 mb-2">
               Buscar documentos
             </label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
+                id="documentos-busca"
                 type="text"
                 placeholder="Digite o título do documento..."
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden"
@@ -77,10 +78,11 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
 
           {/* Order Filter */}
           <div className="min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="documentos-ordem" className="block text-sm font-medium text-gray-700 mb-2">
               Ordenar por
             </label>
             <select
+              id="documentos-ordem"
               value={selectedDocumentOrder}
               onChange={(e) => setSelectedDocumentsOrder(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden bg-white"
@@ -94,10 +96,11 @@ export const DocumentsSession: React.FC<DocumentsSessionProps> = ({ documents = 
 
           {/* Type Filter */}
           <div className="min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="documentos-tipo" className="block text-sm font-medium text-gray-700 mb-2">
               Tipo de documento
             </label>
             <select
+              id="documentos-tipo"
               value={selectedDocumentType}
               onChange={(e) => setSelectedDocumentType(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden bg-white"

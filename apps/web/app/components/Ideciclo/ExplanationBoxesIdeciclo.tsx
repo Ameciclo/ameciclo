@@ -51,12 +51,15 @@ export const ExplanationBoxesIdeciclo = ({ boxes }: { boxes: Box[] }) => {
 
           <div className="flex items-center">
             {boxes.map((_, index) => (
-              <div
+              <button
+                type="button"
                 key={index}
                 className={`w-5 h-5 rounded-full mx-1 cursor-pointer ${
                   index === currentIndex ? 'bg-sky-500' : 'bg-amber-400'
                 }`}
                 onClick={() => handleDotClick(index)}
+                aria-label={`Ir para a explicação ${index + 1}`}
+                aria-current={index === currentIndex}
               />
             ))}
             <button

@@ -1,5 +1,4 @@
-import { useFocusTrap } from '~/components/QuemSomos/useFocusTrap';
-import { useEffect } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@ameciclo/ui/components/dialog';
 import type { Ameciclista } from '~/queries/quemsomos';
 
 type AmeCiclistaModalProps = {
@@ -8,64 +7,24 @@ type AmeCiclistaModalProps = {
   ameciclista: Ameciclista | null;
 };
 
-export default function AmeCiclistaModal({
-  isOpen,
-  onClose,
-  ameciclista,
-}: AmeCiclistaModalProps) {
-  const modalRef = useFocusTrap(isOpen);
-  
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isOpen, onClose]);
-  
-  if (!isOpen || !ameciclista) return null;
+export default function AmeCiclistaModal({ isOpen, onClose, ameciclista }: AmeCiclistaModalProps) {
+  if (!ameciclista) return null;
 
   return (
-    <div
-      className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-labelledby="ameciclista-modal-title"
-      aria-modal="true"
-    >
-      <div
-        ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative outline-hidden"
-        onClick={(e) => e.stopPropagation()}
-        tabIndex={-1}
-      >
-        <button
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ameciclo focus-visible:ring-offset-2"
-          onClick={onClose}
-          aria-label="Fechar modal"
-        >
-          &times;
-        </button>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-lg p-6">
         <div className="flex flex-col items-center">
           {ameciclista.media?.url ? (
-            <img
-              src={ameciclista.media.url}
-              alt={ameciclista.name ?? ""}
-              className="w-64 h-64 object-cover rounded-full mb-4"
-            />
+            <img src={ameciclista.media.url} alt={ameciclista.name ?? ""} className="mb-4 h-64 w-64 rounded-full object-cover" />
           ) : null}
-          <h2 className="text-2xl font-bold text-gray-900 mb-2" id="ameciclista-modal-title">
-            {ameciclista.name}
-          </h2>
-          {ameciclista.bio && (
-            <p className="text-gray-700 text-center text-sm leading-relaxed">
-              {ameciclista.bio}
-            </p>
+          <DialogTitle className="mb-2 text-2xl font-bold text-gray-900">{ameciclista.name}</DialogTitle>
+          {ameciclista.bio ? (
+            <DialogDescription className="text-center text-sm leading-relaxed text-gray-700">{ameciclista.bio}</DialogDescription>
+          ) : (
+            <DialogDescription className="sr-only">Perfil de {ameciclista.name}</DialogDescription>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
