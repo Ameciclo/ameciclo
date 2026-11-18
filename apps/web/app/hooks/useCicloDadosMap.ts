@@ -47,7 +47,7 @@ export function useCicloDadosMap(initialViewState: MapViewState | null) {
       if (saved) {
         try {
           return JSON.parse(saved);
-        } catch (e) {
+        } catch {
           // Ignora erro
         }
       }

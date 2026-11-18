@@ -1,3 +1,6 @@
+type PointFeature = { geometry: { coordinates: [number, number] }; properties?: Record<string, unknown> };
+type Cluster = { geometry: { coordinates: [number, number] }; properties: { count: number; items: PointFeature[] }; isCluster: boolean; id: string };
+
 export function createClusters(features: any[], zoom: number, viewport?: { latitude: number, longitude: number, zoom: number }) {
   // Calculate actual viewport bounds based on screen dimensions and zoom
   const visibleFeatures = viewport && typeof window !== 'undefined' ? features.filter(feature => {
@@ -75,7 +78,7 @@ export function createClusters(features: any[], zoom: number, viewport?: { latit
   }
   
   const gridSize = zoom < 10 ? 0.05 : zoom < 12 ? 0.02 : zoom < 14 ? 0.01 : 0.005;
-  const clusters: any = {};
+  const clusters: Record<string, Cluster> = {};
   
   visibleFeatures.forEach((feature, _index) => {
     const [lng, lat] = feature.geometry.coordinates;

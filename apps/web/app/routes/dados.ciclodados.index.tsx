@@ -62,12 +62,8 @@ function CicloDados() {
           zoom: parseFloat(zoom),
         }
       : null;
-  const modalState = modal
-    ? { open: modal === "true", tab: tab || "overview" }
-    : null;
 
   const {
-    mapSelection,
     mapViewState,
     autoOpenPopup,
     selectedStreetGeometry,
@@ -75,8 +71,6 @@ function CicloDados() {
     selectedStreetFilter,
     handlePointClick,
     handleZoomToStreet,
-    handleZoomIn,
-    handleZoomOut,
     handleMapMove,
     setAutoOpenPopup
   } = useCicloDadosMap(initialViewState);
@@ -119,10 +113,8 @@ function CicloDados() {
     togglePerfilOption,
     toggleAllPerfilOptions,
     selectedGenero,
-    setSelectedGenero,
     toggleGeneroOption,
     selectedAno,
-    setSelectedAno,
     toggleAnoOption,
     selectedArea,
     setSelectedArea,

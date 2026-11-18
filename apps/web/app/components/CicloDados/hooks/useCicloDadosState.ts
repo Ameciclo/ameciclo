@@ -16,7 +16,6 @@ export function useCicloDadosState(
 ) {
   const [isClient, setIsClient] = useState(false);
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const hasRestoredFromStorage = useRef(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   
   // Initialize sidebar state based on screen size

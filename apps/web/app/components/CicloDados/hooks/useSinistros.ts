@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-
 interface ViewportBounds {
   north: number;
   south: number;
@@ -7,15 +5,9 @@ interface ViewportBounds {
   west: number;
 }
 
-export function useSinistros(bounds?: ViewportBounds | null) {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState<string | null>(null);
+type SinistrosCollection = { features: { geometry: { coordinates: [number, number] }; properties: Record<string, unknown> }[] };
 
-  useEffect(() => {
-    // No mock data - return empty data
-    setData(null);
-    setError(null);
-  }, [bounds]);
-
-  return { data, error };
+// A camada de sinistros com vítima ainda não tem fonte de dados ("Em breve" no painel): sempre vazia, sem dado de exemplo.
+export function useSinistros(_bounds?: ViewportBounds | null): { data: SinistrosCollection | null; error: string | null } {
+  return { data: null, error: null };
 }

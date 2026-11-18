@@ -11,8 +11,6 @@ import { usePontosContagem } from './hooks/usePontosContagem';
 import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
 import { useSinistros } from './hooks/useSinistros';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
-import { usePerfilCiclistas } from './hooks/usePerfilCiclistas';
-import { DataErrorAlert } from './DataErrorAlert';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
 
@@ -74,7 +72,6 @@ export function MapView({
   externalViewState,
   onMapMove,
   highlightedStreet,
-  streetData,
   selectedStreetFilter,
   perfilCiclistasData,
   autoOpenPopup,
@@ -90,8 +87,6 @@ export function MapView({
   const [clusterTooltip, setClusterTooltip] = useState<{ show: boolean; count: number; x: number; y: number }>({ show: false, count: 0, x: 0, y: 0 });
   const [mapViewState, setMapViewState] = useState(() => externalViewState || { latitude: -8.0476, longitude: -34.8770, zoom: 11 });
 
-  const [forceRender, setForceRender] = useState(0);
-  const [renderedLayers, setRenderedLayers] = useState<Set<string>>(new Set());
   const [loadingLayers, setLoadingLayers] = useState<Set<string>>(new Set());
 
   // Sync with external view state
@@ -149,7 +144,7 @@ export function MapView({
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
-  const { data: perfilPoints, error: perfilError } = usePerfilPoints(
+  const { error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {
       anos: selectedGenero, // as edições da pesquisa marcadas
@@ -168,16 +163,13 @@ export function MapView({
   // Track loading state based on data availability
   useEffect(() => {
     const newLoadingLayers = new Set<string>();
-    const newRenderedLayers = new Set<string>();
 
     // Infrastructure loading/rendered state
     if (selectedInfra.length > 0) {
       if (infraError) {
         // If there's an error, consider it "rendered" (failed)
-        newRenderedLayers.add('infraestrutura');
       } else if ((infraCicloviaria?.features?.length ?? 0) > 0) {
         // Data loaded successfully
-        newRenderedLayers.add('infraestrutura');
       } else {
         // Still loading
         newLoadingLayers.add('infraestrutura');
@@ -188,10 +180,8 @@ export function MapView({
     if (selectedPdc.length > 0) {
       if (execucaoError) {
         // If there's an error, consider it "rendered" (failed)
-        newRenderedLayers.add('pdc');
       } else if ((execucaoCicloviaria?.features?.length ?? 0) > 0) {
         // Data loaded successfully
-        newRenderedLayers.add('pdc');
       } else {
         // Still loading
         newLoadingLayers.add('pdc');
@@ -205,9 +195,7 @@ export function MapView({
       const hasEstacionamentoError = bicicletariosError || bikePEError;
       
       if (hasEstacionamentoError) {
-        newRenderedLayers.add('estacionamento');
       } else if (hasBicicletarios || hasBikePE) {
-        newRenderedLayers.add('estacionamento');
       } else {
         newLoadingLayers.add('estacionamento');
       }
@@ -215,13 +203,11 @@ export function MapView({
 
     // Contagem loading/rendered state
     if (selectedContagem.length > 0) {
-      const hasContagemData = (contagemData?.features?.length > 0) || (pontosContagem?.features?.length > 0);
+      const hasContagemData = ((contagemData?.features?.length ?? 0) > 0) || ((pontosContagem?.features?.length ?? 0) > 0);
       const hasContagemError = pontosContagemError;
       
       if (hasContagemError) {
-        newRenderedLayers.add('contagem');
       } else if (hasContagemData) {
-        newRenderedLayers.add('contagem');
       } else {
         newLoadingLayers.add('contagem');
       }
@@ -230,16 +216,13 @@ export function MapView({
     // Perfil loading/rendered state
     if (selectedPerfil.length > 0) {
       if (perfilCiclistasError) {
-        newRenderedLayers.add('perfil');
       } else if (perfilCiclistas?.features?.length > 0) {
-        newRenderedLayers.add('perfil');
       } else if (perfilCiclistasLoading) {
         newLoadingLayers.add('perfil');
       }
     }
 
     setLoadingLayers(newLoadingLayers);
-    setRenderedLayers(newRenderedLayers);
   }, [
     selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil,
     infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas,
@@ -284,27 +267,7 @@ export function MapView({
     }
   }, [selectedPoints]);
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null);
-
-  const handleMapMouseDown = (event: any) => {
-    if (event.srcEvent) {
-      setDragStartPos({ x: event.srcEvent.clientX, y: event.srcEvent.clientY });
-      setIsDragging(false);
-    }
-  };
-
   const handleMapMouseMove = (event: any) => {
-    if (dragStartPos && event.srcEvent) {
-      const deltaX = Math.abs(event.srcEvent.clientX - dragStartPos.x);
-      const deltaY = Math.abs(event.srcEvent.clientY - dragStartPos.y);
-      
-      if (deltaX > 5 || deltaY > 5) {
-        setIsDragging(true);
-      }
-    }
-
-    // Lógica original do hover
     if (!isSelectionMode) {
       setHoverPoint(null);
       return;
@@ -320,13 +283,6 @@ export function MapView({
     const now = Date.now();
     if (now - lastClickTime.current < 100) return;
     lastClickTime.current = now;
-    
-    // Se foi um drag, não processar como clique
-    if (isDragging) {
-      setIsDragging(false);
-      setDragStartPos(null);
-      return;
-    }
     
     // Verificar se o clique veio de um botão ou controle
     if (event.srcEvent) {
@@ -361,7 +317,6 @@ export function MapView({
     url.searchParams.set('zoom', mapViewState.zoom.toString());
     window.history.pushState({}, '', url.toString());
     
-    setDragStartPos(null);
   };
 
   const toggleSelectionMode = () => {
@@ -566,7 +521,7 @@ export function MapView({
             return allFeatures.length > 0 ? {
               type: "FeatureCollection",
               features: allFeatures
-            } : null;
+            } : undefined;
           })()}
         layersConf={[
           ...(layersConf || []),
@@ -1307,11 +1262,8 @@ export function MapView({
           )
         }))}
         onMouseMove={handleMapMouseMove}
-        onMouseDown={handleMapMouseDown}
         initialViewState={mapViewState}
         onViewStateChange={handleMapViewChange}
-        showDefaultZoomButton={false}
-        controlsSize="small"
         />
         
 
@@ -1361,7 +1313,6 @@ export function MapView({
           lat={showPointInfo.lat}
           lng={showPointInfo.lng}
           initialTab={showPointInfo.initialTab}
-          extraData={showPointInfo.extraData}
           onClose={() => {
             setShowPointInfo(null);
             // Keep the point and circle visible when closing popup from URL

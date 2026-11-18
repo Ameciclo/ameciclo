@@ -1,4 +1,19 @@
-import { geocodeStreetCached } from './geocoding.service';
+import { z } from 'zod';
+
+// O que usamos da resposta do Nominatim (busca e busca reversa).
+const NominatimItem = z.object({
+  place_id: z.number(),
+  type: z.string().optional(),
+  class: z.string().optional(),
+  display_name: z.string(),
+  lat: z.string(),
+  lon: z.string(),
+  boundingbox: z.array(z.string()).optional(),
+  address: z
+    .object({ road: z.string(), street: z.string(), city: z.string(), town: z.string(), municipality: z.string() })
+    .partial()
+    .optional(),
+});
 
 export interface StreetMatch {
   id: string;
@@ -64,7 +79,7 @@ export async function searchStreets(query: string): Promise<StreetMatch[]> {
           signal: AbortSignal.timeout(5000)
         });
         if (!response.ok) return [];
-        const data = await response.json();
+        const data = NominatimItem.parse(await response.json());
         
         if (data.address?.road) {
           return [{
@@ -101,17 +116,17 @@ export async function searchStreets(query: string): Promise<StreetMatch[]> {
 
     if (!response.ok) return [];
 
-    const data = await response.json();
+    const data = z.array(NominatimItem).parse(await response.json());
     const queryLower = query.toLowerCase().trim();
     
     const streets = data
-      .filter((item: any) => {
+      .filter((item) => {
         const type = item.type || item.class;
-        const isStreet = ['road', 'residential', 'primary', 'secondary', 'tertiary', 'unclassified', 'living_street', 'pedestrian'].includes(type);
+        const isStreet = ['road', 'residential', 'primary', 'secondary', 'tertiary', 'unclassified', 'living_street', 'pedestrian'].includes(type ?? '');
         const hasAddress = item.address && (item.address.road || item.address.street);
         return isStreet || hasAddress;
       })
-      .map((item: any) => {
+      .map((item) => {
         const streetName = item.address?.road || item.display_name.split(',')[0];
         const city = item.address?.city || item.address?.town || item.address?.municipality || 'Recife';
         const streetNameLower = streetName.toLowerCase();

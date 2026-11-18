@@ -1,4 +1,4 @@
-export function generateInfraData(selectedInfra: string[]) {
+export function generateInfraData(_selectedInfra: string[]) {
   return null;
 }
 

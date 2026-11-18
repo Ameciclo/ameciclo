@@ -66,6 +66,10 @@ export type pointData = {
   size?: number;
   color?: string;
   type?: string;
+  // Usados pelo mapa do CicloDados (marcadores com ícone próprio, ação própria e agrupamento).
+  customIcon?: import("react").ReactNode;
+  onClick?: () => void;
+  isCluster?: boolean;
 };
 
 export type city = {

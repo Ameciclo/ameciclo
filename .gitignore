@@ -83,3 +83,6 @@ data/samu/
 data/mortes/
 data/ruas/
 .vitest/
+
+# Agentes locais (worktrees e configuração)
+.claude/
