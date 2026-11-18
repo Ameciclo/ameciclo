@@ -1,4 +1,4 @@
-import { Search, Users, Bike, AlertTriangle } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { searchStreets, type StreetMatch } from '~/services/streets.service';
 

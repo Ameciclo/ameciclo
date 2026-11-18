@@ -46,7 +46,7 @@ export function generateLayersConf(
   infraOptions: any[], 
   pdcOptions: any[]
 ) {
-  const allLayers = [];
+  const allLayers: Record<string, unknown>[] = [];
   
   // Layers de infraestrutura
   infraOptions

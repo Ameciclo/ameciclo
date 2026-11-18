@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { prefeituraCountsQueryOptions } from '~/queries/dados.ciclodados';
 
 interface ViewportBounds {
   north: number;
@@ -7,86 +9,51 @@ interface ViewportBounds {
   west: number;
 }
 
-export function usePontosContagem(bounds?: ViewportBounds) {
-  const [allData, setAllData] = useState(null);
-  const [filteredData, setFilteredData] = useState(null);
-  const [error, setError] = useState<string | null>(null);
+// Pontos de contagem da Prefeitura como GeoJSON para o mapa (as coordenadas do arquivo vêm como [lat, lng]).
+export function usePontosContagem(bounds?: ViewportBounds | null) {
+  const { data: counts, error } = useQuery(prefeituraCountsQueryOptions());
 
-  useEffect(() => {
-    setError(null);
-    
-    fetch('/dbs/PCR_CONTAGENS.json')
-      .then(res => {
-        if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
-        return res.json();
-      })
-      .then((pontosData: any[]) => {
-        
-        // Converter para GeoJSON
-        const geojson = {
-          type: "FeatureCollection" as const,
-          features: pontosData.map((ponto, index) => {
-            const lat = ponto.location.coordinates[0];
-            const lng = ponto.location.coordinates[1];
-            const totalCyclists = ponto.summary?.total || 0;
-            
-            return {
-              type: 'Feature' as const,
-              geometry: {
-                type: 'Point' as const,
-                coordinates: [lng, lat] as [number, number]
-              },
-              properties: {
-                id: `prefeitura_${index}`,
-                name: ponto.name || `Posto ${index + 1}`,
-                city: 'Recife',
-                count: totalCyclists,
-                total_cyclists: totalCyclists,
-                date: ponto.date,
-                last_count_date: ponto.date ? new Date(ponto.date).toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit' }) : 'Sem dado',
-                cargo_percent: ponto.summary?.cargo_percent ? Math.round(ponto.summary.cargo_percent * 100) : 0,
-                wrong_way_percent: ponto.summary?.wrong_way_percent ? Math.round(ponto.summary.wrong_way_percent * 100) : 0,
-                latitude: lat,
-                longitude: lng,
-                type: 'Contagem',
-                source: 'prefeitura',
-                status: 'active'
-              }
-            };
-          })
-        };
-        
-        setAllData(geojson);
-      })
-      .catch(err => {
-        console.error('Erro ao carregar pontos da prefeitura:', err);
-        setError(`Erro ao carregar pontos da prefeitura: ${err.message}`);
-        setAllData(null);
-      });
-  }, []);
+  const all = useMemo(
+    () =>
+      counts
+        ? {
+            type: 'FeatureCollection' as const,
+            features: counts.map((ponto, index) => {
+              const [lat, lng] = ponto.location.coordinates;
+              const total = ponto.summary?.total ?? 0;
+              return {
+                type: 'Feature' as const,
+                geometry: { type: 'Point' as const, coordinates: [lng, lat] },
+                properties: {
+                  id: `prefeitura_${index}`,
+                  name: ponto.name || `Posto ${index + 1}`,
+                  city: 'Recife',
+                  count: total,
+                  total_cyclists: total,
+                  date: ponto.date,
+                  last_count_date: ponto.date ? new Date(ponto.date).toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit' }) : 'Sem dado',
+                  cargo_percent: ponto.summary?.cargo_percent ? Math.round(ponto.summary.cargo_percent * 100) : 0,
+                  wrong_way_percent: ponto.summary?.wrong_way_percent ? Math.round(ponto.summary.wrong_way_percent * 100) : 0,
+                  latitude: lat,
+                  longitude: lng,
+                  type: 'Contagem',
+                  source: 'prefeitura',
+                  status: 'active',
+                },
+              };
+            }),
+          }
+        : null,
+    [counts],
+  );
 
-  useEffect(() => {
-    if (!allData || !bounds) {
-      setFilteredData(allData);
-      return;
-    }
-
-    if (!allData.features || !Array.isArray(allData.features)) {
-      setFilteredData(allData);
-      return;
-    }
-
-    const filtered = {
-      ...allData,
-      features: allData.features.filter((feature: any) => {
-        const [lng, lat] = feature.geometry.coordinates;
-        return lat >= bounds.south && lat <= bounds.north && 
-               lng >= bounds.west && lng <= bounds.east;
-      })
+  const data = useMemo(() => {
+    if (!all || !bounds) return all;
+    return {
+      ...all,
+      features: all.features.filter(({ geometry: { coordinates: [lng, lat] } }) => lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east),
     };
+  }, [all, bounds]);
 
-    setFilteredData(filtered);
-  }, [allData, bounds]);
-
-  return { data: filteredData, error };
+  return { data, error: error ? `Erro ao carregar pontos da prefeitura: ${error.message}` : null };
 }

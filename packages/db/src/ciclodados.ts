@@ -2,7 +2,6 @@ import { sql } from "drizzle-orm";
 
 import type { Db } from "./index";
 import { loadPublicLocations, type PublicCharacteristics } from "./public";
-import { validOutcomeSql } from "./samu/read";
 
 // ---------------------------------------------------------------------------
 // CicloDados: o que o painel do mapa lê do banco (antes vinha do Atlas).

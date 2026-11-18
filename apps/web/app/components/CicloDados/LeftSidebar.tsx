@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, Navigation, BarChart3 } from 'lucide-react';
 import { FilterSection } from './FilterSection';
-import { PerfilSection } from './PerfilSection';
 
 interface LeftSidebarProps {
   isOpen: boolean;
