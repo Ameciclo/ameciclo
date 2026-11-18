@@ -6,6 +6,8 @@
 # Parâmetros: ALVO (staging ou producao: em qual banco gravar), DRY_RUN (true desfaz a transação no fim; false grava).
 # Cada execução também aparece em /infra/sincronizacoes no admin, com o resumo por município.
 description: Coleta a infraestrutura cicloviária do OpenStreetMap (Overpass) e atualiza o banco
+labels:
+  - fonte=osm
 params:
   - ALVO: "staging"
   - DRY_RUN: "true"
@@ -21,7 +23,7 @@ env:
   - KUMA_PUSH_URL: ${KUMA_PUSH_URL}
 handler_on:
   failure:
-    run: sh /opt/scripts/avisar.sh "osm-sync (${ALVO}) falhou"
+    run: sh /opt/scripts/avisar.sh "osm-ciclovias (${ALVO}) falhou"
 steps:
   - name: coletar-validar-e-gravar
     # Por enquanto um passo só (o coletor faz as três fases); os snapshots ficam em /tmp/osm-snapshots.

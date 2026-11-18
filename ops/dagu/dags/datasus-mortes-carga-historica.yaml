@@ -1,8 +1,10 @@
-# Carga completa, uma vez (ou para refazer tudo): roda o fluxo mortes-sim de 2011 a 2026, um ano de cada vez.
+# Carga completa, uma vez (ou para refazer tudo): roda o fluxo datasus-mortes de 2011 a 2026, um ano de cada vez.
 # Se um ano falha, os outros continuam; depois, Retry refaz só o que falhou.
 # Os anos que o DATASUS não mudou desde a última importação no mesmo ALVO são pulados.
 # Parâmetros: ALVO (staging ou producao) e DRY_RUN (true só valida; false grava).
 description: "Carga histórica das mortes no trânsito (SIM/DATASUS), 2011 a 2026"
+labels:
+  - fonte=datasus
 params:
   - ALVO: "staging"
   - DRY_RUN: "true"
@@ -10,7 +12,7 @@ env:
   - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
 handler_on:
   failure:
-    run: sh /opt/scripts/avisar.sh "mortes-sim-historico (${ALVO}) falhou"
+    run: sh /opt/scripts/avisar.sh "datasus-mortes-carga-historica (${ALVO}) falhou"
 steps:
   - name: ano-2011
     action: dag.run
@@ -18,7 +20,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2011"
@@ -32,7 +34,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2012"
@@ -46,7 +48,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2013"
@@ -60,7 +62,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2014"
@@ -74,7 +76,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2015"
@@ -88,7 +90,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2016"
@@ -102,7 +104,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2017"
@@ -116,7 +118,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2018"
@@ -130,7 +132,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2019"
@@ -144,7 +146,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2020"
@@ -158,7 +160,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2021"
@@ -172,7 +174,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2022"
@@ -186,7 +188,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2023"
@@ -200,7 +202,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2024"
@@ -214,7 +216,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2025"
@@ -228,7 +230,7 @@ steps:
     continue_on:
       failure: true
     with:
-      dag: mortes-sim
+      dag: datasus-mortes
       params:
         ALVO: ${ALVO}
         YEAR: "2026"

@@ -1,16 +1,18 @@
-# Toda segunda, 7h: atualiza a infraestrutura cicloviária da produção (fluxo osm-sync).
+# Toda segunda, 7h: atualiza a infraestrutura cicloviária da produção (fluxo osm-ciclovias).
 description: "Atualização semanal da infraestrutura cicloviária (OSM) na produção"
+labels:
+  - fonte=osm
 schedule: "0 7 * * 1"
 env:
   - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
 handler_on:
   failure:
-    run: sh /opt/scripts/avisar.sh "osm-sync-semanal falhou"
+    run: sh /opt/scripts/avisar.sh "osm-ciclovias-agenda falhou"
 steps:
   - name: osm-producao
     action: dag.run
     with:
-      dag: osm-sync
+      dag: osm-ciclovias
       params:
         ALVO: producao
         DRY_RUN: "false"

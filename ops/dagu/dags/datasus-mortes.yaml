@@ -8,6 +8,8 @@
 # O dado bruto e o registro do que já foi importado ficam separados por ALVO, para que importar em um
 # não faça o outro achar que já está em dia.
 description: Baixa o ano do DATASUS, filtra a RMR, guarda o bruto e carrega em traffic_death
+labels:
+  - fonte=datasus
 params:
   - ALVO: "staging"
   - YEAR: "2026"
@@ -23,7 +25,7 @@ env:
   - RAW_DIR: /var/lib/dagu/raw/${ALVO}
 handler_on:
   failure:
-    run: sh /opt/scripts/avisar.sh "mortes-sim (${ALVO}, ano ${YEAR}) falhou"
+    run: sh /opt/scripts/avisar.sh "datasus-mortes (${ALVO}, ano ${YEAR}) falhou"
 steps:
   - name: baixar
     # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar. Compara com a última
