@@ -21,7 +21,7 @@ export type city = {
 };
 
 
-export default function IdecicloClientSide({ cidades, structures, ideciclo }: any) {
+export default function IdecicloClientSide({ cidades, structures, ideciclo }: { cidades: city[]; structures: any; ideciclo: any }) {
     const [filteredCity, setFilteredCity] = useState<any[]>([]);
     const [filteredCityData, setFilteredCityData] = useState<any[]>([]);
     const [selectedCity, setCity] = useState<city | null>(null);
@@ -37,7 +37,7 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: an
     const [cityPop, setCityPop] = useState<any>("");
 
     const changeCity = (id: any) => {
-        setCity(filterById(cidades, id));
+        setCity(filterById(cidades, id) ?? null);
         //window.location.replace("#maisinfo")
     };
 

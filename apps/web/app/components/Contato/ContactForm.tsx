@@ -18,12 +18,15 @@ export function ContactForm() {
   const [success, setSuccess] = useState<{[key: string]: boolean}>({});
 
   const getFormData = (): FormData => ({
-    nome: (document.getElementById('nome') as HTMLInputElement)?.value || '',
-    email: (document.getElementById('email') as HTMLInputElement)?.value || '',
-    telefone: (document.getElementById('telefone') as HTMLInputElement)?.value || '',
-    mensagem: (document.getElementById('mensagem') as HTMLTextAreaElement)?.value || '',
-    lgpdChecked: (document.getElementById('lgpd') as HTMLInputElement)?.checked || false,
-    ddi: (document.getElementById('ddi') as HTMLSelectElement)?.value || '+55'
+    nome: document.querySelector<HTMLInputElement>('#nome')?.value || '',
+    email: document.querySelector<HTMLInputElement>('#email')?.value || '',
+    telefone: document.querySelector<HTMLInputElement>('#telefone')?.value || '',
+    mensagem: document.querySelector<HTMLTextAreaElement>('#mensagem')?.value || '',
+    lgpdChecked: document.querySelector<HTMLInputElement>('#lgpd')?.checked || false,
+    ddi: (() => {
+      const select = document.getElementById('ddi');
+      return select instanceof HTMLSelectElement ? select.value : '+55';
+    })()
   });
 
   const validateForm = (data: FormData): {[key: string]: string} => {

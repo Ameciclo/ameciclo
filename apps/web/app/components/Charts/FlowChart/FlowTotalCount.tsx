@@ -1,5 +1,5 @@
 
-function FlowTotalCount({ totalCount }) {
+function FlowTotalCount({ totalCount }: { totalCount: number | string }) {
   return (
     <g>
       <path

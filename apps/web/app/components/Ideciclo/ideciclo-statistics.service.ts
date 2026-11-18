@@ -17,9 +17,8 @@ export function getTotalCityStates(cities: any[]) {
 }
 
 export function calculateIdecicloStatistics(cities: any[], structures: any[]) {
-  // Trata erros de API como arrays vazios
-  const validCities = cities?.apiError ? [] : cities;
-  const validStructures = structures?.apiError ? [] : structures;
+  const validCities = cities;
+  const validStructures = structures;
 
   const totalRoadLength = validCities.reduce(
     (acc, cur) => acc + (cur.reviews?.[0]?.city_network?.cycle_length?.road || 0),
