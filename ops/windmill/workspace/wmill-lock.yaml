@@ -1,6 +1,0 @@
-version: v2
-locks:
-  f/mortes_sim/baixar_e_filtrar: 478017986151296b27b6ebebe406258ba5b61eabeea28b5f8bd0a3c90b65ff5f
-  f/mortes_sim/carregar: e9b1d275a0bf4017806df481cc4c9f706db039001f508c2dd9138a258989e7d4
-  f/mortes_sim/mortes_sim.flow+__flow_hash: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
-  f/mortes_sim/transformar: 81f1d4d312fc7f2efd705d3c098fb868951f3622040e3af21717f8428828476d
