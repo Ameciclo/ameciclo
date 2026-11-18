@@ -42,7 +42,8 @@ export async function getCyclingMapGeojson(db: Db): Promise<CyclingMapGeojson> {
 
 // ---- Pesquisa de perfil: pontos de entrevista ---------------------------------------------------------------------
 
-export type PerfilFilters = { genero?: string; raca?: string; socio?: string; dias?: string };
+// `anos`: as edições da pesquisa marcadas no painel (vazio ou ausente: todas).
+export type PerfilFilters = { anos?: number[]; genero?: string; raca?: string; socio?: string; dias?: string };
 
 // Cada "Todas" (ou ausência) é "sem filtro". `dias` é "5 dias" ou "5": o número de dias por semana.
 const asFilter = (v: string | undefined) => (v && v !== "Todas" && v !== "Todos" ? v : undefined);
@@ -64,11 +65,13 @@ export async function getPerfilPoints(db: Db, filters: PerfilFilters = {}): Prom
   const socio = asFilter(filters.socio);
   const diasDigits = asFilter(filters.dias)?.match(/\d+/)?.[0];
   const dias = diasDigits === undefined ? undefined : Number(diasDigits);
+  const anos = filters.anos?.length ? filters.anos : undefined;
   const rows = (
     await db.execute<{ id: number; name: string; lat: number; lng: number; total: number; filtered: number; editions: number[] }>(sql`
       select p.id, p.name, p.latitude as lat, p.longitude as lng,
         count(*)::int as total,
         (count(*) filter (where true
+          ${anos ? sql`and s.year in (${sql.join(anos.map((a) => sql`${a}`), sql`, `)})` : sql``}
           ${genero ? sql`and g.label = ${genero}` : sql``}
           ${raca ? sql`and r.label = ${raca}` : sql``}
           ${socio ? sql`and inc.label = ${socio}` : sql``}

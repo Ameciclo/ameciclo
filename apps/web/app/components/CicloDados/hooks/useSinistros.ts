@@ -7,7 +7,7 @@ interface ViewportBounds {
   west: number;
 }
 
-export function useSinistros(bounds?: ViewportBounds) {
+export function useSinistros(bounds?: ViewportBounds | null) {
   const [data, setData] = useState(null);
   const [error, setError] = useState<string | null>(null);
 

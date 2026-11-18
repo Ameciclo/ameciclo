@@ -152,8 +152,8 @@ export function MapView({
   const { data: perfilPoints, error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {
-      genero: selectedGenero,
-      raca: selectedRaca, 
+      anos: selectedGenero, // as edições da pesquisa marcadas
+      raca: selectedRaca,
       socio: selectedSocio,
       dias: selectedDias
     }
