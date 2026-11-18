@@ -1,4 +1,5 @@
 import "~/lib/maplibre-worker";
+import { circlePolygon } from "~/lib/geo";
 import { useState, useEffect } from "react";
 import Map, { Source, Layer, Marker, Popup, LayerProps } from "react-map-gl/maplibre";
 
@@ -617,65 +618,22 @@ export const AmecicloMap = ({
                             );
                         })}
 
-                        {hoverPoint && radius && (() => {
-                            const metersPerPixel = 156543.03392 * Math.cos(hoverPoint.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
-                            const radiusInPixels = radius / metersPerPixel;
-                            const circleSize = radiusInPixels * 2;
-                            
+                        {(() => {
+                            // As áreas de seleção (a prévia sob o cursor e as já escolhidas): polígonos em metros, pela camada do mapa.
+                            const areas: GeoJSON.Feature<GeoJSON.Polygon>[] = [
+                                ...(hoverPoint && radius && !isNaN(hoverPoint.lat) && !isNaN(hoverPoint.lng)
+                                    ? [{ type: "Feature" as const, properties: { preview: true }, geometry: circlePolygon(hoverPoint.lat, hoverPoint.lng, radius) }]
+                                    : []),
+                                ...selectedCircles.map((circle) => ({ type: "Feature" as const, properties: { preview: false }, geometry: circlePolygon(circle.lat, circle.lng, circle.radius) })),
+                            ];
+                            if (areas.length === 0) return null;
                             return (
-                                <Marker
-                                    latitude={hoverPoint.lat}
-                                    longitude={hoverPoint.lng}
-                                >
-                                    <div 
-                                        style={{
-                                            width: `${circleSize}px`,
-                                            height: `${circleSize}px`,
-                                            borderRadius: '50%',
-                                            background: `repeating-linear-gradient(
-                                                45deg,
-                                                rgba(239, 68, 68, 0.1),
-                                                rgba(239, 68, 68, 0.1) 4px,
-                                                transparent 4px,
-                                                transparent 8px
-                                            )`,
-                                            transform: 'translate(-50%, -50%)',
-                                            pointerEvents: 'none'
-                                        }}
-                                    />
-                                </Marker>
+                                <Source id="selection-areas" type="geojson" data={{ type: "FeatureCollection", features: areas }}>
+                                    <Layer id="selection-areas-fill" type="fill" paint={{ "fill-color": "#ef4444", "fill-opacity": ["case", ["get", "preview"], 0.08, 0.14] }} />
+                                    <Layer id="selection-areas-line" type="line" paint={{ "line-color": "#ef4444", "line-width": 2, "line-dasharray": [3, 2], "line-opacity": 0.8 }} />
+                                </Source>
                             );
                         })()}
-                        {selectedCircles && selectedCircles.length > 0 && selectedCircles.map((circle) => {
-                            const metersPerPixel = 156543.03392 * Math.cos(circle.lat * Math.PI / 180) / Math.pow(2, viewport.zoom);
-                            const radiusInPixels = circle.radius / metersPerPixel;
-                            const circleSize = radiusInPixels * 2;
-                            
-                            return (
-                                <Marker
-                                    key={circle.id}
-                                    latitude={circle.lat}
-                                    longitude={circle.lng}
-                                >
-                                    <div 
-                                        style={{
-                                            width: `${circleSize}px`,
-                                            height: `${circleSize}px`,
-                                            borderRadius: '50%',
-                                            background: `repeating-linear-gradient(
-                                                45deg,
-                                                rgba(239, 68, 68, 0.1),
-                                                rgba(239, 68, 68, 0.1) 4px,
-                                                transparent 4px,
-                                                transparent 8px
-                                            )`,
-                                            transform: 'translate(-50%, -50%)',
-                                            pointerEvents: 'none'
-                                        }}
-                                    />
-                                </Marker>
-                            );
-                        })}
 
                         {selectedPoints && selectedPoints.length > 0 && selectedPoints.map((point) => (
                             <Marker

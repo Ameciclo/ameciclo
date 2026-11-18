@@ -18,23 +18,31 @@ import { ciclodadosQueryOptions } from '~/queries/dados.ciclodados';
 import { RouteErrorBoundary } from '~/components/Commom/RouteBoundaries';
 
 type CicloDadosSearch = {
-  lat?: string;
-  lon?: string;
-  zoom?: string;
+  lat?: number;
+  lon?: number;
+  zoom?: number;
   modal?: string;
   tab?: string;
   // Camadas desligadas no painel (ver useLayerSelection); guardado aqui para a URL não perdê-lo.
   off?: string;
 };
 
+// O roteador converte valores numéricos da URL em número ("-8.11" vira -8.11). Aceitamos número ou texto numérico e guardamos
+// número: como texto, ele reescreveria o endereço entre aspas e a posição se perderia.
+const number = (value: unknown) => {
+  const n = typeof value === "number" ? value : typeof value === "string" && value.trim() !== "" ? Number(value) : NaN;
+  return Number.isFinite(n) ? n : undefined;
+};
+const text = (value: unknown) => (typeof value === "string" ? value : typeof value === "number" ? String(value) : undefined);
+
 export const Route = createFileRoute("/dados/ciclodados/")({
   validateSearch: (search: Record<string, unknown>): CicloDadosSearch => ({
-    lat: typeof search.lat === "string" ? search.lat : undefined,
-    lon: typeof search.lon === "string" ? search.lon : undefined,
-    zoom: typeof search.zoom === "string" ? search.zoom : undefined,
-    modal: typeof search.modal === "string" ? search.modal : undefined,
-    tab: typeof search.tab === "string" ? search.tab : undefined,
-    off: typeof search.off === "string" ? search.off : undefined,
+    lat: number(search.lat),
+    lon: number(search.lon),
+    zoom: number(search.zoom),
+    modal: text(search.modal),
+    tab: text(search.tab),
+    off: text(search.off),
   }),
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(ciclodadosQueryOptions()),
@@ -54,14 +62,7 @@ function CicloDados() {
     useSuspenseQuery(ciclodadosQueryOptions());
   const { lat, lon, zoom } = Route.useSearch();
 
-  const initialViewState =
-    lat && lon && zoom
-      ? {
-          latitude: parseFloat(lat),
-          longitude: parseFloat(lon),
-          zoom: parseFloat(zoom),
-        }
-      : null;
+  const initialViewState = lat !== undefined && lon !== undefined && zoom !== undefined ? { latitude: lat, longitude: lon, zoom } : null;
 
   const {
     mapViewState,
