@@ -19,14 +19,8 @@ handler_on:
   failure:
     run: sh /opt/scripts/avisar.sh "osm-estacionamentos (${ALVO}) falhou"
 steps:
-  - name: validar
-    # Busca no Overpass e imprime quantos bicicletários e estações entrariam. Não grava.
-    run: node /opt/scripts/import-osm-lugares.mjs --dry-run
-
-  - name: carregar-no-banco
-    depends:
-      - validar
+  - name: importar
+    # Uma busca só (o Overpass recusa muita tentativa): com DRY_RUN=true o script só busca e relata; com false, grava.
     run: sh /opt/scripts/com-banco.sh node /opt/scripts/import-osm-lugares.mjs
-    preconditions:
-      - condition: "${DRY_RUN}"
-        expected: "false"
+    env:
+      - DRY_RUN: ${DRY_RUN}
