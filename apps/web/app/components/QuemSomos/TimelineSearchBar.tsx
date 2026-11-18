@@ -1,5 +1,5 @@
 import { memo, useEffect } from 'react';
-import { SearchIcon } from '~/components/Commom/Icones/DocumentationIcons';
+import { Search } from 'lucide-react';
 
 interface SearchResult {
   id: string;
@@ -7,7 +7,7 @@ interface SearchResult {
   content: string;
 }
 
-interface DocumentationSearchBarProps {
+interface TimelineSearchBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   searchResults: SearchResult[];
@@ -18,7 +18,7 @@ interface DocumentationSearchBarProps {
   enableShortcut?: boolean;
 }
 
-function DocumentationSearchBar({
+function TimelineSearchBar({
   searchTerm,
   onSearchChange,
   searchResults,
@@ -27,7 +27,7 @@ function DocumentationSearchBar({
   width = "w-64",
   darkMode = true,
   enableShortcut = true
-}: DocumentationSearchBarProps) {
+}: TimelineSearchBarProps) {
   useEffect(() => {
     if (!enableShortcut) return;
 
@@ -46,7 +46,7 @@ function DocumentationSearchBar({
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <SearchIcon className="w-4 h-4 text-gray-400" />
+        <Search className="w-4 h-4 text-gray-400" />
       </div>
       <input
         type="text"
@@ -73,4 +73,4 @@ function DocumentationSearchBar({
   );
 }
 
-export default memo(DocumentationSearchBar);
+export default memo(TimelineSearchBar);
