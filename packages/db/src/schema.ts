@@ -286,3 +286,4 @@ export const profileInterview = pgTable(
 export * from "./cycling-schema";
 export * from "./samu-schema";
 export * from "./deaths-schema";
+export * from "./streets-schema";
