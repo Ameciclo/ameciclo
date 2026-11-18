@@ -123,33 +123,11 @@ export const domQueryOptions = () =>
               }
           ];
 
-          const chartData = {
-              yearlyComparison: [
-                  ["Ano", "Sustentável (R$)", 'Não sustentável (R$)'],
-                  ['2021', 111884449, 75073016],
-                  ['2023', 11315000, 171801000],
-                  ['2024', 35175000, 148715000],
-              ],
-              goodActionsYearly: [
-                  ["Ano", "Orçado em boas ações"],
-                  ['2021', 111884449],
-                  ['2023', 11315000],
-                  ['2024', 35175000],
-              ],
-              totalSpendingYearly: [
-                  ["Ano", "Total Boas/Más"],
-                  ['2021', 186957465],
-                  ['2023', 183116000],
-                  ['2024', 183890000],
-              ]
-          };
-
           return {
               cover,
               description,
               totalGoodActions,
               totalBadActions,
-              chartData,
               sustainableTotal: 35175000,
               unsustainableTotal: 148715000,
               carbonValue: 3045.957,

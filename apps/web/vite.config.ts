@@ -23,9 +23,6 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
-            if (id.includes("highcharts")) {
-              return "highcharts";
-            }
             if (id.includes("react-map-gl") || id.includes("mapbox-gl")) {
               return "mapbox";
             }
