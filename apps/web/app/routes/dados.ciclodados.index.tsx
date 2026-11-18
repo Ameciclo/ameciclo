@@ -8,14 +8,11 @@ import {
   CicloDadosHeader,
   LeftSidebar,
   MapView,
-  useCicloDadosData,
-  useCicloDadosState,
-  generateInfraData,
-  generatePdcData,
+  useLayerSelection,
   generateContagemData,
   getContagemIcon,
-  generateLayersConf
 } from '~/components/CicloDados';
+import { pdcOptions } from '~/components/CicloDados/layerCatalog';
 import { seo } from '~/utils/seo';
 import { ciclodadosQueryOptions } from '~/queries/dados.ciclodados';
 import { RouteErrorBoundary } from '~/components/Commom/RouteBoundaries';
@@ -26,6 +23,8 @@ type CicloDadosSearch = {
   zoom?: string;
   modal?: string;
   tab?: string;
+  // Camadas desligadas no painel (ver useLayerSelection); guardado aqui para a URL não perdê-lo.
+  off?: string;
 };
 
 export const Route = createFileRoute("/dados/ciclodados/")({
@@ -35,6 +34,7 @@ export const Route = createFileRoute("/dados/ciclodados/")({
     zoom: typeof search.zoom === "string" ? search.zoom : undefined,
     modal: typeof search.modal === "string" ? search.modal : undefined,
     tab: typeof search.tab === "string" ? search.tab : undefined,
+    off: typeof search.off === "string" ? search.off : undefined,
   }),
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(ciclodadosQueryOptions()),
@@ -52,7 +52,7 @@ export const Route = createFileRoute("/dados/ciclodados/")({
 function CicloDados() {
   const { data: { contagemData, perfilCiclistas } } =
     useSuspenseQuery(ciclodadosQueryOptions());
-  const { lat, lon, zoom, modal, tab } = Route.useSearch();
+  const { lat, lon, zoom } = Route.useSearch();
 
   const initialViewState =
     lat && lon && zoom
@@ -67,8 +67,6 @@ function CicloDados() {
     mapViewState,
     autoOpenPopup,
     selectedStreetGeometry,
-    selectedStreetData,
-    selectedStreetFilter,
     handlePointClick,
     handleZoomToStreet,
     handleMapMove,
@@ -77,169 +75,32 @@ function CicloDados() {
 
   const { processedPerfilData, processedContagemData } = useProcessedData(contagemData, perfilCiclistas);
 
-  const {
-    infraOptions,
-    contagemOptions,
-    pdcOptions,
-    infracaoOptions,
-    sinistroOptions,
-    estacionamentoOptions
-  } = useCicloDadosData();
-
-  const perfilOptions = ['Perfil de Ciclistas'];
-
-  const {
-    leftSidebarOpen,
-    setLeftSidebarOpen,
-    selectedInfra,
-    toggleInfraOption,
-    toggleAllInfraOptions,
-    selectedContagem,
-    toggleContagemOption,
-    toggleAllContagemOptions,
-    selectedPdc,
-    togglePdcOption,
-    toggleAllPdcOptions,
-    selectedInfracao,
-    toggleInfracaoOption,
-    toggleAllInfracaoOptions,
-    selectedSinistro,
-    toggleSinistroOption,
-    toggleAllSinistroOptions,
-    selectedEstacionamento,
-    toggleEstacionamentoOption,
-    toggleAllEstacionamentoOptions,
-    selectedPerfil,
-    togglePerfilOption,
-    toggleAllPerfilOptions,
-    selectedGenero,
-    toggleGeneroOption,
-    selectedAno,
-    toggleAnoOption,
-    selectedArea,
-    setSelectedArea,
-    selectedIdade,
-    setSelectedIdade,
-    viewMode,
-    setViewMode,
-    clearAllSelections,
-    selectAllOptions
-  } = useCicloDadosState(
-    infraOptions,
-    contagemOptions,
-    pdcOptions,
-    infracaoOptions,
-    sinistroOptions,
-    estacionamentoOptions,
-    perfilOptions
-  );
-
-  const infraData = generateInfraData(selectedInfra);
-  const pdcData = generatePdcData(selectedPdc);
-  const contagemMapData = generateContagemData(selectedContagem, processedContagemData, {
-    genero: selectedGenero,
-    ano: selectedAno,
-    area: selectedArea,
-    idade: selectedIdade
-  });
-  const layersConf = generateLayersConf(selectedInfra, selectedPdc, infraOptions, pdcOptions);
-
-  const handleReloadMapData = () => {
-    // revalidation handled by TanStack Router
-  };
-
-  const handleReloadGeneralData = () => {
-    selectAllOptions();
-    // revalidation handled by TanStack Router
-  };
+  const selection = useLayerSelection();
+  const contagemMapData = generateContagemData(selection.selected('contagem'), processedContagemData);
 
   return (
     <CicloDadosErrorBoundary>
       <ClientOnly fallback={<CicloDadosLoader />}>
         <div className="flex flex-col h-screen w-full overflow-hidden" style={{height: '100vh', maxHeight: '100vh', maxWidth: '100vw'}}>
-          <CicloDadosHeader
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            onZoomToStreet={handleZoomToStreet}
-          />
+          <CicloDadosHeader onZoomToStreet={handleZoomToStreet} />
 
           <div className="flex flex-1 overflow-hidden" style={{height: 'calc(100vh - 64px)'}}>
-            <LeftSidebar
-                isOpen={leftSidebarOpen}
-                onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
-                infraOptions={infraOptions}
-                selectedInfra={selectedInfra}
-                onInfraToggle={toggleInfraOption}
-                onInfraToggleAll={toggleAllInfraOptions}
-                contagemOptions={contagemOptions}
-                selectedContagem={selectedContagem}
-                onContagemToggle={toggleContagemOption}
-                onContagemToggleAll={toggleAllContagemOptions}
-                pdcOptions={pdcOptions}
-                selectedPdc={selectedPdc}
-                onPdcToggle={togglePdcOption}
-                onPdcToggleAll={toggleAllPdcOptions}
-                infracaoOptions={infracaoOptions}
-                selectedInfracao={selectedInfracao}
-                onInfracaoToggle={toggleInfracaoOption}
-                onInfracaoToggleAll={toggleAllInfracaoOptions}
-                sinistroOptions={sinistroOptions}
-                selectedSinistro={selectedSinistro}
-                onSinistroToggle={toggleSinistroOption}
-                onSinistroToggleAll={toggleAllSinistroOptions}
-                estacionamentoOptions={estacionamentoOptions}
-                selectedEstacionamento={selectedEstacionamento}
-                onEstacionamentoToggle={toggleEstacionamentoOption}
-                onEstacionamentoToggleAll={toggleAllEstacionamentoOptions}
-                perfilOptions={perfilOptions}
-                selectedPerfil={selectedPerfil}
-                onPerfilToggle={togglePerfilOption}
-                onPerfilToggleAll={toggleAllPerfilOptions}
-                selectedGenero={selectedGenero}
-                onGeneroChange={toggleGeneroOption}
-                selectedAno={selectedAno}
-                onAnoChange={toggleAnoOption}
-                selectedArea={selectedArea}
-                onAreaChange={setSelectedArea}
-                selectedIdade={selectedIdade}
-                onIdadeChange={setSelectedIdade}
-                onClearAll={clearAllSelections}
-                onSelectAll={selectAllOptions}
-                onReloadMapData={handleReloadMapData}
-                onReloadGeneralData={handleReloadGeneralData}
-                loadingStates={{
-                  infra: false,
-                  pdc: false,
-                  sinistros: false,
-                  estacionamento: false
-                }}
-              />
+            <LeftSidebar selection={selection} />
 
             <main className="flex-1 relative">
               <MapView
-                selectedInfra={selectedInfra}
-                selectedPdc={selectedPdc}
-                selectedContagem={selectedContagem}
-                selectedEstacionamento={selectedEstacionamento}
-                selectedSinistro={selectedSinistro}
-                selectedPerfil={selectedPerfil}
-                selectedGenero={selectedGenero}
-                selectedAno={selectedAno}
-                selectedArea={selectedArea}
-                selectedIdade={selectedIdade}
-                infraOptions={infraOptions}
+                selectedInfra={selection.selected('infra')}
+                selectedPdc={selection.selected('pdc')}
+                selectedContagem={selection.selected('contagem')}
+                selectedEstacionamento={selection.selected('estacionamento')}
+                selectedAno={selection.selected('perfil')}
                 pdcOptions={pdcOptions}
-                layersConf={layersConf}
-                infraData={infraData}
-                pdcData={pdcData}
                 contagemData={contagemMapData}
                 getContagemIcon={getContagemIcon}
                 onPointClick={handlePointClick}
                 externalViewState={mapViewState}
                 onMapMove={handleMapMove}
                 highlightedStreet={selectedStreetGeometry}
-                streetData={selectedStreetData}
-                selectedStreetFilter={selectedStreetFilter}
                 perfilCiclistasData={processedPerfilData}
                 autoOpenPopup={autoOpenPopup}
                 onPopupOpened={() => setAutoOpenPopup(null)}

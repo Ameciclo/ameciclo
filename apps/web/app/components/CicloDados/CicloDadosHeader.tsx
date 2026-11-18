@@ -3,8 +3,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { searchStreets, type StreetMatch } from '~/services/streets.service';
 
 interface CicloDadosHeaderProps {
-  viewMode: 'map' | 'mural';
-  onViewModeChange: (mode: 'map' | 'mural') => void;
   onStreetSelect?: (street: StreetMatch) => void;
   onZoomToStreet?: (bounds: {north: number, south: number, east: number, west: number}, streetGeometry?: any, streetId?: string, streetName?: string) => void;
 }

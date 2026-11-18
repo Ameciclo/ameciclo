@@ -1,13 +1,3 @@
-export function generateInfraData(_selectedInfra: string[]) {
-  return null;
-}
-
-// O PDC no mapa vem da execução cicloviária do banco (trechos com `status`), não de dados gerados aqui: antes esta função
-// devolvia quatro linhas de exemplo em coordenadas fixas, que apareciam no mapa como se fossem o PDC.
-export function generatePdcData(_selectedPdc: string[]) {
-  return null;
-}
-
 export function generateContagemData(selectedContagem: string[], apiData?: any, _profileFilters?: {
   genero?: string | string[];
   ano?: string | string[];

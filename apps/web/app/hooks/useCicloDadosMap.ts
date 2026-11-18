@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import type { StreetDataSummary } from '~/services/streets.service';
-import { getStreetDataSummary } from '~/services/streets.service';
 
 interface MapSelection {
   lat: number;
@@ -20,7 +18,6 @@ export function useCicloDadosMap(initialViewState: MapViewState | null) {
   const [mapSelection, setMapSelection] = useState<MapSelection | null>(null);
   const [autoOpenPopup, setAutoOpenPopup] = useState<{lat: number, lng: number} | null>(null);
   const [selectedStreetGeometry, setSelectedStreetGeometry] = useState<any>(null);
-  const [selectedStreetData, setSelectedStreetData] = useState<StreetDataSummary | null>(null);
   const [selectedStreetFilter, setSelectedStreetFilter] = useState<string | null>(null);
   
   // Inicializar com dados da URL, localStorage ou padrão
@@ -171,14 +168,6 @@ export function useCicloDadosMap(initialViewState: MapViewState | null) {
       setAutoOpenPopup({ lat: pointLat, lng: pointLng });
     }
     
-    if (streetId) {
-      try {
-        const streetData = await getStreetDataSummary(streetId);
-        setSelectedStreetData(streetData);
-      } catch (error) {
-        console.error('Erro ao buscar dados da via:', error);
-      }
-    }
   };
 
   const handleZoomIn = () => {
@@ -215,7 +204,6 @@ export function useCicloDadosMap(initialViewState: MapViewState | null) {
     mapViewState,
     autoOpenPopup,
     selectedStreetGeometry,
-    selectedStreetData,
     selectedStreetFilter,
     handleMapSelection,
     handlePointClick,
