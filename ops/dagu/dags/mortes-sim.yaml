@@ -1,25 +1,29 @@
 # Óbitos por acidente de transporte do SIM/DATASUS na RMR (alimenta /dados/sinistros-fatais).
-# Cada passo aparece no grafo, com o log e as contagens que ele imprime; o resultado de cada importação
-# também fica em pipeline_run (tela "Coletas" do admin). Código: packages/db/scripts no repositório
-# (datasus-baixar.ts, datasus-filtrar.ts, import-mortes.ts).
+# Cada passo aparece no grafo, com o log e as contagens que ele imprime; o histórico das execuções é o
+# do próprio Dagu. Código: packages/db/scripts no repositório (datasus-baixar.ts, datasus-filtrar.ts,
+# import-mortes.ts).
 #
-# Parâmetros: YEAR (ano do óbito), DRY_RUN (true só valida; false grava no banco, com DATABASE_URL),
-# FORCAR ("--forcar" baixa de novo mesmo que o DATASUS não tenha mudado).
+# Parâmetros: ALVO (staging ou producao: em qual banco gravar), YEAR (ano do óbito), DRY_RUN (true só valida;
+# false grava no banco do ALVO), FORCAR ("--forcar" baixa de novo mesmo que o DATASUS não tenha mudado).
+# O dado bruto e o registro do que já foi importado ficam separados por ALVO, para que importar em um
+# não faça o outro achar que já está em dia.
 description: Baixa o ano do DATASUS, filtra a RMR, guarda o bruto e carrega em traffic_death
 params:
+  - ALVO: "staging"
   - YEAR: "2026"
   - DRY_RUN: "true"
   - FORCAR: ""
 env:
   # Vêm do ambiente do container (Coolify); o Dagu só repassa aos passos o que o fluxo declara.
-  - DATABASE_URL: ${DATABASE_URL}
+  - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
+  - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
   - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
   - WORK_DIR: /tmp/mortes
-  # O dado bruto (CSV filtrado e manifesto de cada ano) fica no volume do Dagu.
-  - RAW_DIR: /var/lib/dagu/raw
+  # O dado bruto (CSV filtrado e manifesto de cada ano) fica no volume do Dagu, uma pasta por ALVO.
+  - RAW_DIR: /var/lib/dagu/raw/${ALVO}
 handler_on:
   failure:
-    run: sh /opt/scripts/avisar.sh "mortes-sim (ano ${YEAR}) falhou"
+    run: sh /opt/scripts/avisar.sh "mortes-sim (${ALVO}, ano ${YEAR}) falhou"
 steps:
   - name: baixar
     # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar. Compara com a última
@@ -56,8 +60,8 @@ steps:
   - name: carregar-no-banco
     depends:
       - validar
-    # Substitui o ano inteiro numa transação e registra a execução; só roda com DRY_RUN=false.
-    run: node /opt/scripts/import-mortes.mjs --ano ${YEAR}
+    # Substitui o ano inteiro numa transação, no banco do ALVO; só roda com DRY_RUN=false.
+    run: sh /opt/scripts/com-banco.sh node /opt/scripts/import-mortes.mjs --ano ${YEAR}
     env:
       - MORTES_DIR: ${RAW_DIR}
     preconditions:

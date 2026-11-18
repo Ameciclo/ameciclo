@@ -6,7 +6,7 @@ import { sql } from "drizzle-orm";
 
 import { type Db, withDb } from "../src";
 import { type DeathDraft, toDraft } from "../src/deaths/transform";
-import { pipelineRun, trafficDeath } from "../src/schema";
+import { trafficDeath } from "../src/schema";
 
 // Importa os óbitos por acidente de transporte do SIM/DATASUS (2011 em diante) para a RMR, a partir dos CSVs
 // anuais mortes_transito_AAAA.csv (e o manifest_AAAA.json ao lado, se houver).
@@ -16,14 +16,13 @@ import { pipelineRun, trafficDeath } from "../src/schema";
 //   pnpm --filter @ameciclo/db db:import-mortes -- --dry-run       só lê e relata
 //
 // Pasta: MORTES_DIR (padrão data/mortes, git-ignorada). Cada ano é substituído por inteiro numa transação
-// (desfeita se a contagem final não bater) e deixa uma linha em pipeline_run, com o que entrou e o que foi
-// descartado e por quê. As execuções com erro também ficam registradas.
+// (desfeita se a contagem final não bater). O que entrou e o que foi descartado, e por quê, vai para o log;
+// o histórico das execuções fica no Dagu.
 
 try {
   process.loadEnvFile();
 } catch {}
 
-const PIPELINE = "mortes-sim";
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const onlyYear = args.includes("--ano") ? Number(args[args.indexOf("--ano") + 1]) : undefined;
@@ -37,12 +36,6 @@ const years = Array.from({ length: new Date().getFullYear() - 2010 }, (_, i) => 
 );
 if (years.length === 0) throw new Error(`nenhum arquivo mortes_transito_AAAA.csv em ${dir}${onlyYear ? ` para ${onlyYear}` : ""}`);
 const BATCH = 2000;
-
-type Manifest = { versao?: string; modificado_ftp?: string };
-const manifestOf = (year: number): Manifest => {
-  const file = join(dir, `manifest_${year}.json`);
-  return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : {};
-};
 
 type Prepared = { year: number; drafts: DeathDraft[]; rowsRead: number; discarded: Record<string, number> };
 const prepared: Prepared[] = [];
@@ -82,27 +75,14 @@ async function load(db: Db, p: Prepared) {
 let failed = false;
 await withDb(connectionString ?? "", async (db) => {
   for (const p of prepared) {
-    const startedAt = new Date();
-    const manifest = manifestOf(p.year);
-    const run = {
-      pipeline: PIPELINE,
-      sourceKey: String(p.year),
-      sourceVersion: manifest.versao ?? null,
-      sourceModifiedAt: manifest.modificado_ftp ? new Date(manifest.modificado_ftp) : null,
-      rowsRead: p.rowsRead,
-      discarded: p.discarded,
-      startedAt,
-    };
     try {
       await load(db, p);
-      await db.insert(pipelineRun).values({ ...run, status: "ok", rowsLoaded: p.drafts.length, finishedAt: new Date() });
       // Só agora a versão da fonte conta como importada: é com ela que o passo de baixar decide se há novidade.
       if (existsSync(join(dir, `manifest_${p.year}.json`))) copyFileSync(join(dir, `manifest_${p.year}.json`), join(dir, `importado_${p.year}.json`));
       console.log(`${p.year}: ${p.drafts.length} óbitos gravados.`);
     } catch (error) {
       failed = true;
       console.error(`${p.year}: falhou:`, error);
-      await db.insert(pipelineRun).values({ ...run, status: "erro", rowsLoaded: 0, error: String(error), finishedAt: new Date() });
     }
   }
 });

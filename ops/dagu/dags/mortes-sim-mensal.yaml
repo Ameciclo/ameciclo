@@ -1,5 +1,5 @@
 # Todo mês, atualiza o ano atual e o anterior (os anos recentes do SIM são preliminares e mudam).
-# Chama o fluxo mortes-sim; ele só baixa de novo e importa se o DATASUS tiver mudado o arquivo.
+# Atualiza a produção. Chama o fluxo mortes-sim; ele só baixa de novo e importa se o DATASUS tiver mudado o arquivo.
 description: "Atualização mensal das mortes no trânsito (SIM/DATASUS): ano atual e anterior"
 schedule: "0 6 5 * *"
 env:
@@ -15,6 +15,7 @@ steps:
     with:
       dag: mortes-sim
       params:
+        ALVO: producao
         YEAR: ${ANO_ANTERIOR}
         DRY_RUN: "false"
   - name: ano-atual
@@ -24,5 +25,6 @@ steps:
     with:
       dag: mortes-sim
       params:
+        ALVO: producao
         YEAR: ${ANO_ATUAL}
         DRY_RUN: "false"
