@@ -3,7 +3,9 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { isPartialYear, MAP_STREETS, viaQueryOptions, viaSlug, type ViasView } from "~/queries/dados.vias-inseguras";
+import { atKm, atVias, concentrationByKm, concentrationByVia, type ConcentrationPoint } from "@ameciclo/db/streets-model";
+import { isPartialYear, MAP_STREETS, MIN_RATE_CALLS, MIN_RATE_KM, viaQueryOptions, viaSlug, type ViasView } from "~/queries/dados.vias-inseguras";
+import type { UnsafeStreet } from "@ameciclo/db";
 import { CategoryBars, ConcentrationChart, YearBars } from "./ViasCharts";
 import { ViasMap } from "./ViasMap";
 import { km, n, pct, perKm } from "./labels";
@@ -46,7 +48,7 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
   const { streets, years, totalCalls, unidentifiedCalls, streetCount, matchedCalls } = view;
   const identified = totalCalls - unidentifiedCalls;
   const top = streets[0];
-  const top10 = streets.slice(0, 10).reduce((a, s) => a + s.calls, 0);
+  const top10Calls = streets.slice(0, 10).reduce((a, s) => a + s.calls, 0);
   const half = (() => {
     let sum = 0;
     for (const s of streets) {
@@ -56,15 +58,27 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
     return undefined;
   })();
   // Chamados por km só fazem sentido em vias de alguma extensão e com chamados suficientes.
-  const densest = streets.filter((s) => s.callsPerKm !== null && (s.lengthKm ?? 0) >= 0.5 && s.calls >= 30).sort((a, b) => (b.callsPerKm ?? 0) - (a.callsPerKm ?? 0))[0];
+  const densest = streets.filter((s) => s.callsPerKm !== null).sort((a, b) => (b.callsPerKm ?? 0) - (a.callsPerKm ?? 0))[0];
+  const byVia = concentrationByVia(streets, identified);
+  const byKm = concentrationByKm(streets, identified);
+  const rated = streets.flatMap((s) => (s.callsPerKm === null ? [] : [s.callsPerKm])).sort((a, b) => a - b);
+  const median = rated.length > 0 ? (rated.length % 2 === 1 ? rated[(rated.length - 1) / 2] : (rated[rated.length / 2 - 1] + rated[rated.length / 2]) / 2) : null;
+  const top10 = atVias(byVia, 10);
+  const totalKm = byVia.at(-1)?.km ?? 0;
+  const insights = [
+    top10 && `As 10 primeiras vias somam ${km(top10.km)} km e reúnem ${pct(top10.share, 100)} dos chamados com via identificada.`,
+    top && `${top.name} tem mais chamados que qualquer outra via (${n(top.calls)})${top.lengthKm !== null ? `, em ${km(top.lengthKm)} km` : ""}${top.callsPerKm !== null ? `: ${perKm(top.callsPerKm)} por km` : ""}.`,
+    median !== null && `Entre as ${n(rated.length)} vias do ranking com ${km(MIN_RATE_KM)} km ou mais e ${MIN_RATE_CALLS} chamados ou mais, metade tem mais de ${perKm(median)} chamados por km.`,
+    byVia.length > 0 && `As ${n(byVia.length)} vias do ranking somam ${km(totalKm)} km (as sem extensão na malha ficam de fora dessa soma) e reúnem ${pct(byVia.at(-1)?.share ?? 0, 100)} dos chamados com via identificada.`,
+  ].filter((t) => typeof t === "string");
   const periodText = period.from === period.to ? `em ${period.from}` : `de ${period.from} a ${period.to}`;
   const partialInPeriod = years.filter((y) => isPartialYear(y) && y.year >= period.from && y.year <= period.to);
   const selected = selectedSlug ? streets.find((s) => viaSlug(s.name) === selectedSlug) : undefined;
 
   const highlights = [
-    { lead: pct(top10, identified), text: `dos chamados com via identificada ${periodText} aconteceram nas 10 primeiras vias do ranking.` },
+    { lead: pct(top10Calls, identified), text: `dos chamados com via identificada ${periodText} aconteceram nas 10 primeiras vias do ranking.` },
     half !== undefined && { lead: String(half), text: `vias reúnem metade dos chamados com via identificada ${periodText}, de ${n(streetCount)} vias com algum chamado.` },
-    densest && { lead: perKm(densest.callsPerKm), text: `chamados por km em ${densest.name}, a via com mais chamados por quilômetro entre as de 0,5 km ou mais e 30 chamados ou mais.` },
+    densest && { lead: perKm(densest.callsPerKm), text: `chamados por km em ${densest.name}, a via com mais chamados por quilômetro (só contam vias de ${km(MIN_RATE_KM)} km ou mais e com ${MIN_RATE_CALLS} chamados ou mais).` },
   ].filter((h) => h !== false);
 
   return (
@@ -123,8 +137,26 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
             <Ranking streets={streets} identified={identified} selectedKey={selected?.key} onSelect={(slug) => onSelect({ via: slug })} />
           </Block>
 
-          <Block title="Poucas vias concentram muito" note="Quanto dos chamados com via identificada cabe nas primeiras vias do ranking.">
-            <ConcentrationChart streets={streets} identified={identified} />
+          <Block title="Poucas vias concentram muito" note="Quanto dos chamados com via identificada cabe nas primeiras vias do ranking, contadas por via e por quilômetro.">
+            <ConcentrationCards byVia={byVia} byKm={byKm} />
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div>
+                <h4 className="mb-2 text-sm font-semibold text-gray-800">Por número de vias</h4>
+                <ConcentrationChart points={byVia} axis="vias" />
+              </div>
+              <div>
+                <h4 className="mb-2 text-sm font-semibold text-gray-800">Por extensão</h4>
+                <ConcentrationChart points={byKm} axis="km" />
+              </div>
+            </div>
+          </Block>
+
+          <Block title="O que os números dizem">
+            <ul className="list-disc space-y-2 pl-5 leading-relaxed text-gray-800">
+              {insights.map((text) => (
+                <li key={text}>{text}</li>
+              ))}
+            </ul>
           </Block>
         </div>
       </section>
@@ -147,6 +179,30 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
         </dl>
       </section>
     </>
+  );
+}
+
+function ConcentrationCards({ byVia, byKm }: { byVia: ConcentrationPoint[]; byKm: ConcentrationPoint[] }) {
+  const cards = [
+    ...[10, 50, 100].flatMap((count) => {
+      const p = atVias(byVia, count);
+      return p ? [{ title: `As ${count} primeiras vias`, share: p.share, note: `somam ${km(p.km)} km` }] : [];
+    }),
+    ...[150, 300, 450].flatMap((limit) => {
+      const p = atKm(byKm, limit);
+      return p ? [{ title: `Os primeiros ${limit} km`, share: p.share, note: `em ${n(p.vias)} vias` }] : [];
+    }),
+  ];
+  return (
+    <ul className="grid grid-cols-2 gap-3 md:grid-cols-3">
+      {cards.map((c) => (
+        <li key={c.title} className="rounded-xl border border-gray-200 bg-white p-4">
+          <p className="text-xs uppercase tracking-wide text-gray-500">{c.title}</p>
+          <p className="mt-1 text-2xl font-bold tabular-nums text-ameciclo">{pct(c.share, 100)}</p>
+          <p className="text-sm leading-snug text-gray-600">dos chamados com via identificada, {c.note}</p>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -239,17 +295,42 @@ function SelectedVia({ slug, name, onClose }: { slug: string; name: string; onCl
   );
 }
 
-type SortKey = "calls" | "perKm";
+type SortKey = "name" | "calls" | "length" | "perKm";
+type Direction = "asc" | "desc";
+
+const VALUE: Record<SortKey, (s: UnsafeStreet) => number | string | null> = {
+  name: (s) => s.name,
+  calls: (s) => s.calls,
+  length: (s) => s.lengthKm,
+  perKm: (s) => s.callsPerKm,
+};
+
+// Quem não tem o valor (sem extensão, ou curta demais para o "por km") fica sempre no fim, qualquer que seja o sentido.
+function sortStreets(streets: UnsafeStreet[], key: SortKey, dir: Direction): UnsafeStreet[] {
+  const sign = dir === "asc" ? 1 : -1;
+  return [...streets].sort((a, b) => {
+    const x = VALUE[key](a);
+    const y = VALUE[key](b);
+    if (x === null && y === null) return b.calls - a.calls;
+    if (x === null) return 1;
+    if (y === null) return -1;
+    const order = typeof x === "string" && typeof y === "string" ? x.localeCompare(y, "pt-BR") : Number(x) - Number(y);
+    return order !== 0 ? sign * order : b.calls - a.calls;
+  });
+}
 
 function Ranking({ streets, identified, selectedKey, onSelect }: { streets: ViasView["streets"]; identified: number; selectedKey: string | undefined; onSelect: (slug: string) => void }) {
-  const [sort, setSort] = useState<SortKey>("calls");
+  const [sort, setSort] = useState<{ key: SortKey; dir: Direction }>({ key: "calls", dir: "desc" });
   const [all, setAll] = useState(false);
-  const sorted = [...streets].sort((a, b) => (sort === "calls" ? b.calls - a.calls : (b.callsPerKm ?? -1) - (a.callsPerKm ?? -1)));
+  const sorted = sortStreets(streets, sort.key, sort.dir);
   const shown = all ? sorted : sorted.slice(0, 20);
-  const head = (key: SortKey, label: string) => (
-    <th scope="col" className="px-3 py-2 text-right font-medium" aria-sort={sort === key ? "descending" : "none"}>
-      <button type="button" onClick={() => setSort(key)} className={`underline-offset-2 hover:underline ${sort === key ? "font-semibold text-gray-900" : ""}`}>
-        {label}{sort === key ? " ↓" : ""}
+  // Primeiro clique ordena do maior para o menor (do A ao Z, no nome); o segundo inverte.
+  const click = (key: SortKey) => setSort((prev) => (prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: key === "name" ? "asc" : "desc" }));
+  const head = (key: SortKey, label: string, align: "left" | "right", extra = "") => (
+    <th scope="col" className={`px-3 py-2 font-medium ${align === "right" ? "text-right" : "text-left"} ${extra}`} aria-sort={sort.key === key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}>
+      <button type="button" onClick={() => click(key)} className={`underline-offset-2 hover:underline ${sort.key === key ? "font-semibold text-gray-900" : ""}`}>
+        {label}
+        {sort.key === key && <span aria-hidden="true">{sort.dir === "asc" ? " ↑" : " ↓"}</span>}
       </button>
     </th>
   );
@@ -261,17 +342,17 @@ function Ranking({ streets, identified, selectedKey, onSelect }: { streets: Vias
           <thead>
             <tr className="border-b border-gray-200 text-xs text-gray-500">
               <th scope="col" className="px-3 py-2 text-right font-medium">#</th>
-              <th scope="col" className="px-3 py-2 text-left font-medium">Via</th>
-              {head("calls", "Chamados")}
+              {head("name", "Via", "left")}
+              {head("calls", "Chamados", "right")}
               <th scope="col" className="hidden px-3 py-2 text-right font-medium md:table-cell">% do total</th>
-              <th scope="col" className="hidden px-3 py-2 text-right font-medium md:table-cell">Extensão (km)</th>
-              {head("perKm", "Por km")}
+              {head("length", "Extensão (km)", "right", "hidden md:table-cell")}
+              {head("perKm", "Por km", "right")}
             </tr>
           </thead>
           <tbody>
-            {shown.map((s) => (
+            {shown.map((s, i) => (
               <tr key={s.key} className={`border-b border-gray-100 last:border-0 ${s.key === selectedKey ? "bg-gray-50" : ""}`}>
-                <td className="px-3 py-2 text-right tabular-nums text-gray-500">{s.rank}</td>
+                <td className="px-3 py-2 text-right tabular-nums text-gray-500">{i + 1}</td>
                 <th scope="row" className="px-3 py-2 text-left font-medium">
                   <button type="button" onClick={() => onSelect(viaSlug(s.name))} className="text-left text-ameciclo underline-offset-2 hover:underline">{s.name}</button>
                 </th>
@@ -284,6 +365,9 @@ function Ranking({ streets, identified, selectedKey, onSelect }: { streets: Vias
           </tbody>
         </table>
       </div>
+      <p className="mt-2 text-xs text-gray-500">
+        O “#” é a posição na ordem escolhida. “Por km” só aparece para vias de {km(MIN_RATE_KM)} km ou mais e com {MIN_RATE_CALLS} chamados ou mais: numa via curta, poucos chamados dão um número enorme. Essas vias, e as sem extensão na malha, ficam no fim quando a ordem é por extensão ou por km.
+      </p>
       {streets.length > 20 && (
         <button type="button" onClick={() => setAll((v) => !v)} className="mt-3 text-sm text-ameciclo underline underline-offset-2">
           {all ? "Mostrar só as 20 primeiras" : `Mostrar as ${streets.length} vias do ranking`}

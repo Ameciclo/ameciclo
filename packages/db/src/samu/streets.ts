@@ -2,6 +2,9 @@ import { sql } from "drizzle-orm";
 
 import type { Db } from "../index";
 import { validOutcomeSql } from "./read";
+import { MIN_RATE_CALLS, MIN_RATE_KM } from "./streets-model";
+
+export { MIN_RATE_CALLS, MIN_RATE_KM };
 
 // ---------------------------------------------------------------------------
 // Vias inseguras: as vias do Recife com mais chamados do SAMU por sinistro de trânsito.
@@ -46,6 +49,7 @@ export type UnsafeStreet = {
   calls: number;
   // Soma dos trechos da Prefeitura com esse nome; null quando a via não casa com nenhum.
   lengthKm: number | null;
+  // Chamados por km; null quando a via é curta ou tem poucos chamados (ver MIN_RATE_KM e MIN_RATE_CALLS).
   callsPerKm: number | null;
 };
 
@@ -72,7 +76,8 @@ type StreetRow = { key: string; name: string | null; calls: number; meters: numb
 
 const toStreet = (r: StreetRow, i: number): UnsafeStreet => {
   const lengthKm = r.meters && r.meters > 0 ? r.meters / 1000 : null;
-  return { rank: i + 1, key: r.key, name: r.name ?? r.key, calls: r.calls, lengthKm, callsPerKm: lengthKm ? r.calls / lengthKm : null };
+  const rated = lengthKm !== null && lengthKm >= MIN_RATE_KM && r.calls >= MIN_RATE_CALLS;
+  return { rank: i + 1, key: r.key, name: r.name ?? r.key, calls: r.calls, lengthKm, callsPerKm: rated ? r.calls / lengthKm : null };
 };
 
 async function years(db: Db, city: number): Promise<UnsafeStreetsYear[]> {

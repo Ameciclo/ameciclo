@@ -1,6 +1,6 @@
 // Uma via: quantos chamados, quanto por km, em que anos e de que tipo, e onde ela fica.
 import { Link } from "@tanstack/react-router";
-import type { ViaView } from "~/queries/dados.vias-inseguras";
+import { MIN_RATE_CALLS, MIN_RATE_KM, type ViaView } from "~/queries/dados.vias-inseguras";
 import { CategoryBars, YearBars } from "./ViasCharts";
 import { ViasMap } from "./ViasMap";
 import { km, n, perKm } from "./labels";
@@ -25,6 +25,9 @@ export default function ViaPagina({ via }: { via: ViaView }) {
           <Stat label="Chamados por km" value={perKm(street.callsPerKm)} />
         </div>
         {street.lengthKm === null && <p className="mt-2 text-xs text-gray-500">Este nome não casa com a malha viária da Prefeitura: não temos a extensão nem o traçado.</p>}
+        {street.lengthKm !== null && street.callsPerKm === null && (
+          <p className="mt-2 text-xs text-gray-500">Chamados por km só aparecem para vias de {km(MIN_RATE_KM)} km ou mais e com {MIN_RATE_CALLS} chamados ou mais: numa via curta, poucos chamados dão um número enorme.</p>
+        )}
       </section>
 
       <section className="container mx-auto mt-8 grid grid-cols-1 gap-8 px-4 md:grid-cols-2">

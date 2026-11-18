@@ -1,34 +1,33 @@
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@ameciclo/ui/components/chart";
-import type { StreetCategoryRow, UnsafeStreet, UnsafeStreetsYear } from "@ameciclo/db";
+import type { StreetCategoryRow, UnsafeStreetsYear } from "@ameciclo/db";
+import type { ConcentrationPoint } from "@ameciclo/db/streets-model";
 import { isPartialYear } from "~/queries/dados.vias-inseguras";
 import { n, pct } from "./labels";
 
 const concentrationConfig = { share: { label: "Chamados acumulados", color: "#bd0026" } } satisfies ChartConfig;
 const yearConfig = { calls: { label: "Chamados com atendimento", color: "#008080" } } satisfies ChartConfig;
 
-// Quanto dos chamados com via identificada cabe nas primeiras vias do ranking: a curva sobe rápido porque poucas
-// vias concentram muito.
-export function ConcentrationChart({ streets, identified }: { streets: UnsafeStreet[]; identified: number }) {
-  let sum = 0;
-  const data = streets.map((s) => {
-    sum += s.calls;
-    return { rank: s.rank, share: identified > 0 ? Math.round((sum / identified) * 1000) / 10 : 0 };
-  });
+// Quanto dos chamados com via identificada cabe nas primeiras vias do ranking (ou nos primeiros quilômetros): a curva
+// sobe rápido porque poucas vias, e poucos quilômetros, concentram muito.
+export function ConcentrationChart({ points, axis }: { points: ConcentrationPoint[]; axis: "vias" | "km" }) {
+  const data = points.map((p) => ({ x: axis === "vias" ? p.vias : Math.round(p.km * 10) / 10, share: Math.round(p.share * 10) / 10 }));
+  const unit = axis === "vias" ? "vias" : "km";
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4">
       <ChartContainer config={concentrationConfig} className="aspect-auto h-64 w-full">
         <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
           <CartesianGrid vertical={false} />
-          <XAxis dataKey="rank" tickLine={false} axisLine={false} tickMargin={8} type="number" domain={[1, streets.length]} />
-          <YAxis width={44} tickLine={false} axisLine={false} unit="%" domain={[0, "dataMax"]} />
+          <XAxis dataKey="x" tickLine={false} axisLine={false} tickMargin={8} type="number" domain={[0, "dataMax"]} unit={axis === "km" ? " km" : ""} />
+          <YAxis width={44} tickLine={false} axisLine={false} domain={[0, "dataMax"]} tickFormatter={(v: number) => `${Math.round(v)}%`} />
           <ChartTooltip
             content={({ active, payload }) => {
               const point = payload?.[0]?.payload;
               if (!active || !point) return null;
               return (
                 <div className="rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs shadow">
-                  As {point.rank} primeiras vias reúnem <span className="font-semibold tabular-nums">{point.share.toLocaleString("pt-BR")}%</span> dos chamados
+                  {axis === "vias" ? `As ${point.x} primeiras vias` : `Os primeiros ${point.x.toLocaleString("pt-BR")} km`} reúnem{" "}
+                  <span className="font-semibold tabular-nums">{point.share.toLocaleString("pt-BR")}%</span> dos chamados
                 </div>
               );
             }}
@@ -36,7 +35,10 @@ export function ConcentrationChart({ streets, identified }: { streets: UnsafeStr
           <Area dataKey="share" type="monotone" stroke="var(--color-share)" fill="var(--color-share)" fillOpacity={0.15} />
         </AreaChart>
       </ChartContainer>
-      <p className="mt-2 text-xs text-gray-500">Eixo horizontal: quantas vias, da mais para a menos insegura. Eixo vertical: parte dos chamados com via identificada que elas reúnem.</p>
+      <p className="mt-2 text-xs text-gray-500">
+        Eixo horizontal: {axis === "vias" ? "quantas vias, da mais para a menos insegura" : "quilômetros de via somados, da mais para a menos insegura (só vias com extensão na malha da Prefeitura)"}. Eixo vertical: parte dos
+        chamados com via identificada que {unit === "vias" ? "elas reúnem" : "elas reúnem"}.
+      </p>
     </div>
   );
 }

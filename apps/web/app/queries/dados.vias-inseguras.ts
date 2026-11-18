@@ -11,6 +11,9 @@ import { slugify } from "~/utils/slugify";
 export const MAP_STREETS = 50;
 export const RANKING_STREETS = 150;
 
+// Até onde vale mostrar "chamados por km" (definido no banco: vias curtas ou com poucos chamados ficam sem o valor).
+export { MIN_RATE_CALLS, MIN_RATE_KM } from "@ameciclo/db/streets-model";
+
 export type ViasView = UnsafeStreets & {
   // Traçado das primeiras MAP_STREETS vias do ranking, por chave.
   geometries: Record<string, StreetGeometry["geometry"]>;
