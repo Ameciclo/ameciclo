@@ -14,10 +14,6 @@ params:
 env:
   - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
   - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
-  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
-handler_on:
-  failure:
-    run: sh /opt/scripts/avisar.sh "prefeitura-ruas (${ALVO}) falhou"
 steps:
   - name: validar
     # Baixa e confere o arquivo; imprime quantos trechos entram e por que algum seria descartado. Não grava.

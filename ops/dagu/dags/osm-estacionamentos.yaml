@@ -13,11 +13,7 @@ params:
 env:
   - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
   - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
-  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
   - OVERPASS_CONTACT: ${OVERPASS_CONTACT}
-handler_on:
-  failure:
-    run: sh /opt/scripts/avisar.sh "osm-estacionamentos (${ALVO}) falhou"
 steps:
   - name: importar
     # Uma busca só (o Overpass recusa muita tentativa): com DRY_RUN=true o script só busca e relata; com false, grava.

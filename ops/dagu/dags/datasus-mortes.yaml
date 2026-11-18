@@ -19,13 +19,9 @@ env:
   # Vêm do ambiente do container (Coolify); o Dagu só repassa aos passos o que o fluxo declara.
   - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
   - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
-  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
   - WORK_DIR: /tmp/mortes
   # O dado bruto (CSV filtrado e manifesto de cada ano) fica no volume do Dagu, uma pasta por ALVO.
   - RAW_DIR: /var/lib/dagu/raw/${ALVO}
-handler_on:
-  failure:
-    run: sh /opt/scripts/avisar.sh "datasus-mortes (${ALVO}, ano ${YEAR}) falhou"
 steps:
   - name: baixar
     # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar. Compara com a última

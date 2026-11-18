@@ -8,11 +8,6 @@ labels:
 params:
   - ALVO: "staging"
   - DRY_RUN: "true"
-env:
-  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
-handler_on:
-  failure:
-    run: sh /opt/scripts/avisar.sh "datasus-mortes-carga-historica (${ALVO}) falhou"
 steps:
   - name: ano-2011
     action: dag.run

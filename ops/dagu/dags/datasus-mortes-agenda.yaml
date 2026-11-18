@@ -5,12 +5,8 @@ labels:
   - fonte=datasus
 schedule: "0 6 5 * *"
 env:
-  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
   - ANO_ATUAL: "`date +%Y`"
   - ANO_ANTERIOR: "`date -d '1 year ago' +%Y`"
-handler_on:
-  failure:
-    run: sh /opt/scripts/avisar.sh "datasus-mortes-agenda falhou"
 steps:
   - name: ano-anterior
     action: dag.run

@@ -24,7 +24,7 @@ COPY --from=scripts /usr/local/bin/node /usr/local/bin/node
 COPY --from=scripts /app/packages/db/dist-scripts /opt/scripts
 COPY --from=scripts /app/apps/collector/dist-scripts /opt/scripts
 COPY ops/dagu/dags /opt/dags
-COPY ops/dagu/avisar.sh ops/dagu/com-banco.sh /opt/scripts/
+COPY ops/dagu/com-banco.sh /opt/scripts/
 # O Dagu roda como o usuário dagu e grava ao lado dos fluxos
 # (o entrypoint troca o uid dele para PUID, 1000 por padrão).
 RUN chown -R 1000:1000 /opt/dags /opt/scripts
