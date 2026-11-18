@@ -1,0 +1,67 @@
+# Óbitos por acidente de transporte do SIM/DATASUS na RMR (alimenta /dados/sinistros-fatais).
+# Cada passo aparece no grafo, com o log e as contagens que ele imprime; o resultado de cada importação
+# também fica em pipeline_run (tela "Coletas" do admin). Código: packages/db/scripts no repositório
+# (datasus-baixar.ts, datasus-filtrar.ts, import-mortes.ts).
+#
+# Parâmetros: YEAR (ano do óbito), DRY_RUN (true só valida; false grava no banco, com DATABASE_URL),
+# FORCAR ("--forcar" baixa de novo mesmo que o DATASUS não tenha mudado).
+description: Baixa o ano do DATASUS, filtra a RMR, guarda o bruto e carrega em traffic_death
+params:
+  - YEAR: "2026"
+  - DRY_RUN: "true"
+  - FORCAR: ""
+env:
+  # Vêm do ambiente do container (Coolify); o Dagu só repassa aos passos o que o fluxo declara.
+  - DATABASE_URL: ${DATABASE_URL}
+  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+  - WORK_DIR: /tmp/mortes
+  # O dado bruto (CSV filtrado e manifesto de cada ano) fica no volume do Dagu.
+  - RAW_DIR: /var/lib/dagu/raw
+handler_on:
+  failure:
+    run: sh /opt/scripts/avisar.sh "mortes-sim (ano ${YEAR}) falhou"
+steps:
+  - name: baixar
+    # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar. Compara com a última
+    # importação e, se nada mudou, avisa e os passos seguintes são pulados.
+    run: node /opt/scripts/datasus-baixar.mjs ${YEAR} ${WORK_DIR} ${RAW_DIR} ${FORCAR}
+
+  - name: houve-mudanca
+    depends:
+      - baixar
+    # "sim" se o arquivo do DATASUS é diferente do que foi importado da última vez; "nao" pula o resto.
+    run: cat ${WORK_DIR}/mudou_${YEAR}.txt
+    output: MUDOU
+
+  - name: descompactar-e-filtrar
+    depends:
+      - houve-mudanca
+    # .dbc (PKWare implode) -> CSV só com as causas de trânsito (V e Y85), no Brasil inteiro, guardado em RAW_DIR.
+    run: node /opt/scripts/datasus-filtrar.mjs ${YEAR} ${WORK_DIR} ${RAW_DIR}
+    preconditions:
+      - condition: "${MUDOU}"
+        expected: "sim"
+
+  - name: validar
+    depends:
+      - descompactar-e-filtrar
+    # Fica a RMR (ocorrência ou residência) com causa V01-V89 ou V99; imprime o que foi descartado e por quê.
+    run: node /opt/scripts/import-mortes.mjs --dry-run --ano ${YEAR}
+    env:
+      - MORTES_DIR: ${RAW_DIR}
+    preconditions:
+      - condition: "${MUDOU}"
+        expected: "sim"
+
+  - name: carregar-no-banco
+    depends:
+      - validar
+    # Substitui o ano inteiro numa transação e registra a execução; só roda com DRY_RUN=false.
+    run: node /opt/scripts/import-mortes.mjs --ano ${YEAR}
+    env:
+      - MORTES_DIR: ${RAW_DIR}
+    preconditions:
+      - condition: "${DRY_RUN}"
+        expected: "false"
+      - condition: "${MUDOU}"
+        expected: "sim"
