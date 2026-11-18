@@ -5,7 +5,8 @@
   "scripts": {
     "collect": "tsx src/collect.ts",
     "typecheck": "tsc",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bundle": "esbuild src/collect.ts --bundle --platform=node --format=esm --target=node24 --outfile=dist-scripts/coletar-osm.mjs --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\""
   },
   "dependencies": {
     "@ameciclo/db": "workspace:*",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "esbuild": "^0.28.2",
     "typescript": "^5.1.6",
     "vitest": "^5.0.5"
   }
