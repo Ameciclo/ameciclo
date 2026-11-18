@@ -31,3 +31,6 @@ export async function withDb<T>(
 }
 export * from "./samu/read";
 export * from "./samu/streets";
+export * from "./places/read";
+export * from "./ciclodados";
+export * from "./ciclodados-point";

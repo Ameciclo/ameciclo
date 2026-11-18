@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
+import { cyclingMapQueryOptions } from '~/queries/dados.ciclodados';
 import { useGenericClusters } from './useGenericClusters';
-import { INFRA_CICLOVIARIA_DATA } from '~/servers';
 
 interface ViewportBounds {
   north: number;
@@ -8,7 +9,10 @@ interface ViewportBounds {
   west: number;
 }
 
-export function useInfraCicloviaria(bounds?: ViewportBounds, selectedTypes?: string[]) {
-  const result = useGenericClusters(INFRA_CICLOVIARIA_DATA, bounds);
-  return { data: result.data, error: result.error };
+// A estrutura cicloviária existente (Ciclovia, Ciclofaixa, Ciclorrota, Calçada compartilhada), do banco: só os trechos que
+// têm tipologia construída, com `infra_type` na propriedade que o mapa filtra.
+export function useInfraCicloviaria(bounds?: ViewportBounds | null) {
+  const { data, error } = useGenericClusters(cyclingMapQueryOptions(), (r) => r.map, bounds);
+  const built = useMemo(() => (data ? { ...data, features: data.features.filter((f) => f.properties?.infra_type) } : null), [data]);
+  return { data: built, error };
 }

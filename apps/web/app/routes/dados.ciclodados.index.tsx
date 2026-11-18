@@ -50,7 +50,7 @@ export const Route = createFileRoute("/dados/ciclodados/")({
 });
 
 function CicloDados() {
-  const { data: { contagemData, execucaoCicloviaria, perfilCiclistas } } =
+  const { data: { contagemData, perfilCiclistas } } =
     useSuspenseQuery(ciclodadosQueryOptions());
   const { lat, lon, zoom, modal, tab } = Route.useSearch();
 
@@ -147,7 +147,7 @@ function CicloDados() {
   );
 
   const infraData = generateInfraData(selectedInfra);
-  const pdcData = generatePdcData(selectedPdc, execucaoCicloviaria);
+  const pdcData = generatePdcData(selectedPdc);
   const contagemMapData = generateContagemData(selectedContagem, processedContagemData, {
     genero: selectedGenero,
     ano: selectedAno,

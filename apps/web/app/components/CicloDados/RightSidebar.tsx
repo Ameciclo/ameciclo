@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { MiniContagensChart, MiniSinistrosChart, MiniInfraChart, MiniVelocidadeChart, MiniFluxoChart, MiniGeneroChart, MiniCaracteristicasChart, MiniInfraestruturaChart, MiniAcessibilidadeChart } from './utils/chartData';
 import { StreetSelectionModal } from './StreetSelectionModal';
-import { fetchContagemData } from '~/services/contagem.service';
+import { useQueryClient } from '@tanstack/react-query';
+import { ciclodadosQueryOptions } from '~/queries/dados.ciclodados';
 
 
 interface Street {
@@ -28,6 +29,7 @@ interface CardData {
 }
 
 function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelection?: {lat: number, lng: number, radius: number, street?: string, streets?: Street[], clickPosition?: {x: number, y: number}}, collapsedCards: Set<string>, toggleCard: (cardId: string) => void }) {
+  const queryClient = useQueryClient();
   const [infraPercentage, setInfraPercentage] = useState(100);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,8 +99,9 @@ function ChartDataCards({ mapSelection, collapsedCards, toggleCard }: { mapSelec
       setLoading(true);
       setError(null);
       
-      fetchContagemData(mapSelection.lat, mapSelection.lng)
-        .then(data => {
+      queryClient.fetchQuery(ciclodadosQueryOptions())
+        .then(base => {
+          const data = base.contagemData.ameciclo;
           
           setCardData({
             contagens: {

@@ -1,5 +1,5 @@
+import { stationsQueryOptions } from '~/queries/dados.ciclodados';
 import { useGenericClusters } from './useGenericClusters';
-import { BIKE_PE_STATIONS_DATA } from '~/servers';
 
 interface ViewportBounds {
   north: number;
@@ -8,7 +8,7 @@ interface ViewportBounds {
   west: number;
 }
 
-export function useBikePE(bounds?: ViewportBounds) {
-  const result = useGenericClusters(BIKE_PE_STATIONS_DATA, bounds);
-  return { data: result.data, error: result.error };
+// Estações de Bike PE do OpenStreetMap, do banco.
+export function useBikePE(bounds?: ViewportBounds | null) {
+  return useGenericClusters(stationsQueryOptions(), (r) => r.places, bounds);
 }
