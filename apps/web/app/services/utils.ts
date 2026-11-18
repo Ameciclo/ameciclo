@@ -21,18 +21,12 @@ export const IntlDateStr = (str: string): string => {
 
 export const IntlNumberMax1Digit = (n: number): string => IntlNumber(n, 1);
 
-interface JsonObject {
-  id?: string | number;
-  name?: string;
-  [key: string]: any;
+export function filterById<T extends { id?: string | number }>(items: T[], id: string | number): T | undefined {
+  return items.find((item) => item.id === id);
 }
 
-export function filterById(jsonObject: JsonObject[], id: string | number): JsonObject | undefined {
-  return jsonObject.find(item => item.id === id);
-}
-
-export function filterByName(jsonObject: JsonObject[], name: string): JsonObject | undefined {
-  return jsonObject.find(item => item.name === name);
+export function filterByName<T extends { name?: string }>(items: T[], name: string): T | undefined {
+  return items.find((item) => item.name === name);
 }
 
 export const IntlNumberMin1Max3Digits = (n: number): string => IntlNumber(n, 3, 1);
