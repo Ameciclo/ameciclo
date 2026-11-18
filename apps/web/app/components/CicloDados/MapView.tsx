@@ -51,6 +51,9 @@ interface MapViewProps {
   onPopupOpened?: () => void;
 }
 
+// O MapLibre entrega {lng, lat}; wrappers antigos entregavam [lng, lat].
+const lngLatOf = (p: { lng: number; lat: number } | [number, number]): [number, number] => (Array.isArray(p) ? [p[0], p[1]] : [p.lng, p.lat]);
+
 export function MapView({
   selectedInfra,
   selectedPdc,
@@ -142,7 +145,7 @@ export function MapView({
   // Usar hooks com bounds para filtrar dados apenas no cliente
   const { data: filteredBicicletarios, error: bicicletariosError } = useBicicletarios(isClient ? viewportBounds : undefined);
   const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
-  const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined, selectedInfra);
+  const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
   const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
   const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
@@ -172,7 +175,7 @@ export function MapView({
       if (infraError) {
         // If there's an error, consider it "rendered" (failed)
         newRenderedLayers.add('infraestrutura');
-      } else if (infraCicloviaria?.features?.length > 0) {
+      } else if ((infraCicloviaria?.features?.length ?? 0) > 0) {
         // Data loaded successfully
         newRenderedLayers.add('infraestrutura');
       } else {
@@ -186,7 +189,7 @@ export function MapView({
       if (execucaoError) {
         // If there's an error, consider it "rendered" (failed)
         newRenderedLayers.add('pdc');
-      } else if (execucaoCicloviaria?.features?.length > 0) {
+      } else if ((execucaoCicloviaria?.features?.length ?? 0) > 0) {
         // Data loaded successfully
         newRenderedLayers.add('pdc');
       } else {
@@ -197,8 +200,8 @@ export function MapView({
 
     // Estacionamento loading/rendered state
     if (selectedEstacionamento.length > 0) {
-      const hasBicicletarios = filteredBicicletarios?.features?.length > 0;
-      const hasBikePE = filteredBikePE?.features?.length > 0;
+      const hasBicicletarios = (filteredBicicletarios?.features?.length ?? 0) > 0;
+      const hasBikePE = (filteredBikePE?.features?.length ?? 0) > 0;
       const hasEstacionamentoError = bicicletariosError || bikePEError;
       
       if (hasEstacionamentoError) {
@@ -308,8 +311,7 @@ export function MapView({
     }
     
     if (event?.lngLat) {
-      const lng = event.lngLat[0];
-      const lat = event.lngLat[1];
+      const [lng, lat] = lngLatOf(event.lngLat);
       setHoverPoint({ lat, lng });
     }
   };
@@ -340,8 +342,7 @@ export function MapView({
     
     if (!isSelectionMode) return;
     
-    const lng = event.lngLat[0];
-    const lat = event.lngLat[1];
+    const [lng, lat] = lngLatOf(event.lngLat);
     
     const newPoint = {
       lat,

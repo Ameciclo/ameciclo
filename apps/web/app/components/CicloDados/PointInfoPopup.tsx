@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { X, MapPin, AlertTriangle, Bike, BarChart3, Users, Calendar, Navigation, TrendingUp, Shield, Route, Clock, Target, Activity, Zap, Building2, Ambulance, ArrowRight, Share2, ChevronDown, ChevronUp, User, ShieldCheck, UserPlus, Wrench, RotateCcw, Package, Baby, Footprints } from 'lucide-react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { POINT_CICLO_NEARBY } from '~/servers';
+import { loadPointInfo } from '~/queries/dados.ciclodados';
 import { calculatePercentage } from '~/utils/translations';
 
 interface PointInfoPopupProps {
@@ -208,14 +208,10 @@ export function PointInfoPopup({ lat, lng, onClose, initialTab = 'overview', ext
   const { data: rawData, isLoading: loading, error } = useQuery({
     queryKey: ['point-info', lat, lng],
     queryFn: async () => {
-      const response = await fetch(POINT_CICLO_NEARBY(lat, lng, 200));
-      
-      if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
-      }
-      
-      const apiData = await response.json();
-      
+      const { info } = await loadPointInfo(lat, lng, 200);
+      if (!info) throw new Error('Os dados deste ponto estão indisponíveis no momento');
+      const apiData = info;
+
       // Buscar pontos da prefeitura próximos
       try {
         const prefeituraResponse = await fetch('/dbs/PCR_CONTAGENS.json');

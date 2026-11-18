@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { fetchExecucaoCicloviaria } from '~/services/execucaoCicloviaria.service';
+import { useMemo } from 'react';
+import { cyclingMapQueryOptions } from '~/queries/dados.ciclodados';
+import { useGenericClusters } from './useGenericClusters';
 
 interface ViewportBounds {
   north: number;
@@ -8,47 +9,19 @@ interface ViewportBounds {
   west: number;
 }
 
-export function useExecucaoCicloviaria(bounds?: ViewportBounds) {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setError(null);
-    
-    fetchExecucaoCicloviaria()
-      .then(result => {
-        
-        // Handle direct FeatureCollection or byCity structure
-        let cityData = result;
-        
-        // If it's wrapped in byCity structure, extract it
-        if (result?.byCity?.['2611606']) {
-          cityData = result.byCity['2611606'];
-        }
-        
-        if (cityData?.type === 'FeatureCollection' && cityData?.features) {
-          const processedData = {
-            ...cityData,
-            features: cityData.features.map((feature: any) => ({
-              ...feature,
-              properties: {
-                ...feature.properties,
-                source: 'execucao',
-                status: feature.properties.status_type || feature.properties.status // Map status_type to status or use existing status
-              }
-            }))
-          };
-          setData(processedData);
-        } else {
-          setData(null);
-        }
-      })
-      .catch(err => {
-        console.error('Erro no hook useExecucaoCicloviaria:', err);
-        setError(err.message || 'Erro ao carregar dados de execução cicloviária');
-        setData(null);
-      });
-  }, []);
-
-  return { data, error };
+// A execução do PDC, do banco: cada trecho com o `status` (pdc_realizado_designado, pdc_realizado_nao_designado,
+// realizado_fora_pdc, pdc_nao_realizado) que as camadas do PDC filtram.
+export function useExecucaoCicloviaria(bounds?: ViewportBounds | null) {
+  const { data, error } = useGenericClusters(cyclingMapQueryOptions(), (r) => r.map, bounds);
+  const execution = useMemo(
+    () =>
+      data
+        ? {
+            ...data,
+            features: data.features.filter((f) => f.properties?.status).map((f) => ({ ...f, properties: { ...f.properties, source: 'execucao' } })),
+          }
+        : null,
+    [data],
+  );
+  return { data: execution, error };
 }

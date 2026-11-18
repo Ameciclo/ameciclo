@@ -1,0 +1,32 @@
+# Bicicletários e estações de Bike PE da RMR a partir do OpenStreetMap (alimentam o mapa de /dados/ciclodados).
+# Código: packages/db/scripts/import-osm-lugares.ts, compilado para /opt/scripts/import-osm-lugares.mjs.
+# Pergunta ao Overpass (espelho e servidor principal), recusa resultado pequeno demais (sinal de consulta falha) e
+# substitui as duas tabelas numa transação.
+#
+# Parâmetros: ALVO (staging ou producao), DRY_RUN (true só busca e relata; false substitui bicycle_rack e bike_share_station).
+description: Importa bicicletários e estações de Bike PE do OpenStreetMap para o banco
+labels:
+  - fonte=osm
+params:
+  - ALVO: "staging"
+  - DRY_RUN: "true"
+env:
+  - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
+  - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
+  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+  - OVERPASS_CONTACT: ${OVERPASS_CONTACT}
+handler_on:
+  failure:
+    run: sh /opt/scripts/avisar.sh "osm-estacionamentos (${ALVO}) falhou"
+steps:
+  - name: validar
+    # Busca no Overpass e imprime quantos bicicletários e estações entrariam. Não grava.
+    run: node /opt/scripts/import-osm-lugares.mjs --dry-run
+
+  - name: carregar-no-banco
+    depends:
+      - validar
+    run: sh /opt/scripts/com-banco.sh node /opt/scripts/import-osm-lugares.mjs
+    preconditions:
+      - condition: "${DRY_RUN}"
+        expected: "false"

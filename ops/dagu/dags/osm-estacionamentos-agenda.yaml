@@ -1,0 +1,18 @@
+# Todo dia 1, 7h30: atualiza bicicletários e Bike PE da produção (fluxo osm-estacionamentos).
+description: "Atualização mensal de bicicletários e Bike PE (OSM) na produção"
+labels:
+  - fonte=osm
+schedule: "30 7 1 * *"
+env:
+  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+handler_on:
+  failure:
+    run: sh /opt/scripts/avisar.sh "osm-estacionamentos-agenda falhou"
+steps:
+  - name: osm-producao
+    action: dag.run
+    with:
+      dag: osm-estacionamentos
+      params:
+        ALVO: producao
+        DRY_RUN: "false"

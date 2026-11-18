@@ -36,8 +36,9 @@
     "db:sync-ciclo-infra": "tsx scripts/sync-ciclo-infra.ts",
     "db:datasus-baixar": "tsx scripts/datasus-baixar.ts",
     "db:datasus-filtrar": "tsx scripts/datasus-filtrar.ts",
-    "db:bundle-scripts": "esbuild scripts/datasus-baixar.ts scripts/datasus-filtrar.ts scripts/import-mortes.ts scripts/import-ruas-pcr.ts --bundle --platform=node --format=esm --target=node24 --outdir=dist-scripts --out-extension:.js=.mjs --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\"",
-    "db:import-ruas": "tsx scripts/import-ruas-pcr.ts"
+    "db:bundle-scripts": "esbuild scripts/datasus-baixar.ts scripts/datasus-filtrar.ts scripts/import-mortes.ts scripts/import-ruas-pcr.ts scripts/import-osm-lugares.ts --bundle --platform=node --format=esm --target=node24 --outdir=dist-scripts --out-extension:.js=.mjs --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\"",
+    "db:import-ruas": "tsx scripts/import-ruas-pcr.ts",
+    "db:import-osm-lugares": "tsx scripts/import-osm-lugares.ts"
   },
   "dependencies": {
     "csv-parse": "^7.0.3",
