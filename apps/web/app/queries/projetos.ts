@@ -109,11 +109,14 @@ export const projetosQueryOptions = () =>
   });
 
 // Static JSON translation files live on ameciclo.org (same origin as app).
+// O arquivo de tradução de um projeto: uma lista de projetos em `data`, validada item a item depois.
+const TranslationFile = z.object({ data: z.array(z.unknown()) });
+
 async function fetchTranslationJson(slug: string) {
   try {
     const response = await fetch(`https://ameciclo.org/data/${slug}.json`);
     if (response.ok) {
-      return await response.json();
+      return TranslationFile.parse(await response.json());
     }
   } catch {}
   return null;

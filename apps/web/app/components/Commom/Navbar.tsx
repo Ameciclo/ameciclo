@@ -77,7 +77,7 @@ export const Navbar = ({ pages }: any) => {
       >
         <div className="w-full flex items-center justify-between px-4 lg:px-32 xl:px-32 py-0 m-0">
           {!isMenuOpen && (
-            <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-85 pointer-events-auto" prefetch="intent">
+            <Link to="/" aria-label="Ir para o site da Ameciclo" className="relative z-85 pointer-events-auto" preload="intent">
               <AmecicloLogo isScrolled={isHeaderScrolled || isSubmenuVisible || location.pathname === '/dados/ciclodados'} />
             </Link>
           )}
@@ -152,7 +152,7 @@ function BigMenu({ pages, setIsSubmenuVisible, isSubmenuVisible }: any) {
             <div className={`uppercase h-14 flex items-center relative ${
               isActive ? 'font-semibold' : 'text-white'
             } ${isDadosPage ? 'dados-button' : ''}`}>
-              <Link to={page.url} className="flex items-center" prefetch="intent">
+              <Link to={page.url} className="flex items-center" preload="intent">
                 <span>{page.name}</span>
               </Link>
               {isDadosPage && (
@@ -274,7 +274,7 @@ function SmallMenu({ pages, closeMenu }: any) {
                                       : 'hover:bg-white/10'
                                   }`}
                                   onClick={handleLinkClick}
-                                  prefetch="intent"
+                                  preload="intent"
                                 >
                                   {subPage.name}
                                 </Link>
@@ -294,7 +294,7 @@ function SmallMenu({ pages, closeMenu }: any) {
                         : 'hover:bg-white/10'
                     }`}
                     onClick={handleLinkClick}
-                    prefetch="intent"
+                    preload="intent"
                   >
                     {page.name}
                   </Link>

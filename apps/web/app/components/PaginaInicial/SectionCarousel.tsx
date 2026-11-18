@@ -17,8 +17,8 @@ export default function SectionCarousel({
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isClient, setIsClient] = useState(false);
-  const autoplayIntervalRef = useRef(null);
-  const progressIntervalRef = useRef(null);
+  const autoplayIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const AUTOPLAY_DURATION = 5000;
 
   useEffect(() => {
@@ -199,10 +199,10 @@ export default function SectionCarousel({
                       overflow: "hidden",
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#00A870";
+                      e.currentTarget.style.backgroundColor = "#00A870";
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = "#d1d5db";
+                      e.currentTarget.style.backgroundColor = "#d1d5db";
                     }}
                   >
                     {currentSlide === idx && !isPaused && (
