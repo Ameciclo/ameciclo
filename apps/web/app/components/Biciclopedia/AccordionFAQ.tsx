@@ -29,22 +29,12 @@ export const AccordionItem = ({ categories, defaultOpen = false }: AccordionItem
       id={`categoria-${categories.id}`}
       className="w-full overflow-hidden border-t tab scroll-mt-20"
     >
-      <div
-        className="flex flex-row items-center pl-5"
-        onClick={() => {
-          toggleIsOpen(!isOpen);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleIsOpen(!isOpen);
-          }
-        }}
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
+        className="flex w-full flex-row items-center pl-5 text-left"
+        onClick={() => toggleIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-controls={`accordion-content-${categories.id}`}
-        aria-label={`${categories.title} - ${isOpen ? 'Recolher' : 'Expandir'} categoria`}
       >
         <motion.span
           className="text-ameciclo"
@@ -57,13 +47,13 @@ export const AccordionItem = ({ categories, defaultOpen = false }: AccordionItem
         >
           <FAQIcon />
         </motion.span>
-        <motion.label
+        <motion.span
           initial={false}
           className="block p-5 text-xl leading-normal cursor-pointer text-ameciclo"
         >
           {categories.title}
-        </motion.label>
-      </div>
+        </motion.span>
+      </button>
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div

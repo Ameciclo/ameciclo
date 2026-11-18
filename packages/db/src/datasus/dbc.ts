@@ -14,7 +14,7 @@ export function readDbc(input: Uint8Array, onRecord: (record: Record<string, str
 
   const fields: DbfField[] = [];
   for (let offset = 32; input[offset] !== 0x0d && offset < headerSize; offset += 32) {
-    const name = latin1.decode(input.subarray(offset, offset + 11)).replace(/\0.*$/, "");
+    const name = latin1.decode(input.subarray(offset, offset + 11)).split("\0")[0];
     fields.push({ name, length: input[offset + 16] });
   }
 

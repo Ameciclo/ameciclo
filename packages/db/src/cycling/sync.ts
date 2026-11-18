@@ -140,7 +140,10 @@ export async function syncCycling(
           },
         })
         .returning({ inserted: sql<boolean>`(xmax = 0)` });
-      for (const r of result) r.inserted ? added++ : updated++;
+      for (const r of result) {
+        if (r.inserted) added++;
+        else updated++;
+      }
     }
 
     // City: the one that holds the middle of the way, unless the admin chose.

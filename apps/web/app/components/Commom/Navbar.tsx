@@ -68,7 +68,6 @@ export const Navbar = ({ pages }: any) => {
         animate={{ y: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={"flex fixed top-0 left-0 right-0 items-center h-14 z-80 text-white transition-shadow duration-300 bg-ameciclo shadow-xs"}
-        role="navigation mt-0"
       >
         <div className="w-full flex items-center justify-between px-4 lg:px-32 xl:px-32 py-0 m-0">
           {!isMenuOpen && (

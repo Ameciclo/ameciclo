@@ -59,7 +59,7 @@ export default function SectionCarousel({
         setProgress(0);
       }, AUTOPLAY_DURATION);
     }
-  }, [loaded, AUTOPLAY_DURATION]);
+  }, [loaded, instanceRef]);
 
   const stopAutoplay = useCallback(() => {
     if (autoplayIntervalRef.current) {
@@ -84,7 +84,7 @@ export default function SectionCarousel({
     return () => {
       stopAutoplay();
     };
-  }, [loaded, isPaused, startAutoplay, stopAutoplay]);
+  }, [loaded, isPaused, instanceRef, startAutoplay, stopAutoplay]);
 
   if (!featuredProjects || featuredProjects.length === 0) {
     return <SectionCarouselLoading />;
@@ -140,10 +140,7 @@ export default function SectionCarousel({
               >
                 <Arrow
                   left
-                  onClick={(e: any) => {
-                    e.stopPropagation();
-                    instanceRef.current?.prev();
-                  }}
+                  onClick={() => instanceRef.current?.prev()}
                   disabled={
                     currentSlide === 0 && !instanceRef.current.options.loop
                   }
@@ -154,10 +151,7 @@ export default function SectionCarousel({
                 onMouseLeave={() => setIsPaused(false)}
               >
                 <Arrow
-                  onClick={(e: any) => {
-                    e.stopPropagation();
-                    instanceRef.current?.next();
-                  }}
+                  onClick={() => instanceRef.current?.next()}
                   disabled={
                     currentSlide ===
                       instanceRef.current.track.details.slides.length - 1 &&
@@ -301,23 +295,22 @@ const ProjectSlide = memo(
   },
 );
 
-function Arrow(props: any) {
-  const disabledClass = props.disabled ? " arrow--disabled" : "";
+function Arrow({ left, onClick, disabled }: { left?: boolean; onClick: () => void; disabled: boolean }) {
   return (
-    <svg
-      onClick={props.onClick}
-      className={`arrow ${
-        props.left ? "arrow--left" : "arrow--right"
-      } ${disabledClass}`}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={left ? "Projeto anterior" : "Próximo projeto"}
+      className={`arrow ${left ? "arrow--left" : "arrow--right"}${disabled ? " arrow--disabled" : ""} border-0 bg-transparent p-0`}
     >
-      {props.left && (
-        <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z" />
-      )}
-      {!props.left && (
-        <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z" />
-      )}
-    </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="size-full" aria-hidden="true">
+        {left ? (
+          <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z" />
+        ) : (
+          <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z" />
+        )}
+      </svg>
+    </button>
   );
 }

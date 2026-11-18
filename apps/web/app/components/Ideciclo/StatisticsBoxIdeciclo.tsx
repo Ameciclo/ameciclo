@@ -192,6 +192,7 @@ function LinksBox({ title, value }: any) {
       <h3>{title}</h3>
       {value.map((v: any) => (
         <Link
+          key={v.url}
           to={v.url}
           className="border border-teal-500 bg-ameciclo text-white hover:bg-red-500 hover:border-red-300 rounded-sm px-4 py-2 mt-2"
         >

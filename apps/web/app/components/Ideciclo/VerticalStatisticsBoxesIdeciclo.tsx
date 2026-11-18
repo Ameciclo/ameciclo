@@ -52,7 +52,7 @@ function VerticalBoxIdeciclo({ titulo, media, color, parametros }: any) {
             >
                 <img 
                     src={imageUrl} 
-                    alt={`${titulo} image`} 
+                    alt={titulo} 
                     className="absolute top-[-80px] left-1/2 transform -translate-x-1/2"
                     style={{ height: '108px', width: '104px' }}
                 />
@@ -113,7 +113,7 @@ function StatisticBoxIdeciclo({ titulo, media, color }: any) {
         >
             <img 
                 src={imageUrl} 
-                alt={`${titulo} image`} 
+                alt={titulo} 
                 className="absolute top-[-80px] left-1/2 transform -translate-x-1/2"
                 style={{ height: '108px', width: '104px' }}
             />

@@ -347,12 +347,13 @@ function Projeto() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {galleryPhotos.map((photo, index) => (
                                                     <div key={photo.id ?? index} className="aspect-square group">
-                                                        <img
-                                                            src={photo.url}
-                                                            alt={photo.caption ?? `Galeria ${index + 1}`}
-                                                            className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
-                                                            onClick={() => openGallery(index)}
-                                                        />
+                                                        <button type="button" onClick={() => openGallery(index)} className="block size-full" aria-label={`Abrir imagem ${index + 1} da galeria`}>
+                                                            <img
+                                                                src={photo.url}
+                                                                alt={photo.caption ?? `Galeria ${index + 1}`}
+                                                                className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
+                                                            />
+                                                        </button>
                                                     </div>
                                                 ))}
                                             </div>
