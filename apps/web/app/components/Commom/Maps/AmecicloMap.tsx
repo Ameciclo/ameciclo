@@ -1,3 +1,4 @@
+import "~/lib/maplibre-worker";
 import { useState, useEffect } from "react";
 import Map, { Source, Layer, Marker, Popup, LayerProps } from "react-map-gl/maplibre";
 

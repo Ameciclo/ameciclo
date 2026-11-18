@@ -4,7 +4,6 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxes } from "~/components/Dados/ExplanationBoxes";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { domQueryOptions } from "~/queries/dados.dom";
-import Chart from "react-google-charts";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
 import { AnimatedNumber } from "~/components/Dom/AnimatedNumber";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
@@ -31,7 +30,6 @@ function Dom() {
     const { data: {
         cover,
         description,
-        chartData,
         sustainableTotal,
         unsustainableTotal,
         carbonValue
@@ -103,143 +101,6 @@ function Dom() {
                             </div>
                         </div>
                     </section>
-
-                    {chartData && (
-                        <section>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div className="h-auto">
-                                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Evolução do Orçamento Sustentável</h2>
-                                    <p className="text-gray-600 mb-4">Análise comparativa dos valores orçados para ações sustentáveis e não sustentáveis.</p>
-
-                                    <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
-                                        <div className="w-full max-w-[500px]">
-                                            <Chart
-                                                chartType="Bar"
-                                                data={chartData.yearlyComparison}
-                                                width="100%"
-                                                height="300px"
-                                                options={{
-                                                    chart: {
-                                                        subtitle: "Comparativo anual de investimentos",
-                                                    },
-                                                    colors: ['#38A169', '#E53E3E'],
-                                                    accessibility: {
-                                                        highContrastMode: true
-                                                    },
-                                                    legend: {
-                                                        position: 'bottom',
-                                                        alignment: 'center',
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        }
-                                                    },
-                                                    hAxis: {
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        }
-                                                    },
-                                                    vAxis: {
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        },
-                                                        format: 'short'
-                                                    },
-                                                    chartArea: {
-                                                        width: '80%',
-                                                        height: '70%'
-                                                    }
-                                                }}
-                                                legendToggle
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="h-auto">
-                                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Tendência de Investimentos Sustentáveis</h2>
-                                    <p className="text-gray-600 mb-4">Evolução dos valores destinados exclusivamente a ações sustentáveis entre 2021 e 2024.</p>
-
-                                    <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
-                                        <div className="w-full max-w-[500px]">
-                                            <Chart
-                                                chartType="Bar"
-                                                data={chartData.goodActionsYearly}
-                                                width="100%"
-                                                height="300px"
-                                                options={{
-                                                    chart: {
-                                                        subtitle: "Investimentos em sustentabilidade por ano",
-                                                    },
-                                                    colors: ['#38A169'],
-                                                    accessibility: {
-                                                        highContrastMode: true
-                                                    },
-                                                    legend: {
-                                                        position: 'bottom',
-                                                        alignment: 'center',
-                                                        textStyle: {
-                                                            fontSize: 13,
-                                                            color: '#333333'
-                                                        }
-                                                    },
-                                                    chartArea: {
-                                                        width: '80%',
-                                                        height: '70%'
-                                                    },
-                                                    vAxis: {
-                                                        format: 'short'
-                                                    }
-                                                }}
-                                                legendToggle
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2">Orçamento Total por Ano</h2>
-                            <p className="text-gray-600 mb-4">Visão geral do orçamento municipal total ao longo dos anos.</p>
-
-                            <div className="bg-white rounded-lg shadow-lg p-4 mb-6 flex justify-center">
-                                <div className="w-full max-w-[1000px]">
-                                    <Chart
-                                        chartType="Bar"
-                                        data={chartData.totalSpendingYearly}
-                                        width="100%"
-                                        height="300px"
-                                        options={{
-                                            chart: {
-                                                subtitle: "Orçamento municipal consolidado",
-                                            },
-                                            colors: ['#3182CE'],
-                                            accessibility: {
-                                                highContrastMode: true
-                                            },
-                                            legend: {
-                                                position: 'bottom',
-                                                alignment: 'center',
-                                                textStyle: {
-                                                    fontSize: 13,
-                                                    color: '#333333'
-                                                }
-                                            },
-                                            chartArea: {
-                                                width: '80%',
-                                                height: '70%'
-                                            },
-                                            vAxis: {
-                                                format: 'short'
-                                            }
-                                        }}
-                                        legendToggle
-                                    />
-                                </div>
-                            </div>
-                        </section>
-                    )}
 
                     <section>
                         <DevelopingComponent title="Componente Tabela de Ações e Programas" />

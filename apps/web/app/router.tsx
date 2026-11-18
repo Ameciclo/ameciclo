@@ -1,5 +1,5 @@
 import { createRouter } from "@tanstack/react-router";
-import { routerWithQueryClient } from "@tanstack/react-router-with-query";
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { QueryClient } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen";
 
@@ -15,15 +15,15 @@ export function getRouter() {
     },
   });
 
-  const router = routerWithQueryClient(
-    createRouter({
-      routeTree,
-      scrollRestoration: true,
-      defaultPreload: "intent",
-      context: { queryClient },
-    }),
-    queryClient
-  );
+  const router = createRouter({
+    routeTree,
+    scrollRestoration: true,
+    defaultPreload: "intent",
+    context: { queryClient },
+  });
+
+  // Liga o cache do React Query ao SSR: os dados carregados no servidor chegam hidratados no navegador.
+  setupRouterSsrQueryIntegration({ router, queryClient });
 
   return router;
 }

@@ -8,7 +8,9 @@ const DEFAULT_CACHE_CONTROL =
 
 export default createStartHandler({
   handler: async (ctx) => {
-    const response = await defaultStreamHandler(ctx);
+    // Desde o TanStack Start 1.168 o resultado pode ser a Response ou um objeto que a carrega em `response`.
+    const result = await defaultStreamHandler(ctx);
+    const response = result instanceof Response ? result : result.response;
 
     const pathname = new URL(ctx.request.url).pathname;
     const isAsset = /\.[a-z0-9]+$/i.test(pathname);
@@ -24,6 +26,6 @@ export default createStartHandler({
       }
     }
 
-    return response;
+    return result;
   },
 });

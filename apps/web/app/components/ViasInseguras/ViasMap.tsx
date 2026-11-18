@@ -1,5 +1,6 @@
 "use client";
 // As vias com mais chamados do SAMU no Recife. Passar o mouse mostra os números; clicar escolhe a via no explorador.
+import "~/lib/maplibre-worker";
 import { useMemo, useState } from "react";
 import ReactMapGL, { Layer, NavigationControl, Popup, Source, type LayerProps, type MapLayerMouseEvent } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";

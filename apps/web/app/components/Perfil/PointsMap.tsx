@@ -1,4 +1,5 @@
 // Where the interviews were held: one circle per street corner.
+import "~/lib/maplibre-worker";
 import { useState } from "react";
 import Map, { Layer, NavigationControl, Popup, Source, type LayerProps, type MapLayerMouseEvent } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";

@@ -13,7 +13,6 @@ import { useReportApiErrors } from "~/hooks/useReportApiErrors";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { InvestmentCards } from "~/components/Loa/sections/InvestmentCards";
 import { BudgetComparisonCards } from "~/components/Loa/sections/BudgetComparisonCards";
-import { BudgetCharts } from "~/components/Loa/sections/BudgetCharts";
 import { seo } from "~/utils/seo";
 
 export const Route = createFileRoute("/dados/loa/")({
@@ -169,9 +168,6 @@ function Loa() {
                     />
                 </section>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-                    <BudgetCharts hasData={hasData} data={data} />
-                </div>
                 <section>
                     {(() => {
                                     const processedActions: LoaAction[] = actions2025.map((action: any) => {
