@@ -7,8 +7,6 @@ export const LOA_PAGE_DATA = `${CMS_BASE_URL}/api/loa?populate=*`
 export const DOM_PAGE_DATA = `${CMS_BASE_URL}/api/dom?populate=*`
 export const PROJECTS_LIST_DATA = `${CMS_BASE_URL}/api/projects?pagination[pageSize]=100&populate=media`
 
-// Strapi `plataformas-de-dados` collection filtered for the Sinistros Fatais page.
-export const OBSERVATORIO_SINISTROS_PAGE_DATA = `${CMS_BASE_URL}/api/plataformas-de-dados?filters[title][$eq]=Observatório de Sinistros Fatais&populate[0]=supportfiles&populate[1]=supportfiles.file&populate[2]=supportfiles.cover&populate[3]=cover&populate[4]=explanationbox`
 
 // LOA Atlas (RMR; PE variant was a stub that was never used).
 export const LOA_RMR_ATLAS_API = `https://loa-rmr.atlas.ameciclo.org/`
