@@ -14,7 +14,7 @@ VPS (este app) ──► Overpass     relações do PDC, trechos por lote de ids
 
 Só faz chamadas de saída. Se faltar peça, ou se o dado for velho (alguns espelhos do Overpass servem dado de meses atrás), nada é gravado.
 
-> **Em migração para o Dagu.** O coletor passa a ser compilado para `coletar-osm.mjs` (`pnpm --filter @ameciclo/collector bundle`) e roda pelo fluxo `osm-sync` do Dagu (`ops/dagu/dags/osm-sync.yaml`, semanal em `osm-sync-semanal.yaml`), com `ALVO=staging|producao`. A tarefa agendada do Coolify abaixo vale até a produção passar para o Dagu.
+> **Em migração para o Dagu.** O coletor passa a ser compilado para `coletar-osm.mjs` (`pnpm --filter @ameciclo/collector bundle`) e roda pelo fluxo `osm-ciclovias` do Dagu (`ops/dagu/dags/osm-ciclovias.yaml`, semanal em `osm-ciclovias-agenda.yaml`), com `ALVO=staging|producao`. A tarefa agendada do Coolify abaixo vale até a produção passar para o Dagu.
 
 ## Variáveis de ambiente
 
