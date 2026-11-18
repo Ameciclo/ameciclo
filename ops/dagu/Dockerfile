@@ -14,13 +14,15 @@ COPY apps/admin/package.json apps/admin/
 COPY apps/collector/package.json apps/collector/
 COPY packages/db/package.json packages/db/
 COPY packages/ui/package.json packages/ui/
-RUN pnpm install --frozen-lockfile --filter @ameciclo/db...
+RUN pnpm install --frozen-lockfile --filter @ameciclo/db... --filter @ameciclo/collector...
 COPY packages/db packages/db
-RUN pnpm --filter @ameciclo/db db:bundle-scripts
+COPY apps/collector apps/collector
+RUN pnpm --filter @ameciclo/db db:bundle-scripts && pnpm --filter @ameciclo/collector bundle
 
 FROM ghcr.io/dagucloud/dagu:latest
 COPY --from=scripts /usr/local/bin/node /usr/local/bin/node
 COPY --from=scripts /app/packages/db/dist-scripts /opt/scripts
+COPY --from=scripts /app/apps/collector/dist-scripts /opt/scripts
 COPY ops/dagu/dags /opt/dags
 COPY ops/dagu/avisar.sh ops/dagu/com-banco.sh /opt/scripts/
 # O Dagu roda como o usuário dagu e grava ao lado dos fluxos
