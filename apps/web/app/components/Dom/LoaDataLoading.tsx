@@ -5,13 +5,3 @@ export const CardLoading = () => (
     <div className="h-4 bg-gray-200 rounded-sm w-full"></div>
   </div>
 );
-
-export const ChartLoading = () => (
-  <section className="h-auto">
-    <div className="h-8 bg-gray-200 rounded-sm w-64 mb-2 animate-pulse"></div>
-    <div className="h-4 bg-gray-200 rounded-sm w-full mb-4 animate-pulse"></div>
-    <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
-      <div className="h-64 bg-gray-200 rounded-sm animate-pulse"></div>
-    </div>
-  </section>
-);

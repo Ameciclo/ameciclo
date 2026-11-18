@@ -1,94 +1,43 @@
-import { useEffect, useState } from "react";
-import LoadingSpinner from "../Ideciclo/loading/graphLoading";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@ameciclo/ui/components/chart";
+import { Legend, PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart as RechartsRadar } from "recharts";
 
-export function RadarChart({ series, categories, title = "", subtitle = "" }: any) {
-  const [chartProps, setChartProps] = useState<any>(null);
-  const [isClient, setIsClient] = useState(false);
+// O gráfico de radar do IDECiclo: uma série por avaliação (ano), uma ponta por parâmetro, notas de 0 a 10.
+type RadarSeries = { name: string | number; data: number[] };
 
+const PALETTE = ["#008080", "#E02F31", "#000000", "#DDDF00", "#24CBE5", "#64E572", "#FF9655", "#6AF9C4"];
 
-  useEffect(() => {
-    // Este useEffect roda apenas uma vez no cliente, após a hidratação.
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    // Este useEffect roda quando isClient se torna true e quando as props mudam.
-    if (isClient) {
-      const initChart = async () => {
-        try {
-          const Highcharts = (await import("highcharts")).default;
-          const HighchartsReactComponent = (await import("highcharts-react-official")).default;
-          // No Highcharts 12 os módulos se registram sozinhos ao serem importados, depois do núcleo.
-          await import("highcharts/modules/exporting");
-          await import("highcharts/highcharts-more");
-
-          const options = {
-            chart: {
-              polar: true,
-            },
-            credits: {
-              enabled: false,
-            },
-            title: {
-              text: title,
-            },
-            subtitle: {
-              text: subtitle,
-            },
-            pane: {
-              size: "70%",
-            },
-            xAxis: {
-              categories: categories,
-              tickmarkPlacement: "on",
-            },
-            yAxis: {
-              gridLineInterpolation: "polygon",
-              min: 0,
-              max: 10,
-            },
-            tooltip: {
-              shared: true,
-              pointFormat:
-                '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>',
-            },
-            colors: [
-              "#008080",
-              "#E02F31",
-              "#000000",
-              "#DDDF00",
-              "#24CBE5",
-              "#64E572",
-              "#FF9655",
-              "#FFF263",
-              "#6AF9C4",
-            ],
-            series: series,
-          };
-
-          setChartProps({
-            Highcharts: Highcharts,
-            Component: HighchartsReactComponent,
-            options: options,
-          });
-        } catch (error) {
-          console.error("RadarChart: Erro durante a inicialização do gráfico:", error);
-        }
-      };
-
-      initChart();
-    }
-  }, [isClient, series, categories, title, subtitle]);
-
-  if (!isClient || !chartProps || !chartProps.Component) {
-    return <div className="w-full p-6 h-full flex items-center justify-center"><LoadingSpinner /></div>;
-  }
-
-  const ChartComponent = chartProps.Component;
+export function RadarChart({
+  series,
+  categories,
+  title = "",
+  subtitle = "",
+}: {
+  series: RadarSeries[];
+  categories: string[];
+  title?: string;
+  subtitle?: string;
+}) {
+  // As séries são chaveadas pela posição (`s0`, `s1`...): o nome (o ano) não serve de variável CSS.
+  const config: ChartConfig = Object.fromEntries(series.map((s, i) => [`s${i}`, { label: String(s.name), color: PALETTE[i % PALETTE.length] }]));
+  const rows = categories.map((category, i) => ({ category, ...Object.fromEntries(series.map((s, j) => [`s${j}`, s.data[i]])) }));
 
   return (
-    <div className="w-full p-6 h-full">
-      <ChartComponent highcharts={chartProps.Highcharts} options={chartProps.options} />
+    <div className="h-full w-full p-6">
+      {title && <h3 className="text-center text-lg font-medium text-gray-700">{title}</h3>}
+      {subtitle && <p className="mb-2 text-center text-sm text-gray-500">{subtitle}</p>}
+      <ChartContainer config={config} className="mx-auto aspect-auto h-80 w-full">
+        <RechartsRadar data={rows} outerRadius="70%">
+          <PolarGrid gridType="polygon" />
+          <PolarAngleAxis dataKey="category" tick={{ fontSize: 11 }} />
+          <PolarRadiusAxis domain={[0, 10]} tickCount={6} axisLine={false} />
+          <ChartTooltip content={<ChartTooltipContent valueFormatter={(v) => Number(v).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} />} />
+          <Legend />
+          {series.map((s, i) => (
+            // A avaliação mais antiga (a primeira da lista) vai preenchida; as seguintes só com contorno.
+            <Radar key={`s${i}`} dataKey={`s${i}`} name={String(s.name)} stroke={`var(--color-s${i})`} fill={`var(--color-s${i})`} fillOpacity={i === 0 ? 0.25 : 0} strokeWidth={2} />
+          ))}
+        </RechartsRadar>
+      </ChartContainer>
     </div>
   );
 }
