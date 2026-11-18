@@ -1,0 +1,30 @@
+# Infraestrutura cicloviária da RMR a partir do OpenStreetMap (alimenta /dados/execucaocicloviaria e o admin).
+# Código: apps/collector/src/collect.ts, compilado para /opt/scripts/coletar-osm.mjs. Pergunta ao Overpass em
+# pedaços pequenos (cada um com retry próprio, o Overpass público recusa metade das tentativas em dia ruim),
+# confere se está tudo e recente e grava numa transação. Se faltar peça ou o dado for velho, não grava nada.
+#
+# Parâmetros: ALVO (staging ou producao: em qual banco gravar), DRY_RUN (true desfaz a transação no fim; false grava).
+# Cada execução também aparece em /infra/sincronizacoes no admin, com o resumo por município.
+description: Coleta a infraestrutura cicloviária do OpenStreetMap (Overpass) e atualiza o banco
+params:
+  - ALVO: "staging"
+  - DRY_RUN: "true"
+env:
+  - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
+  - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
+  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+  # Opcionais: e-mail de contato enviado ao Overpass, chave do R2 (guarda cada resposta) e o monitor Push do uptime-kuma.
+  - OVERPASS_CONTACT: ${OVERPASS_CONTACT}
+  - R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+  - R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+  - R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+  - KUMA_PUSH_URL: ${KUMA_PUSH_URL}
+handler_on:
+  failure:
+    run: sh /opt/scripts/avisar.sh "osm-sync (${ALVO}) falhou"
+steps:
+  - name: coletar-validar-e-gravar
+    # Por enquanto um passo só (o coletor faz as três fases); os snapshots ficam em /tmp/osm-snapshots.
+    run: sh /opt/scripts/com-banco.sh node /opt/scripts/coletar-osm.mjs
+    env:
+      - DRY_RUN: ${DRY_RUN}
