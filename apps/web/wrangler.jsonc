@@ -28,6 +28,8 @@
     "logs": {
       "enabled": true,
       "invocation_logs": true,
+      // Também exporta para o Axiom (destino criado no painel: Observability > Destinations)
+      "destinations": ["axiom-logs"],
     },
     "traces": {
       "enabled": false,
