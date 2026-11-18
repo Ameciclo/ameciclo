@@ -1,469 +1,136 @@
+import { Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import { Eye, EyeOff, Route, Users, MapPin, AlertTriangle, User, Navigation, BarChart3 } from 'lucide-react';
-import { FilterSection } from './FilterSection';
+import { Badge } from '@ameciclo/ui/components/badge';
+import { Checkbox } from '@ameciclo/ui/components/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@ameciclo/ui/components/collapsible';
+import { GROUPS, type LayerGroup, type LayerOption } from './layerCatalog';
+import type { LayerSelection } from './hooks/useLayerSelection';
 
-interface LeftSidebarProps {
-  isOpen: boolean;
-  onToggle: () => void;
-  infraOptions: Array<{ name: string; color: string; pattern: string }>;
-  selectedInfra: string[];
-  onInfraToggle: (option: string) => void;
-  onInfraToggleAll?: (options: string[], selectAll: boolean) => void;
-  contagemOptions: string[];
-  selectedContagem: string[];
-  onContagemToggle: (option: string) => void;
-  onContagemToggleAll?: (options: string[], selectAll: boolean) => void;
-  pdcOptions: Array<{ name: string; color: string; pattern: string }>;
-  selectedPdc: string[];
-  onPdcToggle: (option: string) => void;
-  onPdcToggleAll?: (options: string[], selectAll: boolean) => void;
-  infracaoOptions: string[];
-  selectedInfracao: string[];
-  onInfracaoToggle: (option: string) => void;
-  onInfracaoToggleAll?: (options: string[], selectAll: boolean) => void;
-  sinistroOptions: string[];
-  selectedSinistro: string[];
-  onSinistroToggle: (option: string) => void;
-  onSinistroToggleAll?: (options: string[], selectAll: boolean) => void;
-  estacionamentoOptions: string[];
-  selectedEstacionamento: string[];
-  onEstacionamentoToggle: (option: string) => void;
-  onEstacionamentoToggleAll?: (options: string[], selectAll: boolean) => void;
-  perfilOptions: string[];
-  selectedPerfil: string[];
-  onPerfilToggle: (option: string) => void;
-  onPerfilToggleAll?: (options: string[], selectAll: boolean) => void;
-  selectedGenero: string[];
-  onGeneroChange: (value: string) => void;
-  selectedAno: string[];
-  onAnoChange: (value: string) => void;
-  selectedArea: string;
-  onAreaChange: (value: string) => void;
-  selectedIdade: string;
-  onIdadeChange: (value: string) => void;
-  selectedRaca?: string;
-  onRacaChange?: (value: string) => void;
-  selectedSocio?: string;
-  onSocioChange?: (value: string) => void;
-  selectedDias?: string;
-  onDiasChange?: (value: string) => void;
-  onClearAll: () => void;
-  onSelectAll: () => void;
-  onReloadMapData?: () => void;
-  onReloadGeneralData?: () => void;
-  loadingStates?: {
-    infra: boolean;
-    pdc: boolean;
-    sinistros: boolean;
-    estacionamento: boolean;
-  };
+// O painel de camadas: cada grupo abre e fecha, cada opção liga e desliga uma camada do mapa. É um conjunto de
+// caixas de seleção de verdade (teclado, foco e leitor de tela vêm do Radix).
+
+// A amostra do traço de cada camada, como aparece no mapa.
+function Swatch({ option, group }: { option: LayerOption; group: LayerGroup['id'] }) {
+  if (!option.color) return null;
+  if (group === 'pdc') {
+    const dash = option.pattern === 'parallel-dashed' ? 'dashed' : option.pattern === 'parallel-orange-dashed' ? 'dashed' : option.pattern === 'striped' ? 'dotted' : 'solid';
+    return (
+      <span className="flex w-10 shrink-0 flex-col gap-0.5" aria-hidden="true">
+        <span className="border-t-2" style={{ borderTopStyle: dash, borderColor: option.color }} />
+        <span className="border-t-2" style={{ borderTopStyle: dash, borderColor: option.color }} />
+      </span>
+    );
+  }
+  const striped = option.pattern === 'arrows';
+  return (
+    <span
+      className="h-1 w-10 shrink-0 rounded-full"
+      style={{ background: striped ? `repeating-linear-gradient(90deg, #EF4444 0 4px, ${option.color} 4px 8px)` : option.color }}
+      aria-hidden="true"
+    />
+  );
 }
 
-export function LeftSidebar({
-  isOpen,
-  onToggle,
-  infraOptions,
-  selectedInfra,
-  onInfraToggle,
-  onInfraToggleAll,
-  contagemOptions,
-  selectedContagem,
-  onContagemToggle,
-  onContagemToggleAll,
-  pdcOptions,
-  selectedPdc,
-  onPdcToggle,
-  onPdcToggleAll,
-  infracaoOptions,
-  selectedInfracao,
-  onInfracaoToggle,
-  sinistroOptions,
-  selectedSinistro,
-  onSinistroToggle,
-  estacionamentoOptions,
-  selectedEstacionamento,
-  onEstacionamentoToggle,
-  onEstacionamentoToggleAll,
-  perfilOptions,
-  selectedPerfil,
-  selectedAno,
-  onAnoChange,
-  onClearAll,
-  onSelectAll,
-  loadingStates = { infra: false, pdc: false, sinistros: false, estacionamento: false }
-}: LeftSidebarProps) {
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
-  
-  const toggleSection = (sectionId: string) => {
-    // Prevenir expansão de seções "em breve"
-    const comingSoonSections = ['infracao', 'sinistro', 'rota', 'ideciclo'];
-    if (comingSoonSections.includes(sectionId) && collapsedSections.has(sectionId)) {
-      return;
-    }
-    
-    setCollapsedSections(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(sectionId)) {
-        newSet.delete(sectionId);
-      } else {
-        newSet.add(sectionId);
-      }
-      return newSet;
-    });
-  };
-  
-  const collapseAll = () => {
-    setCollapsedSections(new Set(['infraestrutura', 'contagem', 'pdc', 'infracao', 'sinistro', 'estacionamento', 'perfil', 'perfil-pontos', 'rota', 'ideciclo']));
-  };
-  
-  const expandAll = () => {
-    // Manter seções "em breve" sempre colapsadas
-    setCollapsedSections(new Set(['infracao', 'sinistro', 'rota', 'ideciclo']));
-  };
-  
-  const allCollapsed = collapsedSections.size >= 6; // Considera colapsado se 6 ou mais seções estão colapsadas (excluindo as 4 "em breve")
-  
-  // Check if ALL options are selected across all sections
-  const allOptionsSelected = 
-    selectedInfra.length === infraOptions.length &&
-    selectedContagem.length === contagemOptions.length &&
-    selectedPdc.length === pdcOptions.length &&
-    selectedInfracao.length === infracaoOptions.length &&
-    selectedSinistro.length === sinistroOptions.length &&
-    selectedEstacionamento.length === estacionamentoOptions.length &&
-    selectedPerfil.length === perfilOptions.length;
-  
-  const toggleAllOptions = () => {
-    if (allOptionsSelected) {
-      onClearAll();
-    } else {
-      onSelectAll();
-    }
-  };
+function Group({ group, selection }: { group: LayerGroup; selection: LayerSelection }) {
+  const [open, setOpen] = useState(!group.comingSoon);
+  const Icon = group.icon;
+  const on = group.options.filter((o) => selection.isOn(group.id, o.name)).length;
+
   return (
-    <aside 
-      className={`bg-gray-50 border-r transition-all duration-300 shrink-0 overflow-hidden flex flex-col ${
-        isOpen ? 'w-72' : 'w-0'
-      }`} 
-      style={{height: '100%'}}
-      role="complementary"
-      aria-label="Filtros de camadas de dados"
-    >
-      {/* Fixed header */}
-      <div className={`items-center justify-between p-3 bg-gray-50 border-b border-gray-200 shrink-0 ${
-        isOpen ? 'flex' : 'hidden md:flex flex-col gap-2'
-      }`}>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={onToggle}
-            className={`hover:bg-gray-200 rounded transition-colors ${
-              isOpen ? 'p-1' : 'p-2 w-8 h-8 flex items-center justify-center'
-            }`}
-            title={isOpen ? 'Minimizar painel de filtros' : 'Expandir painel de filtros'}
-            aria-label={isOpen ? 'Minimizar painel de filtros' : 'Expandir painel de filtros'}
-            aria-expanded={isOpen}
+    <Collapsible open={open && !group.comingSoon} onOpenChange={setOpen} className="rounded-lg border bg-white">
+      <div className="flex items-center gap-1 pr-1">
+        <CollapsibleTrigger
+          disabled={group.comingSoon}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-lg p-2.5 text-left text-sm font-medium text-gray-800 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-default disabled:text-gray-400"
+        >
+          <Icon className="size-4 shrink-0" aria-hidden="true" />
+          <span className="min-w-0 flex-1">{group.title}</span>
+          {group.comingSoon ? (
+            <Badge variant="secondary">Em breve</Badge>
+          ) : (
+            <ChevronDown className={`size-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
+          )}
+        </CollapsibleTrigger>
+        {!group.comingSoon && (
+          <button
+            type="button"
+            onClick={() => selection.setAll(on < group.options.length, group.id)}
+            className="rounded-sm p-1 text-gray-500 hover:text-gray-900"
+            aria-label={on > 0 ? `Ocultar tudo em ${group.title}` : `Exibir tudo em ${group.title}`}
+            title={on > 0 ? 'Ocultar tudo' : 'Exibir tudo'}
           >
-            <svg className={`w-4 h-4 transition-transform ${
-              isOpen ? '' : 'rotate-180'
-            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            {on > 0 ? <Eye className="size-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="size-4" aria-hidden="true" />}
           </button>
-          {isOpen && <h2 className="font-semibold text-gray-800">Camadas de dados</h2>}
-        </div>
-        {isOpen && (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={toggleAllOptions}
-              className="hover:bg-gray-200 rounded-sm transition-colors p-1"
-              title={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
-              aria-label={allOptionsSelected ? "Ocultar todas as camadas do mapa" : "Exibir todas as camadas no mapa"}
-            >
-              {allOptionsSelected ? <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" /> : <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" />}
-            </button>
-            <button
-              onClick={allCollapsed ? expandAll : collapseAll}
-              className="hover:bg-gray-200 rounded-sm transition-colors p-1"
-              title={allCollapsed ? 'Expandir todas as seções de filtros' : 'Minimizar todas as seções de filtros'}
-              aria-label={allCollapsed ? 'Expandir todas as seções de filtros' : 'Minimizar todas as seções de filtros'}
-              aria-expanded={!allCollapsed}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                {allCollapsed ? (
-                  // Expand icon - chevrons pointing down
-                  <>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 3l6 6 6-6" />
-                  </>
-                ) : (
-                  // Collapse icon - chevrons pointing up
-                  <>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 15l-6-6-6 6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 21l-6-6-6 6" />
-                  </>
-                )}
-              </svg>
-            </button>
-          </div>
         )}
       </div>
-      
-      {/* Scrollable content */}
-      {isOpen && (
-        <div className="flex-1 overflow-y-auto">
-          <div className="px-3 py-3">
-            <div className="space-y-2">
-              <FilterSection
-                title={<div className="flex items-center gap-2"><Route className="w-4 h-4" />Infraestrutura cicloviária</div>}
-                options={infraOptions}
-                selectedOptions={selectedInfra}
-                onToggle={onInfraToggle}
-                onToggleAll={onInfraToggleAll}
-                hasPattern={true}
-                isCollapsed={collapsedSections.has('infraestrutura')}
-                onToggleCollapse={() => toggleSection('infraestrutura')}
-                loadingOptions={loadingStates?.infra ? infraOptions.map(opt => opt.name) : []}
-              />
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><Users className="w-4 h-4" />Contagem de ciclistas</div>}
-                options={contagemOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedContagem}
-                onToggle={onContagemToggle}
-                onToggleAll={onContagemToggleAll}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('contagem')}
-                onToggleCollapse={() => toggleSection('contagem')}
-              />
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><MapPin className="w-4 h-4" />Plano Diretor Cicloviário</div>}
-                options={pdcOptions}
-                selectedOptions={selectedPdc}
-                onToggle={onPdcToggle}
-                onToggleAll={onPdcToggleAll}
-                hasPattern={true}
-                isPdc={true}
-                isCollapsed={collapsedSections.has('pdc')}
-                onToggleCollapse={() => toggleSection('pdc')}
-                loadingOptions={loadingStates?.pdc ? pdcOptions.map(opt => opt.name) : []}
-              />
-              
-              <div className="bg-white rounded-sm border" role="region" aria-labelledby="estacionamento-heading">
-                <div className="p-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => onEstacionamentoToggleAll?.(estacionamentoOptions, selectedEstacionamento.length === 0)}
-                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                        title={selectedEstacionamento.length > 0 ? 'Ocultar todas as opções de estacionamento' : 'Exibir todas as opções de estacionamento'}
-                        aria-label={selectedEstacionamento.length > 0 ? 'Ocultar todas as opções de estacionamento' : 'Exibir todas as opções de estacionamento'}
-                      >
-                        {selectedEstacionamento.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                      </button>
-                      <span id="estacionamento-heading" className="font-medium">∩ Estacionamento e compartilhamento</span>
-                    </div>
-                    <button 
-                      onClick={() => toggleSection('estacionamento')}
-                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                      title={collapsedSections.has('estacionamento') ? 'Expandir seção de estacionamento' : 'Minimizar seção de estacionamento'}
-                      aria-label={collapsedSections.has('estacionamento') ? 'Expandir seção de estacionamento' : 'Minimizar seção de estacionamento'}
-                      aria-expanded={!collapsedSections.has('estacionamento')}
-                    >
-                      <svg 
-                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('estacionamento') ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                {!collapsedSections.has('estacionamento') && (
-                  <div className="px-2 pb-2 space-y-1">
-                    {estacionamentoOptions.map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => onEstacionamentoToggle(option)}
-                        className={`w-full flex items-center gap-2 p-2 rounded transition-all duration-200 text-left ${
-                          selectedEstacionamento.includes(option)
-                            ? 'bg-teal-50 border border-teal-200 shadow-xs'
-                            : 'hover:bg-gray-50 border border-transparent'
-                        }`}
-                        title={selectedEstacionamento.includes(option) ? `Ocultar ${option.toLowerCase()}` : `Exibir ${option.toLowerCase()}`}
-                        aria-label={selectedEstacionamento.includes(option) ? `Ocultar ${option}` : `Exibir ${option}`}
-                        aria-pressed={selectedEstacionamento.includes(option)}
-                      >
-                        <div className="shrink-0">
-                          {selectedEstacionamento.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                        </div>
-                        <div className="flex items-center justify-between flex-1">
-                          <span className={`text-sm transition-colors ${selectedEstacionamento.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>{option}</span>
-                          {option === 'Bicicletários' && (
-                            <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
-                              <span className="text-white font-black text-[10px]" style={{textShadow: '0 0 1px white'}}>∩</span>
-                            </div>
-                          )}
-                          {option === 'Estações de Bike PE' && (
-                            <div className="bg-orange-500 rounded-full w-4 h-4 flex items-center justify-center shadow-md">
-                              <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M5 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm14 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm-7-8c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm5.5 2.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm-11 0c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div className="bg-white rounded-sm border" role="region" aria-labelledby="perfil-heading">
-                <div className="p-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => {
-                          const allYears = ["2024", "2021", "2018", "2015"];
-                          const allSelected = selectedAno.length === 4;
-                          if (allSelected) {
-                            allYears.forEach(year => onAnoChange(year));
-                          } else {
-                            allYears.forEach(year => {
-                              if (!selectedAno.includes(year)) onAnoChange(year);
-                            });
-                          }
-                        }}
-                        className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                        title={selectedAno.length > 0 ? 'Ocultar todos os anos de edições de perfil de ciclista' : 'Exibir todos os anos de edições de perfil de ciclista'}
-                        aria-label={selectedAno.length > 0 ? 'Ocultar todos os anos' : 'Exibir todos os anos'}
-                      >
-                        {selectedAno.length > 0 ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                      </button>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" aria-hidden="true" />
-                        <span id="perfil-heading" className="font-medium">Perfil de ciclistas</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => toggleSection('perfil-pontos')}
-                      className="hover:bg-gray-50 rounded-sm p-1 transition-colors"
-                      title={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
-                      aria-label={collapsedSections.has('perfil-pontos') ? 'Expandir filtros de perfil' : 'Minimizar filtros de perfil'}
-                      aria-expanded={!collapsedSections.has('perfil-pontos')}
-                    >
-                      <svg 
-                        className={`w-4 h-4 transition-transform ${!collapsedSections.has('perfil-pontos') ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                {!collapsedSections.has('perfil-pontos') && (
-                  <div className="px-2 pb-2 space-y-1">
-                    {["2024", "2021", "2018", "2015"].map((option) => (
-                      <div
-                        key={option}
-                        onClick={() => onAnoChange(option)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            onAnoChange(option);
-                          }
-                        }}
-                        className={`flex items-center gap-2 p-2 rounded transition-all duration-200 cursor-pointer ${
-                          selectedAno.includes(option)
-                            ? 'bg-teal-50 border border-teal-200 shadow-xs'
-                            : 'hover:bg-gray-50 border border-transparent'
-                        }`}
-                        role="button"
-                        tabIndex={0}
-                        title={selectedAno.includes(option) ? `Ocultar edição ${option}` : `Exibir edição ${option}`}
-                        aria-label={`${selectedAno.includes(option) ? 'Ocultar' : 'Exibir'} edição ${option}`}
-                        aria-pressed={selectedAno.includes(option)}
-                      >
-                        <div className="shrink-0">
-                          {selectedAno.includes(option) ? <Eye className="w-4 h-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-                        </div>
-                        <span className={`text-sm transition-colors ${selectedAno.includes(option) ? 'text-teal-700 font-medium' : 'text-gray-700'}`}>Edição {option}</span>
-                        <div className="ml-auto bg-purple-500 text-white px-2 py-0.5 rounded-sm shadow-xs border border-purple-700 flex items-center gap-1">
-                          <User className="w-2.5 h-2.5 text-white" aria-hidden="true" />
-                          <span className="text-[9px] font-medium">{option}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Infrações de Trânsito</div>}
-                options={infracaoOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedInfracao}
-                onToggle={onInfracaoToggle}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('infracao')}
-                onToggleCollapse={() => toggleSection('infracao')}
-                comingSoon={true}
-              />
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Sinistro com vítima</div>}
-                options={sinistroOptions.map(opt => ({ name: opt }))}
-                selectedOptions={selectedSinistro}
-                onToggle={onSinistroToggle}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('sinistro')}
-                onToggleCollapse={() => toggleSection('sinistro')}
-                comingSoon={true}
-              />
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><Navigation className="w-4 h-4" />Rota</div>}
-                options={[{ name: "Em breve" }]}
-                selectedOptions={[]}
-                onToggle={() => {}}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('rota')}
-                onToggleCollapse={() => toggleSection('rota')}
-                comingSoon={true}
-              />
-              
-              <FilterSection
-                title={<div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />IDECiclo</div>}
-                options={[{ name: "Em breve" }]}
-                selectedOptions={[]}
-                onToggle={() => {}}
-                hasPattern={false}
-                isCollapsed={collapsedSections.has('ideciclo')}
-                onToggleCollapse={() => toggleSection('ideciclo')}
-                comingSoon={true}
-              />
-            </div>
-          </div>
+      <CollapsibleContent>
+        <ul className="space-y-0.5 px-2.5 pb-2.5">
+          {group.options.map((option) => {
+            const checkboxId = `camada-${group.id}-${option.name}`;
+            return (
+              <li key={option.name}>
+                <label htmlFor={checkboxId} className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1.5 text-sm text-gray-700 hover:bg-gray-50">
+                  <Checkbox id={checkboxId} checked={selection.isOn(group.id, option.name)} onCheckedChange={() => selection.toggle(group.id, option.name)} />
+                  <span className="min-w-0 flex-1">{group.id === 'perfil' ? `Edição ${option.name}` : option.name}</span>
+                  <Swatch option={option} group={group.id} />
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+export function LeftSidebar({ selection }: { selection: LayerSelection }) {
+  const { sidebarOpen: isOpen, setSidebarOpen, allOn, setAll } = selection;
+
+  return (
+    <aside
+      className={`flex shrink-0 flex-col overflow-hidden border-r bg-gray-50 transition-all duration-300 ${isOpen ? 'w-72' : 'w-0'}`}
+      style={{ height: '100%' }}
+      aria-label="Camadas de dados"
+    >
+      <div className="flex shrink-0 items-center justify-between border-b border-gray-200 p-3">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="rounded p-1 hover:bg-gray-200"
+            aria-label="Minimizar o painel de camadas"
+            aria-expanded={isOpen}
+          >
+            <ChevronLeft className="size-4" aria-hidden="true" />
+          </button>
+          <h2 className="font-semibold text-gray-800">Camadas de dados</h2>
         </div>
-      )}
-      
-      {/* Floating toggle button when minimized - mais visível no mobile */}
+        <button
+          type="button"
+          onClick={() => setAll(!allOn)}
+          className="rounded-sm p-1 hover:bg-gray-200"
+          aria-label={allOn ? 'Ocultar todas as camadas do mapa' : 'Exibir todas as camadas no mapa'}
+          title={allOn ? 'Ocultar todas as camadas' : 'Exibir todas as camadas'}
+        >
+          {allOn ? <Eye className="size-4 text-teal-600" aria-hidden="true" /> : <EyeOff className="size-4 text-gray-400" aria-hidden="true" />}
+        </button>
+      </div>
+
+      <div className="flex-1 space-y-2 overflow-y-auto p-3">
+        {GROUPS.map((group) => (
+          <Group key={group.id} group={group} selection={selection} />
+        ))}
+      </div>
+
       {!isOpen && (
-        <button 
-          onClick={onToggle}
-          className="fixed top-1/2 -translate-y-1/2 left-2 md:left-4 z-60 bg-blue-500 md:bg-white border-2 border-blue-500 rounded-full p-3 md:p-2 shadow-xl hover:bg-blue-600 md:hover:bg-gray-100 transition-colors"
-          title="Expandir painel de filtros de camadas"
-          aria-label="Expandir painel de filtros de camadas"
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          className="fixed left-2 top-1/2 z-60 -translate-y-1/2 rounded-full border-2 border-blue-500 bg-blue-500 p-3 shadow-xl hover:bg-blue-600 md:left-4 md:bg-white md:p-2 md:hover:bg-gray-100"
+          aria-label="Expandir o painel de camadas"
           aria-expanded="false"
         >
-          <svg className="w-6 h-6 md:w-4 md:h-4 text-white md:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <ChevronRight className="size-6 text-white md:size-4 md:text-gray-700" aria-hidden="true" />
         </button>
       )}
     </aside>

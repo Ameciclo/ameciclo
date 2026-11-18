@@ -34,3 +34,4 @@ export * from "./samu/streets";
 export * from "./places/read";
 export * from "./ciclodados";
 export * from "./ciclodados-point";
+export * from "./streets-search";

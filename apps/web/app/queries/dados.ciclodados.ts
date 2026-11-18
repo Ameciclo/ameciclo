@@ -9,6 +9,7 @@ import type {
   PerfilPointRow,
   PlacesFeatureCollection,
   PointInfo,
+  StreetHit,
 } from "@ameciclo/db";
 
 // CicloDados: as camadas do mapa e o resumo de um ponto, do banco. Cada camada é independente: se uma falha, só ela some
@@ -114,4 +115,15 @@ export const prefeituraCountsQueryOptions = () =>
       return response.json();
     },
     staleTime: Infinity,
+  });
+
+// ---- Busca de rua (malha viária da Prefeitura, no banco) -------------------------------------------------------------
+
+const StreetSearchInput = z.object({ query: z.string().min(2).max(80) });
+
+export const searchStreetsFn = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => StreetSearchInput.parse(input))
+  .handler(async ({ data }): Promise<StreetHit[]> => {
+    const { searchStreets } = await import("@ameciclo/db");
+    return (await layer("busca-de-rua", (db) => searchStreets(db, data.query))) ?? [];
   });

@@ -6,10 +6,9 @@ import { MapPin, Bike, UserCheck } from 'lucide-react';
 import { createClusters } from './utils/clustering';
 import { useBicicletarios } from './hooks/useBicicletarios';
 import { useBikePE } from './hooks/useBikePE';
-import { useInfraCicloviaria } from './hooks/useInfraCicloviaria';
+import { useCyclingMap } from './hooks/useCyclingMap';
+import { buildCyclingLayers } from './utils/cyclingLayers';
 import { usePontosContagem } from './hooks/usePontosContagem';
-import { useExecucaoCicloviaria } from './hooks/useExecucaoCicloviaria';
-import { useSinistros } from './hooks/useSinistros';
 import { usePerfilPoints } from './hooks/usePerfilPoints';
 import { ApiStatusIndicator } from './ApiStatusIndicator';
 import { PointInfoPopup } from './PointInfoPopup';
@@ -21,29 +20,19 @@ interface MapViewProps {
   selectedPdc: string[];
   selectedContagem: string[];
   selectedEstacionamento: string[];
-  selectedSinistro: string[];
-  selectedPerfil: string[];
-  selectedGenero: string[];
   selectedAno: string[];
   selectedArea?: string;
   selectedIdade?: string;
   selectedRaca?: string;
   selectedSocio?: string;
   selectedDias?: string;
-  infraOptions: Array<{ name: string; color: string; pattern: string }>;
-  pdcOptions: Array<{ name: string; color: string; pattern: string; apiKey?: string }>;
-  layersConf: any[];
-  infraData: any;
-  pdcData: any;
+  pdcOptions: Array<{ name: string; apiKey: string }>;
   contagemData: any;
   getContagemIcon: (count: number) => React.ReactNode;
-  bicicletarios: any;
   onPointClick?: (point: any) => void;
   externalViewState?: {latitude: number, longitude: number, zoom: number};
   onMapMove?: (viewState: {latitude: number, longitude: number, zoom: number}) => void;
   highlightedStreet?: any;
-  streetData?: any;
-  selectedStreetFilter?: string | null;
   perfilCiclistasData?: any;
   autoOpenPopup?: {lat: number, lng: number} | null;
   onPopupOpened?: () => void;
@@ -57,26 +46,19 @@ export function MapView({
   selectedPdc,
   selectedContagem,
   selectedEstacionamento,
-  selectedSinistro,
-  selectedPerfil,
-  selectedGenero,
   selectedAno,
   selectedRaca,
   selectedSocio,
   selectedDias,
-  layersConf,
-  infraData,
-  pdcData,
   contagemData,
   pdcOptions,
   externalViewState,
   onMapMove,
   highlightedStreet,
-  selectedStreetFilter,
   perfilCiclistasData,
   autoOpenPopup,
   onPopupOpened
-}: Omit<MapViewProps, 'bicicletarios'> & { pdcOptions: Array<{ name: string; apiKey: string }>; perfilCiclistasData?: any }) {
+}: MapViewProps & { perfilCiclistasData?: any }) {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPoints, setSelectedPoints] = useState<Array<{ lat: number; lng: number; id: string }>>([]);
@@ -140,14 +122,17 @@ export function MapView({
   // Usar hooks com bounds para filtrar dados apenas no cliente
   const { data: filteredBicicletarios, error: bicicletariosError } = useBicicletarios(isClient ? viewportBounds : undefined);
   const { data: filteredBikePE, error: bikePEError } = useBikePE(isClient ? viewportBounds : undefined);
-  const { data: infraCicloviaria, error: infraError } = useInfraCicloviaria(isClient ? viewportBounds : undefined);
+  const { data: cyclingMap, error: cyclingError } = useCyclingMap();
+  const infraCicloviaria = cyclingMap;
+  const execucaoCicloviaria = cyclingMap;
+  const infraError = cyclingError;
+  const execucaoError = cyclingError;
+  const selectedPdcKeys = selectedPdc.flatMap((name) => pdcOptions.find((opt) => opt.name === name)?.apiKey ?? []);
   const { data: pontosContagem, error: pontosContagemError } = usePontosContagem(); // Sem filtro de bounds
-  const { data: execucaoCicloviaria, error: execucaoError } = useExecucaoCicloviaria(isClient ? viewportBounds : undefined);
-  const { data: sinistrosData, error: sinistrosError } = useSinistros(isClient ? viewportBounds : undefined);
   const { error: perfilError } = usePerfilPoints(
     isClient ? viewportBounds : undefined,
     {
-      anos: selectedGenero, // as edições da pesquisa marcadas
+      anos: selectedAno,
       raca: selectedRaca,
       socio: selectedSocio,
       dias: selectedDias
@@ -214,7 +199,7 @@ export function MapView({
     }
 
     // Perfil loading/rendered state
-    if (selectedPerfil.length > 0) {
+    if (selectedAno.length > 0) {
       if (perfilCiclistasError) {
       } else if (perfilCiclistas?.features?.length > 0) {
       } else if (perfilCiclistasLoading) {
@@ -224,7 +209,7 @@ export function MapView({
 
     setLoadingLayers(newLoadingLayers);
   }, [
-    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedPerfil,
+    selectedInfra, selectedPdc, selectedEstacionamento, selectedContagem, selectedAno,
     infraCicloviaria, execucaoCicloviaria, filteredBicicletarios, filteredBikePE, pontosContagem, contagemData, perfilCiclistas,
     infraError, execucaoError, bicicletariosError, bikePEError, pontosContagemError, perfilCiclistasError, perfilCiclistasLoading
   ]);
@@ -238,7 +223,6 @@ export function MapView({
   if (infraError) dataErrors.push({ type: 'infraestrutura', message: infraError });
   if (pontosContagemError) dataErrors.push({ type: 'pontos-contagem', message: pontosContagemError });
   if (execucaoError) dataErrors.push({ type: 'execucao-cicloviaria', message: execucaoError });
-  if (sinistrosError) dataErrors.push({ type: 'sinistros', message: sinistrosError });
   if (perfilError) dataErrors.push({ type: 'perfil', message: perfilError });
   if (perfilCiclistasError) dataErrors.push({ type: 'perfil-ciclistas', message: perfilCiclistasError });
 
@@ -472,50 +456,17 @@ export function MapView({
           window.history.pushState({}, '', url.toString());
         }}
           layerData={(() => {
-            // Quando há filtro de rua selecionada, mostrar todos os dados (não filtrar por área)
-            const filterByStreetArea = (features: any[]) => {
-              // Se não há filtro de rua ou não há features, retornar como está
-              if (!selectedStreetFilter || !features) return features;
-              
-              // Quando há filtro de rua, retornar todas as features para mostrar no mapa
-              return features;
-            };
+            // Os trechos de via entram uma vez só; cada camada (utils/cyclingLayers.ts) filtra pelo que está marcado.
+            const cyclingFeatures = (cyclingMap?.features ?? []).filter(
+              ({ properties: { infra_type, status } }) =>
+                (infra_type !== null && selectedInfra.includes(infra_type)) || (status !== null && selectedPdcKeys.includes(status)),
+            );
             
-            // Filtrar infraestrutura por tipos selecionados e área
-            let filteredInfraFeatures = infraCicloviaria?.features?.filter((feature: any) => 
-              selectedInfra.includes(feature.properties.infra_type)
-            ) || [];
-            filteredInfraFeatures = filterByStreetArea(filteredInfraFeatures);
             
-            // Filtrar execução cicloviária por status selecionados e área
-            const selectedPdcApiKeys = selectedPdc.map(name => {
-              const option = pdcOptions.find(opt => opt.name === name);
-              return option?.apiKey;
-            }).filter(Boolean);
-            
-            let filteredExecucaoFeatures = (!execucaoError && execucaoCicloviaria?.features) ? 
-              execucaoCicloviaria.features.filter((feature: any) => 
-                selectedPdcApiKeys.includes(feature.properties.status)
-              ) : [];
-            filteredExecucaoFeatures = filterByStreetArea(filteredExecucaoFeatures);
-            
-            // Filtrar sinistros por tipos selecionados e área
-            let filteredSinistrosFeatures = sinistrosData?.features?.filter((feature: any) => 
-              selectedSinistro.includes(feature.properties.type)
-            ) || [];
-            filteredSinistrosFeatures = filterByStreetArea(filteredSinistrosFeatures);
-            
-            // Aplicar filtro de área aos dados gerados
-            let infraDataFiltered = filterByStreetArea(infraData?.features || []);
-            let pdcDataFiltered = filterByStreetArea(pdcData?.features || []);
             
             const allFeatures = [
-              ...infraDataFiltered,
-              ...pdcDataFiltered,
               ...(highlightedStreet?.features || []),
-              ...filteredInfraFeatures,
-              ...filteredExecucaoFeatures,
-              ...filteredSinistrosFeatures
+              ...cyclingFeatures,
             ];
             
             return allFeatures.length > 0 ? {
@@ -524,326 +475,8 @@ export function MapView({
             } : undefined;
           })()}
         layersConf={[
-          ...(layersConf || []),
-          // PDC layers - double lines that embrace infrastructure (apenas se não houver erro)
-          // Só mostrar se não há filtro de rua ou se há dados na área
-          ...(!execucaoError && execucaoCicloviaria?.features && selectedPdc.length > 0 ? [
-            // PDC Não Realizado - double pink dotted lines (renderizar primeiro, ficar embaixo)
-            {
-              id: 'pdc-nao-realizado-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
-              paint: {
-                'line-color': '#EC4899',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [0.1, 3],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'pdc-nao-realizado-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_nao_realizado'],
-              paint: {
-                'line-color': '#EC4899',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [0.1, 3],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            // PDC Realizado Designado - double green lines
-            {
-              id: 'pdc-realizado-designado-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
-              paint: {
-                'line-color': '#10B981',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'pdc-realizado-designado-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_designado'],
-              paint: {
-                'line-color': '#10B981',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            // PDC Realizado Não Designado - double dashed purple lines
-            {
-              id: 'pdc-realizado-nao-designado-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
-              paint: {
-                'line-color': '#8B5CF6',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [4, 2],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'pdc-realizado-nao-designado-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'pdc_realizado_nao_designado'],
-              paint: {
-                'line-color': '#8B5CF6',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [4, 2],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            // Realizado Fora PDC - double orange lines
-            {
-              id: 'realizado-fora-pdc-left',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
-              paint: {
-                'line-color': '#F59E0B',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [2, 2],
-                'line-offset': -4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'realizado-fora-pdc-right',
-              type: 'line',
-              filter: ['==', ['get', 'status'], 'realizado_fora_pdc'],
-              paint: {
-                'line-color': '#F59E0B',
-                'line-width': 2,
-                'line-opacity': [
-                  'interpolate',
-                  ['linear'],
-                  ['get', 'pulse'],
-                  0, 0.3,
-                  100, 1.0
-                ],
-                'line-dasharray': [2, 2],
-                'line-offset': 4
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-          ] : []),
+          ...buildCyclingLayers(selectedInfra, selectedPdcKeys),
 
-          ...(!infraError && infraCicloviaria?.features && selectedInfra.length > 0 ? [
-            {
-              id: 'infra-ciclovia',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclovia'],
-              paint: {
-                'line-color': '#EF4444',
-                'line-width': 4,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'infra-ciclofaixa',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclofaixa'],
-              paint: {
-                'line-color': '#6B7280',
-                'line-width': 3,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'infra-ciclorrota',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
-              paint: {
-                'line-color': '#9CA3AF',
-                'line-width': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  10, 2,
-                  16, 6,
-                  20, 12
-                ],
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'infra-ciclorrota-stripes',
-              type: 'symbol',
-              filter: ['==', ['get', 'infra_type'], 'Ciclorrota'],
-              paint: {
-                'text-color': '#EF4444',
-                'text-opacity': 0.8
-              },
-              layout: {
-                'symbol-placement': 'line',
-                'symbol-spacing': 20,
-                'text-field': '█',
-                'text-size': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  10, 2,
-                  16, 4,
-                  20, 8
-                ],
-                'text-rotation-alignment': 'map',
-                'text-pitch-alignment': 'viewport',
-                'text-offset': [0, 0]
-              }
-            },
-            {
-              id: 'infra-calcada',
-              type: 'line',
-              filter: ['==', ['get', 'infra_type'], 'Calçada compartilhada'],
-              paint: {
-                'line-color': '#10B981',
-                'line-width': 3,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            }
-          ] : []),
-
-          // Sinistros - Vias Perigosas (apenas se não houver erro)
-          ...(!sinistrosError && sinistrosData?.features && selectedSinistro.length > 0 ? [
-            {
-              id: 'vias-perigosas-high',
-              type: 'line',
-              filter: ['==', ['get', 'severity'], 'high'],
-              paint: {
-                'line-color': '#DC2626',
-                'line-width': 6,
-                'line-opacity': 0.9
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'vias-perigosas-medium',
-              type: 'line',
-              filter: ['==', ['get', 'severity'], 'medium'],
-              paint: {
-                'line-color': '#F59E0B',
-                'line-width': 5,
-                'line-opacity': 0.8
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            },
-            {
-              id: 'vias-perigosas-low',
-              type: 'line',
-              filter: ['==', ['get', 'severity'], 'low'],
-              paint: {
-                'line-color': '#FBBF24',
-                'line-width': 4,
-                'line-opacity': 0.7
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              }
-            }
-          ] : [])
         ]}
         pointsData={[
           // Pontos de contagem da prefeitura via hook direto (renderizar primeiro, ficar embaixo)
@@ -1140,7 +773,7 @@ export function MapView({
               }) : []),
 
           // Pontos de Perfil de Ciclistas (Nova API)
-          ...(isClient && selectedPerfil.length > 0 && selectedAno.length > 0 && perfilCiclistas?.features && Array.isArray(perfilCiclistas.features) ? (() => {
+          ...(isClient && selectedAno.length > 0 && perfilCiclistas?.features && Array.isArray(perfilCiclistas.features) ? (() => {
             const filteredFeatures = perfilCiclistas.features.filter((point: any) => selectedAno.includes(point.properties.survey_year));
             
             return createClusters(

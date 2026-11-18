@@ -40,11 +40,8 @@ export function ApiStatusIndicator({ errors, onReload }: ApiStatusIndicatorProps
       className="absolute bottom-4 right-24 z-40 bg-white rounded-lg shadow-lg border border-gray-200 min-w-[280px]"
       data-testid="api-status-indicator"
     >
-      <div 
-        className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between hover:bg-gray-50">
+        <button type="button" aria-expanded={isExpanded} onClick={() => setIsExpanded(!isExpanded)} className="flex flex-1 items-center gap-2 p-3 text-left">
           {hasErrors ? (
             <XCircle className="w-5 h-5 text-red-500" />
           ) : (
@@ -58,14 +55,16 @@ export function ApiStatusIndicator({ errors, onReload }: ApiStatusIndicatorProps
               {errors.length} erro{errors.length > 1 ? 's' : ''}
             </span>
           )}
-        </div>
-        <div className="flex items-center gap-1">
+          {isExpanded ? (
+            <ChevronUp className="w-4 h-4 text-gray-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-gray-400" />
+          )}
+        </button>
+        <div className="flex items-center gap-1 pr-3">
           {onReload && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReload();
-              }}
+              onClick={handleReload}
               disabled={isReloading}
               className="text-blue-500 hover:text-blue-600 disabled:text-gray-400 p-1 rounded-sm transition-colors"
               title="Recarregar dados"
@@ -74,19 +73,12 @@ export function ApiStatusIndicator({ errors, onReload }: ApiStatusIndicatorProps
             </button>
           )}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setDismissed(true);
-            }}
+            onClick={() => setDismissed(true)}
+            aria-label="Fechar o status dos dados"
             className="text-gray-400 hover:text-gray-600 text-xs px-1"
           >
             ✕
           </button>
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-gray-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          )}
         </div>
       </div>
       
