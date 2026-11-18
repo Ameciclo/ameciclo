@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { isServer, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { isServer, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import Banner from "~/components/Commom/Banner";
 import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import ViasObservatorio from "~/components/ViasInseguras/ViasObservatorio";
-import { resolveViasPeriod, viasQueryOptions } from "~/queries/dados.vias-inseguras";
+import { resolveViasPeriod, VIAS_RANKING_KEY, viasQueryOptions } from "~/queries/dados.vias-inseguras";
 import { seo } from "~/utils/seo";
 
 // ?de=2020&ate=2024&via=avenida-caxanga. O que faltar ou não existir volta ao padrão: todos os anos, nenhuma via.
@@ -19,10 +19,12 @@ export const Route = createFileRoute("/dados/viasinseguras/")({
   validateSearch: SearchSchema,
   loaderDeps: ({ search }) => ({ de: search.de, ate: search.ate }),
   loader: async ({ context: { queryClient }, deps }) => {
-    // No servidor espera, para a primeira renderização já vir completa; no navegador não espera.
-    const view = queryClient.ensureQueryData(viasQueryOptions({ from: deps.de, to: deps.ate }));
-    if (isServer) await view;
-    else void view.catch(() => undefined);
+    const query = viasQueryOptions({ from: deps.de, to: deps.ate });
+    // Espera no servidor e na primeira visita (a página precisa de dados para aparecer); ao mudar o período, não: a tela
+    // antiga fica (esmaecida) até o ranking novo chegar, em vez de a página inteira piscar em "carregando".
+    const hasRanking = queryClient.getQueriesData({ queryKey: VIAS_RANKING_KEY }).some(([, d]) => d !== undefined);
+    if (isServer || !hasRanking) await queryClient.ensureQueryData(query);
+    else void queryClient.prefetchQuery(query);
   },
   head: () =>
     seo({
@@ -41,10 +43,9 @@ export const Route = createFileRoute("/dados/viasinseguras/")({
 function ViasInsegurasPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data: first } = useSuspenseQuery(viasQueryOptions({ from: search.de, to: search.ate }));
-  // Ao mudar o período, mostra o anterior (esmaecido) até o novo chegar.
+  // Sem Suspense: ao mudar o período, o ranking anterior continua na tela (esmaecido) até o novo chegar.
   const { data, isPlaceholderData } = useQuery(viasQueryOptions({ from: search.de, to: search.ate }));
-  const view = (data ?? first).view;
+  const view = data?.view ?? null;
   const period = view ? resolveViasPeriod(view.years, search) : { from: 0, to: 0 };
 
   return (

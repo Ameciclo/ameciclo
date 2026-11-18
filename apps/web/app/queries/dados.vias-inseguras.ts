@@ -9,6 +9,8 @@ import { slugify } from "~/utils/slugify";
 
 // As vias que aparecem no mapa (o ranking tem mais; o traçado de todas pesaria demais).
 export const MAP_STREETS = 50;
+// Prefixo da chave do ranking (uma entrada por período), para saber se já há algum no cache.
+export const VIAS_RANKING_KEY = ["dados", "vias-inseguras", "ranking"] as const;
 export const RANKING_STREETS = 150;
 
 // Até onde vale mostrar "chamados por km" (definido no banco: vias curtas ou com poucos chamados ficam sem o valor).
@@ -41,7 +43,7 @@ const fetchVias = createServerFn({ method: "GET" })
 
 export const viasQueryOptions = (input: z.infer<typeof ViasInput>) =>
   queryOptions({
-    queryKey: ["dados", "vias-inseguras", input],
+    queryKey: [...VIAS_RANKING_KEY, input],
     queryFn: () => fetchVias({ data: input }),
     staleTime: 10 * 60 * 1000,
     placeholderData: keepPreviousData,
