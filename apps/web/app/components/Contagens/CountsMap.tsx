@@ -59,9 +59,6 @@ export const getInicialViewPort = (pointsData: any, layerData: any) => {
         }
 
         // Calcular bounds usando padding como no original
-        const padding = 40;
-        const width = 400;
-        const height = 500;
         
         // Simular fitBounds do WebMercatorViewport
         const centerLng = (minX + maxX) / 2;
@@ -105,8 +102,6 @@ export const dropIcon = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-
 c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
 C20.1,15.8,20.2,15.8,20.2,15.7z`;
 
-export const standartDropIconSize = 20;
-
 export const CountsMap = ({
     layerData,
     layersConf,
@@ -127,9 +122,7 @@ export const CountsMap = ({
     const [selectedPoint, setSelectedPoint] = useState<pointData | undefined>(undefined);
     const [hoveredPoint, setHoveredPoint] = useState<pointData | undefined>(undefined);
     const [viewport, setViewport] = useState(inicialViewPort);
-    const [settings, setsettings] = useState({ ...mapInicialState });
-
-
+    const [settings] = useState({ ...mapInicialState });
 
     const [markerVisibility, setMarkerVisibility]: any = useState(
         pointsData?.reduce((obj, marker) => ({ ...obj, [marker.key]: true }), {})
@@ -215,8 +208,6 @@ export const CountsMap = ({
         </section>
     );
 };
-
-
 
 const MapMarker = ({ size = 20, icon, color = "#008888" }: any) => (
     <div

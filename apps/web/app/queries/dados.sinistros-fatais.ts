@@ -38,8 +38,6 @@ const fetchOverview = createServerFn({ method: "GET" }).handler(async () => {
   };
 });
 
-export type SinistrosOverview = Awaited<ReturnType<typeof fetchOverview>>;
-
 const StatsInput = z.object({
   basis: z.enum(["ocorrencia", "residencia"]),
   city: z.number().int().optional(),
@@ -84,8 +82,6 @@ export const sinistrosStatsQueryOptions = (input: StatsInput) =>
     staleTime: 10 * 60 * 1000,
     placeholderData: keepPreviousData,
   });
-
-export const RECIFE_SIM_CODE = 261160;
 
 export type Selection = {
   basis: "ocorrencia" | "residencia";

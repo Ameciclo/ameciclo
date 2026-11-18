@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export function ApiAlert() {
-  const { isApiDown, apiErrors, clearErrors } = useApiStatus();
+  const { isApiDown, apiErrors } = useApiStatus();
   const location = useRouterState({ select: (s) => s.location });
   const [showDetails, setShowDetails] = useState(false);
   const [dismissed, setDismissed] = useState(false);

@@ -5,7 +5,7 @@ import Breadcrumb from "~/components/Commom/Breadcrumb";
 import { ExplanationBoxesIdeciclo } from "~/components/Ideciclo/ExplanationBoxesIdeciclo";
 import IdecicloClientSide from "~/components/Ideciclo/IdecicloClientSide";
 import { StatisticsBoxIdeciclo } from "~/components/Ideciclo/StatisticsBoxIdeciclo";
-import { calculateIdecicloStatistics } from "~/services/ideciclo-statistics.service";
+import { calculateIdecicloStatistics } from "~/components/Ideciclo/ideciclo-statistics.service";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { idecicloQueryOptions } from "~/queries/dados.ideciclo";
 import { useReportApiErrors } from "~/hooks/useReportApiErrors";

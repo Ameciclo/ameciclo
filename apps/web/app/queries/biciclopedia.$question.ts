@@ -20,7 +20,6 @@ const FAQDetailSchema = z.object({
   faq_tags: z.array(FAQTagSchema).nullish(),
 });
 
-export type FAQTag = z.infer<typeof FAQTagSchema>;
 export type FAQDetail = z.infer<typeof FAQDetailSchema>;
 
 const fetchBiciclopediaQuestion = createServerFn()

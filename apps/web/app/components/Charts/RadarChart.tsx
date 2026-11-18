@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type HighchartsReact from "highcharts-react-official";
 import LoadingSpinner from "../Ideciclo/loading/graphLoading";
 
 export function RadarChart({ series, categories, title = "", subtitle = "" }: any) {

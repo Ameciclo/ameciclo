@@ -8,7 +8,7 @@ import {
   type ProjectStep,
 } from "~/queries/projetos";
 import { useState } from "react";
-import ImageGalleryWithZoom from '~/components/Commom/ImageGalleryWithZoom';
+import { GaleriaProjeto } from '~/components/Projetos/GaleriaProjeto';
 import { LanguageSelector } from "~/components/Projetos/LanguageSelector";
 import { ProjectSteps } from "~/components/Projetos/ProjectSteps";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
@@ -420,7 +420,8 @@ function Projeto() {
                         </section>
 
                         {/* Modal da Galeria */}
-                        <ImageGalleryWithZoom
+                        <GaleriaProjeto
+                            key={selectedImageIndex}
                             images={(project?.gallery ?? []).flatMap((img) =>
                                 img.url ? [{ id: img.id ?? undefined, url: img.url, caption: img.caption ?? undefined }] : []
                             )}

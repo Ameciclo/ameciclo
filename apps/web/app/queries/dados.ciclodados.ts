@@ -96,8 +96,6 @@ const fetchPointInfo = createServerFn({ method: "GET" })
 export const pointInfoQueryOptions = (lat: number, lng: number, radius = 200) =>
   queryOptions({ queryKey: ["dados", "ciclodados", "ponto", lat, lng, radius], queryFn: () => fetchPointInfo({ data: { lat, lng, radius } }), staleTime: hour });
 
-export const loadPointInfo = (lat: number, lng: number, radius = 200) => fetchPointInfo({ data: { lat, lng, radius } });
-
 // Contagens da Prefeitura do Recife: um arquivo estático servido pelo site (mapa e popup do ponto o leem).
 export type PrefeituraCount = {
   name: string;

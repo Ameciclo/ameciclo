@@ -60,7 +60,6 @@ export type CountsSummary = {
 };
 
 export type ContagemPage = z.infer<typeof ContagemPageSchema>;
-export type ContagemArchive = z.infer<typeof ArchiveSchema>;
 
 const fetchContagens = createServerFn().handler(async () => {
   // Strapi page metadata: strapiClient + Zod. Ameciclo's counts come from the database.

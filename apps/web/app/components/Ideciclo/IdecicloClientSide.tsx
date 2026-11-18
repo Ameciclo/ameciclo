@@ -20,23 +20,6 @@ export type city = {
     reviews: any[];
 };
 
-function getTotalCityStates(input: any) {
-    let arr = input,
-        obj: any = {},
-        count = 0,
-        st_arr = [];
-    for (let i = 0; i < arr.length; i++) {
-        if (!obj[arr[i].state]) {
-            obj[arr[i].state] = 1;
-            count++;
-            st_arr.push(arr[i].state);
-        } else if (obj[arr[i].state]) {
-            obj[arr[i].state] += 1;
-        }
-    }
-    return { states: st_arr, count: count };
-}
-
 
 export default function IdecicloClientSide({ cidades, structures, ideciclo }: { cidades: city[]; structures: any; ideciclo: any }) {
     const [filteredCity, setFilteredCity] = useState<any[]>([]);
@@ -115,19 +98,6 @@ export default function IdecicloClientSide({ cidades, structures, ideciclo }: { 
             label: c.name,
             value: c.reviews[0].ideciclo,
         }));
-    };
-    const statesFilter = {
-        title: "por estado:",
-        value: cityState,
-        name: "cityState",
-        onChange: (e: any) => setCityState(e.target.value),
-        onBlur: (e: any) => e,
-        items: [{ value: "", label: "Todas" }].concat(
-            getTotalCityStates(cidades).states.map((s: any) => ({
-                value: s,
-                label: s,
-            }))
-        ),
     };
     const CitiesRanking = {
         title: "Ranking das Cidades",

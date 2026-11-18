@@ -1,4 +1,4 @@
-import { useFocusTrap } from '~/hooks/useFocusTrap';
+import { useFocusTrap } from '~/components/QuemSomos/useFocusTrap';
 import { useEffect } from 'react';
 import type { Ameciclista } from '~/queries/quemsomos';
 

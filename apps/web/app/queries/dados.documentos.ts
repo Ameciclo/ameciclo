@@ -30,7 +30,6 @@ const DocumentosPageSchema = z.object({
 });
 
 export type DocumentEntry = z.infer<typeof DocumentSchema>;
-export type DocumentosPage = z.infer<typeof DocumentosPageSchema>;
 
 const fetchDocumentos = createServerFn().handler(async () => {
   const [documentsRes, pageRes] = await Promise.all([
