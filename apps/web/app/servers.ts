@@ -18,8 +18,6 @@ export const IDECICLO_FORMS_DATA = `https://api.ideciclo.ameciclo.org/forms`
 
 
 // Cyclist-counts Atlas (Contagens)
-export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.org/v1/locations`
-export const COUNTINGS_ATLAS_LOCATION = (id: string) => `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${id}`
 
 
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.

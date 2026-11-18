@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchStreets, type StreetMatch } from '~/services/streets.service';
+import { searchStreets, type StreetMatch } from '~/components/CicloDados/streets.service';
 
 interface CicloDadosHeaderProps {
   onStreetSelect?: (street: StreetMatch) => void;

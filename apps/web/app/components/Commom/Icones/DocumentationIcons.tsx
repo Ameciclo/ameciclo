@@ -14,10 +14,7 @@ import {
   Search,
   ArrowUp,
   Home,
-  ExternalLink,
-  Mail,
-  BarChart3,
-  RefreshCw
+  BarChart3
 } from "lucide-react";
 
 export function OverviewIcon({ className = "w-5 h-5" }: { className?: string }) {
@@ -80,18 +77,6 @@ export function HomeIcon({ className = "w-5 h-5" }: { className?: string }) {
   return <Home className={className} />;
 }
 
-export function ExternalLinkIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return <ExternalLink className={className} />;
-}
-
-export function EmailIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return <Mail className={className} />;
-}
-
 export function StatusIcon({ className = "w-5 h-5" }: { className?: string }) {
   return <BarChart3 className={className} />;
-}
-
-export function RefreshIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return <RefreshCw className={className} />;
 }

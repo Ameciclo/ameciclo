@@ -6,7 +6,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { domQueryOptions } from "~/queries/dados.dom";
 import Chart from "react-google-charts";
 import DevelopingComponent from "~/components/Commom/DevelopingComponent";
-import { AnimatedNumber } from "~/components/Commom/AnimatedNumber";
+import { AnimatedNumber } from "~/components/Dom/AnimatedNumber";
 import { RouteLoading, RouteErrorBoundary } from "~/components/Commom/RouteBoundaries";
 import { seo } from "~/utils/seo";
 

@@ -1,4 +1,4 @@
-import { IntlDateStr, IntlNumberMax1Digit, IntlNumberMin1Max3Digits } from "./utils";
+import { IntlDateStr, IntlNumberMax1Digit, IntlNumberMin1Max3Digits } from "../../services/utils";
 
 const descriptions = {
   project: { title: "Qualidade do projeto" },
