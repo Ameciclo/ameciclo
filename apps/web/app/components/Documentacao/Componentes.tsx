@@ -48,10 +48,8 @@ app/components/
                 <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Sistema completo de visualização de dados com:</p>
                 <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
                   <li>• MapView.tsx - Mapa interativo Mapbox com layers</li>
-                  <li>• LeftSidebar.tsx, RightSidebar.tsx - Painéis laterais</li>
+                  <li>• LeftSidebar.tsx - Painel de camadas</li>
                   <li>• FilterSection.tsx - Filtros avançados</li>
-                  <li>• FloatingChat.tsx - Chat integrado</li>
-                  <li>• MuralView.tsx - Visualização tipo mural</li>
                 </ul>
               </div>
 
