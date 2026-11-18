@@ -5,6 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { atKm, atVias, concentrationByKm, concentrationByVia, type ConcentrationPoint } from "@ameciclo/db/streets-model";
 import { isPartialYear, MAP_STREETS, MIN_RATE_CALLS, MIN_RATE_KM, viaQueryOptions, viaSlug, type ViasView } from "~/queries/dados.vias-inseguras";
 import { CategoryBars, ConcentrationChart, YearBars } from "./ViasCharts";
+import { Block } from "../Observatorio/Block";
+import { Highlights } from "../Observatorio/Highlights";
+import { PageHeader } from "../Observatorio/PageHeader";
+import { StatCard } from "../Observatorio/StatCard";
+import { Unavailable } from "../Observatorio/Unavailable";
+import { YearRangeSelect } from "../Observatorio/YearRangeSelect";
 import { RankingTable } from "./RankingTable";
 import { ViasMap } from "./ViasMap";
 import { km, n, pct, perKm } from "./labels";
@@ -33,13 +39,8 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
   if (!view) {
     return (
       <>
-        <PageHeader />
-        <section className="container mx-auto my-10 px-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-            <p className="text-gray-800">Os dados das vias inseguras não estão disponíveis agora.</p>
-            <p className="mt-1 text-sm text-gray-500">Eles vêm dos chamados do SAMU e da malha viária da Prefeitura. Tente de novo em instantes.</p>
-          </div>
-        </section>
+        <PageHeader title="Observatório de Vias Inseguras" explanations={EXPLANATIONS} />
+        <Unavailable title="Os dados das vias inseguras não estão disponíveis agora." text="Eles vêm dos chamados do SAMU e da malha viária da Prefeitura. Tente de novo em instantes." />
       </>
     );
   }
@@ -78,19 +79,19 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
     { lead: pct(top10Calls, identified), text: `dos chamados com via identificada ${periodText} aconteceram nas 10 primeiras vias do ranking.` },
     half !== undefined && { lead: String(half), text: `vias reúnem metade dos chamados com via identificada ${periodText}, de ${n(streetCount)} vias com algum chamado.` },
     densest && { lead: perKm(densest.callsPerKm), text: `chamados por km em ${densest.name}, a via com mais chamados por quilômetro (só contam vias de ${km(MIN_RATE_KM)} km ou mais e com ${MIN_RATE_CALLS} chamados ou mais).` },
-  ].filter((h) => h !== false && h !== undefined);
+  ];
 
   return (
     <>
-      <PageHeader />
+      <PageHeader title="Observatório de Vias Inseguras" explanations={EXPLANATIONS} />
 
       <section className="container mx-auto mt-8 px-4" aria-labelledby="resposta">
         <h2 id="resposta" className="sr-only">Quantos chamados</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Card label="Chamados com atendimento" value={n(totalCalls)} note={periodText} />
-          <Card label="Vias com chamado" value={n(streetCount)} note="no Recife" />
-          <Card label="Via com mais chamados" value={top ? n(top.calls) : "–"} note={top?.name ?? ""} />
-          <Card label="Com via identificada" value={pct(identified, totalCalls)} note={`${n(unidentifiedCalls)} sem a via anotada`} />
+          <StatCard label="Chamados com atendimento" value={n(totalCalls)} note={periodText} />
+          <StatCard label="Vias com chamado" value={n(streetCount)} note="no Recife" />
+          <StatCard label="Via com mais chamados" value={top ? n(top.calls) : "–"} note={top?.name ?? ""} />
+          <StatCard label="Com via identificada" value={pct(identified, totalCalls)} note={`${n(unidentifiedCalls)} sem a via anotada`} />
         </div>
         <p className="mt-2 text-xs text-gray-500">
           Chamados do SAMU por sinistro de trânsito no Recife que tiveram atendimento, de {years[0]?.year} a {years.at(-1)?.year}.{" "}
@@ -101,10 +102,13 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
 
       <section id="explorador" className="container mx-auto mt-10 grid scroll-mt-20 grid-cols-1 gap-8 px-4 md:grid-cols-[250px_1fr]">
         <nav className="space-y-5 md:sticky md:top-20 md:self-start" aria-label="Filtros">
-          <div className="grid grid-cols-2 gap-3">
-            <YearSelect label="De" value={period.from} years={years.map((y) => y.year)} partial={years.filter(isPartialYear).map((y) => y.year)} onChange={(de) => onSelect({ de, ate: Math.max(de, period.to), via: undefined })} />
-            <YearSelect label="Até" value={period.to} years={years.map((y) => y.year)} partial={years.filter(isPartialYear).map((y) => y.year)} onChange={(ate) => onSelect({ ate, de: Math.min(period.from, ate), via: undefined })} />
-          </div>
+          <YearRangeSelect
+            years={years.map((y) => y.year)}
+            partial={years.filter(isPartialYear).map((y) => y.year)}
+            from={period.from}
+            to={period.to}
+            onChange={({ from, to }) => onSelect({ de: from, ate: to, via: undefined })}
+          />
           {partialInPeriod.length > 0 && (
             <p className="text-xs leading-relaxed text-gray-500">
               O período inclui {partialInPeriod.map((y) => `${y.year}*`).join(", ")}, anos em que a fonte tem só alguns meses. Para comparar, escolha anos completos.
@@ -116,14 +120,9 @@ export default function ViasObservatorio({ view, period, selectedSlug, onSelect 
         <div className="min-w-0 space-y-8">
           <div>
             <h2 className="text-xl font-bold text-gray-800">Recife, {periodText}</h2>
-            <ul className="mt-4 grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-3">
-              {highlights.map((h) => (
-                <li key={h.lead + h.text} className="border-t border-gray-200 pt-3 leading-snug text-gray-800">
-                  <span className="block text-2xl font-bold tabular-nums text-gray-900">{h.lead}</span>
-                  {h.text}
-                </li>
-              ))}
-            </ul>
+            <div className="mt-4">
+              <Highlights items={highlights} />
+            </div>
           </div>
 
           <Block title="Onde ficam" note={`${Object.keys(view.geometries).length} das ${Math.min(MAP_STREETS, streets.length)} vias com mais chamados têm traçado na malha da Prefeitura. Passe o mouse para ver os números e clique para abrir a via.`}>
@@ -202,55 +201,6 @@ function ConcentrationCards({ byVia, byKm }: { byVia: ConcentrationPoint[]; byKm
         </li>
       ))}
     </ul>
-  );
-}
-
-function PageHeader() {
-  return (
-    <header className="container mx-auto px-4 pt-8">
-      <h1 className="text-3xl font-bold text-gray-900">Observatório de Vias Inseguras</h1>
-      <div className="mt-5 grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
-        {EXPLANATIONS.map(({ label, text }) => (
-          <section key={label} className="border-t-2 border-ameciclo pt-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ameciclo">{label}</h2>
-            <p className="mt-2 max-w-prose leading-relaxed text-gray-700">{text}</p>
-          </section>
-        ))}
-      </div>
-    </header>
-  );
-}
-
-function Card({ label, value, note }: { label: string; value: string; note: string }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
-      <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
-      <p className="mt-1 text-3xl font-bold tabular-nums text-ameciclo">{value}</p>
-      <p className="mt-1 text-sm leading-snug text-gray-600">{note}</p>
-    </div>
-  );
-}
-
-function Block({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-      {note && <p className="mb-3 text-sm text-gray-500">{note}</p>}
-      <div className={note ? "" : "mt-3"}>{children}</div>
-    </div>
-  );
-}
-
-function YearSelect({ label, value, years, partial, onChange }: { label: string; value: number; years: number[]; partial: number[]; onChange: (y: number) => void }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wide text-gray-500">{label}</span>
-      <select value={value} onChange={(e) => onChange(Number(e.target.value))} className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm">
-        {years.map((y) => (
-          <option key={y} value={y}>{partial.includes(y) ? `${y}*` : y}</option>
-        ))}
-      </select>
-    </label>
   );
 }
 

@@ -5,9 +5,9 @@ import ReactMapGL, { Layer, NavigationControl, Popup, Source, type LayerProps, t
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { UnsafeStreet } from "@ameciclo/db";
 import { viaSlug } from "~/queries/dados.vias-inseguras";
+import { MAP_STYLE } from "../Observatorio/map";
 import { km, n, perKm } from "./labels";
 
-const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 const HOT = "#bd0026";
 const WARM = "#f03b20";
 const MILD = "#fd8d3c";
@@ -82,7 +82,7 @@ export function ViasMap({ streets, geometries, selectedKey, onSelect, single = f
             e.target.resize();
             e.target.fitBounds(bounds, { padding: 32, duration: 0 });
           }}
-          mapStyle={MAPSTYLE}
+          mapStyle={MAP_STYLE}
           interactiveLayerIds={single ? [] : ["vias-lines"]}
           onMouseMove={(e) => {
             const key = single ? undefined : keyOf(e);

@@ -2,6 +2,7 @@
 import { Link } from "@tanstack/react-router";
 import { MIN_RATE_CALLS, MIN_RATE_KM, type ViaView } from "~/queries/dados.vias-inseguras";
 import { CategoryBars, YearBars } from "./ViasCharts";
+import { StatCard } from "../Observatorio/StatCard";
 import { ViasMap } from "./ViasMap";
 import { km, n, perKm } from "./labels";
 
@@ -19,10 +20,10 @@ export default function ViaPagina({ via }: { via: ViaView }) {
 
       <section className="container mx-auto mt-6 px-4">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Stat label="Chamados" value={n(street.calls)} />
-          <Stat label="No ranking do Recife" value={`${via.rankOverall}ª`} />
-          <Stat label="Extensão" value={street.lengthKm === null ? "–" : `${km(street.lengthKm)} km`} />
-          <Stat label="Chamados por km" value={perKm(street.callsPerKm)} />
+          <StatCard label="Chamados" value={n(street.calls)} />
+          <StatCard label="No ranking do Recife" value={`${via.rankOverall}ª`} />
+          <StatCard label="Extensão" value={street.lengthKm === null ? "–" : `${km(street.lengthKm)} km`} />
+          <StatCard label="Chamados por km" value={perKm(street.callsPerKm)} />
         </div>
         {street.lengthKm === null && <p className="mt-2 text-xs text-gray-500">Este nome não casa com a malha viária da Prefeitura: não temos a extensão nem o traçado.</p>}
         {street.lengthKm !== null && street.callsPerKm === null && (
@@ -52,14 +53,5 @@ export default function ViaPagina({ via }: { via: ViaView }) {
         <Link to="/dados/viasinseguras" className="text-sm font-medium text-ameciclo underline underline-offset-2">← Todas as vias</Link>
       </p>
     </>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
-      <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
-      <p className="mt-1 text-3xl font-bold tabular-nums text-ameciclo">{value}</p>
-    </div>
   );
 }

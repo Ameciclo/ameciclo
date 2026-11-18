@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { type ColumnDef, tableFeatures, useTable } from "@tanstack/react-table";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@ameciclo/ui/components/chart";
+import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@ameciclo/ui/components/table";
 import { COUNTERPARTS, MODES, type Counterpart, type Mode } from "@ameciclo/db/deaths-model";
 import type { DeathStats, Profile } from "@ameciclo/db/deaths-read";
 import { CID_NAMES, COUNTERPART_LABELS, MODE_COLORS, MODE_LABELS, MODE_SHORT, n, pct } from "./labels";
@@ -67,20 +69,44 @@ export function ModeChart({ stats, partialYears }: { stats: DeathStats; partialY
 const HIDDEN_AT_FIRST: Counterpart[] = ["objeto_fixo", "sem_colisao", "nao_especificado"];
 
 /** Quem morreu, em colisão com quê: cada linha é uma vítima, cada coluna a contraparte. */
+type MatrixRow = { mode: Mode };
+const matrixFeatures = tableFeatures({});
+
 export function CollisionMatrix({ stats }: { stats: DeathStats }) {
   const [hidden, setHidden] = useState<Counterpart[]>(HIDDEN_AT_FIRST);
   const [percent, setPercent] = useState(false);
 
-  const rows = MODES.filter((m) => stats.byMode[m] > 0);
-  const available = COUNTERPARTS.filter((c) => rows.some((m) => stats.matrix[m][c] > 0));
-  const columns = available.filter((c) => !hidden.includes(c));
-  const rowTotal = (m: Mode) => columns.reduce((sum, c) => sum + stats.matrix[m][c], 0);
-  const columnTotal = (c: Counterpart) => rows.reduce((sum, m) => sum + stats.matrix[m][c], 0);
-  const grand = rows.reduce((sum, m) => sum + rowTotal(m), 0);
-  const max = Math.max(1, ...rows.flatMap((m) => columns.map((c) => stats.matrix[m][c])));
-  const show = (value: number) =>
-    percent ? `${((value / (grand || 1)) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` : n(value);
+  const data = useMemo<MatrixRow[]>(() => MODES.filter((m) => stats.byMode[m] > 0).map((mode) => ({ mode })), [stats]);
+
+  // Tudo que depende do que está à mostra (colunas escondidas) e do modo percentual, junto, para as colunas da tabela
+  // não mudarem de identidade a cada renderização.
+  const view = useMemo(() => {
+    const available = COUNTERPARTS.filter((c) => data.some(({ mode }) => stats.matrix[mode][c] > 0));
+    const columns = available.filter((c) => !hidden.includes(c));
+    const rowTotal = (m: Mode) => columns.reduce((sum, c) => sum + stats.matrix[m][c], 0);
+    const columnTotal = (c: Counterpart) => data.reduce((sum, { mode }) => sum + stats.matrix[mode][c], 0);
+    const grand = data.reduce((sum, { mode }) => sum + rowTotal(mode), 0);
+    const max = Math.max(1, ...data.flatMap(({ mode }) => columns.map((c) => stats.matrix[mode][c])));
+    const show = (value: number) =>
+      percent ? `${((value / (grand || 1)) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` : n(value);
+    const defs: ColumnDef<typeof matrixFeatures, MatrixRow>[] = [
+      { id: "mode", header: "Quem morreu", cell: ({ row }) => <span className="font-medium text-foreground">{MODE_SHORT[row.original.mode]}</span> },
+      ...columns.map<ColumnDef<typeof matrixFeatures, MatrixRow>>((c) => ({
+        id: c,
+        header: COUNTERPART_LABELS[c],
+        meta: { align: "right" },
+        cell: ({ row }) => {
+          const value = stats.matrix[row.original.mode][c];
+          return value > 0 ? <span className="tabular-nums">{show(value)}</span> : <span className="text-gray-300">–</span>;
+        },
+      })),
+      { id: "total", header: "Total", meta: { align: "right" }, cell: ({ row }) => <span className="font-semibold tabular-nums">{show(rowTotal(row.original.mode))}</span> },
+    ];
+    return { available, columns, columnTotal, grand, max, show, defs };
+  }, [data, hidden, percent, stats]);
+  const { available, columns, columnTotal, grand, max, show, defs } = view;
   const left = stats.total - grand;
+  const table = useTable({ features: matrixFeatures, columns: defs, data });
 
   return (
     <div>
@@ -109,52 +135,51 @@ export function CollisionMatrix({ stats }: { stats: DeathStats }) {
         </label>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-        <table className="w-full min-w-[560px] text-sm">
-          <caption className="sr-only">Mortes por tipo de vítima e contraparte da colisão</caption>
-          <thead>
-            <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
-              <th scope="col" className="px-3 py-2 font-medium">Quem morreu</th>
-              {columns.map((c) => (
-                <th key={c} scope="col" className="px-2 py-2 text-right font-medium">
-                  {COUNTERPART_LABELS[c]}
-                </th>
-              ))}
-              <th scope="col" className="px-3 py-2 text-right font-medium">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((m) => (
-              <tr key={m} className="border-b border-gray-100">
-                <th scope="row" className="px-3 py-2 text-left font-medium text-gray-900">{MODE_SHORT[m]}</th>
-                {columns.map((c) => {
-                  const value = stats.matrix[m][c];
+      <div className="overflow-x-auto rounded-xl border bg-background">
+        <Table className="min-w-[560px]">
+          <TableCaption className="sr-only">Mortes por tipo de vítima e contraparte da colisão</TableCaption>
+          <TableHeader>
+            {table.getHeaderGroups().map((group) => (
+              <TableRow key={group.id}>
+                {group.headers.map((header) => (
+                  <TableHead key={header.id} className={`text-xs font-medium ${header.column.columnDef.meta?.align === "right" ? "text-right" : ""}`}>
+                    <table.FlexRender header={header} />
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getAllCells().map((cell) => {
+                  const counterpart = COUNTERPARTS.find((c) => c === cell.column.id);
+                  const value = counterpart ? stats.matrix[row.original.mode][counterpart] : 0;
                   return (
-                    <td
-                      key={c}
-                      className="px-2 py-2 text-right tabular-nums text-gray-800"
+                    <TableCell
+                      key={cell.id}
+                      className={cell.column.columnDef.meta?.align === "right" ? "text-right" : ""}
                       style={value > 0 ? { backgroundColor: `rgba(0, 105, 95, ${0.08 + (value / max) * 0.32})` } : undefined}
                     >
-                      {value > 0 ? show(value) : <span className="text-gray-300">–</span>}
-                    </td>
+                      <table.FlexRender cell={cell} />
+                    </TableCell>
                   );
                 })}
-                <td className="px-3 py-2 text-right font-semibold tabular-nums text-gray-900">{show(rowTotal(m))}</td>
-              </tr>
+              </TableRow>
             ))}
-          </tbody>
-          <tfoot>
-            <tr className="border-t border-gray-300 bg-gray-50">
-              <th scope="row" className="px-3 py-2 text-left font-semibold text-gray-900">
-                Total <span className="font-normal text-gray-500">(a outra parte)</span>
-              </th>
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell className="font-semibold text-foreground">
+                Total <span className="font-normal text-muted-foreground">(a outra parte)</span>
+              </TableCell>
               {columns.map((c) => (
-                <td key={c} className="px-2 py-2 text-right font-semibold tabular-nums text-gray-900">{show(columnTotal(c))}</td>
+                <TableCell key={c} className="text-right font-semibold tabular-nums">{show(columnTotal(c))}</TableCell>
               ))}
-              <td className="px-3 py-2 text-right font-semibold tabular-nums text-gray-900">{show(grand)}</td>
-            </tr>
-          </tfoot>
-        </table>
+              <TableCell className="text-right font-semibold tabular-nums">{show(grand)}</TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
       </div>
       <p className="mt-2 text-xs text-gray-500">
         Cada linha é quem morreu; cada coluna, contra quem ou o quê. A última linha soma quantas mortes tiveram aquela parte do outro lado da colisão,

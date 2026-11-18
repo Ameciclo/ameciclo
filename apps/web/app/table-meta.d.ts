@@ -6,5 +6,9 @@ declare module "@tanstack/react-table" {
   interface ColumnMeta<TFeatures extends TableFeatures, TData extends RowData, TValue extends CellData = CellData> {
     // Input shown under the column header when the filter panel is open.
     Filter?: ColumnFilterComponent<TData>;
+    // Colunas numéricas ficam alinhadas à direita.
+    align?: "right";
+    // Em telas estreitas a coluna some (fica só o essencial).
+    hideBelowMd?: boolean;
   }
 }

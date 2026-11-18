@@ -15,8 +15,8 @@ import ReactMapGL, {
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { CyclingCityStats } from "@ameciclo/db/cycling-read";
 import { km, percent } from "./status";
+import { MAP_STYLE } from "../Observatorio/map";
 
-const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 type Municipalities = {
   features: { type: "Feature"; properties: { id: string; name: string }; geometry: GeoJSON.Geometry }[];
@@ -154,7 +154,7 @@ export function ExecucaoMap({ cities, ways, selectedIbge, onSelect }: ExecucaoMa
               { padding: 12, duration: 0 },
             );
           }}
-          mapStyle={MAPSTYLE}
+          mapStyle={MAP_STYLE}
           // The wheel scrolls the page; zooming the map takes Ctrl and the wheel (or two fingers on a phone).
           cooperativeGestures
           interactiveLayerIds={["exec-fill"]}

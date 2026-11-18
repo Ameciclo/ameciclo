@@ -1,7 +1,14 @@
 // Observatório de Sinistros Fatais: primeiro, quantas pessoas morreram; depois um explorador (olhar, município,
 // período e local do óbito) com quem morre, em que colisão e com que diagnósticos; por fim, todos os municípios.
+import { useMemo } from "react";
 import type { DeathOverview, DeathStats } from "@ameciclo/db/deaths-read";
 import { PLACES, type PlaceKey, type Selection } from "~/queries/dados.sinistros-fatais";
+import { Block } from "../Observatorio/Block";
+import { DataTable, type DataColumn } from "../Observatorio/DataTable";
+import { Highlights } from "../Observatorio/Highlights";
+import { PageHeader } from "../Observatorio/PageHeader";
+import { Unavailable } from "../Observatorio/Unavailable";
+import { YearRangeSelect } from "../Observatorio/YearRangeSelect";
 import { CollisionMatrix, ModeChart, VictimProfile } from "./SinistrosCharts";
 import { MODE_LABELS, n, pct } from "./labels";
 import { MODES } from "@ameciclo/db/deaths-model";
@@ -41,13 +48,8 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
   if (!overview || !selection) {
     return (
       <>
-        <PageHeader title={title} />
-        <section className="container mx-auto my-10 px-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-            <p className="text-gray-800">Os dados do observatório ainda não foram carregados.</p>
-            <p className="mt-1 text-sm text-gray-500">Eles chegam com a importação das mortes registradas no DATASUS.</p>
-          </div>
-        </section>
+        <PageHeader title={title} explanations={EXPLANATIONS} />
+        <Unavailable title="Os dados do observatório ainda não foram carregados." text="Eles chegam com a importação das mortes registradas no DATASUS." />
       </>
     );
   }
@@ -67,7 +69,7 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
 
   return (
     <>
-      <PageHeader title={title} />
+      <PageHeader title={title} explanations={EXPLANATIONS} />
 
       <section className="container mx-auto mt-8 px-4" aria-labelledby="resposta">
         <h2 id="resposta" className="sr-only">Quantas pessoas morreram</h2>
@@ -141,10 +143,7 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
             </select>
           </label>
 
-          <div className="grid grid-cols-2 gap-3">
-            <YearSelect label="De" value={from} years={years} onChange={(de) => onSelect({ de, ate: Math.max(de, to) })} />
-            <YearSelect label="Até" value={to} years={years} onChange={(ate) => onSelect({ ate, de: Math.min(from, ate) })} />
-          </div>
+          <YearRangeSelect years={years} from={from} to={to} onChange={({ from: de, to: ate }) => onSelect({ de, ate })} />
 
           <label className="block">
             <span className="mb-1 block text-xs uppercase tracking-wide text-gray-500">Local do óbito</span>
@@ -213,35 +212,6 @@ export default function SinistrosObservatorio({ title, overview, stats, selectio
   );
 }
 
-function PageHeader({ title }: { title: string }) {
-  return (
-    <header className="container mx-auto px-4 pt-8">
-      <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-      <div className="mt-5 grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
-        {EXPLANATIONS.map(({ label, text }) => (
-          <section key={label} className="border-t-2 border-ameciclo pt-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ameciclo">{label}</h2>
-            <p className="mt-2 max-w-prose leading-relaxed text-gray-700">{text}</p>
-          </section>
-        ))}
-      </div>
-    </header>
-  );
-}
-
-function YearSelect({ label, value, years, onChange }: { label: string; value: number; years: number[]; onChange: (y: number) => void }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wide text-gray-500">{label}</span>
-      <select value={value} onChange={(e) => onChange(Number(e.target.value))} className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm">
-        {years.map((y) => (
-          <option key={y} value={y}>{y}</option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
 function Results({ stats, cityName, periodText, basis, partialYears }: { stats: DeathStats; cityName: string; periodText: string; basis: Basis; partialYears: number[] }) {
   if (stats.total === 0) {
     return <p className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-600">Nenhuma morte registrada com esses filtros.</p>;
@@ -253,20 +223,15 @@ function Results({ stats, cityName, periodText, basis, partialYears }: { stats: 
     { lead: n(stats.total), text: `mortes em ${cityName} ${periodText}, ${basis === "ocorrencia" ? "pelo município do óbito" : "pelo município de residência"}.` },
     { lead: pct(vulnerable, stats.total), text: `eram pedestres, ciclistas ou motociclistas: ${n(vulnerable)} de ${n(stats.total)}. ${MODE_LABELS[top]} são o maior grupo, com ${pct(stats.byMode[top], stats.total)}.` },
     worst && stats.byYear.length > 1 && { lead: String(worst.year), text: `foi o ano mais violento do período, com ${n(worst.total)} mortes.` },
-  ].filter((h) => h !== false && h !== undefined);
+  ];
 
   return (
     <>
       <div>
         <h2 className="text-xl font-bold text-gray-800">{cityName[0].toUpperCase() + cityName.slice(1)}, {periodText}</h2>
-        <ul className="mt-4 grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-3">
-          {highlights.map((h) => (
-            <li key={h.lead} className="border-t border-gray-200 pt-3 leading-snug text-gray-800">
-              <span className="block text-2xl font-bold tabular-nums text-gray-900">{h.lead}</span>
-              {h.text}
-            </li>
-          ))}
-        </ul>
+        <div className="mt-4">
+          <Highlights items={highlights} />
+        </div>
       </div>
       <Block title="Quem morreu, ano a ano" note="Pela causa principal do óbito. Clique em um tipo de vítima para tirá-lo do gráfico.">
         <ModeChart stats={stats} partialYears={partialYears} />
@@ -281,45 +246,47 @@ function Results({ stats, cityName, periodText, basis, partialYears }: { stats: 
   );
 }
 
-function Block({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-      {note && <p className="mb-3 text-sm text-gray-500">{note}</p>}
-      <div className={note ? "" : "mt-3"}>{children}</div>
-    </div>
-  );
-}
+type CityRow = DeathOverview["byBasis"][Basis]["byCity"][number];
 
 function CitiesTable({ series, years, partialYears, selectedCity, onSelect }: { series: DeathOverview["byBasis"][Basis]; years: number[]; partialYears: number[]; selectedCity: number | undefined; onSelect: (city: number) => void }) {
   const shown = years.slice(-10);
+  const columns = useMemo<DataColumn<CityRow>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Município",
+        sortingFn: "alphanumeric",
+        cell: ({ row }) => (
+          <button type="button" onClick={() => onSelect(row.original.city)} className="text-left font-medium text-ameciclo underline-offset-2 hover:underline">
+            {row.original.name}
+          </button>
+        ),
+      },
+      // Em telas estreitas ficam só os dois últimos anos e o total.
+      ...shown.map<DataColumn<CityRow>>((y, i) => ({
+        id: `y${y}`,
+        header: `${y}${partialYears.includes(y) ? "*" : ""}`,
+        accessorFn: (c) => c.years[y] ?? 0,
+        meta: { align: "right", hideBelowMd: i < shown.length - 2 },
+        cell: ({ row }) => <span className="tabular-nums">{n(row.original.years[y] ?? 0)}</span>,
+      })),
+      {
+        accessorKey: "total",
+        header: `Total ${years[0]}–${years.at(-1)}`,
+        meta: { align: "right" },
+        cell: ({ row }) => <span className="font-semibold tabular-nums">{n(row.original.total)}</span>,
+      },
+    ],
+    [shown, years, partialYears, onSelect],
+  );
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-      <table className="w-full text-sm">
-        <caption className="sr-only">Mortes no trânsito por município e ano</caption>
-        <thead>
-          <tr className="border-b border-gray-200 text-xs text-gray-500">
-            <th scope="col" className="px-3 py-2 text-left font-medium">Município</th>
-            {shown.map((y, i) => (
-              <th key={y} scope="col" className={`px-2 py-2 text-right font-medium ${i < shown.length - 2 ? "hidden md:table-cell" : ""}`}>{y}{partialYears.includes(y) ? "*" : ""}</th>
-            ))}
-            <th scope="col" className="px-3 py-2 text-right font-medium">Total {years[0]}–{years.at(-1)}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {series.byCity.map((c) => (
-            <tr key={c.city} className={`border-b border-gray-100 last:border-0 ${c.city === selectedCity ? "bg-gray-50" : ""}`}>
-              <th scope="row" className="px-3 py-2 text-left font-medium">
-                <button type="button" onClick={() => onSelect(c.city)} className="text-left text-ameciclo underline-offset-2 hover:underline">{c.name}</button>
-              </th>
-              {shown.map((y, i) => (
-                <td key={y} className={`px-2 py-2 text-right tabular-nums text-gray-800 ${i < shown.length - 2 ? "hidden md:table-cell" : ""}`}>{n(c.years[y] ?? 0)}</td>
-              ))}
-              <td className="px-3 py-2 text-right font-semibold tabular-nums text-gray-900">{n(c.total)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      data={series.byCity}
+      columns={columns}
+      initialSort={{ id: "total", desc: true }}
+      search={{ placeholder: "Buscar município", text: (c) => c.name }}
+      isSelected={(c) => c.city === selectedCity}
+      emptyText="Nenhum município encontrado."
+    />
   );
 }
