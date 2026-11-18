@@ -1,289 +1,98 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import {
-  VIAS_INSEGURAS_SUMMARY,
-  VIAS_INSEGURAS_TOP,
-  VIAS_INSEGURAS_MAP,
-} from "../servers";
-import { cmsFetch } from "~/services/cmsFetch";
-import { makeApiErrorTracker } from "~/services/apiTracking";
+import { z } from "zod";
+import type { StreetCategoryRow, StreetGeometry, UnsafeStreet, UnsafeStreets, UnsafeStreetsYear } from "@ameciclo/db";
+import { slugify } from "~/utils/slugify";
 
-const fetchViasInseguras = createServerFn().handler(async () => {
-  const tracker = makeApiErrorTracker();
+// Vias inseguras: os chamados do SAMU por sinistro de trânsito no Recife, contados por via, do banco. Tudo são
+// contagens e traçados de via: nenhum chamado individual sai do servidor.
 
-  try {
-    const mockSummaryData = {
-      totalSinistros: 15420,
-      totalVias: 2341,
-      periodoInicio: "2016",
-      periodoFim: "2024",
-      anoMaisPerigoso: { ano: "2023", total: 1850 },
-      viaMaisPerigosa: {
-        nome: "Avenida Norte Miguel Arraes de Alencar",
-        total: 245,
-        percentual: 1.59,
-      },
-    };
+// As vias que aparecem no mapa (o ranking tem mais; o traçado de todas pesaria demais).
+export const MAP_STREETS = 50;
+export const RANKING_STREETS = 150;
 
-    const mockTopViasData = { dados: [], parametros: {} };
-    const mockMapData = { vias: [] };
-    const mockHistoryData = { evolucao: [] };
+export type ViasView = UnsafeStreets & {
+  // Traçado das primeiras MAP_STREETS vias do ranking, por chave.
+  geometries: Record<string, StreetGeometry["geometry"]>;
+};
 
-    const [summaryDataRaw, topViasDataRaw, mapDataRaw] = await Promise.all([
-      cmsFetch<any>(VIAS_INSEGURAS_SUMMARY, {
-        ttl: 300,
-        timeout: 5000,
-        fallback: mockSummaryData,
-        onError: tracker.at(VIAS_INSEGURAS_SUMMARY),
-      }),
-      cmsFetch<any>(VIAS_INSEGURAS_TOP, {
-        ttl: 300,
-        timeout: 5000,
-        fallback: mockTopViasData,
-        onError: tracker.at(VIAS_INSEGURAS_TOP),
-      }),
-      cmsFetch<any>(VIAS_INSEGURAS_MAP, {
-        ttl: 300,
-        timeout: 5000,
-        fallback: mockMapData,
-        onError: tracker.at(VIAS_INSEGURAS_MAP),
-      }),
-    ]);
+const ViasInput = z.object({ from: z.number().int().optional(), to: z.number().int().optional() });
 
-    const summaryData = {
-      totalSinistros:
-        summaryDataRaw.total_accidents ||
-        summaryDataRaw.totalSinistros ||
-        15420,
-      totalVias:
-        parseInt(summaryDataRaw.total_streets) ||
-        summaryDataRaw.totalVias ||
-        2341,
-      periodoInicio: summaryDataRaw.period?.start_year?.toString() || "2018",
-      periodoFim: summaryDataRaw.period?.end_year?.toString() || "2025",
-      viaMaisPerigosa: {
-        nome:
-          summaryDataRaw.most_dangerous_street?.name ||
-          summaryDataRaw.viaMaisPerigosa?.nome ||
-          "BR",
-        total:
-          summaryDataRaw.most_dangerous_street?.total_accidents ||
-          summaryDataRaw.viaMaisPerigosa?.total ||
-          1819,
-        percentual:
-          ((summaryDataRaw.most_dangerous_street?.total_accidents || 1819) /
-            (summaryDataRaw.total_accidents || 38275)) *
-            100 || 4.75,
-      },
-    };
-
-    const concentrationMap = new Map(
-      (topViasDataRaw.concentration_data || []).map((item: any) => [
-        item.ranking,
-        {
-          ranking: item.ranking,
-          total_accidents: item.total_accidents,
-          length_km: item.street_extension_km,
-        },
-      ])
-    );
-
-    const viasCompletas = (mapDataRaw.features || []).map((feature: any) => {
-      const ranking = feature.properties.ranking;
-      const concentrationData: any = concentrationMap.get(ranking) || {};
-
-      return {
-        ranking,
-        street_name: feature.properties.street_name,
-        total_accidents:
-          feature.properties.accidents_count ||
-          concentrationData.total_accidents ||
-          0,
-        length_km:
-          feature.properties.extension_km || concentrationData.length_km || 0,
-        accidents_per_km: feature.properties.extension_km
-          ? feature.properties.accidents_count /
-            feature.properties.extension_km
-          : 0,
-        percentage: summaryData.totalSinistros
-          ? ((feature.properties.accidents_count || 0) /
-              summaryData.totalSinistros) *
-            100
-          : 0,
-        geometry: feature.geometry,
-      };
-    });
-
-    let accumulatedAccidents = 0;
-    let accumulatedKm = 0;
-
-    const topViasData = {
-      dados: viasCompletas.map((via: any) => {
-        accumulatedAccidents += via.total_accidents;
-        accumulatedKm += via.length_km;
-
-        return {
-          top: via.ranking,
-          nome: via.street_name,
-          sinistros: via.total_accidents,
-          sinistros_acum: accumulatedAccidents,
-          km: via.length_km,
-          km_acum: accumulatedKm,
-          sinistros_por_km: via.accidents_per_km,
-          sinistros_por_km_acum:
-            accumulatedKm > 0 ? accumulatedAccidents / accumulatedKm : 0,
-          percentual: via.percentage,
-          percentual_acum:
-            (accumulatedAccidents / summaryData.totalSinistros) * 100,
-        };
-      }),
-      parametros: {
-        intervalo: 150,
-        periodo: `${summaryData.periodoInicio}-${summaryData.periodoFim}`,
-        total_sinistros: summaryData.totalSinistros,
-        limite: 150,
-      },
-    };
-
-    const mapData = {
-      vias: viasCompletas.map((via: any, index: number) => ({
-        id: index + 1,
-        nome: via.street_name,
-        top: via.ranking,
-        sinistros: via.total_accidents,
-        km: via.length_km,
-        sinistros_por_km: via.accidents_per_km,
-        percentual: via.percentage,
-        geometria: via.geometry,
-      })),
-    };
-
-    const historyData = mockHistoryData;
-
-    const statisticsBoxes = [
-      {
-        title: "Total de sinistros",
-        value: summaryData.totalSinistros.toLocaleString("pt-BR"),
-        unit: `${summaryData.periodoInicio} - ${summaryData.periodoFim}`,
-      },
-      {
-        title: "Ano mais perigoso",
-        value: "2024",
-        unit: "11.030 sinistros",
-      },
-      {
-        title: "Vias identificadas",
-        value: summaryData.totalVias.toLocaleString("pt-BR"),
-        unit: "vias analisadas",
-      },
-      {
-        title: "Via com mais sinistros",
-        value: `${summaryData.viaMaisPerigosa.percentual.toFixed(2)}%`,
-        unit: summaryData.viaMaisPerigosa.nome,
-      },
-    ];
-
-    const documents = {
-      title: "Documentos relacionados",
-      cards: [
-        {
-          title: "Metodologia",
-          description: "Como identificamos e classificamos as vias inseguras",
-          url: "#metodologia",
-          target: "_self",
-        },
-        {
-          title: "Dados abertos",
-          description: "Acesse os dados brutos dos sinistros por via",
-          url: "#dados",
-          target: "_self",
-        },
-        {
-          title: "API de Vias Inseguras",
-          description: "Documentação da API para desenvolvedores",
-          url: "/docs/api-vias-inseguras",
-          target: "_blank",
-        },
-      ],
-    };
-
-    return {
-      cover: "/pages_covers/vias-inseguras.png",
-      title1: "O que são vias inseguras?",
-      description1:
-        "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU, permitindo mapear os pontos críticos da cidade e orientar políticas públicas de segurança viária.",
-      title2: "Como analisamos os dados?",
-      description2:
-        "Processamos dados georreferenciados dos atendimentos do SAMU para identificar padrões de sinistralidade por via, considerando frequência, gravidade, extensão das vias e densidade de sinistros por quilômetro.",
-      documents,
-      statisticsBoxes,
-      summaryData,
-      topViasData,
-      mapData,
-      historyData,
-      ...tracker.summary(),
-    };
-  } catch (error) {
-    console.error("Erro ao buscar dados das vias inseguras:", error);
-
-    const mockData = {
-      totalSinistros: 15420,
-      totalVias: 2341,
-      periodoInicio: "2016",
-      periodoFim: "2024",
-      viaMaisPerigosa: {
-        nome: "Avenida Norte Miguel Arraes de Alencar",
-        total: 245,
-        percentual: 1.59,
-      },
-    };
-
-    return {
-      cover: "/pages_covers/vias-inseguras.png",
-      title1: "O que são vias inseguras?",
-      description1:
-        "Identificamos as vias com maior concentração de sinistros de trânsito no Recife através da análise dos atendimentos do SAMU.",
-      title2: "Como analisamos os dados?",
-      description2:
-        "Processamos dados georreferenciados dos atendimentos do SAMU para identificar padrões de sinistralidade por via.",
-      documents: {
-        title: "Documentos relacionados",
-        cards: [],
-      },
-      statisticsBoxes: [
-        {
-          title: "Total de sinistros",
-          value: "15.420",
-          unit: "2016 - 2024",
-        },
-        {
-          title: "Ano mais perigoso",
-          value: "2023",
-          unit: "1.850 sinistros",
-        },
-        {
-          title: "Total de vias",
-          value: "2.341",
-          unit: "vias analisadas",
-        },
-        {
-          title: "Via com mais sinistros",
-          value: "245",
-          unit: "Av. Norte Miguel Arraes",
-        },
-      ],
-      summaryData: mockData,
-      topViasData: { dados: [], parametros: {} },
-      mapData: { vias: [] },
-      historyData: { evolucao: [] },
-      apiDown: true,
-      apiErrors: [{ url: "vias-inseguras", error: String(error) }],
-    };
-  }
-});
-
-export const viasInsegurasQueryOptions = () =>
-  queryOptions({
-    queryKey: ["dados", "vias-inseguras"],
-    queryFn: () => fetchViasInseguras(),
+const fetchVias = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => ViasInput.parse(input))
+  .handler(async ({ data }): Promise<{ view: ViasView | null }> => {
+    try {
+      const { withDb } = await import("~/lib/db.server");
+      const { getStreetGeometries, getUnsafeStreets } = await import("@ameciclo/db");
+      return await withDb(async (db) => {
+        const ranking = await getUnsafeStreets(db, { from: data.from, to: data.to, limit: RANKING_STREETS });
+        if (ranking.years.length === 0) return { view: null };
+        const geometries = await getStreetGeometries(db, ranking.streets.slice(0, MAP_STREETS).map((s) => s.key));
+        return { view: { ...ranking, geometries: Object.fromEntries(geometries.map((g) => [g.key, g.geometry])) } };
+      });
+    } catch (error) {
+      console.error("Error loading the unsafe streets from the database:", error);
+      return { view: null };
+    }
   });
+
+export const viasQueryOptions = (input: z.infer<typeof ViasInput>) =>
+  queryOptions({
+    queryKey: ["dados", "vias-inseguras", input],
+    queryFn: () => fetchVias({ data: input }),
+    staleTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData,
+  });
+
+// ?de=2020&ate=2024: o que faltar ou não existir volta ao período inteiro.
+export function resolveViasPeriod(years: UnsafeStreetsYear[], search: { de?: number; ate?: number }) {
+  const list = years.map((y) => y.year);
+  const first = list[0] ?? 0;
+  const last = list[list.length - 1] ?? 0;
+  const from = search.de && list.includes(search.de) ? search.de : first;
+  const to = search.ate && list.includes(search.ate) ? Math.max(search.ate, from) : last;
+  return { from, to };
+}
+
+export const isPartialYear = (y: UnsafeStreetsYear) => y.months < 12;
+
+// ---- Uma via -------------------------------------------------------------------------------------------------
+
+export type ViaView = {
+  street: UnsafeStreet;
+  rankOverall: number;
+  years: UnsafeStreetsYear[];
+  categories: StreetCategoryRow[];
+  geometry: StreetGeometry["geometry"] | null;
+};
+
+const SlugInput = z.object({ slug: z.string().min(1).max(200) });
+
+const fetchVia = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => SlugInput.parse(input))
+  .handler(async ({ data }): Promise<{ via: ViaView | null; unavailable: boolean }> => {
+    try {
+      const { withDb } = await import("~/lib/db.server");
+      const { getStreetDetail, getStreetGeometries, listStreetNames } = await import("@ameciclo/db");
+      return await withDb(async (db) => {
+        const found = (await listStreetNames(db)).find((s) => slugify(s.name) === data.slug);
+        if (!found) return { via: null, unavailable: false };
+        const detail = await getStreetDetail(db, found.key);
+        if (!detail) return { via: null, unavailable: false };
+        const [geometry] = await getStreetGeometries(db, [found.key]);
+        return { via: { ...detail, geometry: geometry?.geometry ?? null }, unavailable: false };
+      });
+    } catch (error) {
+      console.error("Error loading a street from the database:", error);
+      return { via: null, unavailable: true };
+    }
+  });
+
+export const viaQueryOptions = (slug: string) =>
+  queryOptions({
+    queryKey: ["dados", "vias-inseguras", "via", slug],
+    queryFn: () => fetchVia({ data: { slug } }),
+    staleTime: 10 * 60 * 1000,
+  });
+
+export const viaSlug = (name: string) => slugify(name);

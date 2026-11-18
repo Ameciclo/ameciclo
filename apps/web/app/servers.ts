@@ -22,18 +22,6 @@ export const COUNTINGS_ATLAS_LOCATIONS = `https://cyclist-counts.atlas.ameciclo.
 export const COUNTINGS_ATLAS_LOCATION = (id: string) => `https://cyclist-counts.atlas.ameciclo.org/v1/locations/${id}`
 
 
-// SAMU Atlas (Emergency Calls API)
-export const SAMU_ATLAS_BASE = `https://emergency-calls.atlas.ameciclo.org`
-
-// Vias Inseguras — endpoints v2 of the SAMU Atlas, hardcoded to RECIFE.
-export const VIAS_INSEGURAS_BASE_URL = "https://api.garfo.ameciclo.org"
-export const VIAS_INSEGURAS_SUMMARY = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/RECIFE/summary`
-export const VIAS_INSEGURAS_TOP = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/RECIFE/concentration?interval=150`
-export const VIAS_INSEGURAS_MAP = `${SAMU_ATLAS_BASE}/v2/unsafe-streets/cities/RECIFE/geojson?ranking_from=1&ranking_to=150`
-export const VIAS_INSEGURAS_HISTORY = `${SAMU_ATLAS_BASE}/v1/streets/history`
-export const VIAS_INSEGURAS_SEARCH = `${SAMU_ATLAS_BASE}/v1/streets/search`
-export const VIAS_INSEGURAS_LIST = `${SAMU_ATLAS_BASE}/v1/streets/top`
-
 // CicloDados — atlas APIs consumed by the integrated dashboard hooks.
 export const BICICLETARIOS_DATA = `https://bicycle-racks.atlas.ameciclo.org/v1/bicycle-racks/geojson`
 export const BIKE_PE_STATIONS_DATA = `https://shared-bike.atlas.ameciclo.org/v1/stations`

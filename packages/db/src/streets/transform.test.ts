@@ -24,3 +24,14 @@ describe("toSegment", () => {
     expect(toSegment(feature(base, { type: "MultiLineString", coordinates: [] }))).toEqual({ skipped: "geometria que não é MultiLineString" });
   });
 });
+
+describe("STREET_ALIASES", () => {
+  it("só tem nomes sem acento, em maiúsculas, e nenhum apelido aponta para outro apelido", async () => {
+    const { STREET_ALIASES } = await import("../samu/streets");
+    for (const [from, to] of Object.entries(STREET_ALIASES)) {
+      expect(from).toBe(nameKey(from));
+      expect(to).toBe(nameKey(to));
+      expect(STREET_ALIASES[to]).toBeUndefined();
+    }
+  });
+});

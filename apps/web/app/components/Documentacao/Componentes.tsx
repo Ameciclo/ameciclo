@@ -34,7 +34,7 @@ app/components/
 ├── QuemSomos/           # 3 componentes (Tabs, Modal, Loading)
 ├── Samu/                # 2 componentes (Map, ClientSide)
 ├── SinistrosFatais/     # 7 componentes (Matrix, Filters, Cards)
-└── ViasInseguras/       # 12 componentes (Map, Ranking, Charts)
+└── ViasInseguras/       # 4 componentes (Observatório, Mapa, Gráficos, Via)
               </code>
             </div>
           </div>
@@ -59,11 +59,10 @@ app/components/
                 <h4 className={`font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'} mb-2`} style={{ fontSize: fontSize }}>ViasInseguras (Análise de Vias)</h4>
                 <p className="text-sm mb-2" style={{ fontSize: fontSize - 2 }}>Sistema de ranking e análise temporal:</p>
                 <ul className="text-sm space-y-1 ml-4" style={{ fontSize: fontSize - 2 }}>
-                  <li>• ViasInsegurasMap.tsx - Mapa com heatmap</li>
-                  <li>• ViasRankingTable.tsx - Tabela ordenada</li>
-                  <li>• TemporalAnalysis.tsx - Análise temporal</li>
-                  <li>• ConcentrationChart.tsx - Gráficos de concentração</li>
-                  <li>• ViaSearch.tsx - Busca com autocomplete</li>
+                  <li>• ViasObservatorio.tsx - Página: cartões, explorador e ranking</li>
+                  <li>• ViasMap.tsx - Mapa das vias com mais chamados</li>
+                  <li>• ViasCharts.tsx - Concentração, anos e tipos de sinistro</li>
+                  <li>• ViaPagina.tsx - Página de uma via</li>
                 </ul>
               </div>
 
