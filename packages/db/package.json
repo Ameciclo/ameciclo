@@ -34,7 +34,8 @@
     "db:import-mortes": "tsx scripts/import-mortes.ts",
     "db:sync-ciclo-infra": "tsx scripts/sync-ciclo-infra.ts",
     "db:datasus-baixar": "tsx scripts/datasus-baixar.ts",
-    "db:datasus-filtrar": "tsx scripts/datasus-filtrar.ts"
+    "db:datasus-filtrar": "tsx scripts/datasus-filtrar.ts",
+    "db:bundle-scripts": "esbuild scripts/datasus-baixar.ts scripts/datasus-filtrar.ts scripts/import-mortes.ts --bundle --platform=node --format=esm --target=node24 --outdir=dist-scripts --out-extension:.js=.mjs --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\""
   },
   "dependencies": {
     "csv-parse": "^7.0.3",
@@ -47,6 +48,7 @@
     "@types/pg": "^8.20.4",
     "basic-ftp": "^6.2.6",
     "drizzle-kit": "1.0.0-rc.5-5935859",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^5.1.6",
     "vitest": "^5.0.5"

@@ -1,18 +1,11 @@
-# Dagu (agendador de fluxos com interface web) com o que os fluxos da Ameciclo precisam:
-# Node + pnpm (os scripts do packages/db).
+# Dagu (agendador de fluxos com interface web) rodando scripts autônomos da Ameciclo.
+# Os scripts nascem no monorepo (packages/db/scripts, em TypeScript) e são compilados aqui para um único
+# arquivo .mjs cada, com as dependências dentro: no Dagu só entram o Node e esses arquivos, sem pnpm nem repo.
 # Build context: a raiz do repositório.
 #   docker build -f ops/dagu/Dockerfile -t ameciclo-dagu .
-FROM ghcr.io/dagucloud/dagu:latest
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
- && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
- && apt-get install -y --no-install-recommends nodejs \
- && corepack enable \
- && rm -rf /var/lib/apt/lists/*
-
-# O pnpm fica na imagem, em um diretório que o usuário dagu lê.
-ENV COREPACK_HOME=/opt/corepack COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+FROM node:24-slim AS scripts
+RUN corepack enable
 WORKDIR /app
 # Todos os manifests do workspace, para o lockfile congelado continuar valendo.
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
@@ -23,12 +16,15 @@ COPY packages/db/package.json packages/db/
 COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --filter @ameciclo/db...
 COPY packages/db packages/db
+RUN pnpm --filter @ameciclo/db db:bundle-scripts
 
-# Os fluxos ficam fora de /var/lib/dagu, que é o volume com o histórico.
+FROM ghcr.io/dagucloud/dagu:latest
+COPY --from=scripts /usr/local/bin/node /usr/local/bin/node
+COPY --from=scripts /app/packages/db/dist-scripts /opt/scripts
 COPY ops/dagu/dags /opt/dags
-# O Dagu roda como o usuário dagu e grava ao lado dos fluxos e do código.
-# (o entrypoint do Dagu troca o uid do usuário dagu para PUID, 1000 por padrão)
-RUN chown -R 1000:1000 /opt/dags /app /opt/corepack
+# O Dagu roda como o usuário dagu e grava ao lado dos fluxos
+# (o entrypoint troca o uid dele para PUID, 1000 por padrão).
+RUN chown -R 1000:1000 /opt/dags /opt/scripts
 ENV DAGU_DAGS_DIR=/opt/dags \
     DAGU_HOST=0.0.0.0 \
     DAGU_PORT=8080 \

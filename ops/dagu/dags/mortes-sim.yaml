@@ -7,23 +7,22 @@ params:
   - DRY_RUN: "true"
 env:
   - DATA_DIR: /tmp/mortes
-working_dir: /app/packages/db
 steps:
   - name: baixar
     # FTP do DATASUS: versão final do ano ou, se ainda não saiu, a preliminar.
-    run: pnpm db:datasus-baixar ${YEAR} ${DATA_DIR}
+    run: node /opt/scripts/datasus-baixar.mjs ${YEAR} ${DATA_DIR}
 
   - name: descompactar-e-filtrar
     depends:
       - baixar
     # .dbc (PKWare implode) -> CSV só com as causas de trânsito (V e Y85), no Brasil inteiro.
-    run: pnpm db:datasus-filtrar ${YEAR} ${DATA_DIR}
+    run: node /opt/scripts/datasus-filtrar.mjs ${YEAR} ${DATA_DIR}
 
   - name: validar
     depends:
       - descompactar-e-filtrar
     # Fica a RMR (ocorrência ou residência) com causa V01-V89 ou V99; imprime o que foi descartado e por quê.
-    run: pnpm db:import-mortes --dry-run
+    run: node /opt/scripts/import-mortes.mjs --dry-run
     env:
       - MORTES_DIR: ${DATA_DIR}
 
@@ -31,7 +30,7 @@ steps:
     depends:
       - validar
     # Substitui o ano inteiro numa transação; só roda com DRY_RUN=false.
-    run: pnpm db:import-mortes
+    run: node /opt/scripts/import-mortes.mjs
     env:
       - MORTES_DIR: ${DATA_DIR}
     preconditions:
