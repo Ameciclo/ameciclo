@@ -1,3 +1,4 @@
+import "~/lib/maplibre-worker";
 import { useEffect, useRef } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 

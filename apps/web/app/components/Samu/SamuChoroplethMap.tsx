@@ -1,5 +1,6 @@
 "use client";
 // Chamados do SAMU por município. Passar o mouse mostra os números; clicar escolhe o município no explorador.
+import "~/lib/maplibre-worker";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import ReactMapGL, {

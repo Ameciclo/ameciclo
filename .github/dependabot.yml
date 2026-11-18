@@ -1,0 +1,30 @@
+# Atualizações de dependências, para que correções de segurança não se acumulem.
+# Agrupadas por semana (um PR por grupo, não um por pacote).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # TanStack Start e Router precisam andar juntos (o Start fixa a versão do Router).
+      # O Start 1.169+ exige Vite 8: só mude quando o Vite subir.
+      tanstack:
+        patterns: ["@tanstack/*"]
+      seguranca:
+        applies-to: security-updates
+        patterns: ["*"]
+      minor-e-patch:
+        update-types: [minor, patch]
+        exclude-patterns: ["@tanstack/*"]
+    ignore:
+      - dependency-name: "@tanstack/react-start"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

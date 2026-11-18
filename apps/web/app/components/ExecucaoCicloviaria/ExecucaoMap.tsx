@@ -2,6 +2,7 @@
 // The RMR map of the observatory. Two readings of the same data: every way painted by what became of
 // it ("Trechos") and each municipality painted by how much of its PDC was built ("Cobertura"). Hovering a
 // municipality shows its numbers; clicking selects it in the explorer.
+import "~/lib/maplibre-worker";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import ReactMapGL, {
