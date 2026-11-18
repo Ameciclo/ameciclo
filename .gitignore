@@ -80,4 +80,5 @@ strapi_*.sql
 data/contagens/
 data/pesquisa-perfil/
 data/samu/
+data/mortes/
 .vitest/

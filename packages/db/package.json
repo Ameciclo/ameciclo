@@ -15,7 +15,9 @@
     "./cycling-osm": "./src/cycling/osm.ts",
     "./cycling-sync": "./src/cycling/sync.ts",
     "./cycling-manifest": "./src/cycling/manifest.ts",
-    "./cycling-read": "./src/cycling/read.ts"
+    "./cycling-read": "./src/cycling/read.ts",
+    "./deaths-read": "./src/deaths/read.ts",
+    "./deaths-model": "./src/deaths/model.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
@@ -29,6 +31,7 @@
     "db:import-perfil": "tsx scripts/import-pesquisa-perfil.ts",
     "db:import-ciclo-infra": "tsx scripts/import-ciclo-infra.ts",
     "db:import-samu": "tsx scripts/import-samu.ts",
+    "db:import-mortes": "tsx scripts/import-mortes.ts",
     "db:sync-ciclo-infra": "tsx scripts/sync-ciclo-infra.ts"
   },
   "dependencies": {

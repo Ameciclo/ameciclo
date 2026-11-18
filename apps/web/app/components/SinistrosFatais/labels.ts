@@ -1,0 +1,120 @@
+import type { Counterpart, Mode } from "@ameciclo/db/deaths-model";
+
+export const MODE_LABELS: Record<Mode, string> = {
+  pedestre: "Pedestres",
+  ciclista: "Ciclistas",
+  motociclista: "Motociclistas",
+  automovel: "Ocupantes de automóvel ou caminhonete",
+  onibus: "Ocupantes de ônibus",
+  outros: "Outros veículos",
+};
+
+// Curtos, para colunas e legendas.
+export const MODE_SHORT: Record<Mode, string> = {
+  pedestre: "Pedestre",
+  ciclista: "Ciclista",
+  motociclista: "Motociclista",
+  automovel: "Automóvel",
+  onibus: "Ônibus",
+  outros: "Outros",
+};
+
+export const COUNTERPART_LABELS: Record<Counterpart, string> = {
+  pedestre: "Pedestre",
+  ciclista: "Ciclista",
+  motociclista: "Motociclista",
+  automovel: "Automóvel",
+  onibus: "Ônibus ou veículo pesado",
+  outros: "Trem ou outro veículo",
+  objeto_fixo: "Objeto fixo",
+  sem_colisao: "Sem colisão",
+  nao_especificado: "Não especificado",
+};
+
+// Contraste de luminosidade entre as cores, não só de matiz: o gráfico também se lê em tons de cinza.
+export const MODE_COLORS: Record<Mode, string> = {
+  motociclista: "#b3261e",
+  pedestre: "#d99a00",
+  ciclista: "#00695f",
+  automovel: "#4a5a63",
+  onibus: "#8e79b8",
+  outros: "#b9c1c5",
+};
+
+export const n = (value: number) => value.toLocaleString("pt-BR");
+export const pct = (part: number, whole: number) =>
+  whole === 0 ? "0%" : `${((part / whole) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}%`;
+
+// Diagnósticos que aparecem nas declarações, pelas três primeiras posições do CID-10 (S061, S068 e S069 viram S06).
+export const CID_NAMES: Record<string, string> = {
+  A41: "Septicemia",
+  E87: "Transtorno do equilíbrio de água e sais",
+  F10: "Transtornos mentais devidos ao uso de álcool",
+  G93: "Outros transtornos do encéfalo",
+  I21: "Infarto agudo do miocárdio",
+  I26: "Embolia pulmonar",
+  I46: "Parada cardíaca",
+  J15: "Pneumonia bacteriana",
+  J18: "Pneumonia",
+  J22: "Infecção aguda das vias aéreas inferiores",
+  J95: "Afecções respiratórias pós-procedimentos",
+  J96: "Insuficiência respiratória",
+  J98: "Outros transtornos respiratórios",
+  K65: "Peritonite",
+  N17: "Insuficiência renal aguda",
+  R09: "Outros sintomas respiratórios e circulatórios",
+  R57: "Choque",
+  R58: "Hemorragia",
+  S00: "Traumatismo superficial da cabeça",
+  S01: "Ferimento da cabeça",
+  S02: "Fratura do crânio e dos ossos da face",
+  S05: "Traumatismo do olho e da órbita",
+  S06: "Traumatismo intracraniano",
+  S09: "Outros traumatismos da cabeça",
+  S11: "Ferimento do pescoço",
+  S12: "Fratura do pescoço",
+  S14: "Traumatismo de nervos e da medula espinhal do pescoço",
+  S15: "Traumatismo de vasos do pescoço",
+  S18: "Ruptura do pescoço",
+  S19: "Outros traumatismos do pescoço",
+  S21: "Ferimento do tórax",
+  S22: "Fratura de costela, esterno e coluna torácica",
+  S24: "Traumatismo de nervos e da medula espinhal do tórax",
+  S25: "Traumatismo de vasos sangüíneos do tórax",
+  S26: "Traumatismo do coração",
+  S27: "Traumatismo de outros órgãos intratorácicos",
+  S28: "Esmagamento do tórax",
+  S29: "Outros traumatismos do tórax",
+  S31: "Ferimento do abdome, do dorso e da pelve",
+  S32: "Fratura da coluna lombar e da pelve",
+  S35: "Traumatismo de vasos sangüíneos do abdome",
+  S36: "Traumatismo de órgãos intra-abdominais",
+  S37: "Traumatismo de órgãos urinários e pélvicos",
+  S39: "Outros traumatismos do abdome, do dorso e da pelve",
+  S41: "Ferimento do ombro e do braço",
+  S42: "Fratura do ombro e do braço",
+  S51: "Ferimento do antebraço",
+  S52: "Fratura do antebraço",
+  S61: "Ferimento do punho e da mão",
+  S62: "Fratura do punho e da mão",
+  S71: "Ferimento do quadril e da coxa",
+  S72: "Fratura do fêmur",
+  S81: "Ferimento da perna",
+  S82: "Fratura da perna, incluindo tornozelo",
+  S91: "Ferimento do tornozelo e do pé",
+  S92: "Fratura do pé",
+  T06: "Outros traumatismos de várias regiões do corpo",
+  T07: "Traumatismos múltiplos",
+  T09: "Traumatismo da coluna e do tronco, nível não especificado",
+  T11: "Traumatismo de membro superior, nível não especificado",
+  T12: "Fratura de membro inferior, nível não especificado",
+  T13: "Traumatismo de membro inferior, nível não especificado",
+  T14: "Traumatismo de região não especificada do corpo",
+  T17: "Corpo estranho no trato respiratório",
+  T71: "Asfixia",
+  T75: "Efeitos de outras causas externas",
+  T79: "Complicações precoces de traumatismos (choque traumático, hemorragia…)",
+  T81: "Complicações de procedimentos",
+  W78: "Inalação do conteúdo gástrico",
+  Y83: "Complicação de cirurgia ou outro ato cirúrgico",
+};
