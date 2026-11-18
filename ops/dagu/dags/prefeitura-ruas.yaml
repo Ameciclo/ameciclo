@@ -1,0 +1,33 @@
+# Malha viária do Recife (trechos de logradouros da Prefeitura): dá extensão e traçado às vias do ranking de vias
+# inseguras (/dados/viasinseguras). O arquivo quase não muda: roda à mão, quando a Prefeitura publicar uma versão nova.
+# Código: packages/db/scripts/import-ruas-pcr.ts, compilado para /opt/scripts/import-ruas-pcr.mjs.
+#
+# Parâmetros: ALVO (staging ou producao), DRY_RUN (true só lê e relata; false substitui a tabela street_segment),
+# URL (o GeoJSON "Trechos de Logradouros"; por padrão a cópia que o Atlas guardava).
+description: Importa os trechos de logradouros da Prefeitura do Recife (malha viária) para o banco
+labels:
+  - fonte=prefeitura
+params:
+  - ALVO: "staging"
+  - DRY_RUN: "true"
+  - URL: "https://raw.githubusercontent.com/Ameciclo/atlas/dev/packages/database/seed-data/pcr_streets/trechos-de-logradouros.geojson"
+env:
+  - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
+  - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
+  - ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL}
+handler_on:
+  failure:
+    run: sh /opt/scripts/avisar.sh "prefeitura-ruas (${ALVO}) falhou"
+steps:
+  - name: validar
+    # Baixa e confere o arquivo; imprime quantos trechos entram e por que algum seria descartado. Não grava.
+    run: node /opt/scripts/import-ruas-pcr.mjs --dry-run --url ${URL}
+
+  - name: carregar-no-banco
+    depends:
+      - validar
+    # Substitui a tabela inteira numa transação, no banco do ALVO; só roda com DRY_RUN=false.
+    run: sh /opt/scripts/com-banco.sh node /opt/scripts/import-ruas-pcr.mjs --url ${URL}
+    preconditions:
+      - condition: "${DRY_RUN}"
+        expected: "false"

@@ -12,8 +12,9 @@ import ReactMapGL, {
 } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { SamuCityRow } from "@ameciclo/db";
+import { n } from "../Observatorio/format";
+import { MAP_STYLE } from "../Observatorio/map";
 
-const MAPSTYLE = "https://tiles.openfreemap.org/styles/positron";
 
 // Pale yellow to dark red (ColorBrewer YlOrRd, as the old page): more calls, hotter.
 const RAMP = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"];
@@ -32,7 +33,6 @@ const municipalitiesQuery = {
 // Fernando de Noronha is 360 km out at sea: fitting the map to it would push the mainland into a corner.
 const FERNANDO_DE_NORONHA = 2605459;
 
-const number = (n: number) => n.toLocaleString("pt-BR");
 
 // Five classes with about the same number of municipalities each: one city (Recife) has
 // more calls than the rest, so equal-width classes would paint almost everything pale.
@@ -45,9 +45,9 @@ function breaks(totals: number[]): number[] {
 
 function legendLabels(cuts: number[]): string[] {
   return [
-    `até ${number(cuts[0] - 1)}`,
-    ...cuts.slice(0, -1).map((c, i) => `${number(c)} a ${number(cuts[i + 1] - 1)}`),
-    `${number(cuts[cuts.length - 1])} ou mais`,
+    `até ${n(cuts[0] - 1)}`,
+    ...cuts.slice(0, -1).map((c, i) => `${n(c)} a ${n(cuts[i + 1] - 1)}`),
+    `${n(cuts[cuts.length - 1])} ou mais`,
   ];
 }
 
@@ -162,7 +162,7 @@ export function SamuChoroplethMap({ cities, selectedIbge, onSelect }: SamuChorop
             e.target.resize();
             e.target.fitBounds(bounds, { padding: 24, duration: 0 });
           }}
-          mapStyle={MAPSTYLE}
+          mapStyle={MAP_STYLE}
           interactiveLayerIds={["samu-fill"]}
           onMouseMove={onMove}
           onMouseLeave={() => setHover(null)}
@@ -187,7 +187,7 @@ export function SamuChoroplethMap({ cities, selectedIbge, onSelect }: SamuChorop
             >
               <div className="text-sm">
                 <div className="font-medium">{hoveredCity.name}</div>
-                <div className="tabular-nums text-gray-600">{number(hoveredCity.total)} chamados</div>
+                <div className="tabular-nums text-gray-600">{n(hoveredCity.total)} chamados</div>
                 <div className="text-xs text-gray-500">
                   {hovered + 1}º de {cities.length} · {((hoveredCity.total / total) * 100).toFixed(1).replace(".", ",")}% do total
                 </div>

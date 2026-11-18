@@ -41,9 +41,7 @@ export const MODE_COLORS: Record<Mode, string> = {
   outros: "#b9c1c5",
 };
 
-export const n = (value: number) => value.toLocaleString("pt-BR");
-export const pct = (part: number, whole: number) =>
-  whole === 0 ? "0%" : `${((part / whole) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}%`;
+export { n, pct } from "../Observatorio/format";
 
 // Diagnósticos que aparecem nas declarações, pelas três primeiras posições do CID-10 (S061, S068 e S069 viram S06).
 export const CID_NAMES: Record<string, string> = {

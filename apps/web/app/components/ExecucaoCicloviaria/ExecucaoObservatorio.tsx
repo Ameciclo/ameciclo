@@ -6,6 +6,8 @@ import { ExecucaoMap } from "./ExecucaoMap";
 import { CitiesTable, ProjectsTable } from "./ExecucaoTables";
 import { StatusBar } from "./StatusBar";
 import { km, percent } from "./status";
+import { Highlights } from "../Observatorio/Highlights";
+import { PageHeader } from "../Observatorio/PageHeader";
 
 interface ExecucaoObservatorioProps {
   title: string;
@@ -43,7 +45,7 @@ function highlights(overview: CyclingOverview) {
       lead: `${untouched.length} de ${cities.length} municípios`,
       text: `têm menos de 100 metros do PDC implantado: ${names(untouched.map((c) => c.name))}.`,
     },
-  ].filter((h) => h !== false);
+  ];
 }
 
 export default function ExecucaoObservatorio({
@@ -106,14 +108,7 @@ export default function ExecucaoObservatorio({
           Em destaque
         </h2>
         <p className="mb-3 text-xs text-gray-500">Região Metropolitana do Recife.</p>
-        <ul className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-3">
-          {highlights(overview).map((h) => (
-            <li key={h.lead} className="border-t border-gray-200 pt-3 leading-snug text-gray-800">
-              <span className="block text-2xl font-bold tabular-nums text-gray-900">{h.lead}</span>
-              {h.text}
-            </li>
-          ))}
-        </ul>
+        <Highlights items={highlights(overview)} />
       </section>
 
       <section className="container mx-auto mt-10 px-4" aria-labelledby="mapa">
@@ -209,22 +204,6 @@ export default function ExecucaoObservatorio({
         </p>
       </section>
     </>
-  );
-}
-
-function PageHeader({ title, explanations }: { title: string; explanations: { label: string; text: string }[] }) {
-  return (
-    <header className="container mx-auto px-4 pt-8">
-      <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-      <div className="mt-5 grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
-        {explanations.map(({ label, text }) => (
-          <section key={label} className="border-t-2 border-ameciclo pt-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ameciclo">{label}</h2>
-            <p className="mt-2 max-w-prose leading-relaxed text-gray-700">{text}</p>
-          </section>
-        ))}
-      </div>
-    </header>
   );
 }
 
