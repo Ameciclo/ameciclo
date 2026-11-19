@@ -60,3 +60,21 @@ def put(fonte: str, particao: str, source_file: Path, origem: str) -> tuple[Entr
 
 def path_of(entry: Entry) -> Path:
     return ROOT / entry.arquivo
+
+
+# Retratos com vários pedaços por execução (o OSM, por exemplo): cada um numa chave própria, dentro de raw/<fonte>/.
+
+
+def snapshot_dir(fonte: str) -> Path:
+    return ROOT / "raw" / fonte.replace(".", "/")
+
+
+def write_json(fonte: str, key: str, value) -> Path:
+    path = snapshot_dir(fonte) / key
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False))
+    return path
+
+
+def read_json(fonte: str, key: str):
+    return json.loads((snapshot_dir(fonte) / key).read_text())

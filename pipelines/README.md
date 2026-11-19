@@ -67,6 +67,20 @@ atual e os dois anteriores). Ele tem dois agendamentos: todo dia 5, os últimos 
 ano fechado sai cerca de 12 meses depois); e em 15 de março, a série inteira desde 2011, porque o DATASUS às vezes
 republica anos antigos. Ano sem mudança é baixado de novo, mas não recarregado nem republicado.
 
+## Os outros fluxos (Dagu de produção, `ops/dagu/dags`)
+
+Em Python, em `ingest/`, portados dos scripts em TypeScript com o mesmo comportamento. Ainda gravam direto nas
+tabelas do Drizzle (sem raw nem dbt), com o usuário admin do ALVO escolhido:
+
+| Fluxo | Módulo | O que faz |
+|---|---|---|
+| `osm-ciclovias` | `ingest.osm_ciclovias` | coleta a infraestrutura cicloviária no Overpass em pedaços, confere e sincroniza `cycling_way` e os vínculos com o PDC; `--snapshot` reaplica um retrato do lago |
+| `osm-estacionamentos` | `ingest.osm_lugares` | substitui `bicycle_rack` e `bike_share_station` |
+| `prefeitura-ruas` | `ingest.ruas_pcr` | substitui `street_segment` com o GeoJSON da Prefeitura |
+
+As respostas do Overpass e os arquivos baixados ficam no lago (`raw/osm/...`, `raw/prefeitura/...`). Testes:
+`uv run pytest`.
+
 ## Os passos
 
 1. **obter** (`ingest.datasus obter`): guarda o arquivo no lago. Se é igual ao último, nada muda.

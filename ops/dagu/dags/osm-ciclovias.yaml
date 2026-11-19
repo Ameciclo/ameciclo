@@ -1,9 +1,10 @@
 # Infraestrutura cicloviária da RMR a partir do OpenStreetMap (alimenta /dados/execucaocicloviaria e o admin).
-# Código: apps/collector/src/collect.ts, compilado para /opt/scripts/coletar-osm.mjs. Pergunta ao Overpass em
-# pedaços pequenos (cada um com retry próprio, o Overpass público recusa metade das tentativas em dia ruim),
-# confere se está tudo e recente e grava numa transação. Se faltar peça ou o dado for velho, não grava nada.
+# Código: pipelines/ingest/osm_ciclovias.py. Pergunta ao Overpass em pedaços pequenos (cada um com retry próprio,
+# o Overpass público recusa metade das tentativas em dia ruim), guarda cada resposta no lago (e no R2), confere se
+# está tudo e recente e grava numa transação. Se faltar peça ou o dado for velho, não grava nada.
 #
-# Parâmetros: ALVO (staging ou producao: em qual banco gravar), DRY_RUN (true desfaz a transação no fim; false grava).
+# Parâmetros: ALVO (staging ou producao: em qual banco gravar), DRY_RUN (true desfaz a transação no fim; false grava),
+# SNAPSHOT (opcional: aplica um retrato já no lago, ex. staging/2026-11-19/1a2b3c4d, sem perguntar ao Overpass).
 # Cada execução também aparece em /infra/sincronizacoes no admin, com o resumo por município.
 description: Coleta a infraestrutura cicloviária do OpenStreetMap (Overpass) e atualiza o banco
 labels:
@@ -11,6 +12,7 @@ labels:
 params:
   - ALVO: "staging"
   - DRY_RUN: "true"
+  - SNAPSHOT: ""
 env:
   - DATABASE_URL_STAGING: ${DATABASE_URL_STAGING}
   - DATABASE_URL_PRODUCAO: ${DATABASE_URL_PRODUCAO}
@@ -26,7 +28,8 @@ handler_on:
     run: sh /opt/scripts/avisar.sh "osm-ciclovias (${ALVO}) falhou"
 steps:
   - name: coletar-validar-e-gravar
-    # Por enquanto um passo só (o coletor faz as três fases); os snapshots ficam em /tmp/osm-snapshots.
-    run: sh /opt/scripts/com-banco.sh node /opt/scripts/coletar-osm.mjs
+    # Por enquanto um passo só (o coletor faz as três fases); os retratos ficam no lago, em raw/osm/ciclovias/.
+    working_dir: /opt/pipelines
+    run: sh /opt/scripts/com-banco.sh /opt/venv/bin/python -m ingest.osm_ciclovias --snapshot "${SNAPSHOT}"
     env:
       - DRY_RUN: ${DRY_RUN}

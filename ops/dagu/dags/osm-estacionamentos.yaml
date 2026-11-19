@@ -1,5 +1,5 @@
 # Bicicletários e estações de Bike PE da RMR a partir do OpenStreetMap (alimentam o mapa de /dados/ciclodados).
-# Código: packages/db/scripts/import-osm-lugares.ts, compilado para /opt/scripts/import-osm-lugares.mjs.
+# Código: pipelines/ingest/osm_lugares.py (as respostas do Overpass ficam no lago, em raw/osm/lugares/).
 # Pergunta ao Overpass (espelho e servidor principal), recusa resultado pequeno demais (sinal de consulta falha) e
 # substitui as duas tabelas numa transação.
 #
@@ -21,6 +21,7 @@ handler_on:
 steps:
   - name: importar
     # Uma busca só (o Overpass recusa muita tentativa): com DRY_RUN=true o script só busca e relata; com false, grava.
-    run: sh /opt/scripts/com-banco.sh node /opt/scripts/import-osm-lugares.mjs
+    working_dir: /opt/pipelines
+    run: sh /opt/scripts/com-banco.sh /opt/venv/bin/python -m ingest.osm_lugares
     env:
       - DRY_RUN: ${DRY_RUN}

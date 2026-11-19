@@ -1,0 +1,52 @@
+id: osm-lugares
+namespace: ameciclo.pipelines
+description: |
+  Bicicletários e estações de Bike PE da RMR, do OpenStreetMap (mapa de /dados/ciclodados). Busca no Overpass, guarda
+  as respostas no lago (raw/osm/lugares/), recusa resultado pequeno demais e substitui bicycle_rack e
+  bike_share_station numa transação. Código: ingest/osm_lugares.py.
+labels:
+  fonte: osm
+
+inputs:
+  - id: dry_run
+    type: BOOL
+    defaults: true
+    description: Só busca e relata, sem gravar
+
+# Todo passo leva o mesmo container, a rede do banco, o lago e a conexão (usuário restrito pipeline; ver
+# sql/permissoes.sql). Este Kestra é de staging: grava só no banco de staging (ENVIRONMENT=staging).
+variables:
+  imagem: python:3.12-slim
+
+tasks:
+  - id: importar
+    type: io.kestra.plugin.scripts.python.Commands
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+    namespaceFiles:
+      enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      ENVIRONMENT: staging
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: ["psycopg[binary]==3.3.9"]
+    commands:
+      - python -m ingest.osm_lugares {% if inputs.dry_run %}--dry-run{% endif %}
+
+triggers:
+  # Dia 2 de cada mês, 7h30 (o Dagu de produção roda no dia 1).
+  - id: mensal
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "30 7 2 * *"
+    timezone: America/Recife
+    inputs:
+      dry_run: false

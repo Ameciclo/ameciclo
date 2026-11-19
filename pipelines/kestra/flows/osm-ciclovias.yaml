@@ -1,0 +1,93 @@
+id: osm-ciclovias
+namespace: ameciclo.pipelines
+description: |
+  Infraestrutura cicloviária da RMR a partir do OpenStreetMap (alimenta /dados/execucaocicloviaria e o admin).
+  coletar: pergunta ao Overpass em pedaços pequenos (cada um com até 10 tentativas), guarda cada resposta no lago
+  (raw/osm/ciclovias/<retrato>/) e confere se veio tudo e recente. gravar: sincroniza o banco numa transação.
+  Se a gravação falhar, "Replay" a partir dela reaplica o mesmo retrato sem perguntar ao Overpass de novo.
+  Código: ingest/osm_ciclovias.py.
+labels:
+  fonte: osm
+
+concurrency:
+  limit: 1
+  behavior: QUEUE
+
+inputs:
+  - id: dry_run
+    type: BOOL
+    defaults: true
+    description: Desfaz a transação no fim (só relata o que mudaria)
+  - id: snapshot
+    type: STRING
+    required: false
+    description: Retrato já no lago (ex. staging/2026-11-19/1a2b3c4d); vazio = coletar no Overpass
+
+# Todo passo leva o mesmo container, a rede do banco, o lago e a conexão (usuário restrito pipeline; ver
+# sql/permissoes.sql). Este Kestra é de staging: grava só no banco de staging (ENVIRONMENT=staging).
+variables:
+  imagem: python:3.12-slim
+
+tasks:
+  - id: coletar
+    description: Overpass -> lago, em pedaços; confere se está tudo e recente. Pula se veio um retrato.
+    runIf: "{{ inputs.snapshot is empty }}"
+    type: io.kestra.plugin.scripts.python.Commands
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+    namespaceFiles:
+      enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      ENVIRONMENT: staging
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: ["psycopg[binary]==3.3.9"]
+    # Até 10 tentativas por pedaço, e no máximo 6 h no total.
+    timeout: PT6H
+    commands:
+      - python -m ingest.osm_ciclovias --so-coletar
+
+  - id: gravar
+    description: Sincroniza cycling_way, os vínculos com o PDC e o resumo por cidade, numa transação.
+    type: io.kestra.plugin.scripts.python.Commands
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+    namespaceFiles:
+      enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      ENVIRONMENT: staging
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: ["psycopg[binary]==3.3.9"]
+    commands:
+      - >-
+        python -m ingest.osm_ciclovias
+        --snapshot {{ inputs.snapshot ?? outputs.coletar.vars.snapshot }}
+        {% if inputs.dry_run %}--dry-run{% endif %}
+
+triggers:
+  # Toda terça, 7h (o Dagu de produção coleta na segunda: os dois no mesmo dia disputariam o Overpass).
+  - id: semanal
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 7 * * 2"
+    timezone: America/Recife
+    inputs:
+      dry_run: false

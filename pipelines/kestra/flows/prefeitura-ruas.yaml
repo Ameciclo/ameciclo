@@ -1,0 +1,71 @@
+id: prefeitura-ruas
+namespace: ameciclo.pipelines
+description: |
+  Trechos de logradouros do Recife (Prefeitura) em street_segment: extensão e traçado das vias do ranking de vias
+  inseguras. O arquivo quase não muda: roda à mão. validar baixa, guarda no lago (raw/prefeitura/ruas/) e relata;
+  carregar substitui a tabela numa transação. Código: ingest/ruas_pcr.py.
+labels:
+  fonte: prefeitura
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: https://raw.githubusercontent.com/Ameciclo/atlas/dev/packages/database/seed-data/pcr_streets/trechos-de-logradouros.geojson
+    description: O GeoJSON "Trechos de Logradouros"
+  - id: dry_run
+    type: BOOL
+    defaults: true
+    description: Só valida, sem gravar
+
+# Todo passo leva o mesmo container, a rede do banco, o lago e a conexão (usuário restrito pipeline; ver
+# sql/permissoes.sql). Este Kestra é de staging: grava só no banco de staging (ENVIRONMENT=staging).
+variables:
+  imagem: python:3.12-slim
+
+tasks:
+  - id: validar
+    type: io.kestra.plugin.scripts.python.Commands
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+    namespaceFiles:
+      enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      ENVIRONMENT: staging
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: ["psycopg[binary]==3.3.9"]
+    commands:
+      - python -m ingest.ruas_pcr --dry-run --url "{{ inputs.url }}"
+
+  - id: carregar
+    runIf: "{{ not inputs.dry_run }}"
+    type: io.kestra.plugin.scripts.python.Commands
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+    namespaceFiles:
+      enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      ENVIRONMENT: staging
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: ["psycopg[binary]==3.3.9"]
+    commands:
+      - python -m ingest.ruas_pcr --url "{{ inputs.url }}"
