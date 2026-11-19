@@ -33,6 +33,8 @@ IGNORAR = {"target", "logs", "dbt_packages", "__pycache__", ".user.yml"}
 def chamar(metodo: str, caminho: str, corpo: bytes | None = None, tipo: str | None = None):
     pedido = urllib.request.Request(f"{API}{caminho}", data=corpo, method=metodo)
     pedido.add_header("Authorization", AUTH)
+    # O Cloudflare na frente do Kestra do Coolify recusa o User-Agent padrão do Python (erro 1010).
+    pedido.add_header("User-Agent", "ameciclo-sincronizar/1.0")
     if tipo:
         pedido.add_header("content-type", tipo)
     try:
