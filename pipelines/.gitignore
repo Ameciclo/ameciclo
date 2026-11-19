@@ -1,0 +1,8 @@
+.venv/
+lake/
+transform/target/
+transform/logs/
+transform/dbt_packages/
+.env
+__pycache__/
+transform/.user.yml

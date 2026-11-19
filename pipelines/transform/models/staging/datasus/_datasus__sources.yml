@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: datasus
+    schema: raw
+    description: Carregado pela ingestão (pipelines/ingest/datasus.py) a partir do lago; tudo como texto, como veio.
+    tables:
+      - name: datasus_sim
+        description: Declarações de óbito do SIM com causa básica V ou Y85, Brasil inteiro, uma linha por óbito.

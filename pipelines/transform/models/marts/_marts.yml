@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: sinistros_fatais
+    description: Óbitos por acidente de transporte terrestre na RMR, 2011 em diante (SIM/DATASUS).
+    config:
+      # O contrato: se o SQL mudar uma coluna ou um tipo, o dbt build falha antes de o site ver.
+      contract:
+        enforced: true
+    columns:
+      - name: source_year
+        data_type: smallint
+        constraints: [{ type: not_null }]
+      - name: source_row
+        data_type: integer
+        constraints: [{ type: not_null }]
+      - name: year
+        data_type: smallint
+        constraints: [{ type: not_null }]
+      - name: month
+        data_type: smallint
+        constraints: [{ type: not_null }]
+      - name: occurrence_city
+        data_type: integer
+      - name: residence_city
+        data_type: integer
+      - name: death_place
+        data_type: text
+      - name: cause
+        data_type: text
+        constraints: [{ type: not_null }]
+      - name: secondary_causes
+        data_type: text
+      - name: sex
+        data_type: text
+      - name: race_color
+        data_type: text
+      - name: age_years
+        data_type: smallint
+
+exposures:
+  - name: pagina_sinistros_fatais
+    type: application
+    url: https://www.ameciclo.org/dados/sinistros-fatais
+    description: Página do Observatório com os óbitos no trânsito da RMR.
+    owner:
+      name: Ameciclo
+    depends_on:
+      - ref('sinistros_fatais')

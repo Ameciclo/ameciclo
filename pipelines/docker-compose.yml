@@ -1,0 +1,17 @@
+# Postgres local só para o protótipo do pipeline (porta 5440, para não brigar com outros bancos da máquina).
+#   docker compose -f pipelines/docker-compose.yml up -d
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    container_name: ameciclo-pipeline-db
+    environment:
+      POSTGRES_USER: ameciclo
+      POSTGRES_PASSWORD: ameciclo
+      POSTGRES_DB: ameciclo
+    ports:
+      - "5440:5432"
+    volumes:
+      - pipeline-db:/var/lib/postgresql/data
+      - ./sql/bootstrap.sql:/docker-entrypoint-initdb.d/10-bootstrap.sql:ro
+volumes:
+  pipeline-db:

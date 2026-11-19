@@ -1,0 +1,21 @@
+name: ameciclo
+version: "0.1.0"
+profile: ameciclo
+config-version: 2
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+vars:
+  # Municípios da Região Metropolitana do Recife, com o código de 6 dígitos do SIM (o IBGE sem o dígito verificador).
+  rmr_sim: [260005, 260105, 260290, 260345, 260680, 260720, 260760, 260775, 260790, 260940, 260960, 261070, 261160, 261370]
+
+models:
+  ameciclo:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
