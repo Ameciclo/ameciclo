@@ -48,3 +48,16 @@ mudanças no `pyproject.toml` pedem `--build`. Para rodar um passo à mão fora 
 
 Diferença deliberada: `source_row` é a linha no arquivo original (no importador atual é a posição entre os óbitos
 que entraram), para que cada óbito do site possa ser rastreado até o arquivo.
+
+## Comparação de orquestradores (local)
+
+O mesmo pipeline roda em três orquestradores, todos no `docker compose up -d --build`:
+
+| | Endereço | Onde está o fluxo |
+|---|---|---|
+| Dagu | http://localhost:8095 | `dags/datasus.yaml` |
+| Dagster | http://localhost:8096 | `orquestracao/definitions.py` (assets por ano + o projeto dbt via dagster-dbt) |
+| Windmill | http://localhost:8097 (admin@windmill.dev / changeme) | `windmill/datasus.flow.json`, publicado com `windmill/publicar.sh` |
+
+Os três usam o mesmo código (`ingest/`, `transform/`) e o mesmo banco. O worker do Windmill roda como root, então
+usa um lago e um `target` do dbt próprios, dentro do container.

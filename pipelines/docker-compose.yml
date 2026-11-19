@@ -68,6 +68,52 @@ services:
       - ./lake:/var/lib/pipelines/lake
       - ../data/mortes:/data/mortes:ro
 
+  windmill:
+    image: ghcr.io/windmill-labs/windmill:1.876.1
+    container_name: ameciclo-pipeline-windmill
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://ameciclo:ameciclo@db/windmill?sslmode=disable
+      MODE: server
+      BASE_URL: http://localhost:8097
+      SUPERADMIN_SECRET: local-superadmin
+    ports:
+      - "8097:8000"
+
+  windmill-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.windmill-worker
+    container_name: ameciclo-pipeline-windmill-worker
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://ameciclo:ameciclo@db/windmill?sslmode=disable
+      MODE: worker
+      WORKER_GROUP: default
+      # O Windmill só repassa aos jobs as variáveis listadas aqui.
+      WHITELIST_ENVS: PIPELINE_DATABASE_URL,PGHOST,PGPORT,PGUSER,PGPASSWORD,PGDATABASE,LAKE_DIR,DBT_PROFILES_DIR,DBT_TARGET_PATH,DBT_LOG_PATH,DBT_SEND_ANONYMOUS_USAGE_STATS
+      PIPELINE_DATABASE_URL: postgresql://ameciclo:ameciclo@db:5432/ameciclo
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: ameciclo
+      PGPASSWORD: ameciclo
+      PGDATABASE: ameciclo
+      # O worker roda como root: lago e target do dbt ficam dentro do container, para não criar arquivos de root
+      # nas pastas que o Dagu e o Dagster (usuário 1000) também usam.
+      LAKE_DIR: /var/lib/pipelines/lake
+      DBT_PROFILES_DIR: /opt/pipelines/transform
+      DBT_TARGET_PATH: /tmp/dbt-target
+      DBT_LOG_PATH: /tmp/dbt-logs
+      DBT_SEND_ANONYMOUS_USAGE_STATS: "false"
+    volumes:
+      - ./ingest:/opt/pipelines/ingest:ro
+      - ./transform:/opt/pipelines/transform:ro
+      - ../data/mortes:/data/mortes:ro
+
 volumes:
   pipeline-db:
   dagu-data:
