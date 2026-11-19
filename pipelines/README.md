@@ -82,6 +82,7 @@ pasta vazia ele baixa do FTP do DATASUS (e não baixa de novo por 24 h, a não s
 | Na interface | o YAML; o Python e o SQL não aparecem | o YAML, o Python e os modelos dbt; cada modelo e teste do dbt vira uma linha na execução |
 | Repetir o que falhou | Retry: refaz o passo que falhou e os seguintes | Replay a partir de um passo |
 | Memória (medida, parado) | ~90 MB | ~2 GB (Java; dá para limitar com `JAVA_OPTS=-Xmx…`) |
+| Onde roda o Python | dentro do container do Dagu | um container `python:3.12-slim` por passo (task runner Docker, o padrão do Kestra; exige o Kestra com acesso ao Docker do servidor) |
 
 O código tem uma fonte só, este repositório. No Kestra, `python3 kestra/sincronizar.py enviar` manda o repositório
 para lá e `puxar` traz de volta o que foi editado na interface (no servidor, o caminho seria o plugin de git do

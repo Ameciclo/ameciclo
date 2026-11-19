@@ -3,6 +3,7 @@ namespace: ameciclo.pipelines
 description: |
   Óbitos no trânsito (SIM/DATASUS): lago -> raw -> staging -> publicacao -> public.traffic_death (tabela do Drizzle).
   Um ano por execução. O código é o deste namespace (aba Files): ingest/ (Python) e transform/ (o projeto dbt).
+  Cada passo roda num container python:3.12-slim (task runner Docker), com as versões do pipelines/uv.lock.
   Se um passo falhar, "Replay" a partir dele refaz só ele e os seguintes.
 labels:
   fonte: datasus
@@ -26,15 +27,34 @@ inputs:
     defaults: false
     description: Baixar e carregar de novo mesmo sem mudança
 
+# Todo passo leva o mesmo container, a rede onde está o banco, o lago e a conexão (usuário restrito pipeline).
+# Os valores vêm das variáveis do servidor do Kestra: ENV_* viram envs.*, SECRET_* (em base64) viram secret().
+# (Repetidos em cada passo: o Kestra 2.0 não aceita âncoras do YAML nem pluginDefaults no fluxo.)
+variables:
+  imagem: python:3.12-slim
+
 tasks:
   - id: obter
     description: Guarda o arquivo no lago; igual ao último = nada muda. Do FTP, não baixa de novo por 24 h.
     type: io.kestra.plugin.scripts.python.Commands
-    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    containerImage: "{{ vars.imagem }}"
     taskRunner:
-      type: io.kestra.plugin.core.runner.Process
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+        - "{{ envs.dados_volume }}:/data/mortes:ro"
     namespaceFiles:
       enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: [datasus-dbc==0.1.3, dbfread==2.0.7, "psycopg[binary]==3.3.9"]
     retry:
       type: constant
       interval: PT1M
@@ -48,23 +68,51 @@ tasks:
   - id: carregar
     description: Lago -> raw.datasus_sim numa transação; se este arquivo já está no banco, pula.
     type: io.kestra.plugin.scripts.python.Commands
-    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    containerImage: "{{ vars.imagem }}"
     taskRunner:
-      type: io.kestra.plugin.core.runner.Process
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+        - "{{ envs.dados_volume }}:/data/mortes:ro"
     namespaceFiles:
       enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: ["psycopg[binary]==3.3.9"]
     commands:
       - python -m ingest.datasus carregar --ano {{ inputs.ano }} {% if inputs.forcar %}--forcar{% endif %}
 
   - id: transformar
     description: Staging + testes + a view de publicação (e a conferência com a tabela do Drizzle). Teste falhou = não publica.
     type: io.kestra.plugin.dbt.cli.DbtCLI
-    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    containerImage: "{{ vars.imagem }}"
     taskRunner:
-      type: io.kestra.plugin.core.runner.Process
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+        - "{{ envs.dados_volume }}:/data/mortes:ro"
     namespaceFiles:
       enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
     projectDir: transform
+    # O DbtCLI não tem cache de dependências: instala o dbt (versões do uv.lock) a cada execução.
+    beforeCommands:
+      - pip install --quiet --no-cache-dir dbt-core==1.12.7 dbt-postgres==1.11.0
     # O DbtCLI acrescenta --project-dir transform e lê o resultado de cada modelo e teste (aba Outputs).
     commands:
       - dbt build --select source:datasus+ --exclude-resource-type exposure --profiles-dir transform
@@ -72,11 +120,23 @@ tasks:
   - id: publicar
     description: Numa transação, troca os anos com carga nova em public.traffic_death e marca as cargas como publicadas.
     type: io.kestra.plugin.scripts.python.Commands
-    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    containerImage: "{{ vars.imagem }}"
     taskRunner:
-      type: io.kestra.plugin.core.runner.Process
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+        - "{{ envs.dados_volume }}:/data/mortes:ro"
     namespaceFiles:
       enabled: true
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    dependencies: ["psycopg[binary]==3.3.9"]
     commands:
       - python -m ingest.publicar datasus.sim
-

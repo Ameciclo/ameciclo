@@ -61,14 +61,6 @@ services:
       db:
         condition: service_healthy
     environment:
-      # Os passos herdam estas variáveis (task runner Process). Em produção viriam de secrets.
-      # O usuário restrito do pipeline (sql/bootstrap.sql): não muda a estrutura das tabelas do Drizzle.
-      PIPELINE_DATABASE_URL: postgresql://pipeline:pipeline@db:5432/ameciclo
-      PGHOST: db
-      PGPORT: "5432"
-      PGUSER: pipeline
-      PGPASSWORD: pipeline
-      PGDATABASE: ameciclo
       # A configuração está em kestra/application.yaml (a mesma do Coolify); aqui só os valores locais.
       KESTRA_DB_URL: jdbc:postgresql://db:5432/kestra
       KESTRA_DB_USER: ameciclo
@@ -76,13 +68,27 @@ services:
       KESTRA_ADMIN_USER: admin@kestra.io
       KESTRA_ADMIN_PASSWORD: Admin1234!
       KESTRA_URL: http://localhost:8098/
+      # O que os containers dos passos recebem (no fluxo: envs.* e secret()). O usuário restrito do pipeline.
+      ENV_DOCKER_NETWORK: ameciclo-pipeline
+      ENV_LAKE_VOLUME: ameciclo-pipeline-kestra-lake
+      ENV_DADOS_VOLUME: ameciclo-pipeline-mortes
+      ENV_PGHOST: db
+      ENV_PGPORT: "5432"
+      ENV_PGUSER: pipeline
+      ENV_PGDATABASE: ameciclo
+      ENV_PGSSLMODE: disable
+      SECRET_PGPASSWORD: cGlwZWxpbmU=   # "pipeline" em base64
     ports:
       - "8098:8080"
     volumes:
-      # O mesmo lago do Dagu (em produção os dois apontariam para o R2).
-      - ./lake:/var/lib/pipelines/lake
-      - ../data/mortes:/data/mortes:ro
+      # Como na documentação do Kestra: com o Docker do host, cada passo roda num container próprio.
+      - /var/run/docker.sock:/var/run/docker.sock
       - kestra-storage:/app/storage
+
+networks:
+  default:
+    # Nome fixo: os containers dos passos entram nesta rede para achar o banco (ENV_DOCKER_NETWORK).
+    name: ameciclo-pipeline
 
 volumes:
   pipeline-db:

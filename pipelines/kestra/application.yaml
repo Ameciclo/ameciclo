@@ -25,3 +25,9 @@ kestra:
   url: ${KESTRA_URL}
   anonymous-usage-report:
     enabled: false
+  plugins:
+    configurations:
+      # Os passos montam o lago (um volume do Docker) no container deles.
+      - type: io.kestra.plugin.scripts.runner.docker.Docker
+        values:
+          volume-enabled: true
