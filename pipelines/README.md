@@ -98,12 +98,17 @@ fica no `postgres-staging`:
 - **Banco `ameciclo`, o de staging do site**: o pipeline escreve nele com o usuário `pipeline`. Esse banco já passou
   pelo `bootstrap.sql` e pelo `permissoes.sql`.
 
-Variáveis do app:
-- `KESTRA_DB_*` e `KESTRA_ADMIN_*`;
-- `PGHOST`, `PGUSER` e `PGPASSWORD`, entre outras `PG*`, para o pipeline;
-- `JAVA_OPTS=-Xmx1g`.
+O Kestra roda como root e com o Docker do servidor montado (`/var/run/docker.sock`), como na documentação dele. Cada
+passo roda num container `python:3.12-slim` próprio, ligado à rede `coolify`, onde fica o banco.
 
-Volumes: `/app/storage` e o lago em `/var/lib/pipelines/lake`. Para mandar o código:
+Variáveis do app:
+- **O próprio Kestra:** `KESTRA_DB_*`, `KESTRA_ADMIN_*` e `JAVA_OPTS=-Xmx1g`.
+- **Os passos:** `ENV_PG*` (no fluxo, `envs.pg*`) e `ENV_DOCKER_NETWORK`.
+- **O lago:** `ENV_LAKE_VOLUME`, um volume do Docker que os passos montam em `/var/lib/pipelines/lake`.
+- **A senha do usuário `pipeline`:** `SECRET_PGPASSWORD`, em base64, como o Kestra exige para segredos
+  (no fluxo, `secret('PGPASSWORD')`).
+
+Volume do app: `/app/storage`. Para mandar o código:
 
 ```sh
 KESTRA_URL=https://kestra.ameciclo.org KESTRA_ADMIN_USER=admin@ameciclo.org KESTRA_ADMIN_PASSWORD=... \
