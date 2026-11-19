@@ -87,6 +87,28 @@ O código tem uma fonte só, este repositório. No Kestra, `python3 kestra/sincr
 para lá e `puxar` traz de volta o que foi editado na interface (no servidor, o caminho seria o plugin de git do
 Kestra). Os dois usam a mesma imagem de Python (`pyproject.toml`) e o mesmo lago.
 
+## Kestra no Coolify (staging)
+
+O app `kestra` do projeto Ameciclo, ambiente staging, responde em https://kestra.ameciclo.org. Ele é construído de
+`pipelines/Dockerfile.kestra` (pasta base `/pipelines`) e usa a mesma configuração, `kestra/application.yaml`. Tudo
+fica no `postgres-staging`:
+
+- **Banco `kestra`**, dono o usuário `kestra`: o estado do Kestra (fluxos, execuções, fila).
+- **Banco `ameciclo`, o de staging do site**: o pipeline escreve nele com o usuário `pipeline`. Esse banco já passou
+  pelo `bootstrap.sql` e pelo `permissoes.sql`.
+
+Variáveis do app:
+- `KESTRA_DB_*` e `KESTRA_ADMIN_*`;
+- `PGHOST`, `PGUSER` e `PGPASSWORD`, entre outras `PG*`, para o pipeline;
+- `JAVA_OPTS=-Xmx1g`.
+
+Volumes: `/app/storage` e o lago em `/var/lib/pipelines/lake`. Para mandar o código:
+
+```sh
+KESTRA_URL=https://kestra.ameciclo.org KESTRA_ADMIN_USER=admin@ameciclo.org KESTRA_ADMIN_PASSWORD=... \
+  python3 pipelines/kestra/sincronizar.py enviar
+```
+
 ## O que já foi verificado
 
 - A tabela do Drizzle fica exatamente igual à view de publicação, e o resultado bate com o importador atual: 10.823
