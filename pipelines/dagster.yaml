@@ -1,0 +1,11 @@
+# Histórico de execuções, eventos e agenda do Dagster: no banco "dagster" do mesmo Postgres.
+storage:
+  postgres:
+    postgres_db:
+      hostname: db
+      port: 5432
+      username: ameciclo
+      password: ameciclo
+      db_name: dagster
+telemetry:
+  enabled: false

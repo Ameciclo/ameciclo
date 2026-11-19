@@ -44,6 +44,30 @@ services:
       - ../data/mortes:/data/mortes:ro
       - dagu-data:/var/lib/dagu
 
+  dagster:
+    build:
+      context: .
+      dockerfile: Dockerfile.dagster
+    container_name: ameciclo-pipeline-dagster
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PIPELINE_DATABASE_URL: postgresql://ameciclo:ameciclo@db:5432/ameciclo
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: ameciclo
+      PGPASSWORD: ameciclo
+      PGDATABASE: ameciclo
+    ports:
+      - "8096:3000"
+    volumes:
+      - ./ingest:/opt/pipelines/ingest
+      - ./transform:/opt/pipelines/transform
+      - ./orquestracao:/opt/pipelines/orquestracao
+      - ./lake:/var/lib/pipelines/lake
+      - ../data/mortes:/data/mortes:ro
+
 volumes:
   pipeline-db:
   dagu-data:

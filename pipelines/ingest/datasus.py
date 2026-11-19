@@ -54,13 +54,14 @@ def _from_ftp(year: int, out: Path) -> str:
     return url
 
 
-def obter(year: int, de_pasta: Path | None, forcar: bool) -> None:
+def obter(year: int, de_pasta: Path | None, forcar: bool) -> tuple[lake.Entry, bool] | None:
+    """Devolve a entrada do lago e se o arquivo é novo; None se nem precisou baixar."""
     previous = lake.latest(FONTE, str(year))
     if de_pasta is None and previous and not forcar:
         age = datetime.now(timezone.utc) - datetime.fromisoformat(previous.obtido_em)
         if age < FRESH_FOR:
             print(f"{year}: obtido há {age.seconds // 3600} h; nada a baixar (use --forcar para baixar de novo)")
-            return
+            return None
     with tempfile.TemporaryDirectory() as tmp:
         if de_pasta is not None:
             source = de_pasta / f"mortes_transito_{year}.csv"
@@ -72,6 +73,7 @@ def obter(year: int, de_pasta: Path | None, forcar: bool) -> None:
             origem = _from_ftp(year, source)
         entry, changed = lake.put(FONTE, str(year), source, origem)
     print(f"{year}: {'arquivo novo' if changed else 'igual ao anterior'} -> {entry.arquivo}")
+    return entry, changed
 
 
 def _ensure_table(cur, header: list[str]) -> None:
@@ -86,14 +88,15 @@ def _ensure_table(cur, header: list[str]) -> None:
             cur.execute(f'alter table {TABLE} add column "{column}" text')
 
 
-def carregar(year: int, forcar: bool) -> None:
+def carregar(year: int, forcar: bool) -> tuple[int, int] | None:
+    """Devolve (carga, linhas); None se o arquivo já estava no banco."""
     entry = lake.latest(FONTE, str(year))
     if entry is None:
         raise SystemExit(f"{year}: nada no lago; rode o obter antes")
     with db.connect() as conn:
         if not forcar and db.already_loaded(conn, FONTE, str(year), entry.sha256):
             print(f"{year}: este arquivo já está no banco; nada a carregar")
-            return
+            return None
         load_id = db.start_load(conn, FONTE, str(year), entry.arquivo, entry.sha256)
         try:
             with lake.path_of(entry).open(newline="", encoding="utf-8") as f:
@@ -117,6 +120,7 @@ def carregar(year: int, forcar: bool) -> None:
             raise
         db.finish_load(conn, load_id, "carregada", rows)
     print(f"{year}: {rows} linhas em {TABLE} (carga {load_id})")
+    return load_id, rows
 
 
 def main() -> None:
@@ -134,6 +138,7 @@ def main() -> None:
         obter(args.ano, args.de_pasta, args.forcar)
     else:
         carregar(args.ano, args.forcar)
+    return 0
 
 
 if __name__ == "__main__":

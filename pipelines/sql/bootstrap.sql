@@ -5,6 +5,8 @@
 --   meta     a ingestão: o registro de cada carga (de qual arquivo, quando, quantas linhas)
 --   public   o Drizzle (por enquanto; no desenho final vira "app")
 create extension if not exists postgis;
+-- Banco à parte para o histórico do Dagster (só no protótipo de comparação).
+create database dagster;
 
 create schema if not exists raw;
 create schema if not exists meta;

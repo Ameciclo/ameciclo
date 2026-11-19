@@ -1,0 +1,15 @@
+# Dagster (interface + daemon, via `dagster dev`) com o mesmo ambiente dos pipelines. Build context: pipelines/.
+FROM python:3.12-slim
+COPY --from=ghcr.io/astral-sh/uv:0.9.7 /uv /usr/local/bin/uv
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
+WORKDIR /opt/pipelines
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv sync --frozen --no-install-project --group dagster
+COPY dagster.yaml /opt/dagster_home/dagster.yaml
+RUN mkdir -p /var/lib/pipelines/lake && chown -R 1000:1000 /opt/dagster_home /opt/pipelines /var/lib/pipelines
+USER 1000:1000
+ENV PATH=/opt/venv/bin:$PATH \
+    DAGSTER_HOME=/opt/dagster_home \
+    LAKE_DIR=/var/lib/pipelines/lake \
+    DBT_PROFILES_DIR=/opt/pipelines/transform
+CMD ["dagster", "dev", "-h", "0.0.0.0", "-p", "3000", "-m", "orquestracao.definitions"]
