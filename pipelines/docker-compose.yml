@@ -57,7 +57,6 @@ services:
       context: .
       dockerfile: Dockerfile.kestra
     container_name: ameciclo-pipeline-kestra
-    command: server standalone
     depends_on:
       db:
         condition: service_healthy
@@ -70,29 +69,13 @@ services:
       PGUSER: pipeline
       PGPASSWORD: pipeline
       PGDATABASE: ameciclo
-      KESTRA_CONFIGURATION: |
-        datasources:
-          postgres:
-            url: jdbc:postgresql://db:5432/kestra
-            driverClassName: org.postgresql.Driver
-            username: ameciclo
-            password: ameciclo
-        kestra:
-          server:
-            basic-auth:
-              username: admin@kestra.io
-              password: Admin1234!
-          repository:
-            type: postgres
-          queue:
-            type: postgres
-          storage:
-            type: local
-            local:
-              base-path: /app/storage
-          url: http://localhost:8098/
-          anonymous-usage-report:
-            enabled: false
+      # A configuração está em kestra/application.yaml (a mesma do Coolify); aqui só os valores locais.
+      KESTRA_DB_URL: jdbc:postgresql://db:5432/kestra
+      KESTRA_DB_USER: ameciclo
+      KESTRA_DB_PASSWORD: ameciclo
+      KESTRA_ADMIN_USER: admin@kestra.io
+      KESTRA_ADMIN_PASSWORD: Admin1234!
+      KESTRA_URL: http://localhost:8098/
     ports:
       - "8098:8080"
     volumes:

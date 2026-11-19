@@ -11,7 +11,10 @@ WORKDIR /opt/pipelines
 COPY pyproject.toml uv.lock .python-version ./
 RUN uv sync --frozen --no-install-project && chmod -R a+rX /opt/venv \
  && mkdir -p /var/lib/pipelines/lake /app/storage && chown -R kestra:kestra /var/lib/pipelines /app/storage
+COPY --chown=kestra:kestra kestra/application.yaml /app/confs/application.yaml
 USER kestra
 WORKDIR /app
 ENV PATH=/opt/venv/bin:$PATH \
     LAKE_DIR=/var/lib/pipelines/lake
+# Servidor completo num processo só; a configuração lê os segredos das variáveis de ambiente.
+CMD ["server", "standalone", "--config", "/app/confs/application.yaml"]

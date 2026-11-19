@@ -9,6 +9,7 @@ plugin de git do Kestra (io.kestra.plugin.git.SyncNamespaceFiles e SyncFlows) ap
 """
 
 import json
+import os
 import sys
 import urllib.error
 import urllib.parse
@@ -17,9 +18,13 @@ import uuid
 from base64 import b64encode
 from pathlib import Path
 
-API = "http://localhost:8098/api/v1/main"
+# Por padrão o Kestra local. Para o do Coolify:
+#   KESTRA_URL=https://kestra.ameciclo.org KESTRA_ADMIN_USER=... KESTRA_ADMIN_PASSWORD=... python3 sincronizar.py enviar
+API = os.environ.get("KESTRA_URL", "http://localhost:8098").rstrip("/") + "/api/v1/main"
 NAMESPACE = "ameciclo.pipelines"
-AUTH = "Basic " + b64encode(b"admin@kestra.io:Admin1234!").decode()
+AUTH = "Basic " + b64encode(
+    f"{os.environ.get('KESTRA_ADMIN_USER', 'admin@kestra.io')}:{os.environ.get('KESTRA_ADMIN_PASSWORD', 'Admin1234!')}".encode()
+).decode()
 RAIZ = Path(__file__).resolve().parent.parent  # pipelines/
 PASTAS = ["ingest", "transform"]
 IGNORAR = {"target", "logs", "dbt_packages", "__pycache__", ".user.yml"}

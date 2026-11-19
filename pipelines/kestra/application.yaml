@@ -1,0 +1,27 @@
+# Configuração do Kestra, igual no docker-compose local e no Coolify. O que muda por ambiente (e os segredos) vem das
+# variáveis de ambiente: KESTRA_DB_URL, KESTRA_DB_USER, KESTRA_DB_PASSWORD, KESTRA_ADMIN_USER, KESTRA_ADMIN_PASSWORD e
+# KESTRA_URL.
+datasources:
+  postgres:
+    url: ${KESTRA_DB_URL}
+    driverClassName: org.postgresql.Driver
+    username: ${KESTRA_DB_USER}
+    password: ${KESTRA_DB_PASSWORD}
+
+kestra:
+  server:
+    basic-auth:
+      username: ${KESTRA_ADMIN_USER}
+      password: ${KESTRA_ADMIN_PASSWORD}
+  # Estado (fluxos, execuções, fila) no Postgres; arquivos das execuções no disco do container (volume).
+  repository:
+    type: postgres
+  queue:
+    type: postgres
+  storage:
+    type: local
+    local:
+      base-path: /app/storage
+  url: ${KESTRA_URL}
+  anonymous-usage-report:
+    enabled: false
