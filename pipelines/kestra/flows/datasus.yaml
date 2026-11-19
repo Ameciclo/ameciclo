@@ -7,6 +7,11 @@ description: |
 labels:
   fonte: datasus
 
+# Uma execução por vez: duas ao mesmo tempo disputam o dbt (as mesmas views) e a publicação. As outras esperam na fila.
+concurrency:
+  limit: 1
+  behavior: QUEUE
+
 inputs:
   - id: ano
     type: INT
@@ -37,7 +42,7 @@ tasks:
     commands:
       - >-
         python -m ingest.datasus obter --ano {{ inputs.ano }}
-        {% if inputs.pasta %}--de-pasta {{ inputs.pasta }}{% endif %}
+        {% if inputs.pasta is not empty %}--de-pasta {{ inputs.pasta }}{% endif %}
         {% if inputs.forcar %}--forcar{% endif %}
 
   - id: carregar

@@ -6,6 +6,8 @@
 description: DATASUS (óbitos no trânsito) -> lago -> raw -> staging -> publicacao -> traffic_death
 labels:
   - fonte=datasus
+# Uma execução por vez (como no Kestra): duas ao mesmo tempo disputam o dbt e a publicação.
+max_active_runs: 1
 params:
   - ANO: "2023"
   - PASTA: ""
