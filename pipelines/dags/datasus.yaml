@@ -1,0 +1,48 @@
+# Óbitos no trânsito (SIM/DATASUS) -> marts.sinistros_fatais. Um ano por execução.
+#   ANO      ano do arquivo
+#   PASTA    pasta com mortes_transito_AAAA.csv já baixado; vazio = baixar do FTP do DATASUS
+#   FORCAR   "--forcar" baixa e carrega de novo mesmo sem mudança
+# Rodar de novo uma execução que falhou (retry) refaz só o passo que falhou e os seguintes.
+description: DATASUS (óbitos no trânsito) -> lago -> raw -> staging -> marts
+labels:
+  - fonte=datasus
+params:
+  - ANO: "2023"
+  - PASTA: ""
+  - FORCAR: ""
+env:
+  - PIPELINE_DATABASE_URL: ${PIPELINE_DATABASE_URL}
+  - PGHOST: ${PGHOST}
+  - PGPORT: ${PGPORT}
+  - PGUSER: ${PGUSER}
+  - PGPASSWORD: ${PGPASSWORD}
+  - PGDATABASE: ${PGDATABASE}
+  - LAKE_DIR: ${LAKE_DIR}
+  - DBT_PROFILES_DIR: ${DBT_PROFILES_DIR}
+working_dir: /opt/pipelines
+steps:
+  - name: obter
+    # Guarda o arquivo no lago; igual ao último = nada muda. Do FTP, não baixa de novo por 24 h.
+    run: |
+      if [ -n "$PASTA" ]; then
+        python -m ingest.datasus obter --ano "$ANO" --de-pasta "$PASTA" $FORCAR
+      else
+        python -m ingest.datasus obter --ano "$ANO" $FORCAR
+      fi
+    retry_policy:
+      limit: 3
+      interval_sec: 60
+
+  - name: carregar
+    depends: [obter]
+    # Lago -> raw.datasus_sim numa transação; se este arquivo já está no banco, pula.
+    run: python -m ingest.datasus carregar --ano ${ANO} ${FORCAR}
+
+  - name: transformar
+    depends: [carregar]
+    # Staging + testes; só se passarem, o mart é refeito. Teste falhou = o site continua com a versão anterior.
+    run: dbt build --project-dir transform --select source:datasus+
+
+  - name: registrar
+    depends: [transformar]
+    run: python -m ingest.publicar datasus.sim

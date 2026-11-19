@@ -15,12 +15,20 @@ meta.carga                           de qual arquivo veio cada carga, quando, qu
 
 ```sh
 cd pipelines
-docker compose up -d                  # PostGIS na porta 5440
-uv sync                               # Python 3.12, dbt, psycopg
-./run-datasus.sh 2023 ../data/mortes  # obter -> carregar -> dbt build -> registrar
+docker compose up -d --build   # Postgres (porta 5440) e Dagu (http://localhost:8095)
 ```
 
-Sem a pasta, o `obter` baixa do FTP do DATASUS (e não baixa de novo por 24 h, a não ser com `--forcar`).
+No Dagu, o fluxo **datasus** com `ANO=2023` e `PASTA=/data/mortes` usa os CSVs de `data/mortes`; com `PASTA` vazio
+ele baixa do FTP do DATASUS (e não baixa de novo por 24 h, a não ser com `FORCAR=--forcar`). Pela linha de comando:
+
+```sh
+docker exec ameciclo-pipeline-dagu dagu start --params "ANO=2023 PASTA=/data/mortes" datasus
+docker exec ameciclo-pipeline-dagu dagu retry --run-id=<id> datasus   # refaz só o passo que falhou e os seguintes
+```
+
+O código (`ingest/`, `transform/`, `dags/`) fica montado no container: editar não exige reconstruir a imagem. Só
+mudanças no `pyproject.toml` pedem `--build`. Para rodar um passo à mão fora do Dagu: `uv sync` e
+`PIPELINE_DATABASE_URL=postgresql://ameciclo:ameciclo@localhost:5440/ameciclo uv run python -m ingest.datasus ...`.
 
 ## Os passos
 
@@ -36,6 +44,7 @@ Sem a pasta, o `obter` baixa do FTP do DATASUS (e não baixa de novo por 24 h, a
 - Rodar de novo sem mudança pula os passos 1 e 2.
 - Um arquivo incompleto (2022 pela metade) faz o teste do staging falhar e o mart não é refeito.
 - Recarregar um ano a partir do lago (`carregar --forcar`) não precisa baixar nada.
+- No Dagu, uma execução que falhou no `transformar` e foi repetida (retry) não refez `obter` nem `carregar`.
 
 Diferença deliberada: `source_row` é a linha no arquivo original (no importador atual é a posição entre os óbitos
 que entraram), para que cada óbito do site possa ser rastreado até o arquivo.

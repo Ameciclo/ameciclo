@@ -1,5 +1,5 @@
-# Postgres local só para o protótipo do pipeline (porta 5440, para não brigar com outros bancos da máquina).
-#   docker compose -f pipelines/docker-compose.yml up -d
+# Ambiente local do pipeline: Postgres (porta 5440) e Dagu (http://localhost:8095).
+#   docker compose -f pipelines/docker-compose.yml up -d --build
 services:
   db:
     image: postgis/postgis:17-3.5
@@ -13,5 +13,37 @@ services:
     volumes:
       - pipeline-db:/var/lib/postgresql/data
       - ./sql/bootstrap.sql:/docker-entrypoint-initdb.d/10-bootstrap.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ameciclo"]
+      interval: 5s
+
+  dagu:
+    build: .
+    container_name: ameciclo-pipeline-dagu
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PIPELINE_DATABASE_URL: postgresql://ameciclo:ameciclo@db:5432/ameciclo
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: ameciclo
+      PGPASSWORD: ameciclo
+      PGDATABASE: ameciclo
+      # Local, sem login. Em produção o Dagu fica com DAGU_AUTH_MODE=builtin.
+      DAGU_AUTH_MODE: none
+    ports:
+      - "8095:8080"
+    volumes:
+      # O código fica montado para editar sem reconstruir a imagem; o ambiente Python está na imagem.
+      - ./ingest:/opt/pipelines/ingest
+      - ./transform:/opt/pipelines/transform
+      - ./dags:/opt/dags
+      - ./lake:/var/lib/pipelines/lake
+      # Os CSVs do DATASUS já baixados, para testar sem o FTP.
+      - ../data/mortes:/data/mortes:ro
+      - dagu-data:/var/lib/dagu
+
 volumes:
   pipeline-db:
+  dagu-data:
