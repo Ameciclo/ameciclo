@@ -23,8 +23,40 @@ dela para a tabela do Drizzle. Se alguém mudar o schema de um lado e esquecer o
 cd pipelines
 docker compose up -d --build        # Postgres (5440), Dagu (http://localhost:8095), Kestra (http://localhost:8098)
 python3 kestra/sincronizar.py enviar   # manda o fluxo e o código para o Kestra
-# A tabela final vem do Drizzle, como em produção:
-cd ../packages/db && DATABASE_URL=postgresql://ameciclo:ameciclo@localhost:5440/ameciclo pnpm exec drizzle-kit migrate
+# A tabela final vem do Drizzle, como em produção, e depois o pipeline ganha permissão de escrever nela:
+(cd ../packages/db && DATABASE_URL=postgresql://ameciclo:ameciclo@localhost:5440/ameciclo pnpm exec drizzle-kit migrate)
+docker exec -i ameciclo-pipeline-db psql -U ameciclo -d ameciclo < sql/permissoes.sql
+```
+
+## Permissões
+
+Os orquestradores e o dbt usam o usuário `pipeline`, criado por `sql/bootstrap.sql`. Ele é dono de `raw`, `meta`,
+`staging` e `publicacao`. Em `public`, que é do Drizzle, só pode ler, inserir e apagar linhas das tabelas listadas em
+`sql/permissoes.sql`. O banco recusa `alter`, `drop`, `create` e `truncate` vindos dele, e também a leitura das
+outras tabelas do site. Por isso, a estrutura de `public` só muda pelas migrações do Drizzle.
+
+Num banco novo (staging, produção), como admin:
+1. `sql/bootstrap.sql`;
+2. `alter role pipeline password '...'`;
+3. as migrações do Drizzle;
+4. `sql/permissoes.sql`.
+
+## CI
+
+O workflow `.github/workflows/pipelines.yml` roda em todo PR que mexe em `pipelines/` ou `packages/db/`. Ele executa
+`ci/conferir-drizzle.sh`, que faz o seguinte num banco vazio:
+1. aplica o bootstrap, as migrações do Drizzle e as permissões;
+2. cria o `raw` com o cabeçalho do SIM;
+3. roda `dbt build` e a publicação com o usuário restrito.
+
+Se uma migração mudar uma tabela publicada sem o dbt acompanhar, ou o contrário, o PR fica vermelho e o teste
+`traffic_death_igual_ao_drizzle` diz qual coluna diverge.
+
+Para rodar localmente:
+
+```sh
+docker exec ameciclo-pipeline-db psql -U ameciclo -c "create database ci"
+PGHOST=localhost PGPORT=5440 PGDATABASE=ci ADMIN_USER=ameciclo ADMIN_PASSWORD=ameciclo pipelines/ci/conferir-drizzle.sh
 ```
 
 Nos dois orquestradores, o fluxo **datasus** com o ano e a pasta `/data/mortes` usa os CSVs de `data/mortes`; com a

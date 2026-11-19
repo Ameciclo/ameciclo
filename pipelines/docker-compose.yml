@@ -18,6 +18,8 @@ services:
     volumes:
       - pipeline-db:/var/lib/postgresql/data
       - ./sql/bootstrap.sql:/docker-entrypoint-initdb.d/10-bootstrap.sql:ro
+      - ./sql/local.sql:/docker-entrypoint-initdb.d/20-local.sql:ro
+      # Depois das migrações do Drizzle, como admin: psql ... < sql/permissoes.sql (ver README).
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "ameciclo"]
       interval: 5s
@@ -29,11 +31,12 @@ services:
       db:
         condition: service_healthy
     environment:
-      PIPELINE_DATABASE_URL: postgresql://ameciclo:ameciclo@db:5432/ameciclo
+      # O usuário restrito do pipeline (sql/bootstrap.sql): não muda a estrutura das tabelas do Drizzle.
+      PIPELINE_DATABASE_URL: postgresql://pipeline:pipeline@db:5432/ameciclo
       PGHOST: db
       PGPORT: "5432"
-      PGUSER: ameciclo
-      PGPASSWORD: ameciclo
+      PGUSER: pipeline
+      PGPASSWORD: pipeline
       PGDATABASE: ameciclo
       # Local, sem login. Em produção o Dagu fica com DAGU_AUTH_MODE=builtin.
       DAGU_AUTH_MODE: none
@@ -60,11 +63,12 @@ services:
         condition: service_healthy
     environment:
       # Os passos herdam estas variáveis (task runner Process). Em produção viriam de secrets.
-      PIPELINE_DATABASE_URL: postgresql://ameciclo:ameciclo@db:5432/ameciclo
+      # O usuário restrito do pipeline (sql/bootstrap.sql): não muda a estrutura das tabelas do Drizzle.
+      PIPELINE_DATABASE_URL: postgresql://pipeline:pipeline@db:5432/ameciclo
       PGHOST: db
       PGPORT: "5432"
-      PGUSER: ameciclo
-      PGPASSWORD: ameciclo
+      PGUSER: pipeline
+      PGPASSWORD: pipeline
       PGDATABASE: ameciclo
       KESTRA_CONFIGURATION: |
         datasources:

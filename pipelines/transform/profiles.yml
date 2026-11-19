@@ -5,8 +5,8 @@ ameciclo:
       type: postgres
       host: "{{ env_var('PGHOST', 'localhost') }}"
       port: "{{ env_var('PGPORT', '5440') | int }}"
-      user: "{{ env_var('PGUSER', 'ameciclo') }}"
-      password: "{{ env_var('PGPASSWORD', 'ameciclo') }}"
+      user: "{{ env_var('PGUSER', 'pipeline') }}"
+      password: "{{ env_var('PGPASSWORD', 'pipeline') }}"
       dbname: "{{ env_var('PGDATABASE', 'ameciclo') }}"
       schema: public
       threads: 4

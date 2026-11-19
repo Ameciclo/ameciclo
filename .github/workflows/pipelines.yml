@@ -1,0 +1,71 @@
+name: Pipelines
+
+# Um PR que muda uma tabela do Drizzle sem mudar o dbt (ou o contrário) fica vermelho aqui, antes do merge, e não
+# só na próxima execução do pipeline. Ver pipelines/ci/conferir-drizzle.sh.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "pipelines/**"
+      - "packages/db/**"
+      - ".github/workflows/pipelines.yml"
+
+concurrency:
+  group: pipelines-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  drizzle-dbt:
+    name: Drizzle × dbt
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: ameciclo
+          POSTGRES_PASSWORD: ameciclo
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ameciclo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jdx/mise-action@v5
+        with:
+          cache: true
+
+      - name: Resolve pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile --filter @ameciclo/db...
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.7"
+          enable-cache: true
+          cache-dependency-glob: pipelines/uv.lock
+
+      - name: Conferir Drizzle × dbt
+        run: pipelines/ci/conferir-drizzle.sh
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGDATABASE: ci
+          ADMIN_USER: ameciclo
+          ADMIN_PASSWORD: ameciclo
