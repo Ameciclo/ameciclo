@@ -78,6 +78,10 @@ services:
       ENV_PGDATABASE: ameciclo
       ENV_PGSSLMODE: disable
       SECRET_PGPASSWORD: cGlwZWxpbmU=   # "pipeline" em base64
+      # Alertas no Telegram (fluxo alertas): defina em pipelines/.env, que não vai para o git.
+      # TELEGRAM_TOKEN_B64 = o token do bot em base64; TELEGRAM_CHAT = o ID do grupo.
+      SECRET_TELEGRAM_TOKEN: ${TELEGRAM_TOKEN_B64:-}
+      ENV_TELEGRAM_CHAT: ${TELEGRAM_CHAT:-}
     ports:
       - "8098:8080"
     volumes:

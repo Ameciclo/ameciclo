@@ -1,0 +1,28 @@
+id: alertas
+namespace: ameciclo.pipelines
+description: |
+  Avisa no Telegram quando qualquer execução deste namespace termina com falha ou aviso (FAILED, WARNING). Vale para
+  todos os fluxos, inclusive os que forem criados depois: não é preciso mexer neles. A mensagem traz o fluxo, o
+  estado, a duração e o link da execução.
+
+  Precisa de duas variáveis no servidor do Kestra:
+  - SECRET_TELEGRAM_TOKEN: o token do bot, em base64 (echo -n 'TOKEN' | base64);
+  - ENV_TELEGRAM_CHAT: o ID do grupo (número negativo, ex. -1001234567890).
+labels:
+  tipo: monitoramento
+
+tasks:
+  - id: telegram
+    type: io.kestra.plugin.notifications.telegram.TelegramExecution
+    token: "{{ secret('TELEGRAM_TOKEN') }}"
+    channel: "{{ envs.telegram_chat }}"
+    executionId: "{{ trigger.executionId }}"
+
+triggers:
+  # Reage ao fim de qualquer execução com falha ou aviso; o "when" é avaliado sobre o fluxo que terminou.
+  - id: falhou
+    type: io.kestra.plugin.core.trigger.Flow
+    states: [FAILED, WARNING]
+    # Só deste namespace, e nunca o próprio aviso (se ele falhar, com token errado ou Telegram fora do ar, não avisa
+    # de novo: evita um ciclo).
+    when: "{{ flow.namespace == 'ameciclo.pipelines' and flow.id != 'alertas' }}"

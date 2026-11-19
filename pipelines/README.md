@@ -60,7 +60,8 @@ PGHOST=localhost PGPORT=5440 PGDATABASE=ci ADMIN_USER=ameciclo ADMIN_PASSWORD=am
 ```
 
 Nos dois orquestradores, o fluxo **datasus** com o ano e a pasta `/data/mortes` usa os CSVs de `data/mortes`; com a
-pasta vazia ele baixa do FTP do DATASUS (e não baixa de novo por 24 h, a não ser forçando).
+pasta vazia ele baixa do FTP do DATASUS (no Dagu, não baixa de novo por 24 h; no Kestra, só baixa se o arquivo mudou
+no FTP; nos dois, a não ser forçando).
 
 No Kestra, o fluxo **datasus-historico** roda o `datasus` para um intervalo de anos, um de cada vez (vazio = o ano
 atual e os dois anteriores). Ele tem dois agendamentos: todo dia 5, os últimos três anos (os preliminares mudam e o
@@ -90,6 +91,33 @@ As respostas do Overpass e os arquivos baixados ficam no lago (`raw/osm/...`, `r
 4. **publicar** (`ingest.publicar datasus.sim`): numa transação, apaga e insere de novo em `public.traffic_death`
    os anos com carga nova e marca essas cargas como publicadas. `--tudo` republica todos os anos (ex. depois de
    mudar uma regra no dbt).
+
+### No Kestra (`kestra/flows/datasus.yaml`)
+
+O código de cada passo está no próprio fluxo (só `ingest/lake.py` continua importado pelo obter):
+
+1. **procurar** e **baixar** (plugin de FTP): acham o `DOBR{ano}.dbc` (fechado em `CID10`, preliminar em `PRELIM`) e
+   baixam só se o arquivo mudou no FTP (tamanho ou data, guardados no KV Store pelo passo **lembrar**), ou com
+   `forcar`. O FTP do DATASUS é FTP comum: não aceita FTPS nem SFTP.
+2. **obter** (Python): descompacta o `.dbc` (`pyreaddbc`, ~3 s) e grava o CSV só com as causas V e Y85, olhando os
+   bytes do `CAUSABAS` de cada registro em vez de converter os ~1,5 milhão de óbitos do Brasil (~2 s). O CSV é igual,
+   byte a byte, ao do método antigo.
+3. **carregar** (Python): recebe o arquivo pelas saídas do obter e carrega no `raw`.
+4. **transformar** (dbt).
+5. **publicar** (plugin do Postgres): o mesmo SQL numa transação, dentro do próprio Kestra, sem container.
+
+Os passos registram logs com nível, saídas (aba Outputs) e métricas (aba Metrics) pela biblioteca `kestra`.
+
+O fluxo **alertas** avisa no Telegram quando qualquer execução do namespace termina com falha ou aviso. Precisa de
+`SECRET_TELEGRAM_TOKEN` (o token em base64) e `ENV_TELEGRAM_CHAT` (o ID do grupo) no servidor do Kestra; no
+docker-compose local, de `TELEGRAM_TOKEN_B64` e `TELEGRAM_CHAT` em `pipelines/.env`.
+
+Todos os fluxos têm um gatilho `McpToolTrigger`: aparecem como ferramentas no servidor MCP do Kestra
+(`/api/v1/main/mcp/default`), com as entradas do fluxo como parâmetros.
+
+**Se uma execução ficar na fila para sempre** (depois de o Kestra cair no meio de uma execução, o contador de
+concorrência pode ficar preso): mate a execução presa, zere o contador em Tenant → Concurrency Limits e use
+Unqueue (menu ⋮) na que está esperando.
 
 ## Os dois orquestradores
 

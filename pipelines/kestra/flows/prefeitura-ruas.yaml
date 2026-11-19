@@ -69,3 +69,19 @@ tasks:
     dependencies: ["psycopg[binary]==3.3.9"]
     commands:
       - python -m ingest.ruas_pcr --url "{{ inputs.url }}"
+
+triggers:
+  # Ferramenta no servidor MCP do Kestra (Administration → MCP Servers → default): um agente de IA pode rodar este
+  # fluxo, com as mesmas entradas. Grava só no banco de staging.
+  - id: mcp
+    type: io.kestra.plugin.core.trigger.McpToolTrigger
+    toolName: prefeitura_ruas
+    title: Malha viária do Recife (Prefeitura)
+    toolDescription: >-
+      Baixa o GeoJSON dos trechos de logradouros da Prefeitura do Recife (url) e substitui street_segment no banco de
+      staging. Com dry_run=true só valida o arquivo.
+    annotations:
+      readOnly: false
+      destructive: true
+      idempotent: true
+      openWorld: true

@@ -91,3 +91,18 @@ triggers:
     timezone: America/Recife
     inputs:
       dry_run: false
+  # Ferramenta no servidor MCP do Kestra (Administration → MCP Servers → default): um agente de IA pode rodar este
+  # fluxo, com as mesmas entradas. Grava só no banco de staging.
+  - id: mcp
+    type: io.kestra.plugin.core.trigger.McpToolTrigger
+    toolName: osm_ciclovias
+    title: Infraestrutura cicloviária (OpenStreetMap)
+    toolDescription: >-
+      Coleta a infraestrutura cicloviária da RMR no OpenStreetMap (Overpass, pode levar de 5 a 30 minutos) e sincroniza
+      cycling_way e os vínculos com o PDC no banco de staging. Com dry_run=true (o padrão) só coleta e relata o que mudaria.
+      snapshot reaplica um retrato já guardado no lago sem consultar o Overpass.
+    annotations:
+      readOnly: false
+      destructive: true
+      idempotent: false
+      openWorld: true

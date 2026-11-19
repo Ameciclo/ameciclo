@@ -50,3 +50,17 @@ triggers:
     timezone: America/Recife
     inputs:
       dry_run: false
+  # Ferramenta no servidor MCP do Kestra (Administration → MCP Servers → default): um agente de IA pode rodar este
+  # fluxo, com as mesmas entradas. Grava só no banco de staging.
+  - id: mcp
+    type: io.kestra.plugin.core.trigger.McpToolTrigger
+    toolName: osm_bicicletarios_estacoes
+    title: Bicicletários e estações de Bike PE (OpenStreetMap)
+    toolDescription: >-
+      Busca os bicicletários e as estações de Bike PE da RMR no OpenStreetMap e substitui bicycle_rack e
+      bike_share_station no banco de staging. Com dry_run=true (o padrão) só busca e relata as contagens.
+    annotations:
+      readOnly: false
+      destructive: true
+      idempotent: true
+      openWorld: true

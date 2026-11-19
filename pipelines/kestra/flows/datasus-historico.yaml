@@ -56,3 +56,17 @@ triggers:
     timezone: America/Recife
     inputs:
       inicio: 2011
+  # Ferramenta no servidor MCP do Kestra (Administration → MCP Servers → default): um agente de IA pode rodar este
+  # fluxo, com as mesmas entradas. Grava só no banco de staging.
+  - id: mcp
+    type: io.kestra.plugin.core.trigger.McpToolTrigger
+    toolName: datasus_obitos_intervalo
+    title: Óbitos no trânsito (SIM/DATASUS), vários anos
+    toolDescription: >-
+      Roda a atualização dos óbitos no trânsito para um intervalo de anos (inicio e fim; vazio = o ano atual e os dois
+      anteriores), um ano de cada vez. Anos sem mudança no DATASUS não são recarregados.
+    annotations:
+      readOnly: false
+      destructive: true
+      idempotent: true
+      openWorld: true
