@@ -12,6 +12,9 @@ COPY ingest ingest
 COPY transform transform
 COPY dags /opt/dags
 RUN mkdir -p /var/lib/pipelines/lake && chown -R 1000:1000 /opt/dags /opt/pipelines /var/lib/pipelines
+# A imagem sobe o Dagu com `sudo -u 1000`, e o secure_path do sudo descarta o PATH do ENV abaixo: sem isto, os
+# passos não acham python nem dbt.
+RUN sed -i 's#secure_path="#secure_path="/opt/venv/bin:#' /etc/sudoers
 ENV PATH=/opt/venv/bin:$PATH \
     LAKE_DIR=/var/lib/pipelines/lake \
     DBT_PROFILES_DIR=/opt/pipelines/transform \
