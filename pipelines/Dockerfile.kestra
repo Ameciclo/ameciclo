@@ -6,4 +6,6 @@ FROM kestra/kestra:v2.0.8
 USER root
 COPY kestra/application.yaml /app/confs/application.yaml
 RUN mkdir -p /app/storage
-CMD ["server", "standalone", "--config", "/app/confs/application.yaml"]
+# --no-tutorials: o modo standalone carrega os fluxos de exemplo (namespace tutorial) a cada início e ignora o
+# kestra.tutorial-flows.enabled do application.yaml; apagados na interface, eles voltavam no próximo deploy.
+CMD ["server", "standalone", "--no-tutorials", "--config", "/app/confs/application.yaml"]
