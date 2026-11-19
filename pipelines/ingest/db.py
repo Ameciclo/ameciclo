@@ -6,10 +6,12 @@ import psycopg
 
 
 def connect() -> psycopg.Connection:
+    """PIPELINE_DATABASE_URL, se houver; senão as variáveis padrão do Postgres (PGHOST, PGUSER, PGPASSWORD...), as
+    mesmas que o dbt usa. Assim a senha fica numa variável só."""
     url = os.environ.get("PIPELINE_DATABASE_URL")
-    if not url:
-        raise SystemExit("PIPELINE_DATABASE_URL não definido (veja pipelines/.env.example)")
-    return psycopg.connect(url)
+    if not url and not os.environ.get("PGHOST"):
+        raise SystemExit("defina PIPELINE_DATABASE_URL ou PGHOST/PGUSER/PGPASSWORD/PGDATABASE")
+    return psycopg.connect(url or "")
 
 
 def start_load(conn: psycopg.Connection, fonte: str, particao: str, arquivo: str, sha256: str) -> int:
