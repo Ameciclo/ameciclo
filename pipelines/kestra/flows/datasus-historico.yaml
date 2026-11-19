@@ -1,0 +1,58 @@
+id: datasus-historico
+namespace: ameciclo.pipelines
+description: |
+  Roda o fluxo datasus para vários anos, um de cada vez. Sem início e fim, pega o ano atual e os dois anteriores.
+  Ano sem mudança no DATASUS não é recarregado (o arquivo é igual ao do lago), só baixado de novo.
+  Se um ano falhar, os outros seguem e esta execução termina em WARNING.
+labels:
+  fonte: datasus
+
+inputs:
+  - id: inicio
+    type: INT
+    required: false
+    description: Primeiro ano (vazio = dois anos atrás)
+  - id: fim
+    type: INT
+    required: false
+    description: Último ano (vazio = o ano atual)
+  - id: pasta
+    type: STRING
+    required: false
+    description: Pasta com os CSVs já baixados (ex. /data/mortes); vazio = baixar do FTP do DATASUS
+  - id: forcar
+    type: BOOL
+    defaults: false
+    description: Baixar e carregar de novo mesmo sem mudança
+
+tasks:
+  - id: anos
+    type: io.kestra.plugin.core.flow.Loop
+    values: "{{ range(inputs.inicio ?? ((now() | date('yyyy') | number) - 2), inputs.fim ?? (now() | date('yyyy') | number)) }}"
+    concurrencyLimit: 1
+    tasks:
+      - id: ano
+        type: io.kestra.plugin.core.flow.Subflow
+        namespace: ameciclo.pipelines
+        flowId: datasus
+        wait: true
+        transmitFailed: true
+        allowFailure: true
+        inputs:
+          ano: "{{ item.value }}"
+          pasta: "{{ inputs.pasta ?? '' }}"
+          forcar: "{{ inputs.forcar }}"
+
+triggers:
+  # Todo dia 5: o ano atual e os dois anteriores (os arquivos preliminares mudam e o ano fechado sai ~12 meses depois).
+  - id: mensal
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 6 5 * *"
+    timezone: America/Recife
+  # Uma vez por ano, a série inteira: o DATASUS às vezes republica anos antigos (2018 foi republicado em 2025).
+  - id: anual
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 6 15 3 *"
+    timezone: America/Recife
+    inputs:
+      inicio: 2011

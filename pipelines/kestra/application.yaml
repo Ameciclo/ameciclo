@@ -25,6 +25,9 @@ kestra:
   url: ${KESTRA_URL}
   anonymous-usage-report:
     enabled: false
+  # Sem os fluxos de exemplo ("Getting Started"), que voltariam a cada reinício.
+  tutorial-flows:
+    enabled: false
   plugins:
     configurations:
       # Os passos montam o lago (um volume do Docker) no container deles.

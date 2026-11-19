@@ -62,6 +62,11 @@ PGHOST=localhost PGPORT=5440 PGDATABASE=ci ADMIN_USER=ameciclo ADMIN_PASSWORD=am
 Nos dois orquestradores, o fluxo **datasus** com o ano e a pasta `/data/mortes` usa os CSVs de `data/mortes`; com a
 pasta vazia ele baixa do FTP do DATASUS (e não baixa de novo por 24 h, a não ser forçando).
 
+No Kestra, o fluxo **datasus-historico** roda o `datasus` para um intervalo de anos, um de cada vez (vazio = o ano
+atual e os dois anteriores). Ele tem dois agendamentos: todo dia 5, os últimos três anos (os preliminares mudam e o
+ano fechado sai cerca de 12 meses depois); e em 15 de março, a série inteira desde 2011, porque o DATASUS às vezes
+republica anos antigos. Ano sem mudança é baixado de novo, mas não recarregado nem republicado.
+
 ## Os passos
 
 1. **obter** (`ingest.datasus obter`): guarda o arquivo no lago. Se é igual ao último, nada muda.
