@@ -84,7 +84,8 @@ republica anos antigos. Ano sem mudança é baixado de novo, mas não recarregad
 | Endereço | http://localhost:8095 (sem login) | http://localhost:8098 (admin@kestra.io / Admin1234!) |
 | Fluxo | `dags/datasus.yaml` | `kestra/flows/datasus.yaml` (namespace `ameciclo.pipelines`) |
 | Código | `ingest/` e `transform/` montados no container | os mesmos arquivos, como *namespace files*: editáveis na aba Files |
-| Na interface | o YAML; o Python e o SQL não aparecem | o YAML, o Python e os modelos dbt; cada modelo e teste do dbt vira uma linha na execução |
+| dbt | ação oficial `dbt@v1` (instala com o uv; resultado guardado na execução) e o passo `resultado_dbt`, que lista cada modelo e teste no log e falha se algum falhou | plugin `DbtCLI`, que reinstala o dbt a cada execução |
+| Na interface | o YAML e, no log do `resultado_dbt`, uma linha por modelo e teste; o Python e o SQL não aparecem | o YAML, o Python e os modelos dbt; cada modelo e teste do dbt vira uma linha na execução |
 | Repetir o que falhou | Retry: refaz o passo que falhou e os seguintes | Replay a partir de um passo |
 | Memória (medida, parado) | ~90 MB | ~2 GB (Java; dá para limitar com `JAVA_OPTS=-Xmx…`) |
 | Onde roda o Python | dentro do container do Dagu | um container `python:3.12-slim` por passo (task runner Docker, o padrão do Kestra; exige o Kestra com acesso ao Docker do servidor) |

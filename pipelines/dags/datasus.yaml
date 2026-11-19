@@ -40,13 +40,44 @@ steps:
     # Lago -> raw.datasus_sim numa transação; se este arquivo já está no banco, pula.
     run: python -m ingest.datasus carregar --ano ${ANO} ${FORCAR}
 
-  - name: transformar
+  - id: transformar
     depends: [carregar]
-    # Staging + testes + a view de publicação (e a conferência com a tabela do Drizzle). Teste falhou = não publica.
+    # Staging + testes + a view de publicação (e a conferência com a tabela do Drizzle).
+    # A ação oficial do Dagu instala o dbt com o uv (versões do uv.lock) e guarda o resultado na execução.
     # A exposure só documenta que a página depende da view; fica fora do build (igual ao fluxo do Kestra).
-    run: dbt build --project-dir transform --select source:datasus+ --exclude-resource-type exposure
+    action: dbt@v1
+    with:
+      projectDir: /opt/pipelines/transform
+      profilesDir: /opt/pipelines/transform
+      requirements:
+        - dbt-core==1.12.7
+        - dbt-postgres==1.11.0
+      command: build
+      select: ["source:datasus+"]
+      args: ["--exclude-resource-type", "exposure"]
+      targetPath: ${context.paths.artifacts_dir}/dbt-target
+      logPath: ${context.paths.artifacts_dir}/dbt-logs
+    # Uma falha do dbt não para aqui: o passo seguinte mostra o que falhou e só então interrompe.
+    continue_on:
+      failure: true
+
+  - id: resultado_dbt
+    depends: [transformar]
+    # Uma linha por modelo e teste (do run_results.json do dbt). Algum falhou = erro aqui e nada é publicado.
+    action: js.run
+    with:
+      # Caminho fixo, e não ${steps.transformar.outputs.runResultsPath}: quando o dbt falha, a ação não publica saídas.
+      input_file: ${context.paths.artifacts_dir}/dbt-target/run_results.json
+      script: |
+        const linhas = input.results.map(r =>
+          `${r.status.padEnd(7)} ${r.execution_time.toFixed(1).padStart(5)}s  ${r.unique_id}` +
+          (r.message && r.status !== "success" && r.status !== "pass" ? `\n          ${r.message}` : ""));
+        console.log(linhas.join("\n"));
+        const falhas = input.results.filter(r => ["error", "fail", "runtime error"].includes(r.status));
+        if (falhas.length) throw new Error(`dbt: ${falhas.length} falha(s); nada será publicado`);
+        return `${input.results.length} modelos e testes ok`;
 
   - name: publicar
-    depends: [transformar]
+    depends: [resultado_dbt]
     # Numa transação: troca os anos com carga nova em public.traffic_death e marca as cargas como publicadas.
     run: python -m ingest.publicar datasus.sim
