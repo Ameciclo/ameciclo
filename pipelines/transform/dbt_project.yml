@@ -16,6 +16,8 @@ models:
     staging:
       +schema: staging
       +materialized: view
-    marts:
-      +schema: marts
-      +materialized: table
+    # O formato exato de cada tabela final, como view. As tabelas finais em si são do Drizzle (packages/db): o passo
+    # de publicação copia daqui para lá, numa transação.
+    publicacao:
+      +schema: publicacao
+      +materialized: view

@@ -1,9 +1,9 @@
-# Óbitos no trânsito (SIM/DATASUS) -> marts.sinistros_fatais. Um ano por execução.
+# Óbitos no trânsito (SIM/DATASUS) -> public.traffic_death (tabela do Drizzle). Um ano por execução.
 #   ANO      ano do arquivo
 #   PASTA    pasta com mortes_transito_AAAA.csv já baixado; vazio = baixar do FTP do DATASUS
 #   FORCAR   "--forcar" baixa e carrega de novo mesmo sem mudança
 # Rodar de novo uma execução que falhou (retry) refaz só o passo que falhou e os seguintes.
-description: DATASUS (óbitos no trânsito) -> lago -> raw -> staging -> marts
+description: DATASUS (óbitos no trânsito) -> lago -> raw -> staging -> publicacao -> traffic_death
 labels:
   - fonte=datasus
 params:
@@ -40,9 +40,11 @@ steps:
 
   - name: transformar
     depends: [carregar]
-    # Staging + testes; só se passarem, o mart é refeito. Teste falhou = o site continua com a versão anterior.
-    run: dbt build --project-dir transform --select source:datasus+
+    # Staging + testes + a view de publicação (e a conferência com a tabela do Drizzle). Teste falhou = não publica.
+    # A exposure só documenta que a página depende da view; fica fora do build (igual ao fluxo do Kestra).
+    run: dbt build --project-dir transform --select source:datasus+ --exclude-resource-type exposure
 
-  - name: registrar
+  - name: publicar
     depends: [transformar]
+    # Numa transação: troca os anos com carga nova em public.traffic_death e marca as cargas como publicadas.
     run: python -m ingest.publicar datasus.sim

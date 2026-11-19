@@ -1,17 +1,17 @@
 -- As pastas (schemas) do banco e quem é dono de cada uma.
 --   raw      a ingestão: cópia fiel de cada fonte, tudo como texto
 --   staging  o dbt: o mesmo dado limpo, com tipos, e o motivo de cada descarte
---   marts    o dbt: as tabelas que o site lê
+--   publicacao  o dbt: views no formato exato de cada tabela final (o que vai ser publicado)
 --   meta     a ingestão: o registro de cada carga (de qual arquivo, quando, quantas linhas)
---   public   o Drizzle (por enquanto; no desenho final vira "app")
+--   public   o Drizzle (packages/db): as tabelas finais que o site lê, criadas pelas migrações dele. O pipeline só
+--            escreve nelas no passo de publicação (ingest/publicar.py).
 create extension if not exists postgis;
--- Bancos à parte para o histórico do Dagster e do Windmill (só no protótipo de comparação).
-create database dagster;
-create database windmill;
+-- Banco à parte para o estado do Kestra (só no ambiente local de comparação).
+create database kestra;
 
 create schema if not exists raw;
 create schema if not exists meta;
--- staging e marts são criados pelo próprio dbt.
+-- staging e publicacao são criados pelo próprio dbt; public, pelas migrações do Drizzle.
 
 create table if not exists meta.carga (
   id           bigint generated always as identity primary key,

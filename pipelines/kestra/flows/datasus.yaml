@@ -1,0 +1,77 @@
+id: datasus
+namespace: ameciclo.pipelines
+description: |
+  Óbitos no trânsito (SIM/DATASUS): lago -> raw -> staging -> publicacao -> public.traffic_death (tabela do Drizzle).
+  Um ano por execução. O código é o deste namespace (aba Files): ingest/ (Python) e transform/ (o projeto dbt).
+  Se um passo falhar, "Replay" a partir dele refaz só ele e os seguintes.
+labels:
+  fonte: datasus
+
+inputs:
+  - id: ano
+    type: INT
+    defaults: 2024
+    description: Ano do arquivo do SIM
+  - id: pasta
+    type: STRING
+    required: false
+    description: Pasta com mortes_transito_AAAA.csv já baixado (ex. /data/mortes); vazio = baixar do FTP do DATASUS
+  - id: forcar
+    type: BOOL
+    defaults: false
+    description: Baixar e carregar de novo mesmo sem mudança
+
+tasks:
+  - id: obter
+    description: Guarda o arquivo no lago; igual ao último = nada muda. Do FTP, não baixa de novo por 24 h.
+    type: io.kestra.plugin.scripts.python.Commands
+    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    namespaceFiles:
+      enabled: true
+    retry:
+      type: constant
+      interval: PT1M
+      maxAttempts: 3
+    commands:
+      - >-
+        python -m ingest.datasus obter --ano {{ inputs.ano }}
+        {% if inputs.pasta %}--de-pasta {{ inputs.pasta }}{% endif %}
+        {% if inputs.forcar %}--forcar{% endif %}
+
+  - id: carregar
+    description: Lago -> raw.datasus_sim numa transação; se este arquivo já está no banco, pula.
+    type: io.kestra.plugin.scripts.python.Commands
+    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    namespaceFiles:
+      enabled: true
+    commands:
+      - python -m ingest.datasus carregar --ano {{ inputs.ano }} {% if inputs.forcar %}--forcar{% endif %}
+
+  - id: transformar
+    description: Staging + testes + a view de publicação (e a conferência com a tabela do Drizzle). Teste falhou = não publica.
+    type: io.kestra.plugin.dbt.cli.DbtCLI
+    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    namespaceFiles:
+      enabled: true
+    projectDir: transform
+    # O DbtCLI acrescenta --project-dir transform e lê o resultado de cada modelo e teste (aba Outputs).
+    commands:
+      - dbt build --select source:datasus+ --exclude-resource-type exposure --profiles-dir transform
+
+  - id: publicar
+    description: Numa transação, troca os anos com carga nova em public.traffic_death e marca as cargas como publicadas.
+    type: io.kestra.plugin.scripts.python.Commands
+    # Roda dentro do próprio Kestra (o Python e o dbt estão na imagem), com os arquivos do namespace no diretório.
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    namespaceFiles:
+      enabled: true
+    commands:
+      - python -m ingest.publicar datasus.sim
+

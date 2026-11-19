@@ -1,0 +1,17 @@
+# Kestra com o mesmo ambiente Python/dbt da imagem do Dagu. Os passos rodam dentro do próprio Kestra (task runner
+# Process), sem Docker dentro de Docker. O código (ingest/ e transform/) não vai na imagem: fica nos arquivos do
+# namespace, editáveis na interface (ver kestra/sincronizar.py).
+# Build context: a pasta pipelines/.
+FROM kestra/kestra:v2.0.8
+USER root
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_PYTHON_INSTALL_DIR=/opt/python \
+    UV_LINK_MODE=copy
+WORKDIR /opt/pipelines
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv sync --frozen --no-install-project && chmod -R a+rX /opt/venv \
+ && mkdir -p /var/lib/pipelines/lake /app/storage && chown -R kestra:kestra /var/lib/pipelines /app/storage
+USER kestra
+WORKDIR /app
+ENV PATH=/opt/venv/bin:$PATH \
+    LAKE_DIR=/var/lib/pipelines/lake

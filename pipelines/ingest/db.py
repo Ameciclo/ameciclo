@@ -44,13 +44,14 @@ def finish_load(conn: psycopg.Connection, load_id: int, status: str, linhas: int
     conn.commit()
 
 
-def publish(conn: psycopg.Connection, fonte: str) -> int:
-    """Depois do dbt build: as cargas desta fonte que estavam esperando passam a valer no site."""
+def publish(conn: psycopg.Connection, fonte: str, commit: bool = True) -> int:
+    """As cargas desta fonte que estavam esperando passam a valer no site (ver ingest.publicar)."""
     with conn.cursor() as cur:
         cur.execute(
             "update meta.carga set status = 'publicada', publicada_em = now() where fonte = %s and status = 'carregada'",
             (fonte,),
         )
         count = cur.rowcount
-    conn.commit()
+    if commit:
+        conn.commit()
     return count

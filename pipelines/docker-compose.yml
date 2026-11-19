@@ -1,5 +1,10 @@
-# Ambiente local do pipeline: Postgres (porta 5440) e Dagu (http://localhost:8095).
+# Ambiente local do pipeline, para comparar os dois orquestradores com o mesmo código:
+#   Postgres  localhost:5440
+#   Dagu      http://localhost:8095  (sem login)
+#   Kestra    http://localhost:8098  (admin@kestra.io / Admin1234!)
+#
 #   docker compose -f pipelines/docker-compose.yml up -d --build
+#   python3 pipelines/kestra/sincronizar.py enviar     # manda o fluxo e o código para o Kestra
 services:
   db:
     image: postgis/postgis:17-3.5
@@ -44,64 +49,55 @@ services:
       - ../data/mortes:/data/mortes:ro
       - dagu-data:/var/lib/dagu
 
-  dagster:
+  kestra:
     build:
       context: .
-      dockerfile: Dockerfile.dagster
-    container_name: ameciclo-pipeline-dagster
+      dockerfile: Dockerfile.kestra
+    container_name: ameciclo-pipeline-kestra
+    command: server standalone
     depends_on:
       db:
         condition: service_healthy
     environment:
+      # Os passos herdam estas variáveis (task runner Process). Em produção viriam de secrets.
       PIPELINE_DATABASE_URL: postgresql://ameciclo:ameciclo@db:5432/ameciclo
       PGHOST: db
       PGPORT: "5432"
       PGUSER: ameciclo
       PGPASSWORD: ameciclo
       PGDATABASE: ameciclo
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://db:5432/kestra
+            driverClassName: org.postgresql.Driver
+            username: ameciclo
+            password: ameciclo
+        kestra:
+          server:
+            basic-auth:
+              username: admin@kestra.io
+              password: Admin1234!
+          repository:
+            type: postgres
+          queue:
+            type: postgres
+          storage:
+            type: local
+            local:
+              base-path: /app/storage
+          url: http://localhost:8098/
+          anonymous-usage-report:
+            enabled: false
     ports:
-      - "8096:3000"
+      - "8098:8080"
     volumes:
-      - ./ingest:/opt/pipelines/ingest
-      - ./transform:/opt/pipelines/transform
-      - ./orquestracao:/opt/pipelines/orquestracao
+      # O mesmo lago do Dagu (em produção os dois apontariam para o R2).
       - ./lake:/var/lib/pipelines/lake
       - ../data/mortes:/data/mortes:ro
-
-  windmill:
-    image: ghcr.io/windmill-labs/windmill:1.876.1
-    container_name: ameciclo-pipeline-windmill
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgres://ameciclo:ameciclo@db/windmill?sslmode=disable
-      MODE: server
-      BASE_URL: http://localhost:8097
-      SUPERADMIN_SECRET: local-superadmin
-    ports:
-      - "8097:8000"
-
-  windmill-worker:
-    # A imagem oficial: o Windmill instala sozinho as dependências de cada script (o cabeçalho #requirements).
-    image: ghcr.io/windmill-labs/windmill:1.876.1
-    container_name: ameciclo-pipeline-windmill-worker
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgres://ameciclo:ameciclo@db/windmill?sslmode=disable
-      MODE: worker
-      WORKER_GROUP: default
-    # O banco chega aos scripts pelo resource f/pipelines/banco_local, não por variável de ambiente.
-    volumes:
-      - ./transform:/opt/pipelines/transform:ro
-      - windmill-cache:/tmp/windmill/cache
-      - windmill-lake:/var/lib/pipelines/lake
-      - ../data/mortes:/data/mortes:ro
+      - kestra-storage:/app/storage
 
 volumes:
   pipeline-db:
   dagu-data:
-  windmill-cache:
-  windmill-lake:
+  kestra-storage:
