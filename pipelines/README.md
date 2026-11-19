@@ -57,7 +57,9 @@ O mesmo pipeline roda em três orquestradores, todos no `docker compose up -d --
 |---|---|---|
 | Dagu | http://localhost:8095 | `dags/datasus.yaml` |
 | Dagster | http://localhost:8096 | `orquestracao/definitions.py` (assets por ano + o projeto dbt via dagster-dbt) |
-| Windmill | http://localhost:8097 (admin@windmill.dev / changeme) | `windmill/datasus.flow.json`, publicado com `windmill/publicar.sh` |
+| Windmill | http://localhost:8097 (admin@windmill.dev / changeme) | `windmill/f/` (scripts Python nativos e o fluxo), sincronizados com `python3 windmill/sincronizar.py enviar` / `puxar` |
 
-Os três usam o mesmo código (`ingest/`, `transform/`) e o mesmo banco. O worker do Windmill roda como root, então
-usa um lago e um `target` do dbt próprios, dentro do container.
+Dagu e Dagster chamam o código de `ingest/`. No Windmill cada passo é um script do próprio Windmill
+(`windmill/f/datasus/*.py`, com as funções comuns em `windmill/f/pipelines/`), que se lê e edita na interface; o
+banco chega por um resource (`f/pipelines/banco_local`). Os modelos SQL do dbt ficam em `transform/` para os três.
+O `sincronizar.py` é provisório: o caminho certo é a CLI oficial (`wmill sync push` / `wmill sync pull`).
