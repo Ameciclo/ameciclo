@@ -30,6 +30,8 @@ tasks:
     gitDirectory: pipelines/ingest
     namespaceDirectory: /ingest
     delete: true
+    # Avisa que não conseguiu criar o namespace (a API para isso só existe na edição Enterprise); ele já existe.
+    allowWarning: true
 
   - id: transform
     type: io.kestra.plugin.git.SyncNamespaceFiles
@@ -39,6 +41,8 @@ tasks:
     gitDirectory: pipelines/transform
     namespaceDirectory: /transform
     delete: true
+    # Avisa que não conseguiu criar o namespace (a API para isso só existe na edição Enterprise); ele já existe.
+    allowWarning: true
 
   - id: fluxos
     type: io.kestra.plugin.git.SyncFlows
