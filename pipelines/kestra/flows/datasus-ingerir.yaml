@@ -1,0 +1,328 @@
+id: datasus-ingerir
+namespace: ameciclo.pipelines
+description: |
+  Óbitos no trânsito (SIM/DATASUS), a parte de UM ano: FTP -> lago -> raw.datasus_sim. Não roda o dbt nem publica
+  (isso é o datasus-publicar, uma vez para todos os anos carregados). Cada ano só mexe nas linhas dele no raw, numa
+  transação, então anos diferentes podem rodar ao mesmo tempo (o datasus-historico roda 4 de cada vez).
+  Chamado pelo datasus (um ano) e pelo datasus-historico (vários).
+labels:
+  fonte: datasus
+
+inputs:
+  - id: ano
+    type: INT
+    defaults: 2024
+    description: Ano do arquivo do SIM
+  - id: pasta
+    type: STRING
+    required: false
+    description: Pasta com mortes_transito_AAAA.csv já baixado (ex. /data/mortes); vazio = baixar do FTP do DATASUS
+  - id: forcar
+    type: BOOL
+    defaults: false
+    description: Baixar e carregar de novo mesmo sem mudança
+
+# Todo passo leva o mesmo container, a rede onde está o banco, o lago e a conexão (usuário restrito pipeline).
+# Os valores vêm das variáveis do servidor do Kestra: ENV_* viram envs.*, SECRET_* (em base64) viram secret().
+# (Repetidos em cada passo: o Kestra 2.0 não aceita âncoras do YAML nem pluginDefaults no fluxo.)
+variables:
+  imagem: python:3.12-slim
+  # O FTP do DATASUS é público: login anônimo, sem senha de verdade. Fica numa variável (e não escrito na tarefa)
+  # porque o Kestra trata qualquer senha escrita direto no fluxo como segredo exposto e avisa.
+  ftp_usuario: anonymous
+  ftp_senha: anonymous
+
+tasks:
+  # Do FTP do DATASUS pelo plugin do Kestra (FTP comum: o servidor não aceita FTPS nem SFTP). Com uma pasta, nada disso
+  # roda e o obter usa o CSV dela.
+  - id: procurar
+    description: Acha o arquivo do ano (fechado em CID10, ou preliminar em PRELIM), com tamanho e data de atualização.
+    type: io.kestra.plugin.fs.ftp.List
+    runIf: "{{ inputs.pasta is empty }}"
+    host: ftp.datasus.gov.br
+    username: "{{ vars.ftp_usuario }}"
+    password: "{{ vars.ftp_senha }}"
+    from: /dissemin/publicos/SIM
+    recursive: true
+    regExp: '.*/(CID10|PRELIM)/DORES/DOBR{{ inputs.ano }}\.dbc$'
+    # O mais recente primeiro: quando o ano fecha, o arquivo de CID10 sai depois do preliminar e ganha dele.
+    sort: LAST_MODIFIED_DESC
+    retry:
+      type: constant
+      interval: PT1M
+      maxAttempts: 3
+
+  - id: encontrado
+    type: io.kestra.plugin.core.execution.Fail
+    runIf: "{{ inputs.pasta is empty and (outputs.procurar.files | length) == 0 }}"
+    errorMessage: "{{ inputs.ano }}: DOBR{{ inputs.ano }}.dbc não está no FTP do DATASUS (nem fechado nem preliminar)"
+
+  - id: baixar
+    description: Baixa o .dbc só se ele mudou no FTP (tamanho ou data) desde o último baixado, ou se forcar.
+    type: io.kestra.plugin.fs.ftp.Download
+    runIf: >-
+      {{ inputs.pasta is empty and (inputs.forcar or
+         kv('datasus_sim_' ~ inputs.ano, errorOnMissing=false) != (outputs.procurar.files[0].size ~ '|' ~ outputs.procurar.files[0].updatedDate)) }}
+    host: ftp.datasus.gov.br
+    username: "{{ vars.ftp_usuario }}"
+    password: "{{ vars.ftp_senha }}"
+    from: "{{ outputs.procurar.files[0].path }}"
+    retry:
+      type: constant
+      interval: PT1M
+      maxAttempts: 3
+
+  - id: obter
+    description: Converte o .dbc em CSV só com as causas de transporte e guarda no lago; igual ao último = nada muda.
+    type: io.kestra.plugin.scripts.python.Script
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake"
+        - "{{ envs.dados_volume }}:/data/mortes:ro"
+    namespaceFiles:
+      enabled: true
+    # O .dbc baixado chega no diretório do passo como DOBR.dbc (se o baixar rodou).
+    inputFiles: "{{ (outputs.baixar.to is defined ? {'DOBR.dbc': outputs.baixar.to} : {}) | toJson }}"
+    # pyreaddbc descompacta o .dbc em ~3 s (o datasus-dbc levava ~65 s para o mesmo arquivo, com o mesmo resultado).
+    dependencies: [pyreaddbc==2.0.4, dbfread==2.0.7, kestra==2.0.0]
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      ANO: "{{ inputs.ano }}"
+      PASTA: "{{ inputs.pasta ?? '' }}"
+      REMOTO: "{{ outputs.procurar.files[0].path ?? '' }}"
+      ATUALIZADO_EM: "{{ outputs.procurar.files[0].updatedDate ?? '' }}"
+    script: |
+      import csv
+      import os
+      from pathlib import Path
+
+      from kestra import Kestra
+
+      from ingest import lake
+
+      FONTE = "datasus.sim"
+      # O arquivo do SIM tem o Brasil inteiro e todas as causas; guardamos só transporte (V e Y85). Quem decide o
+      # que entra no site (RMR, V01-V89 e V99) é o staging do dbt.
+      MANTER = ("V", "Y85")
+
+      log = Kestra.logger()
+      ano = int(os.environ["ANO"])
+      pasta = os.environ.get("PASTA") or None
+      dbc = Path("DOBR.dbc")
+
+
+      def converter(destino: Path) -> None:
+          """Descompacta o .dbc e grava o CSV só com as causas de transporte.
+
+          O DBF tem registros de tamanho fixo, com cada coluna sempre na mesma posição. Em vez de converter todos os
+          ~1,5 milhão de óbitos do Brasil para depois descartar 97%, olha só os bytes do CAUSABAS de cada registro e
+          converte (com o próprio dbfread, para sair igual) apenas os que ficam. O CSV é o mesmo de antes, byte a byte.
+          """
+          from dbfread import DBF
+          from dbfread.field_parser import FieldParser
+          from pyreaddbc import dbc2dbf
+
+          dbf = Path("DOBR.dbf")
+          dbc2dbf(str(dbc), str(dbf))
+          tabela = DBF(str(dbf), encoding="latin-1", char_decode_errors="replace")  # só o cabeçalho
+          interpretar = FieldParser(tabela).parse
+          campos, posicao = [], 1  # o 1º byte de cada registro diz se ele foi apagado ('*') ou não (' ')
+          for campo in tabela.fields:
+              campos.append((campo, posicao, posicao + campo.length))
+              posicao += campo.length
+          _, ini_causa, fim_causa = next(c for c in campos if c[0].name == "CAUSABAS")
+          prefixos = tuple(m.encode("latin-1") for m in MANTER)
+          tamanho = tabela.header.recordlen
+
+          total = mantidos = 0
+          with dbf.open("rb") as entrada, destino.open("w", newline="", encoding="utf-8") as f:
+              escritor = csv.DictWriter(f, fieldnames=tabela.field_names, quoting=csv.QUOTE_ALL)
+              escritor.writeheader()
+              entrada.seek(tabela.header.headerlen)
+              while bloco := entrada.read(tamanho * 20_000):
+                  for inicio in range(0, len(bloco) - tamanho + 1, tamanho):
+                      marca = bloco[inicio]
+                      if marca == 0x1A:  # fim dos registros
+                          break
+                      if marca != 0x20:  # registro apagado: o dbfread também pula
+                          continue
+                      total += 1
+                      if bloco[inicio + ini_causa:inicio + fim_causa].lstrip(b"*").startswith(prefixos):
+                          registro = bloco[inicio:inicio + tamanho]
+                          escritor.writerow({c.name: interpretar(c, registro[a:b]) for c, a, b in campos})
+                          mantidos += 1
+          log.info(f"{total} óbitos no Brasil; {mantidos} de transporte (V, Y85) guardados")
+          Kestra.counter("obitos_brasil", total, {"ano": str(ano)})
+
+
+      if pasta is not None:
+          origem_arquivo = Path(pasta) / f"mortes_transito_{ano}.csv"
+          if not origem_arquivo.exists():
+              log.error(f"{origem_arquivo} não existe")
+              raise SystemExit(1)
+          origem = f"pasta local: {origem_arquivo}"
+      elif dbc.exists():
+          log.info(f"baixado {os.environ['REMOTO']} ({dbc.stat().st_size // 1024 // 1024} MB, atualizado no DATASUS em {os.environ['ATUALIZADO_EM']})")
+          origem_arquivo = Path(f"mortes_transito_{ano}.csv")
+          converter(origem_arquivo)
+          origem = f"ftp://ftp.datasus.gov.br{os.environ['REMOTO']} ({os.environ['ATUALIZADO_EM']})"
+      else:
+          # O baixar não rodou: o arquivo no FTP é o mesmo (tamanho e data) do último baixado.
+          anterior = lake.latest(FONTE, str(ano))
+          if anterior is None:
+              log.error(f"{ano}: o FTP não mudou, mas não há nada no lago; rode com forcar=true")
+              raise SystemExit(1)
+          log.info(f"{ano}: o arquivo no DATASUS não mudou desde {os.environ['ATUALIZADO_EM']}; nada a baixar")
+          Kestra.outputs({"situacao": "sem_mudanca", "arquivo": anterior.arquivo, "sha256": anterior.sha256})
+          raise SystemExit(0)
+
+      entrada, novo = lake.put(FONTE, str(ano), origem_arquivo, origem)
+      log.info(f"{ano}: {'arquivo novo' if novo else 'igual ao anterior'} -> {entrada.arquivo}")
+      Kestra.outputs({"situacao": "novo" if novo else "igual", "arquivo": entrada.arquivo, "sha256": entrada.sha256,
+                      "origem": entrada.origem})
+
+  - id: lembrar
+    description: Guarda o tamanho e a data do arquivo baixado, para a próxima execução saber se ele mudou no FTP.
+    type: io.kestra.plugin.core.kv.Set
+    runIf: "{{ outputs.baixar.to is defined }}"
+    key: "datasus_sim_{{ inputs.ano }}"
+    value: "{{ outputs.procurar.files[0].size }}|{{ outputs.procurar.files[0].updatedDate }}"
+
+  - id: carregar
+    description: Lago -> raw.datasus_sim numa transação; se este arquivo já está no banco, pula.
+    # Código inteiro aqui. O arquivo vem das saídas do obter (caminho no lago e sha256), não do índice do lago; o
+    # registro de cada carga fica em meta.carga.
+    type: io.kestra.plugin.scripts.python.Script
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+      volumes:
+        - "{{ envs.lake_volume }}:/var/lib/pipelines/lake:ro"
+    env:
+      LAKE_DIR: /var/lib/pipelines/lake
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+      ANO: "{{ inputs.ano }}"
+      FORCAR: "{{ inputs.forcar }}"
+      ARQUIVO: "{{ outputs.obter.vars.arquivo }}"
+      SHA256: "{{ outputs.obter.vars.sha256 }}"
+    dependencies: ["psycopg[binary]==3.3.9", kestra==2.0.0]
+    script: |
+      import csv
+      import os
+      from pathlib import Path
+
+      import psycopg
+      from kestra import Kestra
+
+      FONTE = "datasus.sim"
+      TABELA = "raw.datasus_sim"
+      COLUNAS_META = ("_carga", "_ano_arquivo", "_linha")
+
+      log = Kestra.logger()
+      ano = int(os.environ["ANO"])
+      forcar = os.environ.get("FORCAR") == "true"
+      arquivo, sha256 = os.environ["ARQUIVO"], os.environ["SHA256"]
+      caminho = Path(os.environ["LAKE_DIR"]) / arquivo
+      if not caminho.exists():
+          log.error(f"{caminho} não existe no lago")
+          raise SystemExit(1)
+
+
+      def ja_carregado(cur) -> bool:
+          """Se este mesmo arquivo já entrou no banco (carregado ou publicado), não há o que fazer."""
+          cur.execute(
+              """select sha256 from meta.carga where fonte = %s and particao = %s and status in ('carregada', 'publicada')
+                 order by iniciada_em desc limit 1""",
+              (FONTE, str(ano)),
+          )
+          linha = cur.fetchone()
+          return linha is not None and linha[0] == sha256
+
+
+      def garantir_tabela(cur, cabecalho: list[str]) -> list[str]:
+          """Cria raw.datasus_sim (tudo texto) e acrescenta colunas novas da fonte. Nunca apaga colunas."""
+          cur.execute(f"create table if not exists {TABELA} (_carga bigint not null, _ano_arquivo smallint not null, _linha integer not null)")
+          cur.execute("select column_name from information_schema.columns where table_schema = 'raw' and table_name = 'datasus_sim'")
+          existentes = {nome for (nome,) in cur.fetchall()}
+          novas = [c for c in cabecalho if c not in existentes]
+          for coluna in novas:
+              cur.execute(f'alter table {TABELA} add column "{coluna}" text')
+          return novas
+
+
+      def fechar_carga(conn, carga: int, status: str, linhas: int | None = None) -> None:
+          conn.execute(
+              """update meta.carga set status = %s, linhas = coalesce(%s, linhas),
+                 carregada_em = case when %s = 'carregada' then now() else carregada_em end where id = %s""",
+              (status, linhas, status, carga),
+          )
+          conn.commit()
+
+
+      # Conexão pelas variáveis padrão do Postgres (PGHOST, PGUSER, PGPASSWORD...).
+      with psycopg.connect() as conn:
+          with conn.cursor() as cur:
+              if not forcar and ja_carregado(cur):
+                  log.info(f"{ano}: este arquivo ({sha256[:12]}) já está no banco; nada a carregar")
+                  Kestra.outputs({"situacao": "ja_carregado", "linhas": 0})
+                  raise SystemExit(0)
+              cur.execute(
+                  "insert into meta.carga (fonte, particao, arquivo, sha256) values (%s, %s, %s, %s) returning id",
+                  (FONTE, str(ano), arquivo, sha256),
+              )
+              (carga,) = cur.fetchone()
+          conn.commit()
+          log.info(f"{ano}: carga {carga} de {arquivo}")
+
+          try:
+              with caminho.open(newline="", encoding="utf-8") as f:
+                  leitor = csv.reader(f)
+                  cabecalho = next(leitor)
+                  with conn.cursor() as cur:
+                      novas = garantir_tabela(cur, cabecalho)
+                      if novas:
+                          # Coluna nova no SIM: entra no raw, mas o staging do dbt só a usa se alguém mexer nele.
+                          log.warning(f"colunas novas no arquivo do SIM: {', '.join(novas)}")
+                      # O raw guarda só a última carga de cada ano; as anteriores continuam no lago.
+                      cur.execute(f"delete from {TABELA} where _ano_arquivo = %s", (ano,))
+                      log.info(f"{ano}: {cur.rowcount} linhas da carga anterior apagadas do raw")
+                      colunas = ", ".join([*COLUNAS_META, *(f'"{c}"' for c in cabecalho)])
+                      linhas = 0
+                      with cur.copy(f"copy {TABELA} ({colunas}) from stdin") as copy:
+                          for numero, valores in enumerate(leitor, start=1):
+                              # Valor exatamente como veio (inclusive "" e "NA"): limpar é trabalho do staging.
+                              copy.write_row([carga, ano, numero, *valores])
+                              linhas += 1
+              conn.commit()
+          except Exception:
+              conn.rollback()
+              fechar_carga(conn, carga, "falhou")
+              log.exception(f"{ano}: carga {carga} falhou; nada mudou no raw")
+              raise
+          fechar_carga(conn, carga, "carregada", linhas)
+
+      log.info(f"{ano}: {linhas} linhas em {TABELA} (carga {carga})")
+      Kestra.outputs({"situacao": "carregado", "carga": carga, "linhas": linhas})
+      Kestra.counter("linhas_carregadas", linhas, {"ano": str(ano)})
+
+outputs:
+  - id: arquivo
+    type: STRING
+    description: novo, igual (ao último do lago) ou sem_mudanca (o arquivo no FTP não mudou)
+    value: "{{ outputs.obter.vars.situacao }}"
+  - id: carga
+    type: STRING
+    description: carregado ou ja_carregado
+    value: "{{ outputs.carregar.vars.situacao }}"
+  - id: linhas_raw
+    type: INT
+    value: "{{ outputs.carregar.vars.linhas }}"

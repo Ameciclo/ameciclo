@@ -63,10 +63,13 @@ Nos dois orquestradores, o fluxo **datasus** com o ano e a pasta `/data/mortes` 
 pasta vazia ele baixa do FTP do DATASUS (no Dagu, não baixa de novo por 24 h; no Kestra, só baixa se o arquivo mudou
 no FTP; nos dois, a não ser forçando).
 
-No Kestra, o fluxo **datasus-historico** roda o `datasus` para um intervalo de anos, um de cada vez (vazio = o ano
-atual e os dois anteriores). Ele tem dois agendamentos: todo dia 5, os últimos três anos (os preliminares mudam e o
-ano fechado sai cerca de 12 meses depois); e em 15 de março, a série inteira desde 2011, porque o DATASUS às vezes
-republica anos antigos. Ano sem mudança é baixado de novo, mas não recarregado nem republicado.
+No Kestra, o fluxo **datasus-historico** roda um intervalo de anos (vazio = o ano atual e os dois anteriores): a
+ingestão de 4 anos ao mesmo tempo e, no fim, um dbt e uma publicação só. Ele não tem agendamento: um gatilho olha o
+FTP do DATASUS a cada 12 horas e dispara só quando um `DOBR{ano}.dbc` de 2011 em diante aparece (ano novo, preliminar
+que virou definitivo) ou muda de tamanho ou data (preliminar atualizado, ano antigo republicado), e roda só esses
+anos. O Kestra guarda o que já viu; na primeira vez, todos os arquivos contam como novos e a série inteira roda uma
+vez (ano que já está no banco não é recarregado). Editar o fluxo não zera esse estado. Para refazer anos, rode o
+fluxo à mão com `inicio`, `fim` e `forcar`.
 
 ## Os outros fluxos (Dagu de produção, `ops/dagu/dags`)
 
@@ -92,19 +95,29 @@ As respostas do Overpass e os arquivos baixados ficam no lago (`raw/osm/...`, `r
    os anos com carga nova e marca essas cargas como publicadas. `--tudo` republica todos os anos (ex. depois de
    mudar uma regra no dbt).
 
-### No Kestra (`kestra/flows/datasus.yaml`)
+### No Kestra
 
-O código de cada passo está no próprio fluxo (só `ingest/lake.py` continua importado pelo obter):
+São três fluxos, para que vários anos possam rodar ao mesmo tempo sem disputar o dbt e a publicação:
+
+| Fluxo | O que faz | Concorrência |
+|---|---|---|
+| `datasus-ingerir` | um ano: FTP → lago → `raw` (procurar, baixar, obter, carregar) | à vontade: cada ano só mexe nas linhas dele no `raw`, numa transação |
+| `datasus-publicar` | todos os anos: dbt build (com os testes) e publicação | uma execução por vez (fila) |
+| `datasus` | um ano: `datasus-ingerir` e depois `datasus-publicar` | |
+| `datasus-historico` | vários anos: `datasus-ingerir` de 4 em 4 e, no fim, um `datasus-publicar` só; dispara sozinho quando um arquivo muda no FTP | |
+
+Os passos:
 
 1. **procurar** e **baixar** (plugin de FTP): acham o `DOBR{ano}.dbc` (fechado em `CID10`, preliminar em `PRELIM`) e
    baixam só se o arquivo mudou no FTP (tamanho ou data, guardados no KV Store pelo passo **lembrar**), ou com
    `forcar`. O FTP do DATASUS é FTP comum: não aceita FTPS nem SFTP.
 2. **obter** (Python): descompacta o `.dbc` (`pyreaddbc`, ~3 s) e grava o CSV só com as causas V e Y85, olhando os
    bytes do `CAUSABAS` de cada registro em vez de converter os ~1,5 milhão de óbitos do Brasil (~2 s). O CSV é igual,
-   byte a byte, ao do método antigo.
+   byte a byte, ao do método antigo (conferido em 2023 a 2026).
 3. **carregar** (Python): recebe o arquivo pelas saídas do obter e carrega no `raw`.
-4. **transformar** (dbt).
-5. **publicar** (plugin do Postgres): o mesmo SQL numa transação, dentro do próprio Kestra, sem container.
+4. **transformar** (dbt), no `datasus-publicar`.
+5. **publicar** (SQL pelo `psql`, numa transação só), no `datasus-publicar`: publica as cargas de todos os anos que
+   estão esperando. Não usa o plugin JDBC do Kestra porque todas as versões dele avisam de propriedades obsoletas.
 
 Os passos registram logs com nível, saídas (aba Outputs) e métricas (aba Metrics) pela biblioteca `kestra`.
 

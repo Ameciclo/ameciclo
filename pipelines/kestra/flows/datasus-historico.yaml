@@ -1,11 +1,18 @@
 id: datasus-historico
 namespace: ameciclo.pipelines
 description: |
-  Roda o fluxo datasus para vários anos, um de cada vez. Sem início e fim, pega o ano atual e os dois anteriores.
-  Ano sem mudança no DATASUS não é recarregado (o arquivo é igual ao do lago), só baixado de novo.
-  Se um ano falhar, os outros seguem e esta execução termina em WARNING.
+  Óbitos no trânsito para vários anos. Sem início e fim, pega o ano atual e os dois anteriores.
+  Roda sozinho quando um arquivo de óbitos muda no FTP do DATASUS (gatilho "ftp"), só com os anos que mudaram.
+  Primeiro a ingestão de cada ano (datasus-ingerir), 4 anos ao mesmo tempo; depois, uma vez só, o dbt e a publicação
+  (datasus-publicar). Ano sem mudança no FTP do DATASUS não é baixado nem recarregado.
+  Se um ano falhar, os outros seguem, os que carregaram são publicados e esta execução termina em WARNING.
 labels:
   fonte: datasus
+
+variables:
+  # Acesso anônimo; ficam aqui (e não no gatilho) para o Kestra não avisar de senha em texto puro.
+  ftp_usuario: anonymous
+  ftp_senha: anonymous
 
 inputs:
   - id: inicio
@@ -26,15 +33,22 @@ inputs:
     description: Baixar e carregar de novo mesmo sem mudança
 
 tasks:
+  # Cada ano baixa, converte e carrega o raw sozinho (só as linhas dele, numa transação): 4 anos ao mesmo tempo.
+  # Um ano que falha não para os outros; a execução termina em WARNING.
   - id: anos
     type: io.kestra.plugin.core.flow.Loop
-    values: "{{ range(inputs.inicio ?? ((now() | date('yyyy') | number) - 2), inputs.fim ?? (now() | date('yyyy') | number)) }}"
-    concurrencyLimit: 1
+    # Pelo gatilho do FTP: os anos dos arquivos que mudaram (um ano pode vir duas vezes, de CID10 e de PRELIM).
+    # Manual ou pela ferramenta MCP: de inicio a fim.
+    values: >-
+      {{ trigger.files is defined
+         ? (trigger.files | jq('[.[].name | capture("DOBR(?<ano>[0-9]{4})").ano | tonumber] | unique') | first)
+         : range(inputs.inicio ?? ((now() | date('yyyy') | number) - 2), inputs.fim ?? (now() | date('yyyy') | number)) }}
+    concurrencyLimit: 4
     tasks:
-      - id: ano
+      - id: ingerir
         type: io.kestra.plugin.core.flow.Subflow
         namespace: ameciclo.pipelines
-        flowId: datasus
+        flowId: datasus-ingerir
         wait: true
         transmitFailed: true
         allowFailure: true
@@ -43,19 +57,47 @@ tasks:
           pasta: "{{ inputs.pasta ?? '' }}"
           forcar: "{{ inputs.forcar }}"
 
+  # Depois de todos: um dbt build só (testa tudo junto) e uma publicação só, com todos os anos novos.
+  - id: publicar
+    type: io.kestra.plugin.core.flow.Subflow
+    namespace: ameciclo.pipelines
+    flowId: datasus-publicar
+    wait: true
+    transmitFailed: true
+
+finally:
+  # O gatilho do FTP já baixa os arquivos que mudaram para o storage do Kestra (~130 MB por ano), mesmo sem usá-los:
+  # o datasus-ingerir baixa de novo. Apaga no fim, com sucesso ou falha, para o volume não crescer a cada mês.
+  - id: limpar
+    type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+
+outputs:
+  - id: anos_publicados
+    type: STRING
+    description: anos trocados em public.traffic_death (vazio = nenhum)
+    value: "{{ outputs.publicar.outputs.anos_publicados }}"
+  - id: obitos_inseridos
+    type: INT
+    value: "{{ outputs.publicar.outputs.obitos_inseridos }}"
+
 triggers:
-  # Todo dia 5: o ano atual e os dois anteriores (os arquivos preliminares mudam e o ano fechado sai ~12 meses depois).
-  - id: mensal
-    type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 6 5 * *"
-    timezone: America/Recife
-  # Uma vez por ano, a série inteira: o DATASUS às vezes republica anos antigos (2018 foi republicado em 2025).
-  - id: anual
-    type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 6 15 3 *"
-    timezone: America/Recife
-    inputs:
-      inicio: 2011
+  # Olha o FTP do DATASUS a cada 12 horas e dispara quando aparece um arquivo novo (ano novo, ou um preliminar que
+  # virou definitivo em CID10) ou quando um já visto muda de tamanho ou data (preliminar atualizado, ano antigo
+  # republicado). O Kestra guarda o que já viu; na primeira vez, todos os arquivos contam como novos e a série
+  # inteira roda uma vez (anos que já estão no lago e no banco não são recarregados).
+  - id: ftp
+    type: io.kestra.plugin.fs.ftp.Trigger
+    interval: PT12H
+    host: ftp.datasus.gov.br
+    username: "{{ vars.ftp_usuario }}"
+    password: "{{ vars.ftp_senha }}"
+    from: /dissemin/publicos/SIM
+    recursive: true
+    # De 2011 em diante, como a série do observatório.
+    regExp: '.*/(CID10|PRELIM)/DORES/DOBR20(1[1-9]|[2-9][0-9])\.dbc$'
+    action: NONE
+    on: CREATE_OR_UPDATE
+    maxFiles: 50
   # Ferramenta no servidor MCP do Kestra (Administration → MCP Servers → default): um agente de IA pode rodar este
   # fluxo, com as mesmas entradas. Grava só no banco de staging.
   - id: mcp
@@ -64,7 +106,7 @@ triggers:
     title: Óbitos no trânsito (SIM/DATASUS), vários anos
     toolDescription: >-
       Roda a atualização dos óbitos no trânsito para um intervalo de anos (inicio e fim; vazio = o ano atual e os dois
-      anteriores), um ano de cada vez. Anos sem mudança no DATASUS não são recarregados.
+      anteriores), 4 anos de cada vez, com um dbt e uma publicação no fim. Anos sem mudança no DATASUS não são recarregados.
     annotations:
       readOnly: false
       destructive: true

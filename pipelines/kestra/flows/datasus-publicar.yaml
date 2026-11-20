@@ -1,0 +1,101 @@
+id: datasus-publicar
+namespace: ameciclo.pipelines
+description: |
+  Óbitos no trânsito (SIM/DATASUS), a parte comum a todos os anos: dbt build (staging, view de publicação e testes,
+  inclusive a conferência com a tabela do Drizzle) e, se tudo passar, publica numa transação os anos com carga nova
+  em public.traffic_death. Teste falhou = nada é publicado.
+  Uma execução por vez (concurrency): duas ao mesmo tempo disputariam as mesmas views e a publicação.
+labels:
+  fonte: datasus
+
+concurrency:
+  limit: 1
+  behavior: QUEUE
+
+variables:
+  imagem: python:3.12-slim
+
+tasks:
+  - id: transformar
+    description: Staging + testes + a view de publicação (e a conferência com a tabela do Drizzle). Teste falhou = não publica.
+    type: io.kestra.plugin.dbt.cli.DbtCLI
+    containerImage: "{{ vars.imagem }}"
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+    namespaceFiles:
+      enabled: true
+    env:
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    projectDir: transform
+    # O DbtCLI não tem cache de dependências: instala o dbt (versões do uv.lock) a cada execução.
+    beforeCommands:
+      - pip install --quiet --no-cache-dir dbt-core==1.12.7 dbt-postgres==1.11.0
+    # O DbtCLI acrescenta --project-dir transform e lê o resultado de cada modelo e teste (aba Outputs).
+    commands:
+      - dbt build --select source:datasus+ --exclude-resource-type exposure --profiles-dir transform
+
+  - id: publicar
+    description: Numa transação, troca os anos com carga nova em public.traffic_death e marca as cargas como publicadas.
+    # Só SQL, rodado pelo psql num container do Postgres (--single-transaction: se qualquer comando falhar, por coluna
+    # ou tipo diferente do Drizzle, tudo é desfeito e o site continua como estava). As colunas copiadas são as da view
+    # do dbt; as que o banco preenche sozinho (id, created_at) ficam de fora.
+    # (Não usa o plugin JDBC do Kestra: todas as versões dele avisam de propriedades obsoletas que nem usamos.)
+    type: io.kestra.plugin.scripts.shell.Commands
+    containerImage: postgres:17-alpine
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      networkMode: "{{ envs.docker_network }}"
+    env:
+      PGHOST: "{{ envs.pghost }}"
+      PGPORT: "{{ envs.pgport }}"
+      PGUSER: "{{ envs.pguser }}"
+      PGDATABASE: "{{ envs.pgdatabase }}"
+      PGSSLMODE: "{{ envs.pgsslmode }}"
+      PGPASSWORD: "{{ secret('PGPASSWORD') }}"
+    inputFiles:
+      publicar.sql: |
+        -- Os anos com carga nova esperando (status 'carregada' em meta.carga).
+        create temp table anos on commit drop as
+          select distinct particao::int as ano from meta.carga where fonte = 'datasus.sim' and status = 'carregada';
+
+        create temp table antes on commit drop as
+          select count(*) as obitos from public.traffic_death where source_year in (select ano from anos);
+
+        delete from public.traffic_death where source_year in (select ano from anos);
+
+        do $$
+        declare colunas text;
+        begin
+          select string_agg(quote_ident(column_name), ', ' order by ordinal_position) into colunas
+            from information_schema.columns where table_schema = 'publicacao' and table_name = 'traffic_death';
+          execute format(
+            'insert into public.traffic_death (%1$s) select %1$s from publicacao.traffic_death where source_year in (select ano from anos)',
+            colunas);
+        end $$;
+
+        update meta.carga set status = 'publicada', publicada_em = now()
+          where fonte = 'datasus.sim' and status = 'carregada';
+
+        -- A última linha vira as saídas do passo: o Kestra lê ::{"outputs": ...}:: da saída do comando.
+        select '::' || json_build_object('outputs', json_build_object(
+                 'anos', coalesce((select string_agg(ano::text, ', ' order by ano) from anos), ''),
+                 'apagadas', (select obitos from antes),
+                 'inseridas', (select count(*) from public.traffic_death where source_year in (select ano from anos))
+               ))::text || '::';
+    commands:
+      - psql -X --quiet --no-align --tuples-only -v ON_ERROR_STOP=1 --single-transaction -f publicar.sql
+
+outputs:
+  - id: anos_publicados
+    type: STRING
+    description: anos trocados em public.traffic_death (vazio = nenhum)
+    value: "{{ outputs.publicar.vars.anos }}"
+  - id: obitos_inseridos
+    type: INT
+    value: "{{ outputs.publicar.vars.inseridas }}"
