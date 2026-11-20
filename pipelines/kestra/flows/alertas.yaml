@@ -2,7 +2,8 @@ id: alertas
 namespace: ameciclo.pipelines
 description: |
   Avisa no Telegram quando qualquer execução deste namespace termina com falha ou aviso (FAILED, WARNING). Vale para
-  todos os fluxos, inclusive os que forem criados depois: não é preciso mexer neles. A mensagem traz o fluxo, o
+  todos os fluxos, inclusive os que forem criados depois: não é preciso mexer neles. Avisa também quando a
+  sincronização com o GitHub (system/git-sync) falha. A mensagem traz o fluxo, o
   estado, a duração e o link da execução.
 
   Precisa de duas variáveis no servidor do Kestra:
@@ -23,6 +24,6 @@ triggers:
   - id: falhou
     type: io.kestra.plugin.core.trigger.Flow
     states: [FAILED, WARNING]
-    # Só deste namespace, e nunca o próprio aviso (se ele falhar, com token errado ou Telegram fora do ar, não avisa
-    # de novo: evita um ciclo).
-    when: "{{ flow.namespace == 'ameciclo.pipelines' and flow.id != 'alertas' }}"
+    # Só deste namespace (mais o git-sync), e nunca o próprio aviso (se ele falhar, com token errado ou Telegram fora
+    # do ar, não avisa de novo: evita um ciclo).
+    when: "{{ (flow.namespace == 'ameciclo.pipelines' and flow.id != 'alertas') or (flow.namespace == 'system' and flow.id == 'git-sync') }}"

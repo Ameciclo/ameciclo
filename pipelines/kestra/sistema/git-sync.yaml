@@ -1,0 +1,54 @@
+id: git-sync
+namespace: system
+description: |
+  Deixa o namespace ameciclo.pipelines igual ao repositório no GitHub (Ameciclo/ameciclo), no branch abaixo:
+  - os fluxos de pipelines/kestra/flows;
+  - o código de pipelines/ingest e pipelines/transform, como arquivos do namespace (/ingest e /transform).
+
+  O git é a fonte da verdade: o que for editado na interface do Kestra é sobrescrito na próxima sincronização, e o
+  que sair do repositório é apagado aqui. Para mudar um fluxo, mude no repositório e faça push.
+
+  Roda a cada hora e pode ser rodado à mão (Execute) logo depois de um push. É só para o servidor: no Kestra local,
+  os fluxos seguem a cópia de trabalho, pelo pipelines/kestra/sincronizar.py. Este fluxo não é sincronizado por ele
+  mesmo (fica em pipelines/kestra/sistema, fora de flows/): para mudá-lo no servidor, cole-o na interface.
+labels:
+  tipo: operacao
+
+variables:
+  repositorio: https://github.com/Ameciclo/ameciclo
+  # Trocar para main depois do merge.
+  branch: feat/pipeline-prototipo
+  namespace: ameciclo.pipelines
+
+tasks:
+  # O código antes dos fluxos: um fluxo novo pode depender de um arquivo novo.
+  - id: ingest
+    type: io.kestra.plugin.git.SyncNamespaceFiles
+    url: "{{ vars.repositorio }}"
+    branch: "{{ vars.branch }}"
+    namespace: "{{ vars.namespace }}"
+    gitDirectory: pipelines/ingest
+    namespaceDirectory: /ingest
+    delete: true
+
+  - id: transform
+    type: io.kestra.plugin.git.SyncNamespaceFiles
+    url: "{{ vars.repositorio }}"
+    branch: "{{ vars.branch }}"
+    namespace: "{{ vars.namespace }}"
+    gitDirectory: pipelines/transform
+    namespaceDirectory: /transform
+    delete: true
+
+  - id: fluxos
+    type: io.kestra.plugin.git.SyncFlows
+    url: "{{ vars.repositorio }}"
+    branch: "{{ vars.branch }}"
+    targetNamespace: "{{ vars.namespace }}"
+    gitDirectory: pipelines/kestra/flows
+    delete: true
+
+triggers:
+  - id: de_hora_em_hora
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 * * * *"

@@ -28,6 +28,14 @@ kestra:
   # Sem os fluxos de exemplo ("Getting Started"), que voltariam a cada reinício.
   tutorial-flows:
     enabled: false
+  # As tarefas que chamam a API do próprio Kestra (as do plugin de git, no fluxo system/git-sync) entram com o mesmo
+  # usuário da interface; assim o fluxo não precisa de senha.
+  tasks:
+    sdk:
+      authentication:
+        url: http://localhost:8080
+        username: ${KESTRA_ADMIN_USER}
+        password: ${KESTRA_ADMIN_PASSWORD}
   plugins:
     configurations:
       # Os passos montam o lago (um volume do Docker) no container deles.

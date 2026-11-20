@@ -4,8 +4,9 @@
                                                      (ingest/ e transform/) como arquivos do namespace
     python3 pipelines/kestra/sincronizar.py puxar    Kestra -> repositório: traz o que foi editado na interface
 
-O código continua tendo uma fonte só, o repositório: o Dagu lê as mesmas pastas. No servidor, o caminho seria o
-plugin de git do Kestra (io.kestra.plugin.git.SyncNamespaceFiles e SyncFlows) apontando para o GitHub.
+O código continua tendo uma fonte só, o repositório: o Dagu lê as mesmas pastas. No servidor, quem sincroniza é o
+fluxo system/git-sync (kestra/sistema/git-sync.yaml), a partir do GitHub; este script serve lá só para testar algo
+antes do push (o git-sync desfaz na hora seguinte).
 """
 
 import json
