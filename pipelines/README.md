@@ -147,7 +147,7 @@ Unqueue (menu ⋮) na que está esperando.
 
 O código tem uma fonte só, este repositório. No Kestra, `python3 kestra/sincronizar.py enviar` manda o repositório
 para lá e `puxar` traz de volta o que foi editado na interface (no servidor, quem faz isso é o fluxo
-`system/git-sync`, a partir do GitHub). Os dois usam a mesma imagem de Python (`pyproject.toml`) e o mesmo lago.
+`git-sync`, a partir do GitHub). Os dois usam a mesma imagem de Python (`pyproject.toml`) e o mesmo lago.
 
 ## Kestra no Coolify (staging)
 
@@ -171,19 +171,19 @@ Variáveis do app:
 
 Volume do app: `/app/storage`.
 
-### Sincronização com o GitHub (`system/git-sync`)
+### Sincronização com o GitHub (`git-sync`)
 
-O fluxo `pipelines/kestra/sistema/git-sync.yaml` deixa o namespace `ameciclo.pipelines` igual ao branch do
-repositório: os fluxos de `kestra/flows` e o código de `ingest/` e `transform/` (arquivos do namespace). Roda de hora
-em hora; logo depois de um push, dá para rodar à mão (Execute). O git manda: o que for editado na interface é
+O fluxo `git-sync` deixa o namespace `ameciclo.pipelines` igual ao branch do repositório: os fluxos de
+`kestra/flows` (inclusive ele mesmo) e o código de `ingest/` e `transform/` (arquivos do namespace). Roda de hora em
+hora; logo depois de um push, dá para rodar à mão (Execute). O git manda: o que for editado na interface é
 sobrescrito, e fluxo ou arquivo que sair do repositório é apagado. Se falhar, o fluxo `alertas` avisa no Telegram.
 
 - Ele entra na API do próprio Kestra com o usuário da interface, pela configuração `kestra.tasks.sdk.authentication`
   do `application.yaml`; o fluxo não tem senha. O repositório é público, então também não precisa de token do GitHub.
 - O branch está na variável `branch` do fluxo (hoje `feat/pipeline-prototipo`; trocar para `main` depois do merge).
-- Ele não sincroniza a si mesmo e fica fora de `kestra/flows` (o `sincronizar.py` não o manda para o Kestra local, que
-  segue a cópia de trabalho). Para criar ou mudar no servidor, cole o arquivo na interface (Flows → Create, namespace
-  `system`).
+- Fica em `ameciclo.pipelines`, e não em `system`: sincronizando outro namespace, o plugin tenta criá-lo por uma API
+  que só existe na edição Enterprise e termina em aviso.
+- O `sincronizar.py` não o manda para o Kestra local, que segue a cópia de trabalho.
 
 Para mandar a cópia de trabalho sem passar pelo GitHub (ex. testar antes do push; o `git-sync` desfaz na hora
 seguinte se não for commitado):

@@ -5,8 +5,8 @@
     python3 pipelines/kestra/sincronizar.py puxar    Kestra -> repositório: traz o que foi editado na interface
 
 O código continua tendo uma fonte só, o repositório: o Dagu lê as mesmas pastas. No servidor, quem sincroniza é o
-fluxo system/git-sync (kestra/sistema/git-sync.yaml), a partir do GitHub; este script serve lá só para testar algo
-antes do push (o git-sync desfaz na hora seguinte).
+fluxo git-sync, a partir do GitHub; este script serve lá só para testar algo antes do push (o git-sync desfaz na
+hora seguinte). Ele não manda o git-sync: no Kestra local, os fluxos seguem a cópia de trabalho, não o GitHub.
 """
 
 import json
@@ -29,6 +29,7 @@ AUTH = "Basic " + b64encode(
 RAIZ = Path(__file__).resolve().parent.parent  # pipelines/
 PASTAS = ["ingest", "transform"]
 IGNORAR = {"target", "logs", "dbt_packages", "__pycache__", ".user.yml"}
+SO_NO_SERVIDOR = {"git-sync"}  # fluxos que este script não manda nem traz
 
 
 def chamar(metodo: str, caminho: str, corpo: bytes | None = None, tipo: str | None = None):
@@ -94,6 +95,8 @@ def enviar() -> None:
     for arquivo in sorted((RAIZ / "kestra" / "flows").glob("*.yaml")):
         fonte = arquivo.read_bytes()
         fluxo_id = next(l.split(":", 1)[1].strip() for l in fonte.decode().splitlines() if l.startswith("id:"))
+        if fluxo_id in SO_NO_SERVIDOR:
+            continue
         atual = chamar("GET", f"/flows/{NAMESPACE}/{fluxo_id}?source=true")
         if atual is None:
             chamar("POST", "/flows", fonte, "application/x-yaml")
@@ -113,6 +116,8 @@ def puxar() -> None:
             print(f"arquivo {caminho} trazido")
     for arquivo in sorted((RAIZ / "kestra" / "flows").glob("*.yaml")):
         fluxo_id = next(l.split(":", 1)[1].strip() for l in arquivo.read_text().splitlines() if l.startswith("id:"))
+        if fluxo_id in SO_NO_SERVIDOR:
+            continue
         atual = chamar("GET", f"/flows/{NAMESPACE}/{fluxo_id}?source=true")
         if atual is not None:
             fonte = json.loads(atual)["source"].rstrip() + "\n"
